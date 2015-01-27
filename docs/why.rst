@@ -59,17 +59,15 @@ The difference between :func:`collections.namedtuple`\ s and classes decorated b
 
 .. doctest::
 
-   >>> from characteristic import Attribute, attributes
-   >>> @attributes([Attribute("a", instance_of=int)])
+   >>> import attr
+   >>> @attr.s
    ... class C1(object):
-   ...     def __init__(self):
-   ...         if self.a >= 5:
-   ...             raise ValueError("'a' must be smaller 5!")
+   ...     a = attr.ib()
    ...     def print_a(self):
-   ...         print self.a
-   >>> @attributes([Attribute("a", instance_of=int)])
+   ...        print self.a
+   >>> @attr.s
    ... class C2(object):
-   ...     pass
+   ...     a = attr.ib()
    >>> c1 = C1(a=1)
    >>> c2 = C2(a=1)
    >>> c1.a == c2.a
@@ -78,10 +76,6 @@ The difference between :func:`collections.namedtuple`\ s and classes decorated b
    False
    >>> c1.print_a()
    1
-   >>> C1(a=5)
-   Traceback (most recent call last):
-      ...
-   ValueError: 'a' must be smaller 5!
 
 
 …while namedtuple’s purpose is *explicitly* to behave like tuples:
@@ -115,10 +109,11 @@ To bring it into perspective, the equivalent of
 
 .. doctest::
 
-   >>> @attributes(["a", "b"])
+   >>> @attr.s
    ... class SmartClass(object):
-   ...     pass
-   >>> SmartClass(a=1, b=2)
+   ...    a = attr.ib()
+   ...    b = attr.ib()
+   >>> SmartClass(1, 2)
    <SmartClass(a=1, b=2)>
 
 is

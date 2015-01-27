@@ -10,8 +10,8 @@ from attr._make import Attribute, NOTHING
 
 @attr.s
 class C1(object):
-    x = attr.a()
-    y = attr.a()
+    x = attr.ib()
+    y = attr.ib()
 
 
 foo = None
@@ -19,8 +19,8 @@ foo = None
 
 @attr.s()
 class C2(object):
-    x = attr.a(default_value=foo)
-    y = attr.a(default_factory=list)
+    x = attr.ib(default_value=foo)
+    y = attr.ib(default_factory=list)
 
 
 class TestDarkMagic(object):

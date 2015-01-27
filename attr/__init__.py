@@ -7,7 +7,7 @@ from ._funcs import (
     to_dict,
 )
 from ._make import (
-    _make_attr as a,
+    _make_attr as ib,
     s,
 )
 
@@ -18,5 +18,5 @@ __copyright__ = "Copyright 2015 Hynek Schlawack"
 
 
 __all__ = [
-    "a", "s", "ls", "to_dict",
+    "ib", "s", "ls", "to_dict",
 ]
