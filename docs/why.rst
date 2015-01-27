@@ -13,7 +13,7 @@ Readability
 
 What makes more sense while debugging::
 
-   <Point(x=1, x=2)>
+   Point(x=1, x=2)
 
 or::
 
@@ -23,7 +23,7 @@ or::
 
 Let's add even more ambiguity::
 
-   <Customer(id=42, reseller=23, first_name="Jane", last_name="John")>
+   Customer(id=42, reseller=23, first_name="Jane", last_name="John")
 
 or::
 
@@ -114,7 +114,7 @@ To bring it into perspective, the equivalent of
    ...    a = attr.ib()
    ...    b = attr.ib()
    >>> SmartClass(1, 2)
-   <SmartClass(a=1, b=2)>
+   SmartClass(a=1, b=2)
 
 is
 
@@ -126,7 +126,7 @@ is
    ...         self.b = b
    ...
    ...     def __repr__(self):
-   ...         return "<ArtisinalClass(a={}, b={})>".format(self.a, self.b)
+   ...         return "ArtisinalClass(a={}, b={})".format(self.a, self.b)
    ...
    ...     def __eq__(self, other):
    ...         if other.__class__ is self.__class__:
@@ -168,7 +168,7 @@ is
    ...     def __hash__(self):
    ...         return hash((self.a, self.b))
    >>> ArtisinalClass(a=1, b=2)
-   <ArtisinalClass(a=1, b=2)>
+   ArtisinalClass(a=1, b=2)
 
 which is quite a mouthful and it doesn't even use any of ``attrs``'s more advanced features like validators or defaults values.
 Also: no tests whatsoever.

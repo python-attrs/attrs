@@ -157,7 +157,7 @@ class TestAddRepr(object):
         """
         Test repr returns a sensible value.
         """
-        assert "<C(a=1, b=2)>" == repr(ReprC(1, 2))
+        assert "C(a=1, b=2)" == repr(ReprC(1, 2))
 
 
 class TestAddHash(object):

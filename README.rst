@@ -27,7 +27,7 @@ attrs: Python attributes without boilerplate.
    ...     y = attr.ib(default_factory=list)
    >>> i = C(x=1, y=2)
    >>> i
-   <C(x=1, y=2)>
+   C(x=1, y=2)
    >>> i == C(1, 2)
    True
    >>> i != C(2, 1)
@@ -35,7 +35,7 @@ attrs: Python attributes without boilerplate.
    >>> attr.to_dict(i)
    {'y': 2, 'x': 1}
    >>> C()
-   <C(x=42, y=[])>
+   C(x=42, y=[])
 
 You just specify the attributes to work with and ``attrs`` gives you:
 

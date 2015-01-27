@@ -111,7 +111,7 @@ def _add_repr(cl, attrs=None):
         """
         Automatically created by attrs.
         """
-        return "<{0}({1})>".format(
+        return "{0}({1})".format(
             self.__class__.__name__,
             ", ".join(a + "=" + repr(getattr(self, a)) for a in attrs)
         )

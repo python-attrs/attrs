@@ -86,5 +86,5 @@ class TestS(object):
         @s
         class C3(object):
             pass
-        assert "<C3()>" == repr(C3())
+        assert "C3()" == repr(C3())
         assert C3() == C3()
