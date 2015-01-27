@@ -176,3 +176,34 @@ And who will guarantee you, that you don't accidentally flip the ``<`` in your t
 
 If you don't care and like typing, I'm not gonna stop you.
 But if you ever get sick of the repetitiveness, ``attrs`` will be waiting for you. :)
+
+
+…characteristic
+---------------
+
+``characteristic`` is a very similar and fairly popular project of mine.
+So why the self-fork?
+Basically after nearly a year of usage I ran into annoyances and regretted certain decision I made early-on to make too many people happy.
+In the end, *I* wasn't happy using it anymore.
+
+So I learned my lesson and ``attrib`` is the result of that.
+
+
+Reasons For Forking
+^^^^^^^^^^^^^^^^^^^
+
+- Fixing those aforementioned annoyances would introduce more complexity.
+  More complexity means more bugs.
+- Certain unused features make other common features complicated or impossible.
+- I want it to be possible to gradually move from ``characteristic`` to ``attrs``.
+  A peaceful co-existence is much easier if it's separate packages altogether.
+- My libraries have very strict backward-compatibility policies and it would take years to get rid of those annoyances while they shape the implementation of other features.
+
+
+Main Differences
+^^^^^^^^^^^^^^^^
+
+- The attributes are defined *within* the class definition such that code analyzers know about their existence.
+  This is useful in IDEs like PyCharm or linters like PyLint.
+- The names are held shorter and easy to both type and read.
+- It is generally more opinionated towards typical uses.
