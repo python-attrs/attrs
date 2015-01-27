@@ -188,6 +188,10 @@ In the end, *I* wasn't happy using it anymore.
 
 So I learned my lesson and ``attrib`` is the result of that.
 
+.. note::
+   Nevertheless, ``characteristic`` is **not** dead.
+   A lot of software uses it and I will keep maintaining it.
+
 
 Reasons For Forking
 ^^^^^^^^^^^^^^^^^^^
