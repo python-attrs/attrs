@@ -49,6 +49,10 @@ This gives you the power to use actual classes with actual types in your code in
 
 So put down that type-less data structures and welcome some class into your life!
 
+.. note::
+   I wrote an `explanation <https://attrs.readthedocs.org/en/latest/why.html#characteristic>`_ on why I forked my own ``characteristic``.
+   It's not dead but ``attrs`` will have more new features.
+
 .. teaser-end
 
 ``attrs``\ ’s documentation lives at `Read the Docs <https://attrs.readthedocs.org/>`_, the code on `GitHub <https://github.com/hynek/attrs>`_.
