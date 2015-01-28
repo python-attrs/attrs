@@ -17,13 +17,9 @@ class Attribute(object):
     *Read-only* representation of an attribute.
 
     :attribute name: The name of the attribute.
-    :attribute default_value: Value that is used if an ``attrs``-generated
-        ``__init__`` is used and no value is passed while instantiating.
-    :attribute default_factory: :func:`callable` that is called to obtain
-        a default value if an ``attrs``-generated ``__init__`` is used and no
-        value is passed while instantiating.
-    :attribute validator: :func:`callable` that is called on the attribute
-        if an ``attrs``-generated ``__init__`` is used.
+    :attribute default_value: see :func:`attr.ib`
+    :attribute default_factory: see :func:`attr.ib`
+    :attribute validator: see :func:`attr.ib`
     """
     def __init__(self, name, default_value, default_factory, validator):
         self.name = name
@@ -134,7 +130,7 @@ def _add_methods(maybe_cl=None, add_repr=True, add_cmp=True, add_hash=True,
     :type add_cmp: bool
 
     :param add_hash: Add a ``__hash__`` method that returns the :func:`hash` of
-    a tuple of all ``attrs`` attribute values.
+        a tuple of all ``attrs`` attribute values.
     :type add_hash: bool
 
     :param add_init: Add a ``__init__`` method that initialiazes the ``attrs``

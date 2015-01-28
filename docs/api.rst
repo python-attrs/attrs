@@ -7,10 +7,14 @@ API
 
 ``attrs`` works by decorating a class using :func:`attr.s` and then optionally defining attributes on the class using :func:`attr.ib`.
 
+.. note::
+
+   When this documentation speaks about "``attrs`` attributes" it means those attributes that are defined using :func:`attr.ib` in the class body.
+
 Thus simplest possible usage would be:
 
 .. doctest::
-   
+
    >>> import attr
    >>> @attr.s
    ... class Empty(object):
