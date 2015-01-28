@@ -7,9 +7,9 @@ import pytest
 from attr._make import (
     Attribute,
     _CountingAttr,
+    _add_methods,
     _get_attrs,
     _make_attr,
-    s,
 )
 
 
@@ -46,7 +46,7 @@ class TestGetAttrs(object):
         """
         Returns attributes in correct order.
         """
-        @s
+        @_add_methods
         class C(object):
             z = _make_attr()
             y = _make_attr()
@@ -58,22 +58,22 @@ class TestGetAttrs(object):
         """
         No attributes returns an empty list.
         """
-        @s
+        @_add_methods
         class C(object):
             pass
 
         assert [] == _get_attrs(C)
 
 
-class TestS(object):
+class TestAddMethods(object):
     """
-    Tests for the `s` class decorator.
+    Tests for the `_add_methods` class decorator.
     """
     def test_sets_attrs(self):
         """
         Sets the `__attrs_attrs__` class attribute with a list of `Attribute`s.
         """
-        @s
+        @_add_methods
         class C(object):
             x = _make_attr()
         assert "x" == C.__attrs_attrs__[0].name
@@ -83,7 +83,7 @@ class TestS(object):
         """
         No attributes, no problems.
         """
-        @s
+        @_add_methods
         class C3(object):
             pass
         assert "C3()" == repr(C3())

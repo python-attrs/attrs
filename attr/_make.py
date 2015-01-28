@@ -83,11 +83,11 @@ def _get_attrs(cl):
     return attrs
 
 
-def s(maybe_cl=None, add_repr=True, add_cmp=True, add_hash=True,
-      add_init=True):
-    # attrs_or class type depends on the usage of the decorator.
-    # It's a class if it's used as `@s` but ``None`` (or a value
-    # passed) if used as `@s()`.
+def _add_methods(maybe_cl=None, add_repr=True, add_cmp=True, add_hash=True,
+                 add_init=True):
+    # attrs_or class type depends on the usage of the decorator.  It's a class
+    # if it's used as `@_add_methods` but ``None`` (or a value passed) if used
+    # as `@_add_methods()`.
     if isinstance(maybe_cl, type):
         cl = maybe_cl
         cl.__attrs_attrs__ = [

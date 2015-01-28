@@ -8,8 +8,8 @@ from ._funcs import (
     has,
 )
 from ._make import (
+    _add_methods as s,
     _make_attr as ib,
-    s,
 )
 
 __version__ = "0.0.0.dev0"

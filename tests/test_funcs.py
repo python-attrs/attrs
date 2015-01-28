@@ -8,11 +8,11 @@ from attr._funcs import ls, has, to_dict
 from attr._make import (
     Attribute,
     _make_attr,
-    s,
+    _add_methods,
 )
 
 
-@s
+@_add_methods
 class C(object):
     x = _make_attr()
     y = _make_attr()
@@ -42,7 +42,6 @@ class TestLs(object):
         """
         Returns a list of `Attribute`.
         """
-
         assert all(isinstance(a, Attribute) for a in ls(C))
 
 
@@ -86,7 +85,7 @@ class TestHas(object):
         """
         Returns `True` on decorated classes even if there are no attributes.
         """
-        @s
+        @_add_methods
         class D(object):
             pass
 
