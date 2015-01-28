@@ -6,7 +6,6 @@ Release v\ |release| (:doc:`What's new? <changelog>`).
 
 .. include:: ../README.rst
    :start-after: teaser-begin
-   :end-before: teaser-end
 
 
 User's Guide
@@ -18,6 +17,7 @@ User's Guide
    why
    examples
    api
+
 
 Project Information
 ^^^^^^^^^^^^^^^^^^^

@@ -54,7 +54,5 @@ So put down that type-less data structures and welcome some class into your life
    I wrote an `explanation <https://attrs.readthedocs.org/en/latest/why.html#characteristic>`_ on why I forked my own ``characteristic``.
    It's not dead but ``attrs`` will have more new features.
 
-.. teaser-end
-
 ``attrs``\ ’s documentation lives at `Read the Docs <https://attrs.readthedocs.org/>`_, the code on `GitHub <https://github.com/hynek/attrs>`_.
 It’s rigorously tested on Python 2.6, 2.7, 3.3+, and PyPy.
