@@ -181,7 +181,7 @@ But if you ever get sick of the repetitiveness, ``attrs`` will be waiting for yo
 …characteristic
 ---------------
 
-``characteristic`` is a very similar and fairly popular project of mine.
+`characteristic <https://characteristic.readthedocs.org/en/stable/>`_ is a very similar and fairly popular project of mine.
 So why the self-fork?
 Basically after nearly a year of usage I ran into annoyances and regretted certain decision I made early-on to make too many people happy.
 In the end, *I* wasn't happy using it anymore.
