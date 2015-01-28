@@ -8,6 +8,7 @@ from ._funcs import (
     has,
 )
 from ._make import (
+    Attribute,
     _add_methods as s,
     _make_attr as ib,
 )
@@ -19,5 +20,5 @@ __copyright__ = "Copyright 2015 Hynek Schlawack"
 
 
 __all__ = [
-    "has", "ib", "s", "ls", "to_dict",
+    "Attribute", "has", "ib", "s", "ls", "to_dict",
 ]

@@ -24,15 +24,17 @@ class TestLs(object):
     """
     def test_instance(self):
         """
-        Works also on instances of classes.
+        Raises `TypeError` on non-classes.
         """
-        assert ls(C) == ls(C(1, 2))
+        with pytest.raises(TypeError) as e:
+            ls(C(1, 2))
+        assert "Passed object must be a class." == e.value.args[0]
 
     def test_handler_non_attrs_class(self):
         """
-        Raises `TypeError` if passed a non-attrs instance.
+        Raises `ValueError` if passed a non-``attrs`` instance.
         """
-        with pytest.raises(TypeError) as e:
+        with pytest.raises(ValueError) as e:
             ls(object)
         assert (
             "{o!r} is not an attrs-decorated class.".format(o=object)
@@ -40,7 +42,7 @@ class TestLs(object):
 
     def test_ls(self):
         """
-        Returns a list of `Attribute`.
+        Returns a list of `Attribute`a.
         """
         assert all(isinstance(a, Attribute) for a in ls(C))
 

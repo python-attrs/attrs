@@ -13,6 +13,16 @@ from ._dunders import (
 
 
 class Attribute(object):
+    """
+    *Read-only* representation of an attribute.
+
+    :attribute name: The name of the attribute.
+    :attribute default_value: A value that is used if an ``attrs``-generated
+        ``__init__`` is used and no value is passed while instantiating.
+    :attribute default_factory: A :func:`callable` that is called to obtain
+        a default value if an ``attrs``-generated ``__init__`` is used and no
+        value is passed while instantiating.
+    """
     def __init__(self, name, default_value, default_factory):
         self.name = name
         self.default_value = default_value
@@ -54,7 +64,7 @@ def _make_attr(default_value=NOTHING, default_factory=NOTHING):
     """
     Create a new attribute on a class.
 
-    Does nothing unless the class is also decorated with ``@attr.s``!
+    Does nothing unless the class is also decorated with :func:`attr.s`!
     """
     if default_value is not NOTHING and default_factory is not NOTHING:
         raise ValueError(
@@ -85,6 +95,28 @@ def _get_attrs(cl):
 
 def _add_methods(maybe_cl=None, add_repr=True, add_cmp=True, add_hash=True,
                  add_init=True):
+    """
+    A class decorator that adds `dunder
+    <https://wiki.python.org/moin/DunderAlias>`_\ -methods according to the
+    specified attributes using :func:`attr.ib`.
+
+    :param add_repr: Create a ``__repr__`` method with a human readable
+        represantation of ``attrs`` attributes..
+    :type add_repr: bool
+
+    :param add_cmp: Create ``__eq__``, ``__ne__``, ``__lt__``, ``__le__``,
+        ``__gt__``, and ``__ge__`` methods that compare the class as if it were
+        a tuple of its ``attrs`` attributes.
+    :type add_cmp: bool
+
+    :param add_hash: Add a ``__hash__`` method that returns the :func:`hash` of
+    a tuple of all ``attrs`` attribute values.
+    :type add_hash: bool
+
+    :param add_init: Add a ``__init__`` method that initialiazes the ``attrs``
+        attributes.
+    :type add_init: bool
+    """
     # attrs_or class type depends on the usage of the decorator.  It's a class
     # if it's used as `@_add_methods` but ``None`` (or a value passed) if used
     # as `@_add_methods()`.
