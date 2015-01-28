@@ -41,7 +41,8 @@ You just specify the attributes to work with and ``attrs`` gives you:
 
 - a nice human-readable ``__repr__``,
 - a complete set of comparison methods,
-- and an initializer
+- an initializer,
+- and much more
 
 *without* writing dull boilerplate code again and again.
 

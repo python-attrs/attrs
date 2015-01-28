@@ -39,7 +39,7 @@ class Attribute(object):
 
 _a = [Attribute(name=name, default_value=NOTHING, default_factory=NOTHING,
                 validator=None)
-      for name in ("name", "default_value", "default_factory",)]
+      for name in ("name", "default_value", "default_factory", "validator")]
 Attribute = _add_cmp(_add_repr(Attribute, attrs=_a), attrs=_a)
 
 
@@ -126,7 +126,8 @@ def _add_methods(maybe_cl=None, add_repr=True, add_cmp=True, add_hash=True,
 
     :param add_cmp: Create ``__eq__``, ``__ne__``, ``__lt__``, ``__le__``,
         ``__gt__``, and ``__ge__`` methods that compare the class as if it were
-        a tuple of its ``attrs`` attributes.
+        a tuple of its ``attrs`` attributes.  But the attributes are *only*
+        compared, if the type of both classes is *identical*!
     :type add_cmp: bool
 
     :param add_hash: Add a ``__hash__`` method that returns the :func:`hash` of

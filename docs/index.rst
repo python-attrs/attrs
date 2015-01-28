@@ -16,8 +16,8 @@ User's Guide
    :maxdepth: 1
 
    why
-   api
    examples
+   api
 
 Project Information
 ^^^^^^^^^^^^^^^^^^^

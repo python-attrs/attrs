@@ -183,7 +183,7 @@ But if you ever get sick of the repetitiveness, ``attrs`` will be waiting for yo
 
 `characteristic <https://characteristic.readthedocs.org/en/stable/>`_ is a very similar and fairly popular project of mine.
 So why the self-fork?
-Basically after nearly a year of usage I ran into annoyances and regretted certain decision I made early-on to make too many people happy.
+Basically after nearly a year of usage I ran into annoyances and regretted certain decisions I made early-on to make too many people happy.
 In the end, *I* wasn't happy using it anymore.
 
 So I learned my lesson and ``attrs`` is the result of that.
@@ -204,6 +204,7 @@ Reasons For Forking
 - I want it to be possible to gradually move from ``characteristic`` to ``attrs``.
   A peaceful co-existence is much easier if it's separate packages altogether.
 - My libraries have very strict backward-compatibility policies and it would take years to get rid of those annoyances while they shape the implementation of other features.
+- The name is tooo looong.
 
 
 Main Differences

@@ -11,22 +11,8 @@ API
 
    When this documentation speaks about "``attrs`` attributes" it means those attributes that are defined using :func:`attr.ib` in the class body.
 
-Thus simplest possible usage would be:
+What follows is the API explanation, if you'd like a more hands-on introduction, have a look at :doc:`examples`.
 
-.. doctest::
-
-   >>> import attr
-   >>> @attr.s
-   ... class Empty(object):
-   ...     pass
-   >>> Empty()
-   Empty()
-   >>> Empty() == Empty()
-   True
-   >>> Empty() is Empty()
-   False
-
-So in other words: ``attrs`` useful even without actual attributes!
 
 
 Core
@@ -48,12 +34,13 @@ Helpers
 
    .. doctest::
 
+      >>> import attr
       >>> @attr.s
       ... class C(object):
       ...     x = attr.ib()
       ...     y = attr.ib()
       >>> attr.ls(C)
-      [Attribute(name='x', default_value=NOTHING, default_factory=NOTHING), Attribute(name='y', default_value=NOTHING, default_factory=NOTHING, validator=None)]
+      [Attribute(name='x', default_value=NOTHING, default_factory=NOTHING, validator=None), Attribute(name='y', default_value=NOTHING, default_factory=NOTHING, validator=None)]
 
 
 .. autofunction:: attr.has
