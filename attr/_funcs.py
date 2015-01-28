@@ -31,3 +31,15 @@ def to_dict(i, recurse=True):
         else:
             rv[a.name] = v
     return rv
+
+
+def has(i):
+    """
+    Check whether *i* is a class with attributes (or an instance thereof).
+    """
+    try:
+        ls(i)
+    except TypeError:
+        return False
+    else:
+        return True

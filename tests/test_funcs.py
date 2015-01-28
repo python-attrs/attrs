@@ -4,7 +4,7 @@ from __future__ import absolute_import, division, print_function
 
 import pytest
 
-from attr._funcs import ls, to_dict
+from attr._funcs import ls, has, to_dict
 from attr._make import (
     Attribute,
     _make_attr,
@@ -19,6 +19,9 @@ class C(object):
 
 
 class TestLs(object):
+    """
+    Tests for `ls`.
+    """
     def test_instance(self):
         """
         Works also on instances of classes.
@@ -44,6 +47,9 @@ class TestLs(object):
 
 
 class TestToDict(object):
+    """
+    Tests for `to_dict`.
+    """
     def test_shallow(self):
         """
         Shallow to_dict returns correct dict.
@@ -64,3 +70,30 @@ class TestToDict(object):
             C(1, 2),
             C(3, 4),
         ))
+
+
+class TestHas(object):
+    """
+    Tests for `has`.
+    """
+    def test_positive(self):
+        """
+        Returns `True` on decorated classes.
+        """
+        assert has(C)
+
+    def test_positive_empty(self):
+        """
+        Returns `True` on decorated classes even if there are no attributes.
+        """
+        @s
+        class D(object):
+            pass
+
+        assert has(D)
+
+    def test_negative(self):
+        """
+        Returns `False` on non-decorated classes.
+        """
+        assert not has(object)
