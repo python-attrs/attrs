@@ -13,7 +13,7 @@ from ._make import (
     _make_attr as ib,
 )
 
-__version__ = "0.0.0.dev0"
+__version__ = "15.0.0.dev0"
 __author__ = "Hynek Schlawack"
 __license__ = "MIT"
 __copyright__ = "Copyright 2015 Hynek Schlawack"
