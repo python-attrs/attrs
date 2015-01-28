@@ -11,12 +11,12 @@ def _attrs_to_tuple(obj, attrs):
     """
     Create a tuple of all values of *obj*'s *attrs*.
     """
-    return tuple(getattr(obj, a) for a in attrs)
+    return tuple(getattr(obj, a.name) for a in attrs)
 
 
 def _add_hash(cl, attrs=None):
     if attrs is None:
-        attrs = [a.name for a in cl.__attrs_attrs__]
+        attrs = cl.__attrs_attrs__
 
     def hash_(self):
         """
@@ -30,7 +30,7 @@ def _add_hash(cl, attrs=None):
 
 def _add_cmp(cl, attrs=None):
     if attrs is None:
-        attrs = [a.name for a in cl.__attrs_attrs__]
+        attrs = cl.__attrs_attrs__
 
     def attrs_to_tuple(obj):
         """
@@ -105,7 +105,7 @@ def _add_cmp(cl, attrs=None):
 
 def _add_repr(cl, attrs=None):
     if attrs is None:
-        attrs = [a.name for a in cl.__attrs_attrs__]
+        attrs = cl.__attrs_attrs__
 
     def repr_(self):
         """
@@ -113,7 +113,8 @@ def _add_repr(cl, attrs=None):
         """
         return "{0}({1})".format(
             self.__class__.__name__,
-            ", ".join(a + "=" + repr(getattr(self, a)) for a in attrs)
+            ", ".join(a.name + "=" + repr(getattr(self, a.name))
+                      for a in attrs)
         )
     cl.__repr__ = repr_
     return cl

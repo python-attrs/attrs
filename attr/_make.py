@@ -27,7 +27,8 @@ class Attribute(object):
         )
 
 
-_a = ["name", "default_value", "default_factory"]
+_a = [Attribute(name=name, default_value=NOTHING, default_factory=NOTHING)
+      for name in ("name", "default_value", "default_factory",)]
 Attribute = _add_cmp(_add_repr(Attribute, attrs=_a), attrs=_a)
 
 
