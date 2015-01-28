@@ -2,6 +2,8 @@
 
 from __future__ import absolute_import, division, print_function
 
+import pytest
+
 from attr._make import Attribute
 from attr._dunders import (
     NOTHING,
@@ -13,10 +15,17 @@ from attr._dunders import (
 
 
 def simple_attr(name):
-    return Attribute(name=name, default_value=NOTHING, default_factory=NOTHING)
+    """
+    Return an attribute with a name and no other bells and whistles.
+    """
+    return Attribute(name=name, default_value=NOTHING, default_factory=NOTHING,
+                     validator=None)
 
 
 def make_class():
+    """
+    Return a new simple class.
+    """
     class C(object):
         __attrs_attrs__ = [simple_attr("a"), simple_attr("b")]
 
@@ -54,6 +63,9 @@ class TestMakeClass(object):
 
 
 class TestAddCmp(object):
+    """
+    Tests for `_add_cmp`.
+    """
     def test_equal(self):
         """
         Equal objects are detected as equal.
@@ -153,6 +165,9 @@ class TestAddCmp(object):
 
 
 class TestAddRepr(object):
+    """
+    Tests for `_add_repr`.
+    """
     def test_repr(self):
         """
         Test repr returns a sensible value.
@@ -161,6 +176,9 @@ class TestAddRepr(object):
 
 
 class TestAddHash(object):
+    """
+    Tests for `_add_hash`.
+    """
     def test_hash(self):
         """
         __hash__ returns different hashes for different values.
@@ -169,6 +187,9 @@ class TestAddHash(object):
 
 
 class TestAddInit(object):
+    """
+    Tests for `_add_init`.
+    """
     def test_sets_attributes(self):
         """
         The attributes are initialized using the passed keywords.
@@ -182,16 +203,20 @@ class TestAddInit(object):
         If a default value is present, it's used as fallback.
         """
         class C(object):
-            __attrs_attrs__ = [Attribute("a",
-                                         default_value=2,
-                                         default_factory=NOTHING),
-                               Attribute("b",
-                                         default_value="hallo",
-                                         default_factory=NOTHING),
-                               Attribute("c",
-                                         default_value=None,
-                                         default_factory=NOTHING),
-                               ]
+            __attrs_attrs__ = [
+                Attribute("a",
+                          default_value=2,
+                          default_factory=NOTHING,
+                          validator=None,),
+                Attribute("b",
+                          default_value="hallo",
+                          default_factory=NOTHING,
+                          validator=None,),
+                Attribute("c",
+                          default_value=None,
+                          default_factory=NOTHING,
+                          validator=None,),
+            ]
 
         C = _add_init(C)
         i = C()
@@ -207,13 +232,40 @@ class TestAddInit(object):
             pass
 
         class C(object):
-            __attrs_attrs__ = [Attribute("a",
-                                         default_value=NOTHING,
-                                         default_factory=list),
-                               Attribute("b",
-                                         default_value=NOTHING,
-                                         default_factory=D)]
+            __attrs_attrs__ = [
+                Attribute("a",
+                          default_value=NOTHING,
+                          default_factory=list,
+                          validator=None,),
+                Attribute("b",
+                          default_value=NOTHING,
+                          default_factory=D,
+                          validator=None,)
+            ]
         C = _add_init(C)
         i = C()
         assert [] == i.a
         assert isinstance(i.b, D)
+
+    def test_validator(self):
+        """
+        If a validator is passed, call it on the argument.
+        """
+        class VException(Exception):
+            pass
+
+        def raiser(arg):
+            raise VException(arg)
+
+        class C(object):
+            __attrs_attrs__ = [
+                Attribute("a",
+                          default_value=NOTHING,
+                          default_factory=NOTHING,
+                          validator=raiser),
+            ]
+        C = _add_init(C)
+
+        with pytest.raises(VException) as e:
+            C(42)
+        assert (42,) == e.value.args

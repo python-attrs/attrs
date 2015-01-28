@@ -186,7 +186,7 @@ So why the self-fork?
 Basically after nearly a year of usage I ran into annoyances and regretted certain decision I made early-on to make too many people happy.
 In the end, *I* wasn't happy using it anymore.
 
-So I learned my lesson and ``attrib`` is the result of that.
+So I learned my lesson and ``attrs`` is the result of that.
 
 .. note::
    Nevertheless, ``characteristic`` is **not** dead.

@@ -32,8 +32,10 @@ class TestDarkMagic(object):
         `attr.ls` works.
         """
         assert [
-            Attribute(name="x", default_value=None, default_factory=NOTHING),
-            Attribute(name="y", default_value=NOTHING, default_factory=list),
+            Attribute(name="x", default_value=None, default_factory=NOTHING,
+                      validator=None),
+            Attribute(name="y", default_value=NOTHING, default_factory=list,
+                      validator=None),
         ] == attr.ls(C2)
 
     def test_to_dict(self):

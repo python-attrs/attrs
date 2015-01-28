@@ -49,7 +49,7 @@ Helpers
       ...     x = attr.ib()
       ...     y = attr.ib()
       >>> attr.ls(C)
-      [Attribute(name='x', default_value=NOTHING, default_factory=NOTHING), Attribute(name='y', default_value=NOTHING, default_factory=NOTHING)]
+      [Attribute(name='x', default_value=NOTHING, default_factory=NOTHING), Attribute(name='y', default_value=NOTHING, default_factory=NOTHING, validator=None)]
 
 
 .. autofunction:: attr.has

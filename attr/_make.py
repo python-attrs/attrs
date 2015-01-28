@@ -17,16 +17,19 @@ class Attribute(object):
     *Read-only* representation of an attribute.
 
     :attribute name: The name of the attribute.
-    :attribute default_value: A value that is used if an ``attrs``-generated
+    :attribute default_value: Value that is used if an ``attrs``-generated
         ``__init__`` is used and no value is passed while instantiating.
-    :attribute default_factory: A :func:`callable` that is called to obtain
+    :attribute default_factory: :func:`callable` that is called to obtain
         a default value if an ``attrs``-generated ``__init__`` is used and no
         value is passed while instantiating.
+    :attribute validator: :func:`callable` that is called on the attribute
+        if an ``attrs``-generated ``__init__`` is used.
     """
-    def __init__(self, name, default_value, default_factory):
+    def __init__(self, name, default_value, default_factory, validator):
         self.name = name
         self.default_value = default_value
         self.default_factory = default_factory
+        self.validator = validator
 
     @classmethod
     def from_counting_attr(cl, name, ca):
@@ -34,37 +37,57 @@ class Attribute(object):
             name=name,
             default_value=ca.default_value,
             default_factory=ca.default_factory,
+            validator=ca.validator
         )
 
 
-_a = [Attribute(name=name, default_value=NOTHING, default_factory=NOTHING)
+_a = [Attribute(name=name, default_value=NOTHING, default_factory=NOTHING,
+                validator=None)
       for name in ("name", "default_value", "default_factory",)]
 Attribute = _add_cmp(_add_repr(Attribute, attrs=_a), attrs=_a)
 
 
 class _CountingAttr(object):
     __attrs_attrs__ = [
-        Attribute(name=name, default_value=NOTHING, default_factory=NOTHING)
+        Attribute(name=name, default_value=NOTHING, default_factory=NOTHING,
+                  validator=None)
         for name
         in ("counter", "default_value", "default_factory",)
     ]
     counter = 0
 
-    def __init__(self, default_value=NOTHING, default_factory=NOTHING):
+    def __init__(self, default_value, default_factory, validator):
         _CountingAttr.counter += 1
         self.counter = _CountingAttr.counter
         self.default_value = default_value
         self.default_factory = default_factory
+        self.validator = validator
 
 
 _CountingAttr = _add_cmp(_add_repr(_CountingAttr))
 
 
-def _make_attr(default_value=NOTHING, default_factory=NOTHING):
+def _make_attr(default_value=NOTHING, default_factory=NOTHING, validator=None):
     """
     Create a new attribute on a class.
 
-    Does nothing unless the class is also decorated with :func:`attr.s`!
+    .. warning::
+
+        Does nothing unless the class is also decorated with :func:`attr.s`!
+
+    :param default_value: Value that is used if an ``attrs``-generated
+        ``__init__`` is used and no value is passed while instantiating.
+    :type default_value: Any value.
+
+    :param default_factory: :func:`callable` that is called to obtain
+        a default value if an ``attrs``-generated ``__init__`` is used and no
+        value is passed while instantiating.
+    :type default_factory: callable
+
+    :param validator: :func:`callable` that is called on the attribute
+        if an ``attrs``-generated ``__init__`` is used.  The return value is
+        *not* inspected so the validator has to throw an exception itself.
+    :type validator: callable
     """
     if default_value is not NOTHING and default_factory is not NOTHING:
         raise ValueError(
@@ -75,6 +98,7 @@ def _make_attr(default_value=NOTHING, default_factory=NOTHING):
     return _CountingAttr(
         default_value=default_value,
         default_factory=default_factory,
+        validator=None,
     )
 
 
