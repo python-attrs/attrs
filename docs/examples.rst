@@ -43,3 +43,46 @@ These by default, all features are added, so you have immediately a fully functi
    False
 
 As shown, the generated ``__init__`` method allows both for positional and keyword arguments.
+
+Sometimes you want to have default values for your initializer.
+And sometimes you even want mutable objects as default values (ever used accidentally ``def f(arg=[])``?).
+``attrs`` has you covered in both cases:
+
+.. doctest::
+
+   >>> import collections
+   >>> @attr.s
+   ... class Connection(object):
+   ...     socket = attr.ib()
+   ...     @classmethod
+   ...     def connect(cl, db_string):
+   ...        # connect somehow to db_string
+   ...        return cl(socket=42)
+   >>> @attr.s
+   ... class ConnectionPool(object):
+   ...     db_string = attr.ib()
+   ...     pool = attr.ib(default_factory=collections.deque)
+   ...     debug = attr.ib(default_value=False)
+   ...     def get_connection(self):
+   ...         try:
+   ...             return self.pool.pop()
+   ...         except IndexError:
+   ...             if self.debug:
+   ...                 print "New connection!"
+   ...             return Connection.connect(self.db_string)
+   ...     def free_connection(self, conn):
+   ...         if self.debug:
+   ...             print "Connection returned!"
+   ...         self.pool.appendleft(conn)
+   ...
+   >>> cp = ConnectionPool("postgres://localhost")
+   >>> cp
+   ConnectionPool(db_string='postgres://localhost', pool=deque([]), debug=False)
+   >>> conn = cp.get_connection()
+   >>> conn
+   Connection(socket=42)
+   >>> cp.free_connection(conn)
+   >>> cp
+   ConnectionPool(db_string='postgres://localhost', pool=deque([Connection(socket=42)]), debug=False)
+
+More information on why class methods for constructing objects are awesome can be found in this insightful `blog post <http://as.ynchrono.us/2014/12/asynchronous-object-initialization.html>`_.
