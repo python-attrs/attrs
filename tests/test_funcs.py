@@ -11,8 +11,8 @@ import pytest
 from attr._funcs import (
     asdict,
     assoc,
+    fields,
     has,
-    ls,
 )
 from attr._make import (
     Attribute,
@@ -27,16 +27,16 @@ class C(object):
     y = attr()
 
 
-class TestLs(object):
+class TestFields(object):
     """
-    Tests for `ls`.
+    Tests for `fields`.
     """
     def test_instance(self):
         """
         Raises `TypeError` on non-classes.
         """
         with pytest.raises(TypeError) as e:
-            ls(C(1, 2))
+            fields(C(1, 2))
         assert "Passed object must be a class." == e.value.args[0]
 
     def test_handler_non_attrs_class(self):
@@ -44,25 +44,25 @@ class TestLs(object):
         Raises `ValueError` if passed a non-``attrs`` instance.
         """
         with pytest.raises(ValueError) as e:
-            ls(object)
+            fields(object)
         assert (
             "{o!r} is not an attrs-decorated class.".format(o=object)
         ) == e.value.args[0]
 
-    def test_ls(self):
+    def test_fields(self):
         """
         Returns a list of `Attribute`a.
         """
-        assert all(isinstance(a, Attribute) for a in ls(C))
+        assert all(isinstance(a, Attribute) for a in fields(C))
 
     def test_copies(self):
         """
         Returns a new list object with new `Attribute` objects.
         """
-        assert C.__attrs_attrs__ is not ls(C)
+        assert C.__attrs_attrs__ is not fields(C)
         assert all(new == original and new is not original
                    for new, original
-                   in zip(ls(C), C.__attrs_attrs__))
+                   in zip(fields(C), C.__attrs_attrs__))
 
 
 class TestAsDict(object):

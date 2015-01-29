@@ -9,7 +9,7 @@ from ._dunders import NOTHING
 from ._make import Attribute
 
 
-def ls(cl):
+def fields(cl):
     """
     Returns the list of ``attrs`` attributes for a class.
 
@@ -43,7 +43,7 @@ def asdict(inst, recurse=True):
 
     :rtype: :class:`dict`
     """
-    attrs = ls(inst.__class__)
+    attrs = fields(inst.__class__)
     rv = {}
     for a in attrs:
         v = getattr(inst, a.name)
@@ -66,7 +66,7 @@ def has(cl):
     :rtype: :class:`bool`
     """
     try:
-        ls(cl)
+        fields(cl)
     except ValueError:
         return False
     else:

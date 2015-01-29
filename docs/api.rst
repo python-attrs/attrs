@@ -36,7 +36,7 @@ Core
    Instances of this class are frequently used for introspection purposes like:
 
    - Class attributes on ``attrs``-decorated classes.
-   - :func:`ls` returns a list of them.
+   - :func:`fields` returns a list of them.
    - Validators get them passed as the first argument.
 
    .. doctest::
@@ -54,7 +54,7 @@ Helpers
 
 ``attrs`` comes with a bunch of helper methods that make the work with it easier:
 
-.. autofunction:: attr.ls
+.. autofunction:: attr.fields
 
    For example:
 
@@ -64,7 +64,7 @@ Helpers
       ... class C(object):
       ...     x = attr.ib()
       ...     y = attr.ib()
-      >>> attr.ls(C)
+      >>> attr.fields(C)
       [Attribute(name='x', default_value=NOTHING, default_factory=NOTHING, validator=None), Attribute(name='y', default_value=NOTHING, default_factory=NOTHING, validator=None)]
 
 

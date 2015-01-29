@@ -54,7 +54,7 @@ If playful naming turns you off, ``attrs`` comes with no-nonsense aliases:
    ...     y = attr.attr()
    >>> SeriousCoordinates(1, 2)
    SeriousCoordinates(x=1, y=2)
-   >>> attr.ls(Coordinates) == attr.ls(SeriousCoordinates)
+   >>> attr.fields(Coordinates) == attr.fields(SeriousCoordinates)
    True
 
 

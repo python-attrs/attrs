@@ -8,8 +8,8 @@ from ._dunders import (
 from ._funcs import (
     asdict,
     assoc,
+    fields,
     has,
-    ls,
 )
 from ._make import (
     Attribute,
@@ -34,9 +34,9 @@ __all__ = [
     "assoc",
     "attr",
     "attributes",
+    "fields",
     "has",
     "ib",
-    "ls",
     "s",
     "validators",
 ]

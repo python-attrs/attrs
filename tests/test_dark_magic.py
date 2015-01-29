@@ -29,16 +29,16 @@ class TestDarkMagic(object):
     """
     Integration tests.
     """
-    def test_ls(self):
+    def test_fields(self):
         """
-        `attr.ls` works.
+        `attr.fields` works.
         """
         assert [
             Attribute(name="x", default_value=foo, default_factory=NOTHING,
                       validator=None),
             Attribute(name="y", default_value=NOTHING, default_factory=list,
                       validator=None),
-        ] == attr.ls(C2)
+        ] == attr.fields(C2)
 
     def test_asdict(self):
         """
