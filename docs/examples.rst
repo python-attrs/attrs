@@ -76,7 +76,7 @@ And sometimes you even want mutable objects as default values (ever used acciden
    ... class ConnectionPool(object):
    ...     db_string = attr.ib()
    ...     pool = attr.ib(factory=collections.deque)
-   ...     debug = attr.ib(default_value=False)
+   ...     debug = attr.ib(default=False)
    ...     def get_connection(self):
    ...         try:
    ...             return self.pool.pop()
@@ -133,7 +133,7 @@ If the value does not pass the validator's standards, it just raises an appropri
    >>> C("42")
    Traceback (most recent call last):
       ...
-   TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default_value=NOTHING, factory=NOTHING, validator=<instance_of validator for type <type 'int'>>), <type 'int'>, '42')
+   TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, factory=NOTHING, validator=<instance_of validator for type <type 'int'>>), <type 'int'>, '42')
 
 If you like `zope.interface <http://docs.zope.org/zope.interface/api.html#zope-interface-interface-specification>`_, ``attrs`` also comes with a :func:`attr.validators.provides` validator:
 
@@ -149,7 +149,7 @@ If you like `zope.interface <http://docs.zope.org/zope.interface/api.html#zope-i
    >>> C(x=object())
    Traceback (most recent call last):
       ...
-   TypeError: ("'x' must provide <InterfaceClass __builtin__.IFoo> which <object object at 0x10bafaaf0> doesn't.", Attribute(name='x', default_value=NOTHING, factory=NOTHING, validator=<provides validator for interface <InterfaceClass __builtin__.IFoo>>), <InterfaceClass __builtin__.IFoo>, <object object at 0x10bafaaf0>)
+   TypeError: ("'x' must provide <InterfaceClass __builtin__.IFoo> which <object object at 0x10bafaaf0> doesn't.", Attribute(name='x', default=NOTHING, factory=NOTHING, validator=<provides validator for interface <InterfaceClass __builtin__.IFoo>>), <InterfaceClass __builtin__.IFoo>, <object object at 0x10bafaaf0>)
    >>> @zope.interface.implementer(IFoo)
    ... @attr.s
    ... class Foo(object):

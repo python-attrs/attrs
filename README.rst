@@ -23,7 +23,7 @@ attrs: Python attributes without boilerplate.
    >>> import attr
    >>> @attr.s
    ... class C(object):
-   ...     x = attr.ib(default_value=42)
+   ...     x = attr.ib(default=42)
    ...     y = attr.ib(factory=list)
    >>> i = C(x=1, y=2)
    >>> i

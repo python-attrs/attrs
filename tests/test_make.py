@@ -31,14 +31,14 @@ class TestAttr(object):
 
     def test_catches_ambiguous_defaults(self):
         """
-        Raises `ValueError` if both default_value and factory are
+        Raises `ValueError` if both default and factory are
         specified.
         """
         with pytest.raises(ValueError) as e:
-            attr(default_value=42, factory=list)
+            attr(default=42, factory=list)
 
         assert (
-            "Specifying both default_value and factory is ambiguous."
+            "Specifying both default and factory is ambiguous."
             == e.value.args[0]
         )
 
@@ -96,7 +96,7 @@ class TestTransformAttrs(object):
         mandatory attributes.
         """
         class C(object):
-            x = attr(default_value=None)
+            x = attr(default=None)
             y = attr()
 
         with pytest.raises(ValueError) as e:
@@ -104,7 +104,7 @@ class TestTransformAttrs(object):
         assert (
             "No mandatory attributes allowed after an atribute with a "
             "default value or factory.  Attribute in question: Attribute"
-            "(name='y', default_value=NOTHING, factory=NOTHING, "
+            "(name='y', default=NOTHING, factory=NOTHING, "
             "validator=None)",
         ) == e.value.args
 
@@ -206,6 +206,5 @@ class TestAttribute(object):
         Raises TypeError if an Argument is missing.
         """
         with pytest.raises(TypeError) as e:
-            Attribute(default_value=NOTHING, factory=NOTHING,
-                      validator=None)
+            Attribute(default=NOTHING, factory=NOTHING, validator=None)
         assert ("Missing argument 'name'.",) == e.value.args

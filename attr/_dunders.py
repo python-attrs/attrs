@@ -191,9 +191,9 @@ def _attrs_to_script(attrs):
             lines.append("attr_dict['{attr_name}'].validator(attr_dict['"
                          "{attr_name}'], {attr_name})"
                          .format(attr_name=attr_name))
-        if a.default_value is not NOTHING:
+        if a.default is not NOTHING:
             args.append(
-                "{arg_name}=attr_dict['{attr_name}'].default_value".format(
+                "{arg_name}=attr_dict['{attr_name}'].default".format(
                     arg_name=arg_name,
                     attr_name=attr_name,
                 )

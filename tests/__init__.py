@@ -9,5 +9,5 @@ def simple_attr(name):
     """
     from attr import Attribute
     from attr._dunders import NOTHING
-    return Attribute(name=name, default_value=NOTHING, factory=NOTHING,
+    return Attribute(name=name, default=NOTHING, factory=NOTHING,
                      validator=None)

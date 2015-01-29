@@ -21,7 +21,7 @@ foo = None
 
 @attr.s()
 class C2(object):
-    x = attr.ib(default_value=foo)
+    x = attr.ib(default=foo)
     y = attr.ib(factory=list)
 
 
@@ -34,9 +34,9 @@ class TestDarkMagic(object):
         `attr.fields` works.
         """
         assert [
-            Attribute(name="x", default_value=foo, factory=NOTHING,
+            Attribute(name="x", default=foo, factory=NOTHING,
                       validator=None),
-            Attribute(name="y", default_value=NOTHING, factory=list,
+            Attribute(name="y", default=NOTHING, factory=list,
                       validator=None),
         ] == attr.fields(C2)
 

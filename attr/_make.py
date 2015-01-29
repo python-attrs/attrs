@@ -17,12 +17,12 @@ class Attribute(object):
     *Read-only* representation of an attribute.
 
     :attribute name: The name of the attribute.
-    :attribute default_value: see :func:`attr.ib`
+    :attribute default: see :func:`attr.ib`
     :attribute factory: see :func:`attr.ib`
     :attribute validator: see :func:`attr.ib`
     """
     _attributes = [
-        "name", "default_value", "factory", "validator",
+        "name", "default", "factory", "validator",
     ]  # we can't use ``attrs`` so we have to cheat a little.
 
     def __init__(self, **kw):
@@ -41,7 +41,7 @@ class Attribute(object):
                          if k != "name"))
 
 
-_a = [Attribute(name=name, default_value=NOTHING, factory=NOTHING,
+_a = [Attribute(name=name, default=NOTHING, factory=NOTHING,
                 validator=None)
       for name in Attribute._attributes]
 Attribute = _add_hash(
@@ -51,17 +51,17 @@ Attribute = _add_hash(
 
 class _CountingAttr(object):
     __attrs_attrs__ = [
-        Attribute(name=name, default_value=NOTHING, factory=NOTHING,
+        Attribute(name=name, default=NOTHING, factory=NOTHING,
                   validator=None)
         for name
-        in ("counter", "default_value", "factory",)
+        in ("counter", "default", "factory",)
     ]
     counter = 0
 
-    def __init__(self, default_value, factory, validator):
+    def __init__(self, default, factory, validator):
         _CountingAttr.counter += 1
         self.counter = _CountingAttr.counter
-        self.default_value = default_value
+        self.default = default
         self.factory = factory
         self.validator = validator
 
@@ -69,7 +69,7 @@ class _CountingAttr(object):
 _CountingAttr = _add_cmp(_add_repr(_CountingAttr))
 
 
-def attr(default_value=NOTHING, factory=NOTHING, validator=None):
+def attr(default=NOTHING, factory=NOTHING, validator=None):
     """
     Create a new attribute on a class.
 
@@ -77,9 +77,9 @@ def attr(default_value=NOTHING, factory=NOTHING, validator=None):
 
         Does nothing unless the class is also decorated with :func:`attr.s`!
 
-    :param default_value: Value that is used if an ``attrs``-generated
+    :param default: Value that is used if an ``attrs``-generated
         ``__init__`` is used and no value is passed while instantiating.
-    :type default_value: Any value.
+    :type default: Any value.
 
     :param factory: :func:`callable` that is called to obtain
         a default value if an ``attrs``-generated ``__init__`` is used and no
@@ -94,14 +94,14 @@ def attr(default_value=NOTHING, factory=NOTHING, validator=None):
         exception itself.
     :type validator: callable
     """
-    if default_value is not NOTHING and factory is not NOTHING:
+    if default is not NOTHING and factory is not NOTHING:
         raise ValueError(
-            "Specifying both default_value and factory is "
+            "Specifying both default and factory is "
             "ambiguous."
         )
 
     return _CountingAttr(
-        default_value=default_value,
+        default=default,
         factory=factory,
         validator=validator,
     )
@@ -122,13 +122,13 @@ def _transform_attrs(cl):
     ):
         a = Attribute.from_counting_attr(name=attr_name, ca=ca)
         if had_default is True and \
-                a.default_value is a.factory is NOTHING:
+                a.default is a.factory is NOTHING:
             raise ValueError(
                 "No mandatory attributes allowed after an atribute with a "
                 "default value or factory.  Attribute in question: {a!r}"
                 .format(a=a)
             )
-        elif had_default is False and (a.default_value is not NOTHING
+        elif had_default is False and (a.default is not NOTHING
                                        or a.factory is not NOTHING):
             had_default = True
         cl.__attrs_attrs__.append(a)

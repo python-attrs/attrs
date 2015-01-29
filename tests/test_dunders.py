@@ -211,22 +211,22 @@ class TestAddInit(object):
         assert 1 == obj.a
         assert 2 == obj.b
 
-    def test_default_value(self):
+    def test_default(self):
         """
         If a default value is present, it's used as fallback.
         """
         class C(object):
             __attrs_attrs__ = [
                 Attribute(name="a",
-                          default_value=2,
+                          default=2,
                           factory=NOTHING,
                           validator=None,),
                 Attribute(name="b",
-                          default_value="hallo",
+                          default="hallo",
                           factory=NOTHING,
                           validator=None,),
                 Attribute(name="c",
-                          default_value=None,
+                          default=None,
                           factory=NOTHING,
                           validator=None,),
             ]
@@ -247,11 +247,11 @@ class TestAddInit(object):
         class C(object):
             __attrs_attrs__ = [
                 Attribute(name="a",
-                          default_value=NOTHING,
+                          default=NOTHING,
                           factory=list,
                           validator=None,),
                 Attribute(name="b",
-                          default_value=NOTHING,
+                          default=NOTHING,
                           factory=D,
                           validator=None,)
             ]
@@ -271,7 +271,7 @@ class TestAddInit(object):
             raise VException(args)
 
         a = Attribute(name="a",
-                      default_value=NOTHING,
+                      default=NOTHING,
                       factory=NOTHING,
                       validator=raiser)
 
