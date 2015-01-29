@@ -11,15 +11,15 @@ import pytest
 from attr._funcs import ls, has, to_dict
 from attr._make import (
     Attribute,
-    _make_attr,
-    _add_methods,
+    attr,
+    attributes,
 )
 
 
-@_add_methods
+@attributes
 class C(object):
-    x = _make_attr()
-    y = _make_attr()
+    x = attr()
+    y = attr()
 
 
 class TestLs(object):
@@ -100,7 +100,7 @@ class TestHas(object):
         """
         Returns `True` on decorated classes even if there are no attributes.
         """
-        @_add_methods
+        @attributes
         class D(object):
             pass
 

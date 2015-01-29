@@ -6,14 +6,14 @@ from ._dunders import (
     NOTHING,
 )
 from ._funcs import (
+    has,
     ls,
     to_dict,
-    has,
 )
 from ._make import (
     Attribute,
-    _add_methods,
-    _make_attr,
+    attr,
+    attributes,
 )
 from . import validators
 
@@ -23,8 +23,8 @@ __license__ = "MIT"
 __copyright__ = "Copyright 2015 Hynek Schlawack"
 
 
-attributes = s = _add_methods
-attr = ib = _make_attr
+s = attributes
+attr = ib = attr
 
 __all__ = [
     "Attribute",

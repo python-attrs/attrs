@@ -8,21 +8,21 @@ from attr._dunders import NOTHING
 from attr._make import (
     Attribute,
     _CountingAttr,
-    _add_methods,
-    _make_attr,
+    attributes,
+    attr,
     _transform_attrs,
 )
 
 
 class TestMakeAttr(object):
     """
-    Tests for `_make_attr`.
+    Tests for `attr`.
     """
     def test_returns_Attr(self):
         """
         Returns an instance of _Attr.
         """
-        a = _make_attr()
+        a = attr()
         assert isinstance(a, _CountingAttr)
 
     def test_catches_ambiguous_defaults(self):
@@ -31,7 +31,7 @@ class TestMakeAttr(object):
         specified.
         """
         with pytest.raises(ValueError) as e:
-            _make_attr(default_value=42, default_factory=list)
+            attr(default_value=42, default_factory=list)
 
         assert (
             "Specifying both default_value and default_factory is ambiguous."
@@ -41,9 +41,9 @@ class TestMakeAttr(object):
 
 def make_tc():
     class TransformC(object):
-        z = _make_attr()
-        y = _make_attr()
-        x = _make_attr()
+        z = attr()
+        y = attr()
+        x = attr()
         a = 42
     return TransformC
 
@@ -64,7 +64,7 @@ class TestTransformAttrs(object):
         """
         No attributes works as expected.
         """
-        @_add_methods
+        @attributes
         class C(object):
             pass
 
@@ -89,15 +89,15 @@ class TestTransformAttrs(object):
 
 class TestAddMethods(object):
     """
-    Tests for the `_add_methods` class decorator.
+    Tests for the `attributes` class decorator.
     """
     def test_sets_attrs(self):
         """
         Sets the `__attrs_attrs__` class attribute with a list of `Attribute`s.
         """
-        @_add_methods
+        @attributes
         class C(object):
-            x = _make_attr()
+            x = attr()
         assert "x" == C.__attrs_attrs__[0].name
         assert all(isinstance(a, Attribute) for a in C.__attrs_attrs__)
 
@@ -105,7 +105,7 @@ class TestAddMethods(object):
         """
         No attributes, no problems.
         """
-        @_add_methods
+        @attributes
         class C3(object):
             pass
         assert "C3()" == repr(C3())
@@ -127,18 +127,18 @@ class TestAddMethods(object):
         sentinel = object()
 
         class C1(object):
-            x = _make_attr()
+            x = attr()
 
         setattr(C1, method_name, sentinel)
 
-        C1 = _add_methods(C1)
+        C1 = attributes(C1)
 
         class C2(object):
-            x = _make_attr()
+            x = attr()
 
         setattr(C2, method_name, sentinel)
 
-        C2 = _add_methods(C2)
+        C2 = attributes(C2)
 
         assert sentinel != getattr(C1, method_name)
         assert sentinel != getattr(C2, method_name)
@@ -166,11 +166,11 @@ class TestAddMethods(object):
         am_args[arg_name] = False
 
         class C(object):
-            x = _make_attr()
+            x = attr()
 
         setattr(C, method_name, sentinel)
 
-        C = _add_methods(**am_args)(C)
+        C = attributes(**am_args)(C)
 
         assert sentinel == getattr(C, method_name)
 

@@ -2,12 +2,12 @@
 
 from __future__ import absolute_import, division, print_function
 
-from ._make import _make_attr, _add_methods
+from ._make import attr, attributes
 
 
-@_add_methods(add_repr=False)
+@attributes(add_repr=False)
 class _InstanceOfValidator(object):
-    type_ = _make_attr()
+    type_ = attr()
 
     def __call__(self, attr, value):
         """
@@ -45,9 +45,9 @@ def instance_of(type_):
     return _InstanceOfValidator(type_)
 
 
-@_add_methods(add_repr=False)
+@attributes(add_repr=False)
 class _ProvidesValidator(object):
-    interface = _make_attr()
+    interface = attr()
 
     def __call__(self, attr, value):
         """
