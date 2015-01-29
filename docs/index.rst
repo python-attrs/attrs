@@ -1,4 +1,4 @@
-attrs: Say 'yes' to types but 'no' to typing!
+attrs: Python attributes without boilerplate.
 =============================================
 
 Release v\ |release| (:doc:`What's new? <changelog>`).
