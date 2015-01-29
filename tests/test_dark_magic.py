@@ -6,9 +6,8 @@ import pytest
 
 import attr
 
+from attr._compat import TYPE
 from attr._make import Attribute, NOTHING
-
-from . import TYPE
 
 
 @attr.s
@@ -35,7 +34,7 @@ class TestDarkMagic(object):
         `attr.ls` works.
         """
         assert [
-            Attribute(name="x", default_value=None, default_factory=NOTHING,
+            Attribute(name="x", default_value=foo, default_factory=NOTHING,
                       validator=None),
             Attribute(name="y", default_value=NOTHING, default_factory=list,
                       validator=None),

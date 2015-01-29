@@ -50,6 +50,15 @@ class TestLs(object):
         """
         assert all(isinstance(a, Attribute) for a in ls(C))
 
+    def test_copies(self):
+        """
+        Returns a new list object with new `Attribute` objects.
+        """
+        assert C.__attrs_attrs__ is not ls(C)
+        assert all(new == original and new is not original
+                   for new, original
+                   in zip(ls(C), C.__attrs_attrs__))
+
 
 class TestToDict(object):
     """

@@ -9,7 +9,8 @@ from __future__ import absolute_import, division, print_function
 import pytest
 
 from attr.validators import instance_of
-from . import simple_attr, TYPE
+from attr._compat import TYPE
+from . import simple_attr
 
 
 class TestInstanceOf(object):

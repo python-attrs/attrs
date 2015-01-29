@@ -21,26 +21,32 @@ class Attribute(object):
     :attribute default_factory: see :func:`attr.ib`
     :attribute validator: see :func:`attr.ib`
     """
-    def __init__(self, name, default_value, default_factory, validator):
-        self.name = name
-        self.default_value = default_value
-        self.default_factory = default_factory
-        self.validator = validator
+    _attributes = [
+        "name", "default_value", "default_factory", "validator",
+    ]  # we can't use ``attrs`` so we have to cheat a little.
+
+    def __init__(self, **kw):
+        try:
+            for a in Attribute._attributes:
+                setattr(self, a, kw[a])
+        except KeyError:
+            raise TypeError("Missing argument '{arg}'.".format(arg=a))
 
     @classmethod
     def from_counting_attr(cl, name, ca):
-        return cl(
-            name=name,
-            default_value=ca.default_value,
-            default_factory=ca.default_factory,
-            validator=ca.validator
-        )
+        return cl(name=name,
+                  **dict((k, getattr(ca, k))
+                         for k
+                         in Attribute._attributes
+                         if k != "name"))
 
 
 _a = [Attribute(name=name, default_value=NOTHING, default_factory=NOTHING,
                 validator=None)
-      for name in ("name", "default_value", "default_factory", "validator")]
-Attribute = _add_cmp(_add_repr(Attribute, attrs=_a), attrs=_a)
+      for name in Attribute._attributes]
+Attribute = _add_hash(
+    _add_cmp(_add_repr(Attribute, attrs=_a), attrs=_a), attrs=_a
+)
 
 
 class _CountingAttr(object):
@@ -101,19 +107,21 @@ def _make_attr(default_value=NOTHING, default_factory=NOTHING, validator=None):
     )
 
 
-def _get_attrs(cl):
+def _transform_attrs(cl):
     """
-    Return list of tuples of `(name, _Attr)`.
+    Transforms all `_CountingAttr`s on a class into `Attribute`s and saves the
+    list in `__attrs_attrs__`.
     """
-    attrs = []
-
-    for name, instance in sorted((
-            (n, i) for n, i in cl.__dict__.items()
-            if isinstance(i, _CountingAttr)
-    ), key=lambda e: e[1].counter):
-        attrs.append((name, instance))
-
-    return attrs
+    cl.__attrs_attrs__ = []
+    for attr_name, ca in sorted(
+            ((name, attr) for name, attr
+             in cl.__dict__.items()
+             if isinstance(attr, _CountingAttr)),
+            key=lambda e: e[1].counter
+    ):
+        a = Attribute.from_counting_attr(name=attr_name, ca=ca)
+        cl.__attrs_attrs__.append(a)
+        setattr(cl, attr_name, a)
 
 
 def _add_methods(maybe_cl=None, add_repr=True, add_cmp=True, add_hash=True,
@@ -138,8 +146,7 @@ def _add_methods(maybe_cl=None, add_repr=True, add_cmp=True, add_hash=True,
     :type add_hash: bool
 
     :param add_init: Add a ``__init__`` method that initialiazes the ``attrs``
-        attributes.  Leading and trailing underscores are stripped for
-        initializer.
+        attributes.  Leading underscores are stripped for the argument name:.
 
         .. doctest::
 
@@ -155,20 +162,11 @@ def _add_methods(maybe_cl=None, add_repr=True, add_cmp=True, add_hash=True,
     # if it's used as `@_add_methods` but ``None`` (or a value passed) if used
     # as `@_add_methods()`.
     if isinstance(maybe_cl, type):
-        cl = maybe_cl
-        cl.__attrs_attrs__ = []
-        # Replace internal `_CountingAttr`s with `Attribute`s.
-        for name, ca in _get_attrs(cl):
-            a = Attribute.from_counting_attr(name=name, ca=ca)
-            cl.__attrs_attrs__.append(a)
-            setattr(cl, name, a)
-        return _add_init(_add_hash(_add_cmp(_add_repr(cl))))
+        _transform_attrs(maybe_cl)
+        return _add_init(_add_hash(_add_cmp(_add_repr(maybe_cl))))
     else:
         def wrap(cl):
-            cl.__attrs_attrs__ = [
-                Attribute.from_counting_attr(name=name, ca=ca)
-                for name, ca in _get_attrs(cl)
-            ]
+            _transform_attrs(cl)
             if add_repr is True:
                 cl = _add_repr(cl)
             if add_cmp is True:

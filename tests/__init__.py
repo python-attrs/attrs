@@ -3,14 +3,6 @@
 from __future__ import absolute_import, division, print_function
 
 
-import sys
-
-
-PY3 = sys.version_info[0] == 3
-# TYPE is used in exceptions, repr(int) is differnt on Python 2 and 3.
-TYPE = "class" if PY3 else "type"
-
-
 def simple_attr(name):
     """
     Return an attribute with a name and no other bells and whistles.

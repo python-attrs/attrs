@@ -4,7 +4,8 @@ from __future__ import absolute_import, division, print_function
 
 import hashlib
 import linecache
-import sys
+
+from ._compat import exec_
 
 
 def _attrs_to_tuple(obj, attrs):
@@ -120,19 +121,24 @@ def _add_repr(cl, attrs=None):
     return cl
 
 
-# I'm sorry. :(
-if sys.version_info[0] == 2:
-    def exec_(code, locals_, globals_):
-        exec("exec code in locals_, globals_")
-else:  # pragma: no cover
-    def exec_(code, locals_, globals_):
-        exec(code, locals_, globals_)
-
-
 class _Nothing(object):
     """
     Sentinel class to indicate the lack of a value when ``None`` is ambiguous.
+
+    All instances of `_Nothing` are equal.
     """
+    def __copy__(self):
+        return self
+
+    def __deepcopy__(self, _):
+        return self
+
+    def __eq__(self, other):
+        return self.__class__ == _Nothing
+
+    def __ne__(self, other):
+        return not self == other
+
     def __repr__(self):
         return "NOTHING"
 
@@ -180,7 +186,7 @@ def _attrs_to_script(attrs):
     args = []
     for a in attrs:
         attr_name = a.name
-        arg_name = a.name.strip("_")
+        arg_name = a.name.lstrip("_")
         if a.validator is not None:
             lines.append("attr_dict['{attr_name}'].validator(attr_dict['"
                          "{attr_name}'], {attr_name})"

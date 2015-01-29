@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 
+"""
+Tests for `attrib._dunders`.
+"""
+
 from __future__ import absolute_import, division, print_function
+
+import copy
 
 import pytest
 
@@ -8,6 +14,7 @@ from . import simple_attr
 from attr._make import Attribute
 from attr._dunders import (
     NOTHING,
+    _Nothing,
     _add_cmp,
     _add_hash,
     _add_init,
@@ -210,15 +217,15 @@ class TestAddInit(object):
         """
         class C(object):
             __attrs_attrs__ = [
-                Attribute("a",
+                Attribute(name="a",
                           default_value=2,
                           default_factory=NOTHING,
                           validator=None,),
-                Attribute("b",
+                Attribute(name="b",
                           default_value="hallo",
                           default_factory=NOTHING,
                           validator=None,),
-                Attribute("c",
+                Attribute(name="c",
                           default_value=None,
                           default_factory=NOTHING,
                           validator=None,),
@@ -239,11 +246,11 @@ class TestAddInit(object):
 
         class C(object):
             __attrs_attrs__ = [
-                Attribute("a",
+                Attribute(name="a",
                           default_value=NOTHING,
                           default_factory=list,
                           validator=None,),
-                Attribute("b",
+                Attribute(name="b",
                           default_value=NOTHING,
                           default_factory=D,
                           validator=None,)
@@ -263,7 +270,7 @@ class TestAddInit(object):
         def raiser(*args):
             raise VException(args)
 
-        a = Attribute("a",
+        a = Attribute(name="a",
                       default_value=NOTHING,
                       default_factory=NOTHING,
                       validator=raiser)
@@ -288,3 +295,29 @@ class TestAddInit(object):
         C = _add_init(C)
         i = C(private=42)
         assert 42 == i._private
+
+
+class TestNothing(object):
+    """
+    Tests for `_Nothing`.
+    """
+    def test_copy(self):
+        """
+        __copy__ returns the same object.
+        """
+        n = _Nothing()
+        assert n is copy.copy(n)
+
+    def test_deepcopy(self):
+        """
+        __deepcopy__ returns the same object.
+        """
+        n = _Nothing()
+        assert n is copy.deepcopy(n)
+
+    def test_eq(self):
+        """
+        All instances are equal.
+        """
+        assert _Nothing() == _Nothing() == NOTHING
+        assert not (_Nothing() != _Nothing)

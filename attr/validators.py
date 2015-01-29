@@ -2,13 +2,17 @@
 
 from __future__ import absolute_import, division, print_function
 
+from ._make import _make_attr, _add_methods
 
-class InstanceValidator(object):
-    # We use a callable class to be able to change the ``__repr__``.
-    def __init__(self, type_):
-        self.type_ = type_
+
+@_add_methods(add_repr=False)
+class _InstanceOfValidator(object):
+    type_ = _make_attr()
 
     def __call__(self, attr, value):
+        """
+        We use a callable class to be able to change the ``__repr__``.
+        """
         if not isinstance(value, self.type_):
             raise TypeError(
                 "'{name}' must be {type!r} (got {value!r} that is a "
@@ -38,4 +42,4 @@ def instance_of(type_):
     attribute (of type :class:`attr.Attribute`), the expected type and the
     value it got.
     """
-    return InstanceValidator(type_)
+    return _InstanceOfValidator(type_)

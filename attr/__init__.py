@@ -2,6 +2,9 @@
 
 from __future__ import absolute_import, division, print_function
 
+from ._dunders import (
+    NOTHING,
+)
 from ._funcs import (
     ls,
     to_dict,
@@ -25,6 +28,7 @@ attr = ib = _make_attr
 
 __all__ = [
     "Attribute",
+    "NOTHING",
     "attr",
     "attributes",
     "has",

@@ -2,6 +2,8 @@
 
 from __future__ import absolute_import, division, print_function
 
+import copy
+
 
 def ls(cl):
     """
@@ -22,7 +24,7 @@ def ls(cl):
         raise ValueError("{cl!r} is not an attrs-decorated class.".format(
             cl=cl
         ))
-    return attrs
+    return copy.deepcopy(attrs)
 
 
 def to_dict(inst, recurse=True):
