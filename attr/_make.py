@@ -80,9 +80,12 @@ def _make_attr(default_value=NOTHING, default_factory=NOTHING, validator=None):
         value is passed while instantiating.
     :type default_factory: callable
 
-    :param validator: :func:`callable` that is called on the attribute
-        if an ``attrs``-generated ``__init__`` is used.  The return value is
-        *not* inspected so the validator has to throw an exception itself.
+    :param validator: :func:`callable` that is called within
+        ``attrs``-generated ``__init__`` methods with the :class:`Attribute` as
+        the first parameter and the passed value as the second parameter.
+
+        The return value is *not* inspected so the validator has to throw an
+        exception itself.
     :type validator: callable
     """
     if default_value is not NOTHING and default_factory is not NOTHING:
@@ -94,7 +97,7 @@ def _make_attr(default_value=NOTHING, default_factory=NOTHING, validator=None):
     return _CountingAttr(
         default_value=default_value,
         default_factory=default_factory,
-        validator=None,
+        validator=validator,
     )
 
 
@@ -143,10 +146,12 @@ def _add_methods(maybe_cl=None, add_repr=True, add_cmp=True, add_hash=True,
     # as `@_add_methods()`.
     if isinstance(maybe_cl, type):
         cl = maybe_cl
-        cl.__attrs_attrs__ = [
-            Attribute.from_counting_attr(name=name, ca=ca)
-            for name, ca in _get_attrs(cl)
-        ]
+        cl.__attrs_attrs__ = []
+        # Replace internal `_CountingAttr`s with `Attribute`s.
+        for name, ca in _get_attrs(cl):
+            a = Attribute.from_counting_attr(name=name, ca=ca)
+            cl.__attrs_attrs__.append(a)
+            setattr(cl, name, a)
         return _add_init(_add_hash(_add_cmp(_add_repr(cl))))
     else:
         def wrap(cl):

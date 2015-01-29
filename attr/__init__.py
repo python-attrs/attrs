@@ -12,6 +12,7 @@ from ._make import (
     _add_methods,
     _make_attr,
 )
+from . import validators
 
 __version__ = "15.0.0.dev0"
 __author__ = "Hynek Schlawack"
@@ -31,4 +32,5 @@ __all__ = [
     "ls",
     "s",
     "to_dict",
+    "validators",
 ]

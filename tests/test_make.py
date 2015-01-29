@@ -46,7 +46,6 @@ class TestGetAttrs(object):
         """
         Returns attributes in correct order.
         """
-        @_add_methods
         class C(object):
             z = _make_attr()
             y = _make_attr()

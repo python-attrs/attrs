@@ -4,6 +4,7 @@ from __future__ import absolute_import, division, print_function
 
 import pytest
 
+from . import simple_attr
 from attr._make import Attribute
 from attr._dunders import (
     NOTHING,
@@ -12,14 +13,6 @@ from attr._dunders import (
     _add_init,
     _add_repr,
 )
-
-
-def simple_attr(name):
-    """
-    Return an attribute with a name and no other bells and whistles.
-    """
-    return Attribute(name=name, default_value=NOTHING, default_factory=NOTHING,
-                     validator=None)
 
 
 def make_class():
@@ -269,4 +262,4 @@ class TestAddInit(object):
 
         with pytest.raises(VException) as e:
             C(42)
-        assert ((a, 42),) == e.value.args
+        assert ((a, 42,),) == e.value.args

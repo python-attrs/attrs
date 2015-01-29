@@ -184,8 +184,11 @@ def _attrs_to_script(attrs):
                          "{name})"
                          .format(name=a.name))
         if a.default_value is not NOTHING:
-            args.append("{name}={default!r}".format(name=a.name,
-                                                    default=a.default_value))
+            args.append(
+                "{name}=attr_dict['{name}'].default_value".format(
+                    name=a.name,
+                )
+            )
             lines.append("self.{name} = {name}".format(name=a.name))
         elif a.default_factory is not NOTHING:
             args.append("{name}=NOTHING".format(name=a.name))

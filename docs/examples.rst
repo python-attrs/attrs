@@ -100,3 +100,22 @@ And sometimes you even want mutable objects as default values (ever used acciden
    ConnectionPool(db_string='postgres://localhost', pool=deque([Connection(socket=42)]), debug=False)
 
 More information on why class methods for constructing objects are awesome can be found in this insightful `blog post <http://as.ynchrono.us/2014/12/asynchronous-object-initialization.html>`_.
+
+
+Although your initializers should be a dumb as possible, it can come handy to do some kind of validation on the arguments.
+That's when :func:`attr.ib`\ ’s ``validator`` argument comes into play.
+A validator is simply a callable that takes two arguments: the attribute that it's validating 
+
+.. doctest::
+
+   >>> @attr.s
+   ... class C(object):
+   ...     x = attr.ib(validator=attr.validators.instance_of(int))
+   >>> C(42)
+   C(x=42)
+   >>> C("42")
+   Traceback (most recent call last):
+      ...
+   TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default_value=NOTHING, default_factory=NOTHING, validator=<instance_of validator for type <type 'int'>>), <type 'int'>, '42')
+
+``attrs`` ships with a bunch of validators, make sure to :ref:`check them out <api_validators>` before writing your own!

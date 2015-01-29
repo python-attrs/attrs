@@ -2,15 +2,18 @@
 
 from __future__ import absolute_import, division, print_function
 
+import pytest
 
 import attr
 
 from attr._make import Attribute, NOTHING
 
+from . import TYPE
+
 
 @attr.s
 class C1(object):
-    x = attr.ib()
+    x = attr.ib(validator=attr.validators.instance_of(int))
     y = attr.ib()
 
 
@@ -46,3 +49,15 @@ class TestDarkMagic(object):
             "x": 1,
             "y": 2,
         } == attr.to_dict(C1(x=1, y=2))
+
+    def test_validator(self):
+        """
+        `instance_of` raises `TypeError` on type mismatch.
+        """
+        with pytest.raises(TypeError) as e:
+            C1("1", 2)
+        assert (
+            "'x' must be <{type} 'int'> (got '1' that is a <{type} "
+            "'str'>).".format(type=TYPE),
+            C1.x, int, "1",
+        ) == e.value.args
