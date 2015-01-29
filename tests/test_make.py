@@ -8,9 +8,9 @@ from __future__ import absolute_import, division, print_function
 
 import pytest
 
-from attr._dunders import NOTHING
 from attr._make import (
     Attribute,
+    NOTHING,
     _CountingAttr,
     attributes,
     attr,
@@ -28,19 +28,6 @@ class TestAttr(object):
         """
         a = attr()
         assert isinstance(a, _CountingAttr)
-
-    def test_catches_ambiguous_defaults(self):
-        """
-        Raises `ValueError` if both default and factory are
-        specified.
-        """
-        with pytest.raises(ValueError) as e:
-            attr(default=42, factory=list)
-
-        assert (
-            "Specifying both default and factory is ambiguous."
-            == e.value.args[0]
-        )
 
 
 def make_tc():
@@ -104,8 +91,7 @@ class TestTransformAttrs(object):
         assert (
             "No mandatory attributes allowed after an atribute with a "
             "default value or factory.  Attribute in question: Attribute"
-            "(name='y', default=NOTHING, factory=NOTHING, "
-            "validator=None)",
+            "(name='y', default=NOTHING, validator=None)",
         ) == e.value.args
 
 

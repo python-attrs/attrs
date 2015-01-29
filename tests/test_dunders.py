@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Tests for `attrib._dunders`.
+Tests for dunder methods from `attrib._make`.
 """
 
 from __future__ import absolute_import, division, print_function
@@ -11,8 +11,9 @@ import copy
 import pytest
 
 from . import simple_attr
-from attr._make import Attribute
-from attr._dunders import (
+from attr._make import (
+    Attribute,
+    Factory,
     NOTHING,
     _Nothing,
     _add_cmp,
@@ -219,15 +220,12 @@ class TestAddInit(object):
             __attrs_attrs__ = [
                 Attribute(name="a",
                           default=2,
-                          factory=NOTHING,
                           validator=None,),
                 Attribute(name="b",
                           default="hallo",
-                          factory=NOTHING,
                           validator=None,),
                 Attribute(name="c",
                           default=None,
-                          factory=NOTHING,
                           validator=None,),
             ]
 
@@ -247,12 +245,10 @@ class TestAddInit(object):
         class C(object):
             __attrs_attrs__ = [
                 Attribute(name="a",
-                          default=NOTHING,
-                          factory=list,
+                          default=Factory(list),
                           validator=None,),
                 Attribute(name="b",
-                          default=NOTHING,
-                          factory=D,
+                          default=Factory(D),
                           validator=None,)
             ]
         C = _add_init(C)

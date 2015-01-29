@@ -2,9 +2,6 @@
 
 from __future__ import absolute_import, division, print_function
 
-from ._dunders import (
-    NOTHING,
-)
 from ._funcs import (
     asdict,
     assoc,
@@ -13,6 +10,8 @@ from ._funcs import (
 )
 from ._make import (
     Attribute,
+    Factory,
+    NOTHING,
     attr,
     attributes,
 )
@@ -29,6 +28,7 @@ attr = ib = attr
 
 __all__ = [
     "Attribute",
+    "Factory",
     "NOTHING",
     "asdict",
     "assoc",

@@ -7,7 +7,7 @@ import pytest
 import attr
 
 from attr._compat import TYPE
-from attr._make import Attribute, NOTHING
+from attr._make import Attribute
 
 
 @attr.s
@@ -22,7 +22,7 @@ foo = None
 @attr.s()
 class C2(object):
     x = attr.ib(default=foo)
-    y = attr.ib(factory=list)
+    y = attr.ib(default=attr.Factory(list))
 
 
 class TestDarkMagic(object):
@@ -34,10 +34,8 @@ class TestDarkMagic(object):
         `attr.fields` works.
         """
         assert [
-            Attribute(name="x", default=foo, factory=NOTHING,
-                      validator=None),
-            Attribute(name="y", default=NOTHING, factory=list,
-                      validator=None),
+            Attribute(name="x", default=foo, validator=None),
+            Attribute(name="y", default=attr.Factory(list), validator=None),
         ] == attr.fields(C2)
 
     def test_asdict(self):

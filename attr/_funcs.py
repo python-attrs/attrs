@@ -5,8 +5,7 @@ from __future__ import absolute_import, division, print_function
 import copy
 
 from ._compat import iteritems
-from ._dunders import NOTHING
-from ._make import Attribute
+from ._make import Attribute, NOTHING
 
 
 def fields(cl):

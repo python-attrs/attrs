@@ -75,7 +75,7 @@ And sometimes you even want mutable objects as default values (ever used acciden
    >>> @attr.s
    ... class ConnectionPool(object):
    ...     db_string = attr.ib()
-   ...     pool = attr.ib(factory=collections.deque)
+   ...     pool = attr.ib(default=attr.Factory(collections.deque))
    ...     debug = attr.ib(default=False)
    ...     def get_connection(self):
    ...         try:
