@@ -121,3 +121,6 @@ Validators
       Traceback (most recent call last):
          ...
       TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default_value=NOTHING, default_factory=NOTHING, validator=<instance_of validator for type <type 'int'>>), <type 'int'>, '42')
+
+
+.. autofunction:: attr.validators.provides

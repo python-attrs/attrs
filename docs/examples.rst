@@ -135,9 +135,30 @@ If the value does not pass the validator's standards, it just raises an appropri
       ...
    TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default_value=NOTHING, default_factory=NOTHING, validator=<instance_of validator for type <type 'int'>>), <type 'int'>, '42')
 
+If you like `zope.interface <http://docs.zope.org/zope.interface/api.html#zope-interface-interface-specification>`_, ``attrs`` also comes with a :func:`attr.validators.provides` validator:
+
+.. doctest::
+
+   >>> import zope.interface
+   >>> class IFoo(zope.interface.Interface):
+   ...     def f():
+   ...         """A function called f."""
+   >>> @attr.s
+   ... class C(object):
+   ...     x = attr.ib(validator=attr.validators.provides(IFoo))
+   >>> C(x=object())
+   Traceback (most recent call last):
+      ...
+   TypeError: ("'x' must provide <InterfaceClass __builtin__.IFoo> which <object object at 0x10bafaaf0> doesn't.", Attribute(name='x', default_value=NOTHING, default_factory=NOTHING, validator=<provides validator for interface <InterfaceClass __builtin__.IFoo>>), <InterfaceClass __builtin__.IFoo>, <object object at 0x10bafaaf0>)
+   >>> @zope.interface.implementer(IFoo)
+   ... @attr.s
+   ... class Foo(object):
+   ...     def f(self):
+   ...         print("hello, world")
+   >>> C(Foo())
+   C(x=Foo())
 
 For private attributes, ``attrs`` will strip the leading underscores for keyword arguments:
-
 
 .. doctest::
 

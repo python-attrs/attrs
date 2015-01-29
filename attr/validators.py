@@ -43,3 +43,43 @@ def instance_of(type_):
     value it got.
     """
     return _InstanceOfValidator(type_)
+
+
+@_add_methods(add_repr=False)
+class _ProvidesValidator(object):
+    interface = _make_attr()
+
+    def __call__(self, attr, value):
+        """
+        We use a callable class to be able to change the ``__repr__``.
+        """
+        if not self.interface.providedBy(value):
+            raise TypeError(
+                "'{name}' must provide {interface!r} which {value!r} "
+                "doesn't."
+                .format(name=attr.name, interface=self.interface, value=value),
+                attr, self.interface, value,
+            )
+
+    def __repr__(self):
+        return (
+            "<provides validator for interface {interface!r}>"
+            .format(interface=self.interface)
+        )
+
+
+def provides(interface):
+    """
+    A validator that raises a :exc:`TypeError` if the initializer is called
+    with an object that does not provide the requested *interface* (checks are
+    perfomed using ``value.providedBy(interface)`` (see `zope.interface
+    <http://docs.zope.org/zope.interface/>`_).
+
+    :param type_: The interface to check for.
+    :type type_: zope.interface.Interface
+
+    The :exc:`TypeError` is raised with a human readable error message, the
+    attribute (of type :class:`attr.Attribute`), the expected interface, and
+    the value it got.
+    """
+    return _ProvidesValidator(interface)

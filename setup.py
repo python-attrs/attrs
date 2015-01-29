@@ -46,7 +46,7 @@ class PyTest(TestCommand):
         # import here, cause outside the eggs aren't loaded
         import pytest
         errno = pytest.main(self.pytest_args or [] +
-                            ["test_attrs.py"])
+                            ["tests"])
         sys.exit(errno)
 
 
@@ -82,7 +82,8 @@ if __name__ == "__main__":
         install_requires=[
         ],
         tests_require=[
-            "pytest"
+            "pytest",
+            "zope.interface",
         ],
         cmdclass={
             "test": PyTest,
