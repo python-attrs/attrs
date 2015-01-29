@@ -37,6 +37,8 @@ attrs: Python attributes without boilerplate.
    >>> C()
    C(x=42, y=[])
 
+(If you don’t like the playful ``attr.s`` and ``attr.ib``, you can also use their no-nonsense aliases ``attr.attributes`` and ``attr.attr``).
+
 You just specify the attributes to work with and ``attrs`` gives you:
 
 - a nice human-readable ``__repr__``,

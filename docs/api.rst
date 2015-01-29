@@ -20,7 +20,15 @@ Core
 
 .. autofunction:: attr.s(add_repr=True, add_cmp=True, add_hash=True, add_init=True)
 
+   .. note::
+
+      ``attrs`` also comes with a less playful alias ``attr.attributes``.
+
 .. autofunction:: attr.ib
+
+   .. note::
+
+      ``attrs`` also comes with a less playful alias ``attr.attr``.
 
 
 Helpers
@@ -57,6 +65,7 @@ Helpers
       >>> attr.has(object)
       False
 
+
 .. autofunction:: attr.to_dict
 
    For example:
@@ -69,6 +78,7 @@ Helpers
       ...     y = attr.ib()
       >>> attr.to_dict(C(1, C(2, 3)))
       {'y': {'y': 3, 'x': 2}, 'x': 1}
+
 
 .. autoclass:: attr.Attribute
 

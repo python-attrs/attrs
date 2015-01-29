@@ -44,6 +44,20 @@ These by default, all features are added, so you have immediately a fully functi
 
 As shown, the generated ``__init__`` method allows both for positional and keyword arguments.
 
+If playful naming turns you off, ``attrs`` comes with no-nonsense aliases:
+
+.. doctest::
+
+   >>> @attr.attributes
+   ... class SeriousCoordinates(object):
+   ...     x = attr.attr()
+   ...     y = attr.attr()
+   >>> SeriousCoordinates(1, 2)
+   SeriousCoordinates(x=1, y=2)
+   >>> attr.ls(Coordinates) == attr.ls(SeriousCoordinates)
+   True
+
+
 Sometimes you want to have default values for your initializer.
 And sometimes you even want mutable objects as default values (ever used accidentally ``def f(arg=[])``?).
 ``attrs`` has you covered in both cases:

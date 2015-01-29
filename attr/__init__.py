@@ -9,8 +9,8 @@ from ._funcs import (
 )
 from ._make import (
     Attribute,
-    _add_methods as s,
-    _make_attr as ib,
+    _add_methods,
+    _make_attr,
 )
 
 __version__ = "15.0.0.dev0"
@@ -19,6 +19,16 @@ __license__ = "MIT"
 __copyright__ = "Copyright 2015 Hynek Schlawack"
 
 
+attributes = s = _add_methods
+attr = ib = _make_attr
+
 __all__ = [
-    "Attribute", "has", "ib", "s", "ls", "to_dict",
+    "Attribute",
+    "attr",
+    "attributes",
+    "has",
+    "ib",
+    "ls",
+    "s",
+    "to_dict",
 ]
