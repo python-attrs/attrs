@@ -179,29 +179,39 @@ def _attrs_to_script(attrs):
     lines = []
     args = []
     for a in attrs:
+        attr_name = a.name
+        arg_name = a.name.strip("_")
         if a.validator is not None:
-            lines.append("attr_dict['{name}'].validator(attr_dict['{name}'], "
-                         "{name})"
-                         .format(name=a.name))
+            lines.append("attr_dict['{attr_name}'].validator(attr_dict['"
+                         "{attr_name}'], {attr_name})"
+                         .format(attr_name=attr_name))
         if a.default_value is not NOTHING:
             args.append(
-                "{name}=attr_dict['{name}'].default_value".format(
-                    name=a.name,
+                "{arg_name}=attr_dict['{attr_name}'].default_value".format(
+                    arg_name=arg_name,
+                    attr_name=attr_name,
                 )
             )
-            lines.append("self.{name} = {name}".format(name=a.name))
+            lines.append("self.{attr_name} = {arg_name}".format(
+                arg_name=arg_name,
+                attr_name=attr_name,
+            ))
         elif a.default_factory is not NOTHING:
-            args.append("{name}=NOTHING".format(name=a.name))
+            args.append("{arg_name}=NOTHING".format(arg_name=arg_name))
             lines.extend("""\
-if {name} is not NOTHING:
-    self.{name} = {name}
+if {arg_name} is not NOTHING:
+    self.{attr_name} = {arg_name}
 else:
-    self.{name} = attr_dict["{name}"].default_factory()"""
-                         .format(name=a.name)
+    self.{attr_name} = attr_dict["{attr_name}"].default_factory()"""
+                         .format(attr_name=attr_name,
+                                 arg_name=arg_name)
                          .split("\n"))
         else:
-            args.append(a.name)
-            lines.append("self.{name} = {name}".format(name=a.name))
+            args.append(arg_name)
+            lines.append("self.{attr_name} = {arg_name}".format(
+                attr_name=attr_name,
+                arg_name=arg_name,
+            ))
 
     return """\
 def __init__(self, {args}):

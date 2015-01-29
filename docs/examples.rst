@@ -135,3 +135,14 @@ If the value does not pass the validator's standards, it just raises an appropri
       ...
    TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default_value=NOTHING, default_factory=NOTHING, validator=<instance_of validator for type <type 'int'>>), <type 'int'>, '42')
 
+
+For private attributes, ``attrs`` will strip the leading underscores for keyword arguments:
+
+
+.. doctest::
+
+   >>> @attr.s
+   ... class C(object):
+   ...     _x = attr.ib()
+   >>> C(x=1)
+   C(_x=1)

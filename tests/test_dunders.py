@@ -163,9 +163,22 @@ class TestAddRepr(object):
     """
     def test_repr(self):
         """
-        Test repr returns a sensible value.
+        repr returns a sensible value.
         """
         assert "C(a=1, b=2)" == repr(ReprC(1, 2))
+
+    def test_underscores(self):
+        """
+        repr does not strip underscores.
+        """
+        class C(object):
+            __attrs_attrs__ = [simple_attr("_x")]
+
+        C = _add_repr(C)
+        i = C()
+        i._x = 42
+
+        assert "C(_x=42)" == repr(i)
 
 
 class TestAddHash(object):
@@ -263,3 +276,15 @@ class TestAddInit(object):
         with pytest.raises(VException) as e:
             C(42)
         assert ((a, 42,),) == e.value.args
+
+    def test_underscores(self):
+        """
+        The argument names in `__init__` are without leading and trailing
+        underscores.
+        """
+        class C(object):
+            __attrs_attrs__ = [simple_attr("_private")]
+
+        C = _add_init(C)
+        i = C(private=42)
+        assert 42 == i._private

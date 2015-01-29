@@ -138,7 +138,17 @@ def _add_methods(maybe_cl=None, add_repr=True, add_cmp=True, add_hash=True,
     :type add_hash: bool
 
     :param add_init: Add a ``__init__`` method that initialiazes the ``attrs``
-        attributes.
+        attributes.  Leading and trailing underscores are stripped for
+        initializer.
+
+        .. doctest::
+
+            >>> import attr
+            >>> @attr.s
+            ... class C(object):
+            ...     _private = attr.ib()
+            >>> C(private=42)
+            C(_private=42)
     :type add_init: bool
     """
     # attrs_or class type depends on the usage of the decorator.  It's a class

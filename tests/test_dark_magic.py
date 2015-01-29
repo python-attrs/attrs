@@ -61,3 +61,13 @@ class TestDarkMagic(object):
             "'str'>).".format(type=TYPE),
             C1.x, int, "1",
         ) == e.value.args
+
+    def test_renaming(self):
+        """
+        Private members are renamed but only in `__init__`.
+        """
+        @attr.s
+        class C3(object):
+            _x = attr.ib()
+
+        assert "C3(_x=1)" == repr(C3(x=1))
