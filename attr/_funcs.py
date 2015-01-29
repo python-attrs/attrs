@@ -31,7 +31,7 @@ def ls(cl):
     return copy.deepcopy(attrs)
 
 
-def to_dict(inst, recurse=True):
+def asdict(inst, recurse=True):
     """
     Return the ``attrs`` attribute values of *i* as a dict.  Optionally recurse
     into other ``attrs``-decorated classes.
@@ -48,7 +48,7 @@ def to_dict(inst, recurse=True):
     for a in attrs:
         v = getattr(inst, a.name)
         if recurse is True and has(v.__class__):
-            rv[a.name] = to_dict(v, recurse=True)
+            rv[a.name] = asdict(v, recurse=True)
         else:
             rv[a.name] = v
     return rv

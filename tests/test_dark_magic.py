@@ -40,14 +40,14 @@ class TestDarkMagic(object):
                       validator=None),
         ] == attr.ls(C2)
 
-    def test_to_dict(self):
+    def test_asdict(self):
         """
-        `attr.to_dict` works.
+        `attr.asdict` works.
         """
         assert {
             "x": 1,
             "y": 2,
-        } == attr.to_dict(C1(x=1, y=2))
+        } == attr.asdict(C1(x=1, y=2))
 
     def test_validator(self):
         """

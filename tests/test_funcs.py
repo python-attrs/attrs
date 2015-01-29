@@ -9,10 +9,10 @@ from __future__ import absolute_import, division, print_function
 import pytest
 
 from attr._funcs import (
+    asdict,
     assoc,
     has,
     ls,
-    to_dict,
 )
 from attr._make import (
     Attribute,
@@ -65,27 +65,27 @@ class TestLs(object):
                    in zip(ls(C), C.__attrs_attrs__))
 
 
-class TestToDict(object):
+class TestAsDict(object):
     """
-    Tests for `to_dict`.
+    Tests for `asdict`.
     """
     def test_shallow(self):
         """
-        Shallow to_dict returns correct dict.
+        Shallow asdict returns correct dict.
         """
         assert {
             "x": 1,
             "y": 2,
-        } == to_dict(C(x=1, y=2), False)
+        } == asdict(C(x=1, y=2), False)
 
     def test_recurse(self):
         """
-        Deep to_dict returns correct dict.
+        Deep asdict returns correct dict.
         """
         assert {
             "x": {"x": 1, "y": 2},
             "y": {"x": 3, "y": 4},
-        } == to_dict(C(
+        } == asdict(C(
             C(1, 2),
             C(3, 4),
         ))

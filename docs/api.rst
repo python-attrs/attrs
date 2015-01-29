@@ -83,7 +83,7 @@ Helpers
       False
 
 
-.. autofunction:: attr.to_dict
+.. autofunction:: attr.asdict
 
    For example:
 
@@ -93,7 +93,7 @@ Helpers
       ... class C(object):
       ...     x = attr.ib()
       ...     y = attr.ib()
-      >>> attr.to_dict(C(1, C(2, 3)))
+      >>> attr.asdict(C(1, C(2, 3)))
       {'y': {'y': 3, 'x': 2}, 'x': 1}
 
 

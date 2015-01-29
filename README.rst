@@ -32,7 +32,7 @@ attrs: Python attributes without boilerplate.
    True
    >>> i != C(2, 1)
    True
-   >>> attr.to_dict(i)
+   >>> attr.asdict(i)
    {'y': 2, 'x': 1}
    >>> C()
    C(x=42, y=[])

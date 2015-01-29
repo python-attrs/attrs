@@ -6,10 +6,10 @@ from ._dunders import (
     NOTHING,
 )
 from ._funcs import (
+    asdict,
     assoc,
     has,
     ls,
-    to_dict,
 )
 from ._make import (
     Attribute,
@@ -30,6 +30,7 @@ attr = ib = attr
 __all__ = [
     "Attribute",
     "NOTHING",
+    "asdict",
     "assoc",
     "attr",
     "attributes",
@@ -37,6 +38,5 @@ __all__ = [
     "ib",
     "ls",
     "s",
-    "to_dict",
     "validators",
 ]
