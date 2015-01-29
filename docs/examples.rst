@@ -104,7 +104,24 @@ More information on why class methods for constructing objects are awesome can b
 
 Although your initializers should be a dumb as possible, it can come handy to do some kind of validation on the arguments.
 That's when :func:`attr.ib`\ ’s ``validator`` argument comes into play.
-A validator is simply a callable that takes two arguments: the attribute that it's validating 
+A validator is simply a callable that takes two arguments: the attribute that it's validating and the value that is passed for it.
+If the value does not pass the validator's standards, it just raises an appropriate exception:
+
+.. doctest::
+
+   >>> def smaller_than_5(attribute, value):
+   ...     if value >= 5:
+   ...         raise ValueError("'{name}' has to be smaller than 5!"
+   ...                          .format(name=attribute.name))
+   >>> @attr.s
+   ... class C(object):
+   ...     x = attr.ib(validator=smaller_than_5)
+   >>> C(42)
+   Traceback (most recent call last):
+      ...
+   ValueError: 'x' has to be smaller than 5!
+
+``attrs`` ships with a bunch of validators, make sure to :ref:`check them out <api_validators>` before writing your own:
 
 .. doctest::
 
@@ -118,4 +135,3 @@ A validator is simply a callable that takes two arguments: the attribute that it
       ...
    TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default_value=NOTHING, default_factory=NOTHING, validator=<instance_of validator for type <type 'int'>>), <type 'int'>, '42')
 
-``attrs`` ships with a bunch of validators, make sure to :ref:`check them out <api_validators>` before writing your own!
