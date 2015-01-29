@@ -99,3 +99,13 @@ class TestProvides(object):
             .format(interface=IFoo, value=value),
             a, IFoo, value,
         ) == e.value.args
+
+    def test_repr(self):
+        """
+        Returned validator has a useful `__repr__`.
+        """
+        v = provides(IFoo)
+        assert (
+            "<provides validator for interface {interface!r}>"
+            .format(interface=IFoo)
+        ) == repr(v)
