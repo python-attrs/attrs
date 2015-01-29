@@ -249,23 +249,24 @@ class TestAddInit(object):
 
     def test_validator(self):
         """
-        If a validator is passed, call it on the argument.
+        If a validator is passed, call it with the Attribute and the argument.
         """
         class VException(Exception):
             pass
 
-        def raiser(arg):
-            raise VException(arg)
+        def raiser(*args):
+            raise VException(args)
+
+        a = Attribute("a",
+                      default_value=NOTHING,
+                      default_factory=NOTHING,
+                      validator=raiser)
 
         class C(object):
-            __attrs_attrs__ = [
-                Attribute("a",
-                          default_value=NOTHING,
-                          default_factory=NOTHING,
-                          validator=raiser),
-            ]
+            __attrs_attrs__ = [a]
+
         C = _add_init(C)
 
         with pytest.raises(VException) as e:
             C(42)
-        assert (42,) == e.value.args
+        assert ((a, 42),) == e.value.args
