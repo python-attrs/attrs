@@ -46,7 +46,7 @@ Core
       ... class C(object):
       ...     x = attr.ib()
       >>> C.x
-      Attribute(name='x', default_value=NOTHING, default_factory=NOTHING, validator=None)
+      Attribute(name='x', default_value=NOTHING, factory=NOTHING, validator=None)
 
 
 Helpers
@@ -65,7 +65,7 @@ Helpers
       ...     x = attr.ib()
       ...     y = attr.ib()
       >>> attr.fields(C)
-      [Attribute(name='x', default_value=NOTHING, default_factory=NOTHING, validator=None), Attribute(name='y', default_value=NOTHING, default_factory=NOTHING, validator=None)]
+      [Attribute(name='x', default_value=NOTHING, factory=NOTHING, validator=None), Attribute(name='y', default_value=NOTHING, factory=NOTHING, validator=None)]
 
 
 .. autofunction:: attr.has
@@ -140,7 +140,7 @@ Validators
       >>> C("42")
       Traceback (most recent call last):
          ...
-      TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default_value=NOTHING, default_factory=NOTHING, validator=<instance_of validator for type <type 'int'>>), <type 'int'>, '42')
+      TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default_value=NOTHING, factory=NOTHING, validator=<instance_of validator for type <type 'int'>>), <type 'int'>, '42')
 
 
 .. autofunction:: attr.validators.provides

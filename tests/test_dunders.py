@@ -219,15 +219,15 @@ class TestAddInit(object):
             __attrs_attrs__ = [
                 Attribute(name="a",
                           default_value=2,
-                          default_factory=NOTHING,
+                          factory=NOTHING,
                           validator=None,),
                 Attribute(name="b",
                           default_value="hallo",
-                          default_factory=NOTHING,
+                          factory=NOTHING,
                           validator=None,),
                 Attribute(name="c",
                           default_value=None,
-                          default_factory=NOTHING,
+                          factory=NOTHING,
                           validator=None,),
             ]
 
@@ -237,7 +237,7 @@ class TestAddInit(object):
         assert "hallo" == i.b
         assert None is i.c
 
-    def test_default_factory(self):
+    def test_factory(self):
         """
         If a default factory is present, it's used as fallback.
         """
@@ -248,11 +248,11 @@ class TestAddInit(object):
             __attrs_attrs__ = [
                 Attribute(name="a",
                           default_value=NOTHING,
-                          default_factory=list,
+                          factory=list,
                           validator=None,),
                 Attribute(name="b",
                           default_value=NOTHING,
-                          default_factory=D,
+                          factory=D,
                           validator=None,)
             ]
         C = _add_init(C)
@@ -272,7 +272,7 @@ class TestAddInit(object):
 
         a = Attribute(name="a",
                       default_value=NOTHING,
-                      default_factory=NOTHING,
+                      factory=NOTHING,
                       validator=raiser)
 
         class C(object):

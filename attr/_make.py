@@ -18,11 +18,11 @@ class Attribute(object):
 
     :attribute name: The name of the attribute.
     :attribute default_value: see :func:`attr.ib`
-    :attribute default_factory: see :func:`attr.ib`
+    :attribute factory: see :func:`attr.ib`
     :attribute validator: see :func:`attr.ib`
     """
     _attributes = [
-        "name", "default_value", "default_factory", "validator",
+        "name", "default_value", "factory", "validator",
     ]  # we can't use ``attrs`` so we have to cheat a little.
 
     def __init__(self, **kw):
@@ -41,7 +41,7 @@ class Attribute(object):
                          if k != "name"))
 
 
-_a = [Attribute(name=name, default_value=NOTHING, default_factory=NOTHING,
+_a = [Attribute(name=name, default_value=NOTHING, factory=NOTHING,
                 validator=None)
       for name in Attribute._attributes]
 Attribute = _add_hash(
@@ -51,25 +51,25 @@ Attribute = _add_hash(
 
 class _CountingAttr(object):
     __attrs_attrs__ = [
-        Attribute(name=name, default_value=NOTHING, default_factory=NOTHING,
+        Attribute(name=name, default_value=NOTHING, factory=NOTHING,
                   validator=None)
         for name
-        in ("counter", "default_value", "default_factory",)
+        in ("counter", "default_value", "factory",)
     ]
     counter = 0
 
-    def __init__(self, default_value, default_factory, validator):
+    def __init__(self, default_value, factory, validator):
         _CountingAttr.counter += 1
         self.counter = _CountingAttr.counter
         self.default_value = default_value
-        self.default_factory = default_factory
+        self.factory = factory
         self.validator = validator
 
 
 _CountingAttr = _add_cmp(_add_repr(_CountingAttr))
 
 
-def attr(default_value=NOTHING, default_factory=NOTHING, validator=None):
+def attr(default_value=NOTHING, factory=NOTHING, validator=None):
     """
     Create a new attribute on a class.
 
@@ -81,10 +81,10 @@ def attr(default_value=NOTHING, default_factory=NOTHING, validator=None):
         ``__init__`` is used and no value is passed while instantiating.
     :type default_value: Any value.
 
-    :param default_factory: :func:`callable` that is called to obtain
+    :param factory: :func:`callable` that is called to obtain
         a default value if an ``attrs``-generated ``__init__`` is used and no
         value is passed while instantiating.
-    :type default_factory: callable
+    :type factory: callable
 
     :param validator: :func:`callable` that is called within
         ``attrs``-generated ``__init__`` methods with the :class:`Attribute` as
@@ -94,15 +94,15 @@ def attr(default_value=NOTHING, default_factory=NOTHING, validator=None):
         exception itself.
     :type validator: callable
     """
-    if default_value is not NOTHING and default_factory is not NOTHING:
+    if default_value is not NOTHING and factory is not NOTHING:
         raise ValueError(
-            "Specifying both default_value and default_factory is "
+            "Specifying both default_value and factory is "
             "ambiguous."
         )
 
     return _CountingAttr(
         default_value=default_value,
-        default_factory=default_factory,
+        factory=factory,
         validator=validator,
     )
 
@@ -122,14 +122,14 @@ def _transform_attrs(cl):
     ):
         a = Attribute.from_counting_attr(name=attr_name, ca=ca)
         if had_default is True and \
-                a.default_value is a.default_factory is NOTHING:
+                a.default_value is a.factory is NOTHING:
             raise ValueError(
                 "No mandatory attributes allowed after an atribute with a "
                 "default value or factory.  Attribute in question: {a!r}"
                 .format(a=a)
             )
         elif had_default is False and (a.default_value is not NOTHING
-                                       or a.default_factory is not NOTHING):
+                                       or a.factory is not NOTHING):
             had_default = True
         cl.__attrs_attrs__.append(a)
         setattr(cl, attr_name, a)

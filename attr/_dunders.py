@@ -202,13 +202,13 @@ def _attrs_to_script(attrs):
                 arg_name=arg_name,
                 attr_name=attr_name,
             ))
-        elif a.default_factory is not NOTHING:
+        elif a.factory is not NOTHING:
             args.append("{arg_name}=NOTHING".format(arg_name=arg_name))
             lines.extend("""\
 if {arg_name} is not NOTHING:
     self.{attr_name} = {arg_name}
 else:
-    self.{attr_name} = attr_dict["{attr_name}"].default_factory()"""
+    self.{attr_name} = attr_dict["{attr_name}"].factory()"""
                          .format(attr_name=attr_name,
                                  arg_name=arg_name)
                          .split("\n"))
