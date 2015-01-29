@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+"""
+Tests for `attr._make`.
+"""
+
 from __future__ import absolute_import, division, print_function
 
 import pytest
@@ -14,20 +18,20 @@ from attr._make import (
 )
 
 
-class TestMakeAttr(object):
+class TestAttr(object):
     """
     Tests for `attr`.
     """
     def test_returns_Attr(self):
         """
-        Returns an instance of _Attr.
+        Returns an instance of _CountingAttr.
         """
         a = attr()
         assert isinstance(a, _CountingAttr)
 
     def test_catches_ambiguous_defaults(self):
         """
-        Raises ValueError if both default_value and default_factory are
+        Raises `ValueError` if both default_value and default_factory are
         specified.
         """
         with pytest.raises(ValueError) as e:
@@ -86,8 +90,26 @@ class TestTransformAttrs(object):
 
         assert isinstance(getattr(C, attribute), Attribute)
 
+    def test_conflicting_defaults(self):
+        """
+        Raises `ValueError` if attributes with defaults are followed by
+        mandatory attributes.
+        """
+        class C(object):
+            x = attr(default_value=None)
+            y = attr()
 
-class TestAddMethods(object):
+        with pytest.raises(ValueError) as e:
+            _transform_attrs(C)
+        assert (
+            "No mandatory attributes allowed after an atribute with a "
+            "default value or factory.  Attribute in question: Attribute"
+            "(name='y', default_value=NOTHING, default_factory=NOTHING, "
+            "validator=None)",
+        ) == e.value.args
+
+
+class TestAttributes(object):
     """
     Tests for the `attributes` class decorator.
     """

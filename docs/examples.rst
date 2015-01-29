@@ -167,3 +167,22 @@ For private attributes, ``attrs`` will strip the leading underscores for keyword
    ...     _x = attr.ib()
    >>> C(x=1)
    C(_x=1)
+
+Do you like Rich Hickey?
+I'm glad to report that Clojure's core feature is part of ``attrs``: `assoc <https://clojuredocs.org/clojure.core/assoc>`_!
+I guess that means Clojure can be shut down now, sorry Rich!
+
+.. doctest::
+
+   >>> @attr.s
+   ... class C(object):
+   ...     x = attr.ib()
+   ...     y = attr.ib()
+   >>> i1 = C(1, 2)
+   >>> i1
+   C(x=1, y=2)
+   >>> i2 = attr.assoc(i1, y=3)
+   >>> i2
+   C(x=1, y=3)
+   >>> i1 == i2
+   False

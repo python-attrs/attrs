@@ -8,7 +8,12 @@ from __future__ import absolute_import, division, print_function
 
 import pytest
 
-from attr._funcs import ls, has, to_dict
+from attr._funcs import (
+    assoc,
+    has,
+    ls,
+    to_dict,
+)
 from attr._make import (
     Attribute,
     attr,
@@ -111,3 +116,54 @@ class TestHas(object):
         Returns `False` on non-decorated classes.
         """
         assert not has(object)
+
+
+class TestAssoc(object):
+    """
+    Tests for `assoc`.
+    """
+    def test_empty(self):
+        """
+        Empty classes without changes get copied.
+        """
+        @attributes
+        class C(object):
+            pass
+
+        i1 = C()
+        i2 = assoc(i1)
+
+        assert i1 is not i2
+        assert i1 == i2
+
+    def test_no_changes(self):
+        """
+        No changes means a verbatim copy.
+        """
+        i1 = C(1, 2)
+        i2 = assoc(i1)
+
+        assert i1 is not i2
+        assert i1 == i2
+
+    def test_change(self):
+        """
+        Changes work.
+        """
+        i = assoc(C(1, 2), x=42)
+        assert C(42, 2) == i
+
+    def test_unknown(self):
+        """
+        Wanting to change an unknown attribute raises a ValueError.
+        """
+        @attributes
+        class C(object):
+            x = attr()
+            y = 42
+
+        with pytest.raises(ValueError) as e:
+            assoc(C(1), y=2)
+        assert (
+            "y is not an attrs attribute on {cl!r}.".format(cl=C),
+        ) == e.value.args

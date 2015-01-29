@@ -97,6 +97,26 @@ Helpers
       {'y': {'y': 3, 'x': 2}, 'x': 1}
 
 
+.. autofunction:: assoc
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib()
+      ...     y = attr.ib()
+      >>> i1 = C(1, 2)
+      >>> i1
+      C(x=1, y=2)
+      >>> i2 = attr.assoc(i1, y=3)
+      >>> i2
+      C(x=1, y=3)
+      >>> i1 == i2
+      False
+
+
 .. _api_validators:
 
 Validators

@@ -6,6 +6,7 @@ from ._dunders import (
     NOTHING,
 )
 from ._funcs import (
+    assoc,
     has,
     ls,
     to_dict,
@@ -29,6 +30,7 @@ attr = ib = attr
 __all__ = [
     "Attribute",
     "NOTHING",
+    "assoc",
     "attr",
     "attributes",
     "has",

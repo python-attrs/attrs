@@ -4,6 +4,10 @@ from __future__ import absolute_import, division, print_function
 
 import copy
 
+from ._compat import iteritems
+from ._dunders import NOTHING
+from ._make import Attribute
+
 
 def ls(cl):
     """
@@ -67,3 +71,25 @@ def has(cl):
         return False
     else:
         return True
+
+
+def assoc(inst, **changes):
+    """
+    Copy *inst* and apply *changes*.
+
+    :param inst: Instance of a class with ``attrs`` attributes.
+
+    :param changes: Keyword changes in the new copy.
+
+    :return: A copy of inst with *changes* incorporated.
+    """
+    new = copy.copy(inst)
+    for k, v in iteritems(changes):
+        a = getattr(new.__class__, k, NOTHING)
+        if a is NOTHING or not isinstance(a, Attribute):
+            raise ValueError(
+                "{k} is not an attrs attribute on {cl}."
+                .format(k=k, cl=new.__class__)
+            )
+        setattr(new, k, v)
+    return new

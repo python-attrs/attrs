@@ -113,6 +113,7 @@ def _transform_attrs(cl):
     list in `__attrs_attrs__`.
     """
     cl.__attrs_attrs__ = []
+    had_default = False
     for attr_name, ca in sorted(
             ((name, attr) for name, attr
              in cl.__dict__.items()
@@ -120,6 +121,16 @@ def _transform_attrs(cl):
             key=lambda e: e[1].counter
     ):
         a = Attribute.from_counting_attr(name=attr_name, ca=ca)
+        if had_default is True and \
+                a.default_value is a.default_factory is NOTHING:
+            raise ValueError(
+                "No mandatory attributes allowed after an atribute with a "
+                "default value or factory.  Attribute in question: {a!r}"
+                .format(a=a)
+            )
+        elif had_default is False and (a.default_value is not NOTHING
+                                       or a.default_factory is not NOTHING):
+            had_default = True
         cl.__attrs_attrs__.append(a)
         setattr(cl, attr_name, a)
 
