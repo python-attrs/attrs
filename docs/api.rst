@@ -50,7 +50,7 @@ Core
       ... class C(object):
       ...     x = attr.ib()
       >>> C.x
-      Attribute(name='x', default=NOTHING, validator=None)
+      Attribute(name='x', default=NOTHING, validator=None, no_repr=False, no_cmp=False, no_hash=False, no_init=False)
 
 
 .. autofunction:: attr.make_class
@@ -98,7 +98,7 @@ Helpers
       ...     x = attr.ib()
       ...     y = attr.ib()
       >>> attr.fields(C)
-      [Attribute(name='x', default=NOTHING, validator=None), Attribute(name='y', default=NOTHING, validator=None)]
+      [Attribute(name='x', default=NOTHING, validator=None, no_repr=False, no_cmp=False, no_hash=False, no_init=False), Attribute(name='y', default=NOTHING, validator=None, no_repr=False, no_cmp=False, no_hash=False, no_init=False)]
 
 
 .. autofunction:: attr.has

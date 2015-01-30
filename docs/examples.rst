@@ -228,3 +228,14 @@ You can still have power over the attributes if you pass a dictionary of name: `
    42
    >>> i.y
    []
+
+Finally, you can exclude single attributes from certain methods:
+
+.. doctest::
+
+   >>> @attr.s
+   ... class C(object):
+   ...     user = attr.ib()
+   ...     password = attr.ib(no_repr=True)
+   >>> C("me", "s3kr3t")
+   C(user='me')

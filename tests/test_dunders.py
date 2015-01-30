@@ -10,29 +10,19 @@ import copy
 
 import pytest
 
-from . import simple_attr
+from . import simple_attr, simple_class
+from attr._compat import PY26
 from attr._make import (
-    Attribute,
     Factory,
     NOTHING,
-    attr,
-    make_class,
     _Nothing,
     _add_init,
     _add_repr,
+    attr,
+    make_class,
 )
 from attr.validators import instance_of
 
-
-def simple_class(add_cmp=False, add_repr=False, add_hash=False):
-    """
-    Return a new simple class.
-    """
-    return make_class(
-        "C", ["a", "b"],
-        add_cmp=add_cmp, add_repr=add_repr, add_hash=add_hash,
-        add_init=True,
-    )
 
 CmpC = simple_class(add_cmp=True)
 ReprC = simple_class(add_repr=True)
@@ -45,27 +35,18 @@ class InitC(object):
 InitC = _add_init(InitC)
 
 
-class TestSimpleClass(object):
-    """
-    Tests for the testing helper function `make_class`.
-    """
-    def test_returns_class(self):
-        """
-        Returns a class object.
-        """
-        assert type is simple_class().__class__
-
-    def returns_distinct_classes(self):
-        """
-        Each call returns a completely new class.
-        """
-        assert simple_class() is not simple_class()
-
-
 class TestAddCmp(object):
     """
     Tests for `_add_cmp`.
     """
+    def test_no_cmp(self):
+        """
+        If `no_cmp` is set, ignore that attribute.
+        """
+        C = make_class("C", {"a": attr(no_cmp=True), "b": attr()})
+
+        assert C(1, 2) == C(2, 2)
+
     def test_equal(self):
         """
         Equal objects are detected as equal.
@@ -168,6 +149,14 @@ class TestAddRepr(object):
     """
     Tests for `_add_repr`.
     """
+    def test_no_repr(self):
+        """
+        If `no_repr` is set, ignore that attribute.
+        """
+        C = make_class("C", {"a": attr(no_repr=True), "b": attr()})
+
+        assert "C(b=2)" == repr(C(1, 2))
+
     def test_repr(self):
         """
         repr returns a sensible value.
@@ -192,6 +181,14 @@ class TestAddHash(object):
     """
     Tests for `_add_hash`.
     """
+    def test_no_hash(self):
+        """
+        If `no_hash` is set, ignore that attribute.
+        """
+        C = make_class("C", {"a": attr(no_hash=True), "b": attr()})
+
+        assert hash(C(1, 2)) == hash(C(2, 2))
+
     def test_hash(self):
         """
         __hash__ returns different hashes for different values.
@@ -203,6 +200,17 @@ class TestAddInit(object):
     """
     Tests for `_add_init`.
     """
+    def test_no_init(self):
+        """
+        If `no_init` is set, ignore that attribute.
+        """
+        C = make_class("C", {"a": attr(no_init=True), "b": attr()})
+        with pytest.raises(TypeError) as e:
+            C(a=1, b=2)
+
+        msg = e.value if PY26 else e.value.args[0]
+        assert "__init__() got an unexpected keyword argument 'a'" == msg
+
     def test_sets_attributes(self):
         """
         The attributes are initialized using the passed keywords.
@@ -217,15 +225,9 @@ class TestAddInit(object):
         """
         class C(object):
             __attrs_attrs__ = [
-                Attribute(name="a",
-                          default=2,
-                          validator=None,),
-                Attribute(name="b",
-                          default="hallo",
-                          validator=None,),
-                Attribute(name="c",
-                          default=None,
-                          validator=None,),
+                simple_attr(name="a", default=2),
+                simple_attr(name="b", default="hallo"),
+                simple_attr(name="c", default=None),
             ]
 
         C = _add_init(C)
@@ -243,12 +245,8 @@ class TestAddInit(object):
 
         class C(object):
             __attrs_attrs__ = [
-                Attribute(name="a",
-                          default=Factory(list),
-                          validator=None,),
-                Attribute(name="b",
-                          default=Factory(D),
-                          validator=None,)
+                simple_attr(name="a", default=Factory(list)),
+                simple_attr(name="b", default=Factory(D)),
             ]
         C = _add_init(C)
         i = C()

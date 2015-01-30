@@ -34,8 +34,11 @@ class TestDarkMagic(object):
         `attr.fields` works.
         """
         assert [
-            Attribute(name="x", default=foo, validator=None),
-            Attribute(name="y", default=attr.Factory(list), validator=None),
+            Attribute(name="x", default=foo, validator=None, no_repr=False,
+                      no_cmp=False, no_hash=False, no_init=False),
+            Attribute(name="y", default=attr.Factory(list), validator=None,
+                      no_repr=False, no_cmp=False, no_hash=False,
+                      no_init=False),
         ] == attr.fields(C2)
 
     def test_asdict(self):
@@ -89,6 +92,8 @@ class TestDarkMagic(object):
         """
         PC = attr.make_class("PC", ["a", "b"])
         assert [
-            Attribute(name="a", default=NOTHING, validator=None),
-            Attribute(name="b", default=NOTHING, validator=None),
+            Attribute(name="a", default=NOTHING, validator=None, no_repr=False,
+                      no_cmp=False, no_hash=False, no_init=False),
+            Attribute(name="b", default=NOTHING, validator=None, no_repr=False,
+                      no_cmp=False, no_hash=False, no_init=False),
         ] == attr.fields(PC)

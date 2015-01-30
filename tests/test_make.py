@@ -92,7 +92,8 @@ class TestTransformAttrs(object):
         assert (
             "No mandatory attributes allowed after an atribute with a "
             "default value or factory.  Attribute in question: Attribute"
-            "(name='y', default=NOTHING, validator=None)",
+            "(name='y', default=NOTHING, validator=None, no_repr=False, "
+            "no_cmp=False, no_hash=False, no_init=False)",
         ) == e.value.args
 
 
@@ -202,7 +203,8 @@ class TestAttribute(object):
         """
         with pytest.raises(TypeError) as e:
             Attribute(name="foo", default=NOTHING,
-                      factory=NOTHING, validator=None)
+                      factory=NOTHING, validator=None, no_repr=False,
+                      no_cmp=False, no_hash=False, no_init=False)
         assert ("Too many arguments.",) == e.value.args
 
 
