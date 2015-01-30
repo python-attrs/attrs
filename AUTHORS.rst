@@ -10,6 +10,7 @@ It’s the spiritual successor of `characteristic <https://characteristic.readth
 
 The following folks helped forming ``attrs`` into what it is now:
 
-- `Glyph <https://github.com/glyph>`_
+- `Glyph <https://github.com/glyph/>`_
+- `Wouter Bolsterlee <https://github.com/wbolster/>`_
 
 Of course ``characteristic``\ ’s `hall of fame <https://characteristic.readthedocs.org/en/stable/license.html>`_ applies as well since they share a lot of code.

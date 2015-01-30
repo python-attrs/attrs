@@ -59,6 +59,20 @@ class TestDarkMagic(object):
             C1.x, int, "1",
         ) == e.value.args
 
+    def test_validator_assignment(self):
+        """
+        Assignments are also validated.
+        """
+        i = C1(1, 2)
+        i.y = "2"
+        with pytest.raises(TypeError) as e:
+            i.x = "1"
+        assert (
+            "'x' must be <{type} 'int'> (got '1' that is a <{type} "
+            "'str'>).".format(type=TYPE),
+            C1.x, int, "1",
+        ) == e.value.args
+
     def test_renaming(self):
         """
         Private members are renamed but only in `__init__`.

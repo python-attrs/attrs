@@ -121,6 +121,20 @@ If the value does not pass the validator's standards, it just raises an appropri
       ...
    ValueError: 'x' has to be smaller than 5!
 
+But wait, there's more!
+What value does it have to validate your initializer if you can assign *anything* to the attributes afterwards?
+That's why assignments are validated too:
+
+.. doctest::
+
+   >>> i = C(4)
+   >>> i.x = 5
+   Traceback (most recent call last):
+      ...
+   ValueError: 'x' has to be smaller than 5!
+   >>> i.x
+   4
+
 ``attrs`` ships with a bunch of validators, make sure to :ref:`check them out <api_validators>` before writing your own:
 
 .. doctest::

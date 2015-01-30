@@ -15,29 +15,28 @@ from attr._make import (
     Attribute,
     Factory,
     NOTHING,
+    attr,
+    make_class,
     _Nothing,
-    _add_cmp,
-    _add_hash,
     _add_init,
     _add_repr,
 )
+from attr.validators import instance_of
 
 
-def make_class():
+def simple_class(add_cmp=False, add_repr=False, add_hash=False):
     """
     Return a new simple class.
     """
-    class C(object):
-        __attrs_attrs__ = [simple_attr("a"), simple_attr("b")]
+    return make_class(
+        "C", ["a", "b"],
+        add_cmp=add_cmp, add_repr=add_repr, add_hash=add_hash,
+        add_init=True,
+    )
 
-        def __init__(self, a, b):
-            self.a = a
-            self.b = b
-    return C
-
-CmpC = _add_cmp(make_class())
-ReprC = _add_repr(make_class())
-HashC = _add_hash(make_class())
+CmpC = simple_class(add_cmp=True)
+ReprC = simple_class(add_repr=True)
+HashC = simple_class(add_hash=True)
 
 
 class InitC(object):
@@ -46,7 +45,7 @@ class InitC(object):
 InitC = _add_init(InitC)
 
 
-class TestMakeClass(object):
+class TestSimpleClass(object):
     """
     Tests for the testing helper function `make_class`.
     """
@@ -54,13 +53,13 @@ class TestMakeClass(object):
         """
         Returns a class object.
         """
-        assert type is make_class().__class__
+        assert type is simple_class().__class__
 
     def returns_distinct_classes(self):
         """
         Each call returns a completely new class.
         """
-        assert make_class() is not make_class()
+        assert simple_class() is not simple_class()
 
 
 class TestAddCmp(object):
@@ -266,19 +265,20 @@ class TestAddInit(object):
         def raiser(*args):
             raise VException(args)
 
-        a = Attribute(name="a",
-                      default=NOTHING,
-                      factory=NOTHING,
-                      validator=raiser)
-
-        class C(object):
-            __attrs_attrs__ = [a]
-
-        C = _add_init(C)
-
+        C = make_class("C", {"a": attr("a", validator=raiser)})
         with pytest.raises(VException) as e:
             C(42)
-        assert ((a, 42,),) == e.value.args
+        assert ((C.a, 42,),) == e.value.args
+
+    def test_validator_others(self):
+        """
+        Does not interfere when setting non-attrs attributes.
+        """
+        C = make_class("C", {"a": attr("a", validator=instance_of(int))})
+        i = C(1)
+        i.b = "foo"
+        assert 1 == i.a
+        assert "foo" == i.b
 
     def test_underscores(self):
         """
