@@ -350,6 +350,8 @@ class Attribute(object):
     ]  # we can't use ``attrs`` so we have to cheat a little.
 
     def __init__(self, **kw):
+        if len(kw) > len(Attribute._attributes):
+            raise TypeError("Too many arguments.")
         try:
             for a in Attribute._attributes:
                 setattr(self, a, kw[a])

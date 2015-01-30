@@ -19,7 +19,7 @@ from attr._make import (
 )
 
 
-class TestAttr(object):
+class TestCountingAttr(object):
     """
     Tests for `attr`.
     """
@@ -190,11 +190,20 @@ class TestAttribute(object):
     """
     def test_missing_argument(self):
         """
-        Raises TypeError if an Argument is missing.
+        Raises `TypeError` if an Argument is missing.
         """
         with pytest.raises(TypeError) as e:
-            Attribute(default=NOTHING, factory=NOTHING, validator=None)
+            Attribute(default=NOTHING, validator=None)
         assert ("Missing argument 'name'.",) == e.value.args
+
+    def test_too_many_arguments(self):
+        """
+        Raises `TypeError` if extra arguments are passed.
+        """
+        with pytest.raises(TypeError) as e:
+            Attribute(name="foo", default=NOTHING,
+                      factory=NOTHING, validator=None)
+        assert ("Too many arguments.",) == e.value.args
 
 
 class TestMakeClass(object):
