@@ -7,7 +7,7 @@ import pytest
 import attr
 
 from attr._compat import TYPE
-from attr._make import Attribute
+from attr._make import Attribute, NOTHING
 
 
 @attr.s
@@ -68,3 +68,13 @@ class TestDarkMagic(object):
             _x = attr.ib()
 
         assert "C3(_x=1)" == repr(C3(x=1))
+
+    def test_programmatic(self):
+        """
+        `attr.make_class` works.
+        """
+        PC = attr.make_class("PC", ["a", "b"])
+        assert [
+            Attribute(name="a", default=NOTHING, validator=None),
+            Attribute(name="b", default=NOTHING, validator=None),
+        ] == attr.fields(PC)

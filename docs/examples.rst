@@ -186,3 +186,31 @@ I guess that means Clojure can be shut down now, sorry Rich!
    C(x=1, y=3)
    >>> i1 == i2
    False
+
+Sometimes you may want to create a class programmatically.
+``attrs`` won't let you down:
+
+.. doctest::
+
+   >>> @attr.s
+   ... class C1(object):
+   ...     x = attr.ib()
+   ...     y = attr.ib()
+   >>> C2 = attr.make_class("C2", ["x", "y"])
+   >>> attr.fields(C1) == attr.fields(C2)
+   True
+
+You can still have power over the attributes if you pass a dictionary of name: ``attr.ib`` mappings and can pass arguments to ``@attr.s``:
+
+.. doctest::
+
+   >>> C = attr.make_class("C", {"x": attr.ib(default=42),
+   ...                           "y": attr.ib(default=attr.Factory(list))},
+   ...                     add_repr=False)
+   >>> i = C()
+   >>> i  # no repr added!
+   <attr._make.C object at ...>
+   >>> i.x
+   42
+   >>> i.y
+   []

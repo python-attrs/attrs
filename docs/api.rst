@@ -35,9 +35,13 @@ Core
 
    Instances of this class are frequently used for introspection purposes like:
 
-   - Class attributes on ``attrs``-decorated classes.
+   - Class attributes on ``attrs``-decorated classes *after* ``@attr.s`` has been applied.
    - :func:`fields` returns a list of them.
    - Validators get them passed as the first argument.
+
+   .. warning::
+
+       You should never instantiate this class yourself!
 
    .. doctest::
 
@@ -48,6 +52,22 @@ Core
       >>> C.x
       Attribute(name='x', default=NOTHING, validator=None)
 
+
+.. autofunction:: attr.make_class
+
+   This is handy if you want to programmatically create classes.
+
+   For example:
+
+   .. doctest::
+
+      >>> C1 = attr.make_class("C1", ["x", "y"])
+      >>> C1(1, 2)
+      C1(x=1, y=2)
+      >>> C2 = attr.make_class("C2", {"x": attr.ib(default=42),
+      ...                             "y": attr.ib(default=attr.Factory(list))})
+      >>> C2()
+      C2(x=42, y=[])
 
 .. autoclass:: attr.Factory
 

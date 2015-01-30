@@ -12,9 +12,10 @@ from attr._make import (
     Attribute,
     NOTHING,
     _CountingAttr,
-    attributes,
-    attr,
     _transform_attrs,
+    attr,
+    attributes,
+    make_class,
 )
 
 
@@ -194,3 +195,56 @@ class TestAttribute(object):
         with pytest.raises(TypeError) as e:
             Attribute(default=NOTHING, factory=NOTHING, validator=None)
         assert ("Missing argument 'name'.",) == e.value.args
+
+
+class TestMakeClass(object):
+    """
+    Tests for `make_class`.
+    """
+    @pytest.mark.parametrize("ls", [
+        list,
+        tuple
+    ])
+    def test_simple(self, ls):
+        """
+        Passing a list of strings creates attributes with default args.
+        """
+        C1 = make_class("C1", ls(["a", "b"]))
+
+        @attributes
+        class C2(object):
+            a = attr()
+            b = attr()
+
+        assert C1.__attrs_attrs__ == C2.__attrs_attrs__
+
+    def test_dict(self):
+        """
+        Passing a dict of name: _CountingAttr creates an equivalent class.
+        """
+        C1 = make_class("C1", {"a": attr(default=42), "b": attr(default=None)})
+
+        @attributes
+        class C2(object):
+            a = attr(default=42)
+            b = attr(default=None)
+
+        assert C1.__attrs_attrs__ == C2.__attrs_attrs__
+
+    def test_attr_args(self):
+        """
+        attributes_arguments are passed to attributes
+        """
+        C = make_class("C", ["x"], add_repr=False)
+        assert repr(C(1)).startswith("<attr._make.C object at 0x")
+
+    def test_catches_wrong_attrs_type(self):
+        """
+        Raise `TypeError` if an invalid type for attrs is passed.
+        """
+        with pytest.raises(TypeError) as e:
+            make_class("C", object())
+
+        assert (
+            "attrs argument must be a dict or a list.",
+        ) == e.value.args

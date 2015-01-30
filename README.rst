@@ -36,6 +36,9 @@ attrs: Python attributes without boilerplate.
    {'y': 2, 'x': 1}
    >>> C()
    C(x=42, y=[])
+   >>> C2 = attr.make_class("C2", ["a", "b"])
+   >>> C2("foo", "bar")
+   C2(a='foo', b='bar')
 
 (If you don’t like the playful ``attr.s`` and ``attr.ib``, you can also use their no-nonsense aliases ``attr.attributes`` and ``attr.attr``).
 

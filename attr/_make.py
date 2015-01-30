@@ -401,3 +401,29 @@ class Factory(object):
     generate a new value.
     """
     factory = attr()
+
+
+def make_class(name, attrs, **attributes_arguments):
+    """
+    A quick way to create a new class called *name* with *attrs*.
+
+    :param name: The name for the new class.
+    :type name: str
+
+    :param attrs: A list of names or a dictionary of mappings of names to
+        attributes.
+    :type attrs: :class:`list` or :class:`dict`
+
+    :param attributes_arguments: Passed unmodified to :func:`attr.s`.
+
+    :return: A new class with *attrs*.
+    :rtype: type
+    """
+    if isinstance(attrs, dict):
+        cl_dict = attrs
+    elif isinstance(attrs, (list, tuple)):
+        cl_dict = dict((a, attr()) for a in attrs)
+    else:
+        raise TypeError("attrs argument must be a dict or a list.")
+
+    return attributes(**attributes_arguments)(type(name, (object,), cl_dict))

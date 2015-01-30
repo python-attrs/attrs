@@ -14,6 +14,7 @@ from ._make import (
     NOTHING,
     attr,
     attributes,
+    make_class,
 )
 from . import validators
 
@@ -37,6 +38,7 @@ __all__ = [
     "fields",
     "has",
     "ib",
+    "make_class",
     "s",
     "validators",
 ]
