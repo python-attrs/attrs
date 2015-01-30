@@ -122,25 +122,23 @@ def attributes(maybe_cl=None, add_repr=True, add_cmp=True, add_hash=True,
             C(_private=42)
     :type add_init: bool
     """
+    def wrap(cl):
+        _transform_attrs(cl)
+        if add_repr is True:
+            cl = _add_repr(cl)
+        if add_cmp is True:
+            cl = _add_cmp(cl)
+        if add_hash is True:
+            cl = _add_hash(cl)
+        if add_init is True:
+            cl = _add_init(cl)
+        return cl
     # attrs_or class type depends on the usage of the decorator.  It's a class
     # if it's used as `@attributes` but ``None`` (or a value passed) if used
     # as `@attributes()`.
     if isinstance(maybe_cl, type):
-        _transform_attrs(maybe_cl)
-        return _add_init(_add_hash(_add_cmp(_add_repr(maybe_cl))))
+        return wrap(maybe_cl)
     else:
-        def wrap(cl):
-            _transform_attrs(cl)
-            if add_repr is True:
-                cl = _add_repr(cl)
-            if add_cmp is True:
-                cl = _add_cmp(cl)
-            if add_hash is True:
-                cl = _add_hash(cl)
-            if add_init is True:
-                cl = _add_init(cl)
-            return cl
-
         return wrap
 
 
