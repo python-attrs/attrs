@@ -43,10 +43,14 @@ def attr(default=NOTHING, validator=None, no_repr=False, no_cmp=False,
 
     .. warning::
 
-        Does nothing unless the class is also decorated with :func:`attr.s`!
+        Does *not* do anything unless the class is also decorated with
+        :func:`attr.s`!
 
     :param default: Value that is used if an ``attrs``-generated
-        ``__init__`` is used and no value is passed while instantiating.
+        ``__init__`` is used and no value is passed while instantiating.  If
+        the value an instance of :class:`Factory`, it callable will be use to
+        construct a new value (useful for mutable datatypes like lists or
+        dicts).
     :type default: Any value.
 
     :param validator: :func:`callable` that is called by ``attrs``-generated
@@ -361,8 +365,8 @@ class Attribute(object):
     *Read-only* representation of an attribute.
 
     :attribute name: The name of the attribute.
-    :attribute default: see :func:`attr.ib`
-    :attribute validator: see :func:`attr.ib`
+
+    Plus *all* arguments of :func:`attr.ib`.
     """
     _attributes = [
         "name", "default", "validator", "no_repr", "no_cmp", "no_hash",
