@@ -150,7 +150,7 @@ Helpers
       False
 
 
-.. autofunction:: valid
+.. autofunction:: validate
 
    For example:
 
@@ -161,7 +161,7 @@ Helpers
       ...     x = attr.ib(validator=attr.validators.instance_of(int))
       >>> i = C(1)
       >>> i.x = "1"
-      >>> attr.valid(i)
+      >>> attr.validate(i)
       Traceback (most recent call last):
          ...
       TypeError: ("'x' must be <type 'int'> (got '1' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>, no_repr=False, no_cmp=False, no_hash=False, no_init=False), <type 'int'>, '1')

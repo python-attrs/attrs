@@ -13,7 +13,7 @@ from attr._funcs import (
     assoc,
     fields,
     has,
-    valid,
+    validate,
 )
 from attr._make import (
     Attribute,
@@ -171,16 +171,16 @@ class TestAssoc(object):
         ) == e.value.args
 
 
-class TestValid(object):
+class TestValidate(object):
     """
-    Tests for `valid`.
+    Tests for `validate`.
     """
     def test_success(self):
         """
         If the validator suceeds, nothing gets raised.
         """
         C = make_class("C", {"x": attr(validator=lambda _, __: None)})
-        valid(C(1))
+        validate(C(1))
 
     def test_propagates(self):
         """
@@ -195,4 +195,4 @@ class TestValid(object):
         i.x = 42
 
         with pytest.raises(FloatingPointError):
-            valid(i)
+            validate(i)

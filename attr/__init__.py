@@ -7,7 +7,7 @@ from ._funcs import (
     assoc,
     fields,
     has,
-    valid,
+    validate,
 )
 from ._make import (
     Attribute,
@@ -41,6 +41,6 @@ __all__ = [
     "ib",
     "make_class",
     "s",
-    "valid",
+    "validate",
     "validators",
 ]

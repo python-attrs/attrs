@@ -120,13 +120,13 @@ If the value does not pass the validator's standards, it just raises an appropri
       ...
    ValueError: 'x' has to be smaller than 5!
 
-``attrs`` won't intercept your changes to those attributes but you can always call :func:``attr.valid`` on any instance to verify, that it's still valid:
+``attrs`` won't intercept your changes to those attributes but you can always call :func:``attr.validate`` on any instance to verify, that it's still valid:
 
 .. doctest::
 
    >>> i = C(4)
    >>> i.x = 5  # works, no magic here
-   >>> attr.valid(i)
+   >>> attr.validate(i)
    Traceback (most recent call last):
       ...
    ValueError: 'x' has to be smaller than 5!

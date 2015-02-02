@@ -94,7 +94,7 @@ def assoc(inst, **changes):
     return new
 
 
-def valid(inst):
+def validate(inst):
     """
     Validate all attributes on *inst* that have a validator.
 
