@@ -92,3 +92,15 @@ def assoc(inst, **changes):
             )
         setattr(new, k, v)
     return new
+
+
+def valid(inst):
+    """
+    Validate all attributes on *inst* that have a validator.
+
+    Leaves all exceptions through.
+
+    :param inst: Instance of a class with ``attrs`` attributes.
+    """
+    for a in fields(inst.__class__):
+        a.validator(a, getattr(inst, a.name))

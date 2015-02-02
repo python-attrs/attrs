@@ -13,11 +13,13 @@ from attr._funcs import (
     assoc,
     fields,
     has,
+    valid,
 )
 from attr._make import (
     Attribute,
     attr,
     attributes,
+    make_class,
 )
 
 
@@ -167,3 +169,30 @@ class TestAssoc(object):
         assert (
             "y is not an attrs attribute on {cl!r}.".format(cl=C),
         ) == e.value.args
+
+
+class TestValid(object):
+    """
+    Tests for `valid`.
+    """
+    def test_success(self):
+        """
+        If the validator suceeds, nothing gets raised.
+        """
+        C = make_class("C", {"x": attr(validator=lambda _, __: None)})
+        valid(C(1))
+
+    def test_propagates(self):
+        """
+        The exception of the validator is handed through.
+        """
+        def raiser(_, value):
+            if value == 42:
+                raise FloatingPointError
+
+        C = make_class("C", {"x": attr(validator=raiser)})
+        i = C(1)
+        i.x = 42
+
+        with pytest.raises(FloatingPointError):
+            valid(i)
