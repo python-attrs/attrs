@@ -30,7 +30,7 @@ def fields(cl):
     return copy.deepcopy(attrs)
 
 
-def asdict(inst, recurse=True):
+def asdict(inst, recurse=True, skip=None):
     """
     Return the ``attrs`` attribute values of *i* as a dict.  Optionally recurse
     into other ``attrs``-decorated classes.
@@ -40,14 +40,30 @@ def asdict(inst, recurse=True):
     :param recurse: Recurse into classes that are also ``attrs``-decorated.
     :type recurse: bool
 
+    :param skip: A filter function that causes elements to be left out if it
+        returns ``True``.  Is called with the :class:`attr.Attribute` as the
+        first argument and the value as the second argument.
+    :type skip: callable
+
     :rtype: :class:`dict`
     """
     attrs = fields(inst.__class__)
     rv = {}
     for a in attrs:
         v = getattr(inst, a.name)
-        if recurse is True and has(v.__class__):
-            rv[a.name] = asdict(v, recurse=True)
+        if skip is not None and skip(a, v):
+            continue
+        if recurse is True:
+            if has(v.__class__):
+                rv[a.name] = asdict(v, recurse=True, skip=skip)
+            elif isinstance(v, (tuple, list, set)):
+                rv[a.name] = [asdict(i, recurse=True, skip=skip) for i in v]
+            elif isinstance(v, dict):
+                rv[a.name] = dict((asdict(kk) if has(kk.__class__) else kk,
+                                   asdict(vv) if has(vv.__class__) else vv)
+                                  for kk, vv in iteritems(v))
+            else:
+                rv[a.name] = v
         else:
             rv[a.name] = v
     return rv

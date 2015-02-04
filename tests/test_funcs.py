@@ -92,6 +92,39 @@ class TestAsDict(object):
             C(3, 4),
         ))
 
+    def test_skip(self):
+        """
+        Attributes that are supposed to be skipped are skipped.
+        """
+        assert {
+            "x": {"x": 1},
+        } == asdict(C(
+            C(1, 2),
+            C(3, 4),
+        ), skip=lambda a, v: a.name == "y")
+
+    @pytest.mark.parametrize("container", [
+        list,
+        tuple,
+    ])
+    def test_lists_tuples(self, container):
+        """
+        If recurse is True, also recurse into lists.
+        """
+        assert {
+            "x": 1,
+            "y": [{"x": 2, "y": 3}, {"x": 4, "y": 5}],
+        } == asdict(C(1, container([C(2, 3), C(4, 5)])))
+
+    def test_dicts(self):
+        """
+        If recurse is True, also recurse into dicts.
+        """
+        assert {
+            "x": 1,
+            "y": {"a": {"x": 4, "y": 5}},
+        } == asdict(C(1, {"a": C(4, 5)}))
+
 
 class TestHas(object):
     """
