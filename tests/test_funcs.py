@@ -113,8 +113,8 @@ class TestAsDict(object):
         """
         assert {
             "x": 1,
-            "y": [{"x": 2, "y": 3}, {"x": 4, "y": 5}],
-        } == asdict(C(1, container([C(2, 3), C(4, 5)])))
+            "y": [{"x": 2, "y": 3}, {"x": 4, "y": 5}, "a"],
+        } == asdict(C(1, container([C(2, 3), C(4, 5), "a"])))
 
     def test_dicts(self):
         """

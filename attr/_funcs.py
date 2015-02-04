@@ -57,7 +57,11 @@ def asdict(inst, recurse=True, skip=None):
             if has(v.__class__):
                 rv[a.name] = asdict(v, recurse=True, skip=skip)
             elif isinstance(v, (tuple, list, set)):
-                rv[a.name] = [asdict(i, recurse=True, skip=skip) for i in v]
+                rv[a.name] = [
+                    asdict(i, recurse=True, skip=skip)
+                    if has(i.__class__) else i
+                    for i in v
+                ]
             elif isinstance(v, dict):
                 rv[a.name] = dict((asdict(kk) if has(kk.__class__) else kk,
                                    asdict(vv) if has(vv.__class__) else vv)
