@@ -3,6 +3,10 @@
 Examples
 ========
 
+
+Basics
+------
+
 The simplest possible usage would be:
 
 .. doctest::
@@ -58,6 +62,37 @@ If playful naming turns you off, ``attrs`` comes with no-nonsense aliases:
    True
 
 
+Converting to Dictionaries
+--------------------------
+
+When you have a class with data, it often is very convenient to transform that class into a :class:`dict` (for example if you want to serialize it to JSON):
+
+.. doctest::
+
+   >>> attr.asdict(Coordinates(x=1, y=2))
+   {'y': 2, 'x': 1}
+
+Some fields cannot or should not be transformed.
+For that, :func:`attr.asdict` offers a callback that decides whether an attribute should be skipped:
+
+.. doctest::
+
+   >>> @attr.s
+   ... class UserList(object):
+   ...     users = attr.ib()
+   >>> @attr.s
+   ... class User(object):
+   ...     email = attr.ib()
+   ...     password = attr.ib()
+   >>> attr.asdict(UserList([User("jane@doe.invalid", "s33kred"),
+   ...                       User("joe@doe.invalid", "p4ssw0rd")]),
+   ...             skip=lambda attr, value: attr.name == "password")
+   {'users': [{'email': 'jane@doe.invalid'}, {'email': 'joe@doe.invalid'}]}
+
+
+Defaults
+--------
+
 Sometimes you want to have default values for your initializer.
 And sometimes you even want mutable objects as default values (ever used accidentally ``def f(arg=[])``?).
 ``attrs`` has you covered in both cases:
@@ -100,6 +135,10 @@ And sometimes you even want mutable objects as default values (ever used acciden
    ConnectionPool(db_string='postgres://localhost', pool=deque([Connection(socket=42)]), debug=False)
 
 More information on why class methods for constructing objects are awesome can be found in this insightful `blog post <http://as.ynchrono.us/2014/12/asynchronous-object-initialization.html>`_.
+
+
+Validators
+----------
 
 Although your initializers should be a dumb as possible, it can come handy to do some kind of validation on the arguments.
 That's when :func:`attr.ib`\ ’s ``validator`` argument comes into play.
@@ -167,6 +206,10 @@ If you like `zope.interface <http://docs.zope.org/zope.interface/api.html#zope-i
    ...         print("hello, world")
    >>> C(Foo())
    C(x=Foo())
+
+
+Other Goodies
+-------------
 
 For private attributes, ``attrs`` will strip the leading underscores for keyword arguments:
 
