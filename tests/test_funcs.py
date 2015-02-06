@@ -92,7 +92,7 @@ class TestAsDict(object):
             C(3, 4),
         ))
 
-    def test_skip(self):
+    def test_filter(self):
         """
         Attributes that are supposed to be skipped are skipped.
         """
@@ -101,7 +101,7 @@ class TestAsDict(object):
         } == asdict(C(
             C(1, 2),
             C(3, 4),
-        ), skip=lambda a, v: a.name == "y")
+        ), filter=lambda a, v: a.name != "y")
 
     @pytest.mark.parametrize("container", [
         list,

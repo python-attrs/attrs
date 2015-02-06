@@ -30,7 +30,7 @@ def fields(cl):
     return copy.deepcopy(attrs)
 
 
-def asdict(inst, recurse=True, skip=None):
+def asdict(inst, recurse=True, filter=None):
     """
     Return the ``attrs`` attribute values of *i* as a dict.  Optionally recurse
     into other ``attrs``-decorated classes.
@@ -40,10 +40,11 @@ def asdict(inst, recurse=True, skip=None):
     :param recurse: Recurse into classes that are also ``attrs``-decorated.
     :type recurse: bool
 
-    :param skip: A filter function that causes elements to be left out if it
-        returns ``True``.  Is called with the :class:`attr.Attribute` as the
-        first argument and the value as the second argument.
-    :type skip: callable
+    :param filter: A callable whose return code deteremines whether an
+        attribute or element is included (``True``) or dropped (``False``).  Is
+        called with the :class:`attr.Attribute` as the first argument and the
+        value as the second argument.
+    :type filer: callable
 
     :rtype: :class:`dict`
     """
@@ -51,14 +52,14 @@ def asdict(inst, recurse=True, skip=None):
     rv = {}
     for a in attrs:
         v = getattr(inst, a.name)
-        if skip is not None and skip(a, v):
+        if filter is not None and not filter(a, v):
             continue
         if recurse is True:
             if has(v.__class__):
-                rv[a.name] = asdict(v, recurse=True, skip=skip)
+                rv[a.name] = asdict(v, recurse=True, filter=filter)
             elif isinstance(v, (tuple, list, set)):
                 rv[a.name] = [
-                    asdict(i, recurse=True, skip=skip)
+                    asdict(i, recurse=True, filter=filter)
                     if has(i.__class__) else i
                     for i in v
                 ]

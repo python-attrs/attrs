@@ -73,7 +73,7 @@ When you have a class with data, it often is very convenient to transform that c
    {'y': 2, 'x': 1}
 
 Some fields cannot or should not be transformed.
-For that, :func:`attr.asdict` offers a callback that decides whether an attribute should be skipped:
+For that, :func:`attr.asdict` offers a callback that decides whether an attribute should be included:
 
 .. doctest::
 
@@ -86,7 +86,7 @@ For that, :func:`attr.asdict` offers a callback that decides whether an attribut
    ...     password = attr.ib()
    >>> attr.asdict(UserList([User("jane@doe.invalid", "s33kred"),
    ...                       User("joe@doe.invalid", "p4ssw0rd")]),
-   ...             skip=lambda attr, value: attr.name == "password")
+   ...             filter=lambda attr, value: attr.name != "password")
    {'users': [{'email': 'jane@doe.invalid'}, {'email': 'joe@doe.invalid'}]}
 
 
