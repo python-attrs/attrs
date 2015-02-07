@@ -259,7 +259,7 @@ You can still have power over the attributes if you pass a dictionary of name: `
 
    >>> C = attr.make_class("C", {"x": attr.ib(default=42),
    ...                           "y": attr.ib(default=attr.Factory(list))},
-   ...                     add_repr=False)
+   ...                     no_repr=True)
    >>> i = C()
    >>> i  # no repr added!
    <attr._make.C object at ...>

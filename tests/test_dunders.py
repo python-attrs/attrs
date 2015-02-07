@@ -24,9 +24,9 @@ from attr._make import (
 from attr.validators import instance_of
 
 
-CmpC = simple_class(add_cmp=True)
-ReprC = simple_class(add_repr=True)
-HashC = simple_class(add_hash=True)
+CmpC = simple_class(no_cmp=False)
+ReprC = simple_class(no_repr=False)
+HashC = simple_class(no_hash=False)
 
 
 class InitC(object):

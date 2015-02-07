@@ -110,29 +110,30 @@ def _transform_attrs(cl):
         setattr(cl, attr_name, a)
 
 
-def attributes(maybe_cl=None, add_repr=True, add_cmp=True, add_hash=True,
-               add_init=True):
+def attributes(maybe_cl=None, no_repr=False, no_cmp=False, no_hash=False,
+               no_init=False):
     """
     A class decorator that adds `dunder
     <https://wiki.python.org/moin/DunderAlias>`_\ -methods according to the
     specified attributes using :func:`attr.ib`.
 
-    :param add_repr: Create a ``__repr__`` method with a human readable
+    :param no_repr: Don't create a ``__repr__`` method with a human readable
         represantation of ``attrs`` attributes..
-    :type add_repr: bool
+    :type no_repr: bool
 
-    :param add_cmp: Create ``__eq__``, ``__ne__``, ``__lt__``, ``__le__``,
+    :param no_cmp: Don't create ``__eq__``, ``__ne__``, ``__lt__``, ``__le__``,
         ``__gt__``, and ``__ge__`` methods that compare the class as if it were
         a tuple of its ``attrs`` attributes.  But the attributes are *only*
         compared, if the type of both classes is *identical*!
-    :type add_cmp: bool
+    :type no_cmp: bool
 
-    :param add_hash: Add a ``__hash__`` method that returns the :func:`hash` of
-        a tuple of all ``attrs`` attribute values.
-    :type add_hash: bool
+    :param no_hash: Don't add a ``__hash__`` method that returns the
+        :func:`hash` of a tuple of all ``attrs`` attribute values.
+    :type no_hash: bool
 
-    :param add_init: Add a ``__init__`` method that initialiazes the ``attrs``
-        attributes.  Leading underscores are stripped for the argument name:.
+    :param no_init: Don't add a ``__init__`` method that initialiazes the
+        ``attrs`` attributes.  Leading underscores are stripped for the
+        argument name:.
 
         .. doctest::
 
@@ -142,17 +143,17 @@ def attributes(maybe_cl=None, add_repr=True, add_cmp=True, add_hash=True,
             ...     _private = attr.ib()
             >>> C(private=42)
             C(_private=42)
-    :type add_init: bool
+    :type no_init: bool
     """
     def wrap(cl):
         _transform_attrs(cl)
-        if add_repr is True:
+        if not no_repr:
             cl = _add_repr(cl)
-        if add_cmp is True:
+        if not no_cmp:
             cl = _add_cmp(cl)
-        if add_hash is True:
+        if not no_hash:
             cl = _add_hash(cl)
-        if add_init is True:
+        if not no_init:
             cl = _add_init(cl)
         return cl
 

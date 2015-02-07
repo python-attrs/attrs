@@ -154,10 +154,10 @@ class TestAttributes(object):
         assert sentinel != getattr(C2, method_name)
 
     @pytest.mark.parametrize("arg_name, method_name", [
-        ("add_repr", "__repr__"),
-        ("add_cmp", "__eq__"),
-        ("add_hash", "__hash__"),
-        ("add_init", "__init__"),
+        ("no_repr", "__repr__"),
+        ("no_cmp", "__eq__"),
+        ("no_hash", "__hash__"),
+        ("no_init", "__init__"),
     ])
     def test_respects_add_arguments(self, arg_name, method_name):
         """
@@ -168,12 +168,12 @@ class TestAttributes(object):
         sentinel = object()
 
         am_args = {
-            "add_repr": True,
-            "add_cmp": True,
-            "add_hash": True,
-            "add_init": True
+            "no_repr": False,
+            "no_cmp": False,
+            "no_hash": False,
+            "no_init": False
         }
-        am_args[arg_name] = False
+        am_args[arg_name] = True
 
         class C(object):
             x = attr()
@@ -246,7 +246,7 @@ class TestMakeClass(object):
         """
         attributes_arguments are passed to attributes
         """
-        C = make_class("C", ["x"], add_repr=False)
+        C = make_class("C", ["x"], no_repr=True)
         assert repr(C(1)).startswith("<attr._make.C object at 0x")
 
     def test_catches_wrong_attrs_type(self):

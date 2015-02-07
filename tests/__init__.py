@@ -6,14 +6,13 @@ from attr import Attribute
 from attr._make import NOTHING, make_class
 
 
-def simple_class(add_cmp=False, add_repr=False, add_hash=False):
+def simple_class(no_cmp=True, no_repr=True, no_hash=True):
     """
     Return a new simple class.
     """
     return make_class(
         "C", ["a", "b"],
-        add_cmp=add_cmp, add_repr=add_repr, add_hash=add_hash,
-        add_init=True,
+        no_cmp=no_cmp, no_repr=no_repr, no_hash=no_hash, no_init=False,
     )
 
 
