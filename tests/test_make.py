@@ -90,7 +90,7 @@ class TestTransformAttrs(object):
         with pytest.raises(ValueError) as e:
             _transform_attrs(C)
         assert (
-            "No mandatory attributes allowed after an atribute with a "
+            "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, no_repr=False, "
             "no_cmp=False, no_hash=False, no_init=False)",

@@ -100,7 +100,7 @@ def _transform_attrs(cl):
         a = Attribute.from_counting_attr(name=attr_name, ca=ca)
         if had_default is True and a.default is NOTHING:
             raise ValueError(
-                "No mandatory attributes allowed after an atribute with a "
+                "No mandatory attributes allowed after an attribute with a "
                 "default value or factory.  Attribute in question: {a!r}"
                 .format(a=a)
             )
