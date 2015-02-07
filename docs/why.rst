@@ -216,3 +216,5 @@ Main Differences
 - The names are held shorter and easy to both type and read.
 - It is generally more opinionated towards typical uses.
   This ensures I'll not wake up in a year hating to use it.
+- The generated ``__init__`` methods are faster because of certain features that have been left out intentionally.
+  The generated code should be as fast as hand-written one.
