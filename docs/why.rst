@@ -213,6 +213,7 @@ Main Differences
 - The attributes are defined *within* the class definition such that code analyzers know about their existence.
   This is useful in IDEs like PyCharm or linters like PyLint.
   ``attrs``'s classes look much more idiomatic than ``characteristic``'s.
+  Since it's useful to use ``attrs`` with classes you don't control (e.g. Django models), a similar way to ``characteristic``'s is still supported.
 - The names are held shorter and easy to both type and read.
 - It is generally more opinionated towards typical uses.
   This ensures I'll not wake up in a year hating to use it.

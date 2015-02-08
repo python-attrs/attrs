@@ -8,6 +8,7 @@ from __future__ import absolute_import, division, print_function
 
 import pytest
 
+from . import simple_attr
 from attr._make import (
     Attribute,
     NOTHING,
@@ -49,7 +50,7 @@ class TestTransformAttrs(object):
         Transforms every `_CountingAttr` and leaves others (a) be.
         """
         C = make_tc()
-        _transform_attrs(C)
+        _transform_attrs(C, None)
         assert ["z", "y", "x"] == [a.name for a in C.__attrs_attrs__]
 
     def test_empty(self):
@@ -60,7 +61,7 @@ class TestTransformAttrs(object):
         class C(object):
             pass
 
-        _transform_attrs(C)
+        _transform_attrs(C, None)
 
         assert [] == C.__attrs_attrs__
 
@@ -74,7 +75,7 @@ class TestTransformAttrs(object):
         All `_CountingAttr`s are transformed into `Attribute`s.
         """
         C = make_tc()
-        _transform_attrs(C)
+        _transform_attrs(C, None)
 
         assert isinstance(getattr(C, attribute), Attribute)
 
@@ -88,13 +89,26 @@ class TestTransformAttrs(object):
             y = attr()
 
         with pytest.raises(ValueError) as e:
-            _transform_attrs(C)
+            _transform_attrs(C, None)
         assert (
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, no_repr=False, "
             "no_cmp=False, no_hash=False, no_init=False)",
         ) == e.value.args
+
+    def test_these(self):
+        """
+        If these is passed, use it and ignore body.
+        """
+        class C(object):
+            y = attr()
+
+        _transform_attrs(C, {"x": attr()})
+        assert [
+            simple_attr("x"),
+        ] == C.__attrs_attrs__
+        assert isinstance(C.y, _CountingAttr)
 
 
 class TestAttributes(object):

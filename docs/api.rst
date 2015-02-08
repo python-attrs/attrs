@@ -24,6 +24,26 @@ Core
 
       ``attrs`` also comes with a less playful alias ``attr.attributes``.
 
+   For example:
+
+   .. doctest::
+
+      >>> import attr
+      >>> @attr.s
+      ... class C(object):
+      ...     _private = attr.ib()
+      >>> C(private=42)
+      C(_private=42)
+      >>> class D(object):
+      ...     def __init__(self, x):
+      ...         self.x = x
+      >>> D(1)
+      <D object at ...>
+      >>> D = attr.s(these={"x": attr.ib()}, no_init=True)(D)
+      >>> D(1)
+      D(x=1)
+
+
 .. autofunction:: attr.ib
 
    .. note::

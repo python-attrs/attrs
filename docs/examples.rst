@@ -61,6 +61,47 @@ If playful naming turns you off, ``attrs`` comes with no-nonsense aliases:
    >>> attr.fields(Coordinates) == attr.fields(SeriousCoordinates)
    True
 
+For private attributes, ``attrs`` will strip the leading underscores for keyword arguments:
+
+.. doctest::
+
+   >>> @attr.s
+   ... class C(object):
+   ...     _x = attr.ib()
+   >>> C(x=1)
+   C(_x=1)
+
+An additional way (not unlike ``characteristic``) of defining attributes is supported too.
+This is useful in times when you want to enhance classes that are not yours (nice ``__repr__`` for Django models anyone?):
+
+.. doctest::
+
+   >>> class SomethingFromSomeoneElse(object):
+   ...     def __init__(self, x):
+   ...         self.x = x
+   >>> SomethingFromSomeoneElse = attr.s(these={"x": attr.ib()}, no_init=True)(SomethingFromSomeoneElse)
+   >>> SomethingFromSomeoneElse(1)
+   SomethingFromSomeoneElse(x=1)
+
+Or if you want to use properties:
+
+.. doctest::
+
+   >>> @attr.s(these={"_x": attr.ib()})
+   ... class ReadOnlyXSquared(object):
+   ...    @property
+   ...    def x(self):
+   ...       return self._x ** 2
+   >>> rox = ReadOnlyXSquared(x=5)
+   >>> rox
+   ReadOnlyXSquared(_x=5)
+   >>> rox.x
+   25
+   >>> rox.x = 6
+   Traceback (most recent call last):
+      ...
+   AttributeError: can't set attribute
+
 
 Converting to Dictionaries
 --------------------------
@@ -210,16 +251,6 @@ If you like `zope.interface <http://docs.zope.org/zope.interface/api.html#zope-i
 
 Other Goodies
 -------------
-
-For private attributes, ``attrs`` will strip the leading underscores for keyword arguments:
-
-.. doctest::
-
-   >>> @attr.s
-   ... class C(object):
-   ...     _x = attr.ib()
-   >>> C(x=1)
-   C(_x=1)
 
 Do you like Rich Hickey?
 I'm glad to report that Clojure's core feature is part of ``attrs``: `assoc <https://clojuredocs.org/clojure.core/assoc>`_!

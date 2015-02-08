@@ -5,7 +5,7 @@ from __future__ import absolute_import, division, print_function
 import hashlib
 import linecache
 
-from ._compat import exec_
+from ._compat import exec_, iteritems
 
 
 class _Nothing(object):
@@ -84,20 +84,33 @@ def attr(default=NOTHING, validator=None, no_repr=False, no_cmp=False,
     )
 
 
-def _transform_attrs(cl):
+def _transform_attrs(cl, these):
     """
     Transforms all `_CountingAttr`s on a class into `Attribute`s and saves the
     list in `__attrs_attrs__`.
+
+    If *these* is passed, use that and don't look for them on the class.
     """
-    cl.__attrs_attrs__ = []
+    if these is None:
+        ca_list = [(name, attr)
+                   for name, attr
+                   in cl.__dict__.items()
+                   if isinstance(attr, _CountingAttr)]
+    else:
+        ca_list = [(name, ca)
+                   for name, ca
+                   in iteritems(these)]
+
+    cl.__attrs_attrs__ = [
+        Attribute.from_counting_attr(name=attr_name, ca=ca)
+        for attr_name, ca
+        in sorted(ca_list, key=lambda e: e[1].counter)
+    ]
+
     had_default = False
-    for attr_name, ca in sorted(
-            ((name, attr) for name, attr
-             in cl.__dict__.items()
-             if isinstance(attr, _CountingAttr)),
-            key=lambda e: e[1].counter
-    ):
-        a = Attribute.from_counting_attr(name=attr_name, ca=ca)
+    for a in cl.__attrs_attrs__:
+        if these is None:
+            setattr(cl, a.name, a)
         if had_default is True and a.default is NOTHING:
             raise ValueError(
                 "No mandatory attributes allowed after an attribute with a "
@@ -106,16 +119,23 @@ def _transform_attrs(cl):
             )
         elif had_default is False and a.default is not NOTHING:
             had_default = True
-        cl.__attrs_attrs__.append(a)
-        setattr(cl, attr_name, a)
 
 
-def attributes(maybe_cl=None, no_repr=False, no_cmp=False, no_hash=False,
-               no_init=False):
+def attributes(maybe_cl=None, these=None,
+               no_repr=False, no_cmp=False, no_hash=False, no_init=False):
     """
     A class decorator that adds `dunder
     <https://wiki.python.org/moin/DunderAlias>`_\ -methods according to the
-    specified attributes using :func:`attr.ib`.
+    specified attributes using :func:`attr.ib` or the *these* argument.
+
+    :param these: A dictionary of name to :func:`attr.ib` mappings.  This is
+        useful to avoid the definition of your attributes within the class body
+        because you can't (e.g. if you want to add ``__repr__`` methods to
+        Django models) or don't want to (e.g. if you want to use
+        :class:`properties <property>`).
+
+        If *these* is not `None`, the class body is *ignored*.
+    :type these: class:`dict` of :class:`str` to :func:`attr.ib`
 
     :param no_repr: Don't create a ``__repr__`` method with a human readable
         represantation of ``attrs`` attributes..
@@ -133,20 +153,12 @@ def attributes(maybe_cl=None, no_repr=False, no_cmp=False, no_hash=False,
 
     :param no_init: Don't add a ``__init__`` method that initialiazes the
         ``attrs`` attributes.  Leading underscores are stripped for the
-        argument name:.
+        argument name.
 
-        .. doctest::
-
-            >>> import attr
-            >>> @attr.s
-            ... class C(object):
-            ...     _private = attr.ib()
-            >>> C(private=42)
-            C(_private=42)
     :type no_init: bool
     """
     def wrap(cl):
-        _transform_attrs(cl)
+        _transform_attrs(cl, these)
         if not no_repr:
             cl = _add_repr(cl)
         if not no_cmp:
