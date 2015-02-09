@@ -189,32 +189,35 @@ A validator is simply a callable that takes three arguments:
 #. The *attribute* that it's validating
 #. and finally the *value* that is passed for it.
 
-If the value does not pass the validator's standards, it just raises an appropriate exception:
+If the value does not pass the validator's standards, it just raises an appropriate exception.
+Since the validator runs *after* the instance is initialized, you can refer to other attributes while validating :
 
 .. doctest::
 
-   >>> def smaller_than_5(instance, attribute, value):
-   ...     if value >= 5:
-   ...         raise ValueError("'{name}' has to be smaller than 5!"
-   ...                          .format(name=attribute.name))
+   >>> def x_smaller_than_y(instance, attribute, value):
+   ...     if value >= instance.y:
+   ...         raise ValueError("'x' has to be smaller than 'y'!")
    >>> @attr.s
    ... class C(object):
-   ...     x = attr.ib(validator=smaller_than_5)
-   >>> C(42)
+   ...     x = attr.ib(validator=x_smaller_than_y)
+   ...     y = attr.ib()
+   >>> C(x=3, y=4)
+   C(x=3, y=4)
+   >>> C(x=4, y=3)
    Traceback (most recent call last):
       ...
-   ValueError: 'x' has to be smaller than 5!
+   ValueError: 'x' has to be smaller than 'y'!
 
 ``attrs`` won't intercept your changes to those attributes but you can always call :func:`attr.validate` on any instance to verify, that it's still valid:
 
 .. doctest::
 
-   >>> i = C(4)
+   >>> i = C(4, 5)
    >>> i.x = 5  # works, no magic here
    >>> attr.validate(i)
    Traceback (most recent call last):
       ...
-   ValueError: 'x' has to be smaller than 5!
+   ValueError: 'x' has to be smaller than 'y'!
 
 ``attrs`` ships with a bunch of validators, make sure to :ref:`check them out <api_validators>` before writing your own:
 
