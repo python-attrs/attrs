@@ -55,8 +55,9 @@ def attr(default=NOTHING, validator=None, no_repr=False, no_cmp=False,
     :type default: Any value.
 
     :param validator: :func:`callable` that is called by ``attrs``-generated
-        ``__init__`` methods.  They receive the :class:`Attribute` as the first
-        parameter and the passed value as the second parameter.
+        ``__init__`` methods after the instance has been initialized.  They
+        receive the initialized instance, the :class:`Attribute`, and the
+        passed value.
 
         The return value is *not* inspected so the validator has to throw an
         exception itself.
