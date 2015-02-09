@@ -212,8 +212,9 @@ class TestValidate(object):
         """
         If the validator suceeds, nothing gets raised.
         """
-        C = make_class("C", {"x": attr(validator=lambda _, __: None)})
-        validate(C(1))
+        C = make_class("C", {"x": attr(validator=lambda _, __: None),
+                             "y": attr()})
+        validate(C(1, 2))
 
     def test_propagates(self):
         """

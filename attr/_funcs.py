@@ -124,4 +124,5 @@ def validate(inst):
     :param inst: Instance of a class with ``attrs`` attributes.
     """
     for a in fields(inst.__class__):
-        a.validator(a, getattr(inst, a.name))
+        if a.validator is not None:
+            a.validator(a, getattr(inst, a.name))
