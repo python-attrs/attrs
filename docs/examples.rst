@@ -183,12 +183,17 @@ Validators
 
 Although your initializers should be a dumb as possible, it can come handy to do some kind of validation on the arguments.
 That's when :func:`attr.ib`\ ’s ``validator`` argument comes into play.
-A validator is simply a callable that takes two arguments: the attribute that it's validating and the value that is passed for it.
+A validator is simply a callable that takes three arguments: 
+
+#. The *instance* that's being validated.
+#. The *attribute* that it's validating
+#. and finally the *value* that is passed for it.
+
 If the value does not pass the validator's standards, it just raises an appropriate exception:
 
 .. doctest::
 
-   >>> def smaller_than_5(attribute, value):
+   >>> def smaller_than_5(instance, attribute, value):
    ...     if value >= 5:
    ...         raise ValueError("'{name}' has to be smaller than 5!"
    ...                          .format(name=attribute.name))

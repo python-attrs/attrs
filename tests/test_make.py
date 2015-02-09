@@ -16,7 +16,9 @@ from attr._make import (
     _transform_attrs,
     attr,
     attributes,
+    fields,
     make_class,
+    validate,
 )
 
 
@@ -273,3 +275,69 @@ class TestMakeClass(object):
         assert (
             "attrs argument must be a dict or a list.",
         ) == e.value.args
+
+
+class TestFields(object):
+    """
+    Tests for `fields`.
+    """
+    def test_instance(self, C):
+        """
+        Raises `TypeError` on non-classes.
+        """
+        with pytest.raises(TypeError) as e:
+            fields(C(1, 2))
+        assert "Passed object must be a class." == e.value.args[0]
+
+    def test_handler_non_attrs_class(self, C):
+        """
+        Raises `ValueError` if passed a non-``attrs`` instance.
+        """
+        with pytest.raises(ValueError) as e:
+            fields(object)
+        assert (
+            "{o!r} is not an attrs-decorated class.".format(o=object)
+        ) == e.value.args[0]
+
+    def test_fields(self, C):
+        """
+        Returns a list of `Attribute`a.
+        """
+        assert all(isinstance(a, Attribute) for a in fields(C))
+
+    def test_copies(self, C):
+        """
+        Returns a new list object with new `Attribute` objects.
+        """
+        assert C.__attrs_attrs__ is not fields(C)
+        assert all(new == original and new is not original
+                   for new, original
+                   in zip(fields(C), C.__attrs_attrs__))
+
+
+class TestValidate(object):
+    """
+    Tests for `validate`.
+    """
+    def test_success(self):
+        """
+        If the validator suceeds, nothing gets raised.
+        """
+        C = make_class("C", {"x": attr(validator=lambda *a: None),
+                             "y": attr()})
+        validate(C(1, 2))
+
+    def test_propagates(self):
+        """
+        The exception of the validator is handed through.
+        """
+        def raiser(_, __, value):
+            if value == 42:
+                raise FloatingPointError
+
+        C = make_class("C", {"x": attr(validator=raiser)})
+        i = C(1)
+        i.x = 42
+
+        with pytest.raises(FloatingPointError):
+            validate(i)

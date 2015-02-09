@@ -255,18 +255,20 @@ class TestAddInit(object):
 
     def test_validator(self):
         """
-        If a validator is passed, call it with the Attribute and the argument.
+        If a validator is passed, call it with the preliminary instance, the
+        Attribute, and the argument.
         """
         class VException(Exception):
             pass
 
         def raiser(*args):
-            raise VException(args)
+            raise VException(*args)
 
         C = make_class("C", {"a": attr("a", validator=raiser)})
         with pytest.raises(VException) as e:
             C(42)
-        assert ((C.a, 42,),) == e.value.args
+        assert (C.a, 42,) == e.value.args[1:]
+        assert isinstance(e.value.args[0], C)
 
     def test_validator_others(self):
         """

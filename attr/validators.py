@@ -9,7 +9,7 @@ from ._make import attr, attributes
 class _InstanceOfValidator(object):
     type_ = attr()
 
-    def __call__(self, attr, value):
+    def __call__(self, inst, attr, value):
         """
         We use a callable class to be able to change the ``__repr__``.
         """
@@ -49,7 +49,7 @@ def instance_of(type_):
 class _ProvidesValidator(object):
     interface = attr()
 
-    def __call__(self, attr, value):
+    def __call__(self, inst, attr, value):
         """
         We use a callable class to be able to change the ``__repr__``.
         """

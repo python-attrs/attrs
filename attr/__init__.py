@@ -5,9 +5,7 @@ from __future__ import absolute_import, division, print_function
 from ._funcs import (
     asdict,
     assoc,
-    fields,
     has,
-    validate,
 )
 from ._make import (
     Attribute,
@@ -15,7 +13,9 @@ from ._make import (
     NOTHING,
     attr,
     attributes,
+    fields,
     make_class,
+    validate,
 )
 from . import validators
 

@@ -23,14 +23,15 @@ class TestInstanceOf(object):
         Nothing happens if types match.
         """
         v = instance_of(int)
-        v(simple_attr("test"), 42)
+        v(None, simple_attr("test"), 42)
 
     def test_subclass(self):
         """
         Subclasses are accepted too.
         """
         v = instance_of(int)
-        v(simple_attr("test"), True)  # yep, bools are a subclass of int :(
+        # yep, bools are a subclass of int :(
+        v(None, simple_attr("test"), True)
 
     def test_fail(self):
         """
@@ -39,7 +40,7 @@ class TestInstanceOf(object):
         v = instance_of(int)
         a = simple_attr("test")
         with pytest.raises(TypeError) as e:
-            v(a, "42")
+            v(None, a, "42")
         assert (
             "'test' must be <{type} 'int'> (got '42' that is a <{type} "
             "'str'>).".format(type=TYPE),
@@ -82,7 +83,7 @@ class TestProvides(object):
                 pass
 
         v = provides(IFoo)
-        v(simple_attr("x"), C())
+        v(None, simple_attr("x"), C())
 
     def test_fail(self):
         """
@@ -93,7 +94,7 @@ class TestProvides(object):
 
         v = provides(IFoo)
         with pytest.raises(TypeError) as e:
-            v(a, value)
+            v(None, a, value)
         assert (
             "'x' must provide {interface!r} which {value!r} doesn't."
             .format(interface=IFoo, value=value),

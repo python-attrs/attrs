@@ -5,29 +5,7 @@ from __future__ import absolute_import, division, print_function
 import copy
 
 from ._compat import iteritems
-from ._make import Attribute, NOTHING
-
-
-def fields(cl):
-    """
-    Returns the list of ``attrs`` attributes for a class.
-
-    :param cl: Class to introspect.
-    :type cl: type
-
-    :raise TypeError: If *cl* is not a class.
-    :raise ValueError: If *cl* is not an ``attrs`` class.
-
-    :rtype: :class:`list` of :class:`attr.Attribute`
-    """
-    if not isinstance(cl, type):
-        raise TypeError("Passed object must be a class.")
-    attrs = getattr(cl, "__attrs_attrs__", None)
-    if attrs is None:
-        raise ValueError("{cl!r} is not an attrs-decorated class.".format(
-            cl=cl
-        ))
-    return copy.deepcopy(attrs)
+from ._make import Attribute, NOTHING, fields
 
 
 def asdict(inst, recurse=True, filter=None):
@@ -113,16 +91,3 @@ def assoc(inst, **changes):
             )
         setattr(new, k, v)
     return new
-
-
-def validate(inst):
-    """
-    Validate all attributes on *inst* that have a validator.
-
-    Leaves all exceptions through.
-
-    :param inst: Instance of a class with ``attrs`` attributes.
-    """
-    for a in fields(inst.__class__):
-        if a.validator is not None:
-            a.validator(a, getattr(inst, a.name))

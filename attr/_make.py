@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+import copy
 import hashlib
 import linecache
 
@@ -305,7 +306,9 @@ def _add_init(cl):
     locs = {}
     bytecode = compile(script, unique_filename, "exec")
     attr_dict = dict((a.name, a) for a in attrs)
-    exec_(bytecode, {"NOTHING": NOTHING, "attr_dict": attr_dict}, locs)
+    exec_(bytecode, {"NOTHING": NOTHING,
+                     "attr_dict": attr_dict,
+                     "validate": validate}, locs)
     init = locs["__init__"]
 
     # In order of debuggers like PDB being able to step through the code,
@@ -320,19 +323,53 @@ def _add_init(cl):
     return cl
 
 
+def fields(cl):
+    """
+    Returns the list of ``attrs`` attributes for a class.
+
+    :param cl: Class to introspect.
+    :type cl: type
+
+    :raise TypeError: If *cl* is not a class.
+    :raise ValueError: If *cl* is not an ``attrs`` class.
+
+    :rtype: :class:`list` of :class:`attr.Attribute`
+    """
+    if not isinstance(cl, type):
+        raise TypeError("Passed object must be a class.")
+    attrs = getattr(cl, "__attrs_attrs__", None)
+    if attrs is None:
+        raise ValueError("{cl!r} is not an attrs-decorated class.".format(
+            cl=cl
+        ))
+    return copy.deepcopy(attrs)
+
+
+def validate(inst):
+    """
+    Validate all attributes on *inst* that have a validator.
+
+    Leaves all exceptions through.
+
+    :param inst: Instance of a class with ``attrs`` attributes.
+    """
+    for a in fields(inst.__class__):
+        if a.validator is not None:
+            a.validator(inst, a, getattr(inst, a.name))
+
+
 def _attrs_to_script(attrs):
     """
     Return a valid Python script of an initializer for *attrs*.
     """
     lines = []
     args = []
+    has_validator = False
     for a in attrs:
+        if a.validator is not None:
+            has_validator = True
         attr_name = a.name
         arg_name = a.name.lstrip("_")
-        if a.validator is not None:
-            lines.append("attr_dict['{attr_name}'].validator(attr_dict['"
-                         "{attr_name}'], {attr_name})"
-                         .format(attr_name=attr_name))
         if a.default is not NOTHING and not isinstance(a.default, Factory):
             args.append(
                 "{arg_name}=attr_dict['{attr_name}'].default".format(
@@ -360,6 +397,9 @@ else:
                 attr_name=attr_name,
                 arg_name=arg_name,
             ))
+
+    if has_validator:
+        lines.append("validate(self)")
 
     return """\
 def __init__(self, {args}):
