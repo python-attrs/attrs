@@ -120,13 +120,13 @@ is
 
 .. doctest::
 
-   >>> class ArtisinalClass(object):
+   >>> class ArtisanalClass(object):
    ...     def __init__(self, a, b):
    ...         self.a = a
    ...         self.b = b
    ...
    ...     def __repr__(self):
-   ...         return "ArtisinalClass(a={}, b={})".format(self.a, self.b)
+   ...         return "ArtisanalClass(a={}, b={})".format(self.a, self.b)
    ...
    ...     def __eq__(self, other):
    ...         if other.__class__ is self.__class__:
@@ -167,8 +167,8 @@ is
    ...
    ...     def __hash__(self):
    ...         return hash((self.a, self.b))
-   >>> ArtisinalClass(a=1, b=2)
-   ArtisinalClass(a=1, b=2)
+   >>> ArtisanalClass(a=1, b=2)
+   ArtisanalClass(a=1, b=2)
 
 which is quite a mouthful and it doesn't even use any of ``attrs``'s more advanced features like validators or defaults values.
 Also: no tests whatsoever.
