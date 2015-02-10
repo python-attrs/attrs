@@ -215,7 +215,7 @@ def _add_cmp(cl, attrs=None):
         """
         Automatically created by attrs.
         """
-        if isinstance(other, self.__class__):
+        if other.__class__ is self.__class__:
             return attrs_to_tuple(self) == attrs_to_tuple(other)
         else:
             return NotImplemented
