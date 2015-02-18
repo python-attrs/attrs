@@ -99,7 +99,7 @@ class TestDarkMagic(object):
 
     def test_subclassing(self):
         """
-        Sub-classing does what you’d hope for.
+        Sub-classing does what you'd hope for.
         """
         obj = object()
         i = Sub(x=obj, y=2)
