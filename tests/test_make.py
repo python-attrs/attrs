@@ -9,6 +9,7 @@ from __future__ import absolute_import, division, print_function
 import pytest
 
 from . import simple_attr
+from attr._compat import PY3
 from attr._make import (
     Attribute,
     NOTHING,
@@ -117,6 +118,17 @@ class TestAttributes(object):
     """
     Tests for the `attributes` class decorator.
     """
+    @pytest.mark.skipif(PY3, reason="No old-style classes in Py3")
+    def test_catches_old_style(self):
+        """
+        Raises TypeError on old-style classes.
+        """
+        with pytest.raises(TypeError) as e:
+            @attributes
+            class C:
+                pass
+        assert ("attrs only works with new-style classes.",) == e.value.args
+
     def test_sets_attrs(self):
         """
         Sets the `__attrs_attrs__` class attribute with a list of `Attribute`s.

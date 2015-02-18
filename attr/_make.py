@@ -160,6 +160,8 @@ def attributes(maybe_cl=None, these=None,
     :type no_init: bool
     """
     def wrap(cl):
+        if getattr(cl, "__class__", None) is None:
+            raise TypeError("attrs only works with new-style classes.")
         _transform_attrs(cl, these)
         if not no_repr:
             cl = _add_repr(cl)
@@ -172,12 +174,11 @@ def attributes(maybe_cl=None, these=None,
         return cl
 
     # attrs_or class type depends on the usage of the decorator.  It's a class
-    # if it's used as `@attributes` but ``None`` (or a value passed) if used
-    # as `@attributes()`.
-    if isinstance(maybe_cl, type):
-        return wrap(maybe_cl)
-    else:
+    # if it's used as `@attributes` but ``None`` if used # as `@attributes()`.
+    if maybe_cl is None:
         return wrap
+    else:
+        return wrap(maybe_cl)
 
 
 def _attrs_to_tuple(obj, attrs):
