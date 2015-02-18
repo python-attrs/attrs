@@ -25,6 +25,19 @@ class C2(object):
     y = attr.ib(default=attr.Factory(list))
 
 
+@attr.s
+class Super(object):
+    x = attr.ib()
+
+    def meth(self):
+        return self.x
+
+
+@attr.s
+class Sub(Super):
+    y = attr.ib()
+
+
 class TestDarkMagic(object):
     """
     Integration tests.
@@ -83,3 +96,13 @@ class TestDarkMagic(object):
             Attribute(name="b", default=NOTHING, validator=None, no_repr=False,
                       no_cmp=False, no_hash=False, no_init=False),
         ] == attr.fields(PC)
+
+    def test_subclassing(self):
+        """
+        Sub-classing does what you’d hope for.
+        """
+        obj = object()
+        i = Sub(x=obj, y=2)
+        assert i.x is i.meth() is obj
+        assert i.y == 2
+        assert "Sub(x={obj}, y=2)".format(obj=obj) == repr(i)

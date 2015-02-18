@@ -93,6 +93,11 @@ def _transform_attrs(cl, these):
 
     If *these* is passed, use that and don't look for them on the class.
     """
+    super_cls = []
+    for c in reversed(cl.__mro__[1:-1]):
+        sub_attrs = getattr(c, "__attrs_attrs__", None)
+        if sub_attrs is not None:
+            super_cls.extend(sub_attrs)
     if these is None:
         ca_list = [(name, attr)
                    for name, attr
@@ -103,7 +108,7 @@ def _transform_attrs(cl, these):
                    for name, ca
                    in iteritems(these)]
 
-    cl.__attrs_attrs__ = [
+    cl.__attrs_attrs__ = super_cls + [
         Attribute.from_counting_attr(name=attr_name, ca=ca)
         for attr_name, ca
         in sorted(ca_list, key=lambda e: e[1].counter)

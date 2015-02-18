@@ -102,6 +102,31 @@ Or if you want to use properties:
       ...
    AttributeError: can't set attribute
 
+Sub-classing is bad for you, but ``attrs`` will still do what you'd hope for:
+
+.. doctest::
+
+   >>> @attr.s
+   ... class A(object):
+   ...     a = attr.ib()
+   ...     def get_a(self):
+   ...         return self.a
+   >>> @attr.s
+   ... class B(object):
+   ...     b = attr.ib()
+   >>> @attr.s
+   ... class C(B, A):
+   ...     c = attr.ib()
+   >>> i = C(1, 2, 3)
+   >>> i
+   C(a=1, b=2, c=3)
+   >>> i == C(1, 2, 3)
+   True
+   >>> i.get_a()
+   1
+
+The order of the attributes is defined by the `MRO <https://www.python.org/download/releases/2.3/mro/>`_.
+
 
 Converting to Dictionaries
 --------------------------

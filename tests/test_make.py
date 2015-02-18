@@ -113,6 +113,28 @@ class TestTransformAttrs(object):
         ] == C.__attrs_attrs__
         assert isinstance(C.y, _CountingAttr)
 
+    def test_recurse(self):
+        """
+        Collect attributes from all sub-classes.
+        """
+        class A(object):
+            pass
+
+        class C(A):
+            x = attr()
+
+        _transform_attrs(C, None)
+
+        class D(C):
+            y = attr()
+
+        _transform_attrs(D, None)
+
+        assert [
+            simple_attr("x"),
+            simple_attr("y"),
+        ] == D.__attrs_attrs__
+
 
 class TestAttributes(object):
     """
