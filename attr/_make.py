@@ -116,7 +116,7 @@ def _transform_attrs(cl, these):
 
     had_default = False
     for a in cl.__attrs_attrs__:
-        if these is None:
+        if these is None and a not in super_cls:
             setattr(cl, a.name, a)
         if had_default is True and a.default is NOTHING:
             raise ValueError(
