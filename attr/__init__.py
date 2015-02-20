@@ -15,6 +15,10 @@ from ._make import (
     make_class,
     validate,
 )
+from ._config import (
+    get_run_validators,
+    set_run_validators,
+)
 from . import validators
 
 __version__ = "15.0.0.dev1"
@@ -35,10 +39,12 @@ __all__ = [
     "attr",
     "attributes",
     "fields",
+    "get_run_validators",
     "has",
     "ib",
     "make_class",
     "s",
+    "set_run_validators",
     "validate",
     "validators",
 ]

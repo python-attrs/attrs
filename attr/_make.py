@@ -5,6 +5,7 @@ import hashlib
 import linecache
 
 from ._compat import exec_, iteritems
+from . import _config
 
 
 class _Nothing(object):
@@ -59,6 +60,9 @@ def attr(default=NOTHING, validator=None, no_repr=False, no_cmp=False,
 
         The return value is *not* inspected so the validator has to throw an
         exception itself.
+
+        They can be globally disabled and re-enabled using
+        :func:`get_run_validators`.
     :type validator: callable
 
     :param no_repr: Exclude this attribute when generating a ``__repr__``.
@@ -380,6 +384,9 @@ def validate(inst):
 
     :param inst: Instance of a class with ``attrs`` attributes.
     """
+    if _config._run_validators is False:
+        return
+
     for a in fields(inst.__class__):
         if a.validator is not None:
             a.validator(inst, a, getattr(inst, a.name))

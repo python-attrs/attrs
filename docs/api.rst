@@ -187,6 +187,13 @@ Helpers
       TypeError: ("'x' must be <type 'int'> (got '1' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>, no_repr=False, no_cmp=False, no_hash=False, no_init=False), <type 'int'>, '1')
 
 
+Validators can be globally disabled if you want to run them only in development and tests but not in production because you fear their performance impact:
+
+.. autofunction:: set_run_validators
+
+.. autofunction:: get_run_validators
+
+
 .. _api_validators:
 
 Validators

@@ -7,6 +7,7 @@ from __future__ import absolute_import, division, print_function
 import pytest
 
 from . import simple_attr
+from attr import _config
 from attr._compat import PY3
 from attr._make import (
     Attribute,
@@ -405,3 +406,21 @@ class TestValidate(object):
 
         with pytest.raises(FloatingPointError):
             validate(i)
+
+    def test_run_validators(self):
+        """
+        Setting `_run_validators` to False prevents validators from running.
+        """
+        _config._run_validators = False
+        obj = object()
+
+        def raiser(_, __, ___):
+            raise Exception(obj)
+
+        C = make_class("C", {"x": attr(validator=raiser)})
+        assert 1 == C(1).x
+        _config._run_validators = True
+
+        with pytest.raises(Exception) as e:
+            C(1)
+        assert (obj,) == e.value.args

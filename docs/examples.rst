@@ -298,6 +298,17 @@ If you like `zope.interface <http://docs.zope.org/zope.interface/api.html#zope-i
    >>> C(Foo())
    C(x=Foo())
 
+You can also disable them globally:
+
+   >>> attr.set_run_validators(False)
+   >>> C(42)
+   C(x=42)
+   >>> attr.set_run_validators(True)
+   >>> C(42)
+   Traceback (most recent call last):
+      ...
+   TypeError: ("'x' must provide <InterfaceClass __builtin__.IFoo> which 42 doesn't.", Attribute(name='x', default=NOTHING, validator=<provides validator for interface <InterfaceClass __builtin__.IFoo>>, no_repr=False, no_cmp=False, no_hash=False, no_init=False), <InterfaceClass __builtin__.IFoo>, 42)
+
 
 Other Goodies
 -------------
