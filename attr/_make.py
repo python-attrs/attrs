@@ -128,7 +128,7 @@ def _transform_attrs(cl, these):
             had_default = True
 
 
-def attributes(maybe_cl=None, these=None,
+def attributes(maybe_cl=None, these=None, repr_ns=None,
                no_repr=False, no_cmp=False, no_hash=False, no_init=False):
     """
     A class decorator that adds `dunder
@@ -143,6 +143,10 @@ def attributes(maybe_cl=None, these=None,
 
         If *these* is not `None`, the class body is *ignored*.
     :type these: class:`dict` of :class:`str` to :func:`attr.ib`
+
+    :param repr_ns: When using nested classes, there's no way in Python 2 to
+        automatically detect that.  Therefore it's possible to set the
+        namespace explicitly for a more meaningful ``repr`` output.
 
     :param no_repr: Don't create a ``__repr__`` method with a human readable
         represantation of ``attrs`` attributes..
@@ -169,7 +173,7 @@ def attributes(maybe_cl=None, these=None,
             raise TypeError("attrs only works with new-style classes.")
         _transform_attrs(cl, these)
         if not no_repr:
-            cl = _add_repr(cl)
+            cl = _add_repr(cl, ns=repr_ns)
         if not no_cmp:
             cl = _add_cmp(cl)
         if not no_hash:
@@ -194,6 +198,9 @@ def _attrs_to_tuple(obj, attrs):
 
 
 def _add_hash(cl, attrs=None):
+    """
+    Add a hash method to *cl*.
+    """
     if attrs is None:
         attrs = [a for a in cl.__attrs_attrs__ if not a.no_hash]
 
@@ -208,6 +215,9 @@ def _add_hash(cl, attrs=None):
 
 
 def _add_cmp(cl, attrs=None):
+    """
+    Add comparison methods to *cl*.
+    """
     if attrs is None:
         attrs = [a for a in cl.__attrs_attrs__ if not a.no_cmp]
 
@@ -282,16 +292,28 @@ def _add_cmp(cl, attrs=None):
     return cl
 
 
-def _add_repr(cl, attrs=None):
+def _add_repr(cl, ns=None, attrs=None):
+    """
+    Add a repr method to *cl*.
+    """
     if attrs is None:
         attrs = [a for a in cl.__attrs_attrs__ if not a.no_repr]
+
+    if ns is None:
+        qualname = getattr(cl, "__qualname__", None)
+        if qualname is not None:
+            class_name = qualname.rsplit(">.", 1)[-1]  # pragma: nocover
+        else:
+            class_name = cl.__name__
+    else:
+        class_name = ns + "." + cl.__name__
 
     def repr_(self):
         """
         Automatically created by attrs.
         """
         return "{0}({1})".format(
-            self.__class__.__name__,
+            class_name,
             ", ".join(a.name + "=" + repr(getattr(self, a.name))
                       for a in attrs)
         )

@@ -102,7 +102,7 @@ Or if you want to use properties:
       ...
    AttributeError: can't set attribute
 
-Sub-classing is bad for you, but ``attrs`` will still do what you'd hope for:
+`Sub-classing <https://www.youtube.com/watch?v=3MNVP9-hglc>`_ is bad for you, but ``attrs`` will still do what you'd hope for:
 
 .. doctest::
 
@@ -126,6 +126,23 @@ Sub-classing is bad for you, but ``attrs`` will still do what you'd hope for:
    1
 
 The order of the attributes is defined by the `MRO <https://www.python.org/download/releases/2.3/mro/>`_.
+
+In Python 3, classes defined within other classes are `detected <https://www.python.org/dev/peps/pep-3155/>`_ and reflected in the ``__repr__``.
+In Python 2 though, it's impossible.
+Therefore ``@attr.s`` comes with the ``repr_ns`` option to set it manually:
+
+.. doctest::
+
+   >>> @attr.s
+   ... class C(object):
+   ...     @attr.s(repr_ns="C")
+   ...     class D(object):
+   ...         pass
+   >>> C.D()
+   C.D()
+
+``repr_ns`` works on both Python 2 and 3.
+On Python 3 is overrides the implicit detection.
 
 
 Converting to Dictionaries
