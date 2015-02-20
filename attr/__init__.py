@@ -19,6 +19,7 @@ from ._config import (
     get_run_validators,
     set_run_validators,
 )
+from . import filters
 from . import validators
 
 __version__ = "15.0.0.dev2"
@@ -39,6 +40,7 @@ __all__ = [
     "attr",
     "attributes",
     "fields",
+    "filters",
     "get_run_validators",
     "has",
     "ib",

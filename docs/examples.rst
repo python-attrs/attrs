@@ -172,6 +172,25 @@ For that, :func:`attr.asdict` offers a callback that decides whether an attribut
    ...             filter=lambda attr, value: attr.name != "password")
    {'users': [{'email': 'jane@doe.invalid'}, {'email': 'joe@doe.invalid'}]}
 
+For the common case where you want to :func:`include <attr.filters.include>` or :func:`exclude <attr.filters.exclude>` certain types or attributes, ``attrs`` ships with a few helpers:
+
+.. doctest::
+
+   >>> @attr.s
+   ... class User(object):
+   ...     login = attr.ib()
+   ...     password = attr.ib()
+   ...     id = attr.ib()
+   >>> attr.asdict(User("jane", "s33kred", 42), filter=attr.filters.exclude(User.password, int))
+   {'login': 'jane'}
+   >>> @attr.s
+   ... class C(object):
+   ...     x = attr.ib()
+   ...     y = attr.ib()
+   ...     z = attr.ib()
+   >>> attr.asdict(C("foo", "2", 3), filter=attr.filters.include(int, C.x))
+   {'x': 'foo', 'z': 3}
+
 
 Defaults
 --------

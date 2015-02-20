@@ -151,6 +151,13 @@ Helpers
       {'y': {'y': 3, 'x': 2}, 'x': 1}
 
 
+``attrs`` comes with some handy helpers for filtering:
+
+.. autofunction:: attr.filters.include
+
+.. autofunction:: attr.filters.exclude
+
+
 .. autofunction:: assoc
 
    For example:

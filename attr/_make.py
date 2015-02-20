@@ -29,6 +29,9 @@ class _Nothing(object):
     def __repr__(self):
         return "NOTHING"
 
+    def __hash__(self):
+        return 0xdeadbeef
+
 
 NOTHING = _Nothing()
 """
