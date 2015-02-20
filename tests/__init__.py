@@ -4,24 +4,24 @@ from attr import Attribute
 from attr._make import NOTHING, make_class
 
 
-def simple_class(no_cmp=True, no_repr=True, no_hash=True):
+def simple_class(cmp=False, repr=False, hash=False):
     """
     Return a new simple class.
     """
     return make_class(
         "C", ["a", "b"],
-        no_cmp=no_cmp, no_repr=no_repr, no_hash=no_hash, no_init=False,
+        cmp=cmp, repr=repr, hash=hash, init=True,
     )
 
 
-def simple_attr(name, default=NOTHING, validator=None, no_repr=False,
-                no_cmp=False, no_hash=False, no_init=False):
+def simple_attr(name, default=NOTHING, validator=None, repr=True,
+                cmp=True, hash=True, init=True):
     """
     Return an attribute with a name and no other bells and whistles.
     """
     return Attribute(
-        name=name, default=default, validator=validator, no_repr=no_repr,
-        no_cmp=no_cmp, no_hash=no_hash, no_init=no_init
+        name=name, default=default, validator=validator, repr=repr,
+        cmp=cmp, hash=hash, init=init
     )
 
 

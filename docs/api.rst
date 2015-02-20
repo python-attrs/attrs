@@ -18,7 +18,7 @@ What follows is the API explanation, if you'd like a more hands-on introduction,
 Core
 ----
 
-.. autofunction:: attr.s(add_repr=True, add_cmp=True, add_hash=True, add_init=True)
+.. autofunction:: attr.s(these=None, repr_ns=None, repr=True, cmp=True, hash=True, init=True)
 
    .. note::
 
@@ -39,7 +39,7 @@ Core
       ...         self.x = x
       >>> D(1)
       <D object at ...>
-      >>> D = attr.s(these={"x": attr.ib()}, no_init=True)(D)
+      >>> D = attr.s(these={"x": attr.ib()}, init=False)(D)
       >>> D(1)
       D(x=1)
 
@@ -70,7 +70,7 @@ Core
       ... class C(object):
       ...     x = attr.ib()
       >>> C.x
-      Attribute(name='x', default=NOTHING, validator=None, no_repr=False, no_cmp=False, no_hash=False, no_init=False)
+      Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True)
 
 
 .. autofunction:: attr.make_class
@@ -88,6 +88,7 @@ Core
       ...                             "y": attr.ib(default=attr.Factory(list))})
       >>> C2()
       C2(x=42, y=[])
+
 
 .. autoclass:: attr.Factory
 
@@ -118,7 +119,7 @@ Helpers
       ...     x = attr.ib()
       ...     y = attr.ib()
       >>> attr.fields(C)
-      [Attribute(name='x', default=NOTHING, validator=None, no_repr=False, no_cmp=False, no_hash=False, no_init=False), Attribute(name='y', default=NOTHING, validator=None, no_repr=False, no_cmp=False, no_hash=False, no_init=False)]
+      [Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True), Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True)]
 
 
 .. autofunction:: attr.has
@@ -184,7 +185,7 @@ Helpers
       >>> attr.validate(i)
       Traceback (most recent call last):
          ...
-      TypeError: ("'x' must be <type 'int'> (got '1' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>, no_repr=False, no_cmp=False, no_hash=False, no_init=False), <type 'int'>, '1')
+      TypeError: ("'x' must be <type 'int'> (got '1' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>, repr=True, cmp=True, hash=True, init=True), <type 'int'>, '1')
 
 
 Validators can be globally disabled if you want to run them only in development and tests but not in production because you fear their performance impact:

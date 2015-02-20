@@ -36,8 +36,8 @@ Sentinel to indicate the lack of a value when ``None`` is ambiguous.
 """
 
 
-def attr(default=NOTHING, validator=None, no_repr=False, no_cmp=False,
-         no_hash=False, no_init=False):
+def attr(default=NOTHING, validator=None,
+         repr=True, cmp=True, hash=True, init=True):
     """
     Create a new attribute on a class.
 
@@ -65,26 +65,26 @@ def attr(default=NOTHING, validator=None, no_repr=False, no_cmp=False,
         :func:`get_run_validators`.
     :type validator: callable
 
-    :param no_repr: Exclude this attribute when generating a ``__repr__``.
-    :type no_repr: bool
+    :param repr: Include this attribute in the generated ``__repr__`` method.
+    :type repr: bool
 
-    :param no_cmp: Exclude this attribute when generating comparison methods
+    :param cmp: Include this attribute in the generated comparison methods
         (``__eq__`` et al).
-    :type no_cmp: bool
+    :type cmp: bool
 
-    :param no_hash: Exclude this attribute when generating a ``__hash__``.
-    :type no_hash: bool
+    :param hash: Include this attribute in the generated ``__hash__`` method.
+    :type hash: bool
 
-    :param no_init: Exclude this attribute when generating a ``__init__``.
-    :type no_init: bool
+    :param init: Include this attribute in the generated ``__init__`` method.
+    :type init: bool
     """
     return _CountingAttr(
         default=default,
         validator=validator,
-        no_repr=no_repr,
-        no_cmp=no_cmp,
-        no_hash=no_hash,
-        no_init=no_init,
+        repr=repr,
+        cmp=cmp,
+        hash=hash,
+        init=init,
     )
 
 
@@ -131,7 +131,7 @@ def _transform_attrs(cl, these):
 
 
 def attributes(maybe_cl=None, these=None, repr_ns=None,
-               no_repr=False, no_cmp=False, no_hash=False, no_init=False):
+               repr=True, cmp=True, hash=True, init=True):
     """
     A class decorator that adds `dunder
     <https://wiki.python.org/moin/DunderAlias>`_\ -methods according to the
@@ -150,37 +150,35 @@ def attributes(maybe_cl=None, these=None, repr_ns=None,
         automatically detect that.  Therefore it's possible to set the
         namespace explicitly for a more meaningful ``repr`` output.
 
-    :param no_repr: Don't create a ``__repr__`` method with a human readable
+    :param repr: Create a ``__repr__`` method with a human readable
         represantation of ``attrs`` attributes..
-    :type no_repr: bool
+    :type repr: bool
 
-    :param no_cmp: Don't create ``__eq__``, ``__ne__``, ``__lt__``, ``__le__``,
+    :param cmp: Create ``__eq__``, ``__ne__``, ``__lt__``, ``__le__``,
         ``__gt__``, and ``__ge__`` methods that compare the class as if it were
         a tuple of its ``attrs`` attributes.  But the attributes are *only*
         compared, if the type of both classes is *identical*!
-    :type no_cmp: bool
+    :type cmp: bool
 
-    :param no_hash: Don't add a ``__hash__`` method that returns the
-        :func:`hash` of a tuple of all ``attrs`` attribute values.
-    :type no_hash: bool
+    :param hash: Create a ``__hash__`` method that returns the :func:`hash` of
+        a tuple of all ``attrs`` attribute values.
+    :type hash: bool
 
-    :param no_init: Don't add a ``__init__`` method that initialiazes the
-        ``attrs`` attributes.  Leading underscores are stripped for the
-        argument name.
-
-    :type no_init: bool
+    :param init: Create a ``__init__`` method that initialiazes the ``attrs``
+        attributes.  Leading underscores are stripped for the argument name.
+    :type init: bool
     """
     def wrap(cl):
         if getattr(cl, "__class__", None) is None:
             raise TypeError("attrs only works with new-style classes.")
         _transform_attrs(cl, these)
-        if not no_repr:
+        if repr is True:
             cl = _add_repr(cl, ns=repr_ns)
-        if not no_cmp:
+        if cmp is True:
             cl = _add_cmp(cl)
-        if not no_hash:
+        if hash is True:
             cl = _add_hash(cl)
-        if not no_init:
+        if init is True:
             cl = _add_init(cl)
         return cl
 
@@ -204,7 +202,7 @@ def _add_hash(cl, attrs=None):
     Add a hash method to *cl*.
     """
     if attrs is None:
-        attrs = [a for a in cl.__attrs_attrs__ if not a.no_hash]
+        attrs = [a for a in cl.__attrs_attrs__ if a.hash]
 
     def hash_(self):
         """
@@ -221,7 +219,7 @@ def _add_cmp(cl, attrs=None):
     Add comparison methods to *cl*.
     """
     if attrs is None:
-        attrs = [a for a in cl.__attrs_attrs__ if not a.no_cmp]
+        attrs = [a for a in cl.__attrs_attrs__ if a.cmp]
 
     def attrs_to_tuple(obj):
         """
@@ -299,7 +297,7 @@ def _add_repr(cl, ns=None, attrs=None):
     Add a repr method to *cl*.
     """
     if attrs is None:
-        attrs = [a for a in cl.__attrs_attrs__ if not a.no_repr]
+        attrs = [a for a in cl.__attrs_attrs__ if a.repr]
 
     if ns is None:
         qualname = getattr(cl, "__qualname__", None)
@@ -324,7 +322,7 @@ def _add_repr(cl, ns=None, attrs=None):
 
 
 def _add_init(cl):
-    attrs = [a for a in cl.__attrs_attrs__ if not a.no_init]
+    attrs = [a for a in cl.__attrs_attrs__ if a.init]
 
     # We cache the generated init methods for the same kinds of attributes.
     sha1 = hashlib.sha1()
@@ -456,8 +454,7 @@ class Attribute(object):
     Plus *all* arguments of :func:`attr.ib`.
     """
     _attributes = [
-        "name", "default", "validator", "no_repr", "no_cmp", "no_hash",
-        "no_init",
+        "name", "default", "validator", "repr", "cmp", "hash", "init",
     ]  # we can't use ``attrs`` so we have to cheat a little.
 
     def __init__(self, **kw):
@@ -478,8 +475,8 @@ class Attribute(object):
                          if k != "name"))
 
 
-_a = [Attribute(name=name, default=NOTHING, validator=None, no_repr=False,
-                no_cmp=False, no_hash=False, no_init=False)
+_a = [Attribute(name=name, default=NOTHING, validator=None,
+                repr=True, cmp=True, hash=True, init=True)
       for name in Attribute._attributes]
 Attribute = _add_hash(
     _add_cmp(_add_repr(Attribute, attrs=_a), attrs=_a), attrs=_a
@@ -488,22 +485,22 @@ Attribute = _add_hash(
 
 class _CountingAttr(object):
     __attrs_attrs__ = [
-        Attribute(name=name, default=NOTHING, validator=None, no_repr=False,
-                  no_cmp=False, no_hash=False, no_init=False)
+        Attribute(name=name, default=NOTHING, validator=None,
+                  repr=True, cmp=True, hash=True, init=True)
         for name
-        in ("counter", "default", "no_repr", "no_cmp", "no_hash", "no_init",)
+        in ("counter", "default", "repr", "cmp", "hash", "init",)
     ]
     counter = 0
 
-    def __init__(self, default, validator, no_repr, no_cmp, no_hash, no_init):
+    def __init__(self, default, validator, repr, cmp, hash, init):
         _CountingAttr.counter += 1
         self.counter = _CountingAttr.counter
         self.default = default
         self.validator = validator
-        self.no_repr = no_repr
-        self.no_cmp = no_cmp
-        self.no_hash = no_hash
-        self.no_init = no_init
+        self.repr = repr
+        self.cmp = cmp
+        self.hash = hash
+        self.init = init
 
 
 _CountingAttr = _add_cmp(_add_repr(_CountingAttr))

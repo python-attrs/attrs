@@ -79,7 +79,7 @@ This is useful in times when you want to enhance classes that are not yours (nic
    >>> class SomethingFromSomeoneElse(object):
    ...     def __init__(self, x):
    ...         self.x = x
-   >>> SomethingFromSomeoneElse = attr.s(these={"x": attr.ib()}, no_init=True)(SomethingFromSomeoneElse)
+   >>> SomethingFromSomeoneElse = attr.s(these={"x": attr.ib()}, init=False)(SomethingFromSomeoneElse)
    >>> SomethingFromSomeoneElse(1)
    SomethingFromSomeoneElse(x=1)
 
@@ -307,7 +307,7 @@ You can also disable them globally:
    >>> C(42)
    Traceback (most recent call last):
       ...
-   TypeError: ("'x' must provide <InterfaceClass __builtin__.IFoo> which 42 doesn't.", Attribute(name='x', default=NOTHING, validator=<provides validator for interface <InterfaceClass __builtin__.IFoo>>, no_repr=False, no_cmp=False, no_hash=False, no_init=False), <InterfaceClass __builtin__.IFoo>, 42)
+   TypeError: ("'x' must provide <InterfaceClass __builtin__.IFoo> which 42 doesn't.", Attribute(name='x', default=NOTHING, validator=<provides validator for interface <InterfaceClass __builtin__.IFoo>>, repr=True, cmp=True, hash=True, init=True), <InterfaceClass __builtin__.IFoo>, 42)
 
 
 Other Goodies
@@ -351,7 +351,7 @@ You can still have power over the attributes if you pass a dictionary of name: `
 
    >>> C = attr.make_class("C", {"x": attr.ib(default=42),
    ...                           "y": attr.ib(default=attr.Factory(list))},
-   ...                     no_repr=True)
+   ...                     repr=False)
    >>> i = C()
    >>> i  # no repr added!
    <attr._make.C object at ...>
@@ -367,6 +367,6 @@ Finally, you can exclude single attributes from certain methods:
    >>> @attr.s
    ... class C(object):
    ...     user = attr.ib()
-   ...     password = attr.ib(no_repr=True)
+   ...     password = attr.ib(repr=False)
    >>> C("me", "s3kr3t")
    C(user='me')

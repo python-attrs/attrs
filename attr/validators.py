@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 from ._make import attr, attributes
 
 
-@attributes(no_repr=True)
+@attributes(repr=False)
 class _InstanceOfValidator(object):
     type_ = attr()
 
@@ -43,7 +43,7 @@ def instance_of(type_):
     return _InstanceOfValidator(type_)
 
 
-@attributes(no_repr=True)
+@attributes(repr=False)
 class _ProvidesValidator(object):
     interface = attr()
 

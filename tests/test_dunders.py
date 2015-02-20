@@ -22,9 +22,9 @@ from attr._make import (
 from attr.validators import instance_of
 
 
-CmpC = simple_class(no_cmp=False)
-ReprC = simple_class(no_repr=False)
-HashC = simple_class(no_hash=False)
+CmpC = simple_class(cmp=True)
+ReprC = simple_class(repr=True)
+HashC = simple_class(hash=True)
 
 
 class InitC(object):
@@ -37,11 +37,11 @@ class TestAddCmp(object):
     """
     Tests for `_add_cmp`.
     """
-    def test_no_cmp(self):
+    def test_cmp(self):
         """
-        If `no_cmp` is set, ignore that attribute.
+        If `cmp` is False, ignore that attribute.
         """
-        C = make_class("C", {"a": attr(no_cmp=True), "b": attr()})
+        C = make_class("C", {"a": attr(cmp=False), "b": attr()})
 
         assert C(1, 2) == C(2, 2)
 
@@ -147,15 +147,15 @@ class TestAddRepr(object):
     """
     Tests for `_add_repr`.
     """
-    def test_no_repr(self):
+    def test_repr(self):
         """
-        If `no_repr` is set, ignore that attribute.
+        If `repr` is False, ignore that attribute.
         """
-        C = make_class("C", {"a": attr(no_repr=True), "b": attr()})
+        C = make_class("C", {"a": attr(repr=False), "b": attr()})
 
         assert "C(b=2)" == repr(C(1, 2))
 
-    def test_repr(self):
+    def test_repr_works(self):
         """
         repr returns a sensible value.
         """
@@ -179,15 +179,15 @@ class TestAddHash(object):
     """
     Tests for `_add_hash`.
     """
-    def test_no_hash(self):
+    def test_hash(self):
         """
-        If `no_hash` is set, ignore that attribute.
+        If `hash` is False, ignore that attribute.
         """
-        C = make_class("C", {"a": attr(no_hash=True), "b": attr()})
+        C = make_class("C", {"a": attr(hash=False), "b": attr()})
 
         assert hash(C(1, 2)) == hash(C(2, 2))
 
-    def test_hash(self):
+    def test_hash_works(self):
         """
         __hash__ returns different hashes for different values.
         """
@@ -198,11 +198,11 @@ class TestAddInit(object):
     """
     Tests for `_add_init`.
     """
-    def test_no_init(self):
+    def test_init(self):
         """
-        If `no_init` is set, ignore that attribute.
+        If `init` is False, ignore that attribute.
         """
-        C = make_class("C", {"a": attr(no_init=True), "b": attr()})
+        C = make_class("C", {"a": attr(init=False), "b": attr()})
         with pytest.raises(TypeError) as e:
             C(a=1, b=2)
 
