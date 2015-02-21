@@ -7,27 +7,37 @@ from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
 
+NAME = "attrs"
+META_PATH = os.path.join("attr", "__init__.py")
+
+###############################################################################
+
+HERE = os.path.abspath(os.path.dirname(__file__))
+
+
 def read(*parts):
     """
     Build an absolute path from *parts* and and return the contents of the
     resulting file.  Assume UTF-8 encoding.
     """
-    here = os.path.abspath(os.path.dirname(__file__))
-    with codecs.open(os.path.join(here, *parts), "rb", "utf-8") as f:
+    with codecs.open(os.path.join(HERE, *parts), "rb", "utf-8") as f:
         return f.read()
 
 
-def find_version(*file_paths):
+META_FILE = read(META_PATH)
+
+
+def find_meta(meta):
     """
-    Build a path from *file_paths* and search for a ``__version__``
-    string inside.
+    Extract __*meta*__ from META_FILE.
     """
-    version_file = read(*file_paths)
-    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
-                              version_file, re.M)
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError("Unable to find version string.")
+    meta_match = re.search(
+        r"^__{meta}__ = ['\"]([^'\"]*)['\"]".format(meta=meta),
+        META_FILE, re.M
+    )
+    if meta_match:
+        return meta_match.group(1)
+    raise RuntimeError("Unable to find __{meta}__ string.".format(meta=meta))
 
 
 class PyTest(TestCommand):
@@ -52,16 +62,22 @@ class PyTest(TestCommand):
 
 if __name__ == "__main__":
     setup(
-        name="attrs",
-        version=find_version("attr/__init__.py"),
-        description="Attributes without boilerplate.",
-        long_description=(read("README.rst") + "\n\n" +
-                          read("AUTHORS.rst")),
-        url="https://attrs.readthedocs.org/",
-        license="MIT",
-        author="Hynek Schlawack",
-        author_email="hs@ox.cx",
+        name=NAME,
+        description=find_meta("description"),
+        license=find_meta("license"),
+        url=find_meta("uri"),
+        version=find_meta("version"),
+        author=find_meta("author"),
+        author_email=find_meta("email"),
+        maintainer=find_meta("author"),
+        maintainer_email=find_meta("email"),
+        keywords=find_meta("keywords"),
+        long_description=(
+            read("README.rst") + "\n\n" +
+            read("AUTHORS.rst")
+        ),
         packages=find_packages(exclude=['tests*']),
+        zip_safe=False,
         classifiers=[
             "Development Status :: 3 - Alpha",
             "Intended Audience :: Developers",
@@ -88,5 +104,4 @@ if __name__ == "__main__":
         cmdclass={
             "test": PyTest,
         },
-        zip_safe=False,
     )

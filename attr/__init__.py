@@ -22,10 +22,19 @@ from ._config import (
 from . import filters
 from . import validators
 
+
 __version__ = "15.0.0a1"
+
+__title__ = "attrs"
+__description__ = "Attributes without boilerplate."
+__keywords__ = "class attribute boilerplate"
+__uri__ = "https://attrs.readthedocs.org/"
+
 __author__ = "Hynek Schlawack"
+__email__ = "hs@ox.cx"
+
 __license__ = "MIT"
-__copyright__ = "Copyright 2015 Hynek Schlawack"
+__copyright__ = "Copyright (c) 2015 Hynek Schlawack"
 
 
 s = attributes
