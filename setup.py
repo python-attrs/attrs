@@ -41,7 +41,7 @@ def find_meta(meta):
 
 
 class PyTest(TestCommand):
-    user_options = [('pytest-args=', 'a', "Arguments to pass to py.test")]
+    user_options = [("pytest-args=", "a", "Arguments to pass to py.test")]
 
     def initialize_options(self):
         TestCommand.initialize_options(self)
@@ -76,7 +76,7 @@ if __name__ == "__main__":
             read("README.rst") + "\n\n" +
             read("AUTHORS.rst")
         ),
-        packages=find_packages(exclude=['tests*']),
+        packages=find_packages(exclude=["tests*"]),
         zip_safe=False,
         classifiers=[
             "Development Status :: 3 - Alpha",
