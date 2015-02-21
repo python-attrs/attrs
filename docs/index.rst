@@ -1,4 +1,4 @@
-attrs: Python attributes without boilerplate.
+attrs: Attributes without boilerplate.
 =============================================
 
 Release v\ |release| (:doc:`What's new? <changelog>`).

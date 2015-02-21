@@ -54,7 +54,7 @@ if __name__ == "__main__":
     setup(
         name="attrs",
         version=find_version("attr/__init__.py"),
-        description="Python attributes without boilerplate.",
+        description="Attributes without boilerplate.",
         long_description=(read("README.rst") + "\n\n" +
                           read("AUTHORS.rst")),
         url="https://attrs.readthedocs.org/",
