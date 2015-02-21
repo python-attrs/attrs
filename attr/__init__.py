@@ -22,7 +22,7 @@ from ._config import (
 from . import filters
 from . import validators
 
-__version__ = "15.0.0.dev2"
+__version__ = "15.0.0a1"
 __author__ = "Hynek Schlawack"
 __license__ = "MIT"
 __copyright__ = "Copyright 2015 Hynek Schlawack"
