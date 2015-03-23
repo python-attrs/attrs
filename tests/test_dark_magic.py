@@ -44,12 +44,12 @@ class TestDarkMagic(object):
         """
         `attr.fields` works.
         """
-        assert [
+        assert (
             Attribute(name="x", default=foo, validator=None,
                       repr=True, cmp=True, hash=True, init=True),
             Attribute(name="y", default=attr.Factory(list), validator=None,
                       repr=True, cmp=True, hash=True, init=True),
-        ] == attr.fields(C2)
+        ) == attr.fields(C2)
 
     def test_asdict(self):
         """
@@ -87,12 +87,12 @@ class TestDarkMagic(object):
         `attr.make_class` works.
         """
         PC = attr.make_class("PC", ["a", "b"])
-        assert [
+        assert (
             Attribute(name="a", default=NOTHING, validator=None,
                       repr=True, cmp=True, hash=True, init=True),
             Attribute(name="b", default=NOTHING, validator=None,
                       repr=True, cmp=True, hash=True, init=True),
-        ] == attr.fields(PC)
+        ) == attr.fields(PC)
 
     def test_subclassing(self):
         """

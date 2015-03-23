@@ -56,7 +56,7 @@ Core
    Instances of this class are frequently used for introspection purposes like:
 
    - Class attributes on ``attrs``-decorated classes *after* ``@attr.s`` has been applied.
-   - :func:`fields` returns a list of them.
+   - :func:`fields` returns a tuple of them.
    - Validators get them passed as the first argument.
 
    .. warning::
@@ -119,7 +119,7 @@ Helpers
       ...     x = attr.ib()
       ...     y = attr.ib()
       >>> attr.fields(C)
-      [Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True), Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True)]
+      (Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True), Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True))
 
 
 .. autofunction:: attr.has

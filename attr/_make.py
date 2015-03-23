@@ -94,7 +94,7 @@ def attr(default=NOTHING, validator=None,
 def _transform_attrs(cl, these):
     """
     Transforms all `_CountingAttr`s on a class into `Attribute`s and saves the
-    list in `__attrs_attrs__`.
+    list as a tuple in `__attrs_attrs__`.
 
     If *these* is passed, use that and don't look for them on the class.
     """
@@ -113,11 +113,11 @@ def _transform_attrs(cl, these):
                    for name, ca
                    in iteritems(these)]
 
-    cl.__attrs_attrs__ = super_cls + [
+    cl.__attrs_attrs__ = tuple(super_cls + [
         Attribute.from_counting_attr(name=attr_name, ca=ca)
         for attr_name, ca
         in sorted(ca_list, key=lambda e: e[1].counter)
-    ]
+    ])
 
     had_default = False
     for a in cl.__attrs_attrs__:
@@ -357,7 +357,7 @@ def _add_init(cl):
 
 def fields(cl):
     """
-    Returns the list of ``attrs`` attributes for a class.
+    Returns the tuple of ``attrs`` attributes for a class.
 
     :param cl: Class to introspect.
     :type cl: type
@@ -365,7 +365,7 @@ def fields(cl):
     :raise TypeError: If *cl* is not a class.
     :raise ValueError: If *cl* is not an ``attrs`` class.
 
-    :rtype: :class:`list` of :class:`attr.Attribute`
+    :rtype: tuple of :class:`attr.Attribute`
     """
     if not isinstance(cl, type):
         raise TypeError("Passed object must be a class.")

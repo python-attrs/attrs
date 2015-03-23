@@ -65,7 +65,7 @@ class TestTransformAttrs(object):
 
         _transform_attrs(C, None)
 
-        assert [] == C.__attrs_attrs__
+        assert () == C.__attrs_attrs__
 
     @pytest.mark.parametrize("attribute", [
         "z",
@@ -107,9 +107,9 @@ class TestTransformAttrs(object):
             y = attr()
 
         _transform_attrs(C, {"x": attr()})
-        assert [
+        assert (
             simple_attr("x"),
-        ] == C.__attrs_attrs__
+        ) == C.__attrs_attrs__
         assert isinstance(C.y, _CountingAttr)
 
     def test_recurse(self):
@@ -129,10 +129,10 @@ class TestTransformAttrs(object):
 
         _transform_attrs(D, None)
 
-        assert [
+        assert (
             simple_attr("x"),
             simple_attr("y"),
-        ] == D.__attrs_attrs__
+        ) == D.__attrs_attrs__
 
 
 class TestAttributes(object):
