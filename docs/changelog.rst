@@ -5,7 +5,7 @@
 Changelog
 =========
 
-Versions are year-based with a strict backwards-compatibility policy.
+Versions are year-based with a strict :doc:`backwards-compatibility policy <backward-compatibility>`.
 The third digit is only for regressions.
 
 

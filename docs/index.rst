@@ -17,10 +17,11 @@ User's Guide
    why
    examples
    api
+   extending
 
 
 Project Information
-^^^^^^^^^^^^^^^^^^^
+-------------------
 
 .. toctree::
    :maxdepth: 1
