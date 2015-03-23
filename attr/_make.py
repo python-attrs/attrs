@@ -2,6 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 import copy
 import hashlib
+import inspect
 import linecache
 
 from ._compat import exec_, iteritems
@@ -360,14 +361,14 @@ def fields(cl):
     Returns the tuple of ``attrs`` attributes for a class.
 
     :param cl: Class to introspect.
-    :type cl: type
+    :type cl: class
 
     :raise TypeError: If *cl* is not a class.
     :raise ValueError: If *cl* is not an ``attrs`` class.
 
     :rtype: tuple of :class:`attr.Attribute`
     """
-    if not isinstance(cl, type):
+    if not inspect.isclass(cl):
         raise TypeError("Passed object must be a class.")
     attrs = getattr(cl, "__attrs_attrs__", None)
     if attrs is None:

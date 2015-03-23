@@ -9,7 +9,7 @@ PY26 = sys.version_info[0:2] == (2, 6)
 
 
 if PY2:
-    # TYPE is used in exceptions, repr(int) is differnt on Python 2 and 3.
+    # TYPE is used in exceptions, repr(int) is different on Python 2 and 3.
     TYPE = "type"
 
     def exec_(code, locals_, globals_):
