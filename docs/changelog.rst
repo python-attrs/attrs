@@ -9,7 +9,7 @@ Versions are year-based with a strict :doc:`backwards-compatibility policy <back
 The third digit is only for regressions.
 
 
-15.0.0 (UNRELEASED)
+15.0.0 (2015-04-15)
 -------------------
 
 
