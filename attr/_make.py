@@ -439,13 +439,10 @@ else:
 
     return """\
 def __init__(self, {args}):
-    '''
-    Attribute initializer automatically created by attrs.
-    '''
     {setters}
 """.format(
         args=", ".join(args),
-        setters="\n    ".join(lines),
+        setters="\n    ".join(lines) if lines else "pass",
     )
 
 
