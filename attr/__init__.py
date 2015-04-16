@@ -27,7 +27,6 @@ __version__ = "15.1.0.dev0"
 
 __title__ = "attrs"
 __description__ = "Attributes without boilerplate."
-__keywords__ = ["class", "attribute", "boilerplate"]
 __uri__ = "https://attrs.readthedocs.org/"
 
 __author__ = "Hynek Schlawack"

@@ -71,7 +71,7 @@ if __name__ == "__main__":
         author_email=find_meta("email"),
         maintainer=find_meta("author"),
         maintainer_email=find_meta("email"),
-        keywords=find_meta("keywords"),
+        keywords=["class", "attribute", "boilerplate"],
         long_description=(
             read("README.rst") + "\n\n" +
             read("AUTHORS.rst")
