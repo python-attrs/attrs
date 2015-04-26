@@ -242,7 +242,7 @@ More information on why class methods for constructing objects are awesome can b
 Validators
 ----------
 
-Although your initializers should be a dumb as possible, it can come handy to do some kind of validation on the arguments.
+Although your initializers should be as dumb as possible, it can come handy to do some kind of validation on the arguments.
 That's when :func:`attr.ib`\ ’s ``validator`` argument comes into play.
 A validator is simply a callable that takes three arguments:
 
