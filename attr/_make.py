@@ -485,6 +485,10 @@ Attribute = _add_hash(
 
 
 class _CountingAttr(object):
+    """
+    Intermediate representation of attributes that uses a counter to preserve
+    the order in which the attributes have been defined.
+    """
     __attrs_attrs__ = [
         Attribute(name=name, default=NOTHING, validator=None,
                   repr=True, cmp=True, hash=True, init=True)
