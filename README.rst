@@ -10,9 +10,9 @@ attrs: Attributes without boilerplate.
    :target: https://travis-ci.org/hynek/attrs
    :alt: CI status
 
-.. image:: https://coveralls.io/repos/hynek/attrs/badge.png?branch=master
-   :target: https://coveralls.io/r/hynek/attrs?branch=master
-   :alt: Current coverage
+.. image:: https://codecov.io/github/hynek/attrs/coverage.svg?branch=master
+   :target: https://codecov.io/github/hynek/attrs?branch=master
+   :alt: Coverage
 
 .. teaser-begin
 
