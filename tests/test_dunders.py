@@ -9,7 +9,6 @@ import copy
 import pytest
 
 from . import simple_attr, simple_class
-from attr._compat import PY26
 from attr._make import (
     Factory,
     NOTHING,
