@@ -2,7 +2,7 @@
 attrs: Attributes without boilerplate.
 ======================================
 
-.. image:: https://pypip.in/version/attrs/badge.svg
+.. image:: https://img.shields.io/pypi/v/attrs.svg
    :target: https://pypi.python.org/pypi/attrs/
    :alt: Latest Version
 
