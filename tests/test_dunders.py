@@ -206,8 +206,10 @@ class TestAddInit(object):
         with pytest.raises(TypeError) as e:
             C(a=1, b=2)
 
-        msg = e.value if PY26 else e.value.args[0]
-        assert "__init__() got an unexpected keyword argument 'a'" == msg
+        assert (
+            "__init__() got an unexpected keyword argument 'a'" ==
+            e.value.args[0]
+        )
 
     def test_sets_attributes(self):
         """

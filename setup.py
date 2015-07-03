@@ -98,7 +98,7 @@ if __name__ == "__main__":
         install_requires=[
         ],
         tests_require=[
-            "pytest",
+            "pytest>=2.7.2",  # see https://github.com/hynek/attrs/issues/14
             "zope.interface",
         ],
         cmdclass={
