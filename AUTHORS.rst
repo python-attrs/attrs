@@ -13,6 +13,7 @@ The following folks helped forming ``attrs`` into what it is now:
 - `Glyph <https://github.com/glyph/>`_
 - `HawkOwl <https://github.com/hawkowl>`_
 - `Lynn Root <https://github.com/econchick>`_
+- `Samuel A. Falvo II <https://github.com/sam-falvo>`_
 - `Wouter Bolsterlee <https://github.com/wbolster/>`_
 
 Of course ``characteristic``\ ’s `hall of fame <https://characteristic.readthedocs.org/en/stable/license.html>`_ applies as well since they share a lot of code.

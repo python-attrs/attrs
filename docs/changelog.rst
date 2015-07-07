@@ -16,7 +16,7 @@ The third digit is only for regressions.
 Changes:
 ^^^^^^^^
 
-- none yet
+- Introduced a new `optional` validator.
 
 
 15.0.0 (2015-04-15)
