@@ -85,3 +85,33 @@ def provides(interface):
     the value it got.
     """
     return _ProvidesValidator(interface)
+
+
+@attr.s
+class _OptionalValidator(object):
+    """
+    A validator that makes an attribute optional.  An optional field is one
+    which can be set to None in addition to its intended data type.
+    """
+    v = attr.ib()
+
+    def __call__(self, inst, attr, value):
+        if value is None:
+            return
+        return self.v(inst, attr, value)
+
+    def __repr__(self):
+        return (
+            "<instance_of validator for type {type!r} or None>"
+            .format(type=self.type)
+        )
+
+
+def optional(x):
+    """
+    A validator that makes an attribute optional.  An optional field is one
+    which can be set to None in addition to its intended data type.
+
+    :param x: Any other validator you wish to make optional.
+    """
+    return _OptionalValidator(x)
