@@ -176,6 +176,6 @@ class TestOptional(object):
         v = optional(instance_of(int))
         assert (
             ("<optional validator for <instance_of validator for type "
-             "{type!r} or None>")
+             "{type} or None>")
             .format(type=TYPE)
         ) == repr(v)
