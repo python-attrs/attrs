@@ -173,7 +173,7 @@ class TestOptional(object):
         """
         Returned validator has a useful `__repr__`.
         """
-        v = instance_of(int)
+        v = optional(instance_of(int))
         assert (
             "<instance_of validator for type <{type} 'int'> or None>"
             .format(type=TYPE)
