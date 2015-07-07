@@ -87,13 +87,13 @@ def provides(interface):
     return _ProvidesValidator(interface)
 
 
-@attr.s
+@attributes(repr=False)
 class _OptionalValidator(object):
     """
     A validator that makes an attribute optional.  An optional field is one
     which can be set to None in addition to its intended data type.
     """
-    v = attr.ib()
+    v = attr()
 
     def __call__(self, inst, attr, value):
         if value is None:
