@@ -102,7 +102,7 @@ class _OptionalValidator(object):
 
     def __repr__(self):
         return (
-            "<instance_of validator for {type} or None>"
+            "<optional validator for {type} or None>"
             .format(type=repr(self.v))
         )
 
