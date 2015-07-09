@@ -93,25 +93,25 @@ class _OptionalValidator(object):
     A validator that makes an attribute optional.  An optional field is one
     which can be set to None in addition to its intended data type.
     """
-    v = attr()
+    validator = attr()
 
     def __call__(self, inst, attr, value):
         if value is None:
             return
-        return self.v(inst, attr, value)
+        return self.validator(inst, attr, value)
 
     def __repr__(self):
         return (
             "<optional validator for {type} or None>"
-            .format(type=repr(self.v))
+            .format(type=repr(self.validator))
         )
 
 
-def optional(x):
+def optional(validator):
     """
     A validator that makes an attribute optional.  An optional field is one
     which can be set to None in addition to its intended data type.
 
-    :param x: Any other validator you wish to make optional.
+    :param validator: Any other validator you wish to make optional.
     """
-    return _OptionalValidator(x)
+    return _OptionalValidator(validator)
