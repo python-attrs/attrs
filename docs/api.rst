@@ -226,6 +226,29 @@ Validators
       Traceback (most recent call last):
          ...
       TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>), <type 'int'>, '42')
+      >>> C(None)
+      Traceback (most recent call last):
+         ...
+      TypeError: ("'x' must be <type 'int'> (got None that is a <type 'NoneType'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>, repr=True, cmp=True, hash=True, init=True), <type 'int'>, None)
 
 
 .. autofunction:: attr.validators.provides
+
+.. autofunction:: attr.validators.optional
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib(validator=attr.validators.optional(attr.validators.instance_of(int)))
+      >>> C(42)
+      C(x=42)
+      >>> C("42")
+      Traceback (most recent call last):
+         ...
+      TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>), <type 'int'>, '42')
+      >>> C(None)
+      C(x=None)
+

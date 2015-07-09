@@ -135,25 +135,6 @@ class TestOptional(object):
         v = optional(instance_of(int))
         v(None, simple_attr("test"), True)
 
-    def test_given_interface(self):
-        """
-        Nothing happens if value provides requested interface.
-        """
-        @zope.interface.implementer(IFoo)
-        class C(object):
-            def f(self):
-                pass
-
-        v = optional(provides(IFoo))
-        v(None, simple_attr("x"), C())
-
-    def test_no_interface(self):
-        """
-        Nothing happens if None passed for an interface too.
-        """
-        v = optional(provides(IFoo))
-        v(None, simple_attr("x"), None)
-
     def test_fail(self):
         """
         Raises `TypeError` on wrong types.
