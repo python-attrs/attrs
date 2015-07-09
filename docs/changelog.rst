@@ -16,7 +16,9 @@ The third digit is only for regressions.
 Changes:
 ^^^^^^^^
 
-- Add optional validator.
+- Add optional_ validator.
+
+.. _optional: http://attrs.readthedocs.org/en/stable/api.html#validators
 
 
 15.0.0 (2015-04-15)
