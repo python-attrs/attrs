@@ -89,10 +89,6 @@ def provides(interface):
 
 @attributes(repr=False)
 class _OptionalValidator(object):
-    """
-    A validator that makes an attribute optional.  An optional field is one
-    which can be set to None in addition to its intended data type.
-    """
     validator = attr()
 
     def __call__(self, inst, attr, value):
@@ -109,8 +105,9 @@ class _OptionalValidator(object):
 
 def optional(validator):
     """
-    A validator that makes an attribute optional.  An optional field is one
-    which can be set to None in addition to its intended data type.
+    A validator that makes an attribute optional.  An optional attribute is one
+    which can be set to None in addition to satisfying the requirements of the
+    sub-validator.
 
     :param validator: Any other validator you wish to make optional.
     """
