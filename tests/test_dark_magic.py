@@ -94,12 +94,26 @@ class TestDarkMagic(object):
                       repr=True, cmp=True, hash=True, init=True),
         ) == attr.fields(PC)
 
-    def test_subclassing(self):
+    def test_subclassing_with_extra_attrs(self):
         """
-        Sub-classing does what you'd hope for.
+        Sub-classing (where the subclass has extra attrs) does what you'd hope
+        for.
         """
         obj = object()
         i = Sub(x=obj, y=2)
         assert i.x is i.meth() is obj
         assert i.y == 2
         assert "Sub(x={obj}, y=2)".format(obj=obj) == repr(i)
+
+    def test_subclass_without_extra_attrs(self):
+        """
+        Sub-classing (where the subclass does not have extra attrs) still
+        behaves the same as a subclss with extra attrs.
+        """
+        class Sub2(Super):
+            pass
+
+        obj = object()
+        i = Sub2(x=obj)
+        assert i.x is i.meth() is obj
+        assert "Sub2(x={obj})".format(obj=obj) == repr(i)

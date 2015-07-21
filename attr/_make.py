@@ -303,19 +303,20 @@ def _add_repr(cl, ns=None, attrs=None):
     if attrs is None:
         attrs = [a for a in cl.__attrs_attrs__ if a.repr]
 
-    if ns is None:
-        qualname = getattr(cl, "__qualname__", None)
-        if qualname is not None:
-            class_name = qualname.rsplit(">.", 1)[-1]  # pragma: nocover
-        else:
-            class_name = cl.__name__
-    else:
-        class_name = ns + "." + cl.__name__
-
     def repr_(self):
         """
         Automatically created by attrs.
         """
+        real_cl = self.__class__
+        if ns is None:
+            qualname = getattr(real_cl, "__qualname__", None)
+            if qualname is not None:
+                class_name = qualname.rsplit(">.", 1)[-1]  # pragma: nocover
+            else:
+                class_name = real_cl.__name__
+        else:
+            class_name = ns + "." + real_cl.__name__
+
         return "{0}({1})".format(
             class_name,
             ", ".join(a.name + "=" + repr(getattr(self, a.name))
