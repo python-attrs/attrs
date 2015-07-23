@@ -74,7 +74,7 @@ def provides(interface):
     """
     A validator that raises a :exc:`TypeError` if the initializer is called
     with an object that does not provide the requested *interface* (checks are
-    perfomed using ``interface.providedBy(value)`` (see `zope.interface
+    performed using ``interface.providedBy(value)`` (see `zope.interface
     <http://docs.zope.org/zope.interface/>`_).
 
     :param interface: The interface to check for.
