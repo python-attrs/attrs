@@ -16,7 +16,7 @@ The third digit is only for regressions.
 Changes:
 ^^^^^^^^
 
-- none yet
+- Add :func:`attr.validators.optional` that wraps other validators allowing attributes to be ``None``.
 
 
 15.0.0 (2015-04-15)
