@@ -85,3 +85,30 @@ def provides(interface):
     the value it got.
     """
     return _ProvidesValidator(interface)
+
+
+@attributes(repr=False)
+class _OptionalValidator(object):
+    validator = attr()
+
+    def __call__(self, inst, attr, value):
+        if value is None:
+            return
+        return self.validator(inst, attr, value)
+
+    def __repr__(self):
+        return (
+            "<optional validator for {type} or None>"
+            .format(type=repr(self.validator))
+        )
+
+
+def optional(validator):
+    """
+    A validator that makes an attribute optional.  An optional attribute is one
+    which can be set to ``None`` in addition to satisfying the requirements of
+    the sub-validator.
+
+    :param validator: A validator that is used for non-``None`` values.
+    """
+    return _OptionalValidator(validator)
