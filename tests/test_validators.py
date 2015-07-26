@@ -128,13 +128,6 @@ class TestOptional(object):
         v = optional(instance_of(int))
         v(None, simple_attr("test"), None)
 
-    def test_subclass(self):
-        """
-        Subclasses are accepted too.
-        """
-        v = optional(instance_of(int))
-        v(None, simple_attr("test"), True)
-
     def test_fail(self):
         """
         Raises `TypeError` on wrong types.

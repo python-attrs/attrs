@@ -106,9 +106,9 @@ class _OptionalValidator(object):
 def optional(validator):
     """
     A validator that makes an attribute optional.  An optional attribute is one
-    which can be set to None in addition to satisfying the requirements of the
-    sub-validator.
+    which can be set to ``None`` in addition to satisfying the requirements of
+    the sub-validator.
 
-    :param validator: Any other validator you wish to make optional.
+    :param validator: A validator that is used for non-``None`` values.
     """
     return _OptionalValidator(validator)
