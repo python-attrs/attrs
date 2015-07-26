@@ -1,3 +1,7 @@
 [run]
 branch = True
 omit = attr/_compat.py
+source = attr
+
+[report]
+show_missing = True

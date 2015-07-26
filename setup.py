@@ -40,26 +40,6 @@ def find_meta(meta):
     raise RuntimeError("Unable to find __{meta}__ string.".format(meta=meta))
 
 
-class PyTest(TestCommand):
-    user_options = [("pytest-args=", "a", "Arguments to pass to py.test")]
-
-    def initialize_options(self):
-        TestCommand.initialize_options(self)
-        self.pytest_args = None
-
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = []
-        self.test_suite = True
-
-    def run_tests(self):
-        # import here, cause outside the eggs aren't loaded
-        import pytest
-        errno = pytest.main(self.pytest_args or [] +
-                            ["tests"])
-        sys.exit(errno)
-
-
 if __name__ == "__main__":
     setup(
         name=NAME,
@@ -97,11 +77,4 @@ if __name__ == "__main__":
         ],
         install_requires=[
         ],
-        tests_require=[
-            "pytest>=2.7.2",  # see https://github.com/hynek/attrs/issues/14
-            "zope.interface",
-        ],
-        cmdclass={
-            "test": PyTest,
-        },
     )

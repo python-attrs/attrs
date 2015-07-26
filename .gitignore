@@ -4,5 +4,4 @@
 *.egg-info
 docs/_build/
 htmlcov
-.eggs
 dist
