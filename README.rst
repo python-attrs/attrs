@@ -2,10 +2,6 @@
 attrs: Attributes without boilerplate.
 ======================================
 
-.. image:: https://img.shields.io/pypi/v/attrs.svg
-   :target: https://pypi.python.org/pypi/attrs/
-   :alt: Latest Version
-
 .. image:: https://travis-ci.org/hynek/attrs.svg
    :target: https://travis-ci.org/hynek/attrs
    :alt: CI status
