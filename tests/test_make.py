@@ -117,22 +117,34 @@ class TestTransformAttrs(object):
         Collect attributes from all sub-classes.
         """
         class A(object):
-            pass
+            a = None
 
-        class C(A):
-            x = attr()
+        class B(A):
+            b = attr()
+
+        _transform_attrs(B, None)
+
+        class C(B):
+            c = attr()
 
         _transform_attrs(C, None)
 
         class D(C):
-            y = attr()
+            d = attr()
 
         _transform_attrs(D, None)
 
+        class E(D):
+            e = attr()
+
+        _transform_attrs(E, None)
+
         assert (
-            simple_attr("x"),
-            simple_attr("y"),
-        ) == D.__attrs_attrs__
+            simple_attr("b"),
+            simple_attr("c"),
+            simple_attr("d"),
+            simple_attr("e"),
+        ) == E.__attrs_attrs__
 
 
 class TestAttributes(object):

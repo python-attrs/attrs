@@ -103,7 +103,7 @@ def _transform_attrs(cl, these):
     for c in reversed(cl.__mro__[1:-1]):
         sub_attrs = getattr(c, "__attrs_attrs__", None)
         if sub_attrs is not None:
-            super_cls.extend(sub_attrs)
+            super_cls.extend(a for a in sub_attrs if a not in super_cls)
     if these is None:
         ca_list = [(name, attr)
                    for name, attr
