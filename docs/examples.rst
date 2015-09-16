@@ -329,6 +329,43 @@ You can also disable them globally:
    TypeError: ("'x' must provide <InterfaceClass __builtin__.IFoo> which 42 doesn't.", Attribute(name='x', default=NOTHING, validator=<provides validator for interface <InterfaceClass __builtin__.IFoo>>, repr=True, cmp=True, hash=True, init=True), <InterfaceClass __builtin__.IFoo>, 42)
 
 
+Conversion
+----------
+
+Attributes can have a ``convert`` function specified, which will be called with
+the attribute's passed-in value to get a new value to use.  This can be useful
+for doing type-conversions on values that you don't want to force your callers
+to do.
+
+.. doctest::
+
+    >>> @attr.s
+    ... class C(object):
+    ...     x = attr.ib(convert=int)
+    >>> o = C("1")
+    >>> o.x
+    1
+
+Converters are run _before_ validators, so you can use validators to check the
+final form of the value.
+
+.. doctest::
+
+    >>> def validate_x(instance, attribute, value):
+    ...     if value < 0:
+    ...         raise ValueError("x must be be at least 0.")
+    >>> @attr.s
+    ... class C(object):
+    ...     x = attr.ib(convert=int, validator=validate_x)
+    >>> o = C("0")
+    >>> o.x
+    0
+    >>> C("-1")
+    Traceback (most recent call last):
+        ...
+    ValueError: x must be be at least 0.
+
+
 Other Goodies
 -------------
 
