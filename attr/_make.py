@@ -83,12 +83,11 @@ def attr(default=NOTHING, validator=None,
     :param init: Include this attribute in the generated ``__init__`` method.
     :type init: bool
 
-    :param convert: :func:`callable` that is called by ``attrs``-generated
-        ``__init__`` methods to convert attribute's value to the desired
-        format. It is given the passed-in value, and the returned value will
-        be used as the new value of the attribute.
-    :type convert: callable
-
+    :param callable convert: :func:`callable` that is called by
+        ``attrs``-generated ``__init__`` methods to convert attribute's value
+        to the desired format.  It is given the passed-in value, and the
+        returned value will be used as the new value of the attribute. The
+        value is converted before being passed to the validator, if any.
     """
     return _CountingAttr(
         default=default,
@@ -461,10 +460,10 @@ else:
                 arg_name=arg_name,
             ))
 
-    if has_validator:
-        lines.append("validate(self)")
     if has_convert:
         lines.append("_convert(self)")
+    if has_validator:
+        lines.append("validate(self)")
 
     return """\
 def __init__(self, {args}):

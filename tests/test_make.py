@@ -406,9 +406,9 @@ class TestConvert(object):
         assert c.x == 2
         assert c.y == 2
 
-    def test_convert_after_validate(self):
+    def test_convert_before_validate(self):
         """
-        Validation happens before conversion.
+        Validation happens after conversion.
         """
         def validator(inst, attr, val):
             raise RuntimeError("foo")
@@ -416,7 +416,7 @@ class TestConvert(object):
             "C",
             {"x": attr(validator=validator, convert=lambda v: 1 / 0),
              "y": attr()})
-        with pytest.raises(RuntimeError):
+        with pytest.raises(ZeroDivisionError):
             C(1, 2)
 
 
