@@ -412,8 +412,10 @@ class TestConvert(object):
         """
         def validator(inst, attr, val):
             raise RuntimeError("foo")
-        C = make_class("C", {"x": attr(validator=validator, convert=lambda v: 1 / 0),
-                             "y": attr()})
+        C = make_class(
+            "C",
+            {"x": attr(validator=validator, convert=lambda v: 1 / 0),
+             "y": attr()})
         with pytest.raises(RuntimeError):
             C(1, 2)
 

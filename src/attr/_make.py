@@ -84,9 +84,9 @@ def attr(default=NOTHING, validator=None,
     :type init: bool
 
     :param convert: :func:`callable` that is called by ``attrs``-generated
-        ``__init__`` methods to convert attribute's value to the desired format.
-        It is given the passed-in value, and the returned value will be used as
-        the new value of the attribute.
+        ``__init__`` methods to convert attribute's value to the desired
+        format. It is given the passed-in value, and the returned value will
+        be used as the new value of the attribute.
     :type convert: callable
 
     """
@@ -484,7 +484,8 @@ class Attribute(object):
     Plus *all* arguments of :func:`attr.ib`.
     """
     _attributes = [
-        "name", "default", "validator", "repr", "cmp", "hash", "init", "convert"
+        "name", "default", "validator", "repr", "cmp", "hash", "init",
+        "convert"
     ]  # we can't use ``attrs`` so we have to cheat a little.
 
     _optional = {"convert": None}
