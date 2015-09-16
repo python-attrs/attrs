@@ -16,7 +16,7 @@ The third digit is only for regressions.
 Changes:
 ^^^^^^^^
 
-None
+- Add a `convert` argument to :func:`attr.ib`, which allows specifying a function to run on arguments.  This allows for simple type conversions, e.g. with ``attr.ib(convert=int)``. `[26] <https://github.com/hynek/attrs/issues/26>`
 
 
 15.1.0 (2015-08-20)
