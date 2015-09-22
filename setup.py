@@ -5,8 +5,31 @@ import re
 from setuptools import setup, find_packages
 
 
+###############################################################################
+
 NAME = "attrs"
+PACKAGES = find_packages(exclude=["tests*"])
 META_PATH = os.path.join("attr", "__init__.py")
+KEYWORDS = ["class", "attribute", "boilerplate"]
+CLASSIFIERS = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 2",
+    "Programming Language :: Python :: 2.6",
+    "Programming Language :: Python :: 2.7",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.3",
+    "Programming Language :: Python :: 3.4",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+INSTALL_REQUIRES = []
 
 ###############################################################################
 
@@ -49,31 +72,10 @@ if __name__ == "__main__":
         author_email=find_meta("email"),
         maintainer=find_meta("author"),
         maintainer_email=find_meta("email"),
-        keywords=["class", "attribute", "boilerplate"],
-        long_description=(
-            read("README.rst") + "\n\n" +
-            read("AUTHORS.rst")
-        ),
-        packages=find_packages(exclude=["tests*"]),
+        keywords=KEYWORDS,
+        long_description=read("README.rst"),
+        packages=PACKAGES,
         zip_safe=False,
-        classifiers=[
-            "Development Status :: 5 - Production/Stable",
-            "Intended Audience :: Developers",
-            "Natural Language :: English",
-            "License :: OSI Approved :: MIT License",
-            "Operating System :: OS Independent",
-            "Programming Language :: Python",
-            "Programming Language :: Python :: 2",
-            "Programming Language :: Python :: 2.6",
-            "Programming Language :: Python :: 2.7",
-            "Programming Language :: Python :: 3",
-            "Programming Language :: Python :: 3.3",
-            "Programming Language :: Python :: 3.4",
-            "Programming Language :: Python :: 3.5",
-            "Programming Language :: Python :: Implementation :: CPython",
-            "Programming Language :: Python :: Implementation :: PyPy",
-            "Topic :: Software Development :: Libraries :: Python Modules",
-        ],
-        install_requires=[
-        ],
+        classifiers=CLASSIFIERS,
+        install_requires=INSTALL_REQUIRES,
     )
