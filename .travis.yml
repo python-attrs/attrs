@@ -4,22 +4,37 @@ cache:
     - $HOME/.cache/pip
 
 language: python
-python: 2.7
-env:
-  - TOX_ENV=py26
-  - TOX_ENV=py27
-  - TOX_ENV=py33
-  - TOX_ENV=py34
-  - TOX_ENV=pypy
-  - TOX_ENV=docs
-  - TOX_ENV=flake8
-  - TOX_ENV=manifest
+
+
+matrix:
+  include:
+    - python: "2.6"  # these are just to make travis's UI a bit prettier
+      env: TOXENV=py26
+    - python: "2.7"
+      env: TOXENV=py27
+    - python: "3.3"
+      env: TOXENV=py33
+    - python: "3.4"
+      env: TOXENV=py34
+    - python: "3.5"
+      env: TOXENV=py35
+    - python: "pypy"
+      env: TOXENV=pypy
+
+    # Meta
+    - python: "2.7"
+      env: TOXENV=flake8
+    - python: "2.7"
+      env: TOXENV=manifest
+    - python: "2.7"
+      env: TOXENV=docs
+
 
 install:
   - pip install tox
 
 script:
-  - tox --hashseed 0 -e $TOX_ENV
+  - tox --hashseed 0
 
 before_install:
   - pip install codecov
