@@ -390,9 +390,15 @@ def validate(inst):
     if _config._run_validators is False:
         return
 
-    for a in fields(inst.__class__):
-        if a.validator is not None:
-            a.validator(inst, a, getattr(inst, a.name))
+    attributes = getattr(inst.__class__, "__attrs_attrs__", None)
+    if attributes is not None:
+        for a in attributes:
+            if a.validator is not None:
+                a.validator(inst, a, getattr(inst, a.name))
+    else:
+        raise ValueError("{cl!r} is not an attrs-decorated class.".format(
+            cl=inst.__class__
+        ))
 
 
 def _attrs_to_script(attrs):
