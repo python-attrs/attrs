@@ -16,7 +16,7 @@ The third digit is only for regressions.
 Changes:
 ^^^^^^^^
 
-None
+- speed up object creation when attribute validators are used `[28] <https://github.com/hynek/attrs/issues/28>`_
 
 
 15.1.0 (2015-08-20)
