@@ -10,6 +10,7 @@ It’s the spiritual successor of `characteristic <https://characteristic.readth
 
 The following folks helped forming ``attrs`` into what it is now:
 
+- `David Cournapeau <https://github.com/cournape/>`_
 - `Glyph <https://github.com/glyph/>`_
 - `HawkOwl <https://github.com/hawkowl>`_
 - `Lynn Root <https://github.com/econchick>`_

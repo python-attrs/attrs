@@ -390,7 +390,7 @@ def validate(inst):
     if _config._run_validators is False:
         return
 
-    for a in fields(inst.__class__):
+    for a in inst.__class__.__attrs_attrs__:
         if a.validator is not None:
             a.validator(inst, a, getattr(inst, a.name))
 
