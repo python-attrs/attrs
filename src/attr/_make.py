@@ -311,7 +311,7 @@ def _add_repr(cl, ns=None, attrs=None):
         if ns is None:
             qualname = getattr(real_cl, "__qualname__", None)
             if qualname is not None:
-                class_name = qualname.rsplit(">.", 1)[-1]  # pragma: nocover
+                class_name = qualname.rsplit(">.", 1)[-1]
             else:
                 class_name = real_cl.__name__
         else:
