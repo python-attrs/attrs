@@ -8,8 +8,8 @@ from setuptools import setup, find_packages
 ###############################################################################
 
 NAME = "attrs"
-PACKAGES = find_packages(exclude=["tests*"])
-META_PATH = os.path.join("attr", "__init__.py")
+PACKAGES = find_packages(where="src", exclude=["tests*"])
+META_PATH = os.path.join("src", "attr", "__init__.py")
 KEYWORDS = ["class", "attribute", "boilerplate"]
 CLASSIFIERS = [
     "Development Status :: 5 - Production/Stable",
@@ -75,6 +75,7 @@ if __name__ == "__main__":
         keywords=KEYWORDS,
         long_description=read("README.rst"),
         packages=PACKAGES,
+        package_dir={"": "src"},
         zip_safe=False,
         classifiers=CLASSIFIERS,
         install_requires=INSTALL_REQUIRES,

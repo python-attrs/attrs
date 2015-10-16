@@ -1,5 +1,5 @@
 .tox
-.coverage
+.coverage*
 *.pyc
 *.egg-info
 docs/_build/
