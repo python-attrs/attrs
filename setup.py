@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 ###############################################################################
 
 NAME = "attrs"
-PACKAGES = find_packages(where="src", exclude=["tests*"])
+PACKAGES = find_packages(where="src")
 META_PATH = os.path.join("src", "attr", "__init__.py")
 KEYWORDS = ["class", "attribute", "boilerplate"]
 CLASSIFIERS = [
