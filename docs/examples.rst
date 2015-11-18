@@ -332,10 +332,8 @@ You can also disable them globally:
 Conversion
 ----------
 
-Attributes can have a ``convert`` function specified, which will be called with
-the attribute's passed-in value to get a new value to use.  This can be useful
-for doing type-conversions on values that you don't want to force your callers
-to do.
+Attributes can have a ``convert`` function specified, which will be called with the attribute's passed-in value to get a new value to use.
+This can be useful for doing type-conversions on values that you don't want to force your callers to do.
 
 .. doctest::
 
@@ -346,8 +344,7 @@ to do.
     >>> o.x
     1
 
-Converters are run _before_ validators, so you can use validators to check the
-final form of the value.
+Converters are run _before_ validators, so you can use validators to check the final form of the value.
 
 .. doctest::
 
