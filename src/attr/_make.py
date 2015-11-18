@@ -58,10 +58,10 @@ def attr(default=NOTHING, validator=None,
         dicts).
     :type default: Any value.
 
-    :param callable validator: :func:`callable` that is called by ``attrs``-generated
-        ``__init__`` methods after the instance has been initialized.  They
-        receive the initialized instance, the :class:`Attribute`, and the
-        passed value.
+    :param callable validator: :func:`callable` that is called by
+        ``attrs``-generated ``__init__`` methods after the instance has been
+        initialized.  They receive the initialized instance, the
+        :class:`Attribute`, and the passed value.
 
         The return value is *not* inspected so the validator has to throw an
         exception itself.
@@ -69,14 +69,17 @@ def attr(default=NOTHING, validator=None,
         They can be globally disabled and re-enabled using
         :func:`get_run_validators`.
 
-    :param bool repr: Include this attribute in the generated ``__repr__`` method.
+    :param bool repr: Include this attribute in the generated ``__repr__``
+        method.
 
     :param bool cmp: Include this attribute in the generated comparison methods
         (``__eq__`` et al).
 
-    :param bool hash: Include this attribute in the generated ``__hash__`` method.
+    :param bool hash: Include this attribute in the generated ``__hash__``
+        method.
 
-    :param bool init: Include this attribute in the generated ``__init__`` method.
+    :param bool init: Include this attribute in the generated ``__init__``
+        method.
 
     :param callable convert: :func:`callable` that is called by
         ``attrs``-generated ``__init__`` methods to convert attribute's value
