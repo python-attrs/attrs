@@ -319,7 +319,7 @@ def _add_repr(cl, ns=None, attrs=None):
         if ns is None:
             qualname = getattr(real_cl, "__qualname__", None)
             if qualname is not None:
-                class_name = qualname.rsplit(">.", 1)[-1]  # pragma: nocover
+                class_name = qualname.rsplit(">.", 1)[-1]
             else:
                 class_name = real_cl.__name__
         else:
@@ -399,7 +399,7 @@ def validate(inst):
     if _config._run_validators is False:
         return
 
-    for a in fields(inst.__class__):
+    for a in inst.__class__.__attrs_attrs__:
         if a.validator is not None:
             a.validator(inst, a, getattr(inst, a.name))
 

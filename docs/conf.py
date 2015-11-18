@@ -90,7 +90,7 @@ copyright = u'2015{0}, Hynek Schlawack'.format(
 # built documents.
 #
 # The short X.Y version.
-release = find_version("../attr/__init__.py")
+release = find_version("../src/attr/__init__.py")
 version = release.rsplit(u".", 1)[0]
 # The full version, including alpha/beta/rc tags.
 

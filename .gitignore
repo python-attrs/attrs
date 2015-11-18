@@ -1,7 +1,8 @@
 .tox
-.coverage
+.coverage*
 *.pyc
 *.egg-info
 docs/_build/
 htmlcov
 dist
+.cache
