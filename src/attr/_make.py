@@ -41,7 +41,8 @@ Sentinel to indicate the lack of a value when ``None`` is ambiguous.
 
 
 def attr(default=NOTHING, validator=None,
-         repr=True, cmp=True, hash=True, init=True):
+         repr=True, cmp=True, hash=True, init=True,
+         convert=None):
     """
     Create a new attribute on a class.
 
@@ -57,30 +58,34 @@ def attr(default=NOTHING, validator=None,
         dicts).
     :type default: Any value.
 
-    :param validator: :func:`callable` that is called by ``attrs``-generated
-        ``__init__`` methods after the instance has been initialized.  They
-        receive the initialized instance, the :class:`Attribute`, and the
-        passed value.
+    :param callable validator: :func:`callable` that is called by
+        ``attrs``-generated ``__init__`` methods after the instance has been
+        initialized.  They receive the initialized instance, the
+        :class:`Attribute`, and the passed value.
 
         The return value is *not* inspected so the validator has to throw an
         exception itself.
 
         They can be globally disabled and re-enabled using
         :func:`get_run_validators`.
-    :type validator: callable
 
-    :param repr: Include this attribute in the generated ``__repr__`` method.
-    :type repr: bool
+    :param bool repr: Include this attribute in the generated ``__repr__``
+        method.
 
-    :param cmp: Include this attribute in the generated comparison methods
+    :param bool cmp: Include this attribute in the generated comparison methods
         (``__eq__`` et al).
-    :type cmp: bool
 
-    :param hash: Include this attribute in the generated ``__hash__`` method.
-    :type hash: bool
+    :param bool hash: Include this attribute in the generated ``__hash__``
+        method.
 
-    :param init: Include this attribute in the generated ``__init__`` method.
-    :type init: bool
+    :param bool init: Include this attribute in the generated ``__init__``
+        method.
+
+    :param callable convert: :func:`callable` that is called by
+        ``attrs``-generated ``__init__`` methods to convert attribute's value
+        to the desired format.  It is given the passed-in value, and the
+        returned value will be used as the new value of the attribute. The
+        value is converted before being passed to the validator, if any.
     """
     return _CountingAttr(
         default=default,
@@ -89,6 +94,7 @@ def attr(default=NOTHING, validator=None,
         cmp=cmp,
         hash=hash,
         init=init,
+        convert=convert,
     )
 
 
@@ -342,7 +348,8 @@ def _add_init(cl):
     attr_dict = dict((a.name, a) for a in attrs)
     exec_(bytecode, {"NOTHING": NOTHING,
                      "attr_dict": attr_dict,
-                     "validate": validate}, locs)
+                     "validate": validate,
+                     "_convert": _convert}, locs)
     init = locs["__init__"]
 
     # In order of debuggers like PDB being able to step through the code,
@@ -395,6 +402,19 @@ def validate(inst):
             a.validator(inst, a, getattr(inst, a.name))
 
 
+def _convert(inst):
+    """
+    Convert all attributes on *inst* that have a converter.
+
+    Leaves all exceptions through.
+
+    :param inst: Instance of a class with ``attrs`` attributes.
+    """
+    for a in fields(inst.__class__):
+        if a.convert is not None:
+            setattr(inst, a.name, a.convert(getattr(inst, a.name)))
+
+
 def _attrs_to_script(attrs):
     """
     Return a valid Python script of an initializer for *attrs*.
@@ -402,9 +422,12 @@ def _attrs_to_script(attrs):
     lines = []
     args = []
     has_validator = False
+    has_convert = False
     for a in attrs:
         if a.validator is not None:
             has_validator = True
+        if a.convert is not None:
+            has_convert = True
         attr_name = a.name
         arg_name = a.name.lstrip("_")
         if a.default is not NOTHING and not isinstance(a.default, Factory):
@@ -435,6 +458,8 @@ else:
                 arg_name=arg_name,
             ))
 
+    if has_convert:
+        lines.append("_convert(self)")
     if has_validator:
         lines.append("validate(self)")
 
@@ -457,16 +482,22 @@ class Attribute(object):
     """
     _attributes = [
         "name", "default", "validator", "repr", "cmp", "hash", "init",
+        "convert"
     ]  # we can't use ``attrs`` so we have to cheat a little.
+
+    _optional = {"convert": None}
 
     def __init__(self, **kw):
         if len(kw) > len(Attribute._attributes):
             raise TypeError("Too many arguments.")
-        try:
-            for a in Attribute._attributes:
+        for a in Attribute._attributes:
+            try:
                 setattr(self, a, kw[a])
-        except KeyError:
-            raise TypeError("Missing argument '{arg}'.".format(arg=a))
+            except KeyError:
+                if a in Attribute._optional:
+                    setattr(self, a, self._optional[a])
+                else:
+                    raise TypeError("Missing argument '{arg}'.".format(arg=a))
 
     @classmethod
     def from_counting_attr(cl, name, ca):
@@ -498,7 +529,7 @@ class _CountingAttr(object):
     ]
     counter = 0
 
-    def __init__(self, default, validator, repr, cmp, hash, init):
+    def __init__(self, default, validator, repr, cmp, hash, init, convert):
         _CountingAttr.counter += 1
         self.counter = _CountingAttr.counter
         self.default = default
@@ -507,6 +538,7 @@ class _CountingAttr(object):
         self.cmp = cmp
         self.hash = hash
         self.init = init
+        self.convert = convert
 
 
 _CountingAttr = _add_cmp(_add_repr(_CountingAttr))
