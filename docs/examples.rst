@@ -344,7 +344,7 @@ This can be useful for doing type-conversions on values that you don't want to f
     >>> o.x
     1
 
-Converters are run _before_ validators, so you can use validators to check the final form of the value.
+Converters are run *before* validators, so you can use validators to check the final form of the value.
 
 .. doctest::
 
