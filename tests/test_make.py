@@ -96,7 +96,7 @@ class TestTransformAttrs(object):
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, repr=True, "
-            "cmp=True, hash=True, init=True)",
+            "cmp=True, hash=True, init=True, convert=None)",
         ) == e.value.args
 
     def test_these(self):
@@ -297,7 +297,7 @@ class TestAttribute(object):
         with pytest.raises(TypeError) as e:
             Attribute(name="foo", default=NOTHING,
                       factory=NOTHING, validator=None,
-                      repr=True, cmp=True, hash=True, init=True)
+                      repr=True, cmp=True, hash=True, init=True, convert=None)
         assert ("Too many arguments.",) == e.value.args
 
 
@@ -390,6 +390,34 @@ class TestFields(object):
         assert all(new == original and new is not original
                    for new, original
                    in zip(fields(C), C.__attrs_attrs__))
+
+
+class TestConvert(object):
+    """
+    Tests for attribute conversion.
+    """
+    def test_convert(self):
+        """
+        Return value of convert is used as the attribute's value.
+        """
+        C = make_class("C", {"x": attr(convert=lambda v: v + 1),
+                             "y": attr()})
+        c = C(1, 2)
+        assert c.x == 2
+        assert c.y == 2
+
+    def test_convert_before_validate(self):
+        """
+        Validation happens after conversion.
+        """
+        def validator(inst, attr, val):
+            raise RuntimeError("foo")
+        C = make_class(
+            "C",
+            {"x": attr(validator=validator, convert=lambda v: 1 / 0),
+             "y": attr()})
+        with pytest.raises(ZeroDivisionError):
+            C(1, 2)
 
 
 class TestValidate(object):

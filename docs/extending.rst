@@ -17,7 +17,7 @@ So it is fairly simple to build your own decorators on top of ``attrs``:
    ... @attr.s
    ... class C(object):
    ...     a = attr.ib()
-   (Attribute(name='a', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True),)
+   (Attribute(name='a', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None),)
 
 
 .. warning::

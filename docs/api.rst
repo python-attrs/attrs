@@ -70,7 +70,7 @@ Core
       ... class C(object):
       ...     x = attr.ib()
       >>> C.x
-      Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True)
+      Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None)
 
 
 .. autofunction:: attr.make_class
@@ -119,7 +119,7 @@ Helpers
       ...     x = attr.ib()
       ...     y = attr.ib()
       >>> attr.fields(C)
-      (Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True), Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True))
+      (Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None), Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None))
 
 
 .. autofunction:: attr.has
@@ -251,4 +251,3 @@ Validators
       TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>), <type 'int'>, '42')
       >>> C(None)
       C(x=None)
-
