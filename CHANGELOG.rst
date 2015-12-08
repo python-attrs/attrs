@@ -5,7 +5,7 @@ Versions are year-based with a strict backwards compatibility policy.
 The third digit is only for regressions.
 
 
-15.2.0 (UNRELEASED)
+15.2.0 (2015-12-08)
 -------------------
 
 
