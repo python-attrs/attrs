@@ -22,7 +22,7 @@ matrix:
       env: TOXENV=pypy
 
     # Meta
-    - python: "2.7"
+    - python: "3.5"
       env: TOXENV=flake8
     - python: "2.7"
       env: TOXENV=manifest
