@@ -23,7 +23,7 @@ from . import filters
 from . import validators
 
 
-__version__ = "15.2.0"
+__version__ = "16.0.0.dev0"
 
 __title__ = "attrs"
 __description__ = "Attributes without boilerplate."
