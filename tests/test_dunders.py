@@ -210,6 +210,24 @@ class TestAddInit(object):
             e.value.args[0]
         )
 
+    def test_no_init_default(self):
+        """
+        If `init` is False but a Factory is specified, don't allow passing that
+        argument but initialize it anyway.
+        """
+        C = make_class("C", {
+            "_a": attr(init=False, default=42),
+            "_b": attr(init=False, default=Factory(list)),
+            "c": attr()}
+        )
+        with pytest.raises(TypeError):
+            C(a=1, c=2)
+        with pytest.raises(TypeError):
+            C(b=1, c=2)
+
+        i = C(23)
+        assert (42, [], 23) == (i._a, i._b, i.c)
+
     def test_sets_attributes(self):
         """
         The attributes are initialized using the passed keywords.

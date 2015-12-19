@@ -136,7 +136,9 @@ def _transform_attrs(cl, these):
                 "default value or factory.  Attribute in question: {a!r}"
                 .format(a=a)
             )
-        elif had_default is False and a.default is not NOTHING:
+        elif had_default is False and \
+                a.default is not NOTHING and \
+                a.init is not False:
             had_default = True
 
 
@@ -333,7 +335,8 @@ def _add_repr(cl, ns=None, attrs=None):
 
 
 def _add_init(cl):
-    attrs = [a for a in cl.__attrs_attrs__ if a.init]
+    attrs = [a for a in cl.__attrs_attrs__
+             if a.init or a.default is not NOTHING]
 
     # We cache the generated init methods for the same kinds of attributes.
     sha1 = hashlib.sha1()
@@ -430,7 +433,18 @@ def _attrs_to_script(attrs):
             has_convert = True
         attr_name = a.name
         arg_name = a.name.lstrip("_")
-        if a.default is not NOTHING and not isinstance(a.default, Factory):
+        if a.init is False:
+            if isinstance(a.default, Factory):
+                lines.append("""\
+self.{attr_name} = attr_dict["{attr_name}"].default.factory()""".format(
+                    attr_name=attr_name,
+                ))
+            else:
+                lines.append("""\
+self.{attr_name} = attr_dict["{attr_name}"].default""".format(
+                    attr_name=attr_name,
+                ))
+        elif a.default is not NOTHING and not isinstance(a.default, Factory):
             args.append(
                 "{arg_name}=attr_dict['{attr_name}'].default".format(
                     arg_name=arg_name,
