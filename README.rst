@@ -2,6 +2,10 @@
 attrs: Attributes without boilerplate.
 ======================================
 
+.. image:: https://readthedocs.org/projects/attrs/badge/?version=stable
+   :target: http://attrs.readthedocs.org/en/stable/?badge=stable
+   :alt: Documentation Status
+
 .. image:: https://travis-ci.org/hynek/attrs.svg
    :target: https://travis-ci.org/hynek/attrs
    :alt: CI status
@@ -50,10 +54,6 @@ You just specify the attributes to work with and ``attrs`` gives you:
 This gives you the power to use actual classes with actual types in your code instead of confusing ``tuple``\ s or confusingly behaving ``namedtuple``\ s.
 
 So put down that type-less data structures and welcome some class into your life!
-
-.. note::
-   I wrote an `explanation <https://attrs.readthedocs.org/en/latest/why.html#characteristic>`_ on why I forked my own ``characteristic``.
-   It's not dead but ``attrs`` will have more new features.
 
 ``attrs``\ ’s documentation lives at `Read the Docs <https://attrs.readthedocs.org/>`_, the code on `GitHub <https://github.com/hynek/attrs>`_.
 It’s rigorously tested on Python 2.6, 2.7, 3.3+, and PyPy.
