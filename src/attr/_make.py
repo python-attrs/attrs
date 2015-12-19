@@ -52,10 +52,10 @@ def attr(default=NOTHING, validator=None,
         :func:`attr.s`!
 
     :param default: Value that is used if an ``attrs``-generated
-        ``__init__`` is used and no value is passed while instantiating.  If
-        the value an instance of :class:`Factory`, it callable will be use to
-        construct a new value (useful for mutable datatypes like lists or
-        dicts).
+        ``__init__`` is used and no value is passed while instantiating or the
+        attribute is excluded using ``init=False``.  If the value an instance
+        of :class:`Factory`, it callable will be use to construct a new value
+        (useful for mutable datatypes like lists or dicts).
     :type default: Any value.
 
     :param callable validator: :func:`callable` that is called by
@@ -79,7 +79,9 @@ def attr(default=NOTHING, validator=None,
         method.
 
     :param bool init: Include this attribute in the generated ``__init__``
-        method.
+        method.  It is possible to set this to ``False`` and set a default
+        value.  In that case this attributed is unconditionally initialized
+        with the specified default value or factory.
 
     :param callable convert: :func:`callable` that is called by
         ``attrs``-generated ``__init__`` methods to convert attribute's value

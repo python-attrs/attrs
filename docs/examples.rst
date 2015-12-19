@@ -71,6 +71,20 @@ For private attributes, ``attrs`` will strip the leading underscores for keyword
    >>> C(x=1)
    C(_x=1)
 
+If you want to initialize your private attributes yourself, you can do that too:
+
+.. doctest::
+
+   >>> @attr.s
+   ... class C(object):
+   ...     _x = attr.ib(init=False, default=42)
+   >>> C()
+   C(_x=42)
+   >>> C(23)
+   Traceback (most recent call last):
+      ...
+   TypeError: __init__() takes exactly 1 argument (2 given)
+
 An additional way (not unlike ``characteristic``) of defining attributes is supported too.
 This is useful in times when you want to enhance classes that are not yours (nice ``__repr__`` for Django models anyone?):
 
