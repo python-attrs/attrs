@@ -24,7 +24,9 @@ Deprecations:
 Changes:
 ^^^^^^^^
 
-*none*
+- Allow the case of initializing attributes that are set to `init=False`.
+  This allows for clean initializer parameter lists while being able to initialize attributes to default values.
+  `[32] <https://github.com/hynek/attrs/issues/32>`_
 
 
 15.2.0 (2015-12-08)

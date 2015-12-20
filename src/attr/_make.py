@@ -52,10 +52,10 @@ def attr(default=NOTHING, validator=None,
         :func:`attr.s`!
 
     :param default: Value that is used if an ``attrs``-generated
-        ``__init__`` is used and no value is passed while instantiating.  If
-        the value an instance of :class:`Factory`, it callable will be use to
-        construct a new value (useful for mutable datatypes like lists or
-        dicts).
+        ``__init__`` is used and no value is passed while instantiating or the
+        attribute is excluded using ``init=False``.  If the value an instance
+        of :class:`Factory`, it callable will be use to construct a new value
+        (useful for mutable datatypes like lists or dicts).
     :type default: Any value.
 
     :param callable validator: :func:`callable` that is called by
@@ -79,7 +79,9 @@ def attr(default=NOTHING, validator=None,
         method.
 
     :param bool init: Include this attribute in the generated ``__init__``
-        method.
+        method.  It is possible to set this to ``False`` and set a default
+        value.  In that case this attributed is unconditionally initialized
+        with the specified default value or factory.
 
     :param callable convert: :func:`callable` that is called by
         ``attrs``-generated ``__init__`` methods to convert attribute's value
@@ -136,7 +138,9 @@ def _transform_attrs(cl, these):
                 "default value or factory.  Attribute in question: {a!r}"
                 .format(a=a)
             )
-        elif had_default is False and a.default is not NOTHING:
+        elif had_default is False and \
+                a.default is not NOTHING and \
+                a.init is not False:
             had_default = True
 
 
@@ -333,7 +337,8 @@ def _add_repr(cl, ns=None, attrs=None):
 
 
 def _add_init(cl):
-    attrs = [a for a in cl.__attrs_attrs__ if a.init]
+    attrs = [a for a in cl.__attrs_attrs__
+             if a.init or a.default is not NOTHING]
 
     # We cache the generated init methods for the same kinds of attributes.
     sha1 = hashlib.sha1()
@@ -430,7 +435,18 @@ def _attrs_to_script(attrs):
             has_convert = True
         attr_name = a.name
         arg_name = a.name.lstrip("_")
-        if a.default is not NOTHING and not isinstance(a.default, Factory):
+        if a.init is False:
+            if isinstance(a.default, Factory):
+                lines.append("""\
+self.{attr_name} = attr_dict["{attr_name}"].default.factory()""".format(
+                    attr_name=attr_name,
+                ))
+            else:
+                lines.append("""\
+self.{attr_name} = attr_dict["{attr_name}"].default""".format(
+                    attr_name=attr_name,
+                ))
+        elif a.default is not NOTHING and not isinstance(a.default, Factory):
             args.append(
                 "{arg_name}=attr_dict['{attr_name}'].default".format(
                     arg_name=arg_name,
