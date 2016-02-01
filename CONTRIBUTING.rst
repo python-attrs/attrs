@@ -24,12 +24,12 @@ Here are a few guidelines to get you started:
 
 Please note that this project is released with a Contributor `Code of Conduct`_.
 By participating in this project you agree to abide by its terms.
-Please report any harm to `Hynek Schlawack <me>`_ in any way you find appropriate.
+Please report any harm to `Hynek Schlawack`_ in any way you find appropriate.
 
 Thank you for considering to contribute to ``attrs``!
 
 
-.. _me: https://hynek.me/about/
+.. _`Hynek Schlawack`: https://hynek.me/about/
 .. _`PEP 8`: https://www.python.org/dev/peps/pep-0008/
 .. _`PEP 257`: https://www.python.org/dev/peps/pep-0257/
 .. _`good test docstrings`: https://jml.io/pages/test-docstrings.html
