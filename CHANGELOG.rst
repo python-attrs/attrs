@@ -8,23 +8,10 @@ The third digit is only for regressions.
 16.0.0 (UNRELEASED)
 -------------------
 
-
-Backward-incompatible changes:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-*none*
-
-
-Deprecations:
-^^^^^^^^^^^^^
-
-*none*
-
-
 Changes:
 ^^^^^^^^
 
-- Allow the case of initializing attributes that are set to `init=False`.
+- Allow the case of initializing attributes that are set to ``init=False``.
   This allows for clean initializer parameter lists while being able to initialize attributes to default values.
   `[32] <https://github.com/hynek/attrs/issues/32>`_
 
