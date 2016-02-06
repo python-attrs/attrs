@@ -218,8 +218,8 @@ class TestAddInit(object):
         C = make_class("C", {
             "_a": attr(init=False, default=42),
             "_b": attr(init=False, default=Factory(list)),
-            "c": attr()}
-        )
+            "c": attr()
+        })
         with pytest.raises(TypeError):
             C(a=1, c=2)
         with pytest.raises(TypeError):
@@ -227,6 +227,16 @@ class TestAddInit(object):
 
         i = C(23)
         assert (42, [], 23) == (i._a, i._b, i.c)
+
+    def test_no_init_order(self):
+        """
+        If an attribute is `init=False`, it's legal to come after a mandatory
+        attribute.
+        """
+        make_class("C", {
+            "a": attr(default=Factory(list)),
+            "b": attr(init=False),
+        })
 
     def test_sets_attributes(self):
         """

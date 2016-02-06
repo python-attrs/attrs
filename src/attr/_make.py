@@ -132,7 +132,7 @@ def _transform_attrs(cl, these):
     for a in cl.__attrs_attrs__:
         if these is None and a not in super_cls:
             setattr(cl, a.name, a)
-        if had_default is True and a.default is NOTHING:
+        if had_default is True and a.default is NOTHING and a.init is True:
             raise ValueError(
                 "No mandatory attributes allowed after an attribute with a "
                 "default value or factory.  Attribute in question: {a!r}"
