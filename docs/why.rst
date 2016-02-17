@@ -64,7 +64,7 @@ The difference between :func:`collections.namedtuple`\ s and classes decorated b
    ... class C1(object):
    ...     a = attr.ib()
    ...     def print_a(self):
-   ...        print self.a
+   ...        print(self.a)
    >>> @attr.s
    ... class C2(object):
    ...     a = attr.ib()

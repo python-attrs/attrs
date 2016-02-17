@@ -203,7 +203,7 @@ For the common case where you want to :func:`include <attr.filters.include>` or 
    ...     y = attr.ib()
    ...     z = attr.ib()
    >>> attr.asdict(C("foo", "2", 3), filter=attr.filters.include(int, C.x))
-   {'x': 'foo', 'z': 3}
+   {'z': 3, 'x': 'foo'}
 
 
 Defaults
@@ -233,11 +233,11 @@ And sometimes you even want mutable objects as default values (ever used acciden
    ...             return self.pool.pop()
    ...         except IndexError:
    ...             if self.debug:
-   ...                 print "New connection!"
+   ...                 print("New connection!")
    ...             return Connection.connect(self.db_string)
    ...     def free_connection(self, conn):
    ...         if self.debug:
-   ...             print "Connection returned!"
+   ...             print("Connection returned!")
    ...         self.pool.appendleft(conn)
    ...
    >>> cp = ConnectionPool("postgres://localhost")

@@ -8,6 +8,17 @@ The third digit is only for regressions.
 16.0.0 (UNRELEASED)
 -------------------
 
+Backward-incompatible changes:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Python 3.3 and 2.6 aren't supported anymore.
+  They may work by chance but any support to them has been ceased.
+
+  The last Python 2.6 release was on October 29, 2013 and isn't supported by the CPython core team anymore.
+  Major Python packages like Django and Twisted dropped Python 2.6 a while ago already.
+
+  Python 3.3 never had a significant user base and wasn't part of any distribution's LTS release.
+
 Changes:
 ^^^^^^^^
 
@@ -18,7 +29,6 @@ Changes:
 
 15.2.0 (2015-12-08)
 -------------------
-
 
 Changes:
 ^^^^^^^^
@@ -33,7 +43,6 @@ Changes:
 15.1.0 (2015-08-20)
 -------------------
 
-
 Changes:
 ^^^^^^^^
 
@@ -47,7 +56,6 @@ Changes:
 
 15.0.0 (2015-04-15)
 -------------------
-
 
 Changes:
 ^^^^^^^^

@@ -56,4 +56,4 @@ This gives you the power to use actual classes with actual types in your code in
 So put down that type-less data structures and welcome some class into your life!
 
 ``attrs``\ ’s documentation lives at `Read the Docs <https://attrs.readthedocs.org/>`_, the code on `GitHub <https://github.com/hynek/attrs>`_.
-It’s rigorously tested on Python 2.6, 2.7, 3.3+, and PyPy.
+It’s rigorously tested on Python 2.7, 3.4+, and PyPy.
