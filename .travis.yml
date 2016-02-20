@@ -31,15 +31,19 @@ matrix:
 install:
   - pip install tox
 
+
 script:
   - tox
+
 
 before_install:
   - pip install codecov
 
+
 after_success:
   - tox -e coverage-report
   - codecov
+
 
 notifications:
   email: false

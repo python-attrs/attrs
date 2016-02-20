@@ -59,23 +59,32 @@ def find_meta(meta):
     raise RuntimeError("Unable to find __{meta}__ string.".format(meta=meta))
 
 
+URI = find_meta("uri")
+LONG = (
+    read("README.rst") + "\n\n" +
+    "Release Information\n" +
+    "===================\n\n" +
+    re.search("(\d+.\d.\d \(.*?\)\n.*?)\n\n\n----\n\n\n",
+              read("CHANGELOG.rst"), re.S).group(1) +
+    "\n\n`Full changelog " +
+    "<{uri}en/stable/changelog.html>`_.\n\n".format(uri=URI) +
+    read("AUTHORS.rst")
+)
+
+
 if __name__ == "__main__":
     setup(
         name=NAME,
         description=find_meta("description"),
         license=find_meta("license"),
-        url=find_meta("uri"),
+        url=URI,
         version=find_meta("version"),
         author=find_meta("author"),
         author_email=find_meta("email"),
         maintainer=find_meta("author"),
         maintainer_email=find_meta("email"),
         keywords=KEYWORDS,
-        long_description=(
-            read("README.rst") + "\n\n" +
-            read("AUTHORS.rst") + "\n\n" +
-            read("CHANGELOG.rst")
-        ),
+        long_description=LONG,
         packages=PACKAGES,
         package_dir={"": "src"},
         zip_safe=False,
