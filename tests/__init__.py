@@ -4,13 +4,13 @@ from attr import Attribute
 from attr._make import NOTHING, make_class
 
 
-def simple_class(cmp=False, repr=False, hash=False):
+def simple_class(cmp=False, repr=False, hash=False, slots=False):
     """
     Return a new simple class.
     """
     return make_class(
         "C", ["a", "b"],
-        cmp=cmp, repr=repr, hash=hash, init=True,
+        cmp=cmp, repr=repr, hash=hash, init=True, slots=slots
     )
 
 

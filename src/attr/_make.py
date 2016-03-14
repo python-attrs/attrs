@@ -145,7 +145,7 @@ def _transform_attrs(cl, these):
 
 
 def attributes(maybe_cl=None, these=None, repr_ns=None,
-               repr=True, cmp=True, hash=True, init=True):
+               repr=True, cmp=True, hash=True, init=True, slots=False):
     """
     A class decorator that adds `dunder
     <https://wiki.python.org/moin/DunderAlias>`_\ -methods according to the
@@ -185,6 +185,10 @@ def attributes(maybe_cl=None, these=None, repr_ns=None,
     def wrap(cl):
         if getattr(cl, "__class__", None) is None:
             raise TypeError("attrs only works with new-style classes.")
+        ca_list = [name
+                   for name, attr
+                   in cl.__dict__.items()
+                   if isinstance(attr, _CountingAttr)]
         _transform_attrs(cl, these)
         if repr is True:
             cl = _add_repr(cl, ns=repr_ns)
@@ -194,6 +198,14 @@ def attributes(maybe_cl=None, these=None, repr_ns=None,
             cl = _add_hash(cl)
         if init is True:
             cl = _add_init(cl)
+        if slots:
+            cl_dict = dict(cl.__dict__)
+            cl_dict['__slots__'] = tuple([a.name for a in cl.__attrs_attrs__])
+            for ca_name in ca_list:
+                del cl_dict[ca_name]
+            del cl_dict['__dict__']
+            cl = type(cl.__name__, cl.__bases__, cl_dict)
+
         return cl
 
     # attrs_or class type depends on the usage of the decorator.  It's a class

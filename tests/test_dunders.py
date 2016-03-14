@@ -17,13 +17,17 @@ from attr._make import (
     _add_repr,
     attr,
     make_class,
+    fields,
 )
 from attr.validators import instance_of
 
 
 CmpC = simple_class(cmp=True)
+CmpCSlots = simple_class(cmp=True, slots=True)
 ReprC = simple_class(repr=True)
+ReprCSlots = simple_class(repr=True, slots=True)
 HashC = simple_class(hash=True)
+HashCSlots = simple_class(hash=True, slots=True)
 
 
 class InitC(object):
@@ -36,29 +40,33 @@ class TestAddCmp(object):
     """
     Tests for `_add_cmp`.
     """
-    def test_cmp(self):
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_cmp(self, slots):
         """
         If `cmp` is False, ignore that attribute.
         """
-        C = make_class("C", {"a": attr(cmp=False), "b": attr()})
+        C = make_class("C", {"a": attr(cmp=False), "b": attr()}, slots=slots)
 
         assert C(1, 2) == C(2, 2)
 
-    def test_equal(self):
+    @pytest.mark.parametrize("class_", [CmpC, CmpCSlots])
+    def test_equal(self, class_):
         """
         Equal objects are detected as equal.
         """
-        assert CmpC(1, 2) == CmpC(1, 2)
-        assert not (CmpC(1, 2) != CmpC(1, 2))
+        assert class_(1, 2) == class_(1, 2)
+        assert not (class_(1, 2) != class_(1, 2))
 
-    def test_unequal_same_class(self):
+    @pytest.mark.parametrize("class_", [CmpC, CmpCSlots])
+    def test_unequal_same_class(self, class_):
         """
         Unequal objects of correct type are detected as unequal.
         """
-        assert CmpC(1, 2) != CmpC(2, 1)
-        assert not (CmpC(1, 2) == CmpC(2, 1))
+        assert class_(1, 2) != class_(2, 1)
+        assert not (class_(1, 2) == class_(2, 1))
 
-    def test_unequal_different_class(self):
+    @pytest.mark.parametrize("class_", [CmpC, CmpCSlots])
+    def test_unequal_different_class(self, class_):
         """
         Unequal objects of differnt type are detected even if their attributes
         match.
@@ -66,10 +74,11 @@ class TestAddCmp(object):
         class NotCmpC(object):
             a = 1
             b = 2
-        assert CmpC(1, 2) != NotCmpC()
-        assert not (CmpC(1, 2) == NotCmpC())
+        assert class_(1, 2) != NotCmpC()
+        assert not (class_(1, 2) == NotCmpC())
 
-    def test_lt(self):
+    @pytest.mark.parametrize("class_", [CmpC, CmpCSlots])
+    def test_lt(self, class_):
         """
         __lt__ compares objects as tuples of attribute values.
         """
@@ -78,15 +87,17 @@ class TestAddCmp(object):
             ((1, 2),  (1, 3)),
             (("a", "b"), ("b", "a")),
         ]:
-            assert CmpC(*a) < CmpC(*b)
+            assert class_(*a) < class_(*b)
 
-    def test_lt_unordable(self):
+    @pytest.mark.parametrize("class_", [CmpC, CmpCSlots])
+    def test_lt_unordable(self, class_):
         """
         __lt__ returns NotImplemented if classes differ.
         """
-        assert NotImplemented == (CmpC(1, 2).__lt__(42))
+        assert NotImplemented == (class_(1, 2).__lt__(42))
 
-    def test_le(self):
+    @pytest.mark.parametrize("class_", [CmpC, CmpCSlots])
+    def test_le(self, class_):
         """
         __le__ compares objects as tuples of attribute values.
         """
@@ -97,15 +108,17 @@ class TestAddCmp(object):
             (("a", "b"), ("b", "a")),
             (("a", "b"), ("a", "b")),
         ]:
-            assert CmpC(*a) <= CmpC(*b)
+            assert class_(*a) <= class_(*b)
 
-    def test_le_unordable(self):
+    @pytest.mark.parametrize("class_", [CmpC, CmpCSlots])
+    def test_le_unordable(self, class_):
         """
         __le__ returns NotImplemented if classes differ.
         """
-        assert NotImplemented == (CmpC(1, 2).__le__(42))
+        assert NotImplemented == (class_(1, 2).__le__(42))
 
-    def test_gt(self):
+    @pytest.mark.parametrize("class_", [CmpC, CmpCSlots])
+    def test_gt(self, class_):
         """
         __gt__ compares objects as tuples of attribute values.
         """
@@ -114,15 +127,17 @@ class TestAddCmp(object):
             ((1, 3), (1, 2)),
             (("b", "a"), ("a", "b")),
         ]:
-            assert CmpC(*a) > CmpC(*b)
+            assert class_(*a) > class_(*b)
 
-    def test_gt_unordable(self):
+    @pytest.mark.parametrize("class_", [CmpC, CmpCSlots])
+    def test_gt_unordable(self, class_):
         """
         __gt__ returns NotImplemented if classes differ.
         """
-        assert NotImplemented == (CmpC(1, 2).__gt__(42))
+        assert NotImplemented == (class_(1, 2).__gt__(42))
 
-    def test_ge(self):
+    @pytest.mark.parametrize("class_", [CmpC, CmpCSlots])
+    def test_ge(self, class_):
         """
         __ge__ compares objects as tuples of attribute values.
         """
@@ -133,32 +148,35 @@ class TestAddCmp(object):
             (("b", "a"), ("a", "b")),
             (("a", "b"), ("a", "b")),
         ]:
-            assert CmpC(*a) >= CmpC(*b)
+            assert class_(*a) >= class_(*b)
 
-    def test_ge_unordable(self):
+    @pytest.mark.parametrize("class_", [CmpC, CmpCSlots])
+    def test_ge_unordable(self, class_):
         """
         __ge__ returns NotImplemented if classes differ.
         """
-        assert NotImplemented == (CmpC(1, 2).__ge__(42))
+        assert NotImplemented == (class_(1, 2).__ge__(42))
 
 
 class TestAddRepr(object):
     """
     Tests for `_add_repr`.
     """
-    def test_repr(self):
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_repr(self, slots):
         """
         If `repr` is False, ignore that attribute.
         """
-        C = make_class("C", {"a": attr(repr=False), "b": attr()})
+        C = make_class("C", {"a": attr(repr=False), "b": attr()}, slots=slots)
 
         assert "C(b=2)" == repr(C(1, 2))
 
-    def test_repr_works(self):
+    @pytest.mark.parametrize("class_", [ReprC, ReprCSlots])
+    def test_repr_works(self, class_):
         """
         repr returns a sensible value.
         """
-        assert "C(a=1, b=2)" == repr(ReprC(1, 2))
+        assert "C(a=1, b=2)" == repr(class_(1, 2))
 
     def test_underscores(self):
         """
@@ -178,30 +196,33 @@ class TestAddHash(object):
     """
     Tests for `_add_hash`.
     """
-    def test_hash(self):
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_hash(self, slots):
         """
         If `hash` is False, ignore that attribute.
         """
-        C = make_class("C", {"a": attr(hash=False), "b": attr()})
+        C = make_class("C", {"a": attr(hash=False), "b": attr()}, slots=slots)
 
         assert hash(C(1, 2)) == hash(C(2, 2))
 
-    def test_hash_works(self):
+    @pytest.mark.parametrize("class_", [HashC, HashCSlots])
+    def test_hash_works(self, class_):
         """
         __hash__ returns different hashes for different values.
         """
-        assert hash(HashC(1, 2)) != hash(HashC(1, 1))
+        assert hash(class_(1, 2)) != hash(class_(1, 1))
 
 
 class TestAddInit(object):
     """
     Tests for `_add_init`.
     """
-    def test_init(self):
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_init(self, slots):
         """
         If `init` is False, ignore that attribute.
         """
-        C = make_class("C", {"a": attr(init=False), "b": attr()})
+        C = make_class("C", {"a": attr(init=False), "b": attr()}, slots=slots)
         with pytest.raises(TypeError) as e:
             C(a=1, b=2)
 
@@ -210,7 +231,8 @@ class TestAddInit(object):
             e.value.args[0]
         )
 
-    def test_no_init_default(self):
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_no_init_default(self, slots):
         """
         If `init` is False but a Factory is specified, don't allow passing that
         argument but initialize it anyway.
@@ -219,7 +241,7 @@ class TestAddInit(object):
             "_a": attr(init=False, default=42),
             "_b": attr(init=False, default=Factory(list)),
             "c": attr()
-        })
+        }, slots=slots)
         with pytest.raises(TypeError):
             C(a=1, c=2)
         with pytest.raises(TypeError):
@@ -228,7 +250,8 @@ class TestAddInit(object):
         i = C(23)
         assert (42, [], 23) == (i._a, i._b, i.c)
 
-    def test_no_init_order(self):
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_no_init_order(self, slots):
         """
         If an attribute is `init=False`, it's legal to come after a mandatory
         attribute.
@@ -236,7 +259,7 @@ class TestAddInit(object):
         make_class("C", {
             "a": attr(default=Factory(list)),
             "b": attr(init=False),
-        })
+        }, slots=slots)
 
     def test_sets_attributes(self):
         """
@@ -297,15 +320,38 @@ class TestAddInit(object):
         assert (C.a, 42,) == e.value.args[1:]
         assert isinstance(e.value.args[0], C)
 
-    def test_validator_others(self):
+    def test_validator_slots(self):
+        """
+        If a validator is passed, call it with the preliminary instance, the
+        Attribute, and the argument.
+        """
+        class VException(Exception):
+            pass
+
+        def raiser(*args):
+            raise VException(*args)
+
+        C = make_class("C", {"a": attr("a", validator=raiser)}, slots=True)
+        with pytest.raises(VException) as e:
+            C(42)
+        assert (fields(C)[0], 42,) == e.value.args[1:]
+        assert isinstance(e.value.args[0], C)
+
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_validator_others(self, slots):
         """
         Does not interfere when setting non-attrs attributes.
         """
-        C = make_class("C", {"a": attr("a", validator=instance_of(int))})
+        C = make_class("C", {"a": attr("a", validator=instance_of(int))},
+                       slots=slots)
         i = C(1)
-        i.b = "foo"
         assert 1 == i.a
-        assert "foo" == i.b
+        if not slots:
+            i.b = "foo"
+            assert "foo" == i.b
+        else:
+            with pytest.raises(AttributeError):
+                i.b = "foo"
 
     def test_underscores(self):
         """
