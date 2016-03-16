@@ -207,8 +207,8 @@ def attributes(maybe_cl=None, these=None, repr_ns=None,
             cl_dict = dict(cl.__dict__)
             cl_dict['__slots__'] = tuple(ca_list)
             for ca_name in ca_list:
-                cl_dict.pop(ca_name, None)  # It might not actually be in there,
-                                            # f.e. if using 'these'.
+                # It might not actually be in there, f.e. if using 'these'.
+                cl_dict.pop(ca_name, None)
             cl_dict.pop('__dict__', None)
             cl = type(cl.__name__, cl.__bases__, cl_dict)
 
