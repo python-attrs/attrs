@@ -16,6 +16,9 @@ if PY2:
 
     def iteritems(d):
         return d.iteritems()
+
+    def iterkeys(d):
+        return d.iterkeys()
 else:
     TYPE = "class"
 
@@ -24,3 +27,6 @@ else:
 
     def iteritems(d):
         return d.items()
+
+    def iterkeys(d):
+        return d.keys()

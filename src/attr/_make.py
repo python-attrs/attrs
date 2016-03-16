@@ -5,7 +5,7 @@ import hashlib
 import inspect
 import linecache
 
-from ._compat import exec_, iteritems
+from ._compat import exec_, iteritems, iterkeys
 from . import _config
 
 
@@ -185,10 +185,15 @@ def attributes(maybe_cl=None, these=None, repr_ns=None,
     def wrap(cl):
         if getattr(cl, "__class__", None) is None:
             raise TypeError("attrs only works with new-style classes.")
-        ca_list = [name
-                   for name, attr
-                   in cl.__dict__.items()
-                   if isinstance(attr, _CountingAttr)]
+        if slots:
+            # Only need this later if we're using slots.
+            if these is None:
+                ca_list = [name
+                           for name, attr
+                           in cl.__dict__.items()
+                           if isinstance(attr, _CountingAttr)]
+            else:
+                ca_list = list(iterkeys(these))
         _transform_attrs(cl, these)
         if repr is True:
             cl = _add_repr(cl, ns=repr_ns)
@@ -200,10 +205,11 @@ def attributes(maybe_cl=None, these=None, repr_ns=None,
             cl = _add_init(cl)
         if slots:
             cl_dict = dict(cl.__dict__)
-            cl_dict['__slots__'] = tuple([a.name for a in cl.__attrs_attrs__])
+            cl_dict['__slots__'] = tuple(ca_list)
             for ca_name in ca_list:
-                del cl_dict[ca_name]
-            del cl_dict['__dict__']
+                cl_dict.pop(ca_name, None)  # It might not actually be in there,
+                                            # f.e. if using 'these'.
+            cl_dict.pop('__dict__', None)
             cl = type(cl.__name__, cl.__bases__, cl_dict)
 
         return cl
