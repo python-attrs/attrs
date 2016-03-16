@@ -246,26 +246,30 @@ class TestAttributes(object):
         assert sentinel == getattr(C, method_name)
 
     @pytest.mark.skipif(not PY3, reason="__qualname__ is PY3-only.")
-    def test_repr_qualname(self):
+    @pytest.mark.parametrize('slots_outer', [True, False])
+    @pytest.mark.parametrize('slots_inner', [True, False])
+    def test_repr_qualname(self, slots_outer, slots_inner):
         """
         On Python 3, the name in repr is the __qualname__.
         """
-        @attributes
+        @attributes(slots=slots_outer)
         class C(object):
-            @attributes
+            @attributes(slots=slots_inner)
             class D(object):
                 pass
 
         assert "C.D()" == repr(C.D())
         assert "GC.D()" == repr(GC.D())
 
-    def test_repr_fake_qualname(self):
+    @pytest.mark.parametrize('slots_outer', [True, False])
+    @pytest.mark.parametrize('slots_inner', [True, False])
+    def test_repr_fake_qualname(self, slots_outer, slots_inner):
         """
         Setting repr_ns overrides a potentially guessed namespace.
         """
-        @attributes
+        @attributes(slots=slots_outer)
         class C(object):
-            @attributes(repr_ns="C")
+            @attributes(repr_ns="C", slots=slots_inner)
             class D(object):
                 pass
         assert "C.D()" == repr(C.D())

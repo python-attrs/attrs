@@ -68,6 +68,9 @@ def test_slots_being_used():
     assert non_slot_instance.method() == 1
     assert slot_instance.method() == 1
 
+    assert attr.fields(C1Slots) == attr.fields(C1)
+    assert attr.asdict(slot_instance) == attr.asdict(non_slot_instance)
+
 
 def test_basic_attr_funcs():
     """Test basic attr functionality on a simple slots class."""

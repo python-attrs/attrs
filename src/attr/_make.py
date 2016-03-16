@@ -210,7 +210,17 @@ def attributes(maybe_cl=None, these=None, repr_ns=None,
                 # It might not actually be in there, f.e. if using 'these'.
                 cl_dict.pop(ca_name, None)
             cl_dict.pop('__dict__', None)
-            cl = type(cl.__name__, cl.__bases__, cl_dict)
+
+            if repr_ns is None:
+                qualname = getattr(cl, "__qualname__", None)
+                if qualname is not None:
+                    class_name = qualname.rsplit(">.", 1)[-1]
+                else:
+                    class_name = cl.__name__
+            else:
+                class_name = cl.__name__
+
+            cl = type(class_name, cl.__bases__, cl_dict)
 
         return cl
 
