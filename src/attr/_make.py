@@ -212,11 +212,7 @@ def attributes(maybe_cl=None, these=None, repr_ns=None,
             cl_dict.pop('__dict__', None)
 
             if repr_ns is None:
-                qualname = getattr(cl, "__qualname__", None)
-                if qualname is not None:
-                    class_name = qualname.rsplit(">.", 1)[-1]
-                else:
-                    class_name = cl.__name__
+                class_name = getattr(cl, "__qualname__", cl.__name__)
             else:
                 class_name = cl.__name__
 
