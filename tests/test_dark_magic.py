@@ -22,7 +22,7 @@ class C1Slots(object):
 foo = None
 
 
-@attr.s
+@attr.s()
 class C2(object):
     x = attr.ib(default=foo)
     y = attr.ib(default=attr.Factory(list))
@@ -64,8 +64,8 @@ class TestDarkMagic(object):
     """
     Integration tests.
     """
-    @pytest.mark.parametrize("class_", [C2, C2Slots])
-    def test_fields(self, class_):
+    @pytest.mark.parametrize("cls", [C2, C2Slots])
+    def test_fields(self, cls):
         """
         `attr.fields` works.
         """
@@ -74,25 +74,25 @@ class TestDarkMagic(object):
                       repr=True, cmp=True, hash=True, init=True),
             Attribute(name="y", default=attr.Factory(list), validator=None,
                       repr=True, cmp=True, hash=True, init=True),
-        ) == attr.fields(class_)
+        ) == attr.fields(cls)
 
-    @pytest.mark.parametrize("class_", [C1, C1Slots])
-    def test_asdict(self, class_):
+    @pytest.mark.parametrize("cls", [C1, C1Slots])
+    def test_asdict(self, cls):
         """
         `attr.asdict` works.
         """
         assert {
             "x": 1,
             "y": 2,
-        } == attr.asdict(class_(x=1, y=2))
+        } == attr.asdict(cls(x=1, y=2))
 
-    @pytest.mark.parametrize("class_", [C1, C1Slots])
-    def test_validator(self, class_):
+    @pytest.mark.parametrize("cls", [C1, C1Slots])
+    def test_validator(self, cls):
         """
         `instance_of` raises `TypeError` on type mismatch.
         """
         with pytest.raises(TypeError) as e:
-            class_("1", 2)
+            cls("1", 2)
 
         # Using C1 explicitly, since slot classes don't support this.
         assert (
@@ -125,17 +125,17 @@ class TestDarkMagic(object):
                       repr=True, cmp=True, hash=True, init=True),
         ) == attr.fields(PC)
 
-    @pytest.mark.parametrize("class_", [Sub, SubSlots])
-    def test_subclassing_with_extra_attrs(self, class_):
+    @pytest.mark.parametrize("cls", [Sub, SubSlots])
+    def test_subclassing_with_extra_attrs(self, cls):
         """
         Sub-classing (where the subclass has extra attrs) does what you'd hope
         for.
         """
         obj = object()
-        i = class_(x=obj, y=2)
+        i = cls(x=obj, y=2)
         assert i.x is i.meth() is obj
         assert i.y == 2
-        if class_ is Sub:
+        if cls is Sub:
             assert "Sub(x={obj}, y=2)".format(obj=obj) == repr(i)
         else:
             assert "SubSlots(x={obj}, y=2)".format(obj=obj) == repr(i)

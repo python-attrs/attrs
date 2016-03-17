@@ -49,36 +49,36 @@ class TestAddCmp(object):
 
         assert C(1, 2) == C(2, 2)
 
-    @pytest.mark.parametrize("class_", [CmpC, CmpCSlots])
-    def test_equal(self, class_):
+    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    def test_equal(self, cls):
         """
         Equal objects are detected as equal.
         """
-        assert class_(1, 2) == class_(1, 2)
-        assert not (class_(1, 2) != class_(1, 2))
+        assert cls(1, 2) == cls(1, 2)
+        assert not (cls(1, 2) != cls(1, 2))
 
-    @pytest.mark.parametrize("class_", [CmpC, CmpCSlots])
-    def test_unequal_same_class(self, class_):
+    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    def test_unequal_same_class(self, cls):
         """
         Unequal objects of correct type are detected as unequal.
         """
-        assert class_(1, 2) != class_(2, 1)
-        assert not (class_(1, 2) == class_(2, 1))
+        assert cls(1, 2) != cls(2, 1)
+        assert not (cls(1, 2) == cls(2, 1))
 
-    @pytest.mark.parametrize("class_", [CmpC, CmpCSlots])
-    def test_unequal_different_class(self, class_):
+    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    def test_unequal_different_class(self, cls):
         """
-        Unequal objects of differnt type are detected even if their attributes
+        Unequal objects of different type are detected even if their attributes
         match.
         """
         class NotCmpC(object):
             a = 1
             b = 2
-        assert class_(1, 2) != NotCmpC()
-        assert not (class_(1, 2) == NotCmpC())
+        assert cls(1, 2) != NotCmpC()
+        assert not (cls(1, 2) == NotCmpC())
 
-    @pytest.mark.parametrize("class_", [CmpC, CmpCSlots])
-    def test_lt(self, class_):
+    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    def test_lt(self, cls):
         """
         __lt__ compares objects as tuples of attribute values.
         """
@@ -87,17 +87,17 @@ class TestAddCmp(object):
             ((1, 2),  (1, 3)),
             (("a", "b"), ("b", "a")),
         ]:
-            assert class_(*a) < class_(*b)
+            assert cls(*a) < cls(*b)
 
-    @pytest.mark.parametrize("class_", [CmpC, CmpCSlots])
-    def test_lt_unordable(self, class_):
+    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    def test_lt_unordable(self, cls):
         """
         __lt__ returns NotImplemented if classes differ.
         """
-        assert NotImplemented == (class_(1, 2).__lt__(42))
+        assert NotImplemented == (cls(1, 2).__lt__(42))
 
-    @pytest.mark.parametrize("class_", [CmpC, CmpCSlots])
-    def test_le(self, class_):
+    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    def test_le(self, cls):
         """
         __le__ compares objects as tuples of attribute values.
         """
@@ -108,17 +108,17 @@ class TestAddCmp(object):
             (("a", "b"), ("b", "a")),
             (("a", "b"), ("a", "b")),
         ]:
-            assert class_(*a) <= class_(*b)
+            assert cls(*a) <= cls(*b)
 
-    @pytest.mark.parametrize("class_", [CmpC, CmpCSlots])
-    def test_le_unordable(self, class_):
+    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    def test_le_unordable(self, cls):
         """
         __le__ returns NotImplemented if classes differ.
         """
-        assert NotImplemented == (class_(1, 2).__le__(42))
+        assert NotImplemented == (cls(1, 2).__le__(42))
 
-    @pytest.mark.parametrize("class_", [CmpC, CmpCSlots])
-    def test_gt(self, class_):
+    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    def test_gt(self, cls):
         """
         __gt__ compares objects as tuples of attribute values.
         """
@@ -127,17 +127,17 @@ class TestAddCmp(object):
             ((1, 3), (1, 2)),
             (("b", "a"), ("a", "b")),
         ]:
-            assert class_(*a) > class_(*b)
+            assert cls(*a) > cls(*b)
 
-    @pytest.mark.parametrize("class_", [CmpC, CmpCSlots])
-    def test_gt_unordable(self, class_):
+    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    def test_gt_unordable(self, cls):
         """
         __gt__ returns NotImplemented if classes differ.
         """
-        assert NotImplemented == (class_(1, 2).__gt__(42))
+        assert NotImplemented == (cls(1, 2).__gt__(42))
 
-    @pytest.mark.parametrize("class_", [CmpC, CmpCSlots])
-    def test_ge(self, class_):
+    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    def test_ge(self, cls):
         """
         __ge__ compares objects as tuples of attribute values.
         """
@@ -148,14 +148,14 @@ class TestAddCmp(object):
             (("b", "a"), ("a", "b")),
             (("a", "b"), ("a", "b")),
         ]:
-            assert class_(*a) >= class_(*b)
+            assert cls(*a) >= cls(*b)
 
-    @pytest.mark.parametrize("class_", [CmpC, CmpCSlots])
-    def test_ge_unordable(self, class_):
+    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    def test_ge_unordable(self, cls):
         """
         __ge__ returns NotImplemented if classes differ.
         """
-        assert NotImplemented == (class_(1, 2).__ge__(42))
+        assert NotImplemented == (cls(1, 2).__ge__(42))
 
 
 class TestAddRepr(object):
@@ -171,12 +171,12 @@ class TestAddRepr(object):
 
         assert "C(b=2)" == repr(C(1, 2))
 
-    @pytest.mark.parametrize("class_", [ReprC, ReprCSlots])
-    def test_repr_works(self, class_):
+    @pytest.mark.parametrize("cls", [ReprC, ReprCSlots])
+    def test_repr_works(self, cls):
         """
         repr returns a sensible value.
         """
-        assert "C(a=1, b=2)" == repr(class_(1, 2))
+        assert "C(a=1, b=2)" == repr(cls(1, 2))
 
     def test_underscores(self):
         """
@@ -205,12 +205,12 @@ class TestAddHash(object):
 
         assert hash(C(1, 2)) == hash(C(2, 2))
 
-    @pytest.mark.parametrize("class_", [HashC, HashCSlots])
-    def test_hash_works(self, class_):
+    @pytest.mark.parametrize("cls", [HashC, HashCSlots])
+    def test_hash_works(self, cls):
         """
         __hash__ returns different hashes for different values.
         """
-        assert hash(class_(1, 2)) != hash(class_(1, 1))
+        assert hash(cls(1, 2)) != hash(cls(1, 1))
 
 
 class TestAddInit(object):

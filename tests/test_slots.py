@@ -46,7 +46,9 @@ class C1Slots(object):
 
 
 def test_slots_being_used():
-    """Test whether the class really is using __slots__."""
+    """
+    The class is really using __slots__.
+    """
     non_slot_instance = C1(x=1, y="test")
     slot_instance = C1Slots(x=1, y="test")
 
@@ -73,7 +75,9 @@ def test_slots_being_used():
 
 
 def test_basic_attr_funcs():
-    """Test basic attr functionality on a simple slots class."""
+    """
+    Comparison, `__eq__`, `__hash__`, `__repr__`, `attrs.asdict` work.
+    """
     a = C1Slots(x=1, y=2)
     b = C1Slots(x=1, y=3)
     a_ = C1Slots(x=1, y=2)
@@ -93,7 +97,8 @@ def test_basic_attr_funcs():
 
 
 def test_inheritance_from_nonslots():
-    """Test whether inheriting from an attr class works.
+    """
+    Inheritance from a non-slot class works.
 
     Note that a slots class inheriting from an ordinary class loses most of the
     benefits of slots classes, but it should still work.
@@ -128,7 +133,8 @@ def test_inheritance_from_nonslots():
 
 
 def test_nonslots_these():
-    """Test enhancing a non-slots class using 'these'.
+    """
+    Enhancing a non-slots class using 'these' works.
 
     This will actually *replace* the class with another one, using slots.
     """
@@ -178,7 +184,9 @@ def test_nonslots_these():
 
 
 def test_inheritance_from_slots():
-    """Test whether inheriting from an attr slot class works."""
+    """
+    Inheriting from an attr slot class works.
+    """
     @attr.s(slots=True)
     class C2Slots(C1Slots):
         z = attr.ib()
@@ -218,7 +226,9 @@ def test_inheritance_from_slots():
 
 
 def test_bare_inheritance_from_slots():
-    """Test whether inheriting from a bare attr slot class works."""
+    """
+    Inheriting from a bare attr slot class works.
+    """
     @attr.s(init=False, cmp=False, hash=False, repr=False, slots=True)
     class C1BareSlots(object):
         x = attr.ib(validator=attr.validators.instance_of(int))
