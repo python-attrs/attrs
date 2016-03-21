@@ -58,7 +58,7 @@ def test_slots_being_used():
     assert "__dict__" in dir(non_slot_instance)
     assert "__slots__" not in dir(non_slot_instance)
 
-    assert set(slot_instance.__slots__) == set(["x", "y"])
+    assert set(["x", "y"]) == set(slot_instance.__slots__)
 
     if has_pympler:
         assert asizeof(slot_instance) < asizeof(non_slot_instance)
@@ -67,8 +67,8 @@ def test_slots_being_used():
     with pytest.raises(AttributeError):
         slot_instance.t = "test"
 
-    assert non_slot_instance.method() == 1
-    assert slot_instance.method() == 1
+    assert 1 == non_slot_instance.method()
+    assert 1 == slot_instance.method()
 
     assert attr.fields(C1Slots) == attr.fields(C1)
     assert attr.asdict(slot_instance) == attr.asdict(non_slot_instance)
@@ -91,9 +91,9 @@ def test_basic_attr_funcs():
     hash(b)  # Just to assert it doesn't raise.
 
     # Repr.
-    assert repr(a) == "C1Slots(x=1, y=2)"
+    assert "C1Slots(x=1, y=2)" == repr(a)
 
-    assert attr.asdict(a) == {"x": 1, "y": 2}
+    assert {"x": 1, "y": 2} == attr.asdict(a)
 
 
 def test_inheritance_from_nonslots():
@@ -108,28 +108,28 @@ def test_inheritance_from_nonslots():
         z = attr.ib()
 
     c2 = C2Slots(x=1, y=2, z="test")
-    assert c2.x == 1
-    assert c2.y == 2
-    assert c2.z == "test"
+    assert 1 == c2.x
+    assert 2 == c2.y
+    assert "test" == c2.z
     c2.t = "test"  # This will work, using the base class.
-    assert c2.t == "test"
+    assert "test" == c2.t
 
-    assert c2.method() == 1
-    assert c2.classmethod() == "clsmethod"
-    assert c2.staticmethod() == "staticmethod"
+    assert 1 == c2.method()
+    assert "clsmethod" == c2.classmethod()
+    assert "staticmethod" == c2.staticmethod()
 
-    assert set(C2Slots.__slots__) == set(["z"])
+    assert set(["z"]) == set(C2Slots.__slots__)
 
     c3 = C2Slots(x=1, y=3, z="test")
     assert c3 > c2
     c2_ = C2Slots(x=1, y=2, z="test")
     assert c2 == c2_
 
-    assert repr(c2) == "C2Slots(x=1, y=2, z='test')"
+    assert "C2Slots(x=1, y=2, z='test')" == repr(c2)
 
     hash(c2)  # Just to assert it doesn't raise.
 
-    assert attr.asdict(c2) == {"x": 1, "y": 2, "z": "test"}
+    assert {"x": 1, "y": 2, "z": "test"} == attr.asdict(c2)
 
 
 def test_nonslots_these():
@@ -159,28 +159,28 @@ def test_nonslots_these():
                      init=False, slots=True)(SimpleOrdinaryClass)
 
     c2 = C2Slots(x=1, y=2, z="test")
-    assert c2.x == 1
-    assert c2.y == 2
-    assert c2.z == "test"
+    assert 1 == c2.x
+    assert 2 == c2.y
+    assert "test" == c2.z
     with pytest.raises(AttributeError):
         c2.t = "test"  # We have slots now.
 
-    assert c2.method() == 1
-    assert c2.classmethod() == "clsmethod"
-    assert c2.staticmethod() == "staticmethod"
+    assert 1 == c2.method()
+    assert "clsmethod" == c2.classmethod()
+    assert "staticmethod" == c2.staticmethod()
 
-    assert set(C2Slots.__slots__) == set(["x", "y", "z"])
+    assert set(["x", "y", "z"]) == set(C2Slots.__slots__)
 
     c3 = C2Slots(x=1, y=3, z="test")
     assert c3 > c2
     c2_ = C2Slots(x=1, y=2, z="test")
     assert c2 == c2_
 
-    assert repr(c2) == "SimpleOrdinaryClass(x=1, y=2, z='test')"
+    assert "SimpleOrdinaryClass(x=1, y=2, z='test')" == repr(c2)
 
     hash(c2)  # Just to assert it doesn't raise.
 
-    assert attr.asdict(c2) == {"x": 1, "y": 2, "z": "test"}
+    assert {"x": 1, "y": 2, "z": "test"} == attr.asdict(c2)
 
 
 def test_inheritance_from_slots():
@@ -196,15 +196,15 @@ def test_inheritance_from_slots():
         z = attr.ib()
 
     c2 = C2Slots(x=1, y=2, z="test")
-    assert c2.x == 1
-    assert c2.y == 2
-    assert c2.z == "test"
+    assert 1 == c2.x
+    assert 2 == c2.y
+    assert "test" == c2.z
 
-    assert set(C2Slots.__slots__) == set(["z"])
+    assert set(["z"]) == set(C2Slots.__slots__)
 
-    assert c2.method() == 1
-    assert c2.classmethod() == "clsmethod"
-    assert c2.staticmethod() == "staticmethod"
+    assert 1 == c2.method()
+    assert "clsmethod" == c2.classmethod()
+    assert "staticmethod" == c2.staticmethod()
 
     with pytest.raises(AttributeError):
         c2.t = "test"
@@ -218,11 +218,11 @@ def test_inheritance_from_slots():
     c2_ = C2Slots(x=1, y=2, z="test")
     assert c2 == c2_
 
-    assert repr(c2) == "C2Slots(x=1, y=2, z='test')"
+    assert "C2Slots(x=1, y=2, z='test')" == repr(c2)
 
     hash(c2)  # Just to assert it doesn't raise.
 
-    assert attr.asdict(c2) == {"x": 1, "y": 2, "z": "test"}
+    assert {"x": 1, "y": 2, "z": "test"} == attr.asdict(c2)
 
 
 def test_bare_inheritance_from_slots():
@@ -270,13 +270,13 @@ def test_bare_inheritance_from_slots():
         z = attr.ib()
 
     c2 = C2Slots(x=1, y=2, z="test")
-    assert c2.x == 1
-    assert c2.y == 2
-    assert c2.z == "test"
+    assert 1 == c2.x
+    assert 2 == c2.y
+    assert "test" == c2.z
 
-    assert c2.method() == 1
-    assert c2.classmethod() == "clsmethod"
-    assert c2.staticmethod() == "staticmethod"
+    assert 1 == c2.method()
+    assert "clsmethod" == c2.classmethod()
+    assert "staticmethod" == c2.staticmethod()
 
     with pytest.raises(AttributeError):
         c2.t = "test"
@@ -290,8 +290,8 @@ def test_bare_inheritance_from_slots():
     c2_ = C2Slots(x=1, y=2, z="test")
     assert c2 == c2_
 
-    assert repr(c2) == "C2Slots(x=1, y=2, z='test')"
+    assert "C2Slots(x=1, y=2, z='test')" == repr(c2)
 
     hash(c2)  # Just to assert it doesn't raise.
 
-    assert attr.asdict(c2) == {"x": 1, "y": 2, "z": "test"}
+    assert {"x": 1, "y": 2, "z": "test"} == attr.asdict(c2)
