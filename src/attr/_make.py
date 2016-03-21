@@ -205,18 +205,18 @@ def attributes(maybe_cl=None, these=None, repr_ns=None,
             cl = _add_init(cl)
         if slots:
             cl_dict = dict(cl.__dict__)
-            cl_dict['__slots__'] = tuple(ca_list)
+            cl_dict["__slots__"] = tuple(ca_list)
             for ca_name in ca_list:
-                # It might not actually be in there, f.e. if using 'these'.
+                # It might not actually be in there, e.g. if using 'these'.
                 cl_dict.pop(ca_name, None)
             cl_dict.pop('__dict__', None)
 
             if repr_ns is None:
-                class_name = getattr(cl, "__qualname__", cl.__name__)
+                cl_name = getattr(cl, "__qualname__", cl.__name__)
             else:
-                class_name = cl.__name__
+                cl_name = cl.__name__
 
-            cl = type(class_name, cl.__bases__, cl_dict)
+            cl = type(cl_name, cl.__bases__, cl_dict)
 
         return cl
 
