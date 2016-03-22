@@ -7,6 +7,8 @@ from __future__ import absolute_import, division, print_function
 import copy
 
 import pytest
+from hypothesis import given
+from hypothesis.strategies import booleans
 
 from . import simple_attr, simple_class
 from attr._make import (
@@ -40,7 +42,7 @@ class TestAddCmp(object):
     """
     Tests for `_add_cmp`.
     """
-    @pytest.mark.parametrize("slots", [True, False])
+    @given(booleans())
     def test_cmp(self, slots):
         """
         If `cmp` is False, ignore that attribute.
@@ -162,7 +164,7 @@ class TestAddRepr(object):
     """
     Tests for `_add_repr`.
     """
-    @pytest.mark.parametrize("slots", [True, False])
+    @given(booleans())
     def test_repr(self, slots):
         """
         If `repr` is False, ignore that attribute.
@@ -196,7 +198,7 @@ class TestAddHash(object):
     """
     Tests for `_add_hash`.
     """
-    @pytest.mark.parametrize("slots", [True, False])
+    @given(booleans())
     def test_hash(self, slots):
         """
         If `hash` is False, ignore that attribute.
@@ -217,7 +219,7 @@ class TestAddInit(object):
     """
     Tests for `_add_init`.
     """
-    @pytest.mark.parametrize("slots", [True, False])
+    @given(booleans())
     def test_init(self, slots):
         """
         If `init` is False, ignore that attribute.
@@ -231,7 +233,7 @@ class TestAddInit(object):
             e.value.args[0]
         )
 
-    @pytest.mark.parametrize("slots", [True, False])
+    @given(booleans())
     def test_no_init_default(self, slots):
         """
         If `init` is False but a Factory is specified, don't allow passing that
@@ -250,7 +252,7 @@ class TestAddInit(object):
         i = C(23)
         assert (42, [], 23) == (i._a, i._b, i.c)
 
-    @pytest.mark.parametrize("slots", [True, False])
+    @given(booleans())
     def test_no_init_order(self, slots):
         """
         If an attribute is `init=False`, it's legal to come after a mandatory
@@ -337,7 +339,7 @@ class TestAddInit(object):
         assert (fields(C)[0], 42,) == e.value.args[1:]
         assert isinstance(e.value.args[0], C)
 
-    @pytest.mark.parametrize("slots", [True, False])
+    @given(booleans())
     def test_validator_others(self, slots):
         """
         Does not interfere when setting non-attrs attributes.

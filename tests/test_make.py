@@ -5,6 +5,8 @@ Tests for `attr._make`.
 from __future__ import absolute_import, division, print_function
 
 import pytest
+from hypothesis import given
+from hypothesis.strategies import booleans
 
 from . import simple_attr
 from attr import _config
@@ -246,8 +248,7 @@ class TestAttributes(object):
         assert sentinel == getattr(C, method_name)
 
     @pytest.mark.skipif(not PY3, reason="__qualname__ is PY3-only.")
-    @pytest.mark.parametrize('slots_outer', [True, False])
-    @pytest.mark.parametrize('slots_inner', [True, False])
+    @given(slots_outer=booleans(), slots_inner=booleans())
     def test_repr_qualname(self, slots_outer, slots_inner):
         """
         On Python 3, the name in repr is the __qualname__.
@@ -261,8 +262,7 @@ class TestAttributes(object):
         assert "C.D()" == repr(C.D())
         assert "GC.D()" == repr(GC.D())
 
-    @pytest.mark.parametrize('slots_outer', [True, False])
-    @pytest.mark.parametrize('slots_inner', [True, False])
+    @given(slots_outer=booleans(), slots_inner=booleans())
     def test_repr_fake_qualname(self, slots_outer, slots_inner):
         """
         Setting repr_ns overrides a potentially guessed namespace.

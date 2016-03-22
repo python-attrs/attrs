@@ -1,6 +1,8 @@
 from __future__ import absolute_import, division, print_function
 
 import pytest
+from hypothesis import given
+from hypothesis.strategies import booleans
 
 import attr
 
@@ -101,7 +103,7 @@ class TestDarkMagic(object):
             C1.x, int, "1",
         ) == e.value.args
 
-    @pytest.mark.parametrize("slots", [True, False])
+    @given(booleans())
     def test_renaming(self, slots):
         """
         Private members are renamed but only in `__init__`.
@@ -112,7 +114,7 @@ class TestDarkMagic(object):
 
         assert "C3(_x=1)" == repr(C3(x=1))
 
-    @pytest.mark.parametrize("slots", [True, False])
+    @given(booleans())
     def test_programmatic(self, slots):
         """
         `attr.make_class` works.
