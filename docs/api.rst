@@ -18,7 +18,7 @@ What follows is the API explanation, if you'd like a more hands-on introduction,
 Core
 ----
 
-.. autofunction:: attr.s(these=None, repr_ns=None, repr=True, cmp=True, hash=True, init=True)
+.. autofunction:: attr.s(these=None, repr_ns=None, repr=True, cmp=True, hash=True, init=True, slots=False)
 
    .. note::
 

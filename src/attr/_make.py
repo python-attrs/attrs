@@ -181,6 +181,9 @@ def attributes(maybe_cl=None, these=None, repr_ns=None,
     :param init: Create a ``__init__`` method that initialiazes the ``attrs``
         attributes.  Leading underscores are stripped for the argument name.
     :type init: bool
+
+    :param slots: Create a ``slots``-style class.
+    :type slots: bool
     """
     def wrap(cl):
         if getattr(cl, "__class__", None) is None:

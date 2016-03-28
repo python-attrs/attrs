@@ -377,6 +377,76 @@ Converters are run *before* validators, so you can use validators to check the f
     ValueError: x must be be at least 0.
 
 
+Slots
+-----
+
+By default, instances of classes have a dictionary for attribute storage. This
+wastes space for objects having very few instance variables. The space
+consumption can become acute when creating large numbers of instances.
+
+Normal Python classes can avoid using a separate dictionary for each instance of
+a class by defining ``__slots__``. ``attrs`` classes should just use
+``slots=True``.
+
+
+.. doctest::
+
+   >>> @attr.s(slots=True)
+   ... class Coordinates(object):
+   ...     x = attr.ib()
+   ...     y = attr.ib()
+
+
+.. note::
+
+    ``attrs`` slot classes can inherit from other classes just like non-slot
+    classes, but some of the benefits of slot classes are lost if you do that.
+    If you must inherit from other classes, try to inherit only from slot
+    classes.
+
+
+Slot classes are a little different than ordinary, dictionary-backed classes:
+
+* assigning to a non-existent attribute of an instance will result in an
+  ``AttributeError`` being raised. Depending on your needs, this might actually
+  be a good thing since it will let you catch typos early. This is not the case
+  if your class inherits from any non-slot classes.
+
+.. doctest::
+
+   >>> @attr.s(slots=True)
+   ... class Coordinates(object):
+   ...     x = attr.ib()
+   ...     y = attr.ib()
+   ...
+   >>> c = Coordinates(x=1, y=2)
+   >>> c.z = 3
+   Traceback (most recent call last):
+       ...
+   AttributeError: 'Coordinates' object has no attribute 'z'
+
+* slot classes cannot share attribute names with their instances, while non-slot
+  classes can. The following behaves differently if slot classes are used:
+
+.. doctest::
+
+  >>> @attr.s
+  ... class C(object):
+  ...     x = attr.ib()
+  >>> C.x
+  Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None)
+  >>> @attr.s(slots=True)
+  ... class C(object):
+  ...     x = attr.ib()
+  >>> C.x
+  <member 'x' of 'C' objects>
+
+* Since non-slot classes cannot be turned into slot classes after they have been
+  created, ``attr.s(.., slots=True)`` will actually replace the class it is
+  applied to with a copy. In almost all cases this isn't a problem, but we
+  mention it for the sake of completeness.
+
+
 Other Goodies
 -------------
 
