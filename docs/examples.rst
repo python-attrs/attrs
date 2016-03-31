@@ -377,16 +377,17 @@ Converters are run *before* validators, so you can use validators to check the f
     ValueError: x must be be at least 0.
 
 
+.. _slots:
+
 Slots
 -----
 
 By default, instances of classes have a dictionary for attribute storage.
 This wastes space for objects having very few instance variables.
-The space consumption can become acute when creating large numbers of instances.
+The space consumption can become significant when creating large numbers of instances.
 
-Normal Python classes can avoid using a separate dictionary for each instance of a class by defining ``__slots__``.
-``attrs`` classes should just use ``slots=True``.
-
+Normal Python classes can avoid using a separate dictionary for each instance of a class by `defining <https://docs.python.org/3.5/reference/datamodel.html#slots>`_ ``__slots__``.
+For ``attrs`` classes it's enough to set ``slots=True``:
 
 .. doctest::
 
@@ -400,7 +401,6 @@ Normal Python classes can avoid using a separate dictionary for each instance of
 
     ``attrs`` slot classes can inherit from other classes just like non-slot classes, but some of the benefits of slot classes are lost if you do that.
     If you must inherit from other classes, try to inherit only from other slot classes.
-
 
 Slot classes are a little different than ordinary, dictionary-backed classes:
 
@@ -437,8 +437,10 @@ Slot classes are a little different than ordinary, dictionary-backed classes:
     >>> C.x
     <member 'x' of 'C' objects>
 
-- Since non-slot classes cannot be turned into slot classes after they have been created, ``attr.s(.., slots=True)`` will actually replace the class it is applied to with a copy.
+- Since non-slot classes cannot be turned into slot classes after they have been created, ``attr.s(.., slots=True)`` will *replace* the class it is applied to with a copy.
   In almost all cases this isn't a problem, but we mention it for the sake of completeness.
+
+All in all, setting ``slots=True`` is usually a very good idea.
 
 
 Other Goodies

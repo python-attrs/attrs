@@ -182,8 +182,11 @@ def attributes(maybe_cl=None, these=None, repr_ns=None,
         attributes.  Leading underscores are stripped for the argument name.
     :type init: bool
 
-    :param slots: Create a ``slots``-style class.
+    :param slots: Create a slots_-style class that's more memory-efficient.
+        See :ref:`slots` for further ramifications.
     :type slots: bool
+
+    .. _slots: https://docs.python.org/3.5/reference/datamodel.html#slots
     """
     def wrap(cl):
         if getattr(cl, "__class__", None) is None:

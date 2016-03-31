@@ -1,4 +1,7 @@
-"""Unit tests for slot-related functionality."""
+"""
+Unit tests for slot-related functionality.
+"""
+
 import pytest
 
 # Pympler doesn't work on PyPy.
