@@ -5,7 +5,7 @@ import hashlib
 import inspect
 import linecache
 
-from ._compat import exec_, iteritems
+from ._compat import exec_, iteritems, iterkeys
 from . import _config
 
 
@@ -145,7 +145,7 @@ def _transform_attrs(cl, these):
 
 
 def attributes(maybe_cl=None, these=None, repr_ns=None,
-               repr=True, cmp=True, hash=True, init=True):
+               repr=True, cmp=True, hash=True, init=True, slots=False):
     """
     A class decorator that adds `dunder
     <https://wiki.python.org/moin/DunderAlias>`_\ -methods according to the
@@ -181,10 +181,25 @@ def attributes(maybe_cl=None, these=None, repr_ns=None,
     :param init: Create a ``__init__`` method that initialiazes the ``attrs``
         attributes.  Leading underscores are stripped for the argument name.
     :type init: bool
+
+    :param slots: Create a slots_-style class that's more memory-efficient.
+        See :ref:`slots` for further ramifications.
+    :type slots: bool
+
+    .. _slots: https://docs.python.org/3.5/reference/datamodel.html#slots
     """
     def wrap(cl):
         if getattr(cl, "__class__", None) is None:
             raise TypeError("attrs only works with new-style classes.")
+        if slots:
+            # Only need this later if we're using slots.
+            if these is None:
+                ca_list = [name
+                           for name, attr
+                           in cl.__dict__.items()
+                           if isinstance(attr, _CountingAttr)]
+            else:
+                ca_list = list(iterkeys(these))
         _transform_attrs(cl, these)
         if repr is True:
             cl = _add_repr(cl, ns=repr_ns)
@@ -194,6 +209,21 @@ def attributes(maybe_cl=None, these=None, repr_ns=None,
             cl = _add_hash(cl)
         if init is True:
             cl = _add_init(cl)
+        if slots:
+            cl_dict = dict(cl.__dict__)
+            cl_dict["__slots__"] = tuple(ca_list)
+            for ca_name in ca_list:
+                # It might not actually be in there, e.g. if using 'these'.
+                cl_dict.pop(ca_name, None)
+            cl_dict.pop('__dict__', None)
+
+            if repr_ns is None:
+                cl_name = getattr(cl, "__qualname__", cl.__name__)
+            else:
+                cl_name = cl.__name__
+
+            cl = type(cl_name, cl.__bases__, cl_dict)
+
         return cl
 
     # attrs_or class type depends on the usage of the decorator.  It's a class

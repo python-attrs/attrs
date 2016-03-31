@@ -24,7 +24,10 @@ Changes:
 
 - Allow the case of initializing attributes that are set to ``init=False``.
   This allows for clean initializer parameter lists while being able to initialize attributes to default values.
-  `[32] <https://github.com/hynek/attrs/issues/32>`_
+  `#32 <https://github.com/hynek/attrs/issues/32>`_
+- ``__slots__`` have arrived!
+  Classes now can automatically be `slots <https://docs.python.org/3.5/reference/datamodel.html#slots>`_-style (and save your precious memory) just by passing ``slots=True``.
+  `#35 <https://github.com/hynek/attrs/issues/35>`_
 
 
 ----
@@ -38,9 +41,9 @@ Changes:
 
 - Add a ``convert`` argument to ``attr.ib``, which allows specifying a function to run on arguments.
   This allows for simple type conversions, e.g. with ``attr.ib(convert=int)``.
-  `[26] <https://github.com/hynek/attrs/issues/26>`_
+  `#26 <https://github.com/hynek/attrs/issues/26>`_
 - Speed up object creation when attribute validators are used.
-  `[28] <https://github.com/hynek/attrs/issues/28>`_
+  `#28 <https://github.com/hynek/attrs/issues/28>`_
 
 
 ----
@@ -53,11 +56,11 @@ Changes:
 ^^^^^^^^
 
 - Add ``attr.validators.optional`` that wraps other validators allowing attributes to be ``None``.
-  `[16] <https://github.com/hynek/attrs/issues/16>`_
+  `#16 <https://github.com/hynek/attrs/issues/16>`_
 - Fix multi-level inheritance.
-  `[24] <https://github.com/hynek/attrs/issues/24>`_
+  `#24 <https://github.com/hynek/attrs/issues/24>`_
 - Fix ``__repr__`` to work for non-redecorated subclasses.
-  `[20] <https://github.com/hynek/attrs/issues/20>`_
+  `#20 <https://github.com/hynek/attrs/issues/20>`_
 
 
 ----
