@@ -8,6 +8,11 @@ PY2 = sys.version_info[0] == 2
 
 
 if PY2:
+    import types
+
+    def isclass(klass):
+        return isinstance(klass, (type, types.ClassType))
+
     # TYPE is used in exceptions, repr(int) is different on Python 2 and 3.
     TYPE = "type"
 
@@ -20,6 +25,9 @@ if PY2:
     def iterkeys(d):
         return d.iterkeys()
 else:
+    def isclass(klass):
+        return isinstance(klass, type)
+
     TYPE = "class"
 
     def exec_(code, locals_, globals_):
