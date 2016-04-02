@@ -10,6 +10,8 @@ PY2 = sys.version_info[0] == 2
 if PY2:
     import types
 
+    # We 'bundle' isclass instead of using inspect as importing inspect is
+    # fairly expensive (order of 10-15 ms for a modern machine in 2016)
     def isclass(klass):
         return isinstance(klass, (type, types.ClassType))
 
