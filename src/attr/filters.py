@@ -4,8 +4,7 @@ Commonly useful filters for :func:`attr.asdict`.
 
 from __future__ import absolute_import, division, print_function
 
-import inspect
-
+from ._compat import isclass
 from ._make import Attribute
 
 
@@ -14,7 +13,7 @@ def _split_what(what):
     Returns a tuple of `frozenset`s of classes and attributes.
     """
     return (
-        frozenset(cl for cl in what if inspect.isclass(cl)),
+        frozenset(cl for cl in what if isclass(cl)),
         frozenset(cl for cl in what if isinstance(cl, Attribute)),
     )
 

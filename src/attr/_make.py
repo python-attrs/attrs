@@ -2,10 +2,9 @@ from __future__ import absolute_import, division, print_function
 
 import copy
 import hashlib
-import inspect
 import linecache
 
-from ._compat import exec_, iteritems, iterkeys
+from ._compat import exec_, iteritems, isclass, iterkeys
 from . import _config
 
 
@@ -411,7 +410,7 @@ def fields(cl):
 
     :rtype: tuple of :class:`attr.Attribute`
     """
-    if not inspect.isclass(cl):
+    if not isclass(cl):
         raise TypeError("Passed object must be a class.")
     attrs = getattr(cl, "__attrs_attrs__", None)
     if attrs is None:
