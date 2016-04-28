@@ -21,7 +21,7 @@ class _Nothing(object):
         return self
 
     def __eq__(self, other):
-        return self.__class__ == _Nothing
+        return other.__class__ == _Nothing
 
     def __ne__(self, other):
         return not self == other
