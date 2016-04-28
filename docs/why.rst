@@ -181,16 +181,12 @@ But if you ever get sick of the repetitiveness, ``attrs`` will be waiting for yo
 …characteristic
 ---------------
 
-`characteristic <https://characteristic.readthedocs.org/en/stable/>`_ is a very similar and fairly popular project of mine.
+`characteristic <https://characteristic.readthedocs.io/>`_ is a very similar and fairly popular project of mine.
 So why the self-fork?
 Basically after nearly a year of usage I ran into annoyances and regretted certain decisions I made early-on to make too many people happy.
 In the end, *I* wasn't happy using it anymore.
 
 So I learned my lesson and ``attrs`` is the result of that.
-
-.. note::
-   Nevertheless, ``characteristic`` is **not** dead.
-   A lot of software uses it and I will keep maintaining it.
 
 
 Reasons For Forking
