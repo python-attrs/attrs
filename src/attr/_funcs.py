@@ -6,7 +6,7 @@ from ._compat import iteritems
 from ._make import Attribute, NOTHING, fields
 
 
-def asdict(inst, recurse=True, filter=None):
+def asdict(inst, recurse=True, filter=None, dict_factory=dict):
     """
     Return the ``attrs`` attribute values of *i* as a dict.  Optionally recurse
     into other ``attrs``-decorated classes.
@@ -22,10 +22,13 @@ def asdict(inst, recurse=True, filter=None):
         value as the second argument.
     :type filer: callable
 
+    :param dict_factory: A callable to produce dictionaries from.
+    :type dict_factory: callable
+
     :rtype: :class:`dict`
     """
     attrs = fields(inst.__class__)
-    rv = {}
+    rv = dict_factory()
     for a in attrs:
         v = getattr(inst, a.name)
         if filter is not None and not filter(a, v):

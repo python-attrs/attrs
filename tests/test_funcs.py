@@ -3,13 +3,19 @@ Tests for `attr._funcs`.
 """
 
 from __future__ import absolute_import, division, print_function
+from collections import OrderedDict
 
 import pytest
+
+from hypothesis import given, strategies as st
+
+from . import simple_classes
 
 from attr._funcs import (
     asdict,
     assoc,
     has,
+    fields,
 )
 from attr._make import (
     attr,
@@ -21,16 +27,18 @@ class TestAsDict(object):
     """
     Tests for `asdict`.
     """
-    def test_shallow(self, C):
+    @given(st.sampled_from([dict, OrderedDict]))
+    def test_shallow(self, C, dict_factory):
         """
         Shallow asdict returns correct dict.
         """
         assert {
             "x": 1,
             "y": 2,
-        } == asdict(C(x=1, y=2), False)
+        } == asdict(C(x=1, y=2), False, dict_factory=dict_factory)
 
-    def test_recurse(self, C):
+    @given(st.sampled_from([dict, OrderedDict]))
+    def test_recurse(self, C, dict_factory):
         """
         Deep asdict returns correct dict.
         """
@@ -40,9 +48,10 @@ class TestAsDict(object):
         } == asdict(C(
             C(1, 2),
             C(3, 4),
-        ))
+        ), dict_factory=dict_factory)
 
-    def test_filter(self, C):
+    @given(st.sampled_from([dict, OrderedDict]))
+    def test_filter(self, C, dict_factory):
         """
         Attributes that are supposed to be skipped are skipped.
         """
@@ -51,7 +60,7 @@ class TestAsDict(object):
         } == asdict(C(
             C(1, 2),
             C(3, 4),
-        ), filter=lambda a, v: a.name != "y")
+        ), filter=lambda a, v: a.name != "y", dict_factory=dict_factory)
 
     @pytest.mark.parametrize("container", [
         list,
@@ -66,14 +75,37 @@ class TestAsDict(object):
             "y": [{"x": 2, "y": 3}, {"x": 4, "y": 5}, "a"],
         } == asdict(C(1, container([C(2, 3), C(4, 5), "a"])))
 
-    def test_dicts(self, C):
+    @given(st.sampled_from([dict, OrderedDict]))
+    def test_dicts(self, C, dict_factory):
         """
         If recurse is True, also recurse into dicts.
         """
+        res = asdict(C(1, {"a": C(4, 5)}), dict_factory=dict_factory)
         assert {
             "x": 1,
             "y": {"a": {"x": 4, "y": 5}},
-        } == asdict(C(1, {"a": C(4, 5)}))
+        } == res
+        assert isinstance(res, dict_factory)
+
+    @given(simple_classes, st.sampled_from([dict, OrderedDict]))
+    def test_roundtrip(self, cls, dict_factory):
+        """Test roundtripping for Hypothesis-generated classes."""
+        instance = cls()
+        dict_instance = asdict(instance, dict_factory=dict_factory)
+
+        assert isinstance(dict_instance, dict_factory)
+
+        roundtrip_instance = cls(**dict_instance)
+
+        assert instance == roundtrip_instance
+
+    @given(simple_classes)
+    def test_asdict_preserve_order(self, cls):
+        """When dumping to OrderedDict, field order should be preserved."""
+        instance = cls()
+        dict_instance = asdict(instance, dict_factory=OrderedDict)
+
+        assert [a.name for a in fields(cls)] == list(dict_instance.keys())
 
 
 class TestHas(object):

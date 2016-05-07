@@ -1,6 +1,10 @@
 from __future__ import absolute_import, division, print_function
 
-from attr import Attribute
+import string
+
+from hypothesis import strategies as st
+
+from attr import Attribute, ib
 from attr._make import NOTHING, make_class
 
 
@@ -40,3 +44,17 @@ class TestSimpleClass(object):
         Each call returns a completely new class.
         """
         assert simple_class() is not simple_class()
+
+
+def create_class(attrs):
+    # What if we get more than len(string.ascii_lowercase) attributes?
+    return make_class('HypClass', dict(zip(string.ascii_lowercase, attrs)))
+
+bare_attrs = st.just(ib(default=None))
+int_attrs = st.integers().map(lambda i: ib(default=i))
+str_attrs = st.text().map(lambda s: ib(default=s))
+float_attrs = st.floats().map(lambda f: ib(default=f))
+
+simple_attrs = st.one_of(bare_attrs, int_attrs, str_attrs, float_attrs)
+
+simple_classes = st.lists(simple_attrs).map(create_class)
