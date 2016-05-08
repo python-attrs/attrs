@@ -47,6 +47,9 @@ class TestSimpleClass(object):
 
 
 def create_class(attrs):
+    """
+    A helper function for Hypothesis to generate attrs classes.
+    """
     # What if we get more than len(string.ascii_lowercase) attributes?
     return make_class('HypClass', dict(zip(string.ascii_lowercase, attrs)))
 

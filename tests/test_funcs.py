@@ -89,7 +89,9 @@ class TestAsDict(object):
 
     @given(simple_classes, st.sampled_from([dict, OrderedDict]))
     def test_roundtrip(self, cls, dict_factory):
-        """Test roundtripping for Hypothesis-generated classes."""
+        """
+        Test roundtripping for Hypothesis-generated classes.
+        """
         instance = cls()
         dict_instance = asdict(instance, dict_factory=dict_factory)
 
@@ -101,7 +103,9 @@ class TestAsDict(object):
 
     @given(simple_classes)
     def test_asdict_preserve_order(self, cls):
-        """When dumping to OrderedDict, field order should be preserved."""
+        """
+        Field order should be preserved when dumping to OrderedDicts.
+        """
         instance = cls()
         dict_instance = asdict(instance, dict_factory=OrderedDict)
 

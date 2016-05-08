@@ -22,7 +22,9 @@ def asdict(inst, recurse=True, filter=None, dict_factory=dict):
         value as the second argument.
     :type filer: callable
 
-    :param dict_factory: A callable to produce dictionaries from.
+    :param dict_factory: A callable to produce dictionaries from. For example,
+        to produce ordered dictionaries instead of normal Python dictionaries,
+        pass in ``collections.OrderedDict``.
     :type dict_factory: callable
 
     :rtype: :class:`dict`
