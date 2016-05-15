@@ -3,6 +3,7 @@ Tests for `attr._funcs`.
 """
 
 from __future__ import absolute_import, division, print_function
+
 from collections import OrderedDict
 
 import pytest
@@ -14,20 +15,23 @@ from . import simple_classes
 from attr._funcs import (
     asdict,
     assoc,
-    has,
     fields,
+    has,
 )
 from attr._make import (
     attr,
     attributes,
 )
 
+MAPPING_TYPES = (dict, OrderedDict)
+SEQUENCE_TYPES = (list, tuple)
+
 
 class TestAsDict(object):
     """
     Tests for `asdict`.
     """
-    @given(st.sampled_from([dict, OrderedDict]))
+    @given(st.sampled_from(MAPPING_TYPES))
     def test_shallow(self, C, dict_factory):
         """
         Shallow asdict returns correct dict.
@@ -37,7 +41,7 @@ class TestAsDict(object):
             "y": 2,
         } == asdict(C(x=1, y=2), False, dict_factory=dict_factory)
 
-    @given(st.sampled_from([dict, OrderedDict]))
+    @given(st.sampled_from(MAPPING_TYPES))
     def test_recurse(self, C, dict_factory):
         """
         Deep asdict returns correct dict.
@@ -50,7 +54,7 @@ class TestAsDict(object):
             C(3, 4),
         ), dict_factory=dict_factory)
 
-    @given(st.sampled_from([dict, OrderedDict]))
+    @given(st.sampled_from(MAPPING_TYPES))
     def test_filter(self, C, dict_factory):
         """
         Attributes that are supposed to be skipped are skipped.
@@ -62,10 +66,7 @@ class TestAsDict(object):
             C(3, 4),
         ), filter=lambda a, v: a.name != "y", dict_factory=dict_factory)
 
-    @pytest.mark.parametrize("container", [
-        list,
-        tuple,
-    ])
+    @given(container=st.sampled_from(SEQUENCE_TYPES))
     def test_lists_tuples(self, container, C):
         """
         If recurse is True, also recurse into lists.
@@ -75,7 +76,7 @@ class TestAsDict(object):
             "y": [{"x": 2, "y": 3}, {"x": 4, "y": 5}, "a"],
         } == asdict(C(1, container([C(2, 3), C(4, 5), "a"])))
 
-    @given(st.sampled_from([dict, OrderedDict]))
+    @given(st.sampled_from(MAPPING_TYPES))
     def test_dicts(self, C, dict_factory):
         """
         If recurse is True, also recurse into dicts.
@@ -87,10 +88,10 @@ class TestAsDict(object):
         } == res
         assert isinstance(res, dict_factory)
 
-    @given(simple_classes, st.sampled_from([dict, OrderedDict]))
+    @given(simple_classes, st.sampled_from(MAPPING_TYPES))
     def test_roundtrip(self, cls, dict_factory):
         """
-        Test roundtripping for Hypothesis-generated classes.
+        Test dumping to dicts and back for Hypothesis-generated classes.
         """
         instance = cls()
         dict_instance = asdict(instance, dict_factory=dict_factory)

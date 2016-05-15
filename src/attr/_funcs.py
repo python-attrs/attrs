@@ -13,21 +13,21 @@ def asdict(inst, recurse=True, filter=None, dict_factory=dict):
 
     :param inst: Instance of a ``attrs``-decorated class.
 
-    :param recurse: Recurse into classes that are also ``attrs``-decorated.
-    :type recurse: bool
+    :param bool recurse: Recurse into classes that are also ``attrs``-decorated.
 
-    :param filter: A callable whose return code deteremines whether an
+    :param callable filter: A callable whose return code deteremines whether an
         attribute or element is included (``True``) or dropped (``False``).  Is
         called with the :class:`attr.Attribute` as the first argument and the
         value as the second argument.
-    :type filer: callable
 
-    :param dict_factory: A callable to produce dictionaries from. For example,
-        to produce ordered dictionaries instead of normal Python dictionaries,
-        pass in ``collections.OrderedDict``.
-    :type dict_factory: callable
+    :param callable dict_factory: A callable to produce dictionaries from. For
+        example, to produce ordered dictionaries instead of normal Python
+        dictionaries, pass in ``collections.OrderedDict``.
 
     :rtype: :class:`dict`
+
+    .. versionadded:: 16.0.0
+        *dict_factory*
     """
     attrs = fields(inst.__class__)
     rv = dict_factory()
