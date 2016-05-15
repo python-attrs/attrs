@@ -60,6 +60,7 @@ def _gen_attr_names():
         for inner in lc:
             yield outer + inner
 
+
 def _create_hyp_class(attrs):
     """
     A helper function for Hypothesis to generate attrs classes.

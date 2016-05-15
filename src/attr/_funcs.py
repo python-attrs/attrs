@@ -13,7 +13,8 @@ def asdict(inst, recurse=True, filter=None, dict_factory=dict):
 
     :param inst: Instance of a ``attrs``-decorated class.
 
-    :param bool recurse: Recurse into classes that are also ``attrs``-decorated.
+    :param bool recurse: Recurse into classes that are also
+        ``attrs``-decorated.
 
     :param callable filter: A callable whose return code deteremines whether an
         attribute or element is included (``True``) or dropped (``False``).  Is

@@ -28,8 +28,7 @@ Changes:
 - ``__slots__`` have arrived!
   Classes now can automatically be `slots <https://docs.python.org/3.5/reference/datamodel.html#slots>`_-style (and save your precious memory) just by passing ``slots=True``.
   `#35 <https://github.com/hynek/attrs/issues/35>`_
-- ``attr.asdict`` can now produce arbitrary mappings instead of Python ``dict``s
-  when provided a ``dict_factory`` argument.
+- ``attr.asdict`` can now produce arbitrary mappings instead of Python ``dict``s when provided with a ``dict_factory`` argument.
   `#40 <https://github.com/hynek/attrs/issues/40>`_
 
 
