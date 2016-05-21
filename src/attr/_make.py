@@ -420,6 +420,14 @@ def fields(cl):
     return copy.deepcopy(attrs)
 
 
+def _fast_attrs_iterate(inst):
+    """ Fast internal iteration over the attr descriptors.
+
+    Using fields to iterate is slow because it involves deepcopy.
+    """
+    return inst.__class__.__attrs_attrs__
+
+
 def validate(inst):
     """
     Validate all attributes on *inst* that have a validator.
@@ -431,7 +439,7 @@ def validate(inst):
     if _config._run_validators is False:
         return
 
-    for a in inst.__class__.__attrs_attrs__:
+    for a in _fast_attrs_iterate(inst):
         if a.validator is not None:
             a.validator(inst, a, getattr(inst, a.name))
 
@@ -444,7 +452,7 @@ def _convert(inst):
 
     :param inst: Instance of a class with ``attrs`` attributes.
     """
-    for a in fields(inst.__class__):
+    for a in _fast_attrs_iterate(inst):
         if a.convert is not None:
             setattr(inst, a.name, a.convert(getattr(inst, a.name)))
 
