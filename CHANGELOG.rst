@@ -30,6 +30,7 @@ Changes:
   `#35 <https://github.com/hynek/attrs/issues/35>`_
 - ``attr.asdict`` can now produce arbitrary mappings instead of Python ``dict``s when provided with a ``dict_factory`` argument.
   `#40 <https://github.com/hynek/attrs/issues/40>`_
+- Multiple performance improvements.
 
 
 ----

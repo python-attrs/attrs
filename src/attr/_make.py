@@ -421,7 +421,8 @@ def fields(cl):
 
 
 def _fast_attrs_iterate(inst):
-    """ Fast internal iteration over the attr descriptors.
+    """
+    Fast internal iteration over the attr descriptors.
 
     Using fields to iterate is slow because it involves deepcopy.
     """
