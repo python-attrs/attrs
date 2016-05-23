@@ -59,6 +59,7 @@ def find_meta(meta):
     raise RuntimeError("Unable to find __{meta}__ string.".format(meta=meta))
 
 
+VERSION = find_meta("version")
 URI = find_meta("uri")
 LONG = (
     read("README.rst") + "\n\n" +
@@ -78,7 +79,7 @@ if __name__ == "__main__":
         description=find_meta("description"),
         license=find_meta("license"),
         url=URI,
-        version=find_meta("version"),
+        version=VERSION,
         author=find_meta("author"),
         author_email=find_meta("email"),
         maintainer=find_meta("author"),
