@@ -38,17 +38,21 @@ def asdict(inst, recurse=True, filter=None, dict_factory=dict):
             continue
         if recurse is True:
             if has(v.__class__):
-                rv[a.name] = asdict(v, recurse=True, filter=filter)
+                rv[a.name] = asdict(v, recurse=True, filter=filter,
+                                    dict_factory=dict_factory)
             elif isinstance(v, (tuple, list, set)):
                 rv[a.name] = [
-                    asdict(i, recurse=True, filter=filter)
+                    asdict(i, recurse=True, filter=filter,
+                           dict_factory=dict_factory)
                     if has(i.__class__) else i
                     for i in v
                 ]
             elif isinstance(v, dict):
-                rv[a.name] = dict((asdict(kk) if has(kk.__class__) else kk,
-                                   asdict(vv) if has(vv.__class__) else vv)
-                                  for kk, vv in iteritems(v))
+                df = dict_factory
+                rv[a.name] = df((
+                    asdict(kk, dict_factory=df) if has(kk.__class__) else kk,
+                    asdict(vv, dict_factory=df) if has(vv.__class__) else vv)
+                    for kk, vv in iteritems(v))
             else:
                 rv[a.name] = v
         else:
