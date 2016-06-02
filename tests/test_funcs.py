@@ -4,13 +4,13 @@ Tests for `attr._funcs`.
 
 from __future__ import absolute_import, division, print_function
 
-from collections import OrderedDict
+from collections import OrderedDict, Sequence, Mapping
 
 import pytest
 
 from hypothesis import given, strategies as st
 
-from . import simple_classes
+from . import simple_classes, nested_classes
 
 from attr._funcs import (
     asdict,
@@ -42,7 +42,7 @@ class TestAsDict(object):
         } == asdict(C(x=1, y=2), False, dict_factory=dict_factory)
 
     @given(st.sampled_from(MAPPING_TYPES))
-    def test_recurse(self, C, dict_factory):
+    def test_recurse(self, C, dict_class):
         """
         Deep asdict returns correct dict.
         """
@@ -52,7 +52,36 @@ class TestAsDict(object):
         } == asdict(C(
             C(1, 2),
             C(3, 4),
-        ), dict_factory=dict_factory)
+        ), dict_factory=dict_class)
+
+    @given(nested_classes, st.sampled_from(MAPPING_TYPES))
+    def test_recurse_property(self, cls, dict_class):
+        """
+        Property tests for recursive asdict.
+        """
+        obj = cls()
+        obj_dict = asdict(obj, dict_factory=dict_class)
+
+        def assert_proper_dict_class(obj, obj_dict):
+            assert isinstance(obj_dict, dict_class)
+            for field in fields(obj.__class__):
+                field_val = getattr(obj, field.name)
+                if has(field_val.__class__):
+                    # This field holds a class, recurse the assertions.
+                    assert_proper_dict_class(field_val, obj_dict[field.name])
+                elif isinstance(field_val, Sequence):
+                    dict_val = obj_dict[field.name]
+                    for item, item_dict in zip(field_val, dict_val):
+                        if has(item.__class__):
+                            assert_proper_dict_class(item, item_dict)
+                elif isinstance(field_val, Mapping):
+                    # This field holds a dictionary.
+                    assert isinstance(obj_dict[field.name], dict_class)
+                    for key, val in field_val.items():
+                        if has(val.__class__):
+                            assert_proper_dict_class(val, obj_dict[key])
+
+        assert_proper_dict_class(obj, obj_dict)
 
     @given(st.sampled_from(MAPPING_TYPES))
     def test_filter(self, C, dict_factory):
@@ -89,14 +118,14 @@ class TestAsDict(object):
         assert isinstance(res, dict_factory)
 
     @given(simple_classes, st.sampled_from(MAPPING_TYPES))
-    def test_roundtrip(self, cls, dict_factory):
+    def test_roundtrip(self, cls, dict_class):
         """
         Test dumping to dicts and back for Hypothesis-generated classes.
         """
         instance = cls()
-        dict_instance = asdict(instance, dict_factory=dict_factory)
+        dict_instance = asdict(instance, dict_factory=dict_class)
 
-        assert isinstance(dict_instance, dict_factory)
+        assert isinstance(dict_instance, dict_class)
 
         roundtrip_instance = cls(**dict_instance)
 
