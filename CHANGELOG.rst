@@ -11,7 +11,8 @@ The third digit is only for regressions.
 Changes:
 ^^^^^^^^
 
-*none*
+- ``attr.asdict``\ 's ``dict_factory`` arguments is now propagated on recursion.
+  `#45 <https://github.com/hynek/attrs/issues/45>`_
 
 
 ----
