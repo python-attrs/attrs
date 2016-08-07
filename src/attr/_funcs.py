@@ -71,7 +71,7 @@ def has(cl):
 
     :rtype: :class:`bool`
     """
-    return hasattr(cl, "__attrs_attrs__")
+    return getattr(cl, "__attrs_attrs__", None) is not None
 
 
 def assoc(inst, **changes):
