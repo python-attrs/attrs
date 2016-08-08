@@ -55,7 +55,6 @@ Core
 
    Instances of this class are frequently used for introspection purposes like:
 
-   - Class attributes on ``attrs``-decorated classes *after* ``@attr.s`` has been applied.
    - :func:`fields` returns a tuple of them.
    - Validators get them passed as the first argument.
 

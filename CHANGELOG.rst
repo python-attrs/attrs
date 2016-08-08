@@ -8,6 +8,18 @@ The third digit is only for regressions.
 16.1.0 (UNRELEASED)
 -------------------
 
+Deprecations:
+^^^^^^^^^^^^^
+
+- Accessing ``Attribute`` instances on class objects is now deprecated and will stop working in 2017.
+  If you need introspection please use the ``__attrs_attrs__`` attribute that carries them too.
+  In the future, the attributes that are defined on the class body and are usually overwritten in your ``__init__`` method are simply removed after ``@attr.s`` has been applied.
+
+  This will remove the confusing error message if you write your own ``__init__`` and forget to initialize some attribute.
+  Instead you will get a straightforward ``AttributeError``.
+  In other words: decorated classes will work more like plain Python classes which was always ``attrs``'s goal.
+
+
 Changes:
 ^^^^^^^^
 
