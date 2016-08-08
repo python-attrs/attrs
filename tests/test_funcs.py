@@ -15,12 +15,12 @@ from . import simple_classes, nested_classes
 from attr._funcs import (
     asdict,
     assoc,
-    fields,
     has,
 )
 from attr._make import (
     attr,
     attributes,
+    fields,
 )
 
 MAPPING_TYPES = (dict, OrderedDict)

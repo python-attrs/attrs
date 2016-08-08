@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 import copy
 
 from ._compat import iteritems
-from ._make import Attribute, NOTHING, fields
+from ._make import Attribute, NOTHING, _fast_attrs_iterate
 
 
 def asdict(inst, recurse=True, filter=None, dict_factory=dict):
@@ -30,7 +30,7 @@ def asdict(inst, recurse=True, filter=None, dict_factory=dict):
     .. versionadded:: 16.0.0
         *dict_factory*
     """
-    attrs = fields(inst.__class__)
+    attrs = _fast_attrs_iterate(inst)
     rv = dict_factory()
     for a in attrs:
         v = getattr(inst, a.name)
@@ -71,12 +71,7 @@ def has(cl):
 
     :rtype: :class:`bool`
     """
-    try:
-        fields(cl)
-    except ValueError:
-        return False
-    else:
-        return True
+    return getattr(cl, "__attrs_attrs__", None) is not None
 
 
 def assoc(inst, **changes):
