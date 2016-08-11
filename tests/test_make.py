@@ -6,9 +6,9 @@ from __future__ import absolute_import, division, print_function
 
 import pytest
 from hypothesis import given
-from hypothesis.strategies import booleans
+from hypothesis.strategies import booleans, sampled_from
 
-from . import simple_attr
+from . import simple_attr, simple_attrs
 from attr import _config
 from attr._compat import PY3
 from attr._make import (
@@ -22,6 +22,8 @@ from attr._make import (
     make_class,
     validate,
 )
+
+attrs = simple_attrs.map(lambda c: Attribute.from_counting_attr('name', c))
 
 
 class TestCountingAttr(object):
@@ -183,6 +185,14 @@ class TestAttributes(object):
             pass
         assert "C3()" == repr(C3())
         assert C3() == C3()
+
+    @given(attr=attrs, attr_name=sampled_from(Attribute.__slots__))
+    def test_immutable(self, attr, attr_name):
+        """
+        Attribute instances are immutable.
+        """
+        with pytest.raises(AttributeError):
+            setattr(attr, attr_name, 1)
 
     @pytest.mark.parametrize("method_name", [
         "__repr__",
@@ -385,15 +395,6 @@ class TestFields(object):
         Returns a list of `Attribute`a.
         """
         assert all(isinstance(a, Attribute) for a in fields(C))
-
-    def test_copies(self, C):
-        """
-        Returns a new list object with new `Attribute` objects.
-        """
-        assert C.__attrs_attrs__ is not fields(C)
-        assert all(new == original and new is not original
-                   for new, original
-                   in zip(fields(C), C.__attrs_attrs__))
 
 
 class TestConvert(object):
