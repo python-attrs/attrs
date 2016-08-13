@@ -1,6 +1,5 @@
 from __future__ import absolute_import, division, print_function
 
-import copy
 import hashlib
 import linecache
 
@@ -417,16 +416,7 @@ def fields(cl):
         raise ValueError("{cl!r} is not an attrs-decorated class.".format(
             cl=cl
         ))
-    return copy.deepcopy(attrs)
-
-
-def _fast_attrs_iterate(inst):
-    """
-    Fast internal iteration over the attr descriptors.
-
-    Using fields to iterate is slow because it involves deepcopy.
-    """
-    return inst.__class__.__attrs_attrs__
+    return attrs
 
 
 def validate(inst):
@@ -440,7 +430,7 @@ def validate(inst):
     if _config._run_validators is False:
         return
 
-    for a in _fast_attrs_iterate(inst):
+    for a in fields(inst.__class__):
         if a.validator is not None:
             a.validator(inst, a, getattr(inst, a.name))
 
@@ -453,7 +443,7 @@ def _convert(inst):
 
     :param inst: Instance of a class with ``attrs`` attributes.
     """
-    for a in _fast_attrs_iterate(inst):
+    for a in inst.__class__.__attrs_attrs__:
         if a.convert is not None:
             setattr(inst, a.name, a.convert(getattr(inst, a.name)))
 
@@ -534,37 +524,38 @@ class Attribute(object):
 
     Plus *all* arguments of :func:`attr.ib`.
     """
-    _attributes = [
-        "name", "default", "validator", "repr", "cmp", "hash", "init",
-        "convert"
-    ]  # we can't use ``attrs`` so we have to cheat a little.
+    __slots__ = ('name', 'default', 'validator', 'repr', 'cmp', 'hash', 'init',
+                 'convert')
 
     _optional = {"convert": None}
 
     def __init__(self, **kw):
-        if len(kw) > len(Attribute._attributes):
+        if len(kw) > len(Attribute.__slots__):
             raise TypeError("Too many arguments.")
-        for a in Attribute._attributes:
+        for a in Attribute.__slots__:
             try:
-                setattr(self, a, kw[a])
+                object.__setattr__(self, a, kw[a])
             except KeyError:
                 if a in Attribute._optional:
-                    setattr(self, a, self._optional[a])
+                    object.__setattr__(self, a, self._optional[a])
                 else:
                     raise TypeError("Missing argument '{arg}'.".format(arg=a))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("can't set attribute")  # To mirror namedtuple.
 
     @classmethod
     def from_counting_attr(cl, name, ca):
         return cl(name=name,
                   **dict((k, getattr(ca, k))
                          for k
-                         in Attribute._attributes
+                         in Attribute.__slots__
                          if k != "name"))
 
 
 _a = [Attribute(name=name, default=NOTHING, validator=None,
                 repr=True, cmp=True, hash=True, init=True)
-      for name in Attribute._attributes]
+      for name in Attribute.__slots__]
 Attribute = _add_hash(
     _add_cmp(_add_repr(Attribute, attrs=_a), attrs=_a), attrs=_a
 )

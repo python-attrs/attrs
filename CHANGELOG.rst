@@ -25,8 +25,9 @@ Changes:
 
 - ``attr.asdict``\ 's ``dict_factory`` arguments is now propagated on recursion.
   `#45 <https://github.com/hynek/attrs/issues/45>`_
-- ``attr.asdict`` and ``attr.has`` are significantly faster.
+- ``attr.asdict``, ``attr.has`` and ``attr.fields`` are significantly faster.
   `#48 <https://github.com/hynek/attrs/issues/48>`_
+  `#51 <https://github.com/hynek/attrs/issues/51>`_
 
 
 ----
