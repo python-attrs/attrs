@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 import copy
 
 from ._compat import iteritems
-from ._make import Attribute, NOTHING, _fast_attrs_iterate
+from ._make import Attribute, NOTHING, fields
 
 
 def asdict(inst, recurse=True, filter=None, dict_factory=dict):
@@ -30,7 +30,7 @@ def asdict(inst, recurse=True, filter=None, dict_factory=dict):
     .. versionadded:: 16.0.0
         *dict_factory*
     """
-    attrs = _fast_attrs_iterate(inst)
+    attrs = fields(inst.__class__)
     rv = dict_factory()
     for a in attrs:
         v = getattr(inst, a.name)
