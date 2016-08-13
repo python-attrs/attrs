@@ -443,7 +443,7 @@ def _convert(inst):
 
     :param inst: Instance of a class with ``attrs`` attributes.
     """
-    for a in fields(inst.__class__):
+    for a in inst.__class__.__attrs_attrs__:
         if a.convert is not None:
             setattr(inst, a.name, a.convert(getattr(inst, a.name)))
 
