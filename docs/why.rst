@@ -13,7 +13,7 @@ Readability
 
 What makes more sense while debugging::
 
-   Point(x=1, x=2)
+   Point(x=1, y=2)
 
 or::
 
