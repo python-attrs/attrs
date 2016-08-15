@@ -16,7 +16,15 @@ attrs: Attributes without boilerplate.
 
 .. teaser-begin
 
-``attrs`` is an `MIT <http://choosealicense.com/licenses/mit/>`_-licensed Python package with class decorators that ease the chores of implementing the most common attribute-related object protocols:
+``attrs`` is the Python package that will bring back the joy to writing classes by relieving you of the drudgery of implementing object protocols (aka `dunder <http://nedbatchelder.com/blog/200605/dunder.html>`_ methods).
+
+Its main objective is to help you to write **concise** and **correct** software without slowing you – or your software – down.
+
+.. -spiel-end-
+
+For that, it gives you a class decorator and a way to declaratively define the attributes on that class:
+
+.. -code-begin-
 
 .. code-block:: pycon
 
@@ -40,7 +48,7 @@ attrs: Attributes without boilerplate.
    >>> C2("foo", "bar")
    C2(a='foo', b='bar')
 
-If you don’t like the playful ``attr.s`` and ``attr.ib`` (that aren't any obscure abbreviations; just a concise and highly readable way to write ``attrs`` and ``attrib`` with an explicit namespace), ``attrs`` comes with no-nonsense aliases: ``attr.attributes`` and ``attr.attr``.
+If you don’t like the playful ``attr.s`` and ``attr.ib`` names (that aren't any obscure abbreviations; just a concise and highly readable way to write ``attrs`` and ``attrib`` with an explicit namespace), ``attrs`` comes with no-nonsense aliases: ``attr.attributes`` and ``attr.attr``.
 Sometimes it takes a few minutes to get used to the short forms, but in the long run, they're more readable and therefore grokkable when reading code.
 
 After *declaring* your attributes ``attrs`` gives you:
@@ -57,8 +65,6 @@ This gives you the power to use actual classes with actual types in your code in
 Which in turn encourages you to write *small classes* that do `one thing well <https://www.destroyallsoftware.com/talks/boundaries>`_.
 Never again violate the `single responsibility principle <https://en.wikipedia.org/wiki/Single_responsibility_principle>`_ just because implementing ``__init__`` et al is a painful drag.
 
-``attrs``\ 's main objective is to help you to write *concise* and *correct* software without slowing you down.
-
 
 What ``attrs`` Is Not
 =====================
@@ -70,6 +76,7 @@ It does *nothing* dynamic at runtime, hence zero runtime overhead.
 It's still *your* class.
 Do with it as you please.
 
+.. -testimonials-
 
 Testimonials
 ============
@@ -90,5 +97,5 @@ Testimonials
 Project Information
 ===================
 
-``attrs``\ ’s documentation lives at `Read the Docs <https://attrs.readthedocs.io/>`_, and the code on `GitHub <https://github.com/hynek/attrs>`_.
+``attrs`` is licensed under the `MIT <http://choosealicense.com/licenses/mit/>`_ license, its documentation lives at `Read the Docs <https://attrs.readthedocs.io/>`_, and the code on `GitHub <https://github.com/hynek/attrs>`_.
 It’s rigorously tested on Python 2.7, 3.4+, and PyPy.
