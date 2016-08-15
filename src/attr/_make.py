@@ -101,7 +101,7 @@ def attr(default=NOTHING, validator=None,
     )
 
 
-def _transform_attrs(cl, these):
+def _transform_attrs(cls, these):
     """
     Transforms all `_CountingAttr`s on a class into `Attribute`s and saves the
     list as a tuple in `__attrs_attrs__`.
@@ -109,30 +109,30 @@ def _transform_attrs(cl, these):
     If *these* is passed, use that and don't look for them on the class.
     """
     super_cls = []
-    for c in reversed(cl.__mro__[1:-1]):
+    for c in reversed(cls.__mro__[1:-1]):
         sub_attrs = getattr(c, "__attrs_attrs__", None)
         if sub_attrs is not None:
             super_cls.extend(a for a in sub_attrs if a not in super_cls)
     if these is None:
         ca_list = [(name, attr)
                    for name, attr
-                   in cl.__dict__.items()
+                   in cls.__dict__.items()
                    if isinstance(attr, _CountingAttr)]
     else:
         ca_list = [(name, ca)
                    for name, ca
                    in iteritems(these)]
 
-    cl.__attrs_attrs__ = tuple(super_cls + [
+    cls.__attrs_attrs__ = tuple(super_cls + [
         Attribute.from_counting_attr(name=attr_name, ca=ca)
         for attr_name, ca
         in sorted(ca_list, key=lambda e: e[1].counter)
     ])
 
     had_default = False
-    for a in cl.__attrs_attrs__:
+    for a in cls.__attrs_attrs__:
         if these is None and a not in super_cls:
-            setattr(cl, a.name, a)
+            setattr(cls, a.name, a)
         if had_default is True and a.default is NOTHING and a.init is True:
             raise ValueError(
                 "No mandatory attributes allowed after an attribute with a "
@@ -145,7 +145,7 @@ def _transform_attrs(cl, these):
             had_default = True
 
 
-def attributes(maybe_cl=None, these=None, repr_ns=None,
+def attributes(maybe_cls=None, these=None, repr_ns=None,
                repr=True, cmp=True, hash=True, init=True, slots=False):
     """
     A class decorator that adds `dunder
@@ -189,50 +189,50 @@ def attributes(maybe_cl=None, these=None, repr_ns=None,
 
     .. _slots: https://docs.python.org/3.5/reference/datamodel.html#slots
     """
-    def wrap(cl):
-        if getattr(cl, "__class__", None) is None:
+    def wrap(cls):
+        if getattr(cls, "__class__", None) is None:
             raise TypeError("attrs only works with new-style classes.")
         if slots:
             # Only need this later if we're using slots.
             if these is None:
                 ca_list = [name
                            for name, attr
-                           in cl.__dict__.items()
+                           in cls.__dict__.items()
                            if isinstance(attr, _CountingAttr)]
             else:
                 ca_list = list(iterkeys(these))
-        _transform_attrs(cl, these)
+        _transform_attrs(cls, these)
         if repr is True:
-            cl = _add_repr(cl, ns=repr_ns)
+            cls = _add_repr(cls, ns=repr_ns)
         if cmp is True:
-            cl = _add_cmp(cl)
+            cls = _add_cmp(cls)
         if hash is True:
-            cl = _add_hash(cl)
+            cls = _add_hash(cls)
         if init is True:
-            cl = _add_init(cl)
+            cls = _add_init(cls)
         if slots:
-            cl_dict = dict(cl.__dict__)
-            cl_dict["__slots__"] = tuple(ca_list)
+            cls_dict = dict(cls.__dict__)
+            cls_dict["__slots__"] = tuple(ca_list)
             for ca_name in ca_list:
                 # It might not actually be in there, e.g. if using 'these'.
-                cl_dict.pop(ca_name, None)
-            cl_dict.pop('__dict__', None)
+                cls_dict.pop(ca_name, None)
+            cls_dict.pop('__dict__', None)
 
             if repr_ns is None:
-                cl_name = getattr(cl, "__qualname__", cl.__name__)
+                cls_name = getattr(cls, "__qualname__", cls.__name__)
             else:
-                cl_name = cl.__name__
+                cls_name = cls.__name__
 
-            cl = type(cl_name, cl.__bases__, cl_dict)
+            cls = type(cls_name, cls.__bases__, cls_dict)
 
-        return cl
+        return cls
 
     # attrs_or class type depends on the usage of the decorator.  It's a class
     # if it's used as `@attributes` but ``None`` if used # as `@attributes()`.
-    if maybe_cl is None:
+    if maybe_cls is None:
         return wrap
     else:
-        return wrap(maybe_cl)
+        return wrap(maybe_cls)
 
 
 def _attrs_to_tuple(obj, attrs):
@@ -242,12 +242,12 @@ def _attrs_to_tuple(obj, attrs):
     return tuple(getattr(obj, a.name) for a in attrs)
 
 
-def _add_hash(cl, attrs=None):
+def _add_hash(cls, attrs=None):
     """
-    Add a hash method to *cl*.
+    Add a hash method to *cls*.
     """
     if attrs is None:
-        attrs = [a for a in cl.__attrs_attrs__ if a.hash]
+        attrs = [a for a in cls.__attrs_attrs__ if a.hash]
 
     def hash_(self):
         """
@@ -255,16 +255,16 @@ def _add_hash(cl, attrs=None):
         """
         return hash(_attrs_to_tuple(self, attrs))
 
-    cl.__hash__ = hash_
-    return cl
+    cls.__hash__ = hash_
+    return cls
 
 
-def _add_cmp(cl, attrs=None):
+def _add_cmp(cls, attrs=None):
     """
-    Add comparison methods to *cl*.
+    Add comparison methods to *cls*.
     """
     if attrs is None:
-        attrs = [a for a in cl.__attrs_attrs__ if a.cmp]
+        attrs = [a for a in cls.__attrs_attrs__ if a.cmp]
 
     def attrs_to_tuple(obj):
         """
@@ -327,48 +327,48 @@ def _add_cmp(cl, attrs=None):
         else:
             return NotImplemented
 
-    cl.__eq__ = eq
-    cl.__ne__ = ne
-    cl.__lt__ = lt
-    cl.__le__ = le
-    cl.__gt__ = gt
-    cl.__ge__ = ge
+    cls.__eq__ = eq
+    cls.__ne__ = ne
+    cls.__lt__ = lt
+    cls.__le__ = le
+    cls.__gt__ = gt
+    cls.__ge__ = ge
 
-    return cl
+    return cls
 
 
-def _add_repr(cl, ns=None, attrs=None):
+def _add_repr(cls, ns=None, attrs=None):
     """
-    Add a repr method to *cl*.
+    Add a repr method to *cls*.
     """
     if attrs is None:
-        attrs = [a for a in cl.__attrs_attrs__ if a.repr]
+        attrs = [a for a in cls.__attrs_attrs__ if a.repr]
 
     def repr_(self):
         """
         Automatically created by attrs.
         """
-        real_cl = self.__class__
+        real_cls = self.__class__
         if ns is None:
-            qualname = getattr(real_cl, "__qualname__", None)
+            qualname = getattr(real_cls, "__qualname__", None)
             if qualname is not None:
                 class_name = qualname.rsplit(">.", 1)[-1]
             else:
-                class_name = real_cl.__name__
+                class_name = real_cls.__name__
         else:
-            class_name = ns + "." + real_cl.__name__
+            class_name = ns + "." + real_cls.__name__
 
         return "{0}({1})".format(
             class_name,
             ", ".join(a.name + "=" + repr(getattr(self, a.name))
                       for a in attrs)
         )
-    cl.__repr__ = repr_
-    return cl
+    cls.__repr__ = repr_
+    return cls
 
 
-def _add_init(cl):
-    attrs = [a for a in cl.__attrs_attrs__
+def _add_init(cls):
+    attrs = [a for a in cls.__attrs_attrs__
              if a.init or a.default is not NOTHING]
 
     # We cache the generated init methods for the same kinds of attributes.
@@ -396,28 +396,27 @@ def _add_init(cl):
         script.splitlines(True),
         unique_filename
     )
-    cl.__init__ = init
-    return cl
+    cls.__init__ = init
+    return cls
 
 
-def fields(cl):
+def fields(cls):
     """
     Returns the tuple of ``attrs`` attributes for a class.
 
-    :param cl: Class to introspect.
-    :type cl: class
+    :param type cls: Class to introspect.
 
-    :raise TypeError: If *cl* is not a class.
-    :raise ValueError: If *cl* is not an ``attrs`` class.
+    :raise TypeError: If *cls* is not a class.
+    :raise ValueError: If *cls* is not an ``attrs`` class.
 
     :rtype: tuple of :class:`attr.Attribute`
     """
-    if not isclass(cl):
+    if not isclass(cls):
         raise TypeError("Passed object must be a class.")
-    attrs = getattr(cl, "__attrs_attrs__", None)
+    attrs = getattr(cls, "__attrs_attrs__", None)
     if attrs is None:
-        raise ValueError("{cl!r} is not an attrs-decorated class.".format(
-            cl=cl
+        raise ValueError("{cls!r} is not an attrs-decorated class.".format(
+            cls=cls
         ))
     return attrs
 
@@ -548,12 +547,12 @@ class Attribute(object):
         raise AttributeError("can't set attribute")  # To mirror namedtuple.
 
     @classmethod
-    def from_counting_attr(cl, name, ca):
-        return cl(name=name,
-                  **dict((k, getattr(ca, k))
-                         for k
-                         in Attribute.__slots__
-                         if k != "name"))
+    def from_counting_attr(cls, name, ca):
+        return cls(name=name,
+                   **dict((k, getattr(ca, k))
+                          for k
+                          in Attribute.__slots__
+                          if k != "name"))
 
 
 _a = [Attribute(name=name, default=NOTHING, validator=None,
@@ -620,10 +619,10 @@ def make_class(name, attrs, **attributes_arguments):
     :rtype: type
     """
     if isinstance(attrs, dict):
-        cl_dict = attrs
+        cls_dict = attrs
     elif isinstance(attrs, (list, tuple)):
-        cl_dict = dict((a, attr()) for a in attrs)
+        cls_dict = dict((a, attr()) for a in attrs)
     else:
         raise TypeError("attrs argument must be a dict or a list.")
 
-    return attributes(**attributes_arguments)(type(name, (object,), cl_dict))
+    return attributes(**attributes_arguments)(type(name, (object,), cls_dict))

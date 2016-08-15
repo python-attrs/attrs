@@ -8,6 +8,14 @@ The third digit is only for regressions.
 16.1.0 (UNRELEASED)
 -------------------
 
+Backward-incompatible changes:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- All instances where function arguments were called ``cl`` have been changed to the more Pythonic ``cls``.
+  Since it was always the first argument, it's doubtful anyone ever called those function with in the keyword form.
+  If so, sorry for any breakage but there's no practical deprecation path to solve this ugly wart.
+
+
 Deprecations:
 ^^^^^^^^^^^^^
 

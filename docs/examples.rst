@@ -220,9 +220,9 @@ And sometimes you even want mutable objects as default values (ever used acciden
    ... class Connection(object):
    ...     socket = attr.ib()
    ...     @classmethod
-   ...     def connect(cl, db_string):
+   ...     def connect(cls, db_string):
    ...        # connect somehow to db_string
-   ...        return cl(socket=42)
+   ...        return cls(socket=42)
    >>> @attr.s
    ... class ConnectionPool(object):
    ...     db_string = attr.ib()

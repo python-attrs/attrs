@@ -11,8 +11,8 @@ So it is fairly simple to build your own decorators on top of ``attrs``:
 .. doctest::
 
    >>> import attr
-   >>> def print_attrs(cl):
-   ...     print(cl.__attrs_attrs__)
+   >>> def print_attrs(cls):
+   ...     print(cls.__attrs_attrs__)
    >>> @print_attrs
    ... @attr.s
    ... class C(object):

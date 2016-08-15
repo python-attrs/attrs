@@ -216,5 +216,5 @@ class TestAssoc(object):
         with pytest.raises(ValueError) as e:
             assoc(C(1), y=2)
         assert (
-            "y is not an attrs attribute on {cl!r}.".format(cl=C),
+            "y is not an attrs attribute on {cls!r}.".format(cls=C),
         ) == e.value.args
