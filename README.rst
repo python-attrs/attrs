@@ -40,20 +40,55 @@ attrs: Attributes without boilerplate.
    >>> C2("foo", "bar")
    C2(a='foo', b='bar')
 
-(If you don’t like the playful ``attr.s`` and ``attr.ib``, you can also use their no-nonsense aliases ``attr.attributes`` and ``attr.attr``).
+If you don’t like the playful ``attr.s`` and ``attr.ib`` (that aren't any obscure abbreviations; just a concise and highly readable way to write ``attrs`` and ``attrib`` with an explicit namespace), ``attrs`` comes with no-nonsense aliases: ``attr.attributes`` and ``attr.attr``.
+Sometimes it takes a few minutes to get used to the short forms, but in the long run, they're more readable and therefore grokkable when reading code.
 
-You just specify the attributes to work with and ``attrs`` gives you:
+After *declaring* your attributes ``attrs`` gives you:
 
+- a concise and explicit overview of the class's attributes,
 - a nice human-readable ``__repr__``,
 - a complete set of comparison methods,
 - an initializer,
 - and much more
 
-*without* writing dull boilerplate code again and again.
+*without* writing dull boilerplate code again and again and *without* runtime performance penalties.
 
 This gives you the power to use actual classes with actual types in your code instead of confusing ``tuple``\ s or confusingly behaving ``namedtuple``\ s.
+Which in turn encourages you to write *small classes* that do `one thing well <https://www.destroyallsoftware.com/talks/boundaries>`_.
+Never again violate the `single responsibility principle <https://en.wikipedia.org/wiki/Single_responsibility_principle>`_ just because implementing ``__init__`` et al is a painful drag.
 
-So put down those type-less data structures and welcome some class into your life!
+``attrs``\ 's main objective is to help you to write *concise* and *correct* software without slowing you down.
+
+
+What ``attrs`` Is Not
+=====================
+
+``attrs`` does *not* invent some kind of magic system that pulls classes out of its hat using meta classes, runtime introspection, and shaky interdependencies.
+
+All ``attrs`` does is taking your declaration, writing dunder methods based on that information, and attaching them to your class.
+It does *nothing* dynamic at runtime, hence zero runtime overhead.
+It's still *your* class.
+Do with it as you please.
+
+
+Testimonials
+============
+
+  I’m looking forward to is being able to program in Python-with-attrs everywhere.
+  It exerts a subtle, but positive, design influence in all the codebases I’ve see it used in.
+
+  -- Glyph Lefkowitz, inventor of Twisted and Software Developer at Rackspace in `The One Python Library Everyone Needs <https://glyph.twistedmatrix.com/2016/08/attrs.html>`_
+
+
+  I'm increasingly digging your attr.ocity. Good job!
+
+  -- Łukasz Langa, prolific CPython core developer and Production Engineer at Facebook
+
+.. -end-
+
+
+Project Information
+===================
 
 ``attrs``\ ’s documentation lives at `Read the Docs <https://attrs.readthedocs.io/>`_, and the code on `GitHub <https://github.com/hynek/attrs>`_.
 It’s rigorously tested on Python 2.7, 3.4+, and PyPy.

@@ -1,0 +1,40 @@
+.. _how:
+
+How Does It Work?
+=================
+
+``attrs`` certainly isn't the first library that aims to simplify class definition in Python.
+But its **declarative** approach combined with **no runtime overhead** lets it stand out.
+
+Once you apply the ``@attr.s`` decorator to a class, ``attrs`` searches the class object for instances of ``attr.ib``\ s.
+Internally they're a representation of the data passed into ``attr.ib`` along with a counter to preserve the order of the attributes.
+
+In order to ensure that sub-classing works as you'd expect it to work, ``attrs`` will also walk the class hierarchy and collect all attributes of all super-classes.
+Please note that ``attrs`` does *not* call ``super()`` *ever*.
+It will write dunder methods to work on *all* of those attributes which of course has performance benefits due to less function calls.
+
+Once ``attrs`` knows what attributes it has to work on, it writes the requested dunder methods and attaches them to your class.
+To be very clear: if you define a class with a single attribute  without a default value, the generated ``__init__`` will look *exactly* how you'd expect:
+
+.. doctest::
+
+   >>> import attr, inspect
+   >>> @attr.s
+   ... class C:
+   ...     x = attr.ib()
+   >>> print(inspect.getsource(C.__init__))
+   def __init__(self, x):
+       self.x = x
+   <BLANKLINE>
+
+No magic, no meta programming, no expensive introspection at runtime.
+
+****
+
+Everything until this point happens exactly *once* when the class is defined.
+As soon as a class is done, it's done.
+And it's just a regular Python class like any other, except for a single ``__attrs_attrs__`` attribute that can be used for introspection or for writing your own tools and decorators on top of ``attrs`` (like :func:`attr.asdict`.
+
+And once you start instantiating your classes, ``attrs`` is out of your way completely.
+
+This **static** approach was very much a design goal of ``attrs`` and what I strongly believe makes it distinct.

@@ -8,10 +8,10 @@ from ._make import Attribute, NOTHING, fields
 
 def asdict(inst, recurse=True, filter=None, dict_factory=dict):
     """
-    Return the ``attrs`` attribute values of *i* as a dict.  Optionally recurse
-    into other ``attrs``-decorated classes.
+    Return the ``attrs`` attribute values of *inst* as a dict. Optionally
+    recurse into other ``attrs``-decorated classes.
 
-    :param inst: Instance of a ``attrs``-decorated class.
+    :param inst: Instance of an ``attrs``-decorated class.
 
     :param bool recurse: Recurse into classes that are also
         ``attrs``-decorated.

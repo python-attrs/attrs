@@ -4,6 +4,9 @@ Why not…
 ========
 
 
+If you'd like third party's account why ``attrs`` is great, have a look at Glyph's `The One Python Library Everyone Needs <https://glyph.twistedmatrix.com/2016/08/attrs.html>`_!
+
+
 …tuples?
 --------
 
@@ -178,8 +181,8 @@ If you don't care and like typing, I'm not gonna stop you.
 But if you ever get sick of the repetitiveness, ``attrs`` will be waiting for you. :)
 
 
-…characteristic
----------------
+…characteristic?
+----------------
 
 `characteristic <https://characteristic.readthedocs.io/>`_ is a very similar and fairly popular project of mine.
 So why the self-fork?

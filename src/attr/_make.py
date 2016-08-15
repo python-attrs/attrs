@@ -44,16 +44,23 @@ def attr(default=NOTHING, validator=None,
     """
     Create a new attribute on a class.
 
-    .. warning::
+    ..  warning::
 
         Does *not* do anything unless the class is also decorated with
         :func:`attr.s`!
 
-    :param default: Value that is used if an ``attrs``-generated
-        ``__init__`` is used and no value is passed while instantiating or the
-        attribute is excluded using ``init=False``.  If the value an instance
-        of :class:`Factory`, it callable will be use to construct a new value
-        (useful for mutable datatypes like lists or dicts).
+    :param default: A value that is used if an ``attrs``-generated ``__init__``
+        is used and no value is passed while instantiating or the attribute is
+        excluded using ``init=False``.
+
+        If the value is an instance of :class:`Factory`, its callable will be
+        use to construct a new value (useful for mutable datatypes like lists
+        or dicts).
+
+        If a default is not set (or set manually to ``attr.NOTHING``), a value
+        *must* be supplied when instantiating; otherwise a :exc:`TypeError`
+        will be raised.
+
     :type default: Any value.
 
     :param callable validator: :func:`callable` that is called by
@@ -69,22 +76,18 @@ def attr(default=NOTHING, validator=None,
 
     :param bool repr: Include this attribute in the generated ``__repr__``
         method.
-
     :param bool cmp: Include this attribute in the generated comparison methods
         (``__eq__`` et al).
-
     :param bool hash: Include this attribute in the generated ``__hash__``
         method.
-
     :param bool init: Include this attribute in the generated ``__init__``
         method.  It is possible to set this to ``False`` and set a default
         value.  In that case this attributed is unconditionally initialized
         with the specified default value or factory.
-
     :param callable convert: :func:`callable` that is called by
         ``attrs``-generated ``__init__`` methods to convert attribute's value
         to the desired format.  It is given the passed-in value, and the
-        returned value will be used as the new value of the attribute. The
+        returned value will be used as the new value of the attribute.  The
         value is converted before being passed to the validator, if any.
     """
     return _CountingAttr(
