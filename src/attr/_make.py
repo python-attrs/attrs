@@ -54,7 +54,7 @@ def attr(default=NOTHING, validator=None,
         excluded using ``init=False``.
 
         If the value is an instance of :class:`Factory`, its callable will be
-        use to construct a new value (useful for mutable datatypes like lists
+        used to construct a new value (useful for mutable datatypes like lists
         or dicts).
 
         If a default is not set (or set manually to ``attr.NOTHING``), a value
