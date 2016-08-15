@@ -142,7 +142,7 @@ def _transform_attrs(cl, these):
             had_default = True
 
 
-def attributes(maybe_cl=None, these=None, repr_ns=None,
+def attributes(maybe_cl=None, these=None, repr_ns=None, dict_=True,
                repr=True, cmp=True, hash=True, init=True, slots=False):
     """
     A class decorator that adds `dunder
@@ -207,6 +207,8 @@ def attributes(maybe_cl=None, these=None, repr_ns=None,
             cl = _add_hash(cl)
         if init is True:
             cl = _add_init(cl)
+        if dict_ is True:
+            cl = _add_dict(cl)
         if slots:
             cl_dict = dict(cl.__dict__)
             cl_dict["__slots__"] = tuple(ca_list)
@@ -330,6 +332,54 @@ def _add_cmp(cl, attrs=None):
     cl.__le__ = le
     cl.__gt__ = gt
     cl.__ge__ = ge
+
+    return cl
+
+
+def _add_dict(cl):
+    """
+    Add dict methods to *cl*.
+    """
+
+    def contains(self, name):
+        return name in self.__dict__
+
+    def getitem(self, name):
+        """
+        Automatically created by attrs.
+        """
+        return getitem(self, name)
+
+    def setitem(self, name, value):
+        """
+        Automatically created by attrs.
+        """
+        setattr(self, name, value)
+
+    def delitem(self, name):
+        """
+        Automatically created by attrs.
+        """
+        delattr(self, name)
+
+    def iter_(self):
+        """
+        Automatically created by attrs.
+        """
+        return (i for i in self.__dict__.items())
+
+    def len_(self):
+        """
+        Automatically created by attrs.
+        """
+        return len(self.__dict__)
+
+    cl.__contains__ = contains
+    cl.__getitem__ = getitem
+    cl.__setitem__ = setitem
+    cl.__delitem__ = delitem
+    cl.__iter__ = iter_
+    cl.__len__ = len_
 
     return cl
 
