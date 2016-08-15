@@ -105,7 +105,7 @@ Core
 Helpers
 -------
 
-``attrs`` comes with a bunch of helper methods that make the work with it easier:
+``attrs`` comes with a bunch of helper methods that make working with it easier:
 
 .. autofunction:: attr.fields
 
@@ -150,7 +150,7 @@ Helpers
       {'y': {'y': 3, 'x': 2}, 'x': 1}
 
 
-``attrs`` comes with some handy helpers for filtering:
+``attrs`` includes some handy helpers for filtering:
 
 .. autofunction:: attr.filters.include
 
@@ -206,7 +206,7 @@ Validators can be globally disabled if you want to run them only in development 
 Validators
 ----------
 
-``attrs`` comes with some common validators within the ``attrs.validators`` module:
+``attrs`` comes with some common validators in the ``attrs.validators`` module:
 
 
 .. autofunction:: attr.validators.instance_of

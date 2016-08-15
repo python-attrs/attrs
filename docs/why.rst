@@ -54,7 +54,7 @@ Adding an attribute to a class concerns only those who actually care about that 
 …namedtuples?
 -------------
 
-The difference between :func:`collections.namedtuple`\ s and classes decorated by ``attrs`` is that the latter are type-sensitive and less typing aside regular classes:
+The difference between :func:`collections.namedtuple`\ s and classes decorated by ``attrs`` is that the latter are type-sensitive and require less typing as compared with regular classes:
 
 
 .. doctest::
@@ -78,7 +78,7 @@ The difference between :func:`collections.namedtuple`\ s and classes decorated b
    1
 
 
-…while namedtuple’s purpose is *explicitly* to behave like tuples:
+…while a namedtuple is *explicitly* intended to behave like a tuple:
 
 
 .. doctest::
@@ -94,7 +94,7 @@ The difference between :func:`collections.namedtuple`\ s and classes decorated b
 
 This can easily lead to surprising and unintended behaviors.
 
-Other than that, ``attrs`` also adds nifty features like validators or default values.
+Other than that, ``attrs`` also adds nifty features like validators and default values.
 
 .. _tuple: https://docs.python.org/2/tutorial/datastructures.html#tuples-and-sequences
 

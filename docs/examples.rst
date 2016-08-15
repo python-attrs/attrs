@@ -22,7 +22,7 @@ The simplest possible usage would be:
    >>> Empty() is Empty()
    False
 
-So in other words: ``attrs`` useful even without actual attributes!
+So in other words -- ``attrs``: useful even without actual attributes!
 
 But you'll usually want some data on your classes, so let's add some:
 
@@ -33,7 +33,7 @@ But you'll usually want some data on your classes, so let's add some:
    ...     x = attr.ib()
    ...     y = attr.ib()
 
-These by default, all features are added, so you have immediately a fully functional data class with a nice ``repr`` string and comparison methods.
+By default, all features are added, so you immediately have a fully functional data class with a nice ``repr`` string and comparison methods.
 
 .. doctest::
 
@@ -46,7 +46,7 @@ These by default, all features are added, so you have immediately a fully functi
    >>> c1 == c2
    False
 
-As shown, the generated ``__init__`` method allows both for positional and keyword arguments.
+As shown, the generated ``__init__`` method allows for both positional and keyword arguments.
 
 If playful naming turns you off, ``attrs`` comes with no-nonsense aliases:
 
@@ -156,7 +156,7 @@ Therefore ``@attr.s`` comes with the ``repr_ns`` option to set it manually:
    C.D()
 
 ``repr_ns`` works on both Python 2 and 3.
-On Python 3 is overrides the implicit detection.
+On Python 3 it overrides the implicit detection.
 
 
 Converting to Dictionaries
@@ -256,7 +256,7 @@ More information on why class methods for constructing objects are awesome can b
 Validators
 ----------
 
-Although your initializers should be as dumb as possible, it can come handy to do some kind of validation on the arguments.
+Although your initializers should be as dumb as possible, it can come in handy to do some kind of validation on the arguments.
 That's when :func:`attr.ib`\ ’s ``validator`` argument comes into play.
 A validator is simply a callable that takes three arguments:
 
@@ -283,7 +283,7 @@ Since the validator runs *after* the instance is initialized, you can refer to o
       ...
    ValueError: 'x' has to be smaller than 'y'!
 
-``attrs`` won't intercept your changes to those attributes but you can always call :func:`attr.validate` on any instance to verify, that it's still valid:
+``attrs`` won't intercept your changes to those attributes but you can always call :func:`attr.validate` on any instance to verify that it's still valid:
 
 .. doctest::
 
