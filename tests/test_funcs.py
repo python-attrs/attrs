@@ -10,7 +10,7 @@ import pytest
 
 from hypothesis import given, strategies as st
 
-from . import simple_classes, nested_classes
+from .utils import simple_classes, nested_classes
 
 from attr._funcs import (
     asdict,

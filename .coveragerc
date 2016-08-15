@@ -1,6 +1,7 @@
 [run]
 branch = True
-source = attr
+source =
+    attr
 
 [paths]
 source =

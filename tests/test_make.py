@@ -5,10 +5,10 @@ Tests for `attr._make`.
 from __future__ import absolute_import, division, print_function
 
 import pytest
+
 from hypothesis import given
 from hypothesis.strategies import booleans, sampled_from
 
-from . import simple_attr, simple_attrs
 from attr import _config
 from attr._compat import PY3
 from attr._make import (
@@ -22,6 +22,8 @@ from attr._make import (
     make_class,
     validate,
 )
+
+from .utils import simple_attr, simple_attrs
 
 attrs = simple_attrs.map(lambda c: Attribute.from_counting_attr('name', c))
 

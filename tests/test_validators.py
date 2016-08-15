@@ -9,7 +9,8 @@ import zope.interface
 
 from attr.validators import instance_of, provides, optional
 from attr._compat import TYPE
-from . import simple_attr
+
+from .utils import simple_attr
 
 
 class TestInstanceOf(object):

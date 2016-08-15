@@ -10,7 +10,7 @@ import pytest
 from hypothesis import given
 from hypothesis.strategies import booleans
 
-from . import simple_attr, simple_class
+from .utils import simple_attr, simple_class
 from attr._make import (
     Factory,
     NOTHING,
