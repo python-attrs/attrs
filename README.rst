@@ -1,6 +1,6 @@
-======================================
-attrs: Attributes without boilerplate.
-======================================
+=====================================
+attrs: Attributes Without Boilerplate
+=====================================
 
 .. image:: https://readthedocs.org/projects/attrs/badge/?version=stable
    :target: http://attrs.readthedocs.io/en/stable/?badge=stable
@@ -16,7 +16,7 @@ attrs: Attributes without boilerplate.
 
 .. teaser-begin
 
-``attrs`` is the Python package that will bring back the joy to writing classes by relieving you of the drudgery of implementing object protocols (aka `dunder <http://nedbatchelder.com/blog/200605/dunder.html>`_ methods).
+``attrs`` is the Python package that will bring back the **joy** to **writing classes** by relieving you of the drudgery of implementing object protocols (aka `dunder <http://nedbatchelder.com/blog/200605/dunder.html>`_ methods).
 
 Its main objective is to help you to write **concise** and **correct** software without slowing you – or your software – down.
 
