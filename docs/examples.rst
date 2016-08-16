@@ -448,7 +448,7 @@ Other Goodies
 -------------
 
 Do you like Rich Hickey?
-I'm glad to report that Clojure's core feature is part of ``attrs``: `assoc <https://clojuredocs.org/clojure.core/assoc>`_!
+I'm glad to report that Clojure's `core feature <https://clojuredocs.org/clojure.core/assoc>`_ is part of ``attrs``: :func:`attr.assoc`!
 I guess that means Clojure can be shut down now, sorry Rich!
 
 .. doctest::
@@ -467,7 +467,7 @@ I guess that means Clojure can be shut down now, sorry Rich!
    False
 
 Sometimes you may want to create a class programmatically.
-``attrs`` won't let you down:
+``attrs`` won't let you down and gives you :func:`attr.make_class` :
 
 .. doctest::
 
