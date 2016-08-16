@@ -10,7 +10,7 @@ from hypothesis import given
 from hypothesis.strategies import booleans, sampled_from
 
 from attr import _config
-from attr._compat import PY3
+from attr._compat import PY2
 from attr._make import (
     Attribute,
     NOTHING,
@@ -157,7 +157,7 @@ class TestAttributes(object):
     """
     Tests for the `attributes` class decorator.
     """
-    @pytest.mark.skipif(PY3, reason="No old-style classes in Py3")
+    @pytest.mark.skipif(not PY2, reason="No old-style classes in Py3")
     def test_catches_old_style(self):
         """
         Raises TypeError on old-style classes.
@@ -259,7 +259,7 @@ class TestAttributes(object):
 
         assert sentinel == getattr(C, method_name)
 
-    @pytest.mark.skipif(not PY3, reason="__qualname__ is PY3-only.")
+    @pytest.mark.skipif(PY2, reason="__qualname__ is PY3-only.")
     @given(slots_outer=booleans(), slots_inner=booleans())
     def test_repr_qualname(self, slots_outer, slots_inner):
         """

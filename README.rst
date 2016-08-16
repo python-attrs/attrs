@@ -10,10 +10,6 @@ attrs: Attributes Without Boilerplate
    :target: https://travis-ci.org/hynek/attrs
    :alt: CI status
 
-.. image:: https://codecov.io/github/hynek/attrs/coverage.svg?branch=master
-   :target: https://codecov.io/github/hynek/attrs?branch=master
-   :alt: Coverage
-
 .. teaser-begin
 
 ``attrs`` is the Python package that will bring back the **joy** to **writing classes** by relieving you of the drudgery of implementing object protocols (aka `dunder <http://nedbatchelder.com/blog/200605/dunder.html>`_ methods).
