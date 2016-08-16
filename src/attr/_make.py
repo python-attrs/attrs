@@ -191,7 +191,8 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
         someone attempts to modify a frozen instance,
         :exc:`attr.exceptions.FrozenInstanceError` is raised.  Please note that
         this is achieved by installing a custom ``__setattr__`` method on your
-        class so you can't implement an own one.
+        class so you can't implement an own one.  Please note also that true
+        immutability is impossible in Python.
 
         ..  _slots: https://docs.python.org/3.5/reference/datamodel.html#slots
 
