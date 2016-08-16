@@ -22,7 +22,7 @@ Core
 
    .. note::
 
-      ``attrs`` also comes with a less playful alias ``attr.attributes``.
+      ``attrs`` also comes with a serious business alias ``attr.attrs``.
 
    For example:
 
@@ -48,7 +48,7 @@ Core
 
    .. note::
 
-      ``attrs`` also comes with a less playful alias ``attr.attr``.
+      ``attrs`` also comes with a serious business alias ``attr.attrib``.
 
 
 .. autoclass:: attr.Attribute
@@ -250,3 +250,10 @@ Validators
       TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>), <type 'int'>, '42')
       >>> C(None)
       C(x=None)
+
+
+Deprecated APIs
+---------------
+
+The serious business aliases used to be called ``attr.attributes`` and ``attr.attr``.
+There are no plans to remove them but they shouldn't be used in new code.

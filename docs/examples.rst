@@ -52,10 +52,11 @@ If playful naming turns you off, ``attrs`` comes with no-nonsense aliases:
 
 .. doctest::
 
-   >>> @attr.attributes
+   >>> from attr import attrs, attrib
+   >>> @attrs
    ... class SeriousCoordinates(object):
-   ...     x = attr.attr()
-   ...     y = attr.attr()
+   ...     x = attrib()
+   ...     y = attrib()
    >>> SeriousCoordinates(1, 2)
    SeriousCoordinates(x=1, y=2)
    >>> attr.fields(Coordinates) == attr.fields(SeriousCoordinates)

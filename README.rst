@@ -18,7 +18,7 @@ attrs: Attributes Without Boilerplate
 
 ``attrs`` is the Python package that will bring back the **joy** to **writing classes** by relieving you of the drudgery of implementing object protocols (aka `dunder <http://nedbatchelder.com/blog/200605/dunder.html>`_ methods).
 
-Its main objective is to help you to write **concise** and **correct** software without slowing you – or your software – down.
+Its main goal is to help you to write **concise** and **correct** software without slowing your code down.
 
 .. -spiel-end-
 
@@ -48,8 +48,6 @@ For that, it gives you a class decorator and a way to declaratively define the a
    >>> C2("foo", "bar")
    C2(a='foo', b='bar')
 
-If you don’t like the playful ``attr.s`` and ``attr.ib`` names (that aren't any obscure abbreviations; just a concise and highly readable way to write ``attrs`` and ``attrib`` with an explicit namespace), ``attrs`` comes with no-nonsense aliases: ``attr.attributes`` and ``attr.attr``.
-Sometimes it takes a few minutes to get used to the short forms, but in the long run, they're more readable and therefore grokkable when reading code.
 
 After *declaring* your attributes ``attrs`` gives you:
 
@@ -65,16 +63,6 @@ This gives you the power to use actual classes with actual types in your code in
 Which in turn encourages you to write *small classes* that do `one thing well <https://www.destroyallsoftware.com/talks/boundaries>`_.
 Never again violate the `single responsibility principle <https://en.wikipedia.org/wiki/Single_responsibility_principle>`_ just because implementing ``__init__`` et al is a painful drag.
 
-
-What ``attrs`` Is Not
-=====================
-
-``attrs`` does *not* invent some kind of magic system that pulls classes out of its hat using meta classes, runtime introspection, and shaky interdependencies.
-
-All ``attrs`` does is taking your declaration, writing dunder methods based on that information, and attaching them to your class.
-It does *nothing* dynamic at runtime, hence zero runtime overhead.
-It's still *your* class.
-Do with it as you please.
 
 .. -testimonials-
 
