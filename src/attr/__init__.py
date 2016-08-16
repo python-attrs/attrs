@@ -19,6 +19,7 @@ from ._config import (
     get_run_validators,
     set_run_validators,
 )
+from . import exceptions
 from . import filters
 from . import validators
 
@@ -49,6 +50,7 @@ __all__ = [
     "attrib",
     "attributes",
     "attrs",
+    "exceptions",
     "fields",
     "filters",
     "get_run_validators",
