@@ -466,6 +466,21 @@ I guess that means Clojure can be shut down now, sorry Rich!
    >>> i1 == i2
    False
 
+If you're still not convinced, that Python + ``attrs`` is the better Clojure, maybe immutable classes can change your mind:
+
+.. doctest::
+
+   >>> @attr.s(frozen=True)
+   ... class C(object):
+   ...     x = attr.ib()
+   >>> i = C(1)
+   >>> i.x = 2
+   Traceback (most recent call last):
+      ...
+   attr.exceptions.FrozenInstanceError: can't set attribute
+   >>> i.x
+   1
+
 Sometimes you may want to create a class programmatically.
 ``attrs`` won't let you down and gives you :func:`attr.make_class` :
 
