@@ -22,7 +22,7 @@ The simplest possible usage would be:
    >>> Empty() is Empty()
    False
 
-So in other words -- ``attrs``: useful even without actual attributes!
+So in other words: ``attrs`` is useful even without actual attributes!
 
 But you'll usually want some data on your classes, so let's add some:
 
@@ -222,7 +222,7 @@ And sometimes you even want mutable objects as default values (ever used acciden
    ...     socket = attr.ib()
    ...     @classmethod
    ...     def connect(cls, db_string):
-   ...        # connect somehow to db_string
+   ...        # ... connect somehow to db_string ...
    ...        return cls(socket=42)
    >>> @attr.s
    ... class ConnectionPool(object):
@@ -261,9 +261,9 @@ Although your initializers should be as dumb as possible, it can come in handy t
 That's when :func:`attr.ib`\ ’s ``validator`` argument comes into play.
 A validator is simply a callable that takes three arguments:
 
-#. The *instance* that's being validated.
-#. The *attribute* that it's validating
-#. and finally the *value* that is passed for it.
+#. the *instance* that's being validated,
+#. the *attribute* that it's validating, and finally
+#. the *value* that is passed for it.
 
 If the value does not pass the validator's standards, it just raises an appropriate exception.
 Since the validator runs *after* the instance is initialized, you can refer to other attributes while validating :
@@ -384,7 +384,7 @@ Slots
 -----
 
 By default, instances of classes have a dictionary for attribute storage.
-This wastes space for objects having very few instance variables.
+This wastes space for objects having very few data attributes.
 The space consumption can become significant when creating large numbers of instances.
 
 Normal Python classes can avoid using a separate dictionary for each instance of a class by `defining <https://docs.python.org/3.5/reference/datamodel.html#slots>`_ ``__slots__``.
