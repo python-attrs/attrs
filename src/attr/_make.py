@@ -397,10 +397,17 @@ def _add_init(cls, frozen):
     locs = {}
     bytecode = compile(script, unique_filename, "exec")
     attr_dict = dict((a.name, a) for a in attrs)
-    exec_(bytecode, {"NOTHING": NOTHING,
-                     "attr_dict": attr_dict,
-                     "validate": validate,
-                     "_convert": _convert}, locs)
+    globs = {
+        "NOTHING": NOTHING,
+        "attr_dict": attr_dict,
+        "validate": validate,
+        "_convert": _convert
+    }
+    if frozen is True:
+        # Save the lookup overhead in __init__ if we need to circumvent
+        # immutability.
+        globs["_setattr"] = object.__setattr__
+    exec_(bytecode, globs, locs)
     init = locs["__init__"]
 
     # In order of debuggers like PDB being able to step through the code,
@@ -470,11 +477,11 @@ def _attrs_to_script(attrs, frozen):
     Return a valid Python script of an initializer for *attrs*.
 
     If *frozen* is True, we cannot set the attributes directly so we use
-    ``object.__setattr__``.
+    a cached ``object.__setattr__``.
     """
     if frozen is True:
         def fmt_setter(attr_name, value):
-            return "object.__setattr__(self, '%(attr_name)s', %(value)s)" % {
+            return "_setattr(self, '%(attr_name)s', %(value)s)" % {
                 "attr_name": attr_name,
                 "value": value,
             }
