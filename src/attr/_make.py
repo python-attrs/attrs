@@ -150,7 +150,7 @@ def _frozen_setattrs(self, name, value):
     """
     Attached to frozen classes as __setattr__.
     """
-    raise FrozenInstanceError("can't set attribute")
+    raise FrozenInstanceError()
 
 
 def attributes(maybe_cls=None, these=None, repr_ns=None,
@@ -573,7 +573,7 @@ class Attribute(object):
                     raise TypeError("Missing argument '{arg}'.".format(arg=a))
 
     def __setattr__(self, name, value):
-        raise AttributeError("can't set attribute")  # To mirror namedtuple.
+        raise FrozenInstanceError()
 
     @classmethod
     def from_counting_attr(cls, name, ca):
