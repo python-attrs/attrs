@@ -10,11 +10,15 @@ attrs: Attributes Without Boilerplate
    :target: https://travis-ci.org/hynek/attrs
    :alt: CI status
 
+.. image:: https://codecov.io/github/hynek/attrs/branch/master/graph/badge.svg
+  :target: https://codecov.io/github/hynek/attrs
+  :alt: Test Coverage
+
 .. teaser-begin
 
-``attrs`` is the Python package that will bring back the **joy** to **writing classes** by relieving you of the drudgery of implementing object protocols (aka `dunder <http://nedbatchelder.com/blog/200605/dunder.html>`_ methods).
+``attrs`` is the Python package that will bring back the **joy** of **writing classes** by relieving you from the drudgery of implementing object protocols (aka `dunder <http://nedbatchelder.com/blog/200605/dunder.html>`_ methods).
 
-Its main goal is to help you to write **concise** and **correct** software without slowing your code down.
+Its main goal is to help you to write **concise** and **correct** software without slowing down your code.
 
 .. -spiel-end-
 
@@ -51,7 +55,7 @@ After *declaring* your attributes ``attrs`` gives you:
 - a nice human-readable ``__repr__``,
 - a complete set of comparison methods,
 - an initializer,
-- and much more
+- and much more,
 
 *without* writing dull boilerplate code again and again and *without* runtime performance penalties.
 
@@ -77,9 +81,10 @@ Testimonials
 
 .. -end-
 
+.. -project-information-
 
 Project Information
 ===================
 
-``attrs`` is licensed under the `MIT <http://choosealicense.com/licenses/mit/>`_ license, its documentation lives at `Read the Docs <https://attrs.readthedocs.io/>`_, and the code on `GitHub <https://github.com/hynek/attrs>`_.
+``attrs`` is released under the `MIT <http://choosealicense.com/licenses/mit/>`_ license, its documentation lives at `Read the Docs <https://attrs.readthedocs.io/>`_, and the code on `GitHub <https://github.com/hynek/attrs>`_.
 It’s rigorously tested on Python 2.7, 3.4+, and PyPy.
