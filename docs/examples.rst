@@ -466,7 +466,7 @@ I guess that means Clojure can be shut down now, sorry Rich!
    >>> i1 == i2
    False
 
-If you're still not convinced, that Python + ``attrs`` is the better Clojure, maybe immutable classes can change your mind:
+If you're still not convinced that Python + ``attrs`` is the better Clojure, maybe immutable-ish classes can change your mind:
 
 .. doctest::
 
