@@ -188,10 +188,18 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
         memory-efficient.  See :ref:`slots` for further ramifications.
     :param bool frozen: Make instances immutable after initialization.  If
         someone attempts to modify a frozen instance,
-        :exc:`attr.exceptions.FrozenInstanceError` is raised.  Please note that
-        this is achieved by installing a custom ``__setattr__`` method on your
-        class so you can't implement an own one.  Please note also that true
-        immutability is impossible in Python.
+        :exc:`attr.exceptions.FrozenInstanceError` is raised.
+
+        Please note:
+
+            1. This is achieved by installing a custom ``__setattr__`` method
+               on your class so you can't implement an own one.
+
+            2. True immutability is impossible in Python.
+
+            3. This *does* have a minor a runtime performance impact when
+               initializing new instances.  In other words: ``__init__`` is
+               slightly slower with ``frozen=True``.
 
         ..  _slots: https://docs.python.org/3.5/reference/datamodel.html#slots
 

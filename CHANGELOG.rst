@@ -39,6 +39,8 @@ Changes:
   `#48 <https://github.com/hynek/attrs/issues/48>`_
   `#51 <https://github.com/hynek/attrs/issues/51>`_
 - Add ``attr.attrs`` and ``attr.attrib`` as a more consistent aliases for ``attr.s`` and ``attr.ib``.
+- Add ``frozen`` option to ``attr.s`` that will make instances best-effort immutable.
+  `#60 <https://github.com/hynek/attrs/issues/60>`_
 
 
 ----
