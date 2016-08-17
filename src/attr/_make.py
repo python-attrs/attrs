@@ -159,7 +159,7 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
         :class:`properties <property>`).
 
         If *these* is not `None`, the class body is *ignored*.
-    :type these: class:`dict` of :class:`str` to :func:`attr.ib`
+    :type these: :class:`dict` of :class:`str` to :func:`attr.ib`
 
     :param repr_ns: When using nested classes, there's no way in Python 2 to
         automatically detect that.  Therefore it's possible to set the
