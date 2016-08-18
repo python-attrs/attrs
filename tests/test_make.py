@@ -465,8 +465,13 @@ class TestValidate(object):
             raise Exception(obj)
 
         C = make_class("C", {"x": attr(validator=raiser)})
-        assert 1 == C(1).x
+        c = C(1)
+        validate(c)
+        assert 1 == c.x
         _config._run_validators = True
+
+        with pytest.raises(Exception):
+            validate(c)
 
         with pytest.raises(Exception) as e:
             C(1)
