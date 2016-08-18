@@ -86,5 +86,8 @@ Testimonials
 Project Information
 ===================
 
-``attrs`` is released under the `MIT <http://choosealicense.com/licenses/mit/>`_ license, its documentation lives at `Read the Docs <https://attrs.readthedocs.io/>`_, and the code on `GitHub <https://github.com/hynek/attrs>`_.
+``attrs`` is released under the `MIT <http://choosealicense.com/licenses/mit/>`_ license,
+its documentation lives at `Read the Docs <https://attrs.readthedocs.io/>`_,
+the code on `GitHub <https://github.com/hynek/attrs>`_,
+and the latest release on `PyPI <https://pypi.org/project/attrs/>`_.
 It’s rigorously tested on Python 2.7, 3.4+, and PyPy.
