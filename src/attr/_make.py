@@ -414,7 +414,7 @@ def _add_init(cls, frozen):
     if frozen is True:
         # Save the lookup overhead in __init__ if we need to circumvent
         # immutability.
-        globs["_setattr"] = object.__setattr__
+        globs["_cached_setattr"] = object.__setattr__
     exec_(bytecode, globs, locs)
     init = locs["__init__"]
 
@@ -487,9 +487,14 @@ def _attrs_to_script(attrs, frozen):
     If *frozen* is True, we cannot set the attributes directly so we use
     a cached ``object.__setattr__``.
     """
+    lines = []
     if frozen is True:
+        lines.append(
+            "_setattr = _cached_setattr.__get__(self, self.__class__)"
+        )
+
         def fmt_setter(attr_name, value):
-            return "_setattr(self, '%(attr_name)s', %(value)s)" % {
+            return "_setattr('%(attr_name)s', %(value)s)" % {
                 "attr_name": attr_name,
                 "value": value,
             }
@@ -500,7 +505,6 @@ def _attrs_to_script(attrs, frozen):
                 "value": value,
             }
 
-    lines = []
     args = []
     has_validator = False
     has_convert = False
