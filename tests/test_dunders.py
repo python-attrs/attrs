@@ -35,7 +35,7 @@ HashCSlots = simple_class(hash=True, slots=True)
 class InitC(object):
     __attrs_attrs__ = [simple_attr("a"), simple_attr("b")]
 
-InitC = _add_init(InitC)
+InitC = _add_init(InitC, False)
 
 
 class TestAddCmp(object):
@@ -219,12 +219,13 @@ class TestAddInit(object):
     """
     Tests for `_add_init`.
     """
-    @given(booleans())
-    def test_init(self, slots):
+    @given(booleans(), booleans())
+    def test_init(self, slots, frozen):
         """
         If `init` is False, ignore that attribute.
         """
-        C = make_class("C", {"a": attr(init=False), "b": attr()}, slots=slots)
+        C = make_class("C", {"a": attr(init=False), "b": attr()},
+                       slots=slots, frozen=frozen)
         with pytest.raises(TypeError) as e:
             C(a=1, b=2)
 
@@ -233,8 +234,8 @@ class TestAddInit(object):
             e.value.args[0]
         )
 
-    @given(booleans())
-    def test_no_init_default(self, slots):
+    @given(booleans(), booleans())
+    def test_no_init_default(self, slots, frozen):
         """
         If `init` is False but a Factory is specified, don't allow passing that
         argument but initialize it anyway.
@@ -243,7 +244,7 @@ class TestAddInit(object):
             "_a": attr(init=False, default=42),
             "_b": attr(init=False, default=Factory(list)),
             "c": attr()
-        }, slots=slots)
+        }, slots=slots, frozen=frozen)
         with pytest.raises(TypeError):
             C(a=1, c=2)
         with pytest.raises(TypeError):
@@ -252,8 +253,8 @@ class TestAddInit(object):
         i = C(23)
         assert (42, [], 23) == (i._a, i._b, i.c)
 
-    @given(booleans())
-    def test_no_init_order(self, slots):
+    @given(booleans(), booleans())
+    def test_no_init_order(self, slots, frozen):
         """
         If an attribute is `init=False`, it's legal to come after a mandatory
         attribute.
@@ -261,7 +262,7 @@ class TestAddInit(object):
         make_class("C", {
             "a": attr(default=Factory(list)),
             "b": attr(init=False),
-        }, slots=slots)
+        }, slots=slots, frozen=frozen)
 
     def test_sets_attributes(self):
         """
@@ -282,7 +283,7 @@ class TestAddInit(object):
                 simple_attr(name="c", default=None),
             ]
 
-        C = _add_init(C)
+        C = _add_init(C, False)
         i = C()
         assert 2 == i.a
         assert "hallo" == i.b
@@ -300,7 +301,7 @@ class TestAddInit(object):
                 simple_attr(name="a", default=Factory(list)),
                 simple_attr(name="b", default=Factory(D)),
             ]
-        C = _add_init(C)
+        C = _add_init(C, False)
         i = C()
         assert [] == i.a
         assert isinstance(i.b, D)
@@ -363,7 +364,7 @@ class TestAddInit(object):
         class C(object):
             __attrs_attrs__ = [simple_attr("_private")]
 
-        C = _add_init(C)
+        C = _add_init(C, False)
         i = C(private=42)
         assert 42 == i._private
 
