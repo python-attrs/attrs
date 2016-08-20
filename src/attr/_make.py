@@ -401,7 +401,6 @@ def _add_init(cls, frozen):
         sha1.hexdigest()
     )
 
-<<<<<<< cfa6d2e99f3e14b90bf13f5969d6eb92b47d1399
     script, globs = _attrs_to_script(attrs, frozen)
     locs = {}
     bytecode = compile(script, unique_filename, "exec")
