@@ -304,7 +304,9 @@ class TestAttribute(object):
         """
         with pytest.raises(TypeError) as e:
             Attribute(default=NOTHING, validator=None)
-        assert ("Missing argument 'name'.",) == e.value.args
+        expected = "__init__() missing 5 required positional arguments: "\
+                   "'name', 'repr', 'cmp', 'hash', and 'init'"
+        assert (expected,) == e.value.args
 
     def test_too_many_arguments(self):
         """
@@ -314,7 +316,8 @@ class TestAttribute(object):
             Attribute(name="foo", default=NOTHING,
                       factory=NOTHING, validator=None,
                       repr=True, cmp=True, hash=True, init=True, convert=None)
-        assert ("Too many arguments.",) == e.value.args
+        expected = "__init__() got an unexpected keyword argument 'factory'"
+        assert (expected,) == e.value.args
 
 
 class TestMakeClass(object):
