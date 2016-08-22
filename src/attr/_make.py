@@ -490,6 +490,8 @@ def _attrs_to_script(attrs, frozen):
     lines = []
     if frozen is True:
         lines.append(
+            # Circumvent the __setattr__ descriptor to save one lookup per
+            # assignment.
             "_setattr = _cached_setattr.__get__(self, self.__class__)"
         )
 
