@@ -401,16 +401,16 @@ def _add_init(cls, frozen):
         sha1.hexdigest()
     )
 
-    script = _attrs_to_script(attrs, frozen)
+    script, globs = _attrs_to_script(attrs, frozen)
     locs = {}
     bytecode = compile(script, unique_filename, "exec")
     attr_dict = dict((a.name, a) for a in attrs)
-    globs = {
+    globs.update({
         "NOTHING": NOTHING,
         "attr_dict": attr_dict,
         "validate": validate,
         "_convert": _convert
-    }
+    })
     if frozen is True:
         # Save the lookup overhead in __init__ if we need to circumvent
         # immutability.
@@ -482,9 +482,11 @@ def _convert(inst):
 
 def _attrs_to_script(attrs, frozen):
     """
-    Return a valid Python script of an initializer for *attrs*.
+    Return a script of an initializer for *attrs* and a dict of globals.
 
-    If *frozen* is True, we cannot set the attributes directly so we use
+    The globals are expected by the generated script.
+
+     If *frozen* is True, we cannot set the attributes directly so we use
     a cached ``object.__setattr__``.
     """
     lines = []
@@ -508,11 +510,16 @@ def _attrs_to_script(attrs, frozen):
             }
 
     args = []
-    has_validator = False
     has_convert = False
+    attrs_to_validate = []
+
+    # This is a dictionary of names to validator callables. Injecting
+    # this into __init__ globals lets us avoid lookups.
+    validators_for_globals = {}
+
     for a in attrs:
         if a.validator is not None:
-            has_validator = True
+            attrs_to_validate.append(a)
         if a.convert is not None:
             has_convert = True
         attr_name = a.name
@@ -555,8 +562,17 @@ def _attrs_to_script(attrs, frozen):
 
     if has_convert:
         lines.append("_convert(self)")
-    if has_validator:
-        lines.append("validate(self)")
+    if attrs_to_validate:  # we can skip this if there are no validators.
+        validators_for_globals["_config"] = _config
+        lines.append("if _config._run_validators is False:")
+        lines.append("    return")
+    for a in attrs_to_validate:
+        val_name = "__attr_validator_{}".format(a.name)
+        attr_name = "__attr_{}".format(a.name)
+        lines.append("{}(self, {}, self.{})".format(val_name, attr_name,
+                                                    a.name))
+        validators_for_globals[val_name] = a.validator
+        validators_for_globals[attr_name] = a
 
     return """\
 def __init__(self, {args}):
@@ -564,7 +580,7 @@ def __init__(self, {args}):
 """.format(
         args=", ".join(args),
         lines="\n    ".join(lines) if lines else "pass",
-    )
+    ), validators_for_globals
 
 
 class Attribute(object):

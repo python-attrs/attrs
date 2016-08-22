@@ -120,7 +120,9 @@ dict_attrs = (st.dictionaries(keys=st.text(), values=st.integers())
 simple_attrs = st.one_of(bare_attrs, int_attrs, str_attrs, float_attrs,
                          dict_attrs)
 
-simple_classes = st.lists(simple_attrs).map(_create_hyp_class)
+# Python functions support up to 255 arguments.
+simple_classes = (st.lists(simple_attrs, average_size=9, max_size=50)
+                  .map(_create_hyp_class))
 
 # Ok, so st.recursive works by taking a base strategy (in this case,
 # simple_classes) and a special function. This function receives a strategy,
