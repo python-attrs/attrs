@@ -6,7 +6,8 @@ from ._compat import iteritems
 from ._make import Attribute, NOTHING, fields
 
 
-def asdict(inst, recurse=True, filter=None, dict_factory=dict):
+def asdict(inst, recurse=True, filter=None, dict_factory=dict,
+           retain_collection_types=False):
     """
     Return the ``attrs`` attribute values of *inst* as a dict. Optionally
     recurse into other ``attrs``-decorated classes.
@@ -25,6 +26,11 @@ def asdict(inst, recurse=True, filter=None, dict_factory=dict):
         example, to produce ordered dictionaries instead of normal Python
         dictionaries, pass in ``collections.OrderedDict``.
 
+    :param bool retain_collection_types: Do not convert to ``list`` when
+        encountering an attribute which is type ``tuple`` or ``set``.
+        ``recurse`` must also be ``True``.
+
+
     :rtype: :class:`dict`
 
     .. versionadded:: 16.0.0
@@ -41,12 +47,13 @@ def asdict(inst, recurse=True, filter=None, dict_factory=dict):
                 rv[a.name] = asdict(v, recurse=True, filter=filter,
                                     dict_factory=dict_factory)
             elif isinstance(v, (tuple, list, set)):
-                rv[a.name] = [
+                cf = v.__class__ if retain_collection_types is True else list
+                rv[a.name] = cf([
                     asdict(i, recurse=True, filter=filter,
                            dict_factory=dict_factory)
                     if has(i.__class__) else i
                     for i in v
-                ]
+                ])
             elif isinstance(v, dict):
                 df = dict_factory
                 rv[a.name] = df((

@@ -105,6 +105,18 @@ class TestAsDict(object):
             "y": [{"x": 2, "y": 3}, {"x": 4, "y": 5}, "a"],
         } == asdict(C(1, container([C(2, 3), C(4, 5), "a"])))
 
+    @given(container=st.sampled_from(SEQUENCE_TYPES))
+    def test_lists_tuples_retain_type(self, container, C):
+        """
+        If recurse and retain_collection_types are True, also recurse
+        into lists and do not convert them into list.
+        """
+        assert {
+            "x": 1,
+            "y": container([{"x": 2, "y": 3}, {"x": 4, "y": 5}, "a"]),
+        } == asdict(C(1, container([C(2, 3), C(4, 5), "a"])),
+                    retain_collection_types=True)
+
     @given(st.sampled_from(MAPPING_TYPES))
     def test_dicts(self, C, dict_factory):
         """
