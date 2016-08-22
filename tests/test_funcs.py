@@ -79,7 +79,8 @@ class TestAsDict(object):
                     assert isinstance(obj_dict[field.name], dict_class)
                     for key, val in field_val.items():
                         if has(val.__class__):
-                            assert_proper_dict_class(val, obj_dict[key])
+                            assert_proper_dict_class(val,
+                                                     obj_dict[field.name][key])
 
         assert_proper_dict_class(obj, obj_dict)
 
