@@ -28,7 +28,7 @@ def asdict(inst, recurse=True, filter=None, dict_factory=dict,
 
     :param bool retain_collection_types: Do not convert to ``list`` when
         encountering an attribute which is type ``tuple`` or ``set``.
-        ``recurse`` must also be ``True``.
+        Only meaningful if ``recurse`` is ``True``.
 
 
     :rtype: :class:`dict`
