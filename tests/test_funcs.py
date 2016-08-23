@@ -16,6 +16,7 @@ from attr._funcs import (
     asdict,
     assoc,
     has,
+    names,
 )
 from attr._make import (
     attr,
@@ -230,3 +231,57 @@ class TestAssoc(object):
         assert (
             "y is not an attrs attribute on {cls!r}.".format(cls=C),
         ) == e.value.args
+
+
+class TestNames(object):
+    """
+    Tests for `names`.
+    """
+    def test_empty(self):
+        """
+        Empty classes returns empty tuple.
+        """
+        @attributes
+        class C(object):
+            pass
+
+        assert names(C) == tuple()
+
+    def test_TypeError(self):
+        """
+        Raises TypeError if argument is not a class.
+        """
+        with pytest.raises(TypeError):
+            names(1)
+
+    def test_ValueError(self):
+        """
+        Raises ValueError if argument is not an attrs class.
+        """
+        class C(object):
+            name = 'value'
+
+        with pytest.raises(ValueError):
+            names(C)
+
+    def test_attr_names(self):
+        """
+        Gives back tuple of names only for attr Attributes.
+        """
+        @attributes
+        class C(object):
+            x = attr()
+            y = attr()
+
+        assert names(C) == ('x', 'y')
+
+    def test_mixed_names(self):
+        """
+        Gives back tuple of names only for attr Attributes.
+        """
+        @attributes
+        class C(object):
+            x = attr()
+            y = 42
+
+        assert names(C) == tuple('x')

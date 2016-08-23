@@ -96,3 +96,18 @@ def assoc(inst, **changes):
             )
         setattr(new, k, v)
     return new
+
+
+def names(cl):
+    """
+    Returns the tuple of ``attrs`` attribute names for a class.
+
+    :param cl: Class to introspect.
+    :type cl: class
+
+    :raise TypeError: If *cl* is not a class.
+    :raise ValueError: If *cl* is not an ``attrs`` class.
+
+    :rtype: tuple of attr.ib names
+    """
+    return tuple(a.name for a in fields(cl))

@@ -4,6 +4,7 @@ from ._funcs import (
     asdict,
     assoc,
     has,
+    names,
 )
 from ._make import (
     Attribute,
@@ -61,4 +62,5 @@ __all__ = [
     "set_run_validators",
     "validate",
     "validators",
+    "names",
 ]
