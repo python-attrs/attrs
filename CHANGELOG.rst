@@ -41,6 +41,9 @@ Changes:
 - Add ``attr.attrs`` and ``attr.attrib`` as a more consistent aliases for ``attr.s`` and ``attr.ib``.
 - Add ``frozen`` option to ``attr.s`` that will make instances best-effort immutable.
   `#60 <https://github.com/hynek/attrs/issues/60>`_
+- ``attr.asdict`` now takes ``retain_collection_types`` as an argument.
+  If ``True``, it does not convert attributes of type ``tuple`` or ``set`` to ``list``.
+  `#69 <https://github.com/hynek/attrs/issues/69>`_
 
 
 ----
