@@ -84,8 +84,9 @@ def _create_hyp_nested_strategy(simple_class_strategy):
     Create a recursive attrs class.
 
     Given a strategy for building (simpler) classes, create and return
-    a strategy for building classes that have the simpler class as an
-    attribute.
+    a strategy for building classes that have as an attribute: either just
+    the simpler class, a list of simpler classes, or a dict mapping the string
+    "cls" to a simpler class.
     """
     # Use a tuple strategy to combine simple attributes and an attr class.
     def just_class(tup):
@@ -105,10 +106,13 @@ def _create_hyp_nested_strategy(simple_class_strategy):
         combined_attrs.append(attr.ib(default=default))
         return _create_hyp_class(combined_attrs)
 
-    return st.one_of(st.tuples(st.lists(simple_attrs), simple_class_strategy)
-                     .map(just_class),
-                     st.tuples(st.lists(simple_attrs), simple_class_strategy)
-                     .map(list_of_class))
+    # A strategy producing tuples of the form ([list of attributes], <given
+    # class strategy>).
+    attrs_and_classes = st.tuples(list_of_attrs, simple_class_strategy)
+
+    return st.one_of(attrs_and_classes.map(just_class),
+                     attrs_and_classes.map(list_of_class),
+                     attrs_and_classes.map(dict_of_class))
 
 bare_attrs = st.just(attr.ib(default=None))
 int_attrs = st.integers().map(lambda i: attr.ib(default=i))
@@ -121,8 +125,8 @@ simple_attrs = st.one_of(bare_attrs, int_attrs, str_attrs, float_attrs,
                          dict_attrs)
 
 # Python functions support up to 255 arguments.
-simple_classes = (st.lists(simple_attrs, average_size=9, max_size=50)
-                  .map(_create_hyp_class))
+list_of_attrs = st.lists(simple_attrs, average_size=9, max_size=50)
+simple_classes = list_of_attrs.map(_create_hyp_class)
 
 # Ok, so st.recursive works by taking a base strategy (in this case,
 # simple_classes) and a special function. This function receives a strategy,

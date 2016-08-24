@@ -7,6 +7,9 @@ from . import _config
 from ._compat import exec_, iteritems, isclass, iterkeys
 from .exceptions import FrozenInstanceError
 
+# This is used at least twice, so cache it here.
+_obj_setattr = object.__setattr__
+
 
 class _Nothing(object):
     """
@@ -414,7 +417,7 @@ def _add_init(cls, frozen):
     if frozen is True:
         # Save the lookup overhead in __init__ if we need to circumvent
         # immutability.
-        globs["_cached_setattr"] = object.__setattr__
+        globs["_cached_setattr"] = _obj_setattr
     exec_(bytecode, globs, locs)
     init = locs["__init__"]
 
@@ -596,17 +599,19 @@ class Attribute(object):
 
     _optional = {"convert": None}
 
-    def __init__(self, **kw):
-        if len(kw) > len(Attribute.__slots__):
-            raise TypeError("Too many arguments.")
-        for a in Attribute.__slots__:
-            try:
-                object.__setattr__(self, a, kw[a])
-            except KeyError:
-                if a in Attribute._optional:
-                    object.__setattr__(self, a, self._optional[a])
-                else:
-                    raise TypeError("Missing argument '{arg}'.".format(arg=a))
+    def __init__(self, name, default, validator, repr, cmp, hash, init,
+                 convert=None):
+        # Cache this descriptor here to speed things up later.
+        __bound_setattr = _obj_setattr.__get__(self, Attribute)
+
+        __bound_setattr('name', name)
+        __bound_setattr('default', default)
+        __bound_setattr('validator', validator)
+        __bound_setattr('repr', repr)
+        __bound_setattr('cmp', cmp)
+        __bound_setattr('hash', hash)
+        __bound_setattr('init', init)
+        __bound_setattr('convert', convert)
 
     def __setattr__(self, name, value):
         raise FrozenInstanceError()

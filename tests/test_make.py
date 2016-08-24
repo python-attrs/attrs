@@ -13,7 +13,6 @@ from attr import _config
 from attr._compat import PY2
 from attr._make import (
     Attribute,
-    NOTHING,
     _CountingAttr,
     _transform_attrs,
     attr,
@@ -292,29 +291,6 @@ class GC(object):
     @attributes
     class D(object):
         pass
-
-
-class TestAttribute(object):
-    """
-    Tests for `Attribute`.
-    """
-    def test_missing_argument(self):
-        """
-        Raises `TypeError` if an Argument is missing.
-        """
-        with pytest.raises(TypeError) as e:
-            Attribute(default=NOTHING, validator=None)
-        assert ("Missing argument 'name'.",) == e.value.args
-
-    def test_too_many_arguments(self):
-        """
-        Raises `TypeError` if extra arguments are passed.
-        """
-        with pytest.raises(TypeError) as e:
-            Attribute(name="foo", default=NOTHING,
-                      factory=NOTHING, validator=None,
-                      repr=True, cmp=True, hash=True, init=True, convert=None)
-        assert ("Too many arguments.",) == e.value.args
 
 
 class TestMakeClass(object):
