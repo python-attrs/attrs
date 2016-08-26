@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 import copy
 
 from ._compat import iteritems
-from ._make import Attribute, NOTHING, fields
+from ._make import Attribute, NOTHING, fields, _obj_setattr
 
 
 def asdict(inst, recurse=True, filter=None, dict_factory=dict,
@@ -94,5 +94,5 @@ def assoc(inst, **changes):
                 "{k} is not an attrs attribute on {cl}."
                 .format(k=k, cl=new.__class__)
             )
-        setattr(new, k, v)
+        _obj_setattr(new, k, v)
     return new

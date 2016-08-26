@@ -480,6 +480,8 @@ If you're still not convinced that Python + ``attrs`` is the better Clojure, may
    attr.exceptions.FrozenInstanceError: can't set attribute
    >>> i.x
    1
+   >>> attr.assoc(i, x=2).x
+   2
 
 Sometimes you may want to create a class programmatically.
 ``attrs`` won't let you down and gives you :func:`attr.make_class` :

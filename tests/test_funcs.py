@@ -231,3 +231,14 @@ class TestAssoc(object):
         assert (
             "y is not an attrs attribute on {cls!r}.".format(cls=C),
         ) == e.value.args
+
+    def test_frozen(self):
+        """
+        Works on frozen classes.
+        """
+        @attributes(frozen=True)
+        class C(object):
+            x = attr()
+            y = attr()
+
+        assert C(3, 2) == assoc(C(1, 2), x=3)
