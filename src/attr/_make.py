@@ -171,6 +171,7 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
         :class:`properties <property>`).
 
         If *these* is not `None`, the class body is *ignored*.
+
     :type these: :class:`dict` of :class:`str` to :func:`attr.ib`
 
     :param str repr_ns: When using nested classes, there's no way in Python 2
@@ -200,15 +201,14 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
 
             2. True immutability is impossible in Python.
 
-            3. This *does* have a minor a runtime performance impact when
-               initializing new instances.  In other words: ``__init__`` is
-               slightly slower with ``frozen=True``.
+            3. This *does* have a minor a runtime performance :ref:`impact
+               <how-frozen>` when initializing new instances.  In other words:
+               ``__init__`` is slightly slower with ``frozen=True``.
 
         ..  _slots: https://docs.python.org/3.5/reference/datamodel.html#slots
 
-        ..  versionadded:: 16.0.0 *slots*
-
-        ..  versionadded:: 16.1.0 *frozen*
+    ..  versionadded:: 16.0.0 *slots*
+    ..  versionadded:: 16.1.0 *frozen*
     """
     def wrap(cls):
         if getattr(cls, "__class__", None) is None:

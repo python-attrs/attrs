@@ -48,7 +48,7 @@ By default, all features are added, so you immediately have a fully functional d
 
 As shown, the generated ``__init__`` method allows for both positional and keyword arguments.
 
-If playful naming turns you off, ``attrs`` comes with no-nonsense aliases:
+If playful naming turns you off, ``attrs`` comes with serious business aliases:
 
 .. doctest::
 
@@ -444,29 +444,12 @@ Slot classes are a little different than ordinary, dictionary-backed classes:
 All in all, setting ``slots=True`` is usually a very good idea.
 
 
-Other Goodies
--------------
+Immutability
+------------
 
-Do you like Rich Hickey?
-I'm glad to report that Clojure's `core feature <https://clojuredocs.org/clojure.core/assoc>`_ is part of ``attrs``: :func:`attr.assoc`!
-I guess that means Clojure can be shut down now, sorry Rich!
-
-.. doctest::
-
-   >>> @attr.s
-   ... class C(object):
-   ...     x = attr.ib()
-   ...     y = attr.ib()
-   >>> i1 = C(1, 2)
-   >>> i1
-   C(x=1, y=2)
-   >>> i2 = attr.assoc(i1, y=3)
-   >>> i2
-   C(x=1, y=3)
-   >>> i1 == i2
-   False
-
-If you're still not convinced that Python + ``attrs`` is the better Clojure, maybe immutable-ish classes can change your mind:
+Sometimes you have instances that shouldn't be changed after instantiation.
+Immutability is especially popular in functional programming and is generally a very good thing.
+If you'd like to enforce it, ``attrs`` will try to help:
 
 .. doctest::
 
@@ -480,8 +463,31 @@ If you're still not convinced that Python + ``attrs`` is the better Clojure, may
    attr.exceptions.FrozenInstanceError: can't set attribute
    >>> i.x
    1
-   >>> attr.assoc(i, x=2).x
-   2
+
+Please note that true immutability is impossible in Python but it will :ref:`get <how-frozen>` you 99% there.
+By themselves, immutable classes are useful for long-lived objects that should never change; like configurations for example.
+
+In order to use them in regular program flow, you'll need a way to easily create new instances with changed attributes.
+In Clojure that function is called `assoc <https://clojuredocs.org/clojure.core/assoc>`_ and ``attrs`` shamelessly imitates it: :func:`attr.assoc`:
+
+.. doctest::
+
+   >>> @attr.s(frozen=True)
+   ... class C(object):
+   ...     x = attr.ib()
+   ...     y = attr.ib()
+   >>> i1 = C(1, 2)
+   >>> i1
+   C(x=1, y=2)
+   >>> i2 = attr.assoc(i1, y=3)
+   >>> i2
+   C(x=1, y=3)
+   >>> i1 == i2
+   False
+
+
+Other Goodies
+-------------
 
 Sometimes you may want to create a class programmatically.
 ``attrs`` won't let you down and gives you :func:`attr.make_class` :
