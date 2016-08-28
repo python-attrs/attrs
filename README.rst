@@ -33,9 +33,14 @@ For that, it gives you a class decorator and a way to declaratively define the a
    ... class C(object):
    ...     x = attr.ib(default=42)
    ...     y = attr.ib(default=attr.Factory(list))
+   ...
+   ...     def hard_math(self, z):
+   ...         return self.x * self.y * z
    >>> i = C(x=1, y=2)
    >>> i
    C(x=1, y=2)
+   >>> i.hard_math(3)
+   6
    >>> i == C(1, 2)
    True
    >>> i != C(2, 1)
