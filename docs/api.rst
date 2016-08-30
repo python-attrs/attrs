@@ -105,6 +105,8 @@ Core
 .. autoexception:: attr.exceptions.FrozenInstanceError
 
 
+.. _helpers:
+
 Helpers
 -------
 
