@@ -29,6 +29,7 @@ __version__ = "16.2.0.dev0"
 __title__ = "attrs"
 __description__ = "Attributes Without Boilerplate"
 __uri__ = "https://attrs.readthedocs.io/"
+__doc__ = __description__ + " <" + __uri__ + ">"
 
 __author__ = "Hynek Schlawack"
 __email__ = "hs@ox.cx"
