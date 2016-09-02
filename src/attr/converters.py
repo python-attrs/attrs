@@ -11,6 +11,9 @@ class _ListOfConverter(object):
     type = attr()
 
     def __call__(self, src):
+        """
+        We use a callable class to be able to change the ``__repr__``.
+        """
         return [self.type(**attrs) for attrs in src]
 
     def __repr__(self):
@@ -23,6 +26,9 @@ def list_of(type):
     """
     Converter from an iterable of dicts of attributes to a list of a given type
     using keyword arguments to the constructor.
+
+    :param type: The type in the resulting list
+    :type type: type
     """
     return _ListOfConverter(type)
 
@@ -32,6 +38,9 @@ class _SetOfConverter(object):
     type = attr()
 
     def __call__(self, src):
+        """
+        We use a callable class to be able to change the ``__repr__``.
+        """
         return set(self.type(**item) for item in src)
 
     def __repr__(self):
@@ -44,6 +53,9 @@ def set_of(type):
     """
     Converter from an iterable of dicts of attributes to a set of a given type
     using keyword arguments to the constructor.
+
+    :param type: The type in the resulting set
+    :type type: type
     """
     return _SetOfConverter(type)
 
@@ -53,6 +65,9 @@ class _FrozensetOfConverter(object):
     type = attr()
 
     def __call__(self, src):
+        """
+        We use a callable class to be able to change the ``__repr__``.
+        """
         return frozenset(self.type(**item) for item in src)
 
     def __repr__(self):
@@ -65,6 +80,9 @@ def frozenset_of(type):
     """
     Converter from an iterable of dicts of attributes to a set of a given type
     using keyword arguments to the constructor.
+
+    :param type: The type in the resulting frozenset
+    :type type: type
     """
     return _FrozensetOfConverter(type)
 
@@ -74,6 +92,9 @@ class _FromDictConverter(object):
     type = attr()
 
     def __call__(self, src):
+        """
+        We use a callable class to be able to change the ``__repr__``.
+        """
         return self.type(**src)
 
     def __repr__(self):
@@ -85,6 +106,9 @@ class _FromDictConverter(object):
 def from_dict(type):
     """
     Converter from a dict of attributes to a given type.
+
+    :param type: The type to convert to
+    :type type: type
     """
 
     return _FromDictConverter(type)
