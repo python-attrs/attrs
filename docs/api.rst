@@ -277,6 +277,8 @@ Converters
       >>> data = {'y': [{'x': 3}, {'x': 4}] }
       >>> D(**data)
       D(y=[C(x=3), C(x=4)])
+      >>> D(y=[C(x=3), C(x=4)])
+      D(y=[C(x=3), C(x=4)])
 
 .. autofunction:: attr.converters.set_of
 
@@ -292,6 +294,8 @@ Converters
       ...     y = attr.ib(convert=attr.converters.set_of(C))
       >>> data = {'y': [{'x': 3}, {'x': 4}] }
       >>> D(**data)
+      D(y={C(x=3), C(x=4)})
+      >>> D(y=[C(x=3), C(x=4)])
       D(y={C(x=3), C(x=4)})
 
 
@@ -310,6 +314,8 @@ Converters
       >>> data = {'y': [{'x': 3}, {'x': 4}] }
       >>> D(**data)
       D(y=frozenset({C(x=3), C(x=4)}))
+      >>> D(y=[C(x=3), C(x=4)])
+      D(y=frozenset({C(x=3), C(x=4)}))
 
 
 .. autofunction:: attr.converters.from_dict
@@ -327,6 +333,8 @@ Converters
       >>> data = {'y': {'x': 3} }
       >>> D(**data)
       D(y=C(x=3))
+      >>> D(y=C(x=4))
+      D(y=C(x=4))
 
 
 Deprecated APIs

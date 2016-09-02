@@ -16,7 +16,7 @@ class TestListOf(object):
     """
     Tests for `list_of`
     """
-    def test_success(self):
+    def test_convert_dict(self):
         """
         Successfully create a list from an iterable of dicts
         """
@@ -28,7 +28,19 @@ class TestListOf(object):
                               MockAttrs(a=2),
                               MockAttrs(a=3)]
 
-    def test_repr(self):
+    def test_convert_cls(self):
+        """
+        Successfully create a set from an iterable of the given type
+        """
+        conv = list_of(MockAttrs)
+        data = [MockAttrs(a=1),
+                MockAttrs(a=2),
+                MockAttrs(a=3)]
+        assert conv(data) == [MockAttrs(a=1),
+                              MockAttrs(a=2),
+                              MockAttrs(a=3)]
+
+    def test_convert_repr(self):
         """
         Returned converter has a useful `__repr__`
         """
@@ -42,7 +54,7 @@ class TestSetOf(object):
     """
     Tests for `set_of`
     """
-    def test_success(self):
+    def test_convert_dict(self):
         """
         Successfully create a set from an iterable of dicts
         """
@@ -54,7 +66,19 @@ class TestSetOf(object):
                                   MockAttrs(a=2),
                                   MockAttrs(a=3)])
 
-    def test_repr(self):
+    def test_convert_cls(self):
+        """
+        Successfully create a set from an iterable of the given type
+        """
+        conv = set_of(MockAttrs)
+        data = [MockAttrs(a=1),
+                MockAttrs(a=2),
+                MockAttrs(a=3)]
+        assert conv(data) == set([MockAttrs(a=1),
+                                  MockAttrs(a=2),
+                                  MockAttrs(a=3)])
+
+    def test_convert_repr(self):
         """
         Returned converter has a useful `__repr__`
         """
@@ -68,9 +92,9 @@ class TestFrozensetOf(object):
     """
     Tests for `frozenset_of`
     """
-    def test_success(self):
+    def test_convert_dict(self):
         """
-        Successfully create a set from an iterable of dicts
+        Successfully create a frozenset from an iterable of dicts
         """
         conv = frozenset_of(MockAttrs)
         data = [{'a': 1},
@@ -80,7 +104,19 @@ class TestFrozensetOf(object):
                                         MockAttrs(a=2),
                                         MockAttrs(a=3)])
 
-    def test_repr(self):
+    def test_convert_cls(self):
+        """
+        Successfully create a frozenset from an iterable of the given type
+        """
+        conv = frozenset_of(MockAttrs)
+        data = [MockAttrs(a=1),
+                MockAttrs(a=2),
+                MockAttrs(a=3)]
+        assert conv(data) == frozenset([MockAttrs(a=1),
+                                        MockAttrs(a=2),
+                                        MockAttrs(a=3)])
+
+    def test_convert_repr(self):
         """
         Returned converter has a useful `__repr__`
         """
@@ -94,12 +130,20 @@ class TestFromDict(object):
     """
     Tests for `from_dict`
     """
-    def test_success(self):
+    def test_convert_dict(self):
         """
         Successfully create an instance from a dict
         """
         conv = from_dict(MockAttrs)
         data = {'a': 1}
+        assert conv(data) == MockAttrs(a=1)
+
+    def test_convert_cls(self):
+        """
+        If passed an instance of the type, do not convert
+        """
+        conv = from_dict(MockAttrs)
+        data = MockAttrs(a=1)
         assert conv(data) == MockAttrs(a=1)
 
     def test_repr(self):
