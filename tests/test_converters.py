@@ -4,7 +4,7 @@ Tests for attr.converters
 from __future__ import absolute_import, division, print_function
 
 import attr
-from attr.converters import list_of, set_of, from_dict
+from attr.converters import list_of, set_of, frozenset_of, from_dict
 
 
 @attr.s
@@ -72,20 +72,20 @@ class TestFrozensetOf(object):
         """
         Successfully create a set from an iterable of dicts
         """
-        conv = set_of(MockAttrs)
+        conv = frozenset_of(MockAttrs)
         data = [{'a': 1},
                 {'a': 2},
                 {'a': 3}]
-        assert conv(data) == set([MockAttrs(a=1),
-                                  MockAttrs(a=2),
-                                  MockAttrs(a=3)])
+        assert conv(data) == frozenset([MockAttrs(a=1),
+                                        MockAttrs(a=2),
+                                        MockAttrs(a=3)])
 
     def test_repr(self):
         """
         Returned converter has a useful `__repr__`
         """
-        conv = set_of(MockAttrs)
-        assert ("<set_of converter for type {type!r}>"
+        conv = frozenset_of(MockAttrs)
+        assert ("<frozenset_of converter for type {type!r}>"
                 .format(type=MockAttrs)
                 ) == repr(conv)
 
