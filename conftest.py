@@ -19,7 +19,3 @@ def C():
         y = attr()
 
     return C
-
-# PyPy on Travis appears to be too slow.
-settings.register_profile("travis_pypy", settings(perform_health_check=False))
-settings.load_profile(os.getenv(u'HYPOTHESIS_PROFILE', 'default'))
