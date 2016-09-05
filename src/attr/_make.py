@@ -470,9 +470,12 @@ def validate(inst):
             a.validator(inst, a, getattr(inst, a.name))
 
 
-def _convert(inst):
+def _convert(inst, setattr_):
     """
     Convert all attributes on *inst* that have a converter.
+
+    Uses *setattr_* to set the attributes on the class.  Allows for
+    circumvention of frozen instances.
 
     Leaves all exceptions through.
 
@@ -480,7 +483,7 @@ def _convert(inst):
     """
     for a in inst.__class__.__attrs_attrs__:
         if a.convert is not None:
-            setattr(inst, a.name, a.convert(getattr(inst, a.name)))
+            setattr_(a.name, a.convert(getattr(inst, a.name)))
 
 
 def _attrs_to_script(attrs, frozen):
@@ -564,7 +567,10 @@ def _attrs_to_script(attrs, frozen):
             lines.append(fmt_setter(attr_name, arg_name))
 
     if has_convert:
-        lines.append("_convert(self)")
+        if frozen is True:
+            lines.append("_convert(self, _setattr)")
+        else:
+            lines.append("_convert(self, self.__setattr__)")
     if attrs_to_validate:  # we can skip this if there are no validators.
         validators_for_globals["_config"] = _config
         lines.append("if _config._run_validators is False:")

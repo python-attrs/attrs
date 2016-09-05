@@ -11,7 +11,8 @@ The third digit is only for regressions.
 Changes:
 ^^^^^^^^
 
-*none*
+- Converts now work with frozen classes.
+  `#76 <https://github.com/hynek/attrs/issues/76>`_
 
 
 ----

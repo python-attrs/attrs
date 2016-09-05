@@ -402,6 +402,13 @@ class TestConvert(object):
         with pytest.raises(ZeroDivisionError):
             C(1, 2)
 
+    def test_frozen(self):
+        """
+        Converters circumvent immutability.
+        """
+        C = make_class("C", {"x": attr(convert=lambda v: int(v))}, frozen=True)
+        C("1")
+
 
 class TestValidate(object):
     """
