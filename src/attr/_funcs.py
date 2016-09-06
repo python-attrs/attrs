@@ -64,7 +64,7 @@ def asdict(inst, recurse=True, filter=None, dict_factory=dict,
 
 
 def astuple(inst, recurse=True, filter=None, tuple_factory=tuple,
-           retain_collection_types=False):
+            retain_collection_types=False):
     """
     Return the ``attrs`` attribute values of *inst* as a tuple.
 
@@ -94,26 +94,35 @@ def astuple(inst, recurse=True, filter=None, tuple_factory=tuple,
         if recurse is True:
             if has(v.__class__):
                 rv.append(astuple(v, recurse=True, filter=filter,
-                                    tuple_factory=tuple_factory))
+                                  tuple_factory=tuple_factory))
             elif isinstance(v, (tuple, list, set)):
                 cf = v.__class__ if retain_collection_types is True else list
                 rv.append(cf([
                     astuple(j, recurse=True, filter=filter,
-                           tuple_factory=tuple_factory)
+                            tuple_factory=tuple_factory)
                     if has(j.__class__) else j
                     for j in v
                 ]))
             elif isinstance(v, dict):
                 df = dict
-                rv.append(df((
-                    astuple(kk, tuple_factory=tuple_factory) if has(kk.__class__) else kk,
-                    astuple(vv, tuple_factory=tuple_factory) if has(vv.__class__) else vv)
-                    for kk, vv in iteritems(v)))
+                rv.append(df(
+                        (
+                            astuple(
+                                kk,
+                                tuple_factory=tuple_factory
+                            ) if has(kk.__class__) else kk,
+                            astuple(
+                                vv,
+                                tuple_factory=tuple_factory
+                            ) if has(vv.__class__) else vv
+                        )
+                        for kk, vv in iteritems(v)))
             else:
                 rv.append(v)
         else:
             rv.append(v)
     return tuple_factory(rv)
+
 
 def has(cls):
     """

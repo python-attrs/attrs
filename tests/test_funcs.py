@@ -166,7 +166,8 @@ class TestAsTuple(object):
         """
         Shallow asdict returns correct dict.
         """
-        assert (1, 2) == astuple(C(x=1, y=2), False, tuple_factory=tuple_factory)
+        assert ((1, 2) ==
+                astuple(C(x=1, y=2), False, tuple_factory=tuple_factory))
 
     @given(st.sampled_from(IMMUTABLE_SEQ_TYPES))
     def test_recurse(self, C, tuple_factory):
@@ -211,7 +212,9 @@ class TestAsTuple(object):
         """
         If recurse is True, also recurse into lists.
         """
-        assert 1, [(2, 3), (4, 5), "a"] == astuple(C(1, container([C(2, 3), C(4, 5), "a"])))
+        assert ((1, [(2, 3), (4, 5), "a"])
+                == astuple(C(1, container([C(2, 3), C(4, 5), "a"])))
+                )
 
     @given(st.sampled_from(IMMUTABLE_SEQ_TYPES))
     def test_dicts(self, C, tuple_factory):
@@ -229,9 +232,9 @@ class TestAsTuple(object):
         into lists and do not convert them into list.
         """
         assert (
-            (1, container([(2, 3), (4, 5), "a"])
-        ) == astuple(C(1, container([C(2, 3), C(4, 5), "a"])),
-                    retain_collection_types=True))
+            (1, container([(2, 3), (4, 5), "a"]))
+            == astuple(C(1, container([C(2, 3), C(4, 5), "a"])),
+                       retain_collection_types=True))
 
     @given(simple_classes, st.sampled_from(IMMUTABLE_SEQ_TYPES))
     def test_roundtrip(self, cls, tuple_class):

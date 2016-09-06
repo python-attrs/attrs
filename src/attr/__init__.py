@@ -47,6 +47,7 @@ __all__ = [
     "Factory",
     "NOTHING",
     "asdict",
+    "astuple",
     "assoc",
     "attr",
     "attrib",
