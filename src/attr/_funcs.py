@@ -63,7 +63,8 @@ def asdict(inst, recurse=True, filter=None, dict_factory=dict,
     return rv
 
 
-def astuple(inst, recurse=True, filter=None, tuple_factory=tuple):
+def astuple(inst, recurse=True, filter=None, tuple_factory=tuple,
+           retain_collection_types=False):
     """
     Return the ``attrs`` attribute values of *inst* as a tuple.
 
@@ -78,6 +79,9 @@ def astuple(inst, recurse=True, filter=None, tuple_factory=tuple):
         value as the second argument.
     :param callable tuple_factory: A callable to produce tuples from.  For
         example, to produce ordered tuples instead of normal Python tuples.
+    :param bool retain_collection_types: Do not convert to ``list`` when
+        encountering an attribute which is type ``tuple`` or ``set``.  Only
+        meaningful if ``recurse`` is ``True``.
 
     :rtype: return type of *tuple_factory*
     """
@@ -92,7 +96,7 @@ def astuple(inst, recurse=True, filter=None, tuple_factory=tuple):
                 rv.append(astuple(v, recurse=True, filter=filter,
                                     tuple_factory=tuple_factory))
             elif isinstance(v, (tuple, list, set)):
-                cf = list
+                cf = v.__class__ if retain_collection_types is True else list
                 rv.append(cf([
                     astuple(j, recurse=True, filter=filter,
                            tuple_factory=tuple_factory)

@@ -206,7 +206,7 @@ class TestAsTuple(object):
             C(3, 4),
         ), filter=lambda a, v: a.name != "y", tuple_factory=tuple_factory)
 
-    @given(container=st.sampled_from(IMMUTABLE_SEQ_TYPES))
+    @given(container=st.sampled_from(SEQUENCE_TYPES))
     def test_lists_tuples(self, container, C):
         """
         If recurse is True, also recurse into lists.
@@ -221,6 +221,17 @@ class TestAsTuple(object):
         res = astuple(C(1, {"a": C(4, 5)}), tuple_factory=tuple_factory)
         assert (1, {"a": (4, 5)}) == res
         assert isinstance(res, tuple_factory)
+
+    @given(container=st.sampled_from(SEQUENCE_TYPES))
+    def test_lists_tuples_retain_type(self, container, C):
+        """
+        If recurse and retain_collection_types are True, also recurse
+        into lists and do not convert them into list.
+        """
+        assert (
+            (1, container([(2, 3), (4, 5), "a"])
+        ) == astuple(C(1, container([C(2, 3), C(4, 5), "a"])),
+                    retain_collection_types=True))
 
     @given(simple_classes, st.sampled_from(IMMUTABLE_SEQ_TYPES))
     def test_roundtrip(self, cls, tuple_class):
