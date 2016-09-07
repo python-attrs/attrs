@@ -174,10 +174,13 @@ class TestAsTuple(object):
         """
         Deep astuple returns correct tuple.
         """
-        assert tuple_factory([tuple_factory([1, 2]), tuple_factory([3, 4])]) == astuple(C(
-            C(1, 2),
-            C(3, 4),
-        ), tuple_factory=tuple_factory)
+        assert (tuple_factory([tuple_factory([1, 2]),
+                              tuple_factory([3, 4])])
+                == astuple(C(
+                            C(1, 2),
+                            C(3, 4),
+                            ),
+                           tuple_factory=tuple_factory))
 
     @given(nested_classes, st.sampled_from(SEQUENCE_TYPES))
     def test_recurse_property(self, cls, tuple_class):
@@ -202,7 +205,7 @@ class TestAsTuple(object):
         """
         Attributes that are supposed to be skipped are skipped.
         """
-        assert tuple_factory([tuple_factory([1,]),]) == astuple(C(
+        assert tuple_factory([tuple_factory([1, ]), ]) == astuple(C(
             C(1, 2),
             C(3, 4),
         ), filter=lambda a, v: a.name != "y", tuple_factory=tuple_factory)
@@ -246,7 +249,6 @@ class TestAsTuple(object):
             (1, container({"a": (4, 5)}))
             == astuple(C(1, container({"a": C(4, 5)})),
                        retain_collection_types=True))
-
 
     @given(simple_classes, st.sampled_from(SEQUENCE_TYPES))
     def test_roundtrip(self, cls, tuple_class):
