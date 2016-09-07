@@ -88,6 +88,7 @@ def astuple(inst, recurse=True, filter=None, tuple_factory=tuple,
     """
     attrs = fields(inst.__class__)
     rv = []
+    retain = retain_collection_types  # Very long. :/
     for a in attrs:
         v = getattr(inst, a.name)
         if filter is not None and not filter(a, v):
@@ -95,26 +96,30 @@ def astuple(inst, recurse=True, filter=None, tuple_factory=tuple,
         if recurse is True:
             if has(v.__class__):
                 rv.append(astuple(v, recurse=True, filter=filter,
-                                  tuple_factory=tuple_factory))
+                                  tuple_factory=tuple_factory,
+                                  retain_collection_types=retain))
             elif isinstance(v, (tuple, list, set)):
-                cf = v.__class__ if retain_collection_types is True else list
+                cf = v.__class__ if retain is True else list
                 rv.append(cf([
                     astuple(j, recurse=True, filter=filter,
-                            tuple_factory=tuple_factory)
+                            tuple_factory=tuple_factory,
+                            retain_collection_types=retain)
                     if has(j.__class__) else j
                     for j in v
                 ]))
             elif isinstance(v, dict):
-                df = v.__class__ if retain_collection_types is True else dict
+                df = v.__class__ if retain is True else dict
                 rv.append(df(
                         (
                             astuple(
                                 kk,
-                                tuple_factory=tuple_factory
+                                tuple_factory=tuple_factory,
+                                retain_collection_types=retain
                             ) if has(kk.__class__) else kk,
                             astuple(
                                 vv,
-                                tuple_factory=tuple_factory
+                                tuple_factory=tuple_factory,
+                                retain_collection_types=retain
                             ) if has(vv.__class__) else vv
                         )
                         for kk, vv in iteritems(v)))
