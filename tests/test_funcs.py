@@ -200,6 +200,42 @@ class TestAsTuple(object):
 
         assert_proper_tuple_class(obj, obj_tuple)
 
+    @given(nested_classes, st.sampled_from(SEQUENCE_TYPES))
+    def test_recurse_retain(self, cls, tuple_class):
+        """
+        Property tests for asserting collection types are retained.
+        """
+        obj = cls()
+        obj_tuple = astuple(obj, tuple_factory=tuple_class,
+                            retain_collection_types=True)
+
+        def assert_proper_col_class(obj, obj_tuple):
+            # Iterate over all attributes, and if they are lists or mappings
+            # in the original, assert they are the same class in the dumped.
+            for index, field in enumerate(fields(obj.__class__)):
+                field_val = getattr(obj, field.name)
+                if has(field_val.__class__):
+                    # This field holds a class, recurse the assertions.
+                    assert_proper_col_class(field_val, obj_tuple[index])
+                elif isinstance(field_val, (list, tuple)):
+                    # This field holds a sequence of something.
+                    assert type(field_val) is type(obj_tuple[index])  # noqa: E721
+                    for obj_e, obj_tuple_e in zip(field_val, obj_tuple[index]):
+                        if has(obj_e.__class__):
+                            assert_proper_col_class(obj_e, obj_tuple_e)
+                elif isinstance(field_val, dict):
+                    orig = field_val
+                    tupled = obj_tuple[index]
+                    assert type(orig) is type(tupled)  # noqa: E721
+                    for obj_e, obj_tuple_e in zip(orig.items(),
+                                                  tupled.items()):
+                        if has(obj_e[0].__class__):  # Dict key
+                            assert_proper_col_class(obj_e[0], obj_tuple_e[0])
+                        if has(obj_e[1].__class__):  # Dict value
+                            assert_proper_col_class(obj_e[1], obj_tuple_e[1])
+
+        assert_proper_col_class(obj, obj_tuple)
+
     @given(st.sampled_from(SEQUENCE_TYPES))
     def test_filter(self, C, tuple_factory):
         """
