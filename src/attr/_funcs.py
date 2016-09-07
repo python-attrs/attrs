@@ -104,7 +104,7 @@ def astuple(inst, recurse=True, filter=None, tuple_factory=tuple,
                     for j in v
                 ]))
             elif isinstance(v, dict):
-                df = dict
+                df = v.__class__ if retain_collection_types is True else dict
                 rv.append(df(
                         (
                             astuple(
@@ -121,7 +121,7 @@ def astuple(inst, recurse=True, filter=None, tuple_factory=tuple,
                 rv.append(v)
         else:
             rv.append(v)
-    return tuple_factory(rv)
+    return rv if tuple_factory is list else tuple_factory(rv)
 
 
 def has(cls):
