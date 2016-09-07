@@ -13,6 +13,8 @@ Changes:
 
 - Converts now work with frozen classes.
   `#76 <https://github.com/hynek/attrs/issues/76>`_
+- Implements ``astuple`` method.
+  `#77 <https://github.com/hynek/attrs/issues/77>`_
 
 
 ----
