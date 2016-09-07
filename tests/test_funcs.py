@@ -30,7 +30,7 @@ SEQUENCE_TYPES = (list, tuple)
 
 class TestAsDict(object):
     """
-    Tests for `asdict`.
+    Tests for `astuple`.
     """
     @given(st.sampled_from(MAPPING_TYPES))
     def test_shallow(self, C, dict_factory):
@@ -158,13 +158,13 @@ class TestAsDict(object):
 
 class TestAsTuple(object):
     """
-    Tests for `asdict`.
+    Tests for `astuple`.
     """
 
     @given(st.sampled_from(SEQUENCE_TYPES))
     def test_shallow(self, C, tuple_factory):
         """
-        Shallow asdict returns correct dict.
+        Shallow astuple returns correct dict.
         """
         assert (tuple_factory([1, 2]) ==
                 astuple(C(x=1, y=2), False, tuple_factory=tuple_factory))
@@ -253,7 +253,7 @@ class TestAsTuple(object):
     @given(simple_classes, st.sampled_from(SEQUENCE_TYPES))
     def test_roundtrip(self, cls, tuple_class):
         """
-        Test dumping to dicts and back for Hypothesis-generated classes.
+        Test dumping to tuple and back for Hypothesis-generated classes.
         """
         instance = cls()
         tuple_instance = astuple(instance, tuple_factory=tuple_class)

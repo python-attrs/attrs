@@ -78,10 +78,11 @@ def astuple(inst, recurse=True, filter=None, tuple_factory=tuple,
         called with the :class:`attr.Attribute` as the first argument and the
         value as the second argument.
     :param callable tuple_factory: A callable to produce tuples from.  For
-        example, to produce ordered tuples instead of normal Python tuples.
-    :param bool retain_collection_types: Do not convert to ``list`` when
-        encountering an attribute which is type ``tuple`` or ``set``.  Only
-        meaningful if ``recurse`` is ``True``.
+        example, to produce list instead of tuples.
+    :param bool retain_collection_types: Do not convert to ``list``
+        or ``dict`` when encountering an attribute which is type
+        ``tuple``, ``dict`` or ``set``.
+        Only meaningful if ``recurse`` is ``True``.
 
     :rtype: return type of *tuple_factory*
     """
