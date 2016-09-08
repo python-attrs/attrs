@@ -391,9 +391,9 @@ class TestConvert(object):
         assert c.y == 2
 
     @given(integers(), booleans())
-    def test_convert_no_init(self, val, init):
+    def test_convert_property(self, val, init):
         """
-        The attribute with the converter has init=False.
+        Property tests for attributes with convert.
         """
         C = make_class("C", {"y": attr(),
                              "x": attr(init=init, default=val,
@@ -404,9 +404,9 @@ class TestConvert(object):
         assert c.y == 2
 
     @given(integers(), booleans())
-    def test_convert_no_init_factory(self, val, init):
+    def test_convert_factory_property(self, val, init):
         """
-        The attribute with the converter has init=False.
+        Property tests for attributes with convert, and a factory default.
         """
         C = make_class("C", {"y": attr(),
                              "x": attr(init=init,
