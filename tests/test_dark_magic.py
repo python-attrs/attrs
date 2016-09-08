@@ -179,7 +179,6 @@ class TestDarkMagic(object):
         assert e.value.args[0] == "can't set attribute"
         assert 1 == frozen.x
 
-
     @pytest.mark.parametrize("cls", [C1, C1Slots, C2, C2Slots, Super, SuperSlots, Sub, SubSlots, Frozen])
     def test_pickle_attributes(self, cls):
         """
@@ -187,4 +186,15 @@ class TestDarkMagic(object):
         """
         for attribute in attr.fields(cls):
             assert attribute == pickle.loads(pickle.dumps(attribute))
-        
+
+    @pytest.mark.parametrize("cls", [C1, C1Slots, C2, C2Slots, Super, SuperSlots, Sub, SubSlots, Frozen])
+    def test_pickle_object(self, cls):
+        """
+        Test that serializing an object works with attr classes
+        """
+        if len(attr.fields(cls)) == 2:
+            obj = cls(123, 456)
+        else:
+            obj = cls(123)
+        assert repr(obj) == repr(pickle.loads(pickle.dumps(obj)))
+
