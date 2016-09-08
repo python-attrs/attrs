@@ -160,13 +160,12 @@ def _slots_getstate__(obj):
     """Play nice with pickle"""
     return tuple(getattr(obj, a) for a in obj.__slots__)
 
+
 def _slots_setstate__(obj, state):
     """Play nice with pickle"""
     __bound_setattr = _obj_setattr.__get__(obj, Attribute)
     for name, value in zip(obj.__slots__, state):
         __bound_setattr(name, value)
-
-
 
 
 def attributes(maybe_cls=None, these=None, repr_ns=None,
