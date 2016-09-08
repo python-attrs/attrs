@@ -156,6 +156,19 @@ def _frozen_setattrs(self, name, value):
     raise FrozenInstanceError()
 
 
+def _slots_getstate__(obj):
+    """Play nice with pickle"""
+    return tuple(getattr(obj, a) for a in obj.__slots__)
+
+def _slots_setstate__(obj, state):
+    """Play nice with pickle"""
+    __bound_setattr = _obj_setattr.__get__(obj, Attribute)
+    for name, value in zip(obj.__slots__, state):
+        __bound_setattr(name, value)
+
+
+
+
 def attributes(maybe_cls=None, these=None, repr_ns=None,
                repr=True, cmp=True, hash=True, init=True,
                slots=False, frozen=False):
@@ -245,6 +258,9 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
                 cls_name = getattr(cls, "__qualname__", cls.__name__)
             else:
                 cls_name = cls.__name__
+
+            cls_dict['__getstate__'] = _slots_getstate__
+            cls_dict['__setstate__'] = _slots_setstate__
 
             cls = type(cls_name, cls.__bases__, cls_dict)
 
@@ -630,6 +646,8 @@ class Attribute(object):
                           in Attribute.__slots__
                           if k != "name"))
 
+    __getstate__ = _slots_getstate__
+    __setstate__ = _slots_setstate__
 
 _a = [Attribute(name=name, default=NOTHING, validator=None,
                 repr=True, cmp=True, hash=True, init=True)

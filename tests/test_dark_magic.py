@@ -10,6 +10,7 @@ from attr._compat import TYPE
 from attr._make import Attribute, NOTHING
 from attr.exceptions import FrozenInstanceError
 
+import pickle
 
 @attr.s
 class C1(object):
@@ -177,3 +178,13 @@ class TestDarkMagic(object):
 
         assert e.value.args[0] == "can't set attribute"
         assert 1 == frozen.x
+
+
+    @pytest.mark.parametrize("cls", [C1, C1Slots, C2, C2Slots, Super, SuperSlots, Sub, SubSlots, Frozen])
+    def test_pickle_attributes(self, cls):
+        """
+        Test that unpickling attributes works
+        """
+        for attribute in attr.fields(cls):
+            assert attribute == pickle.loads(pickle.dumps(attribute))
+        
