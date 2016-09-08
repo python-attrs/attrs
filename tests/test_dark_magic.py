@@ -1,4 +1,5 @@
 from __future__ import absolute_import, division, print_function
+import pickle
 
 import pytest
 from hypothesis import given
@@ -10,7 +11,6 @@ from attr._compat import TYPE
 from attr._make import Attribute, NOTHING
 from attr.exceptions import FrozenInstanceError
 
-import pickle
 
 @attr.s
 class C1(object):
@@ -179,7 +179,9 @@ class TestDarkMagic(object):
         assert e.value.args[0] == "can't set attribute"
         assert 1 == frozen.x
 
-    @pytest.mark.parametrize("cls", [C1, C1Slots, C2, C2Slots, Super, SuperSlots, Sub, SubSlots, Frozen])
+    @pytest.mark.parametrize("cls",
+                             [C1, C1Slots, C2, C2Slots, Super, SuperSlots,
+                              Sub, SubSlots, Frozen])
     def test_pickle_attributes(self, cls):
         """
         Test that unpickling attributes works
@@ -187,7 +189,9 @@ class TestDarkMagic(object):
         for attribute in attr.fields(cls):
             assert attribute == pickle.loads(pickle.dumps(attribute))
 
-    @pytest.mark.parametrize("cls", [C1, C1Slots, C2, C2Slots, Super, SuperSlots, Sub, SubSlots, Frozen])
+    @pytest.mark.parametrize("cls",
+                             [C1, C1Slots, C2, C2Slots, Super, SuperSlots,
+                              Sub, SubSlots, Frozen])
     def test_pickle_object(self, cls):
         """
         Test that serializing an object works with attr classes
@@ -197,4 +201,3 @@ class TestDarkMagic(object):
         else:
             obj = cls(123)
         assert repr(obj) == repr(pickle.loads(pickle.dumps(obj)))
-
