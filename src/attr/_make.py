@@ -234,7 +234,7 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
         if frozen is True:
             cls.__setattr__ = _frozen_setattrs
             if slots is True:
-                # slots and frozen require __getstate__ and __setstate__ to work
+                # slots and frozen require __getstate__/__setstate__ to work
                 cls = _add_pickle(cls)
         if slots is True:
             cls_dict = dict(cls.__dict__)
