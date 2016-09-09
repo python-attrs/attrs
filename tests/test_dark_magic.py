@@ -69,6 +69,11 @@ class Frozen(object):
     x = attr.ib()
 
 
+@attr.s(frozen=True, slots=False)
+class FrozenNoSlots(object):
+    x = attr.ib()
+
+
 class TestDarkMagic(object):
     """
     Integration tests.
@@ -181,18 +186,22 @@ class TestDarkMagic(object):
 
     @pytest.mark.parametrize("cls",
                              [C1, C1Slots, C2, C2Slots, Super, SuperSlots,
-                              Sub, SubSlots, Frozen])
-    def test_pickle_attributes(self, cls):
+                              Sub, SubSlots, Frozen, FrozenNoSlots])
+    @pytest.mark.parametrize("protocol",
+                             range(2, pickle.HIGHEST_PROTOCOL + 1))
+    def test_pickle_attributes(self, cls, protocol):
         """
         Test that unpickling attributes works
         """
         for attribute in attr.fields(cls):
-            assert attribute == pickle.loads(pickle.dumps(attribute))
+            assert attribute == pickle.loads(pickle.dumps(attribute, protocol))
 
     @pytest.mark.parametrize("cls",
                              [C1, C1Slots, C2, C2Slots, Super, SuperSlots,
-                              Sub, SubSlots, Frozen])
-    def test_pickle_object(self, cls):
+                              Sub, SubSlots, Frozen, FrozenNoSlots])
+    @pytest.mark.parametrize("protocol",
+                             range(2, pickle.HIGHEST_PROTOCOL + 1))
+    def test_pickle_object(self, cls, protocol):
         """
         Test that serializing an object works with attr classes
         """
@@ -200,4 +209,4 @@ class TestDarkMagic(object):
             obj = cls(123, 456)
         else:
             obj = cls(123)
-        assert repr(obj) == repr(pickle.loads(pickle.dumps(obj)))
+        assert repr(obj) == repr(pickle.loads(pickle.dumps(obj, protocol)))

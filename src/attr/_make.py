@@ -156,18 +156,6 @@ def _frozen_setattrs(self, name, value):
     raise FrozenInstanceError()
 
 
-def _slots_getstate__(obj):
-    """Play nice with pickle"""
-    return tuple(getattr(obj, a.name) for a in fields(obj.__class__))
-
-
-def _slots_setstate__(obj, state):
-    """Play nice with pickle"""
-    __bound_setattr = _obj_setattr.__get__(obj, Attribute)
-    for a, value in zip(fields(obj.__class__), state):
-        __bound_setattr(a.name, value)
-
-
 def attributes(maybe_cls=None, these=None, repr_ns=None,
                repr=True, cmp=True, hash=True, init=True,
                slots=False, frozen=False):
@@ -245,6 +233,9 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
             cls = _add_init(cls, frozen)
         if frozen is True:
             cls.__setattr__ = _frozen_setattrs
+            if slots is True:
+                # slots and frozen require __getstate__ and __setstate__ to work
+                cls = _add_pickle(cls)
         if slots is True:
             cls_dict = dict(cls.__dict__)
             cls_dict["__slots__"] = tuple(ca_list)
@@ -257,10 +248,6 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
                 cls_name = getattr(cls, "__qualname__", cls.__name__)
             else:
                 cls_name = cls.__name__
-
-            cls_dict['__getstate__'] = _slots_getstate__
-            cls_dict['__setstate__'] = _slots_setstate__
-
             cls = type(cls_name, cls.__bases__, cls_dict)
 
         return cls
@@ -445,6 +432,23 @@ def _add_init(cls, frozen):
         unique_filename
     )
     cls.__init__ = init
+    return cls
+
+
+def _add_pickle(cls):
+    """Add pickle helpers, needed for frozen and slotted classes"""
+    def _slots_getstate__(obj):
+        """Play nice with pickle"""
+        return tuple(getattr(obj, a.name) for a in fields(obj.__class__))
+
+    def _slots_setstate__(obj, state):
+        """Play nice with pickle"""
+        __bound_setattr = _obj_setattr.__get__(obj, Attribute)
+        for a, value in zip(fields(obj.__class__), state):
+            __bound_setattr(a.name, value)
+
+    cls.__getstate__ = _slots_getstate__
+    cls.__setstate__ = _slots_setstate__
     return cls
 
 
@@ -645,6 +649,7 @@ class Attribute(object):
                           in Attribute.__slots__
                           if k != "name"))
 
+    # Don't use _add_pickle since fields(Attribute) doesn't work
     def __getstate__(self):
         """Play nice with pickle"""
         return tuple(getattr(self, name) for name in self.__slots__)

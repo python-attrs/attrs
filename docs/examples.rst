@@ -441,6 +441,11 @@ Slot classes are a little different than ordinary, dictionary-backed classes:
 - Since non-slot classes cannot be turned into slot classes after they have been created, ``attr.s(.., slots=True)`` will *replace* the class it is applied to with a copy.
   In almost all cases this isn't a problem, but we mention it for the sake of completeness.
 
+- Using pickle with slot classes require pickle protocol 2 or greater. Python 2 uses protocol 0 by default so the
+  protocol would need to be specified. Python 3 uses protocol 3 by default. You can support protocol 0 and 1 by
+  `creating <https://docs.python.org/2/library/pickle.html#object.__getstate__>`_ a ``__getstate__`` and
+  ``__setstate__`` method. Those methods are created for frozen slot classes because they don't pickle otherwise.
+
 All in all, setting ``slots=True`` is usually a very good idea.
 
 
