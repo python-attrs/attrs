@@ -7,7 +7,7 @@ from __future__ import absolute_import, division, print_function
 import pytest
 
 from hypothesis import given
-from hypothesis.strategies import booleans, sampled_from
+from hypothesis.strategies import booleans, integers, sampled_from
 
 from attr import _config
 from attr._compat import PY2
@@ -20,6 +20,7 @@ from attr._make import (
     fields,
     make_class,
     validate,
+    Factory,
 )
 
 from .utils import simple_attr, simple_attrs
@@ -387,6 +388,33 @@ class TestConvert(object):
                              "y": attr()})
         c = C(1, 2)
         assert c.x == 2
+        assert c.y == 2
+
+    @given(integers(), booleans())
+    def test_convert_property(self, val, init):
+        """
+        Property tests for attributes with convert.
+        """
+        C = make_class("C", {"y": attr(),
+                             "x": attr(init=init, default=val,
+                                       convert=lambda v: v + 1),
+                             })
+        c = C(2)
+        assert c.x == val + 1
+        assert c.y == 2
+
+    @given(integers(), booleans())
+    def test_convert_factory_property(self, val, init):
+        """
+        Property tests for attributes with convert, and a factory default.
+        """
+        C = make_class("C", {"y": attr(),
+                             "x": attr(init=init,
+                                       default=Factory(lambda: val),
+                                       convert=lambda v: v + 1),
+                             })
+        c = C(2)
+        assert c.x == val + 1
         assert c.y == 2
 
     def test_convert_before_validate(self):

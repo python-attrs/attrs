@@ -9,6 +9,7 @@ from .exceptions import FrozenInstanceError
 
 # This is used at least twice, so cache it here.
 _obj_setattr = object.__setattr__
+_init_convert_pat = '__attr_convert_{}'
 
 
 class _Nothing(object):
@@ -414,8 +415,6 @@ def _add_init(cls, frozen):
     globs.update({
         "NOTHING": NOTHING,
         "attr_dict": attr_dict,
-        "validate": validate,
-        "_convert": _convert
     })
     if frozen is True:
         # Save the lookup overhead in __init__ if we need to circumvent
@@ -496,22 +495,6 @@ def validate(inst):
             a.validator(inst, a, getattr(inst, a.name))
 
 
-def _convert(inst, setattr_):
-    """
-    Convert all attributes on *inst* that have a converter.
-
-    Uses *setattr_* to set the attributes on the class.  Allows for
-    circumvention of frozen instances.
-
-    Leaves all exceptions through.
-
-    :param inst: Instance of a class with ``attrs`` attributes.
-    """
-    for a in inst.__class__.__attrs_attrs__:
-        if a.convert is not None:
-            setattr_(a.name, a.convert(getattr(inst, a.name)))
-
-
 def _attrs_to_script(attrs, frozen):
     """
     Return a script of an initializer for *attrs* and a dict of globals.
@@ -529,10 +512,18 @@ def _attrs_to_script(attrs, frozen):
             "_setattr = _cached_setattr.__get__(self, self.__class__)"
         )
 
-        def fmt_setter(attr_name, value):
-            return "_setattr('%(attr_name)s', %(value)s)" % {
+        def fmt_setter(attr_name, value_var):
+            return "_setattr('%(attr_name)s', %(value_var)s)" % {
                 "attr_name": attr_name,
-                "value": value,
+                "value_var": value_var,
+            }
+
+        def fmt_setter_with_converter(attr_name, value_var):
+            conv_name = _init_convert_pat.format(attr_name)
+            return "_setattr('%(attr_name)s', %(conv)s(%(value_var)s))" % {
+                "attr_name": attr_name,
+                "value_var": value_var,
+                "conv": conv_name,
             }
     else:
         def fmt_setter(attr_name, value):
@@ -541,34 +532,56 @@ def _attrs_to_script(attrs, frozen):
                 "value": value,
             }
 
+        def fmt_setter_with_converter(attr_name, value_var):
+            conv_name = _init_convert_pat.format(attr_name)
+            return "self.%(attr_name)s = %(conv)s(%(value_var)s)" % {
+                "attr_name": attr_name,
+                "value_var": value_var,
+                "conv": conv_name,
+            }
+
     args = []
-    has_convert = False
     attrs_to_validate = []
 
-    # This is a dictionary of names to validator callables. Injecting
-    # this into __init__ globals lets us avoid lookups.
-    validators_for_globals = {}
+    # This is a dictionary of names to validator and converter callables.
+    # Injecting this into __init__ globals lets us avoid lookups.
+    names_for_globals = {}
 
     for a in attrs:
         if a.validator is not None:
             attrs_to_validate.append(a)
-        if a.convert is not None:
-            has_convert = True
         attr_name = a.name
         arg_name = a.name.lstrip("_")
         if a.init is False:
             if isinstance(a.default, Factory):
-                lines.append(fmt_setter(
-                    attr_name,
-                    "attr_dict['{attr_name}'].default.factory()"
-                    .format(attr_name=attr_name)
-                ))
+                if a.convert is not None:
+                    lines.append(fmt_setter_with_converter(
+                        attr_name,
+                        "attr_dict['{attr_name}'].default.factory()"
+                        .format(attr_name=attr_name)))
+                    conv_name = _init_convert_pat.format(a.name)
+                    names_for_globals[conv_name] = a.convert
+                else:
+                    lines.append(fmt_setter(
+                        attr_name,
+                        "attr_dict['{attr_name}'].default.factory()"
+                        .format(attr_name=attr_name)
+                    ))
             else:
-                lines.append(fmt_setter(
-                    attr_name,
-                    "attr_dict['{attr_name}'].default"
-                    .format(attr_name=attr_name)
-                ))
+                if a.convert is not None:
+                    lines.append(fmt_setter_with_converter(
+                        attr_name,
+                        "attr_dict['{attr_name}'].default"
+                        .format(attr_name=attr_name)
+                    ))
+                    conv_name = _init_convert_pat.format(a.name)
+                    names_for_globals[conv_name] = a.convert
+                else:
+                    lines.append(fmt_setter(
+                        attr_name,
+                        "attr_dict['{attr_name}'].default"
+                        .format(attr_name=attr_name)
+                    ))
         elif a.default is not NOTHING and not isinstance(a.default, Factory):
             args.append(
                 "{arg_name}=attr_dict['{attr_name}'].default".format(
@@ -576,29 +589,43 @@ def _attrs_to_script(attrs, frozen):
                     attr_name=attr_name,
                 )
             )
-            lines.append(fmt_setter(attr_name, arg_name))
+            if a.convert is not None:
+                lines.append(fmt_setter_with_converter(attr_name, arg_name))
+                names_for_globals[_init_convert_pat.format(a.name)] = a.convert
+            else:
+                lines.append(fmt_setter(attr_name, arg_name))
         elif a.default is not NOTHING and isinstance(a.default, Factory):
             args.append("{arg_name}=NOTHING".format(arg_name=arg_name))
             lines.append("if {arg_name} is not NOTHING:"
                          .format(arg_name=arg_name))
-            lines.append("    " + fmt_setter(attr_name, arg_name))
-            lines.append("else:")
-            lines.append("    " + fmt_setter(
-                attr_name,
-                "attr_dict['{attr_name}'].default.factory()"
-                .format(attr_name=attr_name)
-            ))
+            if a.convert is not None:
+                lines.append("    " + fmt_setter_with_converter(attr_name,
+                                                                arg_name))
+                lines.append("else:")
+                lines.append("    " + fmt_setter_with_converter(
+                    attr_name,
+                    "attr_dict['{attr_name}'].default.factory()"
+                    .format(attr_name=attr_name)
+                ))
+                names_for_globals[_init_convert_pat.format(a.name)] = a.convert
+            else:
+                lines.append("    " + fmt_setter(attr_name, arg_name))
+                lines.append("else:")
+                lines.append("    " + fmt_setter(
+                    attr_name,
+                    "attr_dict['{attr_name}'].default.factory()"
+                    .format(attr_name=attr_name)
+                ))
         else:
             args.append(arg_name)
-            lines.append(fmt_setter(attr_name, arg_name))
+            if a.convert is not None:
+                lines.append(fmt_setter_with_converter(attr_name, arg_name))
+                names_for_globals[_init_convert_pat.format(a.name)] = a.convert
+            else:
+                lines.append(fmt_setter(attr_name, arg_name))
 
-    if has_convert:
-        if frozen is True:
-            lines.append("_convert(self, _setattr)")
-        else:
-            lines.append("_convert(self, self.__setattr__)")
     if attrs_to_validate:  # we can skip this if there are no validators.
-        validators_for_globals["_config"] = _config
+        names_for_globals["_config"] = _config
         lines.append("if _config._run_validators is False:")
         lines.append("    return")
     for a in attrs_to_validate:
@@ -606,8 +633,8 @@ def _attrs_to_script(attrs, frozen):
         attr_name = "__attr_{}".format(a.name)
         lines.append("{}(self, {}, self.{})".format(val_name, attr_name,
                                                     a.name))
-        validators_for_globals[val_name] = a.validator
-        validators_for_globals[attr_name] = a
+        names_for_globals[val_name] = a.validator
+        names_for_globals[attr_name] = a
 
     return """\
 def __init__(self, {args}):
@@ -615,7 +642,7 @@ def __init__(self, {args}):
 """.format(
         args=", ".join(args),
         lines="\n    ".join(lines) if lines else "pass",
-    ), validators_for_globals
+    ), names_for_globals
 
 
 class Attribute(object):
