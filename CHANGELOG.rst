@@ -17,6 +17,8 @@ Changes:
   `#80 <https://github.com/hynek/attrs/pull/80>`_
 - Pickling now works with ``__slots__`` classes.
   `#81 <https://github.com/hynek/attrs/issues/81>`_
+- ``attr.assoc`` now works with ``__slots__`` classes.
+  `#84 <https://github.com/hynek/attrs/issues/84>`_
 
 
 ----

@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 import copy
 
 from ._compat import iteritems
-from ._make import Attribute, NOTHING, fields, _obj_setattr
+from ._make import NOTHING, fields, _obj_setattr
 
 
 def asdict(inst, recurse=True, filter=None, dict_factory=dict,
@@ -87,9 +87,10 @@ def assoc(inst, **changes):
     :return: A copy of inst with *changes* incorporated.
     """
     new = copy.copy(inst)
+    attr_map = {a.name: a for a in new.__class__.__attrs_attrs__}
     for k, v in iteritems(changes):
-        a = getattr(new.__class__, k, NOTHING)
-        if a is NOTHING or not isinstance(a, Attribute):
+        a = attr_map.get(k, NOTHING)
+        if a is NOTHING:
             raise ValueError(
                 "{k} is not an attrs attribute on {cl}."
                 .format(k=k, cl=new.__class__)

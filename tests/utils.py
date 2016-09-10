@@ -126,9 +126,35 @@ simple_attrs = st.one_of(bare_attrs, int_attrs, str_attrs, float_attrs,
 
 # Python functions support up to 255 arguments.
 list_of_attrs = st.lists(simple_attrs, average_size=9, max_size=50)
-simple_classes = list_of_attrs.map(_create_hyp_class)
+
+
+@st.composite
+def simple_classes(draw, slots=None, frozen=None):
+    """A strategy that generates classes with default non-attr attributes.
+
+    For example, this strategy might generate a class such as:
+
+    @attr.s(slots=True, frozen=True)
+    class HypClass:
+        a = attr.ib(default=1)
+        b = attr.ib(default=None)
+        c = attr.ib(default='text')
+        d = attr.ib(default=1.0)
+        c = attr.ib(default={'t': 1})
+
+    By default, all combinations of slots and frozen classes will be generated.
+    If `slots=True` is passed in, only slots classes will be generated, and
+    if `slots=False` is passed in, no slot classes will be generated. The same
+    applies to `frozen`.
+    """
+    attrs = draw(list_of_attrs)
+    frozen_flag = draw(st.booleans()) if frozen is None else frozen
+    slots_flag = draw(st.booleans()) if slots is None else slots
+
+    return make_class('HypClass', dict(zip(_gen_attr_names(), attrs)),
+                      slots=slots_flag, frozen=frozen_flag)
 
 # Ok, so st.recursive works by taking a base strategy (in this case,
 # simple_classes) and a special function. This function receives a strategy,
 # and returns another strategy (building on top of the base strategy).
-nested_classes = st.recursive(simple_classes, _create_hyp_nested_strategy)
+nested_classes = st.recursive(simple_classes(), _create_hyp_nested_strategy)

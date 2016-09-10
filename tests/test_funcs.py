@@ -8,7 +8,7 @@ from collections import OrderedDict, Sequence, Mapping
 
 import pytest
 
-from hypothesis import given, strategies as st
+from hypothesis import assume, given, strategies as st
 
 from .utils import simple_classes, nested_classes
 
@@ -130,7 +130,7 @@ class TestAsDict(object):
         } == res
         assert isinstance(res, dict_factory)
 
-    @given(simple_classes, st.sampled_from(MAPPING_TYPES))
+    @given(simple_classes(), st.sampled_from(MAPPING_TYPES))
     def test_roundtrip(self, cls, dict_class):
         """
         Test dumping to dicts and back for Hypothesis-generated classes.
@@ -144,7 +144,7 @@ class TestAsDict(object):
 
         assert instance == roundtrip_instance
 
-    @given(simple_classes)
+    @given(simple_classes())
     def test_asdict_preserve_order(self, cls):
         """
         Field order should be preserved when dumping to OrderedDicts.
@@ -186,11 +186,12 @@ class TestAssoc(object):
     """
     Tests for `assoc`.
     """
-    def test_empty(self):
+    @given(slots=st.booleans(), frozen=st.booleans())
+    def test_empty(self, slots, frozen):
         """
         Empty classes without changes get copied.
         """
-        @attributes
+        @attributes(slots=slots, frozen=frozen)
         class C(object):
             pass
 
@@ -200,36 +201,39 @@ class TestAssoc(object):
         assert i1 is not i2
         assert i1 == i2
 
+    @given(simple_classes())
     def test_no_changes(self, C):
         """
         No changes means a verbatim copy.
         """
-        i1 = C(1, 2)
+        i1 = C()
         i2 = assoc(i1)
 
         assert i1 is not i2
         assert i1 == i2
 
-    def test_change(self, C):
+    @given(simple_classes(), st.integers())
+    def test_change(self, C, val):
         """
         Changes work.
         """
-        i = assoc(C(1, 2), x=42)
-        assert C(42, 2) == i
+        # Take the first attribute, and change it.
+        assume(fields(C))  # Skip classes with no attributes.
+        original = C()
+        attribute = fields(C)[0]
+        changed = assoc(original, **{attribute.name: val})
+        assert getattr(changed, attribute.name) == val
 
+    @given(simple_classes())
     def test_unknown(self, C):
         """
         Wanting to change an unknown attribute raises a ValueError.
         """
-        @attributes
-        class C(object):
-            x = attr()
-            y = 42
-
+        # No generated class will have a four letter attribute.
         with pytest.raises(ValueError) as e:
-            assoc(C(1), y=2)
+            assoc(C(), aaaa=2)
         assert (
-            "y is not an attrs attribute on {cls!r}.".format(cls=C),
+            "aaaa is not an attrs attribute on {cls!r}.".format(cls=C),
         ) == e.value.args
 
     def test_frozen(self):
