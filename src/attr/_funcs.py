@@ -139,6 +139,33 @@ def astuple(inst, recurse=True, filter=None, tuple_factory=tuple,
     return rv if tuple_factory is list else tuple_factory(rv)
 
 
+def fromdict(cls, dct, recurse=True, rename=lambda a: a):
+    """
+    Construct an instance of an ``attrs``-decorated class from a dict.
+
+    Optionally recursively construct fields that are ``attrs``-decorated
+    classes (requires type info).
+
+    :param cls: An ``attrs``-decorated class.
+    :param dct: A dictionary to construct in instance of *cls* from.
+    :param bool recurse: Recursively construct fields that are also
+        ``attrs``-decorated.
+    :param callable rename: A callable that renames attribute names before
+        looking them up in the dict.
+
+    :rtype: *cls*
+    """
+    attrs = fields(cls)
+    cons = {}
+    for a in attrs:
+        if recurse and a.type is not None and has(a.type):
+            cons[a.name] = fromdict(a.type, dct[rename(a.name)], True, rename)
+        else:
+            cons[a.name] = dct[rename(a.name)]
+
+    return cls(**cons)
+
+
 def has(cls):
     """
     Check whether *cls* is a class with ``attrs`` attributes.
