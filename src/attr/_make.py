@@ -7,7 +7,7 @@ from operator import itemgetter
 
 from . import _config
 from ._compat import iteritems, isclass, iterkeys
-from .exceptions import FrozenInstanceError
+from .exceptions import FrozenInstanceError, NotAnAttrsClassError
 
 # This is used at least twice, so cache it here.
 _obj_setattr = object.__setattr__
@@ -501,7 +501,8 @@ def fields(cls):
     :param type cls: Class to introspect.
 
     :raise TypeError: If *cls* is not a class.
-    :raise ValueError: If *cls* is not an ``attrs`` class.
+    :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
+        class.
 
     :rtype: tuple of :class:`attr.Attribute`
     """
@@ -509,9 +510,9 @@ def fields(cls):
         raise TypeError("Passed object must be a class.")
     attrs = getattr(cls, "__attrs_attrs__", None)
     if attrs is None:
-        raise ValueError("{cls!r} is not an attrs-decorated class.".format(
-            cls=cls
-        ))
+        raise NotAnAttrsClassError(
+            "{cls!r} is not an attrs-decorated class.".format(cls=cls)
+        )
     return attrs
 
 

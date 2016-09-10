@@ -103,6 +103,8 @@ Core
 
 
 .. autoexception:: attr.exceptions.FrozenInstanceError
+.. autoexception:: attr.exceptions.AttrsAttributeNotFoundError
+.. autoexception:: attr.exceptions.NotAnAttrsClassError
 
 
 .. _helpers:
@@ -161,6 +163,7 @@ Helpers
 
 .. autofunction:: attr.filters.exclude
 
+See :ref:`asdict` for examples.
 
 .. autofunction:: assoc
 
@@ -180,7 +183,6 @@ Helpers
       C(x=1, y=3)
       >>> i1 == i2
       False
-
 
 .. autofunction:: validate
 

@@ -22,6 +22,7 @@ from attr._make import (
     attributes,
     fields,
 )
+from attr.exceptions import AttrsAttributeNotFoundError
 
 MAPPING_TYPES = (dict, OrderedDict)
 SEQUENCE_TYPES = (list, tuple)
@@ -230,7 +231,7 @@ class TestAssoc(object):
         Wanting to change an unknown attribute raises a ValueError.
         """
         # No generated class will have a four letter attribute.
-        with pytest.raises(ValueError) as e:
+        with pytest.raises(AttrsAttributeNotFoundError) as e:
             assoc(C(), aaaa=2)
         assert (
             "aaaa is not an attrs attribute on {cls!r}.".format(cls=C),
