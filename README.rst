@@ -6,7 +6,7 @@ attrs: Attributes Without Boilerplate
    :target: http://attrs.readthedocs.io/en/stable/?badge=stable
    :alt: Documentation Status
 
-.. image:: https://travis-ci.org/hynek/attrs.svg
+.. image:: https://travis-ci.org/hynek/attrs.svg?branch=master
    :target: https://travis-ci.org/hynek/attrs
    :alt: CI status
 
