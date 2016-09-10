@@ -13,6 +13,8 @@ Changes:
 
 - Converts now work with frozen classes.
   `#76 <https://github.com/hynek/attrs/issues/76>`_
+- Pickling now works with ``__slots__`` classes.
+  `#81 <https://github.com/hynek/attrs/issues/81>`_
 
 
 ----
