@@ -160,6 +160,8 @@ Therefore ``@attr.s`` comes with the ``repr_ns`` option to set it manually:
 On Python 3 it overrides the implicit detection.
 
 
+.. _asdict:
+
 Converting to Dictionaries
 --------------------------
 

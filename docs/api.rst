@@ -163,6 +163,7 @@ Helpers
 
 .. autofunction:: attr.filters.exclude
 
+See :ref:`asdict` for examples.
 
 .. autofunction:: assoc
 
