@@ -103,7 +103,7 @@ class TestTransformAttrs(object):
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, repr=True, "
-            "cmp=True, hash=True, init=True, convert=None)",
+            "cmp=True, hash=True, init=True, convert=None, type=None)",
         ) == e.value.args
 
     def test_these(self):
