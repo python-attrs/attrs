@@ -4,7 +4,7 @@ import hashlib
 import linecache
 
 from . import _config
-from ._compat import exec_, iteritems, isclass, iterkeys
+from ._compat import iteritems, isclass, iterkeys
 from .exceptions import FrozenInstanceError
 
 # This is used at least twice, so cache it here.
@@ -420,7 +420,7 @@ def _add_init(cls, frozen):
         # Save the lookup overhead in __init__ if we need to circumvent
         # immutability.
         globs["_cached_setattr"] = _obj_setattr
-    exec_(bytecode, globs, locs)
+    eval(bytecode, globs, locs)
     init = locs["__init__"]
 
     # In order of debuggers like PDB being able to step through the code,
