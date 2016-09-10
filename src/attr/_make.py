@@ -116,10 +116,14 @@ def _make_attr_tuple_class(cls_name, attr_names):
     The subclass is a bare tuple with properties for names.
 
     class MyClassAttributes(tuple):
+        __slots__ = ()
         x = property(itemgetter(0))
     """
     attr_class_name = "{}Attributes".format(cls_name)
-    attr_class_template = ["class {}(tuple):".format(attr_class_name)]
+    attr_class_template = [
+        "class {}(tuple):".format(attr_class_name),
+        "    __slots__ = ()",
+    ]
     if attr_names:
         for i, attr_name in enumerate(attr_names):
             attr_class_template.append(_tuple_property_pat.format(
