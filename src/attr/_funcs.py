@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 import copy
 
-from ._compat import iteritems, lru_cache
+from ._compat import iteritems
 from ._make import NOTHING, fields, _obj_setattr
 from .exceptions import AttrsAttributeNotFoundError
 
@@ -79,14 +79,6 @@ def has(cls):
     return getattr(cls, "__attrs_attrs__", None) is not None
 
 
-@lru_cache()
-def _make_attr_map(cls):
-    """
-    Create a dictionary of attr_name: attribute pairs for *cls*.
-    """
-    return {a.name: a for a in fields(cls)}
-
-
 def assoc(inst, **changes):
     """
     Copy *inst* and apply *changes*.
@@ -102,9 +94,9 @@ def assoc(inst, **changes):
         class.
     """
     new = copy.copy(inst)
-    attr_map = _make_attr_map(new.__class__)
+    attrs = fields(inst.__class__)
     for k, v in iteritems(changes):
-        a = attr_map.get(k, NOTHING)
+        a = getattr(attrs, k, NOTHING)
         if a is NOTHING:
             raise AttrsAttributeNotFoundError(
                 "{k} is not an attrs attribute on {cl}."
@@ -112,22 +104,3 @@ def assoc(inst, **changes):
             )
         _obj_setattr(new, k, v)
     return new
-
-
-def by_name(cls, attr_name):
-    """
-    Return the :class:`attr.Attribute` of *attr_name* from *cls*.
-
-    :raise attr.exceptions.AttrsAttributeNotFoundError: If *attr_name* couldn't
-        be found on *cls*.
-    :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
-        class.
-
-    .. versionadded:: 16.2.0
-    """
-    try:
-        return _make_attr_map(cls)[attr_name]
-    except KeyError:
-        raise AttrsAttributeNotFoundError(
-            "%r has no attrs attribute %r" % (cls, attr_name)
-        )

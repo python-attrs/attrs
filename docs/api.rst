@@ -184,19 +184,6 @@ See :ref:`asdict` for examples.
       >>> i1 == i2
       False
 
-.. autofunction:: by_name
-
-   For example:
-
-   .. doctest::
-
-      >>> @attr.s
-      ... class C(object):
-      ...     x = attr.ib()
-      ...     y = attr.ib()
-      >>> attr.by_name(C, "x")
-      Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None)
-
 .. autofunction:: validate
 
    For example:

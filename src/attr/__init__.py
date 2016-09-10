@@ -3,7 +3,6 @@ from __future__ import absolute_import, division, print_function
 from ._funcs import (
     asdict,
     assoc,
-    by_name,
     has,
 )
 from ._make import (
@@ -52,7 +51,6 @@ __all__ = [
     "attrib",
     "attributes",
     "attrs",
-    "by_name",
     "exceptions",
     "fields",
     "filters",
