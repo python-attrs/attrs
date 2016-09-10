@@ -162,7 +162,7 @@ def _transform_attrs(cls, these):
     ]
     attr_names = [a.name for a in super_cls + non_super_attrs]
 
-    AttrsClass = _make_attr_tuple_class('', attr_names)
+    AttrsClass = _make_attr_tuple_class(cls.__name__, attr_names)
 
     cls.__attrs_attrs__ = AttrsClass(super_cls + [
         Attribute.from_counting_attr(name=attr_name, ca=ca)

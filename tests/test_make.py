@@ -23,7 +23,7 @@ from attr._make import (
     Factory,
 )
 
-from .utils import simple_attr, simple_attrs
+from .utils import simple_attr, simple_attrs, simple_classes
 
 attrs = simple_attrs.map(lambda c: Attribute.from_counting_attr('name', c))
 
@@ -369,11 +369,20 @@ class TestFields(object):
             "{o!r} is not an attrs-decorated class.".format(o=object)
         ) == e.value.args[0]
 
+    @given(simple_classes())
     def test_fields(self, C):
         """
         Returns a list of `Attribute`a.
         """
         assert all(isinstance(a, Attribute) for a in fields(C))
+
+    @given(simple_classes())
+    def test_fields_properties(self, C):
+        """
+        Fields returns a tuple with properties.
+        """
+        for attribute in fields(C):
+            assert getattr(fields(C), attribute.name) is attribute
 
 
 class TestConvert(object):
