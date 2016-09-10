@@ -3,6 +3,8 @@ from __future__ import absolute_import, division, print_function
 import hashlib
 import linecache
 
+from operator import itemgetter
+
 from . import _config
 from ._compat import iteritems, isclass, iterkeys
 from .exceptions import FrozenInstanceError
@@ -10,6 +12,7 @@ from .exceptions import FrozenInstanceError
 # This is used at least twice, so cache it here.
 _obj_setattr = object.__setattr__
 _init_convert_pat = '__attr_convert_{}'
+_tuple_property_pat = "    {attr_name} = property(itemgetter({index}))"
 
 
 class _Nothing(object):
@@ -106,10 +109,34 @@ def attr(default=NOTHING, validator=None,
     )
 
 
+def _make_attr_tuple_class(cls_name, attr_names):
+    """
+    Create a tuple subclass to hold `Attribute`s for an `attrs` class.
+
+    The subclass is a bare tuple with properties for names.
+
+    class MyClassAttributes(tuple):
+        x = property(itemgetter(0))
+    """
+    attr_class_name = "{}Attributes".format(cls_name)
+    attr_class_template = ["class {}(tuple):".format(attr_class_name)]
+    if attr_names:
+        for i, attr_name in enumerate(attr_names):
+            attr_class_template.append(_tuple_property_pat.format(
+                index=i,
+                attr_name=attr_name,
+            ))
+    else:
+        attr_class_template.append("    pass")
+    globs = {'itemgetter': itemgetter}
+    eval(compile("\n".join(attr_class_template), '', 'exec'), globs)
+    return globs[attr_class_name]
+
+
 def _transform_attrs(cls, these):
     """
     Transforms all `_CountingAttr`s on a class into `Attribute`s and saves the
-    list as a tuple in `__attrs_attrs__`.
+    list as a namedtuple in `__attrs_attrs__`.
 
     If *these* is passed, use that and don't look for them on the class.
     """
@@ -128,7 +155,16 @@ def _transform_attrs(cls, these):
                    for name, ca
                    in iteritems(these)]
 
-    cls.__attrs_attrs__ = tuple(super_cls + [
+    non_super_attrs = [
+        Attribute.from_counting_attr(name=attr_name, ca=ca)
+        for attr_name, ca
+        in sorted(ca_list, key=lambda e: e[1].counter)
+    ]
+    attr_names = [a.name for a in super_cls + non_super_attrs]
+
+    AttrsClass = _make_attr_tuple_class(cls.__name__, attr_names)
+
+    cls.__attrs_attrs__ = AttrsClass(super_cls + [
         Attribute.from_counting_attr(name=attr_name, ca=ca)
         for attr_name, ca
         in sorted(ca_list, key=lambda e: e[1].counter)
