@@ -117,7 +117,7 @@ Or if you want to use properties:
       ...
    AttributeError: can't set attribute
 
-`Sub-classing <https://www.youtube.com/watch?v=3MNVP9-hglc>`_ is bad for you, but ``attrs`` will still do what you'd hope for:
+`Subclassing <https://www.youtube.com/watch?v=3MNVP9-hglc>`_ is bad for you, but ``attrs`` will still do what you'd hope for:
 
 .. doctest::
 

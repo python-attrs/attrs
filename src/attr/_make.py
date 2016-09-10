@@ -498,13 +498,19 @@ def fields(cls):
     """
     Returns the tuple of ``attrs`` attributes for a class.
 
+    The tuple also allows accessing the fields by their names (see below for
+    examples).
+
     :param type cls: Class to introspect.
 
     :raise TypeError: If *cls* is not a class.
     :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
         class.
 
-    :rtype: tuple of :class:`attr.Attribute`
+    :rtype: tuple (with name accesors) of :class:`attr.Attribute`
+
+    ..  versionchanged:: 16.2.0 Returned tuple allows accessing the fields
+        by name.
     """
     if not isclass(cls):
         raise TypeError("Passed object must be a class.")

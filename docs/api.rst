@@ -126,6 +126,10 @@ Helpers
       ...     y = attr.ib()
       >>> attr.fields(C)
       (Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None), Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None))
+      >>> attr.fields(C)[1]
+      Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None)
+      >>> attr.fields(C).y is attr.fields(C)[1]
+      True
 
 
 .. autofunction:: attr.has
