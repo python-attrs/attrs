@@ -8,6 +8,7 @@ import pytest
 
 from attr._make import attributes, attr
 from attr.filters import _split_what, include, exclude
+from attr._funcs import by_name
 
 
 @attributes
@@ -37,28 +38,28 @@ class TestInclude(object):
     @pytest.mark.parametrize("incl,value", [
         ((int,), 42),
         ((str,), "hello"),
-        ((str, C.a), 42),
-        ((str, C.b), "hello"),
+        ((str, by_name(C, "a")), 42),
+        ((str, by_name(C, "b")), "hello"),
     ])
     def test_allow(self, incl, value):
         """
         Return True if a class or attribute is whitelisted.
         """
         i = include(*incl)
-        assert i(C.a, value) is True
+        assert i(by_name(C, "a"), value) is True
 
     @pytest.mark.parametrize("incl,value", [
         ((str,), 42),
         ((int,), "hello"),
-        ((str, C.b), 42),
-        ((int, C.b), "hello"),
+        ((str, by_name(C, "b")), 42),
+        ((int, by_name(C, "b")), "hello"),
     ])
     def test_drop_class(self, incl, value):
         """
         Return False on non-whitelisted classes and attributes.
         """
         i = include(*incl)
-        assert i(C.a, value) is False
+        assert i(by_name(C, "a"), value) is False
 
 
 class TestExclude(object):
@@ -68,25 +69,25 @@ class TestExclude(object):
     @pytest.mark.parametrize("excl,value", [
         ((str,), 42),
         ((int,), "hello"),
-        ((str, C.b), 42),
-        ((int, C.b), "hello"),
+        ((str, by_name(C, "b")), 42),
+        ((int, by_name(C, "b")), "hello"),
     ])
     def test_allow(self, excl, value):
         """
         Return True if class or attribute is not blacklisted.
         """
         e = exclude(*excl)
-        assert e(C.a, value) is True
+        assert e(by_name(C, "a"), value) is True
 
     @pytest.mark.parametrize("excl,value", [
         ((int,), 42),
         ((str,), "hello"),
-        ((str, C.a), 42),
-        ((str, C.b), "hello"),
+        ((str, by_name(C, "a")), 42),
+        ((str, by_name(C, "b")), "hello"),
     ])
     def test_drop_class(self, excl, value):
         """
         Return True on non-blacklisted classes and attributes.
         """
         e = exclude(*excl)
-        assert e(C.a, value) is False
+        assert e(by_name(C, "a"), value) is False
