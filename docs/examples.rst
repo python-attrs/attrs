@@ -207,7 +207,7 @@ For the common case where you want to :func:`include <attr.filters.include>` or 
    ...     y = attr.ib()
    ...     z = attr.ib()
    >>> attr.asdict(C("foo", "2", 3),
-   ...             filter=attr.filters.include(int, attr.fields(C).x)))
+   ...             filter=attr.filters.include(int, attr.fields(C).x))
    {'z': 3, 'x': 'foo'}
 
 
