@@ -2,6 +2,11 @@ from __future__ import absolute_import, division, print_function
 
 import sys
 
+__all__ = [
+    "PY2",
+    "isclass", "TYPE", "exec_", "iteritems", "iterkeys", "lru_cache",
+]
+
 
 PY2 = sys.version_info[0] == 2
 
@@ -22,7 +27,14 @@ if PY2:
 
     def iterkeys(d):
         return d.iterkeys()
+
+    def lru_cache(maxsize=128, typed=False):
+        def wrapper(func):
+            return func  # lol upgrade
+        return wrapper
 else:
+    from functools import lru_cache
+
     def isclass(klass):
         return isinstance(klass, type)
 

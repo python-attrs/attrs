@@ -15,6 +15,7 @@ from .utils import simple_classes, nested_classes
 from attr._funcs import (
     asdict,
     assoc,
+    by_name,
     has,
 )
 from attr._make import (
@@ -22,6 +23,7 @@ from attr._make import (
     attributes,
     fields,
 )
+from attr.exceptions import AttrsAttributeNotFoundError
 
 MAPPING_TYPES = (dict, OrderedDict)
 SEQUENCE_TYPES = (list, tuple)
@@ -230,7 +232,7 @@ class TestAssoc(object):
         Wanting to change an unknown attribute raises a ValueError.
         """
         # No generated class will have a four letter attribute.
-        with pytest.raises(ValueError) as e:
+        with pytest.raises(AttrsAttributeNotFoundError) as e:
             assoc(C(), aaaa=2)
         assert (
             "aaaa is not an attrs attribute on {cls!r}.".format(cls=C),
@@ -246,3 +248,29 @@ class TestAssoc(object):
             y = attr()
 
         assert C(3, 2) == assoc(C(1, 2), x=3)
+
+
+class TestByName(object):
+    @given(simple_classes())
+    def test_inexisting_attribute(self, C):
+        """
+        Getting an inexisting attribute raises an InvalidAttributeError.
+        """
+        # No generated class will have a four letter attribute.
+        with pytest.raises(AttrsAttributeNotFoundError) as e:
+            by_name(C, "aaaa")
+
+        assert (
+            "<class 'attr._make.HypClass'> has no attrs attribute 'aaaa'"
+        ) == e.value.args[0]
+
+    @given(simple_classes())
+    def test_existing_attribute(self, C):
+        """
+        Works for existing attributes for all kinds of attrs classes.
+        """
+        for attr_name in (a.name for a in C.__attrs_attrs__):
+            attr = by_name(C, attr_name)
+
+            assert attr_name == attr.name
+            assert attr in C.__attrs_attrs__

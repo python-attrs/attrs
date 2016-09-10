@@ -196,14 +196,16 @@ For the common case where you want to :func:`include <attr.filters.include>` or 
    ...     login = attr.ib()
    ...     password = attr.ib()
    ...     id = attr.ib()
-   >>> attr.asdict(User("jane", "s33kred", 42), filter=attr.filters.exclude(User.password, int))
+   >>> attr.asdict(User("jane", "s33kred", 42),
+   ...                  filter=attr.filters.exclude(attr.by_name(User, "password"), int))
    {'login': 'jane'}
    >>> @attr.s
    ... class C(object):
    ...     x = attr.ib()
    ...     y = attr.ib()
    ...     z = attr.ib()
-   >>> attr.asdict(C("foo", "2", 3), filter=attr.filters.include(int, C.x))
+   >>> attr.asdict(C("foo", "2", 3),
+   ...             filter=attr.filters.include(int, attr.by_name(C, "x")))
    {'z': 3, 'x': 'foo'}
 
 

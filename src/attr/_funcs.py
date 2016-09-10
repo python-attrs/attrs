@@ -2,8 +2,9 @@ from __future__ import absolute_import, division, print_function
 
 import copy
 
-from ._compat import iteritems
+from ._compat import iteritems, lru_cache
 from ._make import NOTHING, fields, _obj_setattr
+from .exceptions import AttrsAttributeNotFoundError
 
 
 def asdict(inst, recurse=True, filter=None, dict_factory=dict,
@@ -28,6 +29,9 @@ def asdict(inst, recurse=True, filter=None, dict_factory=dict,
         meaningful if ``recurse`` is ``True``.
 
     :rtype: return type of *dict_factory*
+
+    :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
+        class.
 
     ..  versionadded:: 16.0.0 *dict_factory*
     ..  versionadded:: 16.1.0 *retain_collection_types*
@@ -68,7 +72,6 @@ def has(cls):
     Check whether *cls* is a class with ``attrs`` attributes.
 
     :param type cls: Class to introspect.
-
     :raise TypeError: If *cls* is not a class.
 
     :rtype: :class:`bool`
@@ -76,24 +79,55 @@ def has(cls):
     return getattr(cls, "__attrs_attrs__", None) is not None
 
 
+@lru_cache()
+def _make_attr_map(cls):
+    """
+    Create a dictionary of attr_name: attribute pairs for *cls*.
+    """
+    return {a.name: a for a in fields(cls)}
+
+
 def assoc(inst, **changes):
     """
     Copy *inst* and apply *changes*.
 
     :param inst: Instance of a class with ``attrs`` attributes.
-
     :param changes: Keyword changes in the new copy.
 
     :return: A copy of inst with *changes* incorporated.
+
+    :raise attr.exceptions.AttrsAttributeNotFoundError: If *attr_name* couldn't
+        be found on *cls*.
+    :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
+        class.
     """
     new = copy.copy(inst)
-    attr_map = {a.name: a for a in new.__class__.__attrs_attrs__}
+    attr_map = _make_attr_map(new.__class__)
     for k, v in iteritems(changes):
         a = attr_map.get(k, NOTHING)
         if a is NOTHING:
-            raise ValueError(
+            raise AttrsAttributeNotFoundError(
                 "{k} is not an attrs attribute on {cl}."
                 .format(k=k, cl=new.__class__)
             )
         _obj_setattr(new, k, v)
     return new
+
+
+def by_name(cls, attr_name):
+    """
+    Return the :class:`attr.Attribute` of *attr_name* from *cls*.
+
+    :raise attr.exceptions.AttrsAttributeNotFoundError: If *attr_name* couldn't
+        be found on *cls*.
+    :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
+        class.
+
+    .. versionadded:: 16.2.0
+    """
+    try:
+        return _make_attr_map(cls)[attr_name]
+    except KeyError:
+        raise AttrsAttributeNotFoundError(
+            "%r has no attrs attribute %r" % (cls, attr_name)
+        )

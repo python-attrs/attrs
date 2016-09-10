@@ -22,6 +22,7 @@ from attr._make import (
     validate,
     Factory,
 )
+from attr.exceptions import NotAnAttrsClassError
 
 from .utils import simple_attr, simple_attrs, simple_classes
 
@@ -363,7 +364,7 @@ class TestFields(object):
         """
         Raises `ValueError` if passed a non-``attrs`` instance.
         """
-        with pytest.raises(ValueError) as e:
+        with pytest.raises(NotAnAttrsClassError) as e:
             fields(object)
         assert (
             "{o!r} is not an attrs-decorated class.".format(o=object)

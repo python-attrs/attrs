@@ -19,6 +19,8 @@ Changes:
   `#81 <https://github.com/hynek/attrs/issues/81>`_
 - ``attr.assoc`` now works with ``__slots__`` classes.
   `#84 <https://github.com/hynek/attrs/issues/84>`_
+- Add ``attr.by_name`` for accessing ``Attribute`` instances of class objects.
+  ``attr.by_name(C, "x")`` is therefore equivalent to the deprecated ``C.x``.
 
 
 ----
