@@ -198,8 +198,8 @@ def fromdict(cls, dct, recurse=True, ignore_missing=False, rename=lambda a: a,
                     else:
                         return deserialize_val(a, typ.__union_params__[0], name)
                 elif Dict and issubclass(typ, Dict):
-                    if hasattr(typ, '__parameters__'):
-                        if hasattr(typ, '__args__'):
+                    if hasattr(typ, "__parameters__"):
+                        if hasattr(typ, "__args__"):
                             key_gen = typ.__args__[0]
                             val_gen = typ.__args__[1]
                         else: # 3.5.1 compatibility
@@ -211,18 +211,18 @@ def fromdict(cls, dct, recurse=True, ignore_missing=False, rename=lambda a: a,
                     return a
                 elif Iterable and issubclass(typ, Iterable) and typ is not str:
                     type_name = typ.__name__
-                    if type_name == 'Tuple' or type_name == 'tuple':
+                    if type_name == "Tuple" or type_name == "tuple":
                         mk = tuple
-                    elif type_name == 'Set' or type_name == 'set':
+                    elif type_name == "Set" or type_name == "set":
                         mk = set
                     else:
                         mk = list
-                    if hasattr(typ, '__parameters__'):
-                        if hasattr(typ, '__args__'):
+                    if hasattr(typ, "__parameters__"):
+                        if hasattr(typ, "__args__"):
                             gen = typ.__args__[0]
                         else: # 3.5.1 compatibility
                             gen = typ.__parameters__[0]
-                        return mk([deserialize_val(v, gen, name + '[]')
+                        return mk([deserialize_val(v, gen, name + "[]")
                                    for v in a])
                     else:
                         return mk(a)
@@ -237,7 +237,7 @@ def fromdict(cls, dct, recurse=True, ignore_missing=False, rename=lambda a: a,
                     "{context} because {reason}"
                     .format(val=a,
                             typ=typ,
-                            context='.'.join(context) + '.' + key_name,
+                            context=".".join(context) + "." + key_name,
                             reason=str(e)))
 
 
@@ -250,7 +250,7 @@ def fromdict(cls, dct, recurse=True, ignore_missing=False, rename=lambda a: a,
             elif key_name in dct:
                 val = dct[key_name]
             else:
-                raise KeyError('.'.join(context) + '.' + key_name)
+                raise KeyError(".".join(context) + "." + key_name)
 
             if recurse and a.type is not None:
                 cons[a.name] = deserialize_val(val, a.type, key_name)
