@@ -31,7 +31,7 @@ SEQUENCE_TYPES = (list, tuple)
 
 class TestAsDict(object):
     """
-    Tests for `astuple`.
+    Tests for `asdict`.
     """
     @given(st.sampled_from(MAPPING_TYPES))
     def test_shallow(self, C, dict_factory):
