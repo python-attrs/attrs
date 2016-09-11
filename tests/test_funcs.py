@@ -6,6 +6,11 @@ from __future__ import absolute_import, division, print_function
 
 from collections import OrderedDict, Sequence, Mapping
 
+try:
+    from typing import Any, Dict, List, Optional, Set, Union
+except ImportError:
+    Any = Dict = List = Optional = Set = Union = None
+
 import pytest
 
 from hypothesis import assume, given, strategies as st
@@ -16,6 +21,7 @@ from attr._funcs import (
     asdict,
     assoc,
     astuple,
+    fromdict,
     has,
 )
 from attr._make import (
@@ -299,6 +305,214 @@ class TestAsTuple(object):
         roundtrip_instance = cls(*tuple_instance)
 
         assert instance == roundtrip_instance
+
+
+class TestFromDict(object):
+    """
+    Tests for `asdict`.
+    """
+    def test_shallow(self, C):
+        """
+        Shallow fromdict returns correct class.
+        """
+        assert C(
+            x=1,
+            y=2
+        ) == fromdict(C, {"x": 1, "y": 2}, False)
+
+    def test_recurse(self, C):
+        """
+        Deep fromdict returns correct class.
+        """
+
+        @attributes
+        class D(object):
+            x = attr(type=C)
+            y = attr(type=C)
+        
+        assert D(
+            C(1, 2),
+            C(3, 4),
+        ) == fromdict(D, {
+            "x": {"x": 1, "y": 2},
+            "y": {"x": 3, "y": 4},
+        })
+
+    def test_shallow_iterables(self):
+        """
+        Shallow fromdict with iterables returns correct class.
+        """
+        if not List:
+            assert True
+            return
+
+        @attributes
+        class C(object):
+            x = attr(type=list)
+            y = attr(type=set)
+        
+        assert C(
+            [{"x": 1, "y": 2}],
+            set([3, 4]),
+        ) == fromdict(C, {
+            "x": [{"x": 1, "y": 2}],
+            "y": [3, 4],
+        })
+
+    def test_recurse_iterables(self, C):
+        """
+        Deep fromdict with iterables returns correct class.
+        """
+        if not List:
+            assert True
+            return
+
+        @attributes
+        class D(object):
+            x = attr(type=List[C])
+            y = attr(type=Set[C])
+        
+        assert D(
+            [C(1, 2)],
+            set([C(3, 4)]),
+        ) == fromdict(D, {
+            "x": [{"x": 1, "y": 2}],
+            "y": [{"x": 3, "y": 4}],
+        })
+
+    def test_shallow_optional(self):
+        """
+        Shallow fromdict with optionals returns correct class.
+        """
+        if not Optional:
+            assert True
+            return
+
+        @attributes
+        class C(object):
+            x = attr(type=Optional[int])
+            y = attr(type=Optional[str])
+        
+        assert C(
+            'foo',
+            None,
+        ) == fromdict(C, {
+            "x": 'foo',
+            "y": None,
+        })
+
+    def test_recurse_optional(self, C):
+        """
+        Deep fromdict with optionals returns correct class.
+        """
+        if not List:
+            assert True
+            return
+
+        @attributes
+        class D(object):
+            x = attr(type=Optional[C])
+            y = attr(type=Optional[C])
+        
+        assert D(
+            C(1, 2),
+            None,
+        ) == fromdict(D, {
+            "x": {"x": 1, "y": 2},
+            "y": None,
+        })
+
+    def test_shallow_dict(self):
+        """
+        Shallow fromdict with optionals returns correct class.
+        """
+        if not Dict:
+            assert True
+            return
+
+        @attributes
+        class C(object):
+            x = attr(type=Dict[str, int])
+            y = attr(type=dict)
+        
+        assert C(
+            {"x": 1, "y": 2},
+            {"x": 3, "y": 4},
+        ) == fromdict(C, {
+            "x": {"x": 1, "y": 2},
+            "y": {"x": 3, "y": 4},
+        })
+
+    def test_recurse_dict(self, C):
+        """
+        Deep fromdict with optionals returns correct class.
+        """
+        if not Dict:
+            assert True
+            return
+
+        @attributes
+        class D(object):
+            x = attr(type=Dict[str, C])
+        
+        assert D(
+            {"x": C(1, 2), "y": C(3, 4)},
+        ) == fromdict(D, {
+            "x": {"x": {"x": 1, "y": 2}, "y": {"x": 3, "y": 4}},
+        })
+
+    def test_shallow_union(self):
+        """
+        Shallow fromdict with unions returns correct class.
+        """
+        if not Union:
+            assert True
+            return
+
+        @attributes
+        class C(object):
+            x = attr(type=Union[str, int])
+            y = attr(type=Union[str, int])
+        
+        assert C(
+            "one",
+            1,
+        ) == fromdict(C, {
+            "x": "one",
+            "y": 1,
+        })
+
+    def test_recurse_union(self, C):
+        """
+        Deep fromdict with unions returns correct class.
+        """
+        if not Union:
+            assert True
+            return
+
+        @attributes
+        class B(object):
+            x = attr()
+            y = attr()
+
+        @attributes
+        class D(object):
+            x = attr(type=Union[B, C])
+            y = attr(type=Union[B, C])
+
+        def by_type(dct, t):
+            if dct["type"] == "B":
+                return B
+            else:
+                return C
+
+        assert D(
+            B(1, 2),
+            C(3, 4),
+        ) == fromdict(D, {
+            "x": {"type": "B", "x": 1, "y": 2},
+            "y": {"type": "C", "x": 3, "y": 4},
+        }, union_discriminator=by_type)
 
 
 class TestHas(object):
