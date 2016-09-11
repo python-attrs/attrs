@@ -199,8 +199,12 @@ def fromdict(cls, dct, recurse=True, ignore_missing=False, rename=lambda a: a,
                         return deserialize_val(a, typ.__union_params__[0], name)
                 elif Dict and issubclass(typ, Dict):
                     if hasattr(typ, '__parameters__'):
-                        key_gen = typ.__parameters__[0]
-                        val_gen = typ.__parameters__[1]
+                        if hasattr(typ, '__args__'):
+                            key_gen = typ.__args__[0]
+                            val_gen = typ.__args__[1]
+                        else: # 3.5.1 compatibility
+                            key_gen = typ.__parameters__[0]
+                            val_gen = typ.__parameters__[1]
                         return {deserialize_val(k, key_gen, name):
                                 deserialize_val(v, val_gen, name + str(k))
                                 for k, v in a.items()}
@@ -214,7 +218,10 @@ def fromdict(cls, dct, recurse=True, ignore_missing=False, rename=lambda a: a,
                     else:
                         mk = list
                     if hasattr(typ, '__parameters__'):
-                        gen = typ.__parameters__[0]
+                        if hasattr(typ, '__args__'):
+                            gen = typ.__args__[0]
+                        else: # 3.5.1 compatibility
+                            gen = typ.__parameters__[0]
                         return mk([deserialize_val(v, gen, name + '[]')
                                    for v in a])
                     else:
