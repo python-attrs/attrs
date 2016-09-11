@@ -11,15 +11,17 @@ The third digit is only for regressions.
 Changes:
 ^^^^^^^^
 
+- Add ``attr.astuple()`` that -- similarly to ``attr.asdict()`` -- returns the instance as a tuple.
+  `#77 <https://github.com/hynek/attrs/issues/77>`_
 - Converts now work with frozen classes.
   `#76 <https://github.com/hynek/attrs/issues/76>`_
 - Instantiation of ``attrs`` classes with converters is now significantly faster.
   `#80 <https://github.com/hynek/attrs/pull/80>`_
 - Pickling now works with ``__slots__`` classes.
   `#81 <https://github.com/hynek/attrs/issues/81>`_
-- ``attr.assoc`` now works with ``__slots__`` classes.
+- ``attr.assoc()`` now works with ``__slots__`` classes.
   `#84 <https://github.com/hynek/attrs/issues/84>`_
-- The tuple returned by ``attr.fields`` now also allows to access the ``Attribute`` instances by name.
+- The tuple returned by ``attr.fields()`` now also allows to access the ``Attribute`` instances by name.
   Yes, we've subclassed ``tuple`` so you don't have to!
   Therefore ``attr.fields(C).x`` is equivalent to the deprecated ``C.x`` and works with ``__slots__`` classes.
   `#88 <https://github.com/hynek/attrs/issues/88>`_
@@ -43,7 +45,7 @@ Deprecations:
 ^^^^^^^^^^^^^
 
 - Accessing ``Attribute`` instances on class objects is now deprecated and will stop working in 2017.
-  If you need introspection please use the ``__attrs_attrs__`` attribute or the ``attr.fields`` function that carry them too.
+  If you need introspection please use the ``__attrs_attrs__`` attribute or the ``attr.fields()`` function that carry them too.
   In the future, the attributes that are defined on the class body and are usually overwritten in your ``__init__`` method are simply removed after ``@attr.s`` has been applied.
 
   This will remove the confusing error message if you write your own ``__init__`` and forget to initialize some attribute.
@@ -56,15 +58,15 @@ Deprecations:
 Changes:
 ^^^^^^^^
 
-- ``attr.asdict``\ 's ``dict_factory`` arguments is now propagated on recursion.
+- ``attr.asdict()``\ 's ``dict_factory`` arguments is now propagated on recursion.
   `#45 <https://github.com/hynek/attrs/issues/45>`_
-- ``attr.asdict``, ``attr.has`` and ``attr.fields`` are significantly faster.
+- ``attr.asdict()``, ``attr.has()`` and ``attr.fields()`` are significantly faster.
   `#48 <https://github.com/hynek/attrs/issues/48>`_
   `#51 <https://github.com/hynek/attrs/issues/51>`_
 - Add ``attr.attrs`` and ``attr.attrib`` as a more consistent aliases for ``attr.s`` and ``attr.ib``.
 - Add ``frozen`` option to ``attr.s`` that will make instances best-effort immutable.
   `#60 <https://github.com/hynek/attrs/issues/60>`_
-- ``attr.asdict`` now takes ``retain_collection_types`` as an argument.
+- ``attr.asdict()`` now takes ``retain_collection_types`` as an argument.
   If ``True``, it does not convert attributes of type ``tuple`` or ``set`` to ``list``.
   `#69 <https://github.com/hynek/attrs/issues/69>`_
 
@@ -95,7 +97,7 @@ Changes:
 - Allow the case of initializing attributes that are set to ``init=False``.
   This allows for clean initializer parameter lists while being able to initialize attributes to default values.
   `#32 <https://github.com/hynek/attrs/issues/32>`_
-- ``attr.asdict`` can now produce arbitrary mappings instead of Python ``dict``\ s when provided with a ``dict_factory`` argument.
+- ``attr.asdict()`` can now produce arbitrary mappings instead of Python ``dict``\ s when provided with a ``dict_factory`` argument.
   `#40 <https://github.com/hynek/attrs/issues/40>`_
 - Multiple performance improvements.
 

@@ -25,7 +25,7 @@ def asdict(inst, recurse=True, filter=None, dict_factory=dict,
         example, to produce ordered dictionaries instead of normal Python
         dictionaries, pass in ``collections.OrderedDict``.
     :param bool retain_collection_types: Do not convert to ``list`` when
-        encountering an attribute which is type ``tuple`` or ``set``.  Only
+        encountering an attribute whose type is ``tuple`` or ``set``.  Only
         meaningful if ``recurse`` is ``True``.
 
     :rtype: return type of *dict_factory*
@@ -65,6 +65,78 @@ def asdict(inst, recurse=True, filter=None, dict_factory=dict,
         else:
             rv[a.name] = v
     return rv
+
+
+def astuple(inst, recurse=True, filter=None, tuple_factory=tuple,
+            retain_collection_types=False):
+    """
+    Return the ``attrs`` attribute values of *inst* as a tuple.
+
+    Optionally recurse into other ``attrs``-decorated classes.
+
+    :param inst: Instance of an ``attrs``-decorated class.
+    :param bool recurse: Recurse into classes that are also
+        ``attrs``-decorated.
+    :param callable filter: A callable whose return code determines whether an
+        attribute or element is included (``True``) or dropped (``False``).  Is
+        called with the :class:`attr.Attribute` as the first argument and the
+        value as the second argument.
+    :param callable tuple_factory: A callable to produce tuples from.  For
+        example, to produce lists instead of tuples.
+    :param bool retain_collection_types: Do not convert to ``list``
+        or ``dict`` when encountering an attribute which type is
+        ``tuple``, ``dict`` or ``set``.  Only meaningful if ``recurse`` is
+        ``True``.
+
+    :rtype: return type of *tuple_factory*
+
+    :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
+        class.
+
+    ..  versionadded:: 16.2.0
+    """
+    attrs = fields(inst.__class__)
+    rv = []
+    retain = retain_collection_types  # Very long. :/
+    for a in attrs:
+        v = getattr(inst, a.name)
+        if filter is not None and not filter(a, v):
+            continue
+        if recurse is True:
+            if has(v.__class__):
+                rv.append(astuple(v, recurse=True, filter=filter,
+                                  tuple_factory=tuple_factory,
+                                  retain_collection_types=retain))
+            elif isinstance(v, (tuple, list, set)):
+                cf = v.__class__ if retain is True else list
+                rv.append(cf([
+                    astuple(j, recurse=True, filter=filter,
+                            tuple_factory=tuple_factory,
+                            retain_collection_types=retain)
+                    if has(j.__class__) else j
+                    for j in v
+                ]))
+            elif isinstance(v, dict):
+                df = v.__class__ if retain is True else dict
+                rv.append(df(
+                        (
+                            astuple(
+                                kk,
+                                tuple_factory=tuple_factory,
+                                retain_collection_types=retain
+                            ) if has(kk.__class__) else kk,
+                            astuple(
+                                vv,
+                                tuple_factory=tuple_factory,
+                                retain_collection_types=retain
+                            ) if has(vv.__class__) else vv
+                        )
+                        for kk, vv in iteritems(v)))
+            else:
+                rv.append(v)
+        else:
+            rv.append(v)
+    return rv if tuple_factory is list else tuple_factory(rv)
 
 
 def has(cls):

@@ -161,6 +161,19 @@ Helpers
       {'y': {'y': 3, 'x': 2}, 'x': 1}
 
 
+.. autofunction:: attr.astuple
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib()
+      ...     y = attr.ib()
+      >>> attr.astuple(C(1,2))
+      (1, 2)
+
 ``attrs`` includes some handy helpers for filtering:
 
 .. autofunction:: attr.filters.include

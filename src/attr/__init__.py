@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 from ._funcs import (
     asdict,
     assoc,
+    astuple,
     has,
 )
 from ._make import (
@@ -46,6 +47,7 @@ __all__ = [
     "Factory",
     "NOTHING",
     "asdict",
+    "astuple",
     "assoc",
     "attr",
     "attrib",

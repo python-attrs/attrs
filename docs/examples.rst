@@ -162,8 +162,8 @@ On Python 3 it overrides the implicit detection.
 
 .. _asdict:
 
-Converting to Dictionaries
---------------------------
+Converting to Collections Types
+-------------------------------
 
 When you have a class with data, it often is very convenient to transform that class into a :class:`dict` (for example if you want to serialize it to JSON):
 
@@ -209,6 +209,29 @@ For the common case where you want to :func:`include <attr.filters.include>` or 
    >>> attr.asdict(C("foo", "2", 3),
    ...             filter=attr.filters.include(int, attr.fields(C).x))
    {'z': 3, 'x': 'foo'}
+
+Other times, all you want is a tuple and ``attrs`` won't let you down:
+
+.. doctest::
+
+   >>> import sqlite3
+   >>> import attr
+   >>> @attr.s
+   ... class Foo:
+   ...    a = attr.ib()
+   ...    b = attr.ib()
+   >>> foo = Foo(2, 3)
+   >>> with sqlite3.connect(":memory:") as conn:
+   ...    c = conn.cursor()
+   ...    c.execute("CREATE TABLE foo (x INTEGER PRIMARY KEY ASC, y)") #doctest: +ELLIPSIS
+   ...    c.execute("INSERT INTO foo VALUES (?, ?)", attr.astuple(foo)) #doctest: +ELLIPSIS
+   ...    foo2 = Foo(*c.execute("SELECT x, y FROM foo").fetchone())
+   <sqlite3.Cursor object at ...>
+   <sqlite3.Cursor object at ...>
+   >>> foo == foo2
+   True
+
+
 
 
 Defaults

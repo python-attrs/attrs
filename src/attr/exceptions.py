@@ -6,7 +6,9 @@ class FrozenInstanceError(AttributeError):
     A frozen/immutable instance has been attempted to be modified.
 
     It mirrors the behavior of ``namedtuples`` by using the same error message
-    and subclassing :exc:`AttributeError``.
+    and subclassing :exc:`AttributeError`.
+
+    .. versionadded:: 16.1.0
     """
     msg = "can't set attribute"
     args = [msg]
