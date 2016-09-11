@@ -13,6 +13,8 @@ Changes:
 
 - Converts now work with frozen classes.
   `#76 <https://github.com/hynek/attrs/issues/76>`_
+- Implements ``astuple`` method.
+  `#77 <https://github.com/hynek/attrs/issues/77>`_
 - Instantiation of ``attrs`` classes with converters is now significantly faster.
   `#80 <https://github.com/hynek/attrs/pull/80>`_
 - Pickling now works with ``__slots__`` classes.

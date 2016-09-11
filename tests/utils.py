@@ -7,6 +7,8 @@ from __future__ import absolute_import, division, print_function
 import keyword
 import string
 
+from collections import OrderedDict
+
 from hypothesis import strategies as st
 
 import attr
@@ -85,8 +87,8 @@ def _create_hyp_nested_strategy(simple_class_strategy):
 
     Given a strategy for building (simpler) classes, create and return
     a strategy for building classes that have as an attribute: either just
-    the simpler class, a list of simpler classes, or a dict mapping the string
-    "cls" to a simpler class.
+    the simpler class, a list of simpler classes, a tuple of simpler classes,
+    an ordered dict or a dict mapping the string "cls" to a simpler class.
     """
     # Use a tuple strategy to combine simple attributes and an attr class.
     def just_class(tup):
@@ -100,8 +102,20 @@ def _create_hyp_nested_strategy(simple_class_strategy):
         combined_attrs.append(attr.ib(default=default))
         return _create_hyp_class(combined_attrs)
 
+    def tuple_of_class(tup):
+        default = attr.Factory(lambda: (tup[1](),))
+        combined_attrs = list(tup[0])
+        combined_attrs.append(attr.ib(default=default))
+        return _create_hyp_class(combined_attrs)
+
     def dict_of_class(tup):
         default = attr.Factory(lambda: {"cls": tup[1]()})
+        combined_attrs = list(tup[0])
+        combined_attrs.append(attr.ib(default=default))
+        return _create_hyp_class(combined_attrs)
+
+    def ordereddict_of_class(tup):
+        default = attr.Factory(lambda: OrderedDict([("cls", tup[1]())]))
         combined_attrs = list(tup[0])
         combined_attrs.append(attr.ib(default=default))
         return _create_hyp_class(combined_attrs)
@@ -112,7 +126,9 @@ def _create_hyp_nested_strategy(simple_class_strategy):
 
     return st.one_of(attrs_and_classes.map(just_class),
                      attrs_and_classes.map(list_of_class),
-                     attrs_and_classes.map(dict_of_class))
+                     attrs_and_classes.map(tuple_of_class),
+                     attrs_and_classes.map(dict_of_class),
+                     attrs_and_classes.map(ordereddict_of_class))
 
 bare_attrs = st.just(attr.ib(default=None))
 int_attrs = st.integers().map(lambda i: attr.ib(default=i))
