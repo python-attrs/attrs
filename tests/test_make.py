@@ -7,7 +7,7 @@ from __future__ import absolute_import, division, print_function
 import pytest
 
 from hypothesis import given
-from hypothesis.strategies import booleans, sampled_from
+from hypothesis.strategies import booleans, integers, sampled_from
 
 from attr import _config
 from attr._compat import PY2
@@ -20,9 +20,11 @@ from attr._make import (
     fields,
     make_class,
     validate,
+    Factory,
 )
+from attr.exceptions import NotAnAttrsClassError
 
-from .utils import simple_attr, simple_attrs
+from .utils import simple_attr, simple_attrs, simple_classes
 
 attrs = simple_attrs.map(lambda c: Attribute.from_counting_attr('name', c))
 
@@ -362,17 +364,26 @@ class TestFields(object):
         """
         Raises `ValueError` if passed a non-``attrs`` instance.
         """
-        with pytest.raises(ValueError) as e:
+        with pytest.raises(NotAnAttrsClassError) as e:
             fields(object)
         assert (
             "{o!r} is not an attrs-decorated class.".format(o=object)
         ) == e.value.args[0]
 
+    @given(simple_classes())
     def test_fields(self, C):
         """
         Returns a list of `Attribute`a.
         """
         assert all(isinstance(a, Attribute) for a in fields(C))
+
+    @given(simple_classes())
+    def test_fields_properties(self, C):
+        """
+        Fields returns a tuple with properties.
+        """
+        for attribute in fields(C):
+            assert getattr(fields(C), attribute.name) is attribute
 
 
 class TestConvert(object):
@@ -387,6 +398,33 @@ class TestConvert(object):
                              "y": attr()})
         c = C(1, 2)
         assert c.x == 2
+        assert c.y == 2
+
+    @given(integers(), booleans())
+    def test_convert_property(self, val, init):
+        """
+        Property tests for attributes with convert.
+        """
+        C = make_class("C", {"y": attr(),
+                             "x": attr(init=init, default=val,
+                                       convert=lambda v: v + 1),
+                             })
+        c = C(2)
+        assert c.x == val + 1
+        assert c.y == 2
+
+    @given(integers(), booleans())
+    def test_convert_factory_property(self, val, init):
+        """
+        Property tests for attributes with convert, and a factory default.
+        """
+        C = make_class("C", {"y": attr(),
+                             "x": attr(init=init,
+                                       default=Factory(lambda: val),
+                                       convert=lambda v: v + 1),
+                             })
+        c = C(2)
+        assert c.x == val + 1
         assert c.y == 2
 
     def test_convert_before_validate(self):

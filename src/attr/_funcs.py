@@ -3,7 +3,8 @@ from __future__ import absolute_import, division, print_function
 import copy
 
 from ._compat import iteritems
-from ._make import Attribute, NOTHING, fields, _obj_setattr
+from ._make import NOTHING, fields, _obj_setattr
+from .exceptions import AttrsAttributeNotFoundError
 
 
 def asdict(inst, recurse=True, filter=None, dict_factory=dict,
@@ -28,6 +29,9 @@ def asdict(inst, recurse=True, filter=None, dict_factory=dict,
         meaningful if ``recurse`` is ``True``.
 
     :rtype: return type of *dict_factory*
+
+    :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
+        class.
 
     ..  versionadded:: 16.0.0 *dict_factory*
     ..  versionadded:: 16.1.0 *retain_collection_types*
@@ -135,7 +139,6 @@ def has(cls):
     Check whether *cls* is a class with ``attrs`` attributes.
 
     :param type cls: Class to introspect.
-
     :raise TypeError: If *cls* is not a class.
 
     :rtype: :class:`bool`
@@ -148,16 +151,21 @@ def assoc(inst, **changes):
     Copy *inst* and apply *changes*.
 
     :param inst: Instance of a class with ``attrs`` attributes.
-
     :param changes: Keyword changes in the new copy.
 
     :return: A copy of inst with *changes* incorporated.
+
+    :raise attr.exceptions.AttrsAttributeNotFoundError: If *attr_name* couldn't
+        be found on *cls*.
+    :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
+        class.
     """
     new = copy.copy(inst)
+    attrs = fields(inst.__class__)
     for k, v in iteritems(changes):
-        a = getattr(new.__class__, k, NOTHING)
-        if a is NOTHING or not isinstance(a, Attribute):
-            raise ValueError(
+        a = getattr(attrs, k, NOTHING)
+        if a is NOTHING:
+            raise AttrsAttributeNotFoundError(
                 "{k} is not an attrs attribute on {cl}."
                 .format(k=k, cl=new.__class__)
             )

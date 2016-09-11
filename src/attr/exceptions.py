@@ -10,3 +10,19 @@ class FrozenInstanceError(AttributeError):
     """
     msg = "can't set attribute"
     args = [msg]
+
+
+class AttrsAttributeNotFoundError(ValueError):
+    """
+    An ``attrs`` function couldn't find an attribute that the user asked for.
+
+    .. versionadded:: 16.2.0
+    """
+
+
+class NotAnAttrsClassError(ValueError):
+    """
+    A non-``attrs`` class has been passed into an ``attrs`` function.
+
+    .. versionadded:: 16.2.0
+    """

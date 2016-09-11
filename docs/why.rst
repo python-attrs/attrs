@@ -102,6 +102,22 @@ Other than that, ``attrs`` also adds nifty features like validators and default 
 .. _tuple: https://docs.python.org/2/tutorial/datastructures.html#tuples-and-sequences
 
 
+…dicts?
+-------
+
+Dictionaries are not for fixed fields.
+
+If you have a dict, it maps something to something else.
+You should be able to add and remove values.
+
+Objects, on the other hand, are supposed to have specific fields of specific types, because their methods have strong expectations of what those fields and types are.
+
+``attrs`` lets you be specific about those expectations; a dictionary does not.
+It gives you a named entity (the class) in your code, which lets you explain in other places whether you take a parameter of that class or return a value of that class.
+
+In other words: if your dict has a fixed and known set of keys, it is an object, not a hash.
+
+
 …hand-written classes?
 ----------------------
 

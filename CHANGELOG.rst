@@ -15,6 +15,16 @@ Changes:
   `#76 <https://github.com/hynek/attrs/issues/76>`_
 - Implements ``astuple`` method.
   `#77 <https://github.com/hynek/attrs/issues/77>`_
+- Instantiation of ``attrs`` classes with converters is now significantly faster.
+  `#80 <https://github.com/hynek/attrs/pull/80>`_
+- Pickling now works with ``__slots__`` classes.
+  `#81 <https://github.com/hynek/attrs/issues/81>`_
+- ``attr.assoc`` now works with ``__slots__`` classes.
+  `#84 <https://github.com/hynek/attrs/issues/84>`_
+- The tuple returned by ``attr.fields`` now also allows to access the ``Attribute`` instances by name.
+  Yes, we've subclassed ``tuple`` so you don't have to!
+  Therefore ``attr.fields(C).x`` is equivalent to the deprecated ``C.x`` and works with ``__slots__`` classes.
+  `#88 <https://github.com/hynek/attrs/issues/88>`_
 
 
 ----

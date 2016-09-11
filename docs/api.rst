@@ -103,6 +103,8 @@ Core
 
 
 .. autoexception:: attr.exceptions.FrozenInstanceError
+.. autoexception:: attr.exceptions.AttrsAttributeNotFoundError
+.. autoexception:: attr.exceptions.NotAnAttrsClassError
 
 
 .. _helpers:
@@ -124,6 +126,10 @@ Helpers
       ...     y = attr.ib()
       >>> attr.fields(C)
       (Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None), Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None))
+      >>> attr.fields(C)[1]
+      Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None)
+      >>> attr.fields(C).y is attr.fields(C)[1]
+      True
 
 
 .. autofunction:: attr.has
@@ -161,6 +167,7 @@ Helpers
 
 .. autofunction:: attr.filters.exclude
 
+See :ref:`asdict` for examples.
 
 .. autofunction:: assoc
 
@@ -180,7 +187,6 @@ Helpers
       C(x=1, y=3)
       >>> i1 == i2
       False
-
 
 .. autofunction:: validate
 

@@ -117,7 +117,7 @@ Or if you want to use properties:
       ...
    AttributeError: can't set attribute
 
-`Sub-classing <https://www.youtube.com/watch?v=3MNVP9-hglc>`_ is bad for you, but ``attrs`` will still do what you'd hope for:
+`Subclassing <https://www.youtube.com/watch?v=3MNVP9-hglc>`_ is bad for you, but ``attrs`` will still do what you'd hope for:
 
 .. doctest::
 
@@ -160,6 +160,8 @@ Therefore ``@attr.s`` comes with the ``repr_ns`` option to set it manually:
 On Python 3 it overrides the implicit detection.
 
 
+.. _asdict:
+
 Converting to Dictionaries
 --------------------------
 
@@ -196,14 +198,16 @@ For the common case where you want to :func:`include <attr.filters.include>` or 
    ...     login = attr.ib()
    ...     password = attr.ib()
    ...     id = attr.ib()
-   >>> attr.asdict(User("jane", "s33kred", 42), filter=attr.filters.exclude(User.password, int))
+   >>> attr.asdict(User("jane", "s33kred", 42),
+   ...                  filter=attr.filters.exclude(attr.fields(User).password, int))
    {'login': 'jane'}
    >>> @attr.s
    ... class C(object):
    ...     x = attr.ib()
    ...     y = attr.ib()
    ...     z = attr.ib()
-   >>> attr.asdict(C("foo", "2", 3), filter=attr.filters.include(int, C.x))
+   >>> attr.asdict(C("foo", "2", 3),
+   ...             filter=attr.filters.include(int, attr.fields(C).x))
    {'z': 3, 'x': 'foo'}
 
 
@@ -440,6 +444,13 @@ Slot classes are a little different than ordinary, dictionary-backed classes:
 
 - Since non-slot classes cannot be turned into slot classes after they have been created, ``attr.s(.., slots=True)`` will *replace* the class it is applied to with a copy.
   In almost all cases this isn't a problem, but we mention it for the sake of completeness.
+
+- Using :mod:`pickle` with slot classes requires pickle protocol 2 or greater.
+  Python 2 uses protocol 0 by default so the protocol needs to be specified.
+  Python 3 uses protocol 3 by default.
+  You can support protocol 0 and 1 by implementing :meth:`__getstate__ <object.__getstate__>` and :meth:`__setstate__ <object.__setstate__>` methods yourself.
+  Those methods are created for frozen slot classes because they won't pickle otherwise.
+  `Think twice <https://www.youtube.com/watch?v=7KnfGDajDQw>`_ before using :mod:`pickle` though.
 
 All in all, setting ``slots=True`` is usually a very good idea.
 
