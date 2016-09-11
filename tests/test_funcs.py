@@ -329,7 +329,7 @@ class TestFromDict(object):
         class D(object):
             x = attr(type=C)
             y = attr(type=C)
-        
+
         assert D(
             C(1, 2),
             C(3, 4),
@@ -350,7 +350,7 @@ class TestFromDict(object):
         class C(object):
             x = attr(type=list)
             y = attr(type=set)
-        
+
         assert C(
             [{"x": 1, "y": 2}],
             set([3, 4]),
@@ -371,7 +371,7 @@ class TestFromDict(object):
         class D(object):
             x = attr(type=List[C])
             y = attr(type=Set[C])
-        
+
         assert D(
             [C(1, 2)],
             set([C(3, 4)]),
@@ -392,7 +392,7 @@ class TestFromDict(object):
         class C(object):
             x = attr(type=Optional[int])
             y = attr(type=Optional[str])
-        
+
         assert C(
             'foo',
             None,
@@ -413,7 +413,7 @@ class TestFromDict(object):
         class D(object):
             x = attr(type=Optional[C])
             y = attr(type=Optional[C])
-        
+
         assert D(
             C(1, 2),
             None,
@@ -434,7 +434,7 @@ class TestFromDict(object):
         class C(object):
             x = attr(type=Dict[str, int])
             y = attr(type=dict)
-        
+
         assert C(
             {"x": 1, "y": 2},
             {"x": 3, "y": 4},
@@ -454,7 +454,7 @@ class TestFromDict(object):
         @attributes
         class D(object):
             x = attr(type=Dict[str, C])
-        
+
         assert D(
             {"x": C(1, 2), "y": C(3, 4)},
         ) == fromdict(D, {
@@ -473,7 +473,7 @@ class TestFromDict(object):
         class C(object):
             x = attr(type=Union[str, int])
             y = attr(type=Union[str, int])
-        
+
         assert C(
             "one",
             1,

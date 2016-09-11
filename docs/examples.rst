@@ -235,7 +235,7 @@ Other times, all you want is a tuple and ``attrs`` won't let you down:
 
 
 Converting from Dictionaries
---------------------------
+----------------------------
 
 It's very common to utilize :class:`dict` as an intermediary form during deserialization (when deesrializing JSON for example).
 
@@ -250,15 +250,14 @@ For that, :func:`attr.fromdict` offers a callback that renames attributes before
 .. doctest::
 
    >>> import re
-   >>> def from_camel_case(name):
-   ...     return re.sub('([a-z0-9])([A-Z])', r'\1_\2',
-   ...                   re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)).lower()
+   >>> def to_camel_case(name):
+   ...     return re.sub(r'(?!^)_([a-zA-Z])', lambda m: m.group(1).upper(), name)
    >>> @attr.s
    ... class Person(object):
    ...     name = attr.ib()
    ...     home_address = attr.ib()
    >>> attr.fromdict(Person, {'name': 'John Doe', 'homeAddress': '123 Example St'},
-   ...               rename=from_camel_case)
+   ...               rename=to_camel_case)
    Person(name='John Doe', home_address='123 Example St')
 
 When class fields are defined with :func:`attr.ib`\ ’s ``type`` argument, :func:`attr.fromdict` can also deserialize nested classes using the ``recurse`` argument.
@@ -522,7 +521,7 @@ Slot classes are a little different than ordinary, dictionary-backed classes:
     ... class C(object):
     ...     x = attr.ib()
     >>> C.x
-    Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None)
+    Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None, type=None)
     >>> @attr.s(slots=True)
     ... class C(object):
     ...     x = attr.ib()

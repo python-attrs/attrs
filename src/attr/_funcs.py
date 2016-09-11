@@ -167,12 +167,11 @@ def fromdict(cls, dct, recurse=True, ignore_missing=False, rename=lambda a: a,
     :rtype: *cls*
     """
 
-
     def _is_optional(typ):
-        if Union and issubclass(typ, Union) and not typ is Any:
+        if Union and issubclass(typ, Union) and typ is not Any:
             ret = False
             for i in range(len(typ.__union_params__)):
-                if typ.__union_params__[i] is type(None):
+                if typ.__union_params__[i] is type(None):  # NOQA
                     ret = True
                     break
             return ret
@@ -192,17 +191,18 @@ def fromdict(cls, dct, recurse=True, ignore_missing=False, rename=lambda a: a,
                             a,
                             Union[tuple([t
                                          for t in typ.__union_params__
-                                         if t is not type(None)])],
+                                         if t is not type(None)])],  # NOQA
                             name
                         )
                     else:
-                        return deserialize_val(a, typ.__union_params__[0], name)
+                        return deserialize_val(
+                            a, typ.__union_params__[0], name)
                 elif Dict and issubclass(typ, Dict):
                     if hasattr(typ, "__parameters__"):
                         if hasattr(typ, "__args__"):
                             key_gen = typ.__args__[0]
                             val_gen = typ.__args__[1]
-                        else: # 3.5.1 compatibility
+                        else:  # 3.5.1 compatibility
                             key_gen = typ.__parameters__[0]
                             val_gen = typ.__parameters__[1]
                         return {deserialize_val(k, key_gen, name):
@@ -220,7 +220,7 @@ def fromdict(cls, dct, recurse=True, ignore_missing=False, rename=lambda a: a,
                     if hasattr(typ, "__parameters__"):
                         if hasattr(typ, "__args__"):
                             gen = typ.__args__[0]
-                        else: # 3.5.1 compatibility
+                        else:  # 3.5.1 compatibility
                             gen = typ.__parameters__[0]
                         return mk([deserialize_val(v, gen, name + "[]")
                                    for v in a])
@@ -237,9 +237,8 @@ def fromdict(cls, dct, recurse=True, ignore_missing=False, rename=lambda a: a,
                     "{context} because {reason}"
                     .format(val=a,
                             typ=typ,
-                            context=".".join(context) + "." + key_name,
+                            context=".".join(context) + "." + str(name),
                             reason=str(e)))
-
 
         attrs = fields(cls)
         cons = {}
@@ -250,15 +249,14 @@ def fromdict(cls, dct, recurse=True, ignore_missing=False, rename=lambda a: a,
             elif key_name in dct:
                 val = dct[key_name]
             else:
-                raise KeyError(".".join(context) + "." + key_name)
+                raise KeyError(".".join(context) + "." + str(key_name))
 
             if recurse and a.type is not None:
                 cons[a.name] = deserialize_val(val, a.type, key_name)
             else:
                 cons[a.name] = val
-                
-        return cls(**cons)
 
+        return cls(**cons)
 
     return _fromdict(cls, dct)
 

@@ -691,7 +691,7 @@ def _attrs_to_script(attrs, frozen, validate_types):
             val_name = "__attr_type_validator_{}".format(a.name)
             attr_name = "__attr_{}".format(a.name)
             lines.append("{}(self, {}, self.{})".format(val_name, attr_name,
-                                                    a.name))
+                                                        a.name))
             names_for_globals[val_name] = instance_of(a.type)
             names_for_globals[attr_name] = a
     for a in attrs_to_validate:
@@ -839,4 +839,4 @@ def make_class(name, attrs, **attributes_arguments):
 
     return attributes(**attributes_arguments)(type(name, (object,), cls_dict))
 
-from .validators import instance_of
+from .validators import instance_of  # NOQA
