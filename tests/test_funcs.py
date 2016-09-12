@@ -350,13 +350,16 @@ class TestFromDict(object):
         class C(object):
             x = attr(type=list)
             y = attr(type=set)
+            z = attr(type=tuple)
 
         assert C(
             [{"x": 1, "y": 2}],
             set([3, 4]),
+            (5, 6),
         ) == fromdict(C, {
             "x": [{"x": 1, "y": 2}],
             "y": [3, 4],
+            "z": [5, 6],
         })
 
     def test_recurse_iterables(self, C):
@@ -513,6 +516,28 @@ class TestFromDict(object):
             "x": {"type": "B", "x": 1, "y": 2},
             "y": {"type": "C", "x": 3, "y": 4},
         }, union_discriminator=by_type)
+
+    def test_ignore_missing(self, C):
+        """
+        Missing keys become None when ignore_missing is True.
+        """
+
+        assert C(
+            {"x": 1, "y": 2},
+            None,
+        ) == fromdict(C, {
+            "x": {"x": 1, "y": 2},
+        }, ignore_missing=True)
+
+    def test_key_error(self, C):
+        """
+        Missing keys raise KeyError when ignore_missing is False.
+        """
+
+        with pytest.raises(KeyError):
+            fromdict(C, {
+                "x": {"x": 1, "y": 2},
+            }, ignore_missing=False)
 
 
 class TestHas(object):
