@@ -2,11 +2,6 @@ from __future__ import absolute_import, division, print_function
 
 import copy
 
-try:
-    from typing import Any, Dict, Iterable, Optional, Union
-except ImportError:
-    Any = Dict = Iterable = Optional = Union = None
-
 from ._compat import iteritems
 from ._make import NOTHING, fields, _obj_setattr
 from .exceptions import AttrsAttributeNotFoundError
@@ -144,8 +139,7 @@ def astuple(inst, recurse=True, filter=None, tuple_factory=tuple,
     return rv if tuple_factory is list else tuple_factory(rv)
 
 
-def fromdict(cls, dct, recurse=True, ignore_missing=False, rename=lambda a: a,
-             union_discriminator=lambda v, t: Any):
+def fromdict(cls, dct, recurse=True, ignore_missing=False, rename=lambda a: a):
     """
     Construct an instance of an ``attrs``-decorated class from a dict.
 
@@ -157,108 +151,26 @@ def fromdict(cls, dct, recurse=True, ignore_missing=False, rename=lambda a: a,
     :param bool recurse: Recursively construct fields that are also
         ``attrs``-decorated.
     :param bool ignore_missing: Keys not found in the dictionary are silently
-           converted to None.
+        converted to None.
     :param callable rename: A callable that renames attribute names before
         looking them up in the dict.
-    :param callable union_discrimator: A callable that accepts a value typed
-        as a union and the union type and returns the appropriate type to
-        deserialize the value as.
 
     :rtype: *cls*
     """
+    attrs = fields(cls)
+    cons = {}
+    for a in attrs:
+        key_name = rename(a.name)
+        if ignore_missing:
+            val = dct.get(key_name)
+        else:
+            val = dct[key_name]
+        if recurse and a.type is not None and has(a.type):
+            cons[a.name] = fromdict(a.type, val, True, rename)
+        else:
+            cons[a.name] = val
 
-    def _is_optional(typ):
-        if Union and issubclass(typ, Union) and typ is not Any:
-            ret = False
-            for i in range(len(typ.__union_params__)):
-                if typ.__union_params__[i] is type(None):  # NOQA
-                    ret = True
-                    break
-            return ret
-        return False
-
-    def _fromdict(cls, dct, context=[]):
-
-        def deserialize_val(a, typ, name):
-            try:
-                if has(typ):
-                    return _fromdict(typ, a, context + [name])
-                elif _is_optional(typ):
-                    if a is None:
-                        return None
-                    elif len(typ.__union_params__) > 2:
-                        return deserialize_val(
-                            a,
-                            Union[tuple([t
-                                         for t in typ.__union_params__
-                                         if t is not type(None)])],  # NOQA
-                            name
-                        )
-                    else:
-                        return deserialize_val(
-                            a, typ.__union_params__[0], name)
-                elif Dict and issubclass(typ, Dict):
-                    if hasattr(typ, "__parameters__"):
-                        if hasattr(typ, "__args__"):
-                            key_gen = typ.__args__[0]
-                            val_gen = typ.__args__[1]
-                        else:  # 3.5.1 compatibility
-                            key_gen = typ.__parameters__[0]
-                            val_gen = typ.__parameters__[1]
-                        return {deserialize_val(k, key_gen, name):
-                                deserialize_val(v, val_gen, name + str(k))
-                                for k, v in a.items()}
-                    return a
-                elif Iterable and issubclass(typ, Iterable) and typ is not str:
-                    type_name = typ.__name__
-                    if type_name == "Tuple" or type_name == "tuple":
-                        mk = tuple
-                    elif type_name == "Set" or type_name == "set":
-                        mk = set
-                    else:
-                        mk = list
-                    if hasattr(typ, "__parameters__"):
-                        if hasattr(typ, "__args__"):
-                            gen = typ.__args__[0]
-                        else:  # 3.5.1 compatibility
-                            gen = typ.__parameters__[0]
-                        return mk([deserialize_val(v, gen, name + "[]")
-                                   for v in a])
-                    else:
-                        return mk(a)
-                elif Union and issubclass(typ, Union):
-                    actual_type = union_discriminator(a, typ)
-                    return deserialize_val(a, actual_type, name)
-                else:
-                    return a
-            except TypeError as e:
-                raise TypeError(
-                    "Unable to deserialize {val} as {typ} at "
-                    "{context} because {reason}"
-                    .format(val=a,
-                            typ=typ,
-                            context=".".join(context) + "." + str(name),
-                            reason=str(e)))
-
-        attrs = fields(cls)
-        cons = {}
-        for a in attrs:
-            key_name = rename(a.name)
-            if ignore_missing:
-                val = dct.get(key_name)
-            elif key_name in dct:
-                val = dct[key_name]
-            else:
-                raise KeyError(".".join(context) + "." + str(key_name))
-
-            if recurse and a.type is not None:
-                cons[a.name] = deserialize_val(val, a.type, key_name)
-            else:
-                cons[a.name] = val
-
-        return cls(**cons)
-
-    return _fromdict(cls, dct)
+    return cls(**cons)
 
 
 def has(cls):
