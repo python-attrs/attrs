@@ -336,7 +336,7 @@ Since the validator runs *after* the instance is initialized, you can refer to o
       ...
    TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, factory=NOTHING, validator=<instance_of validator for type <type 'int'>>), <type 'int'>, '42')
 
-If you like `zope.interface <http://docs.zope.org/zope.interface/api.html#zope-interface-interface-specification>`_, ``attrs`` also comes with a :func:`attr.validators.provides` validator:
+If you like `zope.interface <https://zopeinterface.readthedocs.io/en/latest/api.html#zope-interface-interface-specification>`_, ``attrs`` also comes with a :func:`attr.validators.provides` validator:
 
 .. doctest::
 
