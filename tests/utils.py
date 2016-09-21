@@ -55,7 +55,7 @@ class TestSimpleClass(object):
         assert simple_class() is not simple_class()
 
 
-def _gen_attr_names():
+def gen_attr_names():
     """
     Generate names for attributes, 'a'...'z', then 'aa'...'zz'.
 
@@ -78,7 +78,7 @@ def _create_hyp_class(attrs):
     """
     A helper function for Hypothesis to generate attrs classes.
     """
-    return make_class('HypClass', dict(zip(_gen_attr_names(), attrs)))
+    return make_class('HypClass', dict(zip(gen_attr_names(), attrs)))
 
 
 def _create_hyp_nested_strategy(simple_class_strategy):
@@ -167,7 +167,7 @@ def simple_classes(draw, slots=None, frozen=None):
     frozen_flag = draw(st.booleans()) if frozen is None else frozen
     slots_flag = draw(st.booleans()) if slots is None else slots
 
-    return make_class('HypClass', dict(zip(_gen_attr_names(), attrs)),
+    return make_class('HypClass', dict(zip(gen_attr_names(), attrs)),
                       slots=slots_flag, frozen=frozen_flag)
 
 # Ok, so st.recursive works by taking a base strategy (in this case,

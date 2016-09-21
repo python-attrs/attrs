@@ -1,13 +1,13 @@
 from __future__ import absolute_import, division, print_function
 
 import sys
+import types
 
 
 PY2 = sys.version_info[0] == 2
 
 
 if PY2:
-    import types
 
     # We 'bundle' isclass instead of using inspect as importing inspect is
     # fairly expensive (order of 10-15 ms for a modern machine in 2016)
@@ -22,6 +22,9 @@ if PY2:
 
     def iterkeys(d):
         return d.iterkeys()
+
+    # Python 2 is bereft of a read-only dict proxy.
+    metadata_proxy = dict
 else:
     def isclass(klass):
         return isinstance(klass, type)
@@ -33,3 +36,5 @@ else:
 
     def iterkeys(d):
         return d.keys()
+
+    metadata_proxy = types.MappingProxyType

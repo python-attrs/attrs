@@ -7,7 +7,8 @@ from __future__ import absolute_import, division, print_function
 import pytest
 
 from hypothesis import given
-from hypothesis.strategies import booleans, integers, sampled_from
+from hypothesis.strategies import (booleans, composite, dictionaries, integers,
+                                   lists, sampled_from, text, binary)
 
 from attr import _config
 from attr._compat import PY2
@@ -24,7 +25,7 @@ from attr._make import (
 )
 from attr.exceptions import NotAnAttrsClassError
 
-from .utils import simple_attr, simple_attrs, simple_classes
+from .utils import simple_attr, simple_attrs, simple_classes, gen_attr_names
 
 attrs = simple_attrs.map(lambda c: Attribute.from_counting_attr('name', c))
 
@@ -103,7 +104,7 @@ class TestTransformAttrs(object):
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, repr=True, "
-            "cmp=True, hash=True, init=True, convert=None)",
+            "cmp=True, hash=True, init=True, convert=None, metadata=None)",
         ) == e.value.args
 
     def test_these(self):
@@ -512,3 +513,40 @@ class TestValidate(object):
         with pytest.raises(Exception) as e:
             C(1)
         assert (obj,) == e.value.args
+
+
+@composite
+def simple_attrs_with_metadata(draw):
+    """Create a simple attribute with arbitrary metadata."""
+    c_attr = draw(simple_attrs)
+    keys = booleans() | binary() | integers() | text()
+    vals = booleans() | binary() | integers() | text()
+    metadata = draw(dictionaries(keys=keys, values=vals))
+
+    return _CountingAttr(c_attr.default, c_attr.validator, c_attr.repr,
+                         c_attr.cmp, c_attr.hash, c_attr.init, c_attr.convert,
+                         metadata)
+
+# Looks like Hypothesis will cache attributes, so they don't generate sorted.
+attrs_with_metadata = (lists(simple_attrs_with_metadata() | simple_attrs,
+                             average_size=5, max_size=20)
+                       .map(lambda l: sorted(l, key=lambda a: a.counter)))
+
+
+class TestMetadata(object):
+    """
+    Tests for metadata handling.
+    """
+
+    @given(attrs_with_metadata)
+    def test_metadata_present(self, list_of_attrs):
+        """
+        Assert dictionaries are copied and present.
+        """
+        C = make_class('C', dict(zip(gen_attr_names(), list_of_attrs)))
+
+        for hyp_attr, class_attr in zip(list_of_attrs, fields(C)):
+            if hyp_attr.metadata is None:
+                assert class_attr.metadata is None
+            else:
+                assert hyp_attr.metadata == class_attr.metadata
