@@ -156,7 +156,7 @@ def simple_attrs_with_metadata(draw):
 simple_attrs = simple_attrs_without_metadata | simple_attrs_with_metadata()
 
 # Python functions support up to 255 arguments.
-list_of_attrs = st.lists(simple_attrs, average_size=5, max_size=20)
+list_of_attrs = st.lists(simple_attrs, average_size=3, max_size=9)
 
 
 @st.composite
@@ -188,4 +188,5 @@ def simple_classes(draw, slots=None, frozen=None):
 # Ok, so st.recursive works by taking a base strategy (in this case,
 # simple_classes) and a special function. This function receives a strategy,
 # and returns another strategy (building on top of the base strategy).
-nested_classes = st.recursive(simple_classes(), _create_hyp_nested_strategy)
+nested_classes = st.recursive(simple_classes(), _create_hyp_nested_strategy,
+                              max_leaves=10)
