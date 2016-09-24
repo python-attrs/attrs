@@ -13,6 +13,7 @@ from .exceptions import FrozenInstanceError, NotAnAttrsClassError
 _obj_setattr = object.__setattr__
 _init_convert_pat = '__attr_convert_{}'
 _tuple_property_pat = "    {attr_name} = property(itemgetter({index}))"
+_empty_metadata_singleton = metadata_proxy({})
 
 
 class _Nothing(object):
@@ -717,8 +718,8 @@ class Attribute(object):
         __bound_setattr('hash', hash)
         __bound_setattr('init', init)
         __bound_setattr('convert', convert)
-        __bound_setattr('metadata', (metadata_proxy(metadata)
-                                     if metadata is not None else None))
+        __bound_setattr('metadata', (metadata_proxy(metadata) if metadata
+                                     else _empty_metadata_singleton))
 
     def __setattr__(self, name, value):
         raise FrozenInstanceError()
@@ -736,7 +737,9 @@ class Attribute(object):
         """
         Play nice with pickle.
         """
-        return tuple(getattr(self, name) for name in self.__slots__)
+        return tuple(getattr(self, name) if name != "metadata"
+                     else dict(self.metadata)
+                     for name in self.__slots__)
 
     def __setstate__(self, state):
         """
@@ -744,7 +747,11 @@ class Attribute(object):
         """
         __bound_setattr = _obj_setattr.__get__(self, Attribute)
         for name, value in zip(self.__slots__, state):
-            __bound_setattr(name, value)
+            if name != "metadata":
+                __bound_setattr(name, value)
+            else:
+                __bound_setattr(name, metadata_proxy(value) if value else
+                                _empty_metadata_singleton)
 
 _a = [Attribute(name=name, default=NOTHING, validator=None,
                 repr=True, cmp=True, hash=(name != "metadata"), init=True)

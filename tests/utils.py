@@ -137,11 +137,26 @@ float_attrs = st.floats().map(lambda f: attr.ib(default=f))
 dict_attrs = (st.dictionaries(keys=st.text(), values=st.integers())
               .map(lambda d: attr.ib(default=d)))
 
-simple_attrs = st.one_of(bare_attrs, int_attrs, str_attrs, float_attrs,
-                         dict_attrs)
+simple_attrs_without_metadata = (bare_attrs | int_attrs | str_attrs |
+                                 float_attrs | dict_attrs)
+
+
+@st.composite
+def simple_attrs_with_metadata(draw):
+    """Create a simple attribute with arbitrary metadata."""
+    c_attr = draw(simple_attrs)
+    keys = st.booleans() | st.binary() | st.integers() | st.text()
+    vals = st.booleans() | st.binary() | st.integers() | st.text()
+    metadata = draw(st.dictionaries(keys=keys, values=vals))
+
+    return attr.ib(c_attr.default, c_attr.validator, c_attr.repr,
+                   c_attr.cmp, c_attr.hash, c_attr.init, c_attr.convert,
+                   metadata)
+
+simple_attrs = simple_attrs_without_metadata | simple_attrs_with_metadata()
 
 # Python functions support up to 255 arguments.
-list_of_attrs = st.lists(simple_attrs, average_size=9, max_size=50)
+list_of_attrs = st.lists(simple_attrs, average_size=5, max_size=20)
 
 
 @st.composite
