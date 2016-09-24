@@ -11,7 +11,8 @@ The third digit is only for regressions.
 Changes:
 ^^^^^^^^
 
-*none*
+- Don't overwrite ``__name__`` with ``__qualname__`` for ``attr.s(slots=True)`` classes.
+  `#99 <https://github.com/hynek/attrs/issues/99>`_
 
 
 ----
