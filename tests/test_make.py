@@ -287,6 +287,21 @@ class TestAttributes(object):
                 pass
         assert "C.D()" == repr(C.D())
 
+    @pytest.mark.skipif(PY2, reason="__qualname__ is PY3-only.")
+    @given(slots_outer=booleans(), slots_inner=booleans())
+    def test_name_not_overridden(self, slots_outer, slots_inner):
+        """
+        On Python 3, __name__ is different from __qualname__.
+        """
+        @attributes(slots=slots_outer)
+        class C(object):
+            @attributes(slots=slots_inner)
+            class D(object):
+                pass
+
+        assert C.D.__name__ == "D"
+        assert C.D.__qualname__ == C.__qualname__ + ".D"
+
 
 @attributes
 class GC(object):

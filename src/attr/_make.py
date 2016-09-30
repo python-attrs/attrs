@@ -285,12 +285,10 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
                 cls_dict.pop(ca_name, None)
             cls_dict.pop('__dict__', None)
 
-            if repr_ns is None:
-                cls_name = getattr(cls, "__qualname__", cls.__name__)
-            else:
-                cls_name = cls.__name__
-
-            cls = type(cls_name, cls.__bases__, cls_dict)
+            qualname = getattr(cls, "__qualname__", None)
+            cls = type(cls.__name__, cls.__bases__, cls_dict)
+            if qualname is not None:
+                cls.__qualname__ = qualname
 
         return cls
 
