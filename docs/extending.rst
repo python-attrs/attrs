@@ -46,7 +46,8 @@ If you're the author of a third-party library with ``attrs`` integration, you ma
 
 Here are some tips for effective use of metadata:
 
-- Try making your metadata keys and values immutable. This keeps the entire ``Attribute`` instances immutable too.
+- Try making your metadata keys and values immutable.
+  This keeps the entire ``Attribute`` instances immutable too.
 
 - To avoid metadata key collisions, consider exposing your metadata keys from your modules.::
 
@@ -58,7 +59,8 @@ Here are some tips for effective use of metadata:
 
   Metadata should be composable, so consider supporting this approach even if you decide implementing your metadata in one of the following ways.
 
-- Expose ``attr.ib`` wrappers for your specific metadata. This is a more graceful approach if your users don't require metadata from other libraries.
+- Expose ``attr.ib`` wrappers for your specific metadata.
+  This is a more graceful approach if your users don't require metadata from other libraries.
 
   .. doctest::
 
