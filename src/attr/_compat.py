@@ -26,7 +26,9 @@ if PY2:
 
     # Python 2 is bereft of a read-only dict proxy, so we make one!
     class ReadOnlyDict(IterableUserDict):
-        """Best-effort read-only dict wrapper."""
+        """
+        Best-effort read-only dict wrapper.
+        """
 
         def __setitem__(self, key, val):
             # We gently pretend we're a Python 3 mappingproxy.

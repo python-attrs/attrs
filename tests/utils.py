@@ -143,7 +143,9 @@ simple_attrs_without_metadata = (bare_attrs | int_attrs | str_attrs |
 
 @st.composite
 def simple_attrs_with_metadata(draw):
-    """Create a simple attribute with arbitrary metadata."""
+    """
+    Create a simple attribute with arbitrary metadata.
+    """
     c_attr = draw(simple_attrs)
     keys = st.booleans() | st.binary() | st.integers() | st.text()
     vals = st.booleans() | st.binary() | st.integers() | st.text()
