@@ -28,7 +28,7 @@ from attr.exceptions import NotAnAttrsClassError
 from .utils import (gen_attr_names, list_of_attrs, simple_attr, simple_attrs,
                     simple_attrs_without_metadata, simple_classes)
 
-attrs = simple_attrs.map(lambda c: Attribute.from_counting_attr('name', c))
+attrs = simple_attrs.map(lambda c: Attribute.from_counting_attr("name", c))
 
 
 class TestCountingAttr(object):
@@ -520,7 +520,7 @@ class TestValidate(object):
 # Hypothesis seems to cache values, so the lists of attributes come out
 # unsorted.
 sorted_lists_of_attrs = list_of_attrs.map(
-    lambda l: sorted(l, key=attrgetter('counter')))
+    lambda l: sorted(l, key=attrgetter("counter")))
 
 
 class TestMetadata(object):
@@ -533,7 +533,7 @@ class TestMetadata(object):
         """
         Assert dictionaries are copied and present.
         """
-        C = make_class('C', dict(zip(gen_attr_names(), list_of_attrs)))
+        C = make_class("C", dict(zip(gen_attr_names(), list_of_attrs)))
 
         for hyp_attr, class_attr in zip(list_of_attrs, fields(C)):
             if hyp_attr.metadata is None:
@@ -579,6 +579,6 @@ class TestMetadata(object):
         """
         All empty metadata attributes share the same empty metadata dict.
         """
-        C = make_class('C', dict(zip(gen_attr_names(), list_of_attrs)))
+        C = make_class("C", dict(zip(gen_attr_names(), list_of_attrs)))
         for a in fields(C)[1:]:
             assert a.metadata is fields(C)[0].metadata

@@ -11,7 +11,7 @@ from .exceptions import FrozenInstanceError, NotAnAttrsClassError
 
 # This is used at least twice, so cache it here.
 _obj_setattr = object.__setattr__
-_init_convert_pat = '__attr_convert_{}'
+_init_convert_pat = "__attr_convert_{}"
 _tuple_property_pat = "    {attr_name} = property(itemgetter({index}))"
 _empty_metadata_singleton = metadata_proxy({})
 
@@ -136,8 +136,8 @@ def _make_attr_tuple_class(cls_name, attr_names):
             ))
     else:
         attr_class_template.append("    pass")
-    globs = {'itemgetter': itemgetter}
-    eval(compile("\n".join(attr_class_template), '', 'exec'), globs)
+    globs = {"itemgetter": itemgetter}
+    eval(compile("\n".join(attr_class_template), "", "exec"), globs)
     return globs[attr_class_name]
 
 
@@ -287,7 +287,7 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
             for ca_name in ca_list:
                 # It might not actually be in there, e.g. if using 'these'.
                 cls_dict.pop(ca_name, None)
-            cls_dict.pop('__dict__', None)
+            cls_dict.pop("__dict__", None)
 
             qualname = getattr(cls, "__qualname__", None)
             cls = type(cls.__name__, cls.__bases__, cls_dict)
@@ -702,23 +702,23 @@ class Attribute(object):
 
     Plus *all* arguments of :func:`attr.ib`.
     """
-    __slots__ = ('name', 'default', 'validator', 'repr', 'cmp', 'hash', 'init',
-                 'convert', 'metadata')
+    __slots__ = ("name", "default", "validator", "repr", "cmp", "hash", "init",
+                 "convert", "metadata")
 
     def __init__(self, name, default, validator, repr, cmp, hash, init,
                  convert=None, metadata=None):
         # Cache this descriptor here to speed things up later.
         __bound_setattr = _obj_setattr.__get__(self, Attribute)
 
-        __bound_setattr('name', name)
-        __bound_setattr('default', default)
-        __bound_setattr('validator', validator)
-        __bound_setattr('repr', repr)
-        __bound_setattr('cmp', cmp)
-        __bound_setattr('hash', hash)
-        __bound_setattr('init', init)
-        __bound_setattr('convert', convert)
-        __bound_setattr('metadata', (metadata_proxy(metadata) if metadata
+        __bound_setattr("name", name)
+        __bound_setattr("default", default)
+        __bound_setattr("validator", validator)
+        __bound_setattr("repr", repr)
+        __bound_setattr("cmp", cmp)
+        __bound_setattr("hash", hash)
+        __bound_setattr("init", init)
+        __bound_setattr("convert", convert)
+        __bound_setattr("metadata", (metadata_proxy(metadata) if metadata
                                      else _empty_metadata_singleton))
 
     def __setattr__(self, name, value):
