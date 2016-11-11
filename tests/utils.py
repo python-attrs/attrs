@@ -186,7 +186,13 @@ def simple_classes(draw, slots=None, frozen=None):
     frozen_flag = draw(st.booleans()) if frozen is None else frozen
     slots_flag = draw(st.booleans()) if slots is None else slots
 
-    return make_class('HypClass', dict(zip(gen_attr_names(), attrs)),
+    cls_dict = dict(zip(gen_attr_names(), attrs))
+    post_init_flag = draw(st.booleans())
+    if post_init_flag:
+        def post_init(self):
+            pass
+        cls_dict['__post_init__'] = post_init
+    return make_class('HypClass', cls_dict,
                       slots=slots_flag, frozen=frozen_flag)
 
 

@@ -450,7 +450,11 @@ def _add_init(cls, frozen):
         sha1.hexdigest()
     )
 
-    script, globs = _attrs_to_script(attrs, frozen)
+    script, globs = _attrs_to_script(
+        attrs,
+        frozen,
+        getattr(cls, '__post_init__', False),
+    )
     locs = {}
     bytecode = compile(script, unique_filename, "exec")
     attr_dict = dict((a.name, a) for a in attrs)
@@ -544,7 +548,7 @@ def validate(inst):
             a.validator(inst, a, getattr(inst, a.name))
 
 
-def _attrs_to_script(attrs, frozen):
+def _attrs_to_script(attrs, frozen, post_init):
     """
     Return a script of an initializer for *attrs* and a dict of globals.
 
@@ -684,6 +688,8 @@ def _attrs_to_script(attrs, frozen):
                                                     a.name))
         names_for_globals[val_name] = a.validator
         names_for_globals[attr_name] = a
+    if post_init:
+        lines.append("self.__post_init__()")
 
     return """\
 def __init__(self, {args}):

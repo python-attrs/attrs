@@ -15,6 +15,10 @@ Changes:
   `#96 <https://github.com/hynek/attrs/pull/96>`_
 - Don't overwrite ``__name__`` with ``__qualname__`` for ``attr.s(slots=True)`` classes.
   `#99 <https://github.com/hynek/attrs/issues/99>`_
+- Allow for a ``__post_init__`` method that, if defined, will get executed at
+  the end of the ``__init__`` that gets constructed for an ``@attr.s``-decorated
+  class.
+  `#111 <https://github.com/hynek/attrs/pull/111>`_
 
 
 ----
