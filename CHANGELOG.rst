@@ -13,6 +13,8 @@ Changes:
 
 - Don't overwrite ``__name__`` with ``__qualname__`` for ``attr.s(slots=True)`` classes.
   `#99 <https://github.com/hynek/attrs/issues/99>`_
+- Attributes can now have metadata dictionaries.
+  `#96 <https://github.com/hynek/attrs/pull/96>`_
 
 
 ----
