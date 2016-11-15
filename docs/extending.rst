@@ -51,11 +51,11 @@ Here are some tips for effective use of metadata:
 
 - To avoid metadata key collisions, consider exposing your metadata keys from your modules.::
 
-    from mylib import my_metadata_key
+    from mylib import MY_METADATA_KEY
 
     @attr.s
     class C(object):
-      x = attr.ib(metadata={my_metadata_key: 1})
+      x = attr.ib(metadata={MY_METADATA_KEY: 1})
 
   Metadata should be composable, so consider supporting this approach even if you decide implementing your metadata in one of the following ways.
 
@@ -64,15 +64,15 @@ Here are some tips for effective use of metadata:
 
   .. doctest::
 
-    >>> my_type_metadata = '__my_type_metadata'
+    >>> MY_TYPE_METADATA = '__my_type_metadata'
     >>>
     >>> def typed(cls, default=attr.NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None, metadata={}):
     ...     metadata = dict() if not metadata else metadata
-    ...     metadata[my_type_metadata] = cls
+    ...     metadata[MY_TYPE_METADATA] = cls
     ...     return attr.ib(default, validator, repr, cmp, hash, init, convert, metadata)
     >>>
     >>> @attr.s
     ... class C(object):
     ...     x = typed(int, default=1, init=False)
-    >>> attr.fields(C).x.metadata[my_type_metadata]
+    >>> attr.fields(C).x.metadata[MY_TYPE_METADATA]
     <class 'int'>

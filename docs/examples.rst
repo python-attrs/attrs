@@ -422,7 +422,7 @@ All ``attrs`` attributes may include arbitrary metadata in the form on a read-on
     >>> attr.fields(C).x.metadata['my_metadata']
     1
 
-Metadata is currently not used by ``attrs``, and is generally meant to enable rich functionality in third-party libraries.
+Metadata is not used by ``attrs``, and is meant to enable rich functionality in third-party libraries.
 The metadata dictionary follows the normal dictionary rules: keys need to be hashable, and both keys and values are recommended to be immutable.
 
 If you're the author of a third-party library with ``attrs`` integration, please see :ref:`Extending Metadata <extending_metadata>`.
