@@ -234,6 +234,49 @@ Other times, all you want is a tuple and ``attrs`` won't let you down:
 
 
 
+Converting from Dictionaries
+----------------------------
+
+It's very common to utilize :class:`dict` as an intermediary form during deserialization (when deesrializing JSON for example).
+
+.. doctest::
+
+   >>> attr.fromdict(Coordinates, {'y': 2, 'x': 1})
+   Coordinates(x=1, y=2)
+
+Sometimes when deserializing data from the outside world, the naming conventions don't match up with those of Python.
+For that, :func:`attr.fromdict` offers a callback that renames attributes before looking them up in the :class:`dict`:
+
+.. doctest::
+
+   >>> import re
+   >>> def to_camel_case(name):
+   ...     return re.sub(r'(?!^)_([a-zA-Z])', lambda m: m.group(1).upper(), name)
+   >>> @attr.s
+   ... class Person(object):
+   ...     name = attr.ib()
+   ...     home_address = attr.ib()
+   >>> attr.fromdict(Person, {'name': 'John Doe', 'homeAddress': '123 Example St'},
+   ...               rename=to_camel_case)
+   Person(name='John Doe', home_address='123 Example St')
+
+When class fields are defined with :func:`attr.ib`\ ’s ``type`` argument, :func:`attr.fromdict` can also deserialize nested classes using the ``recurse`` argument.
+
+.. doctest::
+
+   >>> @attr.s
+   ... class Mouse(object):
+   ...     name = attr.ib()
+   >>> @attr.s
+   ... class House(object):
+   ...     number = attr.ib()
+   ...     street = attr.ib()
+   ...     mouse = attrib(type=Mouse)
+   >>> attr.fromdict(House, {'number': 55, 'street': 'Example St', 'mouse':{'name':'Acorn'}},
+   ...               recurse=True)
+   House(number=55, street='Example St', mouse=Mouse(name='Acorn'))
+
+
 Defaults
 --------
 
@@ -371,6 +414,26 @@ You can also disable them globally:
    TypeError: ("'x' must provide <InterfaceClass __builtin__.IFoo> which 42 doesn't.", Attribute(name='x', default=NOTHING, validator=<provides validator for interface <InterfaceClass __builtin__.IFoo>>, repr=True, cmp=True, hash=True, init=True), <InterfaceClass __builtin__.IFoo>, 42)
 
 
+Types
+----------
+
+Type metadata can be added to each attribute using  :func:`attr.ib`\ ’s ``type`` argument.
+While the added types don't do anything on their own, they can be utilized by static analysis tools, or run-time validation tools.
+Additionally, by enabling :func:`attr.s`\ ’ ``validate_types``, types are validated on construction as if you had used the :func:`instance_of` validator.
+
+.. doctest::
+
+   >>> @attr.s(validate_types=True)
+   ... class C(object):
+   ...     x = attr.ib(type=int)
+   >>> C(42)
+   C(x=42)
+   >>> C("42")
+   Traceback (most recent call last):
+      ...
+   TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, factory=NOTHING, validator=<instance_of validator for type <type 'int'>>), <type 'int'>, '42')
+
+
 Conversion
 ----------
 
@@ -458,7 +521,7 @@ Slot classes are a little different than ordinary, dictionary-backed classes:
     ... class C(object):
     ...     x = attr.ib()
     >>> C.x
-    Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None)
+    Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None, type=None)
     >>> @attr.s(slots=True)
     ... class C(object):
     ...     x = attr.ib()

@@ -103,7 +103,7 @@ class TestTransformAttrs(object):
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, repr=True, "
-            "cmp=True, hash=True, init=True, convert=None)",
+            "cmp=True, hash=True, init=True, convert=None, type=None)",
         ) == e.value.args
 
     def test_these(self):
@@ -512,3 +512,42 @@ class TestValidate(object):
         with pytest.raises(Exception) as e:
             C(1)
         assert (obj,) == e.value.args
+
+
+class TestTypeValidate(object):
+    """
+    Tests for `validate_types`.
+    """
+    def test_success(self):
+        """
+        If the validator suceeds, nothing gets raised.
+        """
+        @attributes(validate_types=True)
+        class C(object):
+            x = attr(type=int)
+            y = attr()
+
+        C(1, 2)
+
+    def test_type_error(self):
+        """
+        A TypeError is raised if the type is incorrect.
+        """
+        @attributes(validate_types=True)
+        class C(object):
+            x = attr(type=int)
+            y = attr()
+
+        with pytest.raises(TypeError):
+            C("foo", 2)
+
+    def test_no_errors(self):
+        """
+        Type validation does not occur unless validate_types is True..
+        """
+        @attributes(validate_types=False)
+        class C(object):
+            x = attr(type=int)
+            y = attr()
+
+        C("foo", 2)

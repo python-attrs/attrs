@@ -48,7 +48,7 @@ Sentinel to indicate the lack of a value when ``None`` is ambiguous.
 
 def attr(default=NOTHING, validator=None,
          repr=True, cmp=True, hash=True, init=True,
-         convert=None):
+         convert=None, type=None):
     """
     Create a new attribute on a class.
 
@@ -97,6 +97,8 @@ def attr(default=NOTHING, validator=None,
         to the desired format.  It is given the passed-in value, and the
         returned value will be used as the new value of the attribute.  The
         value is converted before being passed to the validator, if any.
+    :param type type: Type hint included in the generated ``_field_types``
+        field.
     """
     return _CountingAttr(
         default=default,
@@ -106,6 +108,7 @@ def attr(default=NOTHING, validator=None,
         hash=hash,
         init=init,
         convert=convert,
+        type=type,
     )
 
 
@@ -199,7 +202,7 @@ def _frozen_setattrs(self, name, value):
 
 def attributes(maybe_cls=None, these=None, repr_ns=None,
                repr=True, cmp=True, hash=True, init=True,
-               slots=False, frozen=False):
+               slots=False, frozen=False, validate_types=False):
     """
     A class decorator that adds `dunder
     <https://wiki.python.org/moin/DunderAlias>`_\ -methods according to the
@@ -248,8 +251,13 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
 
         ..  _slots: https://docs.python.org/3.5/reference/datamodel.html#slots
 
+    :param bool validate_types: Check that each value passed to the constructor
+        matches the given `type` for that attribute (if any), throws an
+        :exc:`TypeError` if it does not.
+
     ..  versionadded:: 16.0.0 *slots*
     ..  versionadded:: 16.1.0 *frozen*
+    ..  versionadded:: 16.2.0 *validate_types*
     """
     def wrap(cls):
         if getattr(cls, "__class__", None) is None:
@@ -271,7 +279,7 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
         if hash is True:
             cls = _add_hash(cls)
         if init is True:
-            cls = _add_init(cls, frozen)
+            cls = _add_init(cls, frozen, validate_types)
         if frozen is True:
             cls.__setattr__ = _frozen_setattrs
             if slots is True:
@@ -432,7 +440,7 @@ def _add_repr(cls, ns=None, attrs=None):
     return cls
 
 
-def _add_init(cls, frozen):
+def _add_init(cls, frozen, validate_types):
     """
     Add a __init__ method to *cls*.  If *frozen* is True, make it immutable.
     """
@@ -446,7 +454,7 @@ def _add_init(cls, frozen):
         sha1.hexdigest()
     )
 
-    script, globs = _attrs_to_script(attrs, frozen)
+    script, globs = _attrs_to_script(attrs, frozen, validate_types)
     locs = {}
     bytecode = compile(script, unique_filename, "exec")
     attr_dict = dict((a.name, a) for a in attrs)
@@ -540,7 +548,7 @@ def validate(inst):
             a.validator(inst, a, getattr(inst, a.name))
 
 
-def _attrs_to_script(attrs, frozen):
+def _attrs_to_script(attrs, frozen, validate_types):
     """
     Return a script of an initializer for *attrs* and a dict of globals.
 
@@ -587,6 +595,7 @@ def _attrs_to_script(attrs, frozen):
 
     args = []
     attrs_to_validate = []
+    attrs_to_type_validate = []
 
     # This is a dictionary of names to validator and converter callables.
     # Injecting this into __init__ globals lets us avoid lookups.
@@ -595,6 +604,8 @@ def _attrs_to_script(attrs, frozen):
     for a in attrs:
         if a.validator is not None:
             attrs_to_validate.append(a)
+        if a.type is not None and validate_types:
+            attrs_to_type_validate.append(a)
         attr_name = a.name
         arg_name = a.name.lstrip("_")
         if a.init is False:
@@ -673,6 +684,14 @@ def _attrs_to_script(attrs, frozen):
         names_for_globals["_config"] = _config
         lines.append("if _config._run_validators is False:")
         lines.append("    return")
+    if validate_types:
+        for a in attrs_to_type_validate:
+            val_name = "__attr_type_validator_{}".format(a.name)
+            attr_name = "__attr_{}".format(a.name)
+            lines.append("{}(self, {}, self.{})".format(val_name, attr_name,
+                                                        a.name))
+            names_for_globals[val_name] = instance_of(a.type)
+            names_for_globals[attr_name] = a
     for a in attrs_to_validate:
         val_name = "__attr_validator_{}".format(a.name)
         attr_name = "__attr_{}".format(a.name)
@@ -699,12 +718,12 @@ class Attribute(object):
     Plus *all* arguments of :func:`attr.ib`.
     """
     __slots__ = ('name', 'default', 'validator', 'repr', 'cmp', 'hash', 'init',
-                 'convert')
+                 'convert', 'type')
 
     _optional = {"convert": None}
 
     def __init__(self, name, default, validator, repr, cmp, hash, init,
-                 convert=None):
+                 convert=None, type=None):
         # Cache this descriptor here to speed things up later.
         __bound_setattr = _obj_setattr.__get__(self, Attribute)
 
@@ -716,6 +735,7 @@ class Attribute(object):
         __bound_setattr('hash', hash)
         __bound_setattr('init', init)
         __bound_setattr('convert', convert)
+        __bound_setattr('type', type)
 
     def __setattr__(self, name, value):
         raise FrozenInstanceError()
@@ -764,7 +784,8 @@ class _CountingAttr(object):
     ]
     counter = 0
 
-    def __init__(self, default, validator, repr, cmp, hash, init, convert):
+    def __init__(self, default, validator, repr, cmp,
+                 hash, init, convert, type):
         _CountingAttr.counter += 1
         self.counter = _CountingAttr.counter
         self.default = default
@@ -774,6 +795,7 @@ class _CountingAttr(object):
         self.hash = hash
         self.init = init
         self.convert = convert
+        self.type = type
 
 
 _CountingAttr = _add_cmp(_add_repr(_CountingAttr))
@@ -814,3 +836,5 @@ def make_class(name, attrs, **attributes_arguments):
         raise TypeError("attrs argument must be a dict or a list.")
 
     return attributes(**attributes_arguments)(type(name, (object,), cls_dict))
+
+from .validators import instance_of  # NOQA

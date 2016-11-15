@@ -16,6 +16,7 @@ from attr._funcs import (
     asdict,
     assoc,
     astuple,
+    fromdict,
     has,
 )
 from attr._make import (
@@ -299,6 +300,60 @@ class TestAsTuple(object):
         roundtrip_instance = cls(*tuple_instance)
 
         assert instance == roundtrip_instance
+
+
+class TestFromDict(object):
+    """
+    Tests for `asdict`.
+    """
+    def test_shallow(self, C):
+        """
+        Shallow fromdict returns correct class.
+        """
+        assert C(
+            x=1,
+            y=2
+        ) == fromdict(C, {"x": 1, "y": 2}, False)
+
+    def test_recurse(self, C):
+        """
+        Deep fromdict returns correct class.
+        """
+
+        @attributes
+        class D(object):
+            x = attr(type=C)
+            y = attr(type=C)
+
+        assert D(
+            C(1, 2),
+            C(3, 4),
+        ) == fromdict(D, {
+            "x": {"x": 1, "y": 2},
+            "y": {"x": 3, "y": 4},
+        })
+
+    def test_ignore_missing(self, C):
+        """
+        Missing keys become None when ignore_missing is True.
+        """
+
+        assert C(
+            {"x": 1, "y": 2},
+            None,
+        ) == fromdict(C, {
+            "x": {"x": 1, "y": 2},
+        }, ignore_missing=True)
+
+    def test_key_error(self, C):
+        """
+        Missing keys raise KeyError when ignore_missing is False.
+        """
+
+        with pytest.raises(KeyError):
+            fromdict(C, {
+                "x": {"x": 1, "y": 2},
+            }, ignore_missing=False)
 
 
 class TestHas(object):
