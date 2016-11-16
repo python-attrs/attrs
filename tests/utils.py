@@ -130,6 +130,7 @@ def _create_hyp_nested_strategy(simple_class_strategy):
                      attrs_and_classes.map(dict_of_class),
                      attrs_and_classes.map(ordereddict_of_class))
 
+
 bare_attrs = st.just(attr.ib(default=None))
 int_attrs = st.integers().map(lambda i: attr.ib(default=i))
 str_attrs = st.text().map(lambda s: attr.ib(default=s))
@@ -154,6 +155,7 @@ def simple_attrs_with_metadata(draw):
     return attr.ib(c_attr.default, c_attr.validator, c_attr.repr,
                    c_attr.cmp, c_attr.hash, c_attr.init, c_attr.convert,
                    metadata)
+
 
 simple_attrs = simple_attrs_without_metadata | simple_attrs_with_metadata()
 
@@ -186,6 +188,7 @@ def simple_classes(draw, slots=None, frozen=None):
 
     return make_class('HypClass', dict(zip(gen_attr_names(), attrs)),
                       slots=slots_flag, frozen=frozen_flag)
+
 
 # Ok, so st.recursive works by taking a base strategy (in this case,
 # simple_classes) and a special function. This function receives a strategy,

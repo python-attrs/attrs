@@ -35,6 +35,7 @@ HashCSlots = simple_class(hash=True, slots=True)
 class InitC(object):
     __attrs_attrs__ = [simple_attr("a"), simple_attr("b")]
 
+
 InitC = _add_init(InitC, False)
 
 

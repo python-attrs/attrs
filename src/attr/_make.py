@@ -753,6 +753,7 @@ class Attribute(object):
                 __bound_setattr(name, metadata_proxy(value) if value else
                                 _empty_metadata_singleton)
 
+
 _a = [Attribute(name=name, default=NOTHING, validator=None,
                 repr=True, cmp=True, hash=(name != "metadata"), init=True)
       for name in Attribute.__slots__]

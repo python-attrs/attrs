@@ -219,7 +219,8 @@ class TestAsTuple(object):
                     assert_proper_col_class(field_val, obj_tuple[index])
                 elif isinstance(field_val, (list, tuple)):
                     # This field holds a sequence of something.
-                    assert type(field_val) is type(obj_tuple[index])  # noqa: E721
+                    expected_type = type(obj_tuple[index])
+                    assert type(field_val) is expected_type  # noqa: E721
                     for obj_e, obj_tuple_e in zip(field_val, obj_tuple[index]):
                         if has(obj_e.__class__):
                             assert_proper_col_class(obj_e, obj_tuple_e)

@@ -23,6 +23,7 @@ class C1Slots(object):
     x = attr.ib(validator=attr.validators.instance_of(int))
     y = attr.ib()
 
+
 foo = None
 
 
