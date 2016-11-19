@@ -405,6 +405,29 @@ Converters are run *before* validators, so you can use validators to check the f
     ValueError: x must be be at least 0.
 
 
+.. _metadata:
+
+Metadata
+--------
+
+All ``attrs`` attributes may include arbitrary metadata in the form on a read-only dictionary.
+
+.. doctest::
+
+    >>> @attr.s
+    ... class C(object):
+    ...    x = attr.ib(metadata={'my_metadata': 1})
+    >>> attr.fields(C).x.metadata
+    mappingproxy({'my_metadata': 1})
+    >>> attr.fields(C).x.metadata['my_metadata']
+    1
+
+Metadata is not used by ``attrs``, and is meant to enable rich functionality in third-party libraries.
+The metadata dictionary follows the normal dictionary rules: keys need to be hashable, and both keys and values are recommended to be immutable.
+
+If you're the author of a third-party library with ``attrs`` integration, please see :ref:`Extending Metadata <extending_metadata>`.
+
+
 .. _slots:
 
 Slots
@@ -458,7 +481,7 @@ Slot classes are a little different than ordinary, dictionary-backed classes:
     ... class C(object):
     ...     x = attr.ib()
     >>> C.x
-    Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None)
+    Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None, metadata=mappingproxy({}))
     >>> @attr.s(slots=True)
     ... class C(object):
     ...     x = attr.ib()

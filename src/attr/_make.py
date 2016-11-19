@@ -6,13 +6,14 @@ import linecache
 from operator import itemgetter
 
 from . import _config
-from ._compat import iteritems, isclass, iterkeys
+from ._compat import iteritems, isclass, iterkeys, metadata_proxy
 from .exceptions import FrozenInstanceError, NotAnAttrsClassError
 
 # This is used at least twice, so cache it here.
 _obj_setattr = object.__setattr__
-_init_convert_pat = '__attr_convert_{}'
+_init_convert_pat = "__attr_convert_{}"
 _tuple_property_pat = "    {attr_name} = property(itemgetter({index}))"
+_empty_metadata_singleton = metadata_proxy({})
 
 
 class _Nothing(object):
@@ -48,7 +49,7 @@ Sentinel to indicate the lack of a value when ``None`` is ambiguous.
 
 def attr(default=NOTHING, validator=None,
          repr=True, cmp=True, hash=True, init=True,
-         convert=None):
+         convert=None, metadata={}):
     """
     Create a new attribute on a class.
 
@@ -97,6 +98,8 @@ def attr(default=NOTHING, validator=None,
         to the desired format.  It is given the passed-in value, and the
         returned value will be used as the new value of the attribute.  The
         value is converted before being passed to the validator, if any.
+    :param metadata: An arbitrary mapping, to be used by third-party
+        components.
     """
     return _CountingAttr(
         default=default,
@@ -106,6 +109,7 @@ def attr(default=NOTHING, validator=None,
         hash=hash,
         init=init,
         convert=convert,
+        metadata=metadata,
     )
 
 
@@ -132,8 +136,8 @@ def _make_attr_tuple_class(cls_name, attr_names):
             ))
     else:
         attr_class_template.append("    pass")
-    globs = {'itemgetter': itemgetter}
-    eval(compile("\n".join(attr_class_template), '', 'exec'), globs)
+    globs = {"itemgetter": itemgetter}
+    eval(compile("\n".join(attr_class_template), "", "exec"), globs)
     return globs[attr_class_name]
 
 
@@ -283,7 +287,7 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
             for ca_name in ca_list:
                 # It might not actually be in there, e.g. if using 'these'.
                 cls_dict.pop(ca_name, None)
-            cls_dict.pop('__dict__', None)
+            cls_dict.pop("__dict__", None)
 
             qualname = getattr(cls, "__qualname__", None)
             cls = type(cls.__name__, cls.__bases__, cls_dict)
@@ -698,42 +702,44 @@ class Attribute(object):
 
     Plus *all* arguments of :func:`attr.ib`.
     """
-    __slots__ = ('name', 'default', 'validator', 'repr', 'cmp', 'hash', 'init',
-                 'convert')
-
-    _optional = {"convert": None}
+    __slots__ = ("name", "default", "validator", "repr", "cmp", "hash", "init",
+                 "convert", "metadata")
 
     def __init__(self, name, default, validator, repr, cmp, hash, init,
-                 convert=None):
+                 convert=None, metadata=None):
         # Cache this descriptor here to speed things up later.
         __bound_setattr = _obj_setattr.__get__(self, Attribute)
 
-        __bound_setattr('name', name)
-        __bound_setattr('default', default)
-        __bound_setattr('validator', validator)
-        __bound_setattr('repr', repr)
-        __bound_setattr('cmp', cmp)
-        __bound_setattr('hash', hash)
-        __bound_setattr('init', init)
-        __bound_setattr('convert', convert)
+        __bound_setattr("name", name)
+        __bound_setattr("default", default)
+        __bound_setattr("validator", validator)
+        __bound_setattr("repr", repr)
+        __bound_setattr("cmp", cmp)
+        __bound_setattr("hash", hash)
+        __bound_setattr("init", init)
+        __bound_setattr("convert", convert)
+        __bound_setattr("metadata", (metadata_proxy(metadata) if metadata
+                                     else _empty_metadata_singleton))
 
     def __setattr__(self, name, value):
         raise FrozenInstanceError()
 
     @classmethod
     def from_counting_attr(cls, name, ca):
-        return cls(name=name,
-                   **dict((k, getattr(ca, k))
-                          for k
-                          in Attribute.__slots__
-                          if k != "name"))
+        inst_dict = dict((k, getattr(ca, k))
+                         for k
+                         in Attribute.__slots__
+                         if k != "name")
+        return cls(name=name, **inst_dict)
 
     # Don't use _add_pickle since fields(Attribute) doesn't work
     def __getstate__(self):
         """
         Play nice with pickle.
         """
-        return tuple(getattr(self, name) for name in self.__slots__)
+        return tuple(getattr(self, name) if name != "metadata"
+                     else dict(self.metadata)
+                     for name in self.__slots__)
 
     def __setstate__(self, state):
         """
@@ -741,13 +747,20 @@ class Attribute(object):
         """
         __bound_setattr = _obj_setattr.__get__(self, Attribute)
         for name, value in zip(self.__slots__, state):
-            __bound_setattr(name, value)
+            if name != "metadata":
+                __bound_setattr(name, value)
+            else:
+                __bound_setattr(name, metadata_proxy(value) if value else
+                                _empty_metadata_singleton)
+
 
 _a = [Attribute(name=name, default=NOTHING, validator=None,
-                repr=True, cmp=True, hash=True, init=True)
+                repr=True, cmp=True, hash=(name != "metadata"), init=True)
       for name in Attribute.__slots__]
+
 Attribute = _add_hash(
-    _add_cmp(_add_repr(Attribute, attrs=_a), attrs=_a), attrs=_a
+    _add_cmp(_add_repr(Attribute, attrs=_a), attrs=_a),
+    attrs=[a for a in _a if a.hash]
 )
 
 
@@ -756,17 +769,23 @@ class _CountingAttr(object):
     Intermediate representation of attributes that uses a counter to preserve
     the order in which the attributes have been defined.
     """
-    __attrs_attrs__ = [
+    __slots__ = ("counter", "default", "repr", "cmp", "hash", "init",
+                 "metadata", "validator", "convert")
+    __attrs_attrs__ = tuple(
         Attribute(name=name, default=NOTHING, validator=None,
                   repr=True, cmp=True, hash=True, init=True)
         for name
         in ("counter", "default", "repr", "cmp", "hash", "init",)
-    ]
-    counter = 0
+    ) + (
+        Attribute(name="metadata", default=None, validator=None,
+                  repr=True, cmp=True, hash=False, init=True),
+    )
+    cls_counter = 0
 
-    def __init__(self, default, validator, repr, cmp, hash, init, convert):
-        _CountingAttr.counter += 1
-        self.counter = _CountingAttr.counter
+    def __init__(self, default, validator, repr, cmp, hash, init, convert,
+                 metadata):
+        _CountingAttr.cls_counter += 1
+        self.counter = _CountingAttr.cls_counter
         self.default = default
         self.validator = validator
         self.repr = repr
@@ -774,6 +793,7 @@ class _CountingAttr(object):
         self.hash = hash
         self.init = init
         self.convert = convert
+        self.metadata = metadata
 
 
 _CountingAttr = _add_cmp(_add_repr(_CountingAttr))

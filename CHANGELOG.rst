@@ -11,6 +11,8 @@ The third digit is only for regressions.
 Changes:
 ^^^^^^^^
 
+- Attributes now can have user-defined metadata which greatly improves ``attrs``'s extensibility.
+  `#96 <https://github.com/hynek/attrs/pull/96>`_
 - Don't overwrite ``__name__`` with ``__qualname__`` for ``attr.s(slots=True)`` classes.
   `#99 <https://github.com/hynek/attrs/issues/99>`_
 

@@ -3,11 +3,12 @@ Tests for `attr._make`.
 """
 
 from __future__ import absolute_import, division, print_function
+from operator import attrgetter
 
 import pytest
 
 from hypothesis import given
-from hypothesis.strategies import booleans, integers, sampled_from
+from hypothesis.strategies import booleans, integers, lists, sampled_from, text
 
 from attr import _config
 from attr._compat import PY2
@@ -24,9 +25,10 @@ from attr._make import (
 )
 from attr.exceptions import NotAnAttrsClassError
 
-from .utils import simple_attr, simple_attrs, simple_classes
+from .utils import (gen_attr_names, list_of_attrs, simple_attr, simple_attrs,
+                    simple_attrs_without_metadata, simple_classes)
 
-attrs = simple_attrs.map(lambda c: Attribute.from_counting_attr('name', c))
+attrs = simple_attrs.map(lambda c: Attribute.from_counting_attr("name", c))
 
 
 class TestCountingAttr(object):
@@ -103,7 +105,8 @@ class TestTransformAttrs(object):
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, repr=True, "
-            "cmp=True, hash=True, init=True, convert=None)",
+            "cmp=True, hash=True, init=True, convert=None, "
+            "metadata=mappingproxy({}))",
         ) == e.value.args
 
     def test_these(self):
@@ -512,3 +515,70 @@ class TestValidate(object):
         with pytest.raises(Exception) as e:
             C(1)
         assert (obj,) == e.value.args
+
+
+# Hypothesis seems to cache values, so the lists of attributes come out
+# unsorted.
+sorted_lists_of_attrs = list_of_attrs.map(
+    lambda l: sorted(l, key=attrgetter("counter")))
+
+
+class TestMetadata(object):
+    """
+    Tests for metadata handling.
+    """
+
+    @given(sorted_lists_of_attrs)
+    def test_metadata_present(self, list_of_attrs):
+        """
+        Assert dictionaries are copied and present.
+        """
+        C = make_class("C", dict(zip(gen_attr_names(), list_of_attrs)))
+
+        for hyp_attr, class_attr in zip(list_of_attrs, fields(C)):
+            if hyp_attr.metadata is None:
+                # The default is a singleton empty dict.
+                assert class_attr.metadata is not None
+                assert len(class_attr.metadata) == 0
+            else:
+                assert hyp_attr.metadata == class_attr.metadata
+
+                # Once more, just to assert getting items and iteration.
+                for k in class_attr.metadata:
+                    assert hyp_attr.metadata[k] == class_attr.metadata[k]
+                    assert (hyp_attr.metadata.get(k) ==
+                            class_attr.metadata.get(k))
+
+    @given(simple_classes(), text())
+    def test_metadata_immutability(self, C, string):
+        """
+        The metadata dict should be best-effort immutable.
+        """
+        for a in fields(C):
+            with pytest.raises(TypeError):
+                a.metadata[string] = string
+            with pytest.raises(AttributeError):
+                a.metadata.update({string: string})
+            with pytest.raises(AttributeError):
+                a.metadata.clear()
+            with pytest.raises(AttributeError):
+                a.metadata.setdefault(string, string)
+
+            for k in a.metadata:
+                # For some reason, Python 3's MappingProxyType throws an
+                # IndexError for deletes on a large integer key.
+                with pytest.raises((TypeError, IndexError)):
+                    del a.metadata[k]
+                with pytest.raises(AttributeError):
+                    a.metadata.pop(k)
+            with pytest.raises(AttributeError):
+                    a.metadata.popitem()
+
+    @given(lists(simple_attrs_without_metadata, min_size=2, max_size=5))
+    def test_empty_metadata_singleton(self, list_of_attrs):
+        """
+        All empty metadata attributes share the same empty metadata dict.
+        """
+        C = make_class("C", dict(zip(gen_attr_names(), list_of_attrs)))
+        for a in fields(C)[1:]:
+            assert a.metadata is fields(C)[0].metadata

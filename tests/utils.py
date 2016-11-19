@@ -55,7 +55,7 @@ class TestSimpleClass(object):
         assert simple_class() is not simple_class()
 
 
-def _gen_attr_names():
+def gen_attr_names():
     """
     Generate names for attributes, 'a'...'z', then 'aa'...'zz'.
 
@@ -78,7 +78,7 @@ def _create_hyp_class(attrs):
     """
     A helper function for Hypothesis to generate attrs classes.
     """
-    return make_class('HypClass', dict(zip(_gen_attr_names(), attrs)))
+    return make_class('HypClass', dict(zip(gen_attr_names(), attrs)))
 
 
 def _create_hyp_nested_strategy(simple_class_strategy):
@@ -130,6 +130,7 @@ def _create_hyp_nested_strategy(simple_class_strategy):
                      attrs_and_classes.map(dict_of_class),
                      attrs_and_classes.map(ordereddict_of_class))
 
+
 bare_attrs = st.just(attr.ib(default=None))
 int_attrs = st.integers().map(lambda i: attr.ib(default=i))
 str_attrs = st.text().map(lambda s: attr.ib(default=s))
@@ -137,11 +138,29 @@ float_attrs = st.floats().map(lambda f: attr.ib(default=f))
 dict_attrs = (st.dictionaries(keys=st.text(), values=st.integers())
               .map(lambda d: attr.ib(default=d)))
 
-simple_attrs = st.one_of(bare_attrs, int_attrs, str_attrs, float_attrs,
-                         dict_attrs)
+simple_attrs_without_metadata = (bare_attrs | int_attrs | str_attrs |
+                                 float_attrs | dict_attrs)
+
+
+@st.composite
+def simple_attrs_with_metadata(draw):
+    """
+    Create a simple attribute with arbitrary metadata.
+    """
+    c_attr = draw(simple_attrs)
+    keys = st.booleans() | st.binary() | st.integers() | st.text()
+    vals = st.booleans() | st.binary() | st.integers() | st.text()
+    metadata = draw(st.dictionaries(keys=keys, values=vals))
+
+    return attr.ib(c_attr.default, c_attr.validator, c_attr.repr,
+                   c_attr.cmp, c_attr.hash, c_attr.init, c_attr.convert,
+                   metadata)
+
+
+simple_attrs = simple_attrs_without_metadata | simple_attrs_with_metadata()
 
 # Python functions support up to 255 arguments.
-list_of_attrs = st.lists(simple_attrs, average_size=9, max_size=50)
+list_of_attrs = st.lists(simple_attrs, average_size=3, max_size=9)
 
 
 @st.composite
@@ -167,10 +186,12 @@ def simple_classes(draw, slots=None, frozen=None):
     frozen_flag = draw(st.booleans()) if frozen is None else frozen
     slots_flag = draw(st.booleans()) if slots is None else slots
 
-    return make_class('HypClass', dict(zip(_gen_attr_names(), attrs)),
+    return make_class('HypClass', dict(zip(gen_attr_names(), attrs)),
                       slots=slots_flag, frozen=frozen_flag)
+
 
 # Ok, so st.recursive works by taking a base strategy (in this case,
 # simple_classes) and a special function. This function receives a strategy,
 # and returns another strategy (building on top of the base strategy).
-nested_classes = st.recursive(simple_classes(), _create_hyp_nested_strategy)
+nested_classes = st.recursive(simple_classes(), _create_hyp_nested_strategy,
+                              max_leaves=10)
