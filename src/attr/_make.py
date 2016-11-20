@@ -453,7 +453,7 @@ def _add_init(cls, frozen):
     script, globs = _attrs_to_script(
         attrs,
         frozen,
-        getattr(cls, "__post_init__", False),
+        getattr(cls, "__attrs_post_init__", False),
     )
     locs = {}
     bytecode = compile(script, unique_filename, "exec")
@@ -689,7 +689,7 @@ def _attrs_to_script(attrs, frozen, post_init):
         names_for_globals[val_name] = a.validator
         names_for_globals[attr_name] = a
     if post_init:
-        lines.append("self.__post_init__()")
+        lines.append("self.__attrs_post_init__()")
 
     return """\
 def __init__(self, {args}):

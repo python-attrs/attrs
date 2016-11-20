@@ -577,7 +577,7 @@ You can still have power over the attributes if you pass a dictionary of name: `
 Sometimes, you want to have your class's ``__init__`` method do more than just
 the initialization, validation, etc. that gets done for you automatically when
 using ``@attr.s``.
-To do this, just define a ``__post_init__`` method in your class.
+To do this, just define a ``__attrs_post_init__`` method in your class.
 It will get called at the end of the generated ``__init__`` method.
 
 .. doctest::
@@ -588,7 +588,7 @@ It will get called at the end of the generated ``__init__`` method.
    ...     y = attr.ib()
    ...     z = attr.ib(init=False)
    ...
-   ...     def __post_init__(self):
+   ...     def __attrs_post_init__(self):
    ...         self.z = self.x + self.y
    >>> obj = C(x=1, y=2)
    >>> obj

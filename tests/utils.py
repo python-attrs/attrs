@@ -192,7 +192,7 @@ def simple_classes(draw, slots=None, frozen=None):
     if post_init_flag:
         def post_init(self):
             pass
-        cls_dict['__post_init__'] = post_init
+        cls_dict['__attrs_post_init__'] = post_init
     return make_class('HypClass', cls_dict,
                       slots=slots_flag, frozen=frozen_flag)
 

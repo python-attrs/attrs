@@ -307,14 +307,14 @@ class TestAttributes(object):
 
     def test_post_init(self):
         """
-        Verify that __post_init__ gets called if defined.
+        Verify that __attrs_post_init__ gets called if defined.
         """
         @attributes
         class C(object):
             x = attr()
             y = attr()
 
-            def __post_init__(self2):
+            def __attrs_post_init__(self2):
                 self2.z = self2.x + self2.y
 
         c = C(x=10, y=20)

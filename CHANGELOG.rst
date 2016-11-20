@@ -13,7 +13,7 @@ Changes:
 
 - Attributes now can have user-defined metadata which greatly improves ``attrs``'s extensibility.
   `#96 <https://github.com/hynek/attrs/pull/96>`_
-- Allow for a ``__post_init__`` method that -- if defined -- will get executed at the end of the ``attrs``-generated ``__init__`` method.
+- Allow for a ``__attrs_post_init__`` method that -- if defined -- will get executed at the end of the ``attrs``-generated ``__init__`` method.
   `#111 <https://github.com/hynek/attrs/pull/111>`_
 - Don't overwrite ``__name__`` with ``__qualname__`` for ``attr.s(slots=True)`` classes.
   `#99 <https://github.com/hynek/attrs/issues/99>`_
