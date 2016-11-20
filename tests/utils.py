@@ -165,7 +165,8 @@ list_of_attrs = st.lists(simple_attrs, average_size=3, max_size=9)
 
 @st.composite
 def simple_classes(draw, slots=None, frozen=None):
-    """A strategy that generates classes with default non-attr attributes.
+    """
+    A strategy that generates classes with default non-attr attributes.
 
     For example, this strategy might generate a class such as:
 
@@ -196,8 +197,8 @@ def simple_classes(draw, slots=None, frozen=None):
                       slots=slots_flag, frozen=frozen_flag)
 
 
-# Ok, so st.recursive works by taking a base strategy (in this case,
-# simple_classes) and a special function. This function receives a strategy,
-# and returns another strategy (building on top of the base strategy).
+# st.recursive works by taking a base strategy (in this case, simple_classes)
+# and a special function.  This function receives a strategy, and returns
+# another strategy (building on top of the base strategy).
 nested_classes = st.recursive(simple_classes(), _create_hyp_nested_strategy,
                               max_leaves=10)

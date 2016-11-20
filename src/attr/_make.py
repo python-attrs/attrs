@@ -453,7 +453,7 @@ def _add_init(cls, frozen):
     script, globs = _attrs_to_script(
         attrs,
         frozen,
-        getattr(cls, '__post_init__', False),
+        getattr(cls, "__post_init__", False),
     )
     locs = {}
     bytecode = compile(script, unique_filename, "exec")

@@ -1,7 +1,7 @@
 Changelog
 =========
 
-Versions are year-based with a strict backwards compatibility policy.
+Versions follow `CalVer <http://calver.org>`_ with a strict backwards compatibility policy.
 The third digit is only for regressions.
 
 
@@ -13,12 +13,10 @@ Changes:
 
 - Attributes now can have user-defined metadata which greatly improves ``attrs``'s extensibility.
   `#96 <https://github.com/hynek/attrs/pull/96>`_
+- Allow for a ``__post_init__`` method that -- if defined -- will get executed at the end of the ``attrs``-generated ``__init__`` method.
+  `#111 <https://github.com/hynek/attrs/pull/111>`_
 - Don't overwrite ``__name__`` with ``__qualname__`` for ``attr.s(slots=True)`` classes.
   `#99 <https://github.com/hynek/attrs/issues/99>`_
-- Allow for a ``__post_init__`` method that, if defined, will get executed at
-  the end of the ``__init__`` that gets constructed for an ``@attr.s``-decorated
-  class.
-  `#111 <https://github.com/hynek/attrs/pull/111>`_
 
 
 ----
