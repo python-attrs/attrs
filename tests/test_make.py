@@ -305,6 +305,21 @@ class TestAttributes(object):
         assert C.D.__name__ == "D"
         assert C.D.__qualname__ == C.__qualname__ + ".D"
 
+    def test_post_init(self):
+        """
+        Verify that __attrs_post_init__ gets called if defined.
+        """
+        @attributes
+        class C(object):
+            x = attr()
+            y = attr()
+
+            def __attrs_post_init__(self2):
+                self2.z = self2.x + self2.y
+
+        c = C(x=10, y=20)
+        assert 30 == getattr(c, 'z', None)
+
 
 @attributes
 class GC(object):
