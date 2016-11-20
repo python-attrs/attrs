@@ -13,8 +13,13 @@ Changes:
 
 - Attributes now can have user-defined metadata which greatly improves ``attrs``'s extensibility.
   `#96 <https://github.com/hynek/attrs/pull/96>`_
-- Allow for a ``__attrs_post_init__`` method that -- if defined -- will get executed at the end of the ``attrs``-generated ``__init__`` method.
+- Allow for a ``__attrs_post_init__`` method that -- if defined -- will get called at the end of the ``attrs``-generated ``__init__`` method.
   `#111 <https://github.com/hynek/attrs/pull/111>`_
+- Add ``@attr.s(str=True)`` that will optionally create a ``__str__`` method that is identical to ``__repr__``.
+  This is mainly useful with ``Exception``\ s and other classes that rely on a useful ``__str__`` implementation but overwrite the default one through a poor own one.
+  Default Python class behavior is to use ``__repr__`` as ``__str__`` anyways.
+
+  If you tried using ``attrs`` with ``Exception``\ s and were puzzled by the tracebacks: this option is for you.
 - Don't overwrite ``__name__`` with ``__qualname__`` for ``attr.s(slots=True)`` classes.
   `#99 <https://github.com/hynek/attrs/issues/99>`_
 

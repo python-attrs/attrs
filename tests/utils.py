@@ -17,13 +17,13 @@ from attr import Attribute
 from attr._make import NOTHING, make_class
 
 
-def simple_class(cmp=False, repr=False, hash=False, slots=False):
+def simple_class(cmp=False, repr=False, hash=False, str=False, slots=False):
     """
     Return a new simple class.
     """
     return make_class(
         "C", ["a", "b"],
-        cmp=cmp, repr=repr, hash=hash, init=True, slots=slots
+        cmp=cmp, repr=repr, hash=hash, init=True, slots=slots, str=str,
     )
 
 
@@ -192,8 +192,8 @@ def simple_classes(draw, slots=None, frozen=None):
     if post_init_flag:
         def post_init(self):
             pass
-        cls_dict['__attrs_post_init__'] = post_init
-    return make_class('HypClass', cls_dict,
+        cls_dict["__attrs_post_init__"] = post_init
+    return make_class("HypClass", cls_dict,
                       slots=slots_flag, frozen=frozen_flag)
 
 

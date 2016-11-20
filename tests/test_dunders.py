@@ -18,8 +18,9 @@ from attr._make import (
     _add_init,
     _add_repr,
     attr,
-    make_class,
+    attributes,
     fields,
+    make_class,
 )
 from attr.validators import instance_of
 
@@ -165,7 +166,7 @@ class TestAddRepr(object):
     """
     Tests for `_add_repr`.
     """
-    @given(booleans())
+    @pytest.mark.parametrize("slots", [True, False])
     def test_repr(self, slots):
         """
         If `repr` is False, ignore that attribute.
@@ -193,6 +194,33 @@ class TestAddRepr(object):
         i._x = 42
 
         assert "C(_x=42)" == repr(i)
+
+    @pytest.mark.parametrize("add_str", [True, False])
+    def test_str(self, add_str):
+        """
+        If str is True, it returns the same as repr.
+
+        This only makes sense when subclassing a class with an poor __str__
+        (like Exceptions).
+        """
+        @attributes(str=add_str)
+        class Error(Exception):
+            x = attr()
+
+        e = Error(42)
+
+        assert (str(e) == repr(e)) is add_str
+
+    def test_str_no_repr(self):
+        """
+        Raises a ValueError if repr=False and str=True.
+        """
+        with pytest.raises(ValueError) as e:
+            simple_class(repr=False, str=True)
+
+        assert (
+            "__str__ can only be generated if a __repr__ exists."
+        ) == e.value.args[0]
 
 
 class TestAddHash(object):

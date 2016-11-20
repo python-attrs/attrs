@@ -203,8 +203,8 @@ def _frozen_setattrs(self, name, value):
 
 def attributes(maybe_cls=None, these=None, repr_ns=None,
                repr=True, cmp=True, hash=True, init=True,
-               slots=False, frozen=False):
-    """
+               slots=False, frozen=False, str=False):
+    r"""
     A class decorator that adds `dunder
     <https://wiki.python.org/moin/DunderAlias>`_\ -methods according to the
     specified attributes using :func:`attr.ib` or the *these* argument.
@@ -215,7 +215,7 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
         Django models) or don't want to (e.g. if you want to use
         :class:`properties <property>`).
 
-        If *these* is not `None`, the class body is *ignored*.
+        If *these* is not ``None``, the class body is *ignored*.
 
     :type these: :class:`dict` of :class:`str` to :func:`attr.ib`
 
@@ -224,6 +224,9 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
         namespace explicitly for a more meaningful ``repr`` output.
     :param bool repr: Create a ``__repr__`` method with a human readable
         represantation of ``attrs`` attributes..
+    :param bool str: Create a ``__str__`` method that is identical to
+        ``__repr__``.  This is usually not necessary except for
+        :class:`Exception`\ s.
     :param bool cmp: Create ``__eq__``, ``__ne__``, ``__lt__``, ``__le__``,
         ``__gt__``, and ``__ge__`` methods that compare the class as if it were
         a tuple of its ``attrs`` attributes.  But the attributes are *only*
@@ -232,7 +235,8 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
         :func:`hash` of a tuple of all ``attrs`` attribute values.
     :param bool init: Create a ``__init__`` method that initialiazes the
         ``attrs`` attributes.  Leading underscores are stripped for the
-        argument name.
+        argument name.  If a ``__attrs_post_init__`` method exists on the
+        class, it will be called after the class is fully initialized.
     :param bool slots: Create a slots_-style class that's more
         memory-efficient.  See :ref:`slots` for further ramifications.
     :param bool frozen: Make instances immutable after initialization.  If
@@ -254,10 +258,17 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
 
     ..  versionadded:: 16.0.0 *slots*
     ..  versionadded:: 16.1.0 *frozen*
+    ..  versionadded:: 16.3.0 *str*, and support for ``__attrs_post_init__``.
     """
     def wrap(cls):
         if getattr(cls, "__class__", None) is None:
             raise TypeError("attrs only works with new-style classes.")
+
+        if repr is False and str is True:
+            raise ValueError(
+                "__str__ can only be generated if a __repr__ exists."
+            )
+
         if slots:
             # Only need this later if we're using slots.
             if these is None:
@@ -270,6 +281,8 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
         _transform_attrs(cls, these)
         if repr is True:
             cls = _add_repr(cls, ns=repr_ns)
+        if str is True:
+            cls.__str__ = cls.__repr__
         if cmp is True:
             cls = _add_cmp(cls)
         if hash is True:
