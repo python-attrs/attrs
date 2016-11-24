@@ -42,7 +42,7 @@ If you've never ran into mysterious tuples you had no idea what the hell they me
 Using proper classes with names and types makes program code much more readable and comprehensible_.
 Especially when trying to grok a new piece of software or returning to old code after several months.
 
-.. _comprehensible: http://arxiv.org/pdf/1304.5257.pdf
+.. _comprehensible: https://arxiv.org/pdf/1304.5257.pdf
 
 
 Extendability
