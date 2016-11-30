@@ -182,6 +182,9 @@ class TestDarkMagic(object):
         with pytest.raises(FrozenInstanceError) as e:
             frozen.x = 2
 
+        with pytest.raises(FrozenInstanceError) as e:
+            del frozen.x
+
         assert e.value.args[0] == "can't set attribute"
         assert 1 == frozen.x
 
