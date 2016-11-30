@@ -372,7 +372,7 @@ class TestAssoc(object):
         field_names = [a.name for a in fields(C)]
         original = C()
         chosen_names = data.draw(st.sets(st.sampled_from(field_names)))
-        change_dict = {name: str(getattr(original, name)) + '1'
+        change_dict = {name: data.draw(st.integers())
                        for name in chosen_names}
         changed = assoc(original, **change_dict)
         for k, v in change_dict.items():
