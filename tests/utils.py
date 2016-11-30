@@ -200,7 +200,7 @@ def simple_classes(draw, slots=None, frozen=None, private_attrs=None):
     slots_flag = draw(st.booleans()) if slots is None else slots
 
     if private_attrs is None:
-        attr_names = (maybe_underscore_prefix(gen_attr_names()))
+        attr_names = maybe_underscore_prefix(gen_attr_names())
     elif private_attrs is True:
         attr_names = ('_' + n for n in gen_attr_names())
     elif private_attrs is False:
