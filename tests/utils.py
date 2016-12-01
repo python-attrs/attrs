@@ -75,7 +75,9 @@ def gen_attr_names():
 
 
 def maybe_underscore_prefix(source):
-    """A generator to sometimes prepend an underscore."""
+    """
+    A generator to sometimes prepend an underscore.
+    """
     to_underscore = False
     for val in source:
         yield val if not to_underscore else '_' + val
