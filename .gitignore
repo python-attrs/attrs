@@ -7,4 +7,3 @@ htmlcov
 dist
 .cache
 .hypothesis
-.venv*
