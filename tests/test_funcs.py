@@ -132,10 +132,13 @@ class TestAsDict(object):
         } == res
         assert isinstance(res, dict_factory)
 
-    @given(simple_classes(), st.sampled_from(MAPPING_TYPES))
+    @given(simple_classes(private_attrs=False), st.sampled_from(MAPPING_TYPES))
     def test_roundtrip(self, cls, dict_class):
         """
         Test dumping to dicts and back for Hypothesis-generated classes.
+
+        Private attributes don't round-trip (the attribute name is different
+        than the initializer argument).
         """
         instance = cls()
         dict_instance = asdict(instance, dict_factory=dict_class)
@@ -359,22 +362,27 @@ class TestAssoc(object):
         assert i1 is not i2
         assert i1 == i2
 
-    @given(simple_classes(), st.integers())
-    def test_change(self, C, val):
+    @given(simple_classes(), st.data())
+    def test_change(self, C, data):
         """
         Changes work.
         """
         # Take the first attribute, and change it.
         assume(fields(C))  # Skip classes with no attributes.
+        field_names = [a.name for a in fields(C)]
         original = C()
-        attribute = fields(C)[0]
-        changed = assoc(original, **{attribute.name: val})
-        assert getattr(changed, attribute.name) == val
+        chosen_names = data.draw(st.sets(st.sampled_from(field_names)))
+        change_dict = {name: data.draw(st.integers())
+                       for name in chosen_names}
+        changed = assoc(original, **change_dict)
+        for k, v in change_dict.items():
+            assert getattr(changed, k) == v
 
     @given(simple_classes())
     def test_unknown(self, C):
         """
-        Wanting to change an unknown attribute raises a ValueError.
+        Wanting to change an unknown attribute raises an
+        AttrsAttributeNotFoundError.
         """
         # No generated class will have a four letter attribute.
         with pytest.raises(AttrsAttributeNotFoundError) as e:

@@ -74,6 +74,16 @@ def gen_attr_names():
             yield outer + inner
 
 
+def maybe_underscore_prefix(source):
+    """
+    A generator to sometimes prepend an underscore.
+    """
+    to_underscore = False
+    for val in source:
+        yield val if not to_underscore else '_' + val
+        to_underscore = not to_underscore
+
+
 def _create_hyp_class(attrs):
     """
     A helper function for Hypothesis to generate attrs classes.
@@ -164,7 +174,7 @@ list_of_attrs = st.lists(simple_attrs, average_size=3, max_size=9)
 
 
 @st.composite
-def simple_classes(draw, slots=None, frozen=None):
+def simple_classes(draw, slots=None, frozen=None, private_attrs=None):
     """
     A strategy that generates classes with default non-attr attributes.
 
@@ -173,21 +183,32 @@ def simple_classes(draw, slots=None, frozen=None):
     @attr.s(slots=True, frozen=True)
     class HypClass:
         a = attr.ib(default=1)
-        b = attr.ib(default=None)
+        _b = attr.ib(default=None)
         c = attr.ib(default='text')
-        d = attr.ib(default=1.0)
+        _d = attr.ib(default=1.0)
         c = attr.ib(default={'t': 1})
 
     By default, all combinations of slots and frozen classes will be generated.
     If `slots=True` is passed in, only slots classes will be generated, and
     if `slots=False` is passed in, no slot classes will be generated. The same
     applies to `frozen`.
+
+    By default, some attributes will be private (i.e. prefixed with an
+    underscore). If `private_attrs=True` is passed in, all attributes will be
+    private, and if `private_attrs=False`, no attributes will be private.
     """
     attrs = draw(list_of_attrs)
     frozen_flag = draw(st.booleans()) if frozen is None else frozen
     slots_flag = draw(st.booleans()) if slots is None else slots
 
-    cls_dict = dict(zip(gen_attr_names(), attrs))
+    if private_attrs is None:
+        attr_names = maybe_underscore_prefix(gen_attr_names())
+    elif private_attrs is True:
+        attr_names = ('_' + n for n in gen_attr_names())
+    elif private_attrs is False:
+        attr_names = gen_attr_names()
+
+    cls_dict = dict(zip(attr_names, attrs))
     post_init_flag = draw(st.booleans())
     if post_init_flag:
         def post_init(self):
