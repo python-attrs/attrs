@@ -15,7 +15,7 @@ Internally they're a representation of the data passed into ``attr.ib`` along wi
 
 In order to ensure that sub-classing works as you'd expect it to work, ``attrs`` also walks the class hierarchy and collects the attributes of all super-classes.
 Please note that ``attrs`` does *not* call ``super()`` *ever*.
-It will write dunder methods to work on *all* of those attributes which also has performance benefits due to less function calls.
+It will write dunder methods to work on *all* of those attributes which also has performance benefits due to fewer function calls.
 
 Once ``attrs`` knows what attributes it has to work on, it writes the requested dunder methods and attaches them to your class.
 To be very clear: if you define a class with a single attribute  without a default value, the generated ``__init__`` will look *exactly* how you'd expect:
