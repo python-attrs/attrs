@@ -71,6 +71,17 @@ Documentation
      This is a sentence.
      This is another sentence.
 
+- If you start a new section, add two blank lines before and one blank line after the header:
+
+  .. code-block:: rst
+
+     Last line of previous section.
+
+
+     Header of New Section
+     ^^^^^^^^^^^^^^^^^^^^^
+
+     First line of new section.
 - If you add a new feature, demonstrate its awesomeness in the `examples page`_!
 - If your change is noteworthy, add an entry to the changelog_.
   Use present tense, `semantic newlines`_, and add a link to your pull request:
