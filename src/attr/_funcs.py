@@ -1,9 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
-import copy
-
 from ._compat import iteritems
-from ._make import NOTHING, fields, _obj_setattr
+from ._make import fields
 from .exceptions import AttrsAttributeNotFoundError
 
 
