@@ -201,6 +201,13 @@ def _frozen_setattrs(self, name, value):
     raise FrozenInstanceError()
 
 
+def _frozen_delattrs(self, name):
+    """
+    Attached to frozen classes as __delattr__.
+    """
+    raise FrozenInstanceError()
+
+
 def attributes(maybe_cls=None, these=None, repr_ns=None,
                repr=True, cmp=True, hash=True, init=True,
                slots=False, frozen=False, str=False):
@@ -291,6 +298,7 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
             cls = _add_init(cls, frozen)
         if frozen is True:
             cls.__setattr__ = _frozen_setattrs
+            cls.__delattr__ = _frozen_delattrs
             if slots is True:
                 # slots and frozen require __getstate__/__setstate__ to work
                 cls = _add_pickle(cls)

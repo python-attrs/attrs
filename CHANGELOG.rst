@@ -24,8 +24,8 @@ Deprecations:
 Changes:
 ^^^^^^^^
 
-*none*
-
+- Raise ``FrozenInstanceError`` when trying to delete an attribute from
+  a frozen class. `#118 <https://github.com/hynek/attrs/pull/118>`__
 
 ----
 
