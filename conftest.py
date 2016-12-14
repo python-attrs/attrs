@@ -9,7 +9,7 @@ from hypothesis import settings
 @pytest.fixture(scope="session")
 def C():
     """
-    Return a simple but fully features attrs class with an x and a y attribute.
+    Return a simple but fully featured attrs class with an x and a y attribute.
     """
     from attr import attributes, attr
 
