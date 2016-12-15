@@ -7,10 +7,45 @@ from __future__ import absolute_import, division, print_function
 import pytest
 import zope.interface
 
-from attr.validators import instance_of, provides, optional
+from attr.validators import matches, instance_of, provides, optional
 from attr._compat import TYPE
 
 from .utils import simple_attr
+
+
+class TestMatches(object):
+    """
+    Tests for ``matches``.
+    """
+    def test_success(self):
+        """
+        Nothing happens if the matcher matches by returning ``None``.
+        """
+        class Everything(object):
+            def match(self, actual):
+                return None
+        v = matches(Everything())
+        v(None, simple_attr("test"), 42)
+
+    def test_mismatch_described(self):
+        """
+        If the matcher indicates mismatch by returning non-``None``, the
+        details are reported by the validator.
+        """
+        class Mismatch(object):
+            def describe(self):
+                return "these are the details"
+
+        class Nothing(object):
+            def match(self, actual):
+                return Mismatch()
+
+        v = matches(Nothing())
+        with pytest.raises(TypeError) as e:
+            v(None, simple_attr("test"), 42)
+        assert (
+            "'test' is invalid: these are the details",
+        ) == e.value.args
 
 
 class TestInstanceOf(object):
