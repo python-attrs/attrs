@@ -12,7 +12,9 @@ The third digit is only for regressions.
 Backward-incompatible changes:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-*none*
+- `assoc` will now construct a fresh instance rather than using `copy.copy`.
+  This means `assoc` no longer works on classes without the usual `attrs` initializer, and that `assoc`ing will now validate the changed attributes.
+  `#124 <https://github.com/hynek/attrs/pull/124>`_
 
 
 Deprecations:

@@ -151,7 +151,7 @@ def has(cls):
 
 def assoc(inst, **changes):
     """
-    Copy *inst* and apply *changes*.
+    Create a new instance, based on *inst* with *changes* applied.
 
     :param inst: Instance of a class with ``attrs`` attributes.
     :param changes: Keyword changes in the new copy.
