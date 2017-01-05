@@ -704,8 +704,8 @@ def _attrs_to_script(attrs, frozen, post_init):
         for a in attrs_to_validate:
             val_name = "__attr_validator_{}".format(a.name)
             attr_name = "__attr_{}".format(a.name)
-            lines.append("    {}(self, {}, self.{})".format(val_name, attr_name,
-                                                        a.name))
+            lines.append("    {}(self, {}, self.{})".format(
+                val_name, attr_name, a.name))
             names_for_globals[val_name] = a.validator
             names_for_globals[attr_name] = a
     if post_init:
