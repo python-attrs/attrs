@@ -700,15 +700,14 @@ def _attrs_to_script(attrs, frozen, post_init):
 
     if attrs_to_validate:  # we can skip this if there are no validators.
         names_for_globals["_config"] = _config
-        lines.append("if _config._run_validators is False:")
-        lines.append("    return")
-    for a in attrs_to_validate:
-        val_name = "__attr_validator_{}".format(a.name)
-        attr_name = "__attr_{}".format(a.name)
-        lines.append("{}(self, {}, self.{})".format(val_name, attr_name,
-                                                    a.name))
-        names_for_globals[val_name] = a.validator
-        names_for_globals[attr_name] = a
+        lines.append("if _config._run_validators is True:")
+        for a in attrs_to_validate:
+            val_name = "__attr_validator_{}".format(a.name)
+            attr_name = "__attr_{}".format(a.name)
+            lines.append("    {}(self, {}, self.{})".format(
+                val_name, attr_name, a.name))
+            names_for_globals[val_name] = a.validator
+            names_for_globals[attr_name] = a
     if post_init:
         lines.append("self.__attrs_post_init__()")
 

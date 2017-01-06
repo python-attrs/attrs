@@ -26,6 +26,8 @@ Changes:
 
 - Raise ``FrozenInstanceError`` when trying to delete an attribute from a frozen class.
   `#118 <https://github.com/hynek/attrs/pull/118>`_
+- Fix ``__attrs_post_init__`` not being run when the validation is disabled.
+  `#130 <https://github.com/hynek/attrs/pull/130>`_
 
 ----
 
