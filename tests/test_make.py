@@ -306,11 +306,11 @@ class TestAttributes(object):
         assert C.D.__qualname__ == C.__qualname__ + ".D"
 
     @given(with_validation=booleans())
-    def test_post_init(self, with_validation):
+    def test_post_init(self, with_validation, monkeypatch):
         """
         Verify that __attrs_post_init__ gets called if defined.
         """
-        _config.set_run_validators(with_validation)
+        monkeypatch.setattr(_config, '_run_validators', with_validation)
 
         @attributes
         class C(object):
