@@ -276,6 +276,86 @@ Validators
       C(x=None)
 
 
+.. _api_converters:
+
+Converters
+----------
+
+.. autofunction:: attr.converters.list_of
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib()
+      >>> @attr.s
+      ... class D(object):
+      ...     y = attr.ib(convert=attr.converters.list_of(C))
+      >>> data = {'y': [{'x': 3}, {'x': 4}] }
+      >>> D(**data)
+      D(y=[C(x=3), C(x=4)])
+      >>> D(y=[C(x=3), C(x=4)])
+      D(y=[C(x=3), C(x=4)])
+
+.. autofunction:: attr.converters.set_of
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib()
+      >>> @attr.s
+      ... class D(object):
+      ...     y = attr.ib(convert=attr.converters.set_of(C))
+      >>> data = {'y': [{'x': 3}, {'x': 4}] }
+      >>> D(**data)
+      D(y={C(x=3), C(x=4)})
+      >>> D(y=[C(x=3), C(x=4)])
+      D(y={C(x=3), C(x=4)})
+
+
+.. autofunction:: attr.converters.frozenset_of
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib()
+      >>> @attr.s
+      ... class D(object):
+      ...     y = attr.ib(convert=attr.converters.frozenset_of(C))
+      >>> data = {'y': [{'x': 3}, {'x': 4}] }
+      >>> D(**data)
+      D(y=frozenset({C(x=3), C(x=4)}))
+      >>> D(y=[C(x=3), C(x=4)])
+      D(y=frozenset({C(x=3), C(x=4)}))
+
+
+.. autofunction:: attr.converters.from_dict
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib()
+      >>> @attr.s
+      ... class D(object):
+      ...     y = attr.ib(convert=attr.converters.from_dict(C))
+      >>> data = {'y': {'x': 3} }
+      >>> D(**data)
+      D(y=C(x=3))
+      >>> D(y=C(x=4))
+      D(y=C(x=4))
+
+
 Deprecated APIs
 ---------------
 
