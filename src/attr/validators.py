@@ -48,6 +48,38 @@ def instance_of(type):
 
 
 @attributes(repr=False, slots=True)
+class _ListOfValidator(object):
+    type = attr()
+
+    def __call__(self, inst, attr, value):
+        actual_types = list(set((type(i) for i in value)))
+        if actual_types != [self.type]:
+            raise TypeError(
+                "All Items of '{name}' must be {type!r} but "
+                "contains multiple types."
+                .format(name=attr.name, type=self.type),
+                attr, self.type, value,
+            )
+
+    def __repr__(self):
+        return (
+            "<list_of validator for type {type!r}>"
+            .format(type=self.type)
+        )
+
+
+def list_of(type):
+    """
+    A validator that raises a :exc:`TypeError` if the any item inside the
+    initializer has a wrong type for this particular attribute.
+
+    :param type: The type to check for.
+    :type type: type or tuple of types
+    """
+    return _ListOfValidator(type)
+
+
+@attributes(repr=False, slots=True)
 class _ProvidesValidator(object):
     interface = attr()
 

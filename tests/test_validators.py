@@ -7,10 +7,44 @@ from __future__ import absolute_import, division, print_function
 import pytest
 import zope.interface
 
-from attr.validators import instance_of, provides, optional
+from attr.validators import instance_of, list_of, provides, optional
 from attr._compat import TYPE
 
 from .utils import simple_attr
+
+
+class TestListOf(object):
+    """
+    Tests for `instance_of`.
+    """
+    def test_success(self):
+        """
+        Nothing happens if types match.
+        """
+        v = list_of(int)
+        v(None, simple_attr("test"), [42, 43, 44])
+
+    def test_fail(self):
+        """
+        Raises `TypeError` on wrong types.
+        """
+        v = list_of(int)
+        a = simple_attr("test")
+        with pytest.raises(TypeError) as e:
+            v(None, a, [42, 43, '44'])
+        assert (
+            "All Items of 'test' must be <{type} 'int'> but "
+            "contains multiple types.".format(type=TYPE),
+            a, int, [42, 43, '44'],
+
+        ) == e.value.args
+
+    def test_repr(self):
+        v = list_of(int)
+        assert (
+            "<list_of validator for type <{type} 'int'>>"
+            .format(type=TYPE)
+        ) == repr(v)
 
 
 class TestInstanceOf(object):
