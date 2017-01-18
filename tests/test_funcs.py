@@ -12,18 +12,17 @@ from hypothesis import assume, given, strategies as st
 
 from .utils import simple_classes, nested_classes
 
-from attr._funcs import (
+from attr import (
+    attr,
+    attributes,
     asdict,
     assoc,
     astuple,
     evolve,
+    fields,
     has,
 )
-from attr._make import (
-    attr,
-    attributes,
-    fields,
-)
+
 from attr.exceptions import AttrsAttributeNotFoundError
 
 MAPPING_TYPES = (dict, OrderedDict)
