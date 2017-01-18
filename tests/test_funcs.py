@@ -16,6 +16,7 @@ from attr._funcs import (
     asdict,
     assoc,
     astuple,
+    evolve,
     has,
 )
 from attr._make import (
@@ -401,3 +402,63 @@ class TestAssoc(object):
             y = attr()
 
         assert C(3, 2) == assoc(C(1, 2), x=3)
+
+
+class TestEvolve(object):
+    """
+    Tests for `evolve`.
+    """
+    @given(slots=st.booleans(), frozen=st.booleans())
+    def test_empty(self, slots, frozen):
+        """
+        Empty classes without changes get copied.
+        """
+        @attributes(slots=slots, frozen=frozen)
+        class C(object):
+            pass
+
+        i1 = C()
+        i2 = evolve(i1)
+
+        assert i1 is not i2
+        assert i1 == i2
+
+    @given(simple_classes())
+    def test_no_changes(self, C):
+        """
+        No changes means a verbatim copy.
+        """
+        i1 = C()
+        i2 = evolve(i1)
+
+        assert i1 is not i2
+        assert i1 == i2
+
+    @given(simple_classes(), st.data())
+    def test_change(self, C, data):
+        """
+        Changes work.
+        """
+        # Take the first attribute, and change it.
+        assume(fields(C))  # Skip classes with no attributes.
+        field_names = [a.name for a in fields(C)]
+        original = C()
+        chosen_names = data.draw(st.sets(st.sampled_from(field_names)))
+        change_dict = {name: data.draw(st.integers())
+                       for name in chosen_names}
+        changed = evolve(original, **change_dict)
+        for k, v in change_dict.items():
+            assert getattr(changed, k) == v
+
+    @given(simple_classes())
+    def test_unknown(self, C):
+        """
+        Wanting to change an unknown attribute raises an
+        AttrsAttributeNotFoundError.
+        """
+        # No generated class will have a four letter attribute.
+        with pytest.raises(AttrsAttributeNotFoundError) as e:
+            evolve(C(), aaaa=2)
+        assert (
+            "aaaa is not an attrs attribute on {cls!r}.".format(cls=C),
+        ) == e.value.args

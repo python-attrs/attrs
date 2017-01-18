@@ -8,6 +8,12 @@ The third digit is only for regressions.
 16.4.0 (UNRELEASED)
 -------------------
 
+Changes:
+^^^^^^^^
+
+- Add ``attr.evolve`` that, given an instance of an ``attrs`` class and field changes as keyword arguments, will instantiate a copy of the given instance with the changes applied.
+  ``evolve`` replaces ``assoc``, which is now deprecated.
+  ``evolve`` is significantly faster than ``assoc``, and requires the class have an initializer that can take the field values as keyword arguments (like ``attrs`` itself can generate).
 
 Backward-incompatible changes:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -18,7 +24,7 @@ Backward-incompatible changes:
 Deprecations:
 ^^^^^^^^^^^^^
 
-*none*
+- ``assoc`` is now deprecated in favor of ``evolve`` and will stop working in 2018.
 
 
 Changes:
