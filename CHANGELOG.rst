@@ -14,6 +14,9 @@ Changes:
 - Add ``attr.evolve`` that, given an instance of an ``attrs`` class and field changes as keyword arguments, will instantiate a copy of the given instance with the changes applied.
   ``evolve`` replaces ``assoc``, which is now deprecated.
   ``evolve`` is significantly faster than ``assoc``, and requires the class have an initializer that can take the field values as keyword arguments (like ``attrs`` itself can generate).
+  `#116 <https://github.com/hynek/attrs/issues/116>`_
+  `#124 <https://github.com/hynek/attrs/pull/124>`_
+  `#135 <https://github.com/hynek/attrs/pull/135>`_
 
 Backward-incompatible changes:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
