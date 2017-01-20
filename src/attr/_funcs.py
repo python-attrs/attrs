@@ -164,6 +164,9 @@ def assoc(inst, **changes):
         be found on *cls*.
     :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
         class.
+
+    ..  deprecated:: 17.1.0
+        Use :func:`evolve` instead.
     """
     import warnings
     warnings.warn("assoc is deprecated and will be removed after 2018/01.",
@@ -194,6 +197,8 @@ def evolve(inst, **changes):
         be found on *cls*.
     :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
         class.
+
+    ..  versionadded:: 17.1.0
     """
     cls = inst.__class__
     for a in fields(cls):
