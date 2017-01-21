@@ -182,6 +182,25 @@ Helpers
 
 See :ref:`asdict` for examples.
 
+.. autofunction:: attr.evolve
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib()
+      ...     y = attr.ib()
+      >>> i1 = C(1, 2)
+      >>> i1
+      C(x=1, y=2)
+      >>> i2 = attr.evolve(i1, y=3)
+      >>> i2
+      C(x=1, y=3)
+      >>> i1 == i2
+      False
+
 .. autofunction:: assoc
 
    For example:

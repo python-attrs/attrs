@@ -4,6 +4,7 @@ from ._funcs import (
     asdict,
     assoc,
     astuple,
+    evolve,
     has,
 )
 from ._make import (
@@ -53,6 +54,7 @@ __all__ = [
     "attrib",
     "attributes",
     "attrs",
+    "evolve",
     "exceptions",
     "fields",
     "filters",
