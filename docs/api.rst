@@ -201,25 +201,6 @@ See :ref:`asdict` for examples.
       >>> i1 == i2
       False
 
-.. autofunction:: assoc
-
-   For example:
-
-   .. doctest::
-
-      >>> @attr.s
-      ... class C(object):
-      ...     x = attr.ib()
-      ...     y = attr.ib()
-      >>> i1 = C(1, 2)
-      >>> i1
-      C(x=1, y=2)
-      >>> i2 = attr.assoc(i1, y=3)
-      >>> i2
-      C(x=1, y=3)
-      >>> i1 == i2
-      False
-
 .. autofunction:: validate
 
    For example:
@@ -300,3 +281,5 @@ Deprecated APIs
 
 The serious business aliases used to be called ``attr.attributes`` and ``attr.attr``.
 There are no plans to remove them but they shouldn't be used in new code.
+
+.. autofunction:: assoc
