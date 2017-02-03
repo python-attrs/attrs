@@ -26,7 +26,7 @@ from . import filters
 from . import validators
 
 
-__version__ = "16.4.0.dev0"
+__version__ = "17.1.0.dev0"
 
 __title__ = "attrs"
 __description__ = "Attributes Without Boilerplate"
