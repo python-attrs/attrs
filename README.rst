@@ -30,28 +30,28 @@ For that, it gives you a class decorator and a way to declaratively define the a
 
    >>> import attr
    >>> @attr.s
-   ... class C(object):
+   ... class Point(object):
    ...     x = attr.ib(default=42)
    ...     y = attr.ib(default=attr.Factory(list))
    ...
    ...     def hard_math(self, z):
    ...         return self.x * self.y * z
-   >>> i = C(x=1, y=2)
-   >>> i
-   C(x=1, y=2)
-   >>> i.hard_math(3)
+   >>> pt = Point(x=1, y=2)
+   >>> pt
+   Point(x=1, y=2)
+   >>> pt.hard_math(3)
    6
-   >>> i == C(1, 2)
+   >>> pt == Point(1, 2)
    True
-   >>> i != C(2, 1)
+   >>> pt != Point(2, 1)
    True
-   >>> attr.asdict(i)
+   >>> attr.asdict(pt)
    {'y': 2, 'x': 1}
-   >>> C()
-   C(x=42, y=[])
-   >>> C2 = attr.make_class("C2", ["a", "b"])
-   >>> C2("foo", "bar")
-   C2(a='foo', b='bar')
+   >>> Point()
+   Point(x=42, y=[])
+   >>> C = attr.make_class("C", ["a", "b"])
+   >>> C("foo", "bar")
+   C(a='foo', b='bar')
 
 
 After *declaring* your attributes ``attrs`` gives you:
