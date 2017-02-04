@@ -3,6 +3,9 @@ Tests for `attr._make`.
 """
 
 from __future__ import absolute_import, division, print_function
+
+import inspect
+
 from operator import attrgetter
 
 import pytest
@@ -533,6 +536,42 @@ class TestValidate(object):
         with pytest.raises(Exception) as e:
             C(1)
         assert (obj,) == e.value.args
+
+    def test_multiple_validators(self):
+        """
+        If a list is passed as a validator, all of its items are treated as one
+        and must pass.
+        """
+        def v1(_, __, value):
+            if value == 23:
+                raise TypeError("omg")
+
+        def v2(_, __, value):
+            if value == 42:
+                raise ValueError("omg")
+
+        C = make_class("C", {"x": attr(validator=[v1, v2])})
+
+        validate(C(1))
+
+        with pytest.raises(TypeError) as e:
+            C(23)
+
+        assert "omg" == e.value.args[0]
+
+        with pytest.raises(ValueError) as e:
+            C(42)
+
+        assert "omg" == e.value.args[0]
+
+    def test_multiple_empty(self):
+        """
+        Empty list/tuple for validator is the same as None.
+        """
+        C1 = make_class("C", {"x": attr(validator=[])})
+        C2 = make_class("C", {"x": attr(validator=None)})
+
+        assert inspect.getsource(C1.__init__) == inspect.getsource(C2.__init__)
 
 
 # Hypothesis seems to cache values, so the lists of attributes come out

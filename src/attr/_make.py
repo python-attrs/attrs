@@ -72,16 +72,20 @@ def attr(default=NOTHING, validator=None,
 
     :type default: Any value.
 
-    :param callable validator: :func:`callable` that is called by
-        ``attrs``-generated ``__init__`` methods after the instance has been
-        initialized.  They receive the initialized instance, the
-        :class:`Attribute`, and the passed value.
+    :param validator: :func:`callable` that is called by ``attrs``-generated
+        ``__init__`` methods after the instance has been initialized.  They
+        receive the initialized instance, the :class:`Attribute`, and the
+        passed value.
 
         The return value is *not* inspected so the validator has to throw an
         exception itself.
 
-        They can be globally disabled and re-enabled using
+        If a ``list`` is passed, its items are treated as validators and must
+        all pass.
+
+        Validators can be globally disabled and re-enabled using
         :func:`get_run_validators`.
+    :type validator: ``callable`` or a ``list`` of ``callable``\ s.
 
     :param bool repr: Include this attribute in the generated ``__repr__``
         method.
@@ -100,6 +104,8 @@ def attr(default=NOTHING, validator=None,
         value is converted before being passed to the validator, if any.
     :param metadata: An arbitrary mapping, to be used by third-party
         components.
+
+    ..  versionchanged:: 17.1.0 *validator* can be a ``list`` now.
     """
     return _CountingAttr(
         default=default,
@@ -565,8 +571,13 @@ def validate(inst):
         return
 
     for a in fields(inst.__class__):
-        if a.validator is not None:
-            a.validator(inst, a, getattr(inst, a.name))
+        v = a.validator
+        if v is not None:
+            if isinstance(v, (tuple, list)):
+                for f in v:
+                    f(inst, a, getattr(inst, a.name))
+            else:
+                v(inst, a, getattr(inst, a.name))
 
 
 def _attrs_to_script(attrs, frozen, post_init):
@@ -622,7 +633,7 @@ def _attrs_to_script(attrs, frozen, post_init):
     names_for_globals = {}
 
     for a in attrs:
-        if a.validator is not None:
+        if a.validator:
             attrs_to_validate.append(a)
         attr_name = a.name
         arg_name = a.name.lstrip("_")
@@ -702,12 +713,21 @@ def _attrs_to_script(attrs, frozen, post_init):
         names_for_globals["_config"] = _config
         lines.append("if _config._run_validators is True:")
         for a in attrs_to_validate:
-            val_name = "__attr_validator_{}".format(a.name)
-            attr_name = "__attr_{}".format(a.name)
-            lines.append("    {}(self, {}, self.{})".format(
-                val_name, attr_name, a.name))
-            names_for_globals[val_name] = a.validator
-            names_for_globals[attr_name] = a
+            if isinstance(a.validator, (tuple, list)):
+                for i, v in enumerate(a.validator):
+                    val_name = "__attr_validator_{}_{}".format(a.name, i)
+                    attr_name = "__attr_{}".format(a.name)
+                    lines.append("    {}(self, {}, self.{})".format(
+                        val_name, attr_name, a.name))
+                    names_for_globals[val_name] = v
+                    names_for_globals[attr_name] = a
+            else:
+                val_name = "__attr_validator_{}".format(a.name)
+                attr_name = "__attr_{}".format(a.name)
+                lines.append("    {}(self, {}, self.{})".format(
+                    val_name, attr_name, a.name))
+                names_for_globals[val_name] = a.validator
+                names_for_globals[attr_name] = a
     if post_init:
         lines.append("self.__attrs_post_init__()")
 

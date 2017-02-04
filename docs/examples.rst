@@ -359,16 +359,37 @@ If you like `zope.interface <https://zopeinterface.readthedocs.io/en/latest/api.
    >>> C(Foo())
    C(x=Foo())
 
-You can also disable them globally:
+You can also pass a list of validators:
 
-   >>> attr.set_run_validators(False)
-   >>> C(42)
-   C(x=42)
-   >>> attr.set_run_validators(True)
-   >>> C(42)
+.. doctest::
+
+   >>> def fits_byte(instance, attribute, value):
+   ...     if not 0 < value < 256:
+   ...         raise ValueError("value out of bounds")
+   >>> @attr.s
+   ... class C(object):
+   ...     x = attr.ib(validator=[attr.validators.instance_of(int), fits_byte])
+   >>> C(128)
+   C(x=128)
+   >>> C("128")
    Traceback (most recent call last):
       ...
-   TypeError: ("'x' must provide <InterfaceClass __builtin__.IFoo> which 42 doesn't.", Attribute(name='x', default=NOTHING, validator=<provides validator for interface <InterfaceClass __builtin__.IFoo>>, repr=True, cmp=True, hash=True, init=True), <InterfaceClass __builtin__.IFoo>, 42)
+   TypeError: ("'x' must be <class 'int'> (got '128' that is a <class 'str'>).", Attribute(name='x', default=NOTHING, validator=[<instance_of validator for type <class 'int'>>, <function fits_byte at 0x10fd7a0d0>], repr=True, cmp=True, hash=True, init=True, convert=None, metadata=mappingproxy({})), <class 'int'>, '128')
+   >>> C(256)
+   Traceback (most recent call last):
+      ...
+   ValueError: value out of bounds
+
+And finally you can disable them globally:
+
+   >>> attr.set_run_validators(False)
+   >>> C("128")
+   C(x='128')
+   >>> attr.set_run_validators(True)
+   >>> C("128")
+   Traceback (most recent call last):
+      ...
+   TypeError: ("'x' must be <class 'int'> (got '128' that is a <class 'str'>).", Attribute(name='x', default=NOTHING, validator=[<instance_of validator for type <class 'int'>>, <function fits_byte at 0x10fd7a0d0>], repr=True, cmp=True, hash=True, init=True, convert=None, metadata=mappingproxy({})), <class 'int'>, '128')
 
 
 Conversion

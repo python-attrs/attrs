@@ -36,6 +36,8 @@ Changes:
   `#118 <https://github.com/hynek/attrs/pull/118>`_
 - Fix ``__attrs_post_init__`` not being run when the validation is disabled.
   `#130 <https://github.com/hynek/attrs/pull/130>`_
+- The ``validator`` argument of ``@attr.s`` now can take a ``list`` of validators that all have to pass.
+  `#138 <https://github.com/hynek/attrs/issues/138>`_
 
 ----
 
