@@ -514,7 +514,7 @@ Slot classes are a little different than ordinary, dictionary-backed classes:
     ... class C(object):
     ...     x = attr.ib()
     >>> C.x
-    Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None, metadata=mappingproxy({}))
+    Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({}))
     >>> @attr.s(slots=True)
     ... class C(object):
     ...     x = attr.ib()

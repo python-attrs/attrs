@@ -17,18 +17,20 @@ from attr import Attribute
 from attr._make import NOTHING, make_class
 
 
-def simple_class(cmp=False, repr=False, hash=False, str=False, slots=False):
+def simple_class(cmp=False, repr=False, hash=False, str=False, slots=False,
+                 frozen=False):
     """
     Return a new simple class.
     """
     return make_class(
         "C", ["a", "b"],
         cmp=cmp, repr=repr, hash=hash, init=True, slots=slots, str=str,
+        frozen=frozen,
     )
 
 
 def simple_attr(name, default=NOTHING, validator=None, repr=True,
-                cmp=True, hash=True, init=True):
+                cmp=True, hash=None, init=True):
     """
     Return an attribute with a name and no other bells and whistles.
     """
