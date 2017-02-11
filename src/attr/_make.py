@@ -573,11 +573,7 @@ def validate(inst):
     for a in fields(inst.__class__):
         v = a.validator
         if v is not None:
-            if isinstance(v, (tuple, list)):
-                for f in v:
-                    f(inst, a, getattr(inst, a.name))
-            else:
-                v(inst, a, getattr(inst, a.name))
+            v(inst, a, getattr(inst, a.name))
 
 
 def _attrs_to_script(attrs, frozen, post_init):
@@ -713,21 +709,12 @@ def _attrs_to_script(attrs, frozen, post_init):
         names_for_globals["_config"] = _config
         lines.append("if _config._run_validators is True:")
         for a in attrs_to_validate:
-            if isinstance(a.validator, (tuple, list)):
-                for i, v in enumerate(a.validator):
-                    val_name = "__attr_validator_{}_{}".format(a.name, i)
-                    attr_name = "__attr_{}".format(a.name)
-                    lines.append("    {}(self, {}, self.{})".format(
-                        val_name, attr_name, a.name))
-                    names_for_globals[val_name] = v
-                    names_for_globals[attr_name] = a
-            else:
-                val_name = "__attr_validator_{}".format(a.name)
-                attr_name = "__attr_{}".format(a.name)
-                lines.append("    {}(self, {}, self.{})".format(
-                    val_name, attr_name, a.name))
-                names_for_globals[val_name] = a.validator
-                names_for_globals[attr_name] = a
+            val_name = "__attr_validator_{}".format(a.name)
+            attr_name = "__attr_{}".format(a.name)
+            lines.append("    {}(self, {}, self.{})".format(
+                val_name, attr_name, a.name))
+            names_for_globals[val_name] = a.validator
+            names_for_globals[attr_name] = a
     if post_init:
         lines.append("self.__attrs_post_init__()")
 
@@ -748,17 +735,19 @@ class Attribute(object):
 
     Plus *all* arguments of :func:`attr.ib`.
     """
-    __slots__ = ("name", "default", "validator", "repr", "cmp", "hash", "init",
-                 "convert", "metadata")
+    __slots__ = (
+        "name", "default", "validator", "repr", "cmp", "hash", "init",
+        "convert", "metadata",
+    )
 
-    def __init__(self, name, default, validator, repr, cmp, hash, init,
+    def __init__(self, name, default, _validator, repr, cmp, hash, init,
                  convert=None, metadata=None):
         # Cache this descriptor here to speed things up later.
         __bound_setattr = _obj_setattr.__get__(self, Attribute)
 
         __bound_setattr("name", name)
         __bound_setattr("default", default)
-        __bound_setattr("validator", validator)
+        __bound_setattr("validator", _validator)
         __bound_setattr("repr", repr)
         __bound_setattr("cmp", cmp)
         __bound_setattr("hash", hash)
@@ -772,10 +761,12 @@ class Attribute(object):
 
     @classmethod
     def from_counting_attr(cls, name, ca):
-        inst_dict = dict((k, getattr(ca, k))
-                         for k
-                         in Attribute.__slots__
-                         if k != "name")
+        inst_dict = {
+            k: getattr(ca, k)
+            for k
+            in Attribute.__slots__ + ("_validator",)
+            if k != "name" and k != "validator"  # `validator` is a method
+        }
         return cls(name=name, **inst_dict)
 
     # Don't use _add_pickle since fields(Attribute) doesn't work
@@ -800,7 +791,7 @@ class Attribute(object):
                                 _empty_metadata_singleton)
 
 
-_a = [Attribute(name=name, default=NOTHING, validator=None,
+_a = [Attribute(name=name, default=NOTHING, _validator=None,
                 repr=True, cmp=True, hash=(name != "metadata"), init=True)
       for name in Attribute.__slots__]
 
@@ -816,14 +807,14 @@ class _CountingAttr(object):
     the order in which the attributes have been defined.
     """
     __slots__ = ("counter", "default", "repr", "cmp", "hash", "init",
-                 "metadata", "validator", "convert")
+                 "metadata", "_validator", "convert")
     __attrs_attrs__ = tuple(
-        Attribute(name=name, default=NOTHING, validator=None,
+        Attribute(name=name, default=NOTHING, _validator=None,
                   repr=True, cmp=True, hash=True, init=True)
         for name
         in ("counter", "default", "repr", "cmp", "hash", "init",)
     ) + (
-        Attribute(name="metadata", default=None, validator=None,
+        Attribute(name="metadata", default=None, _validator=None,
                   repr=True, cmp=True, hash=False, init=True),
     )
     cls_counter = 0
@@ -833,7 +824,11 @@ class _CountingAttr(object):
         _CountingAttr.cls_counter += 1
         self.counter = _CountingAttr.cls_counter
         self.default = default
-        self.validator = validator
+        # If validator is a list/tuple, wrap it using helper validator.
+        if validator and isinstance(validator, (list, tuple)):
+            self._validator = _AndValidator(tuple(validator))
+        else:
+            self._validator = validator
         self.repr = repr
         self.cmp = cmp
         self.hash = hash
@@ -841,8 +836,34 @@ class _CountingAttr(object):
         self.convert = convert
         self.metadata = metadata
 
+    def validator(self, meth):
+        if not isinstance(self._validator, _AndValidator):
+            self._validator = _AndValidator(
+                (self._validator,) if self._validator else ()
+            )
+        self._validator.add(meth)
+        return meth
+
 
 _CountingAttr = _add_cmp(_add_repr(_CountingAttr))
+
+
+@attributes(slots=True)
+class _AndValidator(object):
+    """
+    Compose many validators to a single one.
+    """
+    _validators = attr()
+
+    def __call__(self, inst, attr, value):
+        for v in self._validators:
+            v(inst, attr, value)
+
+    def add(self, validator):
+        """
+        Add *validator*.  Shouldn't be called after the class is done.
+        """
+        self._validators += (validator,)
 
 
 @attributes(slots=True)

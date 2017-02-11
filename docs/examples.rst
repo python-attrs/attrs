@@ -281,19 +281,53 @@ And sometimes you even want mutable objects as default values (ever used acciden
 More information on why class methods for constructing objects are awesome can be found in this insightful `blog post <http://as.ynchrono.us/2014/12/asynchronous-object-initialization.html>`_.
 
 
+.. _examples_validators:
+
 Validators
 ----------
 
 Although your initializers should be as dumb as possible, it can come in handy to do some kind of validation on the arguments.
-That's when :func:`attr.ib`\ ’s ``validator`` argument comes into play.
-A validator is simply a callable that takes three arguments:
 
-#. the *instance* that's being validated,
+``attrs`` offers two ways to define validators for each attribute and it's up to you to choose which one suites better your style and project.
+
+
+Decorator
+=========
+
+The more straightforward way is by using the attribute's ``validator`` method as a decorator.
+The method has to accept three arguments:
+
+#. the *instance* that's being validated (aka ``self``),
 #. the *attribute* that it's validating, and finally
 #. the *value* that is passed for it.
 
 If the value does not pass the validator's standards, it just raises an appropriate exception.
-Since the validator runs *after* the instance is initialized, you can refer to other attributes while validating :
+
+.. doctest::
+
+   >>> @attr.s
+   ... class C(object):
+   ...     x = attr.ib()
+   ...     @x.validator
+   ...     def check(self, attribute, value):
+   ...         if value > 42:
+   ...             raise ValueError("y must be smaller or equal to 42")
+   >>> C(42)
+   C(x=42)
+   >>> C(43)
+   Traceback (most recent call last):
+      ...
+   ValueError: x must be smaller or equal to 42
+
+
+Callables
+=========
+
+If you want to re-use your validators, you should have a look at the ``validator`` argument to :func:`attr.ib()`.
+
+It takes either a callable or a list of callables (usually functions) and treats them as validators that receive the same arguments as with the decorator approach.
+
+Since the validators runs *after* the instance is initialized, you can refer to other attributes while validating:
 
 .. doctest::
 
@@ -336,39 +370,17 @@ Since the validator runs *after* the instance is initialized, you can refer to o
       ...
    TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, factory=NOTHING, validator=<instance_of validator for type <type 'int'>>), <type 'int'>, '42')
 
-If you like `zope.interface <https://zopeinterface.readthedocs.io/en/latest/api.html#zope-interface-interface-specification>`_, ``attrs`` also comes with a :func:`attr.validators.provides` validator:
+Of course you can mix and match the two approaches at your convenience:
 
 .. doctest::
 
-   >>> import zope.interface
-   >>> class IFoo(zope.interface.Interface):
-   ...     def f():
-   ...         """A function called f."""
    >>> @attr.s
    ... class C(object):
-   ...     x = attr.ib(validator=attr.validators.provides(IFoo))
-   >>> C(x=object())
-   Traceback (most recent call last):
-      ...
-   TypeError: ("'x' must provide <InterfaceClass __builtin__.IFoo> which <object object at 0x10bafaaf0> doesn't.", Attribute(name='x', default=NOTHING, factory=NOTHING, validator=<provides validator for interface <InterfaceClass __builtin__.IFoo>>), <InterfaceClass __builtin__.IFoo>, <object object at 0x10bafaaf0>)
-   >>> @zope.interface.implementer(IFoo)
-   ... @attr.s
-   ... class Foo(object):
-   ...     def f(self):
-   ...         print("hello, world")
-   >>> C(Foo())
-   C(x=Foo())
-
-You can also pass a list of validators:
-
-.. doctest::
-
-   >>> def fits_byte(instance, attribute, value):
-   ...     if not 0 < value < 256:
-   ...         raise ValueError("value out of bounds")
-   >>> @attr.s
-   ... class C(object):
-   ...     x = attr.ib(validator=[attr.validators.instance_of(int), fits_byte])
+   ...     x = attr.ib(validator=attr.validators.instance_of(int))
+   ...     @x.validator
+   ...     def fits_byte(self, attribute, value):
+   ...         if not 0 < value < 256:
+   ...             raise ValueError("value out of bounds")
    >>> C(128)
    C(x=128)
    >>> C("128")
@@ -380,7 +392,7 @@ You can also pass a list of validators:
       ...
    ValueError: value out of bounds
 
-And finally you can disable them globally:
+And finally you can disable validators globally:
 
    >>> attr.set_run_validators(False)
    >>> C("128")

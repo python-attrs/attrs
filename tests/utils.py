@@ -33,7 +33,7 @@ def simple_attr(name, default=NOTHING, validator=None, repr=True,
     Return an attribute with a name and no other bells and whistles.
     """
     return Attribute(
-        name=name, default=default, validator=validator, repr=repr,
+        name=name, default=default, _validator=validator, repr=repr,
         cmp=cmp, hash=hash, init=init
     )
 
@@ -88,7 +88,9 @@ def _create_hyp_class(attrs):
     """
     A helper function for Hypothesis to generate attrs classes.
     """
-    return make_class('HypClass', dict(zip(gen_attr_names(), attrs)))
+    return make_class(
+        "HypClass", dict(zip(gen_attr_names(), attrs))
+    )
 
 
 def _create_hyp_nested_strategy(simple_class_strategy):
@@ -162,7 +164,7 @@ def simple_attrs_with_metadata(draw):
     vals = st.booleans() | st.binary() | st.integers() | st.text()
     metadata = draw(st.dictionaries(keys=keys, values=vals))
 
-    return attr.ib(c_attr.default, c_attr.validator, c_attr.repr,
+    return attr.ib(c_attr.default, c_attr._validator, c_attr.repr,
                    c_attr.cmp, c_attr.hash, c_attr.init, c_attr.convert,
                    metadata)
 

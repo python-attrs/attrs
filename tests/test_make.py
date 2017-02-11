@@ -17,6 +17,8 @@ from attr import _config
 from attr._compat import PY2
 from attr._make import (
     Attribute,
+    Factory,
+    _AndValidator,
     _CountingAttr,
     _transform_attrs,
     attr,
@@ -24,7 +26,6 @@ from attr._make import (
     fields,
     make_class,
     validate,
-    Factory,
 )
 from attr.exceptions import NotAnAttrsClassError
 
@@ -43,7 +44,57 @@ class TestCountingAttr(object):
         Returns an instance of _CountingAttr.
         """
         a = attr()
+
         assert isinstance(a, _CountingAttr)
+
+    def _test_validator_none_is_empty_tuple(self):
+        """
+        If validator is None, it's transformed into an empty tuple.
+        """
+        a = attr(validator=None)
+
+        assert () == a._validator
+
+    def test_validators_lists_to_wrapped_tuples(self):
+        """
+        If a list is passed as validator, it's just converted to a tuple.
+        """
+        def v1(_, __):
+            pass
+
+        def v2(_, __):
+            pass
+
+        a = attr(validator=[v1, v2])
+
+        assert _AndValidator((v1, v2,)) == a._validator
+
+    def test_validator_decorator_single(self):
+        """
+        """
+        a = attr()
+
+        @a.validator
+        def v():
+            pass
+
+        assert _AndValidator((v,)) == a._validator
+
+    def test_validator_decorator(self):
+        """
+        If _CountingAttr.validator is used as a decorator, the decorated method
+        is added to validators.
+        """
+        def v(_, __):
+            pass
+
+        a = attr(validator=[v])
+
+        @a.validator
+        def v2(self, _, __):
+            pass
+
+        assert _AndValidator((v, v2,)) == a._validator
 
 
 def make_tc():
@@ -313,7 +364,7 @@ class TestAttributes(object):
         """
         Verify that __attrs_post_init__ gets called if defined.
         """
-        monkeypatch.setattr(_config, '_run_validators', with_validation)
+        monkeypatch.setattr(_config, "_run_validators", with_validation)
 
         @attributes
         class C(object):

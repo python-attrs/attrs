@@ -38,6 +38,9 @@ Changes:
   `#130 <https://github.com/hynek/attrs/pull/130>`_
 - The ``validator`` argument of ``@attr.s`` now can take a ``list`` of validators that all have to pass.
   `#138 <https://github.com/hynek/attrs/issues/138>`_
+- Validators can now be defined conveniently inline by using the attribute as a decorator.
+  Check out the `examples <https://attrs.readthedocs.io/en/stable/examples.html#validators>`_ to see it in action!
+  `#143 <https://github.com/hynek/attrs/issues/143>`_
 
 ----
 
