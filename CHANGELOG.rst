@@ -44,6 +44,7 @@ Changes:
   Check out the `examples <https://attrs.readthedocs.io/en/stable/examples.html#validators>`_ to see it in action!
   `#143 <https://github.com/hynek/attrs/issues/143>`_
 
+
 ----
 
 
