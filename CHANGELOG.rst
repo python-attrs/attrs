@@ -34,6 +34,8 @@ Changes:
   `#135 <https://github.com/hynek/attrs/pull/135>`_
 - Raise ``FrozenInstanceError`` when trying to delete an attribute from a frozen class.
   `#118 <https://github.com/hynek/attrs/pull/118>`_
+- Frozen-ness of classes is now inherited.
+  `#128 <https://github.com/hynek/attrs/pull/128>`_
 - Fix ``__attrs_post_init__`` not being run when the validation is disabled.
   `#130 <https://github.com/hynek/attrs/pull/130>`_
 - The ``validator`` argument of ``@attr.s`` now can take a ``list`` of validators that all have to pass.

@@ -70,6 +70,11 @@ class Frozen(object):
     x = attr.ib()
 
 
+@attr.s
+class SubFrozen(Frozen):
+    y = attr.ib()
+
+
 @attr.s(frozen=True, slots=False)
 class FrozenNoSlots(object):
     x = attr.ib()
@@ -214,3 +219,13 @@ class TestDarkMagic(object):
         else:
             obj = cls(123)
         assert repr(obj) == repr(pickle.loads(pickle.dumps(obj, protocol)))
+
+    def test_subclassing_frozen_gives_frozen(self):
+        """
+        The frozen-ness of classes is inherited.  Subclasses of frozen classes
+        are also frozen and can be instantiated.
+        """
+        i = SubFrozen("foo", "bar")
+
+        assert i.x == "foo"
+        assert i.y == "bar"

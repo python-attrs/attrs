@@ -6,8 +6,9 @@ import linecache
 from operator import itemgetter
 
 from . import _config
-from ._compat import iteritems, isclass, iterkeys, metadata_proxy
+from ._compat import PY2, iteritems, isclass, iterkeys, metadata_proxy
 from .exceptions import FrozenInstanceError, NotAnAttrsClassError
+
 
 # This is used at least twice, so cache it here.
 _obj_setattr = object.__setattr__
@@ -150,7 +151,7 @@ def _make_attr_tuple_class(cls_name, attr_names):
 def _transform_attrs(cls, these):
     """
     Transforms all `_CountingAttr`s on a class into `Attribute`s and saves the
-    list as a namedtuple in `__attrs_attrs__`.
+    list in `__attrs_attrs__`.
 
     If *these* is passed, use that and don't look for them on the class.
     """
@@ -292,6 +293,10 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
             else:
                 ca_list = list(iterkeys(these))
         _transform_attrs(cls, these)
+
+        # Can't just re-use frozen name because Python's scoping. :(
+        # Can't compare function objects because Python 2 is terrible. :(
+        effectively_frozen = _has_frozen_superclass(cls) or frozen
         if repr is True:
             cls = _add_repr(cls, ns=repr_ns)
         if str is True:
@@ -301,8 +306,8 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
         if hash is True:
             cls = _add_hash(cls)
         if init is True:
-            cls = _add_init(cls, frozen)
-        if frozen is True:
+            cls = _add_init(cls, effectively_frozen)
+        if effectively_frozen is True:
             cls.__setattr__ = _frozen_setattrs
             cls.__delattr__ = _frozen_delattrs
             if slots is True:
@@ -329,6 +334,27 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
         return wrap
     else:
         return wrap(maybe_cls)
+
+
+if PY2:
+    def _has_frozen_superclass(cls):
+        """
+        Check whether *cls* has a frozen ancestor by looking at its
+        __setattr__.
+        """
+        return (
+            getattr(
+                cls.__setattr__, "__module__", None
+            ) == _frozen_setattrs.__module__ and
+            cls.__setattr__.__name__ == _frozen_setattrs.__name__
+        )
+else:
+    def _has_frozen_superclass(cls):
+        """
+        Check whether *cls* has a frozen ancestor by looking at its
+        __setattr__.
+        """
+        return cls.__setattr__ == _frozen_setattrs
 
 
 def _attrs_to_tuple(obj, attrs):
