@@ -3,7 +3,7 @@ attrs: Attributes Without Boilerplate
 =====================================
 
 .. image:: https://readthedocs.org/projects/attrs/badge/?version=stable
-   :target: http://attrs.readthedocs.io/en/stable/?badge=stable
+   :target: https://attrs.readthedocs.io/en/stable/?badge=stable
    :alt: Documentation Status
 
 .. image:: https://travis-ci.org/hynek/attrs.svg?branch=master
@@ -11,8 +11,8 @@ attrs: Attributes Without Boilerplate
    :alt: CI status
 
 .. image:: https://codecov.io/github/hynek/attrs/branch/master/graph/badge.svg
-  :target: https://codecov.io/github/hynek/attrs
-  :alt: Test Coverage
+   :target: https://codecov.io/github/hynek/attrs
+   :alt: Test Coverage
 
 .. teaser-begin
 
