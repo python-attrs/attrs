@@ -8,9 +8,6 @@ The third digit is only for regressions.
 17.1.0 (UNRELEASED)
 -------------------
 
-Changes:
-^^^^^^^^
-
 Backward-incompatible changes:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
