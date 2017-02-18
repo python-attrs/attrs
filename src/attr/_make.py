@@ -255,21 +255,19 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
         a tuple of its ``attrs`` attributes.  But the attributes are *only*
         compared, if the type of both classes is *identical*!
     :param hash: If ``None`` (default), the ``__hash__`` method is generated
-        according how *cmp* and *frozen* are set.  You will receive one if
-        *both* are ``True``.
+        according how *cmp* and *frozen* are set.
+
+        1. If *both* are True, ``attrs`` will generate a ``__hash__`` for you.
+        2. If *cmp* is True and *frozen* is False, ``__hash__`` will be set to
+           None, marking it unhashable (which it is).
+        3. If *cmp* is False, ``__hash__`` will be left untouched meaning the
+           ``__hash__`` method of the superclass will be used (if superclass is
+           ``object``, this means it will fall back to id-based hashing.).
 
         Although not recommended, you can decide for yourself and force
         ``attrs`` to create one (e.g. if the class is immutable even though you
-        didn't freeze it programmatically) by passing ``True`` or not (e.g. if
-        you want to use the superclass's ``__hash__`` method be it Python's
-        build-in id-based hashing or your own).  Both of these cases are rather
-        special and should be used carefully.
-
-        Please note that setting *hash* to ``False`` means that the
-        superclass's ``__hash__`` function is used. If you set it to ``None``,
-        and your class is not *both* ``cmp=True`` and ``frozen=True``, the
-        ``__hash__`` method is set to ``None``, making it not hashable (which
-        it is).
+        didn't freeze it programmatically) by passing ``True`` or not.  Both of
+        these cases are rather special and should be used carefully.
 
         See the `Python documentation \
         <https://docs.python.org/3/reference/datamodel.html#object.__hash__>`_
@@ -340,7 +338,7 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
             raise TypeError(
                 "Invalid value for hash.  Must be True, False, or None."
             )
-        elif hash is False:
+        elif hash is False or (hash is None and cmp is False):
             pass
         elif hash is True or (hash is None and cmp is True and frozen is True):
             cls = _add_hash(cls)

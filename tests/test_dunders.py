@@ -272,6 +272,25 @@ class TestAddHash(object):
             assert C(1) == C(2)
             assert hash(C(1)) == hash(C(2))
 
+    @given(booleans())
+    def test_hash_mirrors_cmp(self, cmp):
+        """
+        If `hash` is None, the hash generation mirrors `cmp`.
+        """
+        C = make_class("C", {"a": attr()}, cmp=cmp, frozen=True)
+
+        i = C(1)
+
+        assert i == i
+        assert hash(i) == hash(i)
+
+        if cmp:
+            assert C(1) == C(1)
+            assert hash(C(1)) == hash(C(1))
+        else:
+            assert C(1) != C(1)
+            assert hash(C(1)) != hash(C(1))
+
     @pytest.mark.parametrize("cls", [HashC, HashCSlots])
     def test_hash_works(self, cls):
         """

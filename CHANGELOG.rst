@@ -31,7 +31,8 @@ Deprecations:
 Changes:
 ^^^^^^^^
 
-- Fix hashing behavior by setting ``__hash__`` to ``None`` by default and mirror ``cmp`` and ``hash`` in attributes.
+- Fix default hashing behavior.
+  Now *hash* mirrors the value of *cmp* and classes are unhashable by default.
   `#136 <https://github.com/hynek/attrs/issues/136>`_
   `#142 <https://github.com/hynek/attrs/issues/142>`_
 - Add ``attr.evolve`` that, given an instance of an ``attrs`` class and field changes as keyword arguments, will instantiate a copy of the given instance with the changes applied.
