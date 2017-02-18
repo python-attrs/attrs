@@ -292,7 +292,7 @@ Although your initializers should be as dumb as possible, it can come in handy t
 
 
 Decorator
----------
+~~~~~~~~~
 
 The more straightforward way is by using the attribute's ``validator`` method as a decorator.
 The method has to accept three arguments:
@@ -321,7 +321,7 @@ If the value does not pass the validator's standards, it just raises an appropri
 
 
 Callables
----------
+~~~~~~~~~
 
 If you want to re-use your validators, you should have a look at the ``validator`` argument to :func:`attr.ib()`.
 
