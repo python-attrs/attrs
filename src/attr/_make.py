@@ -49,7 +49,7 @@ Sentinel to indicate the lack of a value when ``None`` is ambiguous.
 
 
 def attr(default=NOTHING, validator=None,
-         repr=True, cmp=True, hash=True, init=True,
+         repr=True, cmp=True, hash=None, init=True,
          convert=None, metadata={}):
     """
     Create a new attribute on a class.
@@ -92,8 +92,11 @@ def attr(default=NOTHING, validator=None,
         method.
     :param bool cmp: Include this attribute in the generated comparison methods
         (``__eq__`` et al).
-    :param bool hash: Include this attribute in the generated ``__hash__``
-        method.
+    :param hash: Include this attribute in the generated ``__hash__``
+        method.  If ``None`` (default), mirror *cmp*'s value.  This is the
+        correct behavior according the Python spec.  Setting this value to
+        anything else than ``None`` is *discouraged*.
+    :type hash: ``bool`` or ``None``
     :param bool init: Include this attribute in the generated ``__init__``
         method.  It is possible to set this to ``False`` and set a default
         value.  In that case this attributed is unconditionally initialized
@@ -104,10 +107,16 @@ def attr(default=NOTHING, validator=None,
         returned value will be used as the new value of the attribute.  The
         value is converted before being passed to the validator, if any.
     :param metadata: An arbitrary mapping, to be used by third-party
-        components.
+        components.  See :ref:`extending_metadata`.
 
     ..  versionchanged:: 17.1.0 *validator* can be a ``list`` now.
+    ..  versionchanged:: 17.1.0
+        *hash* is ``None`` and therefore mirrors *cmp* by default .
     """
+    if hash is not None and hash is not True and hash is not False:
+        raise TypeError(
+            "Invalid value for hash.  Must be True, False, or None."
+        )
     return _CountingAttr(
         default=default,
         validator=validator,
@@ -216,7 +225,7 @@ def _frozen_delattrs(self, name):
 
 
 def attributes(maybe_cls=None, these=None, repr_ns=None,
-               repr=True, cmp=True, hash=True, init=True,
+               repr=True, cmp=True, hash=None, init=True,
                slots=False, frozen=False, str=False):
     r"""
     A class decorator that adds `dunder
@@ -245,8 +254,26 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
         ``__gt__``, and ``__ge__`` methods that compare the class as if it were
         a tuple of its ``attrs`` attributes.  But the attributes are *only*
         compared, if the type of both classes is *identical*!
-    :param bool hash: Create a ``__hash__`` method that returns the
-        :func:`hash` of a tuple of all ``attrs`` attribute values.
+    :param hash: If ``None`` (default), the ``__hash__`` method is generated
+        according how *cmp* and *frozen* are set.
+
+        1. If *both* are True, ``attrs`` will generate a ``__hash__`` for you.
+        2. If *cmp* is True and *frozen* is False, ``__hash__`` will be set to
+           None, marking it unhashable (which it is).
+        3. If *cmp* is False, ``__hash__`` will be left untouched meaning the
+           ``__hash__`` method of the superclass will be used (if superclass is
+           ``object``, this means it will fall back to id-based hashing.).
+
+        Although not recommended, you can decide for yourself and force
+        ``attrs`` to create one (e.g. if the class is immutable even though you
+        didn't freeze it programmatically) by passing ``True`` or not.  Both of
+        these cases are rather special and should be used carefully.
+
+        See the `Python documentation \
+        <https://docs.python.org/3/reference/datamodel.html#object.__hash__>`_
+        and the `GitHub issue that led to the default behavior \
+        <https://github.com/hynek/attrs/issues/136>`_ for more details.
+    :type hash: ``bool`` or ``None``
     :param bool init: Create a ``__init__`` method that initialiazes the
         ``attrs`` attributes.  Leading underscores are stripped for the
         argument name.  If a ``__attrs_post_init__`` method exists on the
@@ -273,6 +300,9 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
     ..  versionadded:: 16.0.0 *slots*
     ..  versionadded:: 16.1.0 *frozen*
     ..  versionadded:: 16.3.0 *str*, and support for ``__attrs_post_init__``.
+    ..  versionchanged::
+            17.1.0 *hash* supports ``None`` as value which is also the default
+            now.
     """
     def wrap(cls):
         if getattr(cls, "__class__", None) is None:
@@ -303,8 +333,18 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
             cls.__str__ = cls.__repr__
         if cmp is True:
             cls = _add_cmp(cls)
-        if hash is True:
+
+        if hash is not True and hash is not False and hash is not None:
+            raise TypeError(
+                "Invalid value for hash.  Must be True, False, or None."
+            )
+        elif hash is False or (hash is None and cmp is False):
+            pass
+        elif hash is True or (hash is None and cmp is True and frozen is True):
             cls = _add_hash(cls)
+        else:
+            cls.__hash__ = None
+
         if init is True:
             cls = _add_init(cls, effectively_frozen)
         if effectively_frozen is True:
@@ -369,7 +409,9 @@ def _add_hash(cls, attrs=None):
     Add a hash method to *cls*.
     """
     if attrs is None:
-        attrs = [a for a in cls.__attrs_attrs__ if a.hash]
+        attrs = [a
+                 for a in cls.__attrs_attrs__
+                 if a.hash is True or (a.hash is None and a.cmp is True)]
 
     def hash_(self):
         """

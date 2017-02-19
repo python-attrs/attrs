@@ -18,7 +18,7 @@ What follows is the API explanation, if you'd like a more hands-on introduction,
 Core
 ----
 
-.. autofunction:: attr.s(these=None, repr_ns=None, repr=True, cmp=True, hash=True, init=True, slots=False, frozen=False, str=False)
+.. autofunction:: attr.s(these=None, repr_ns=None, repr=True, cmp=True, hash=None, init=True, slots=False, frozen=False, str=False)
 
    .. note::
 
@@ -71,7 +71,7 @@ Core
       ... class C(object):
       ...     x = attr.ib()
       >>> C.x
-      Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None, metadata=mappingproxy({}))
+      Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({}))
 
 
 .. autofunction:: attr.make_class
@@ -127,9 +127,9 @@ Helpers
       ...     x = attr.ib()
       ...     y = attr.ib()
       >>> attr.fields(C)
-      (Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None, metadata=mappingproxy({})), Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None, metadata=mappingproxy({})))
+      (Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({})), Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({})))
       >>> attr.fields(C)[1]
-      Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None, metadata=mappingproxy({}))
+      Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({}))
       >>> attr.fields(C).y is attr.fields(C)[1]
       True
 
@@ -217,7 +217,7 @@ See :ref:`asdict` for examples.
       >>> attr.validate(i)
       Traceback (most recent call last):
          ...
-      TypeError: ("'x' must be <type 'int'> (got '1' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>, repr=True, cmp=True, hash=True, init=True), <type 'int'>, '1')
+      TypeError: ("'x' must be <type 'int'> (got '1' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>, repr=True, cmp=True, hash=None, init=True), <type 'int'>, '1')
 
 
 Validators can be globally disabled if you want to run them only in development and tests but not in production because you fear their performance impact:
@@ -254,7 +254,7 @@ Validators
       >>> C(None)
       Traceback (most recent call last):
          ...
-      TypeError: ("'x' must be <type 'int'> (got None that is a <type 'NoneType'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>, repr=True, cmp=True, hash=True, init=True), <type 'int'>, None)
+      TypeError: ("'x' must be <type 'int'> (got None that is a <type 'NoneType'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>, repr=True, cmp=True, hash=None, init=True), <type 'int'>, None)
 
 
 .. autofunction:: attr.validators.provides

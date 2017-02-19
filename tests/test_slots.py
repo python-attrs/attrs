@@ -31,7 +31,7 @@ class C1(object):
         return "staticmethod"
 
 
-@attr.s(slots=True)
+@attr.s(slots=True, hash=True)
 class C1Slots(object):
     x = attr.ib(validator=attr.validators.instance_of(int))
     y = attr.ib()
@@ -106,7 +106,7 @@ def test_inheritance_from_nonslots():
     Note that a slots class inheriting from an ordinary class loses most of the
     benefits of slots classes, but it should still work.
     """
-    @attr.s(slots=True)
+    @attr.s(slots=True, hash=True)
     class C2Slots(C1):
         z = attr.ib()
 
@@ -159,7 +159,7 @@ def test_nonslots_these():
             return "staticmethod"
 
     C2Slots = attr.s(these={"x": attr.ib(), "y": attr.ib(), "z": attr.ib()},
-                     init=False, slots=True)(SimpleOrdinaryClass)
+                     init=False, slots=True, hash=True)(SimpleOrdinaryClass)
 
     c2 = C2Slots(x=1, y=2, z="test")
     assert 1 == c2.x
@@ -190,11 +190,11 @@ def test_inheritance_from_slots():
     """
     Inheriting from an attr slot class works.
     """
-    @attr.s(slots=True)
+    @attr.s(slots=True, hash=True)
     class C2Slots(C1Slots):
         z = attr.ib()
 
-    @attr.s(slots=True)
+    @attr.s(slots=True, hash=True)
     class C2(C1):
         z = attr.ib()
 
@@ -264,11 +264,11 @@ def test_bare_inheritance_from_slots():
         def staticmethod():
             return "staticmethod"
 
-    @attr.s(slots=True)
+    @attr.s(slots=True, hash=True)
     class C2Slots(C1BareSlots):
         z = attr.ib()
 
-    @attr.s(slots=True)
+    @attr.s(slots=True, hash=True)
     class C2(C1Bare):
         z = attr.ib()
 

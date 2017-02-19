@@ -17,7 +17,7 @@ So it is fairly simple to build your own decorators on top of ``attrs``:
    ... @attr.s
    ... class C(object):
    ...     a = attr.ib()
-   (Attribute(name='a', default=NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None, metadata=mappingproxy({})),)
+   (Attribute(name='a', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({})),)
 
 
 .. warning::
@@ -66,7 +66,7 @@ Here are some tips for effective use of metadata:
 
     >>> MY_TYPE_METADATA = '__my_type_metadata'
     >>>
-    >>> def typed(cls, default=attr.NOTHING, validator=None, repr=True, cmp=True, hash=True, init=True, convert=None, metadata={}):
+    >>> def typed(cls, default=attr.NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata={}):
     ...     metadata = dict() if not metadata else metadata
     ...     metadata[MY_TYPE_METADATA] = cls
     ...     return attr.ib(default, validator, repr, cmp, hash, init, convert, metadata)

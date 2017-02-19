@@ -159,7 +159,7 @@ class TestTransformAttrs(object):
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, repr=True, "
-            "cmp=True, hash=True, init=True, convert=None, "
+            "cmp=True, hash=None, init=True, convert=None, "
             "metadata=mappingproxy({}))",
         ) == e.value.args
 
@@ -213,7 +213,7 @@ class TestTransformAttrs(object):
 
 class TestAttributes(object):
     """
-    Tests for the `attributes` class decorator.
+    Tests for the `attrs`/`attr.s` class decorator.
     """
     @pytest.mark.skipif(not PY2, reason="No old-style classes in Py3")
     def test_catches_old_style(self):
@@ -262,29 +262,24 @@ class TestAttributes(object):
     ])
     def test_adds_all_by_default(self, method_name):
         """
-        If no further arguments are supplied, all add_XXX functions are
-        applied.
+        If no further arguments are supplied, all add_XXX functions except
+        add_hash are applied.  __hash__ is set to None.
         """
         # Set the method name to a sentinel and check whether it has been
         # overwritten afterwards.
         sentinel = object()
 
-        class C1(object):
+        class C(object):
             x = attr()
 
-        setattr(C1, method_name, sentinel)
+        setattr(C, method_name, sentinel)
 
-        C1 = attributes(C1)
+        C = attributes(C)
+        meth = getattr(C, method_name)
 
-        class C2(object):
-            x = attr()
-
-        setattr(C2, method_name, sentinel)
-
-        C2 = attributes(C2)
-
-        assert sentinel != getattr(C1, method_name)
-        assert sentinel != getattr(C2, method_name)
+        assert sentinel != meth
+        if method_name == "__hash__":
+            assert meth is None
 
     @pytest.mark.parametrize("arg_name, method_name", [
         ("repr", "__repr__"),
@@ -294,7 +289,7 @@ class TestAttributes(object):
     ])
     def test_respects_add_arguments(self, arg_name, method_name):
         """
-        If a certain `add_XXX` is `True`, XXX is not added to the class.
+        If a certain `add_XXX` is `False`, `__XXX__` is not added to the class.
         """
         # Set the method name to a sentinel and check whether it has been
         # overwritten afterwards.
@@ -635,7 +630,6 @@ class TestMetadata(object):
     """
     Tests for metadata handling.
     """
-
     @given(sorted_lists_of_attrs)
     def test_metadata_present(self, list_of_attrs):
         """
