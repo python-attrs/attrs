@@ -8,7 +8,7 @@ from collections import OrderedDict, Sequence, Mapping
 
 import pytest
 
-from hypothesis import assume, given, strategies as st
+from hypothesis import assume, given, strategies as st, settings, HealthCheck
 
 from .utils import simple_classes, nested_classes
 
@@ -57,6 +57,7 @@ class TestAsDict(object):
         ), dict_factory=dict_class)
 
     @given(nested_classes, st.sampled_from(MAPPING_TYPES))
+    @settings(suppress_health_check=[HealthCheck.too_slow])
     def test_recurse_property(self, cls, dict_class):
         """
         Property tests for recursive asdict.
@@ -186,6 +187,7 @@ class TestAsTuple(object):
                            tuple_factory=tuple_factory))
 
     @given(nested_classes, st.sampled_from(SEQUENCE_TYPES))
+    @settings(suppress_health_check=[HealthCheck.too_slow])
     def test_recurse_property(self, cls, tuple_class):
         """
         Property tests for recursive astuple.
@@ -204,6 +206,7 @@ class TestAsTuple(object):
         assert_proper_tuple_class(obj, obj_tuple)
 
     @given(nested_classes, st.sampled_from(SEQUENCE_TYPES))
+    @settings(suppress_health_check=[HealthCheck.too_slow])
     def test_recurse_retain(self, cls, tuple_class):
         """
         Property tests for asserting collection types are retained.
