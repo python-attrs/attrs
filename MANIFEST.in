@@ -1,5 +1,6 @@
 include *.rst *.txt LICENSE tox.ini .travis.yml docs/Makefile .coveragerc conftest.py
 recursive-include tests *.py
-recursive-include docs *.rst
+recursive-include docs *.png
 recursive-include docs *.py
+recursive-include docs *.rst
 prune docs/_build
