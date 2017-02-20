@@ -1,6 +1,6 @@
-=====================================
-attrs: Attributes Without Boilerplate
-=====================================
+==================================
+attrs: Classes Without Boilerplate
+==================================
 
 .. image:: https://readthedocs.org/projects/attrs/badge/?version=stable
    :target: https://attrs.readthedocs.io/en/stable/?badge=stable

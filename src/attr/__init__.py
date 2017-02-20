@@ -29,7 +29,7 @@ from . import validators
 __version__ = "17.1.0.dev0"
 
 __title__ = "attrs"
-__description__ = "Attributes Without Boilerplate"
+__description__ = "Classes Without Boilerplate"
 __uri__ = "https://attrs.readthedocs.io/"
 __doc__ = __description__ + " <" + __uri__ + ">"
 

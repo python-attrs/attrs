@@ -1,6 +1,6 @@
-=====================================
-attrs: Attributes Without Boilerplate
-=====================================
+==================================
+attrs: Classes Without Boilerplate
+==================================
 
 Release v\ |release| (:doc:`What's new? <changelog>`).
 
