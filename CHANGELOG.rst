@@ -35,20 +35,20 @@ Changes:
 - Add ``attr.evolve`` that, given an instance of an ``attrs`` class and field changes as keyword arguments, will instantiate a copy of the given instance with the changes applied.
   ``evolve`` replaces ``assoc``, which is now deprecated.
   ``evolve`` is significantly faster than ``assoc``, and requires the class have an initializer that can take the field values as keyword arguments (like ``attrs`` itself can generate).
-  `#116 <https://github.com/hynek/attrs/issues/116>`_
-  `#124 <https://github.com/hynek/attrs/pull/124>`_
-  `#135 <https://github.com/hynek/attrs/pull/135>`_
+  `#116 <https://github.com/python-attrs/attrs/issues/116>`_
+  `#124 <https://github.com/python-attrs/attrs/pull/124>`_
+  `#135 <https://github.com/python-attrs/attrs/pull/135>`_
 - Raise ``FrozenInstanceError`` when trying to delete an attribute from a frozen class.
-  `#118 <https://github.com/hynek/attrs/pull/118>`_
+  `#118 <https://github.com/python-attrs/attrs/pull/118>`_
 - Frozen-ness of classes is now inherited.
-  `#128 <https://github.com/hynek/attrs/pull/128>`_
+  `#128 <https://github.com/python-attrs/attrs/pull/128>`_
 - Fix ``__attrs_post_init__`` not being run when the validation is disabled.
-  `#130 <https://github.com/hynek/attrs/pull/130>`_
+  `#130 <https://github.com/python-attrs/attrs/pull/130>`_
 - The ``validator`` argument of ``@attr.s`` now can take a ``list`` of validators that all have to pass.
-  `#138 <https://github.com/hynek/attrs/issues/138>`_
+  `#138 <https://github.com/python-attrs/attrs/issues/138>`_
 - Validators can now be defined conveniently inline by using the attribute as a decorator.
   Check out the `examples <https://attrs.readthedocs.io/en/stable/examples.html#validators>`_ to see it in action!
-  `#143 <https://github.com/hynek/attrs/issues/143>`_
+  `#143 <https://github.com/python-attrs/attrs/issues/143>`_
 
 
 ----
@@ -61,16 +61,16 @@ Changes:
 ^^^^^^^^
 
 - Attributes now can have user-defined metadata which greatly improves ``attrs``'s extensibility.
-  `#96 <https://github.com/hynek/attrs/pull/96>`_
+  `#96 <https://github.com/python-attrs/attrs/pull/96>`_
 - Allow for a ``__attrs_post_init__`` method that -- if defined -- will get called at the end of the ``attrs``-generated ``__init__`` method.
-  `#111 <https://github.com/hynek/attrs/pull/111>`_
+  `#111 <https://github.com/python-attrs/attrs/pull/111>`_
 - Add ``@attr.s(str=True)`` that will optionally create a ``__str__`` method that is identical to ``__repr__``.
   This is mainly useful with ``Exception``\ s and other classes that rely on a useful ``__str__`` implementation but overwrite the default one through a poor own one.
   Default Python class behavior is to use ``__repr__`` as ``__str__`` anyways.
 
   If you tried using ``attrs`` with ``Exception``\ s and were puzzled by the tracebacks: this option is for you.
 - Don't overwrite ``__name__`` with ``__qualname__`` for ``attr.s(slots=True)`` classes.
-  `#99 <https://github.com/hynek/attrs/issues/99>`_
+  `#99 <https://github.com/python-attrs/attrs/issues/99>`_
 
 
 ----
@@ -83,19 +83,19 @@ Changes:
 ^^^^^^^^
 
 - Add ``attr.astuple()`` that -- similarly to ``attr.asdict()`` -- returns the instance as a tuple.
-  `#77 <https://github.com/hynek/attrs/issues/77>`_
+  `#77 <https://github.com/python-attrs/attrs/issues/77>`_
 - Converts now work with frozen classes.
-  `#76 <https://github.com/hynek/attrs/issues/76>`_
+  `#76 <https://github.com/python-attrs/attrs/issues/76>`_
 - Instantiation of ``attrs`` classes with converters is now significantly faster.
-  `#80 <https://github.com/hynek/attrs/pull/80>`_
+  `#80 <https://github.com/python-attrs/attrs/pull/80>`_
 - Pickling now works with ``__slots__`` classes.
-  `#81 <https://github.com/hynek/attrs/issues/81>`_
+  `#81 <https://github.com/python-attrs/attrs/issues/81>`_
 - ``attr.assoc()`` now works with ``__slots__`` classes.
-  `#84 <https://github.com/hynek/attrs/issues/84>`_
+  `#84 <https://github.com/python-attrs/attrs/issues/84>`_
 - The tuple returned by ``attr.fields()`` now also allows to access the ``Attribute`` instances by name.
   Yes, we've subclassed ``tuple`` so you don't have to!
   Therefore ``attr.fields(C).x`` is equivalent to the deprecated ``C.x`` and works with ``__slots__`` classes.
-  `#88 <https://github.com/hynek/attrs/issues/88>`_
+  `#88 <https://github.com/python-attrs/attrs/issues/88>`_
 
 
 ----
@@ -130,16 +130,16 @@ Changes:
 ^^^^^^^^
 
 - ``attr.asdict()``\ 's ``dict_factory`` arguments is now propagated on recursion.
-  `#45 <https://github.com/hynek/attrs/issues/45>`_
+  `#45 <https://github.com/python-attrs/attrs/issues/45>`_
 - ``attr.asdict()``, ``attr.has()`` and ``attr.fields()`` are significantly faster.
-  `#48 <https://github.com/hynek/attrs/issues/48>`_
-  `#51 <https://github.com/hynek/attrs/issues/51>`_
+  `#48 <https://github.com/python-attrs/attrs/issues/48>`_
+  `#51 <https://github.com/python-attrs/attrs/issues/51>`_
 - Add ``attr.attrs`` and ``attr.attrib`` as a more consistent aliases for ``attr.s`` and ``attr.ib``.
 - Add ``frozen`` option to ``attr.s`` that will make instances best-effort immutable.
-  `#60 <https://github.com/hynek/attrs/issues/60>`_
+  `#60 <https://github.com/python-attrs/attrs/issues/60>`_
 - ``attr.asdict()`` now takes ``retain_collection_types`` as an argument.
   If ``True``, it does not convert attributes of type ``tuple`` or ``set`` to ``list``.
-  `#69 <https://github.com/hynek/attrs/issues/69>`_
+  `#69 <https://github.com/python-attrs/attrs/issues/69>`_
 
 
 ----
@@ -164,12 +164,12 @@ Changes:
 
 - ``__slots__`` have arrived!
   Classes now can automatically be `slots <https://docs.python.org/3.5/reference/datamodel.html#slots>`_-style (and save your precious memory) just by passing ``slots=True``.
-  `#35 <https://github.com/hynek/attrs/issues/35>`_
+  `#35 <https://github.com/python-attrs/attrs/issues/35>`_
 - Allow the case of initializing attributes that are set to ``init=False``.
   This allows for clean initializer parameter lists while being able to initialize attributes to default values.
-  `#32 <https://github.com/hynek/attrs/issues/32>`_
+  `#32 <https://github.com/python-attrs/attrs/issues/32>`_
 - ``attr.asdict()`` can now produce arbitrary mappings instead of Python ``dict``\ s when provided with a ``dict_factory`` argument.
-  `#40 <https://github.com/hynek/attrs/issues/40>`_
+  `#40 <https://github.com/python-attrs/attrs/issues/40>`_
 - Multiple performance improvements.
 
 
@@ -184,9 +184,9 @@ Changes:
 
 - Add a ``convert`` argument to ``attr.ib``, which allows specifying a function to run on arguments.
   This allows for simple type conversions, e.g. with ``attr.ib(convert=int)``.
-  `#26 <https://github.com/hynek/attrs/issues/26>`_
+  `#26 <https://github.com/python-attrs/attrs/issues/26>`_
 - Speed up object creation when attribute validators are used.
-  `#28 <https://github.com/hynek/attrs/issues/28>`_
+  `#28 <https://github.com/python-attrs/attrs/issues/28>`_
 
 
 ----
@@ -199,11 +199,11 @@ Changes:
 ^^^^^^^^
 
 - Add ``attr.validators.optional`` that wraps other validators allowing attributes to be ``None``.
-  `#16 <https://github.com/hynek/attrs/issues/16>`_
+  `#16 <https://github.com/python-attrs/attrs/issues/16>`_
 - Fix multi-level inheritance.
-  `#24 <https://github.com/hynek/attrs/issues/24>`_
+  `#24 <https://github.com/python-attrs/attrs/issues/24>`_
 - Fix ``__repr__`` to work for non-redecorated subclasses.
-  `#20 <https://github.com/hynek/attrs/issues/20>`_
+  `#20 <https://github.com/python-attrs/attrs/issues/20>`_
 
 
 ----

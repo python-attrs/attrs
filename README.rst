@@ -6,12 +6,12 @@ attrs: Attributes Without Boilerplate
    :target: https://attrs.readthedocs.io/en/stable/?badge=stable
    :alt: Documentation Status
 
-.. image:: https://travis-ci.org/hynek/attrs.svg?branch=master
-   :target: https://travis-ci.org/hynek/attrs
+.. image:: https://travis-ci.org/python-attrs/attrs.svg?branch=master
+   :target: https://travis-ci.org/python-attrs/attrs
    :alt: CI status
 
-.. image:: https://codecov.io/github/hynek/attrs/branch/master/graph/badge.svg
-   :target: https://codecov.io/github/hynek/attrs
+.. image:: https://codecov.io/github/python-attrs/attrs/branch/master/graph/badge.svg
+   :target: https://codecov.io/github/python-attrs/attrs
    :alt: Test Coverage
 
 .. teaser-begin
@@ -77,7 +77,7 @@ Testimonials
   I’m looking forward to is being able to program in Python-with-attrs everywhere.
   It exerts a subtle, but positive, design influence in all the codebases I’ve see it used in.
 
-  -- Glyph Lefkowitz, inventor of Twisted and Software Developer at Rackspace in `The One Python Library Everyone Needs <https://glyph.twistedmatrix.com/2016/08/attrs.html>`_
+  -- Glyph Lefkowitz, creator of `Twisted <https://twistedmatrix.com/>`_ and Software Developer at Rackspace in `The One Python Library Everyone Needs <https://glyph.twistedmatrix.com/2016/08/attrs.html>`_
 
 
   I'm increasingly digging your attr.ocity. Good job!
@@ -91,8 +91,8 @@ Testimonials
 Project Information
 ===================
 
-``attrs`` is released under the `MIT <http://choosealicense.com/licenses/mit/>`_ license,
+``attrs`` is released under the `MIT <https://choosealicense.com/licenses/mit/>`_ license,
 its documentation lives at `Read the Docs <https://attrs.readthedocs.io/>`_,
-the code on `GitHub <https://github.com/hynek/attrs>`_,
+the code on `GitHub <https://github.com/python-attrs/attrs>`_,
 and the latest release on `PyPI <https://pypi.org/project/attrs/>`_.
 It’s rigorously tested on Python 2.7, 3.4+, and PyPy.
