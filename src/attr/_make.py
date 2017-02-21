@@ -945,7 +945,7 @@ class Factory(object):
     factory = attr()
 
 
-def make_class(name, attrs, **attributes_arguments):
+def make_class(name, attrs, bases=(object,), **attributes_arguments):
     """
     A quick way to create a new class called *name* with *attrs*.
 
@@ -956,10 +956,14 @@ def make_class(name, attrs, **attributes_arguments):
         attributes.
     :type attrs: :class:`list` or :class:`dict`
 
+    :param tuple bases: Classes that the new class will subclass.
+
     :param attributes_arguments: Passed unmodified to :func:`attr.s`.
 
     :return: A new class with *attrs*.
     :rtype: type
+
+    ..  versionadded:: 17.1.0 *bases*
     """
     if isinstance(attrs, dict):
         cls_dict = attrs
@@ -968,4 +972,4 @@ def make_class(name, attrs, **attributes_arguments):
     else:
         raise TypeError("attrs argument must be a dict or a list.")
 
-    return attributes(**attributes_arguments)(type(name, (object,), cls_dict))
+    return attributes(**attributes_arguments)(type(name, bases, cls_dict))
