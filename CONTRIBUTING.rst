@@ -90,10 +90,10 @@ Documentation
 
      - Add awesome new feature.
        The feature really *is* awesome.
-       [`#1 <https://github.com/hynek/attrs/pull/1>`_]
+       [`#1 <https://github.com/python-attrs/attrs/pull/1>`_]
      - Fix nasty bug.
        The bug really *was* nasty.
-       [`#2 <https://github.com/hynek/attrs/pull/2>`_]
+       [`#2 <https://github.com/python-attrs/attrs/pull/2>`_]
 
 ****
 
@@ -111,13 +111,13 @@ Thank you for considering contributing to ``attrs``!
 .. _`PEP 8`: https://www.python.org/dev/peps/pep-0008/
 .. _`PEP 257`: https://www.python.org/dev/peps/pep-0257/
 .. _`good test docstrings`: https://jml.io/pages/test-docstrings.html
-.. _`Code of Conduct`: https://github.com/hynek/attrs/blob/master/CODE_OF_CONDUCT.rst
-.. _changelog: https://github.com/hynek/attrs/blob/master/CHANGELOG.rst
+.. _`Code of Conduct`: https://github.com/python-attrs/attrs/blob/master/CODE_OF_CONDUCT.rst
+.. _changelog: https://github.com/python-attrs/attrs/blob/master/CHANGELOG.rst
 .. _`backward compatibility`: https://attrs.readthedocs.io/en/latest/backward-compatibility.html
-.. _`tox`: https://testrun.org/tox/
+.. _tox: https://tox.readthedocs.io/
 .. _pyenv: https://github.com/yyuu/pyenv
-.. _reStructuredText: http://sphinx-doc.org/rest.html
+.. _reStructuredText: http://www.sphinx-doc.org/en/stable/rest.html
 .. _semantic newlines: http://rhodesmill.org/brandon/2012/one-sentence-per-line/
-.. _examples page: https://github.com/hynek/attrs/blob/master/docs/examples.rst
+.. _examples page: https://github.com/python-attrs/attrs/blob/master/docs/examples.rst
 .. _Hypothesis: https://hypothesis.readthedocs.org
-.. _CI: https://travis-ci.org/hynek/attrs/
+.. _CI: https://travis-ci.org/python-attrs/attrs/
