@@ -945,7 +945,7 @@ class Factory(object):
     factory = attr()
 
 
-def make_class(name, attrs, bases=(object,), **attributes_arguments):
+def make_class(name, attrs, bases=None, **attributes_arguments):
     """
     A quick way to create a new class called *name* with *attrs*.
 
@@ -967,5 +967,8 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
         cls_dict = dict((a, attr()) for a in attrs)
     else:
         raise TypeError("attrs argument must be a dict or a list.")
+
+    if bases is None:
+        bases = (object,)
 
     return attributes(**attributes_arguments)(type(name, bases, cls_dict))
