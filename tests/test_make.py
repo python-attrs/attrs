@@ -436,7 +436,7 @@ class TestMakeClass(object):
         """
         Parameter bases default to (object,) and subclasses correctly
         """
-        class Subclass:
+        class C(object):
             pass
 
         cls = make_class("C", {})
