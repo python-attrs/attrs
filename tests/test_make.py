@@ -432,6 +432,18 @@ class TestMakeClass(object):
             "attrs argument must be a dict or a list.",
         ) == e.value.args
 
+    def test_bases(self):
+        """
+        Parameter bases default to (object,) and subclasses correctly
+        """
+        class Subclass:
+            pass
+
+        cls = make_class("C", {})
+        assert cls.__mro__[-1] == object
+
+        cls = make_class("C", {}, bases=(Subclass,))
+        assert Subclass in cls.__mro__
 
 class TestFields(object):
     """
