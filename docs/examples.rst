@@ -616,7 +616,7 @@ If you need to dynamically make a class with :func:`attr.mak_class` and it needs
   ...        return True  # arbitrary example
   >>> C = attr.make_class("C", {}, bases=(D,), cmp=False)
   >>> C.__mro__
-  (<class 'attr._make.C'>, <class '__main__.D'>, <class 'object'>)
+  (<class 'attr._make.C'>, <class 'D'>, <class 'object'>)
 
 Sometimes, you want to have your class's ``__init__`` method do more than just
 the initialization, validation, etc. that gets done for you automatically when
