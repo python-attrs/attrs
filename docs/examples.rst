@@ -607,6 +607,17 @@ You can still have power over the attributes if you pass a dictionary of name: `
    >>> i.y
    []
 
+If you need to dynamically make a class with :func:`attr.mak_class` and it needs to be a subclass of D, use the ``bases`` argument, which is just passed onto ``type(name, bases, dict)``:
+
+.. doctest::
+
+  >>> class D(object):
+  ...    def __eq__(self, other):
+  ...        return True  # arbitrary example
+  >>> C = attr.make_class("C", {}, bases=(D,), cmp=False)
+  >>> C.__mro__
+  (<class 'attr._make.C'>, <class 'D'>, <class 'object'>)
+
 Sometimes, you want to have your class's ``__init__`` method do more than just
 the initialization, validation, etc. that gets done for you automatically when
 using ``@attr.s``.

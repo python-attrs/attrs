@@ -945,12 +945,15 @@ class Factory(object):
     factory = attr()
 
 
-def make_class(name, attrs, **attributes_arguments):
+def make_class(name, attrs, bases=(object,), **attributes_arguments):
     """
     A quick way to create a new class called *name* with *attrs*.
 
     :param name: The name for the new class.
     :type name: str
+
+    :param bases: Passed on as bases arg in type(n, b, d)
+    :type bases: :class:`tuple`
 
     :param attrs: A list of names or a dictionary of mappings of names to
         attributes.
@@ -968,4 +971,4 @@ def make_class(name, attrs, **attributes_arguments):
     else:
         raise TypeError("attrs argument must be a dict or a list.")
 
-    return attributes(**attributes_arguments)(type(name, (object,), cls_dict))
+    return attributes(**attributes_arguments)(type(name, bases, cls_dict))
