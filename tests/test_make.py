@@ -436,14 +436,15 @@ class TestMakeClass(object):
         """
         Parameter bases default to (object,) and subclasses correctly
         """
-        class C(object):
+        class D(object):
             pass
 
         cls = make_class("C", {})
         assert cls.__mro__[-1] == object
 
-        cls = make_class("C", {}, bases=(C,))
-        assert C in cls.__mro__
+        cls = make_class("C", {}, bases=(D,))
+        assert D in cls.__mro__
+
 
 class TestFields(object):
     """

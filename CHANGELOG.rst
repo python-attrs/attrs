@@ -8,6 +8,13 @@ The third digit is only for regressions.
 17.1.0 (UNRELEASED)
 -------------------
 
+Changes:
+^^^^^^^^
+
+- ``attr.make_class`` accepts new keyword argument ``bases``.
+  Previously, if you were creating a class dynamically the call to ``type(n, b, d)`` was hard-coded to be ``(object,)``. By exposing this keyword it's possible to dynamically create subclassed classes. Use cases for this may be, for example, class decorators.
+
+
 Backward-incompatible changes:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
