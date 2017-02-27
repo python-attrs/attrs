@@ -1,5 +1,5 @@
 coverage
+hypothesis
+pympler
 pytest
 zope.interface
-pympler
-hypothesis

@@ -28,6 +28,14 @@ CLASSIFIERS = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 INSTALL_REQUIRES = []
+TEST_REQUIRES = [
+    "coverage",
+    "hypothesis",
+    "pympler",
+    "pytest",
+    "zope.interface",
+    ]
+SETUP_REQUIRES = ["pytest-runner"]
 
 ###############################################################################
 
@@ -91,4 +99,6 @@ if __name__ == "__main__":
         zip_safe=False,
         classifiers=CLASSIFIERS,
         install_requires=INSTALL_REQUIRES,
+        tests_require=TEST_REQUIRES,
+        setup_requires=SETUP_REQUIRES,
     )
