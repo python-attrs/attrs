@@ -257,6 +257,36 @@ Validators
       TypeError: ("'x' must be <type 'int'> (got None that is a <type 'NoneType'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>, repr=True, cmp=True, hash=None, init=True), <type 'int'>, None)
 
 
+.. autofunction:: attr.validators.list_of
+
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib(validator=attr.validators.list_of(int))
+
+      >>> C([42])
+      C(x=[42])
+
+      >>> C(42)
+      Traceback (most recent call last):
+         ...
+      TypeError: ("'x' must be of type <class 'list'> (got a <class 'int'>).", Attribute(name='x', default=NOTHING, validator=<list_of validator for type <class 'int'>>, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({})), <class 'int'>, 42)
+
+      >>> C(["42"])
+      Traceback (most recent call last):
+         ...
+      TypeError: ("'x' must be a list of <class 'int'> elements.", Attribute(name='x', default=NOTHING, validator=<list_of validator for type <class 'int'>>, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({})), <class 'int'>, ['42'])
+
+      >>> C([None])
+      Traceback (most recent call last):
+      ...
+      TypeError: ("'x' must be a list of <class 'int'> elements.", Attribute(name='x', default=NOTHING, validator=<list_of validator for type <class 'int'>>, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({})), <class 'int'>, [None])
+
+
 .. autofunction:: attr.validators.provides
 
 .. autofunction:: attr.validators.optional

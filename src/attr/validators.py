@@ -48,6 +48,53 @@ def instance_of(type):
 
 
 @attributes(repr=False, slots=True)
+class _ListOfValidator(object):
+    type = attr()
+
+    def __call__(self, inst, attr, list_of_values):
+        """
+        We use a callable class to be able to change the ``__repr__``.
+        """
+        if not isinstance(list_of_values, list):
+            raise TypeError(
+                "'{name}' must be of type {type!r} (got a {actual!r})."
+                .format(name=attr.name, type=list,
+                        actual=list_of_values.__class__),
+                attr, self.type, list_of_values,
+            )
+        if not all(isinstance(value, self.type) for value in list_of_values):
+            raise TypeError(
+                "'{name}' must be a list of {type!r} elements."
+                .format(name=attr.name, type=self.type),
+                attr, self.type, list_of_values,
+            )
+
+    def __repr__(self):
+        return (
+            "<list_of validator for type {type!r}>"
+            .format(type=self.type)
+        )
+
+
+def list_of(type):
+    """A validator that raises a :exc:`TypeError` if the initializer is
+    called with a non-list type or with a list that contains one or
+    more elements of a wrong type. None values are not permitted.  As
+    with instance_of, checks are perfomed using :func:`isinstance`
+    therefore it's also valid to pass a tuple of types.
+
+    :param type: The type to check for.
+    :type type: type or tuple of types
+
+    The :exc:`TypeError` is raised with a human readable error message, the
+    attribute (of type :class:`attr.Attribute`), the expected type, and the
+    value it got.
+
+    """
+    return _ListOfValidator(type)
+
+
+@attributes(repr=False, slots=True)
 class _ProvidesValidator(object):
     interface = attr()
 
