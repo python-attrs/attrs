@@ -82,6 +82,20 @@ class FrozenNoSlots(object):
     x = attr.ib()
 
 
+class Meta(type):
+    pass
+
+
+@attr.s
+class WithMeta(object, metaclass=Meta):
+    pass
+
+
+@attr.s(slots=True)
+class WithMetaSlots(object, metaclass=Meta):
+    pass
+
+
 class TestDarkMagic(object):
     """
     Integration tests.
@@ -231,3 +245,7 @@ class TestDarkMagic(object):
 
         assert i.x == "foo"
         assert i.y == "bar"
+
+    @pytest.mark.parametrize("cls", [WithMeta, WithMetaSlots])
+    def test_metaclass_preserved(self, cls):
+        assert Meta == type(cls)
