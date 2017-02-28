@@ -87,7 +87,8 @@ class TestListOf(object):
         with pytest.raises(TypeError) as e:
             v(None, a, 42)
         assert (
-            "'test' must be of type <{type} 'list'> (got a <{type} 'int'>).".format(type=TYPE),
+            "'test' must be of type <{type} 'list'>"
+            " (got a <{type} 'int'>).".format(type=TYPE),
             a, int, 42,
 
         ) == e.value.args
@@ -101,7 +102,8 @@ class TestListOf(object):
         with pytest.raises(TypeError) as e:
             v(None, a, ["42"])
         assert (
-            "'test' must be a list of <{type} 'int'> elements.".format(type=TYPE),
+            "'test' must be a list of <{type}"
+            " 'int'> elements.".format(type=TYPE),
             a, int, ["42"],
 
         ) == e.value.args
