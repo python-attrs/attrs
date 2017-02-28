@@ -7,7 +7,7 @@ from __future__ import absolute_import, division, print_function
 import pytest
 import zope.interface
 
-from attr.validators import instance_of, provides, optional
+from attr.validators import instance_of, list_of, provides, optional
 from attr._compat import TYPE
 
 from .utils import simple_attr
@@ -54,6 +54,67 @@ class TestInstanceOf(object):
         v = instance_of(int)
         assert (
             "<instance_of validator for type <{type} 'int'>>"
+            .format(type=TYPE)
+        ) == repr(v)
+
+
+class TestListOf(object):
+    """
+    Tests for `list_of`.
+    """
+    def test_success(self):
+        """
+        Nothing happens if types match.
+        """
+        v = list_of(int)
+        v(None, simple_attr("test"), [42, 55])
+
+    def test_subclass(self):
+        """
+        Subclasses are accepted too.
+        """
+        class MyInt(int):
+            pass
+        v = list_of(int)
+        v(None, simple_attr("test"), [MyInt(42)])
+
+    def test_fail_not_a_list(self):
+        """
+        Raises `TypeError` on wrong types.
+        """
+        v = list_of(int)
+        a = simple_attr("test")
+        with pytest.raises(TypeError) as e:
+            v(None, a, 42)
+        assert (
+            "'test' must be of type <{type} 'list'>"
+            " (got a <{type} 'int'>).".format(type=TYPE),
+            a, int, 42,
+
+        ) == e.value.args
+
+    def test_fail_list_of_wrong_type(self):
+        """
+        Raises `TypeError` on wrong types.
+        """
+        v = list_of(int)
+        a = simple_attr("test")
+        with pytest.raises(TypeError) as e:
+            v(None, a, ["42"])
+        assert (
+            "'test' must be a list of <{type}"
+            " 'int'> elements.".format(type=TYPE),
+            a, int, ["42"],
+
+        ) == e.value.args
+
+    def test_repr(self):
+        """
+        Returned validator has a useful `__repr__`.
+        """
+        v = list_of(int)
+        assert (
+            "<list_of validator for type <{type} 'int'>>"
             .format(type=TYPE)
         ) == repr(v)
 

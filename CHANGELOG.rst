@@ -49,7 +49,10 @@ Changes:
 - Validators can now be defined conveniently inline by using the attribute as a decorator.
   Check out the `examples <https://attrs.readthedocs.io/en/stable/examples.html#validators>`_ to see it in action!
   `#143 <https://github.com/python-attrs/attrs/issues/143>`_
-
+- New ``list_of`` validator ensures that an attribute is a homogeneous list with elements of a specified class or subclass.
+  See `examples <https://attrs.readthedocs.io/en/stable/examples.html#validators>`_.
+  `#157 <https://github.com/python-attrs/attrs/issues/157>`_
+  
 
 ----
 
