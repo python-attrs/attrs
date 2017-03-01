@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 import pickle
 
 import pytest
+import six
 
 from hypothesis import given
 from hypothesis.strategies import booleans
@@ -87,12 +88,14 @@ class Meta(type):
 
 
 @attr.s
-class WithMeta(object, metaclass=Meta):
+@six.add_metaclass(Meta)
+class WithMeta(object):
     pass
 
 
 @attr.s(slots=True)
-class WithMetaSlots(object, metaclass=Meta):
+@six.add_metaclass(Meta)
+class WithMetaSlots(object):
     pass
 
 
