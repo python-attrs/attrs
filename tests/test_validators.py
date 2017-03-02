@@ -193,12 +193,6 @@ class TestChain(object):
         ) == repr(v)
 
 
-def custom_validator(instance, attribute, value):
-    allowed = {'+', '*'}
-    if value not in allowed:
-        raise ValueError('\'op\' has to be a string in ' + str(allowed) + '!')
-
-
 class TestIsMandatory(object):
     """
     Tests for utility method `is_mandatory`.
@@ -216,6 +210,12 @@ class TestIsMandatory(object):
         """
         att = simple_attr("test", validator=optional(instance_of(int)))
         assert is_mandatory(att) == False
+
+
+def custom_validator(instance, attribute, value):
+    allowed = {'+', '*'}
+    if value not in allowed:
+        raise ValueError('\'op\' has to be a string in ' + str(allowed) + '!')
 
 
 class TestGuessType(object):
