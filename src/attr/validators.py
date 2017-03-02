@@ -114,9 +114,9 @@ def optional(validator):
     return _OptionalValidator(validator)
 
 
-@attr.s(repr=False, slots=True)
+@attributes(repr=False, slots=True)
 class _AndValidator(object):
-    validators = attr.ib()
+    validators = attr()
 
     def __call__(self, inst, attr, value):
         for v in self.validators:
@@ -144,12 +144,13 @@ def _guess_type_from_validator(validator):
     in order to unpack the validators.
 
     :param validator:
+
     :return: the type of attribute declared in an inner 'instance_of' validator (if any is found, the first one is used)
     or None if no inner 'instance_of' validator is found
     """
     if isinstance(validator, _OptionalValidator):
         # Optional : look inside
-        return _guess_type_from_validator(validator)
+        return _guess_type_from_validator(validator.validator)
 
     elif isinstance(validator, _AndValidator):
         # Sequence : try each of them
@@ -168,23 +169,26 @@ def _guess_type_from_validator(validator):
         return None
 
 
-def guess_type_from_validators(attr):
+def guess_type_from_validators(att):
     """
     Utility method to return the declared type of an attribute or None. It handles _OptionalValidator and _AndValidator
     in order to unpack the validators.
 
-    :param attr:
+    :param att: the attribute for which
+
     :return: the type of attribute declared in an inner 'instance_of' validator (if any is found, the first one is used)
     or None if no inner 'instance_of' validator is found
     """
-    return _guess_type_from_validator(attr.validator)
+    return _guess_type_from_validator(att.validator)
 
 
-def is_mandatory(attr):
+def is_mandatory(att):
     """
     Helper method to find if an attribute is mandatory, by checking if its validator is 'optional' or not.
+    Note that this does not check for the presence of a default value
 
-    :param attr:
-    :return:
+    :param att:
+
+    :return: a boolean indicating if the attribute is mandatory
     """
-    return not isinstance(attr.validator, _OptionalValidator)
+    return not isinstance(att.validator, _OptionalValidator)
