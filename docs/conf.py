@@ -148,3 +148,6 @@ texinfo_documents = [
 intersphinx_mapping = {
     "https://docs.python.org/3": None,
 }
+
+# Allow non-local URIs so we can have images in CHANGELOG etc.
+suppress_warnings = ['image.nonlocal_uri']
