@@ -96,3 +96,5 @@ its documentation lives at `Read the Docs <https://attrs.readthedocs.io/>`_,
 the code on `GitHub <https://github.com/python-attrs/attrs>`_,
 and the latest release on `PyPI <https://pypi.org/project/attrs/>`_.
 It’s rigorously tested on Python 2.7, 3.4+, and PyPy.
+
+If you'd like to contribute you're most welcome and we've written `a little guide <http://attrs.readthedocs.io/en/latest/contributing.html>`_ to get you started!

@@ -32,7 +32,7 @@ Code
 
      def func(x):
          """
-         Does something.
+         Do something.
 
          :param str x: A very important parameter.
 
@@ -71,12 +71,15 @@ Documentation
      This is a sentence.
      This is another sentence.
 
-- If you start a new section, add two blank lines before and one blank line after the header:
+- If you start a new section, add two blank lines before and one blank line after the header except if two headers follow immediately after each other:
 
   .. code-block:: rst
 
      Last line of previous section.
 
+
+     Header of New Top Section
+     -------------------------
 
      Header of New Section
      ^^^^^^^^^^^^^^^^^^^^^
