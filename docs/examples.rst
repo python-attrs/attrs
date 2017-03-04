@@ -170,7 +170,7 @@ When you have a class with data, it often is very convenient to transform that c
 .. doctest::
 
    >>> attr.asdict(Coordinates(x=1, y=2))
-   {'y': 2, 'x': 1}
+   {'x': 1, 'y': 2}
 
 Some fields cannot or should not be transformed.
 For that, :func:`attr.asdict` offers a callback that decides whether an attribute should be included:
@@ -208,7 +208,7 @@ For the common case where you want to :func:`include <attr.filters.include>` or 
    ...     z = attr.ib()
    >>> attr.asdict(C("foo", "2", 3),
    ...             filter=attr.filters.include(int, attr.fields(C).x))
-   {'z': 3, 'x': 'foo'}
+   {'x': 'foo', 'z': 3}
 
 Other times, all you want is a tuple and ``attrs`` won't let you down:
 
