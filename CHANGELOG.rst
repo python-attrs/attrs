@@ -8,14 +8,21 @@ The third digit is only for regressions.
 17.1.0 (UNRELEASED)
 -------------------
 
+To encourage more participation, the project has also been moved into a `dedicated GitHub organization <https://github.com/python-attrs/>`_ and everyone is most welcome to join!
+
+``attrs`` also has a logo now!
+
+.. image:: https://attrs.readthedocs.io/en/latest/_static/attrs_logo.png
+   :alt: attrs logo
+
 
 Backward-incompatible changes:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- ``attrs`` will set the ``__hash__`` method to ``None`` by default now.
+- ``attrs`` will set the ``__hash__()`` method to ``None`` by default now.
   The way hashes were handled before was in conflict with `Python's specification <https://docs.python.org/3/reference/datamodel.html#object.__hash__>`_.
   This *may* break some software although this breakage is most likely just surfacing of latent bugs.
-  You can always make ``attrs`` create the ``__hash__`` method using ``@attr.s(hash=True)``.
+  You can always make ``attrs`` create the ``__hash__()`` method using ``@attr.s(hash=True)``.
   See `#136 <https://github.com/hynek/attrs/issues/136>`_ for the rationale of this change.
 - Correspondingly, ``attr.ib``'s ``hash`` argument is ``None`` by default too and mirrors the ``cmp`` argument as it should.
 
@@ -23,7 +30,7 @@ Backward-incompatible changes:
 Deprecations:
 ^^^^^^^^^^^^^
 
-- ``assoc`` is now deprecated in favor of ``evolve`` and will stop working in 2018.
+- ``attr.assoc()`` is now deprecated in favor of ``attr.evolve()`` and will stop working in 2018.
 
 
 Changes:
@@ -33,24 +40,24 @@ Changes:
   Now *hash* mirrors the value of *cmp* and classes are unhashable by default.
   `#136 <https://github.com/hynek/attrs/issues/136>`_
   `#142 <https://github.com/hynek/attrs/issues/142>`_
-- Add ``attr.evolve`` that, given an instance of an ``attrs`` class and field changes as keyword arguments, will instantiate a copy of the given instance with the changes applied.
-  ``evolve`` replaces ``assoc``, which is now deprecated.
-  ``evolve`` is significantly faster than ``assoc``, and requires the class have an initializer that can take the field values as keyword arguments (like ``attrs`` itself can generate).
+- Added ``attr.evolve()`` that, given an instance of an ``attrs`` class and field changes as keyword arguments, will instantiate a copy of the given instance with the changes applied.
+  ``evolve()`` replaces ``assoc()``, which is now deprecated.
+  ``evolve()`` is significantly faster than ``assoc()``, and requires the class have an initializer that can take the field values as keyword arguments (like ``attrs`` itself can generate).
   `#116 <https://github.com/python-attrs/attrs/issues/116>`_
   `#124 <https://github.com/python-attrs/attrs/pull/124>`_
   `#135 <https://github.com/python-attrs/attrs/pull/135>`_
-- Raise ``FrozenInstanceError`` when trying to delete an attribute from a frozen class.
+- ``FrozenInstanceError`` is now raised when trying to delete an attribute from a frozen class.
   `#118 <https://github.com/python-attrs/attrs/pull/118>`_
 - Frozen-ness of classes is now inherited.
   `#128 <https://github.com/python-attrs/attrs/pull/128>`_
-- Fix ``__attrs_post_init__`` not being run when the validation is disabled.
+- ``__attrs_post_init__()`` is now run if validation is disabled.
   `#130 <https://github.com/python-attrs/attrs/pull/130>`_
 - The ``validator`` argument of ``@attr.s`` now can take a ``list`` of validators that all have to pass.
   `#138 <https://github.com/python-attrs/attrs/issues/138>`_
 - Validators can now be defined conveniently inline by using the attribute as a decorator.
   Check out the `examples <https://attrs.readthedocs.io/en/stable/examples.html#validators>`_ to see it in action!
   `#143 <https://github.com/python-attrs/attrs/issues/143>`_
-- ``attr.make_class`` now accepts the new keyword argument ``bases`` which allows for subclassing.
+- ``attr.make_class()`` now accepts the keyword argument ``bases`` which allows for subclassing.
   `#152 <https://github.com/python-attrs/attrs/pull/152>`_
 
 
@@ -65,14 +72,14 @@ Changes:
 
 - Attributes now can have user-defined metadata which greatly improves ``attrs``'s extensibility.
   `#96 <https://github.com/python-attrs/attrs/pull/96>`_
-- Allow for a ``__attrs_post_init__`` method that -- if defined -- will get called at the end of the ``attrs``-generated ``__init__`` method.
+- Allow for a ``__attrs_post_init__()`` method that -- if defined -- will get called at the end of the ``attrs``-generated ``__init__()`` method.
   `#111 <https://github.com/python-attrs/attrs/pull/111>`_
-- Add ``@attr.s(str=True)`` that will optionally create a ``__str__`` method that is identical to ``__repr__``.
-  This is mainly useful with ``Exception``\ s and other classes that rely on a useful ``__str__`` implementation but overwrite the default one through a poor own one.
-  Default Python class behavior is to use ``__repr__`` as ``__str__`` anyways.
+- Added ``@attr.s(str=True)`` that will optionally create a ``__str__()`` method that is identical to ``__repr__()``.
+  This is mainly useful with ``Exception``\ s and other classes that rely on a useful ``__str__()`` implementation but overwrite the default one through a poor own one.
+  Default Python class behavior is to use ``__repr__()`` as ``__str__()`` anyways.
 
   If you tried using ``attrs`` with ``Exception``\ s and were puzzled by the tracebacks: this option is for you.
-- Don't overwrite ``__name__`` with ``__qualname__`` for ``attr.s(slots=True)`` classes.
+- ``__name__`` is not overwritten with ``__qualname__`` for ``attr.s(slots=True)`` classes anymore.
   `#99 <https://github.com/python-attrs/attrs/issues/99>`_
 
 
@@ -85,7 +92,7 @@ Changes:
 Changes:
 ^^^^^^^^
 
-- Add ``attr.astuple()`` that -- similarly to ``attr.asdict()`` -- returns the instance as a tuple.
+- Added ``attr.astuple()`` that -- similarly to ``attr.asdict()`` -- returns the instance as a tuple.
   `#77 <https://github.com/python-attrs/attrs/issues/77>`_
 - Converts now work with frozen classes.
   `#76 <https://github.com/python-attrs/attrs/issues/76>`_
@@ -185,7 +192,7 @@ Changes:
 Changes:
 ^^^^^^^^
 
-- Add a ``convert`` argument to ``attr.ib``, which allows specifying a function to run on arguments.
+- Added a ``convert`` argument to ``attr.ib``, which allows specifying a function to run on arguments.
   This allows for simple type conversions, e.g. with ``attr.ib(convert=int)``.
   `#26 <https://github.com/python-attrs/attrs/issues/26>`_
 - Speed up object creation when attribute validators are used.
@@ -201,11 +208,11 @@ Changes:
 Changes:
 ^^^^^^^^
 
-- Add ``attr.validators.optional`` that wraps other validators allowing attributes to be ``None``.
+- Added ``attr.validators.optional()`` that wraps other validators allowing attributes to be ``None``.
   `#16 <https://github.com/python-attrs/attrs/issues/16>`_
-- Fix multi-level inheritance.
+- Multi-level inheritance now works.
   `#24 <https://github.com/python-attrs/attrs/issues/24>`_
-- Fix ``__repr__`` to work for non-redecorated subclasses.
+- ``__repr__()`` now works with non-redecorated subclasses.
   `#20 <https://github.com/python-attrs/attrs/issues/20>`_
 
 
