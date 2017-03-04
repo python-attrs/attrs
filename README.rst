@@ -46,7 +46,7 @@ For that, it gives you a class decorator and a way to declaratively define the a
    >>> pt != Point(2, 1)
    True
    >>> attr.asdict(pt)
-   {'y': 2, 'x': 1}
+   {'x': 1, 'y': 2}
    >>> Point()
    Point(x=42, y=[])
    >>> C = attr.make_class("C", ["a", "b"])

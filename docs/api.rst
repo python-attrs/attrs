@@ -160,7 +160,7 @@ Helpers
       ...     x = attr.ib()
       ...     y = attr.ib()
       >>> attr.asdict(C(1, C(2, 3)))
-      {'y': {'y': 3, 'x': 2}, 'x': 1}
+      {'x': 1, 'y': {'x': 2, 'y': 3}}
 
 
 .. autofunction:: attr.astuple

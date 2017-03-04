@@ -20,13 +20,13 @@ matrix:
       env: TOXENV=pypy
 
     # Meta
-    - python: "3.5"
+    - python: "3.6"
       env: TOXENV=flake8
-    - python: "3.5"
+    - python: "3.6"
       env: TOXENV=manifest
-    - python: "3.5"
+    - python: "3.6"
       env: TOXENV=docs
-    - python: "3.5"
+    - python: "3.6"
       env: TOXENV=readme
 
 

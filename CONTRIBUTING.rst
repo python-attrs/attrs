@@ -84,14 +84,14 @@ Documentation
      First line of new section.
 - If you add a new feature, demonstrate its awesomeness in the `examples page`_!
 - If your change is noteworthy, add an entry to the changelog_.
-  Use present tense, `semantic newlines`_, and add a link to your pull request:
+  Use `semantic newlines`_, and add a link to your pull request:
 
   .. code-block:: rst
 
-     - Add awesome new feature.
+     - Added ``attr.validators.func()``.
        The feature really *is* awesome.
        [`#1 <https://github.com/python-attrs/attrs/pull/1>`_]
-     - Fix nasty bug.
+     - ``attr.func()`` now doesn't crash the Large Hadron Collider anymore.
        The bug really *was* nasty.
        [`#2 <https://github.com/python-attrs/attrs/pull/2>`_]
 
