@@ -4,7 +4,8 @@ How To Contribute
 First off, thank you for considering contributing to ``attrs``!
 It's people like *you* who make it is such a great tool for everyone.
 
-Here are a few guidelines to get you started (but don't be afraid to open half-finished PRs and ask questions if something is unclear!):
+This document is mainly to help you to get started by codifying tribal knowledge and expectations and make it more accessible to everyone.
+But don't be afraid to open half-finished PRs and ask questions if something is unclear!
 
 
 Workflow
@@ -98,10 +99,46 @@ Documentation
        The bug really *was* nasty.
        [`#2 <https://github.com/python-attrs/attrs/pull/2>`_]
 
-****
 
-Again, this list is mainly to help you to get started by codifying tribal knowledge and expectations.
-If something is unclear, feel free to ask for help!
+Local Development Environment
+-----------------------------
+
+You can (and should) run our test suite using tox_ however you’ll probably want a more traditional environment too.
+We highly recommend to develop using the latest Python 3 release because ``attrs`` tries to take advantage of modern features whenever possible.
+
+First create a `virtual environment <https://virtualenv.pypa.io/>`_.
+It’s out of scope for this document to list all the ways to manage virtual environments in Python but if you don’t have already a pet way, take some time to look at tools like `pew <https://github.com/berdario/pew>`_, `virtualfish <http://virtualfish.readthedocs.io/>`_, and `virtualenvwrapper <http://virtualenvwrapper.readthedocs.io/>`_.
+
+Next get an up to date checkout of the ``attrs`` repository:
+
+.. code-block:: bash
+
+    git checkout git@github.com:python-attrs/attrs.git
+
+Change into the newly created directory and **after activating your virtual environment** install an editable version of ``attrs``:
+
+.. code-block:: bash
+
+    cd attrs
+    pip install -e .
+
+If you run the virtual environment’s Python and try to ``import attr`` it should work!
+
+To run the test suite, you'll need our development dependencies which can be installed using
+
+.. code-block:: bash
+
+    pip install -r dev-requirements.txt
+
+At this point
+
+.. code-block:: bash
+
+   python -m pytest
+
+should work and pass!
+
+****
 
 Please note that this project is released with a Contributor `Code of Conduct`_.
 By participating in this project you agree to abide by its terms.
