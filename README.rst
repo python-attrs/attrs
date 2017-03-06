@@ -71,6 +71,28 @@ Never again violate the `single responsibility principle <https://en.wikipedia.o
 
 .. -testimonials-
 
+
+Development
+===========
+
+To prepare a development environment, type::
+
+  pyvenv venv
+  pip install -U pip
+  python setup.py develop
+
+(If you don't have pyvenv installed, consider `virtualenv
+<https://virtualenv.pypa.io/>`__ or `virtualenvwrapper
+<https://virtualenvwrapper.readthedocs.io/>`__ instead.)
+
+And, later::
+
+  python setup.py test
+
+Also, read `CONTRIBUTING
+<https://github.com/python-attrs/attrs/blob/master/CONTRIBUTING.rst>`__.
+
+
 Testimonials
 ============
 
