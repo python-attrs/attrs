@@ -97,7 +97,9 @@ The difference between :func:`collections.namedtuple`\ s and classes decorated b
 
 This can easily lead to surprising and unintended behaviors.
 
-Additionally, ``attrs`` lets you create mutable classes:
+Additionally, classes decorated with ``attrs`` can be either mutable or immutable.
+Immutable classes are created by simply passing a ``frozen=True`` argument to the ``attrs`` decorator, as described in the :doc:`api`.
+By default, however, classes created by ``attrs`` are mutable:
 
 .. doctest::
 
@@ -112,8 +114,7 @@ Additionally, ``attrs`` lets you create mutable classes:
    >>> c1.first_name
    'Katelyn'
 
-
-…while classes created with :func:`collections.namedtuple` inherit from tuple and are therefore immutable:
+…while classes created with :func:`collections.namedtuple` inherit from tuple and are therefore always immutable:
 
 .. doctest::
 
