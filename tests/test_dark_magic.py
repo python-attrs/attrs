@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 import pickle
 
 import pytest
+import six
 
 from hypothesis import given
 from hypothesis.strategies import booleans
@@ -80,6 +81,22 @@ class SubFrozen(Frozen):
 @attr.s(frozen=True, slots=False)
 class FrozenNoSlots(object):
     x = attr.ib()
+
+
+class Meta(type):
+    pass
+
+
+@attr.s
+@six.add_metaclass(Meta)
+class WithMeta(object):
+    pass
+
+
+@attr.s(slots=True)
+@six.add_metaclass(Meta)
+class WithMetaSlots(object):
+    pass
 
 
 class TestDarkMagic(object):
@@ -231,3 +248,7 @@ class TestDarkMagic(object):
 
         assert i.x == "foo"
         assert i.y == "bar"
+
+    @pytest.mark.parametrize("cls", [WithMeta, WithMetaSlots])
+    def test_metaclass_preserved(self, cls):
+        assert Meta == type(cls)
