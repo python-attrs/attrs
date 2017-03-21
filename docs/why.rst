@@ -37,7 +37,7 @@ or::
 Why would you want to write ``customer[2]`` instead of ``customer.first_name``?
 
 Don't get me started when you add nesting.
-If you've never ran into mysterious tuples you had no idea what the hell they meant while debugging, you're much smarter then I am.
+If you've never ran into mysterious tuples you had no idea what the hell they meant while debugging, you're much smarter then yours truly.
 
 Using proper classes with names and types makes program code much more readable and comprehensible_.
 Especially when trying to grok a new piece of software or returning to old code after several months.
@@ -97,9 +97,10 @@ The difference between :func:`collections.namedtuple`\ s and classes decorated b
 
 This can easily lead to surprising and unintended behaviors.
 
-Additionally, classes decorated with ``attrs`` can be either mutable or immutable.
-Immutable classes are created by simply passing a ``frozen=True`` argument to the ``attrs`` decorator, as described in the :doc:`api`.
-By default, however, classes created by ``attrs`` are mutable:
+Opinions on object immutability vary.
+With ``attrs``, the choice is yours.
+Immutable classes are created by passing a ``frozen=True`` argument to the :func:`attr.s` decorator.
+By default, however, classes created by ``attrs`` are regular Python classes and therefore mutable:
 
 .. doctest::
 
@@ -107,10 +108,10 @@ By default, however, classes created by ``attrs`` are mutable:
    >>> @attr.s
    ... class Customer(object):
    ...     first_name = attr.ib()
-   >>> c1 = Customer(first_name='Kaitlyn')
+   >>> c1 = Customer(first_name="Kaitlyn")
    >>> c1.first_name
    'Kaitlyn'
-   >>> c1.first_name = 'Katelyn'
+   >>> c1.first_name = "Katelyn"
    >>> c1.first_name
    'Katelyn'
 
@@ -119,16 +120,16 @@ By default, however, classes created by ``attrs`` are mutable:
 .. doctest::
 
    >>> from collections import namedtuple
-   >>> Customer = namedtuple('Customer', 'first_name')
-   >>> c1 = Customer(first_name='Kaitlyn')
+   >>> Customer = namedtuple("Customer", "first_name")
+   >>> c1 = Customer(first_name="Kaitlyn")
    >>> c1.first_name
    'Kaitlyn'
-   >>> c1.first_name = 'Katelyn'
+   >>> c1.first_name = "Katelyn"
    Traceback (most recent call last):
      File "<stdin>", line 1, in <module>
    AttributeError: can't set attribute
 
-Other than that, ``attrs`` also adds nifty features like validators and default values.
+Other than that, ``attrs`` also adds nifty features like validators, converters, and default values.
 
 .. _tuple: https://docs.python.org/2/tutorial/datastructures.html#tuples-and-sequences
 
@@ -152,7 +153,7 @@ In other words: if your dict has a fixed and known set of keys, it is an object,
 …hand-written classes?
 ----------------------
 
-While I'm a fan of all things artisanal, writing the same nine methods all over again doesn't qualify for me.
+While we're fans of all things artisanal, writing the same nine methods all over again doesn't qualify for me.
 I usually manage to get some typos inside and there's simply more code that can break and thus has to be tested.
 
 To bring it into perspective, the equivalent of
@@ -224,7 +225,7 @@ which is quite a mouthful and it doesn't even use any of ``attrs``'s more advanc
 Also: no tests whatsoever.
 And who will guarantee you, that you don't accidentally flip the ``<`` in your tenth implementation of ``__gt__``?
 
-If you don't care and like typing, I'm not gonna stop you.
+If you don't care and like typing, we're not gonna stop you.
 But if you ever get sick of the repetitiveness, ``attrs`` will be waiting for you. :)
 
 
