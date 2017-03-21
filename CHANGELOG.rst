@@ -59,6 +59,8 @@ Changes:
   `#143 <https://github.com/python-attrs/attrs/issues/143>`_
 - ``attr.make_class()`` now accepts the keyword argument ``bases`` which allows for subclassing.
   `#152 <https://github.com/python-attrs/attrs/pull/152>`_
+- Metaclasses are now preserved with ``slots=True``.
+  `#155 <https://github.com/python-attrs/attrs/pull/155>`_
 
 
 ----

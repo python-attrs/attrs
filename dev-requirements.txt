@@ -3,3 +3,4 @@ pytest
 zope.interface
 pympler
 hypothesis
+six
