@@ -1,6 +1,6 @@
 # Pull Request Check List
 
-This is just a reminder about the most common mistakes.  Please make sure that you tick all *appropriate* boxes.  But please read our [contribution guide](https://attrs.readthedocs.io/en/stable/contributing.html) at least once, it will save you unnecessary review cycles!
+This is just a reminder about the most common mistakes.  Please make sure that you tick all *appropriate* boxes.  But please read our [contribution guide](https://attrs.readthedocs.io/en/latest/contributing.html) at least once, it will save you unnecessary review cycles!
 
 - [ ] Added **tests** for changed code.
 - [ ] New features have been added to our [Hypothesis testing strategy](https://github.com/python-attrs/attrs/blob/master/tests/utils.py).
