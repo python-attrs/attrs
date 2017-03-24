@@ -1,5 +1,14 @@
-include *.rst *.txt LICENSE tox.ini .travis.yml docs/Makefile .coveragerc conftest.py
+include LICENSE *.rst
+
+# Don't package GitHub-specific files.
+exclude *.md .travis.yml
+
+# Tests
+include tox.ini .coveragerc conftest.py dev-requirements.txt
 recursive-include tests *.py
+
+# Documentation
+include docs/Makefile
 recursive-include docs *.png
 recursive-include docs *.py
 recursive-include docs *.rst
