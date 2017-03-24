@@ -138,6 +138,18 @@ At this point
 
 should work and pass!
 
+
+Governance
+----------
+
+``attrs`` is maintained by `team of volunteers`_ that is always open for new members that share our vision of a fast, lean, and magic-free library that empowers programmers to write better code with less effort.
+If you'd like to join, just get a pull request merged and ask to be added in the very same pull request!
+
+**The simple rule is that everyone is welcome to review/merge pull requests of others but nobody is allowed to merge their own code.**
+
+`Hynek Schlawack`_ acts reluctantly as the BDFL_ and has the final say over design decisions.
+
+
 ****
 
 Please note that this project is released with a Contributor `Code of Conduct`_.
@@ -155,9 +167,11 @@ Thank you for considering contributing to ``attrs``!
 .. _changelog: https://github.com/python-attrs/attrs/blob/master/CHANGELOG.rst
 .. _`backward compatibility`: https://attrs.readthedocs.io/en/latest/backward-compatibility.html
 .. _tox: https://tox.readthedocs.io/
-.. _pyenv: https://github.com/yyuu/pyenv
+.. _pyenv: https://github.com/pyenv/pyenv
 .. _reStructuredText: http://www.sphinx-doc.org/en/stable/rest.html
 .. _semantic newlines: http://rhodesmill.org/brandon/2012/one-sentence-per-line/
 .. _examples page: https://github.com/python-attrs/attrs/blob/master/docs/examples.rst
 .. _Hypothesis: https://hypothesis.readthedocs.org
 .. _CI: https://travis-ci.org/python-attrs/attrs/
+.. _`team of volunteers`: https://github.com/python-attrs
+.. _BDFL: https://en.wikipedia.org/wiki/Benevolent_dictator_for_life
