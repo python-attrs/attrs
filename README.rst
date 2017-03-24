@@ -1,3 +1,6 @@
+.. image:: https://attrs.readthedocs.io/en/latest/_static/attrs_logo.png
+   :alt: attrs Logo
+
 ==================================
 attrs: Classes Without Boilerplate
 ==================================
@@ -8,7 +11,7 @@ attrs: Classes Without Boilerplate
 
 .. image:: https://travis-ci.org/python-attrs/attrs.svg?branch=master
    :target: https://travis-ci.org/python-attrs/attrs
-   :alt: CI status
+   :alt: CI Status
 
 .. image:: https://codecov.io/github/python-attrs/attrs/branch/master/graph/badge.svg
    :target: https://codecov.io/github/python-attrs/attrs
@@ -97,4 +100,4 @@ the code on `GitHub <https://github.com/python-attrs/attrs>`_,
 and the latest release on `PyPI <https://pypi.org/project/attrs/>`_.
 It’s rigorously tested on Python 2.7, 3.4+, and PyPy.
 
-If you'd like to contribute you're most welcome and we've written `a little guide <http://attrs.readthedocs.io/en/latest/contributing.html>`_ to get you started!
+If you'd like to contribute you're most welcome and we've written `a little guide <https://attrs.readthedocs.io/en/latest/contributing.html>`_ to get you started!
