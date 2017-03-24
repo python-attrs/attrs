@@ -23,7 +23,7 @@ Backward-incompatible changes:
   The way hashes were handled before was in conflict with `Python's specification <https://docs.python.org/3/reference/datamodel.html#object.__hash__>`_.
   This *may* break some software although this breakage is most likely just surfacing of latent bugs.
   You can always make ``attrs`` create the ``__hash__()`` method using ``@attr.s(hash=True)``.
-  See `#136 <https://github.com/hynek/attrs/issues/136>`_ for the rationale of this change.
+  See `#136`_ for the rationale of this change.
 - Correspondingly, ``attr.ib``'s ``hash`` argument is ``None`` by default too and mirrors the ``cmp`` argument as it should.
 
 
@@ -38,8 +38,8 @@ Changes:
 
 - Fix default hashing behavior.
   Now *hash* mirrors the value of *cmp* and classes are unhashable by default.
-  `#136 <https://github.com/hynek/attrs/issues/136>`_
-  `#142 <https://github.com/hynek/attrs/issues/142>`_
+  `#136`_
+  `#142 <https://github.com/python-attrs/attrs/issues/142>`_
 - Added ``attr.evolve()`` that, given an instance of an ``attrs`` class and field changes as keyword arguments, will instantiate a copy of the given instance with the changes applied.
   ``evolve()`` replaces ``assoc()``, which is now deprecated.
   ``evolve()`` is significantly faster than ``assoc()``, and requires the class have an initializer that can take the field values as keyword arguments (like ``attrs`` itself can generate).
@@ -61,6 +61,8 @@ Changes:
   `#152 <https://github.com/python-attrs/attrs/pull/152>`_
 - Metaclasses are now preserved with ``slots=True``.
   `#155 <https://github.com/python-attrs/attrs/pull/155>`_
+
+.. _`#136`: https://github.com/python-attrs/attrs/issues/136
 
 
 ----

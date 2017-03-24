@@ -16,7 +16,7 @@ attrs: Classes Without Boilerplate
 
 .. teaser-begin
 
-``attrs`` is the Python package that will bring back the **joy** of **writing classes** by relieving you from the drudgery of implementing object protocols (aka `dunder <http://nedbatchelder.com/blog/200605/dunder.html>`_ methods).
+``attrs`` is the Python package that will bring back the **joy** of **writing classes** by relieving you from the drudgery of implementing object protocols (aka `dunder <https://nedbatchelder.com/blog/200605/dunder.html>`_ methods).
 
 Its main goal is to help you to write **concise** and **correct** software without slowing down your code.
 
