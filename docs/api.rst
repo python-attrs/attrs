@@ -50,7 +50,7 @@ Core
 
       ``attrs`` also comes with a serious business alias ``attr.attrib``.
 
-   The object returned by :func:`attr.ib` also has a method called ``validator`` that can be used as a decorator *within the class body* to define inline validators (see :ref:`examples_validators`).
+   The object returned by :func:`attr.ib` also has a method called ``validator()`` that can be used as a decorator *within the class body* to define inline validators (see :ref:`examples_validators`).
 
 
 .. autoclass:: attr.Attribute

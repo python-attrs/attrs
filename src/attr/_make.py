@@ -905,6 +905,11 @@ class _CountingAttr(object):
         self.metadata = metadata
 
     def validator(self, meth):
+        """
+        Decorator that adds *meth* to the list of validators.
+
+        Returns meth unchanged.
+        """
         if not isinstance(self._validator, _AndValidator):
             self._validator = _AndValidator(
                 (self._validator,) if self._validator else ()
