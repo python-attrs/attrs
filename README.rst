@@ -87,6 +87,12 @@ Testimonials
 
   -- Łukasz Langa, prolific CPython core developer and Production Engineer at Facebook
 
+
+  Writing a fully-functional class using ``attrs`` takes me less time than writing this testimonial.
+
+  -- Amber Hawkie Brown, Twisted Release Manager and Computer Owl
+
+
 .. -end-
 
 .. -project-information-
