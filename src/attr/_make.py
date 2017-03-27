@@ -873,6 +873,9 @@ class _CountingAttr(object):
     """
     Intermediate representation of attributes that uses a counter to preserve
     the order in which the attributes have been defined.
+
+    *Internal* data structure of the attrs library.  Running into is most
+    likely the result of a bug like a forgotten `@attr.s` decorator.
     """
     __slots__ = ("counter", "default", "repr", "cmp", "hash", "init",
                  "metadata", "_validator", "convert")
