@@ -50,7 +50,7 @@ Sentinel to indicate the lack of a value when ``None`` is ambiguous.
 
 def attr(default=NOTHING, validator=None,
          repr=True, cmp=True, hash=None, init=True,
-         convert=None, metadata={}):
+         convert=None, metadata={}, frozen=False):
     """
     Create a new attribute on a class.
 
@@ -108,7 +108,9 @@ def attr(default=NOTHING, validator=None,
         value is converted before being passed to the validator, if any.
     :param metadata: An arbitrary mapping, to be used by third-party
         components.  See :ref:`extending_metadata`.
+    :param bool frozen: Make the attribute read-only.
 
+    ..  versionchanged:: 17.1.0 *frozen* attributes are supported now.
     ..  versionchanged:: 17.1.0 *validator* can be a ``list`` now.
     ..  versionchanged:: 17.1.0
         *hash* is ``None`` and therefore mirrors *cmp* by default .
@@ -126,6 +128,7 @@ def attr(default=NOTHING, validator=None,
         init=init,
         convert=convert,
         metadata=metadata,
+        frozen=frozen,
     )
 
 
@@ -180,7 +183,8 @@ def _transform_attrs(cls, these):
                    in iteritems(these)]
 
     non_super_attrs = [
-        Attribute.from_counting_attr(name=attr_name, ca=ca)
+        (Attribute if not ca.frozen
+         else FrozenAttribute).from_counting_attr(name=attr_name, ca=ca)
         for attr_name, ca
         in sorted(ca_list, key=lambda e: e[1].counter)
     ]
@@ -189,7 +193,8 @@ def _transform_attrs(cls, these):
     AttrsClass = _make_attr_tuple_class(cls.__name__, attr_names)
 
     cls.__attrs_attrs__ = AttrsClass(super_cls + [
-        Attribute.from_counting_attr(name=attr_name, ca=ca)
+        (Attribute if not ca.frozen
+         else FrozenAttribute).from_counting_attr(name=attr_name, ca=ca)
         for attr_name, ca
         in sorted(ca_list, key=lambda e: e[1].counter)
     ])
@@ -650,7 +655,7 @@ def _attrs_to_script(attrs, frozen, post_init):
 
     The globals are expected by the generated script.
 
-     If *frozen* is True, we cannot set the attributes directly so we use
+    If *frozen* is True, we cannot set the attributes directly so we use
     a cached ``object.__setattr__``.
     """
     lines = []
@@ -675,19 +680,17 @@ def _attrs_to_script(attrs, frozen, post_init):
                 "conv": conv_name,
             }
     else:
-        def fmt_setter(attr_name, value):
-            return "self.%(attr_name)s = %(value)s" % {
-                "attr_name": attr_name,
-                "value": value,
-            }
-
-        def fmt_setter_with_converter(attr_name, value_var):
-            conv_name = _init_convert_pat.format(attr_name)
-            return "self.%(attr_name)s = %(conv)s(%(value_var)s)" % {
-                "attr_name": attr_name,
-                "value_var": value_var,
-                "conv": conv_name,
-            }
+        def make_init_setter(attr_name, value, converter, frozen):
+            lhs = attr_name if not frozen else "__dict__['%s']" % attr_name
+            if not converter:
+                rhs = value
+            else:
+                conv_name = _init_convert_pat.format(attr_name)
+                rhs = "%(conv)s(%(value)s)" % {
+                    "conv": conv_name,
+                    "value": value,
+                }
+            return "self.{lhs} = {rhs}".format(lhs=lhs, rhs=rhs)
 
     args = []
     attrs_to_validate = []
@@ -703,34 +706,23 @@ def _attrs_to_script(attrs, frozen, post_init):
         arg_name = a.name.lstrip("_")
         if a.init is False:
             if isinstance(a.default, Factory):
+                value_string = ("attr_dict['{attr_name}'].default.factory()"
+                                .format(attr_name=attr_name))
                 if a.convert is not None:
-                    lines.append(fmt_setter_with_converter(
-                        attr_name,
-                        "attr_dict['{attr_name}'].default.factory()"
-                        .format(attr_name=attr_name)))
                     conv_name = _init_convert_pat.format(a.name)
                     names_for_globals[conv_name] = a.convert
-                else:
-                    lines.append(fmt_setter(
-                        attr_name,
-                        "attr_dict['{attr_name}'].default.factory()"
-                        .format(attr_name=attr_name)
-                    ))
             else:
+                value_string = "attr_dict['{attr_name}'].default".format(
+                    attr_name=attr_name),
                 if a.convert is not None:
-                    lines.append(fmt_setter_with_converter(
-                        attr_name,
-                        "attr_dict['{attr_name}'].default"
-                        .format(attr_name=attr_name)
-                    ))
                     conv_name = _init_convert_pat.format(a.name)
                     names_for_globals[conv_name] = a.convert
-                else:
-                    lines.append(fmt_setter(
-                        attr_name,
-                        "attr_dict['{attr_name}'].default"
-                        .format(attr_name=attr_name)
-                    ))
+
+            lines.append(make_init_setter(
+                attr_name,
+                value_string,
+                a.convert,
+                a.frozen))
         elif a.default is not NOTHING and not isinstance(a.default, Factory):
             args.append(
                 "{arg_name}=attr_dict['{attr_name}'].default".format(
@@ -738,40 +730,42 @@ def _attrs_to_script(attrs, frozen, post_init):
                     attr_name=attr_name,
                 )
             )
+            lines.append(make_init_setter(attr_name, arg_name, a.convert,
+                                          a.frozen))
             if a.convert is not None:
-                lines.append(fmt_setter_with_converter(attr_name, arg_name))
                 names_for_globals[_init_convert_pat.format(a.name)] = a.convert
-            else:
-                lines.append(fmt_setter(attr_name, arg_name))
         elif a.default is not NOTHING and isinstance(a.default, Factory):
             args.append("{arg_name}=NOTHING".format(arg_name=arg_name))
             lines.append("if {arg_name} is not NOTHING:"
                          .format(arg_name=arg_name))
             if a.convert is not None:
-                lines.append("    " + fmt_setter_with_converter(attr_name,
-                                                                arg_name))
+                lines.append("    " + make_init_setter(attr_name, arg_name,
+                                                       a.convert, a.frozen))
                 lines.append("else:")
-                lines.append("    " + fmt_setter_with_converter(
+                lines.append("    " + make_init_setter(
                     attr_name,
                     "attr_dict['{attr_name}'].default.factory()"
-                    .format(attr_name=attr_name)
+                    .format(attr_name=attr_name),
+                    a.convert,
+                    a.frozen
                 ))
                 names_for_globals[_init_convert_pat.format(a.name)] = a.convert
             else:
-                lines.append("    " + fmt_setter(attr_name, arg_name))
+                lines.append("    " + make_init_setter(attr_name, arg_name,
+                                                       a.convert, a.frozen))
                 lines.append("else:")
-                lines.append("    " + fmt_setter(
+                lines.append("    " + make_init_setter(
                     attr_name,
                     "attr_dict['{attr_name}'].default.factory()"
-                    .format(attr_name=attr_name)
+                    .format(attr_name=attr_name),
+                    a.convert, a.frozen
                 ))
         else:
             args.append(arg_name)
+            lines.append(make_init_setter(attr_name, arg_name, a.convert,
+                                          a.frozen))
             if a.convert is not None:
-                lines.append(fmt_setter_with_converter(attr_name, arg_name))
                 names_for_globals[_init_convert_pat.format(a.name)] = a.convert
-            else:
-                lines.append(fmt_setter(attr_name, arg_name))
 
     if attrs_to_validate:  # we can skip this if there are no validators.
         names_for_globals["_config"] = _config
@@ -805,11 +799,11 @@ class Attribute(object):
     """
     __slots__ = (
         "name", "default", "validator", "repr", "cmp", "hash", "init",
-        "convert", "metadata",
+        "convert", "metadata", "frozen",
     )
 
     def __init__(self, name, default, _validator, repr, cmp, hash, init,
-                 convert=None, metadata=None):
+                 convert=None, metadata=None, frozen=False):
         # Cache this descriptor here to speed things up later.
         __bound_setattr = _obj_setattr.__get__(self, Attribute)
 
@@ -823,6 +817,7 @@ class Attribute(object):
         __bound_setattr("convert", convert)
         __bound_setattr("metadata", (metadata_proxy(metadata) if metadata
                                      else _empty_metadata_singleton))
+        __bound_setattr("frozen", frozen)
 
     def __setattr__(self, name, value):
         raise FrozenInstanceError()
@@ -878,12 +873,12 @@ class _CountingAttr(object):
     likely the result of a bug like a forgotten `@attr.s` decorator.
     """
     __slots__ = ("counter", "default", "repr", "cmp", "hash", "init",
-                 "metadata", "_validator", "convert")
+                 "metadata", "_validator", "convert", "frozen")
     __attrs_attrs__ = tuple(
         Attribute(name=name, default=NOTHING, _validator=None,
                   repr=True, cmp=True, hash=True, init=True)
         for name
-        in ("counter", "default", "repr", "cmp", "hash", "init",)
+        in ("counter", "default", "repr", "cmp", "hash", "init", "frozen")
     ) + (
         Attribute(name="metadata", default=None, _validator=None,
                   repr=True, cmp=True, hash=False, init=True),
@@ -891,7 +886,7 @@ class _CountingAttr(object):
     cls_counter = 0
 
     def __init__(self, default, validator, repr, cmp, hash, init, convert,
-                 metadata):
+                 frozen, metadata):
         _CountingAttr.cls_counter += 1
         self.counter = _CountingAttr.cls_counter
         self.default = default
@@ -905,6 +900,7 @@ class _CountingAttr(object):
         self.hash = hash
         self.init = init
         self.convert = convert
+        self.frozen = frozen
         self.metadata = metadata
 
     def validator(self, meth):
@@ -922,6 +918,25 @@ class _CountingAttr(object):
 
 
 _CountingAttr = _add_cmp(_add_repr(_CountingAttr))
+
+
+class FrozenAttributeDescriptor(object):
+    """
+    A descriptor to prevent attribute modification to dict classes.
+    """
+    def __set__(self, obj, value):
+        raise AttributeError('This attribute is frozen.')
+
+    def __delete__(self, obj):
+        raise AttributeError('This attribute is frozen.')
+
+
+class FrozenAttribute(Attribute, FrozenAttributeDescriptor):
+    """
+    The holy matrimony of an attribute and a read-only descriptor.
+
+    Divorce us once attributes get stripped from classes.
+    """
 
 
 @attributes(slots=True)
