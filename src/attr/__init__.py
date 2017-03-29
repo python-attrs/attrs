@@ -23,6 +23,7 @@ from ._config import (
 )
 from . import exceptions
 from . import filters
+from . import converters
 from . import validators
 
 
@@ -54,6 +55,7 @@ __all__ = [
     "attrib",
     "attributes",
     "attrs",
+    "converters",
     "evolve",
     "exceptions",
     "fields",

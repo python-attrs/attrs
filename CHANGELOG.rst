@@ -36,6 +36,9 @@ Deprecations:
 Changes:
 ^^^^^^^^
 
+- Support optional conversion
+  `#105 <https://github.com/python-attrs/attrs/issues/105>`_
+  `#173 <https://github.com/python-attrs/attrs/pull/173>`_
 - Fix default hashing behavior.
   Now *hash* mirrors the value of *cmp* and classes are unhashable by default.
   `#136`_
