@@ -351,7 +351,7 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
             cls.__hash__ = None
 
         if init is True:
-            cls = _add_init(cls, effectively_frozen)
+            cls = _add_init(cls, slots, effectively_frozen)
         if effectively_frozen is True:
             cls.__setattr__ = _frozen_setattrs
             cls.__delattr__ = _frozen_delattrs
@@ -370,6 +370,17 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
             cls = type(cls)(cls.__name__, cls.__bases__, cls_dict)
             if qualname is not None:
                 cls.__qualname__ = qualname
+
+            ca_attrs = fields(cls)
+            for ca_attr in ca_attrs:
+                if not ca_attr.frozen:
+                    continue
+                ca_name = ca_attr.name
+                if init and ca_attr.init:
+                    setattr(cls, '__{ca_name}_slot'.format(ca_name=ca_name),
+                            getattr(cls, ca_name))
+                setattr(cls, ca_name,
+                        FrozenSlotDescriptor(getattr(cls, ca_name)))
 
         return cls
 
@@ -536,7 +547,7 @@ def _add_repr(cls, ns=None, attrs=None):
     return cls
 
 
-def _add_init(cls, frozen):
+def _add_init(cls, slots, frozen):
     """
     Add a __init__ method to *cls*.  If *frozen* is True, make it immutable.
     """
@@ -552,6 +563,7 @@ def _add_init(cls, frozen):
 
     script, globs = _attrs_to_script(
         attrs,
+        slots,
         frozen,
         getattr(cls, "__attrs_post_init__", False),
     )
@@ -649,7 +661,7 @@ def validate(inst):
             v(inst, a, getattr(inst, a.name))
 
 
-def _attrs_to_script(attrs, frozen, post_init):
+def _attrs_to_script(attrs, slots, frozen, post_init):
     """
     Return a script of an initializer for *attrs* and a dict of globals.
 
@@ -680,8 +692,7 @@ def _attrs_to_script(attrs, frozen, post_init):
                 "conv": conv_name,
             }
     else:
-        def make_init_setter(attr_name, value, converter, frozen):
-            lhs = attr_name if not frozen else "__dict__['%s']" % attr_name
+        def make_init_setter(attr_name, value, converter, slots, frozen):
             if not converter:
                 rhs = value
             else:
@@ -690,7 +701,18 @@ def _attrs_to_script(attrs, frozen, post_init):
                     "conv": conv_name,
                     "value": value,
                 }
-            return "self.{lhs} = {rhs}".format(lhs=lhs, rhs=rhs)
+            if not (slots and frozen):
+                lhs = attr_name if not frozen else "__dict__['%s']" % attr_name
+
+                res = "self.{lhs} = {rhs}".format(lhs=lhs, rhs=rhs)
+            else:
+                # Frozen slots gets special handling.
+                res = "self.__{attr_name}_slot = {rhs}".format(
+                    attr_name=attr_name,
+                    rhs=rhs,
+                )
+
+            return res
 
     args = []
     attrs_to_validate = []
@@ -722,6 +744,7 @@ def _attrs_to_script(attrs, frozen, post_init):
                 attr_name,
                 value_string,
                 a.convert,
+                slots,
                 a.frozen))
         elif a.default is not NOTHING and not isinstance(a.default, Factory):
             args.append(
@@ -731,7 +754,7 @@ def _attrs_to_script(attrs, frozen, post_init):
                 )
             )
             lines.append(make_init_setter(attr_name, arg_name, a.convert,
-                                          a.frozen))
+                                          slots, a.frozen))
             if a.convert is not None:
                 names_for_globals[_init_convert_pat.format(a.name)] = a.convert
         elif a.default is not NOTHING and isinstance(a.default, Factory):
@@ -740,13 +763,15 @@ def _attrs_to_script(attrs, frozen, post_init):
                          .format(arg_name=arg_name))
             if a.convert is not None:
                 lines.append("    " + make_init_setter(attr_name, arg_name,
-                                                       a.convert, a.frozen))
+                                                       a.convert, slots,
+                                                       a.frozen))
                 lines.append("else:")
                 lines.append("    " + make_init_setter(
                     attr_name,
                     "attr_dict['{attr_name}'].default.factory()"
                     .format(attr_name=attr_name),
                     a.convert,
+                    slots,
                     a.frozen
                 ))
                 names_for_globals[_init_convert_pat.format(a.name)] = a.convert
@@ -758,12 +783,12 @@ def _attrs_to_script(attrs, frozen, post_init):
                     attr_name,
                     "attr_dict['{attr_name}'].default.factory()"
                     .format(attr_name=attr_name),
-                    a.convert, a.frozen
+                    a.convert, slots, a.frozen
                 ))
         else:
             args.append(arg_name)
             lines.append(make_init_setter(attr_name, arg_name, a.convert,
-                                          a.frozen))
+                                          slots, a.frozen))
             if a.convert is not None:
                 names_for_globals[_init_convert_pat.format(a.name)] = a.convert
 
@@ -924,6 +949,8 @@ class FrozenAttributeDescriptor(object):
     """
     A descriptor to prevent attribute modification to dict classes.
     """
+    __slots__ = ()
+
     def __set__(self, obj, value):
         raise AttributeError('This attribute is frozen.')
 
@@ -937,6 +964,19 @@ class FrozenAttribute(Attribute, FrozenAttributeDescriptor):
 
     Divorce us once attributes get stripped from classes.
     """
+
+
+class FrozenSlotDescriptor(FrozenAttributeDescriptor):
+    """
+    Wraps the normal Python slot descriptor, disabling write access.
+    """
+    __slots__ = ('_orig')
+
+    def __init__(self, orig):
+        self._orig = orig
+
+    def __get__(self, obj, type=None):
+        return self._orig.__get__(obj, type)
 
 
 @attributes(slots=True)
