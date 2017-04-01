@@ -40,7 +40,7 @@ class InitC(object):
     __attrs_attrs__ = [simple_attr("a"), simple_attr("b")]
 
 
-InitC = _add_init(InitC, False)
+InitC = _add_init(InitC, False, False)
 
 
 class TestAddCmp(object):
@@ -381,7 +381,7 @@ class TestAddInit(object):
                 simple_attr(name="c", default=None),
             ]
 
-        C = _add_init(C, False)
+        C = _add_init(C, False, False)
         i = C()
         assert 2 == i.a
         assert "hallo" == i.b
@@ -399,7 +399,7 @@ class TestAddInit(object):
                 simple_attr(name="a", default=Factory(list)),
                 simple_attr(name="b", default=Factory(D)),
             ]
-        C = _add_init(C, False)
+        C = _add_init(C, False, False)
         i = C()
         assert [] == i.a
         assert isinstance(i.b, D)
@@ -462,7 +462,7 @@ class TestAddInit(object):
         class C(object):
             __attrs_attrs__ = [simple_attr("_private")]
 
-        C = _add_init(C, False)
+        C = _add_init(C, False, False)
         i = C(private=42)
         assert 42 == i._private
 

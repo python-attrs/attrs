@@ -160,7 +160,7 @@ class TestTransformAttrs(object):
             "default value or factory.  Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, repr=True, "
             "cmp=True, hash=None, init=True, convert=None, "
-            "metadata=mappingproxy({}))",
+            "metadata=mappingproxy({}), frozen=False)",
         ) == e.value.args
 
     def test_these(self):

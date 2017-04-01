@@ -678,19 +678,25 @@ def _attrs_to_script(attrs, slots, frozen, post_init):
             "_setattr = _cached_setattr.__get__(self, self.__class__)"
         )
 
-        def fmt_setter(attr_name, value_var):
-            return "_setattr('%(attr_name)s', %(value_var)s)" % {
-                "attr_name": attr_name,
-                "value_var": value_var,
-            }
-
-        def fmt_setter_with_converter(attr_name, value_var):
-            conv_name = _init_convert_pat.format(attr_name)
-            return "_setattr('%(attr_name)s', %(conv)s(%(value_var)s))" % {
-                "attr_name": attr_name,
-                "value_var": value_var,
-                "conv": conv_name,
-            }
+        def make_init_setter(attr_name, value, converter, slots, frozen):
+            if not converter:
+                rhs = value
+            else:
+                conv_name = _init_convert_pat.format(attr_name)
+                rhs = "%(conv)s(%(value)s)" % {
+                    "conv": conv_name,
+                    "value": value,
+                }
+            if not (slots and frozen):
+                res = "_setattr('{attr_name}', {rhs})".format(
+                    attr_name=attr_name, rhs=rhs)
+            else:
+                # Frozen slots gets special handling.
+                res = "_setattr('{attr_name}_slot', {rhs})".format(
+                    attr_name=attr_name,
+                    rhs=rhs,
+                )
+            return res
     else:
         def make_init_setter(attr_name, value, converter, slots, frozen):
             if not converter:
@@ -711,7 +717,6 @@ def _attrs_to_script(attrs, slots, frozen, post_init):
                     attr_name=attr_name,
                     rhs=rhs,
                 )
-
             return res
 
     args = []
@@ -727,15 +732,16 @@ def _attrs_to_script(attrs, slots, frozen, post_init):
         attr_name = a.name
         arg_name = a.name.lstrip("_")
         if a.init is False:
+            # This attribute isn't part of __init__ arguments.
             if isinstance(a.default, Factory):
-                value_string = ("attr_dict['{attr_name}'].default.factory()"
-                                .format(attr_name=attr_name))
+                value_string = "attr_dict['{attr_name}'].default.factory()"\
+                               .format(attr_name=attr_name)
                 if a.convert is not None:
                     conv_name = _init_convert_pat.format(a.name)
                     names_for_globals[conv_name] = a.convert
             else:
                 value_string = "attr_dict['{attr_name}'].default".format(
-                    attr_name=attr_name),
+                    attr_name=attr_name)
                 if a.convert is not None:
                     conv_name = _init_convert_pat.format(a.name)
                     names_for_globals[conv_name] = a.convert
@@ -747,6 +753,7 @@ def _attrs_to_script(attrs, slots, frozen, post_init):
                 slots,
                 a.frozen))
         elif a.default is not NOTHING and not isinstance(a.default, Factory):
+            # This attribute is part of __init__, and has a constant default.
             args.append(
                 "{arg_name}=attr_dict['{attr_name}'].default".format(
                     arg_name=arg_name,
@@ -758,6 +765,7 @@ def _attrs_to_script(attrs, slots, frozen, post_init):
             if a.convert is not None:
                 names_for_globals[_init_convert_pat.format(a.name)] = a.convert
         elif a.default is not NOTHING and isinstance(a.default, Factory):
+            # This attribute is part of __init__, and has a factory default.
             args.append("{arg_name}=NOTHING".format(arg_name=arg_name))
             lines.append("if {arg_name} is not NOTHING:"
                          .format(arg_name=arg_name))
@@ -777,7 +785,8 @@ def _attrs_to_script(attrs, slots, frozen, post_init):
                 names_for_globals[_init_convert_pat.format(a.name)] = a.convert
             else:
                 lines.append("    " + make_init_setter(attr_name, arg_name,
-                                                       a.convert, a.frozen))
+                                                       a.convert, slots,
+                                                       a.frozen))
                 lines.append("else:")
                 lines.append("    " + make_init_setter(
                     attr_name,
@@ -786,6 +795,7 @@ def _attrs_to_script(attrs, slots, frozen, post_init):
                     a.convert, slots, a.frozen
                 ))
         else:
+            # Part of __init__, no default.
             args.append(arg_name)
             lines.append(make_init_setter(attr_name, arg_name, a.convert,
                                           slots, a.frozen))
