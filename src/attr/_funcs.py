@@ -216,6 +216,10 @@ def evolve(inst, **changes):
     try:
         return cls(**changes)
     except TypeError as exc:
-        k = exc.args[0].split("'")[1]
-        raise AttrsAttributeNotFoundError(
-            "{k} is not an attrs attribute on {cl}.".format(k=k, cl=cls))
+        attr_dict = {attr.name: attr for attr in fields(cls)}
+        for name in changes:
+            if not name in attr_dict:
+                k = exc.args[0].split("'")[1]
+                raise AttrsAttributeNotFoundError(
+                    "{k} is not an attrs attribute on {cl}.".format(k=k, cl=cls))
+        raise
