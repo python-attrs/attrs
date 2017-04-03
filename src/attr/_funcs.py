@@ -201,7 +201,8 @@ def evolve(inst, **changes):
     ..  versionadded:: 17.1.0
     """
     cls = inst.__class__
-    for a in fields(cls):
+    attrs = fields(cls)
+    for a in attrs:
         attr_name = a.name  # To deal with private attributes.
         if attr_name[0] == "_":
             init_name = attr_name[1:]
@@ -216,9 +217,8 @@ def evolve(inst, **changes):
     try:
         return cls(**changes)
     except TypeError as exc:
-        attr_dict = {attr.name: attr for attr in fields(cls)}
         for name in changes:
-            if name not in attr_dict:
+            if getattr(attrs, name, None) is None:
                 k = exc.args[0].split("'")[1]
                 raise AttrsAttributeNotFoundError(
                     "{} is not an attrs attribute on {}.".format(k, cls))
