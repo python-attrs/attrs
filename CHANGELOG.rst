@@ -12,7 +12,7 @@ To encourage more participation, the project has also been moved into a `dedicat
 
 ``attrs`` also has a logo now!
 
-.. image:: https://attrs.readthedocs.io/en/latest/_static/attrs_logo.png
+.. image:: http://www.attrs.org/en/latest/_static/attrs_logo.png
    :alt: attrs logo
 
 
@@ -55,7 +55,7 @@ Changes:
 - The ``validator`` argument of ``@attr.s`` now can take a ``list`` of validators that all have to pass.
   `#138 <https://github.com/python-attrs/attrs/issues/138>`_
 - Validators can now be defined conveniently inline by using the attribute as a decorator.
-  Check out the `examples <https://attrs.readthedocs.io/en/stable/examples.html#validators>`_ to see it in action!
+  Check out the `examples <http://www.attrs.org/en/stable/examples.html#validators>`_ to see it in action!
   `#143 <https://github.com/python-attrs/attrs/issues/143>`_
 - ``attr.make_class()`` now accepts the keyword argument ``bases`` which allows for subclassing.
   `#152 <https://github.com/python-attrs/attrs/pull/152>`_

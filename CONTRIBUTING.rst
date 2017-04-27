@@ -165,13 +165,13 @@ Thank you for considering contributing to ``attrs``!
 .. _`good test docstrings`: https://jml.io/pages/test-docstrings.html
 .. _`Code of Conduct`: https://github.com/python-attrs/attrs/blob/master/CODE_OF_CONDUCT.rst
 .. _changelog: https://github.com/python-attrs/attrs/blob/master/CHANGELOG.rst
-.. _`backward compatibility`: https://attrs.readthedocs.io/en/latest/backward-compatibility.html
+.. _`backward compatibility`: http://www.attrs.org/en/latest/backward-compatibility.html
 .. _tox: https://tox.readthedocs.io/
 .. _pyenv: https://github.com/pyenv/pyenv
 .. _reStructuredText: http://www.sphinx-doc.org/en/stable/rest.html
 .. _semantic newlines: http://rhodesmill.org/brandon/2012/one-sentence-per-line/
 .. _examples page: https://github.com/python-attrs/attrs/blob/master/docs/examples.rst
-.. _Hypothesis: https://hypothesis.readthedocs.org
+.. _Hypothesis: https://hypothesis.readthedocs.io/
 .. _CI: https://travis-ci.org/python-attrs/attrs/
 .. _`team of volunteers`: https://github.com/python-attrs
 .. _BDFL: https://en.wikipedia.org/wiki/Benevolent_dictator_for_life
