@@ -24,6 +24,9 @@ from attr import (
 )
 
 from attr.exceptions import AttrsAttributeNotFoundError
+from attr.validators import instance_of
+from attr._compat import TYPE
+
 
 MAPPING_TYPES = (dict, OrderedDict)
 SEQUENCE_TYPES = (list, tuple)
@@ -464,3 +467,16 @@ class TestEvolve(object):
         assert (
             "aaaa is not an attrs attribute on {cls!r}.".format(cls=C),
         ) == e.value.args
+
+
+    def test_validator_failure(self):
+        """
+        Make sure we don't swallow TypeError when validation fails within evolve
+        """
+        @attributes
+        class C(object):
+            a = attr(validator=instance_of(int))
+
+        with pytest.raises(TypeError) as e:
+            evolve(C(a=1), a="some string")
+        assert e.value.args[0].startswith("'a' must be <{type} 'int'>".format(type=TYPE))
