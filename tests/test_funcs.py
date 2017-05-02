@@ -449,11 +449,13 @@ class TestEvolve(object):
         field_names = [a.name for a in fields(C)]
         original = C()
         chosen_names = data.draw(st.sets(st.sampled_from(field_names)))
-        change_dict = {name: data.draw(st.integers())
+        # We pay special attention to private attributes, they should behave
+        # like in `__init__`.
+        change_dict = {name.replace('_', ''): data.draw(st.integers())
                        for name in chosen_names}
         changed = evolve(original, **change_dict)
-        for k, v in change_dict.items():
-            assert getattr(changed, k) == v
+        for name in chosen_names:
+            assert getattr(changed, name) == change_dict[name.replace('_', '')]
 
     @given(simple_classes())
     def test_unknown(self, C):
@@ -468,7 +470,6 @@ class TestEvolve(object):
             "aaaa is not an attrs attribute on {cls!r}.".format(cls=C),
         ) == e.value.args
 
-
     def test_validator_failure(self):
         """
         Make sure we don't swallow TypeError when validation fails within evolve
@@ -480,3 +481,19 @@ class TestEvolve(object):
         with pytest.raises(TypeError) as e:
             evolve(C(a=1), a="some string")
         assert e.value.args[0].startswith("'a' must be <{type} 'int'>".format(type=TYPE))
+
+    def test_private(self):
+        """
+        evolve() should act as `__init__` with regards to private attributes.
+        """
+        @attributes
+        class C(object):
+            _a = attr()
+
+        assert evolve(C(1), a=2)._a == 2
+
+        with pytest.raises(AttrsAttributeNotFoundError):
+            evolve(C(1), _a=2)
+
+        with pytest.raises(AttrsAttributeNotFoundError):
+            evolve(C(1), a=3, _a=2)

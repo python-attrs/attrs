@@ -204,16 +204,9 @@ def evolve(inst, **changes):
     attrs = fields(cls)
     for a in attrs:
         attr_name = a.name  # To deal with private attributes.
-        if attr_name[0] == "_":
-            init_name = attr_name[1:]
-            if attr_name not in changes:
-                changes[init_name] = getattr(inst, attr_name)
-            else:
-                # attr_name is in changes, it needs to be translated.
-                changes[init_name] = changes.pop(attr_name)
-        else:
-            if attr_name not in changes:
-                changes[attr_name] = getattr(inst, attr_name)
+        init_name = attr_name if attr_name[0] != "_" else attr_name[1:]
+        if init_name not in changes:
+            changes[init_name] = getattr(inst, attr_name)
     try:
         return cls(**changes)
     except TypeError as exc:
