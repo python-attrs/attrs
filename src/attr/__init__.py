@@ -30,7 +30,7 @@ __version__ = "17.1.0.dev0"
 
 __title__ = "attrs"
 __description__ = "Classes Without Boilerplate"
-__uri__ = "https://attrs.readthedocs.io/"
+__uri__ = "http://www.attrs.org/"
 __doc__ = __description__ + " <" + __uri__ + ">"
 
 __author__ = "Hynek Schlawack"

@@ -1,4 +1,4 @@
-.. image:: https://attrs.readthedocs.io/en/latest/_static/attrs_logo.png
+.. image:: http://www.attrs.org/en/latest/_static/attrs_logo.png
    :alt: attrs Logo
 
 ==================================
@@ -6,7 +6,7 @@ attrs: Classes Without Boilerplate
 ==================================
 
 .. image:: https://readthedocs.org/projects/attrs/badge/?version=stable
-   :target: https://attrs.readthedocs.io/en/stable/?badge=stable
+   :target: http://www.attrs.org/en/stable/?badge=stable
    :alt: Documentation Status
 
 .. image:: https://travis-ci.org/python-attrs/attrs.svg?branch=master
@@ -101,9 +101,9 @@ Project Information
 ===================
 
 ``attrs`` is released under the `MIT <https://choosealicense.com/licenses/mit/>`_ license,
-its documentation lives at `Read the Docs <https://attrs.readthedocs.io/>`_,
+its documentation lives at `Read the Docs <http://www.attrs.org/>`_,
 the code on `GitHub <https://github.com/python-attrs/attrs>`_,
 and the latest release on `PyPI <https://pypi.org/project/attrs/>`_.
 It’s rigorously tested on Python 2.7, 3.4+, and PyPy.
 
-If you'd like to contribute you're most welcome and we've written `a little guide <https://attrs.readthedocs.io/en/latest/contributing.html>`_ to get you started!
+If you'd like to contribute you're most welcome and we've written `a little guide <http://www.attrs.org/en/latest/contributing.html>`_ to get you started!
