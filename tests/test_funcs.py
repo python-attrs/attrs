@@ -472,8 +472,7 @@ class TestEvolve(object):
 
     def test_validator_failure(self):
         """
-        Make sure we don't swallow TypeError when validation fails within
-        evolve.
+        TypeError isn't swallowed when validation fails within evolve.
         """
         @attributes
         class C(object):
@@ -486,7 +485,7 @@ class TestEvolve(object):
 
     def test_private(self):
         """
-        evolve() should act as `__init__` with regards to private attributes.
+        evolve() acts as `__init__` with regards to private attributes.
         """
         @attributes
         class C(object):
