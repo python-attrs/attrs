@@ -193,8 +193,8 @@ def evolve(inst, **changes):
 
     :return: A copy of inst with *changes* incorporated.
 
-    :raise attr.exceptions.AttrsAttributeNotFoundError: If *attr_name* couldn't
-        be found on *cls*.
+    :raise TypeError: If *attr_name* couldn't be found in the class
+        ``__init__``.
     :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
         class.
 
@@ -203,16 +203,10 @@ def evolve(inst, **changes):
     cls = inst.__class__
     attrs = fields(cls)
     for a in attrs:
+        if not a.init:
+            continue
         attr_name = a.name  # To deal with private attributes.
         init_name = attr_name if attr_name[0] != "_" else attr_name[1:]
         if init_name not in changes:
             changes[init_name] = getattr(inst, attr_name)
-    try:
-        return cls(**changes)
-    except TypeError as exc:
-        for name in changes:
-            if getattr(attrs, name, None) is None:
-                k = exc.args[0].split("'")[1]
-                raise AttrsAttributeNotFoundError(
-                    "{} is not an attrs attribute on {}.".format(k, cls))
-        raise
+    return cls(**changes)

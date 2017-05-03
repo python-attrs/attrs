@@ -464,11 +464,10 @@ class TestEvolve(object):
         AttrsAttributeNotFoundError.
         """
         # No generated class will have a four letter attribute.
-        with pytest.raises(AttrsAttributeNotFoundError) as e:
+        with pytest.raises(TypeError) as e:
             evolve(C(), aaaa=2)
-        assert (
-            "aaaa is not an attrs attribute on {cls!r}.".format(cls=C),
-        ) == e.value.args
+        expected = "__init__() got an unexpected keyword argument 'aaaa'"
+        assert (expected,) == e.value.args
 
     def test_validator_failure(self):
         """
@@ -493,8 +492,19 @@ class TestEvolve(object):
 
         assert evolve(C(1), a=2)._a == 2
 
-        with pytest.raises(AttrsAttributeNotFoundError):
+        with pytest.raises(TypeError):
             evolve(C(1), _a=2)
 
-        with pytest.raises(AttrsAttributeNotFoundError):
+        with pytest.raises(TypeError):
             evolve(C(1), a=3, _a=2)
+
+    def test_non_init_attrs(self):
+        """
+        evolve() handles `init=False` attributes.
+        """
+        @attributes
+        class C(object):
+            a = attr()
+            b = attr(init=False, default=0)
+
+        assert evolve(C(1), a=2).a == 2
