@@ -472,7 +472,8 @@ class TestEvolve(object):
 
     def test_validator_failure(self):
         """
-        Make sure we don't swallow TypeError when validation fails within evolve
+        Make sure we don't swallow TypeError when validation fails within
+        evolve.
         """
         @attributes
         class C(object):
@@ -480,7 +481,8 @@ class TestEvolve(object):
 
         with pytest.raises(TypeError) as e:
             evolve(C(a=1), a="some string")
-        assert e.value.args[0].startswith("'a' must be <{type} 'int'>".format(type=TYPE))
+        m = e.value.args[0]
+        assert m.startswith("'a' must be <{type} 'int'>".format(type=TYPE))
 
     def test_private(self):
         """
