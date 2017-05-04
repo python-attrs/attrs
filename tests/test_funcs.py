@@ -24,6 +24,9 @@ from attr import (
 )
 
 from attr.exceptions import AttrsAttributeNotFoundError
+from attr.validators import instance_of
+from attr._compat import TYPE
+
 
 MAPPING_TYPES = (dict, OrderedDict)
 SEQUENCE_TYPES = (list, tuple)
@@ -446,11 +449,13 @@ class TestEvolve(object):
         field_names = [a.name for a in fields(C)]
         original = C()
         chosen_names = data.draw(st.sets(st.sampled_from(field_names)))
-        change_dict = {name: data.draw(st.integers())
+        # We pay special attention to private attributes, they should behave
+        # like in `__init__`.
+        change_dict = {name.replace('_', ''): data.draw(st.integers())
                        for name in chosen_names}
         changed = evolve(original, **change_dict)
-        for k, v in change_dict.items():
-            assert getattr(changed, k) == v
+        for name in chosen_names:
+            assert getattr(changed, name) == change_dict[name.replace('_', '')]
 
     @given(simple_classes())
     def test_unknown(self, C):
@@ -459,8 +464,47 @@ class TestEvolve(object):
         AttrsAttributeNotFoundError.
         """
         # No generated class will have a four letter attribute.
-        with pytest.raises(AttrsAttributeNotFoundError) as e:
+        with pytest.raises(TypeError) as e:
             evolve(C(), aaaa=2)
-        assert (
-            "aaaa is not an attrs attribute on {cls!r}.".format(cls=C),
-        ) == e.value.args
+        expected = "__init__() got an unexpected keyword argument 'aaaa'"
+        assert (expected,) == e.value.args
+
+    def test_validator_failure(self):
+        """
+        TypeError isn't swallowed when validation fails within evolve.
+        """
+        @attributes
+        class C(object):
+            a = attr(validator=instance_of(int))
+
+        with pytest.raises(TypeError) as e:
+            evolve(C(a=1), a="some string")
+        m = e.value.args[0]
+        assert m.startswith("'a' must be <{type} 'int'>".format(type=TYPE))
+
+    def test_private(self):
+        """
+        evolve() acts as `__init__` with regards to private attributes.
+        """
+        @attributes
+        class C(object):
+            _a = attr()
+
+        assert evolve(C(1), a=2)._a == 2
+
+        with pytest.raises(TypeError):
+            evolve(C(1), _a=2)
+
+        with pytest.raises(TypeError):
+            evolve(C(1), a=3, _a=2)
+
+    def test_non_init_attrs(self):
+        """
+        evolve() handles `init=False` attributes.
+        """
+        @attributes
+        class C(object):
+            a = attr()
+            b = attr(init=False, default=0)
+
+        assert evolve(C(1), a=2).a == 2
