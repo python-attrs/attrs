@@ -149,6 +149,42 @@ Helpers
       False
 
 
+.. autofunction:: attr.validators.is_mandatory
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib(validator=attr.validators.instance_of(int))
+      ...     y = attr.ib(validator=attr.validators.optional(attr.validators.instance_of(int)))
+      >>> attr.validators.is_mandatory(attr.fields(C).x)
+      True
+      >>> attr.validators.is_mandatory(attr.fields(C).y)
+      False
+
+    ..  versionadded:: ??? (to complete)
+
+
+.. autofunction:: attr.validators.guess_type_from_validators
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib(validator=attr.validators.instance_of(int))
+      ...     y = attr.ib()
+      >>> attr.validators.guess_type_from_validators(attr.fields(C).x)
+      int
+      >>> attr.validators.guess_type_from_validators(attr.fields(C).y) is None
+      True
+
+    ..  versionadded:: ??? (to complete)
+
+
 .. autofunction:: attr.asdict
 
    For example:
@@ -282,6 +318,32 @@ Validators
       TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>), <type 'int'>, '42')
       >>> C(None)
       C(x=None)
+
+.. autofunction:: attr.validators.chain
+
+    For example:
+
+    .. doctest::
+
+      >>> def custom_validator(instance, attribute, value):
+      ...     allowed = {'+', '*'}
+      ...     if value not in allowed:
+      ...         raise ValueError('\'op\' has to be a string in ' + str(allowed) + '!')
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib(validator=attr.validators.chain(custom_validator, attr.validators.instance_of(str)))
+      >>> C("+")
+      C(x='+')
+      >>> C("-")
+      Traceback (most recent call last):
+         ...
+      ValueError: 'op' has to be a string in {'+', '*'}!
+      >>> C(None)
+      Traceback (most recent call last):
+         ...
+      ValueError: 'op' has to be a string in {'+', '*'}!
+
+    ..  versionadded:: ??? (to complete)
 
 
 Deprecated APIs
