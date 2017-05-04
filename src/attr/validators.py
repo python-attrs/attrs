@@ -8,6 +8,34 @@ from ._make import attr, attributes
 
 
 @attributes(repr=False, slots=True)
+class _MatcherValidator(object):
+    matcher = attr()
+
+    def __call__(self, inst, attr, value):
+        """
+        We use a callable class to be able to change the ``__repr__``.
+        """
+        mismatch = self.matcher.match(value)
+        if mismatch is not None:
+            raise TypeError("'{}' is invalid: {}".format(attr.name, mismatch.describe()))
+
+
+def matches(matcher):
+    """
+    A validator that raises a :exc:`TypeError` if the initializer is
+    called with a value which is not matched by a testtools-style
+    matcher.
+
+    :param matcher: The matcher to apply to values.
+
+    The :exc:`TypeError` is raised with the matcher-supplied description.
+
+    :see: http://testtools.readthedocs.io/en/latest/for-test-authors.html#matchers
+    """
+    return _MatcherValidator(matcher)
+
+
+@attributes(repr=False, slots=True)
 class _InstanceOfValidator(object):
     type = attr()
 

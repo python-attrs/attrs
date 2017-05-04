@@ -283,6 +283,23 @@ Validators
       >>> C(None)
       C(x=None)
 
+.. autofunction:: attr.validators.matches
+
+   For example:
+
+   .. doctest::
+
+      >>> from testtools.matchers import GreaterThan
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib(validator=attr.validators.matches(GreaterThan(10)))
+      >>> C(42)
+      C(x=42)
+      >>> C(5)
+      Traceback (most recent call last):
+         ...
+      TypeError: ("'x' is invalid: 5 <= 10')
+
 
 Deprecated APIs
 ---------------
