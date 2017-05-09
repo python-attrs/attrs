@@ -443,7 +443,7 @@ Converters are run *before* validators, so you can use validators to check the f
 Metadata
 --------
 
-All ``attrs`` attributes may include arbitrary metadata in the form on a read-only dictionary.
+All ``attrs`` attributes may include arbitrary metadata in the form of a read-only dictionary.
 
 .. doctest::
 
