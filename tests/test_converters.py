@@ -13,13 +13,12 @@ class TestOptional(object):
     """
     Tests for `optional`.
     """
-
     def test_success_with_type(self):
         """
-        Nothing happens if types match.
+        Wrapped converter is used as usual if value is not None.
         """
         c = optional(int)
-        assert c('42') == 42
+        assert c("42") == 42
 
     def test_success_with_none(self):
         """
