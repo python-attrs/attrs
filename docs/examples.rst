@@ -98,24 +98,6 @@ This is useful in times when you want to enhance classes that are not yours (nic
    >>> SomethingFromSomeoneElse(1)
    SomethingFromSomeoneElse(x=1)
 
-Or if you want to use properties:
-
-.. doctest::
-
-   >>> @attr.s(these={"_x": attr.ib()})
-   ... class ReadOnlyXSquared(object):
-   ...    @property
-   ...    def x(self):
-   ...       return self._x ** 2
-   >>> rox = ReadOnlyXSquared(x=5)
-   >>> rox
-   ReadOnlyXSquared(_x=5)
-   >>> rox.x
-   25
-   >>> rox.x = 6
-   Traceback (most recent call last):
-      ...
-   AttributeError: can't set attribute
 
 `Subclassing <https://www.youtube.com/watch?v=3MNVP9-hglc>`_ is bad for you, but ``attrs`` will still do what you'd hope for:
 

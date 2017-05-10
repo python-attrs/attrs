@@ -235,10 +235,10 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
     :param these: A dictionary of name to :func:`attr.ib` mappings.  This is
         useful to avoid the definition of your attributes within the class body
         because you can't (e.g. if you want to add ``__repr__`` methods to
-        Django models) or don't want to (e.g. if you want to use
-        :class:`properties <property>`).
+        Django models) or don't want to.
 
-        If *these* is not ``None``, the class body is *ignored*.
+        If *these* is not ``None``, ``attrs`` will *not* search the class body
+        for attributes.
 
     :type these: :class:`dict` of :class:`str` to :func:`attr.ib`
 
