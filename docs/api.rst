@@ -284,6 +284,24 @@ Validators
       C(x=None)
 
 
+Converters
+----------
+
+.. autofunction:: attr.converters.optional
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib(convert=attr.converters.optional(int))
+      >>> C(None)
+      C(x=None)
+      >>> C(42)
+      C(x=42)
+
+
 Deprecated APIs
 ---------------
 

@@ -10,9 +10,10 @@ def optional(converter):
     A converter that allows an attribute to be optional. An optional attribute
     is one which can be set to ``None``.
 
-    :param converter: the converter that is used for non-``None`` values.
+    :param callable converter: the converter that is used for non-``None``
+        values.
 
-    ..  versionadded:: 17.1.0 *convert* can be optional
+    ..  versionadded:: 17.1.0
     """
 
     def optional_converter(val):
