@@ -7,7 +7,7 @@ from __future__ import absolute_import, division, print_function
 import pytest
 import zope.interface
 
-from attr.validators import instance_of, provides, optional
+from attr.validators import instance_of, provides, optional, composite
 from attr._compat import TYPE
 
 from .utils import simple_attr
@@ -153,4 +153,52 @@ class TestOptional(object):
             ("<optional validator for <instance_of validator for type "
              "<{type} 'int'>> or None>")
             .format(type=TYPE)
+        ) == repr(v)
+
+
+class TestComposite(object):
+    """
+    Tests for `composite`.
+    """
+    def test_requires_at_least_two_validators(self):
+        """
+        Calling with less than two validators raises TypeError.
+        """
+        with pytest.raises(TypeError):
+            composite()
+
+        with pytest.raises(TypeError):
+            composite(instance_of(int))
+
+        composite(instance_of(int), instance_of(str))
+
+    def test_success(self):
+        def test_validator(inst, attr, value):
+            if value != "test":
+                raise ValueError("Test error")
+        v = composite(instance_of(str), test_validator)
+        v(None, simple_attr("test"), "test")
+
+    def test_fail(self):
+        def test_validator(inst, attr, value):
+            if value != "test":
+                raise ValueError("Test error")
+        v = composite(instance_of(str), test_validator)
+
+        with pytest.raises(ValueError):
+            v(None, simple_attr("test"), "not test")
+        with pytest.raises(TypeError):
+            v(None, simple_attr("test"), 42)
+
+    def test_repr(self):
+        """
+        Returned validator has a useful `__repr__`.
+        """
+        def test_validator(inst, attr, value):
+            if value != "test":
+                raise ValueError("Test error")
+        v = composite(instance_of(str), test_validator)
+        assert (
+            "<composite validator for validators {!r}>"
+            .format(v.validators)
         ) == repr(v)

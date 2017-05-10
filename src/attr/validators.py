@@ -111,3 +111,28 @@ def optional(validator):
     :param validator: A validator that is used for non-``None`` values.
     """
     return _OptionalValidator(validator)
+
+
+@attributes(repr=False, slots=True)
+class _CompositeValidator(object):
+    validators = attr()
+
+    def __call__(self, inst, attr, value):
+        for validator in self.validators:
+            validator(inst, attr, value)
+
+    def __repr__(self):
+        return (
+            "<composite validator for validators {!r}>"
+            .format(self.validators)
+        )
+
+
+def composite(*validators):
+    """A validator that executes each validator passed as arguments.
+
+    """
+    if len(validators) < 2:
+        raise TypeError('Composite validator requires at least 2 validators')
+
+    return _CompositeValidator(validators)

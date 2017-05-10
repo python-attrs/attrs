@@ -36,6 +36,8 @@ Deprecations:
 Changes:
 ^^^^^^^^
 
+- Added ``attr.validators.composite()`` allowing the user to combine validators passed in as arguments.
+  `#183 <https://github.com/python-attrs/attrs/pull/183>`_
 - Fix default hashing behavior.
   Now *hash* mirrors the value of *cmp* and classes are unhashable by default.
   `#136`_

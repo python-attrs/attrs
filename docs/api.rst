@@ -283,6 +283,31 @@ Validators
       >>> C(None)
       C(x=None)
 
+.. autofunction:: attr.validators.composite
+
+.. versionadded:: 17.1.0
+
+   For example:
+
+   .. doctest::
+
+      >>> def not_empty(instance, attr, value):
+      ...     if len(value) == 0:
+      ...         raise ValueError('Please supply a non empty value')
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib(validator=attr.validators.composite(attr.validators.instance_of(list), not_empty))
+      >>> C([])
+      Traceback (most recent call last):
+         ...
+      ValueError: Please supply a non empty value
+      >>> C({1})
+      Traceback (most recent call last):
+         ...
+      TypeError: ('x' must be <class 'list'> (got set() that is a <class 'set'>).",...
+      >>> C([1])
+      C(x=[1])
+
 
 Converters
 ----------
