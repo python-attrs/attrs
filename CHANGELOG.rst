@@ -57,6 +57,9 @@ Changes:
 - Validators can now be defined conveniently inline by using the attribute as a decorator.
   Check out the `examples <http://www.attrs.org/en/stable/examples.html#validators>`_ to see it in action!
   `#143 <https://github.com/python-attrs/attrs/issues/143>`_
+- Conversion can now be made optional using ``attr.converters.optional()``.
+  `#105 <https://github.com/python-attrs/attrs/issues/105>`_
+  `#173 <https://github.com/python-attrs/attrs/pull/173>`_
 - ``attr.make_class()`` now accepts the keyword argument ``bases`` which allows for subclassing.
   `#152 <https://github.com/python-attrs/attrs/pull/152>`_
 - Metaclasses are now preserved with ``slots=True``.
