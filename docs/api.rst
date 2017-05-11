@@ -262,6 +262,14 @@ Validators
          ...
       TypeError: ("'x' must be <type 'int'> (got None that is a <type 'NoneType'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>, repr=True, cmp=True, hash=None, init=True), <type 'int'>, None)
 
+.. autofunction:: attr.validators.and_
+
+   For convenience, it's also possible to pass a list to :func:`attr.ib`'s validator argument.
+
+   Thus the following two statements are equivalent::
+
+      x = attr.ib(validator=attr.validators.and_(v1, v2, v3))
+      x = attr.ib(validator=[v1, v2, v3])
 
 .. autofunction:: attr.validators.provides
 

@@ -4,7 +4,19 @@ Commonly useful validators.
 
 from __future__ import absolute_import, division, print_function
 
-from ._make import attr, attributes
+from ._make import attr, attributes, _AndValidator
+
+
+def and_(*validators):
+    """
+    A validator that composes multiple validators into one.
+
+    When called on a value, it runs all wrapped validators.
+
+    :param validators: Arbitrary number of validators.
+    :type validators: callables
+    """
+    return _AndValidator(validators)
 
 
 @attributes(repr=False, slots=True)
@@ -88,19 +100,18 @@ def provides(interface):
 
 @attributes(repr=False, slots=True)
 class _OptionalValidator(object):
-    validators = attr()
+    validator = attr()
 
     def __call__(self, inst, attr, value):
         if value is None:
             return
 
-        for v in self.validators:
-            v(inst, attr, value)
+        self.validator(inst, attr, value)
 
     def __repr__(self):
         return (
-            "<optional validator for {type} or None>"
-            .format(type=repr(self.validators))
+            "<optional validator for {what} or None>"
+            .format(what=repr(self.validator))
         )
 
 
@@ -117,5 +128,5 @@ def optional(validator):
     .. versionchanged:: 17.1.0 *validator* can be a list of validators.
     """
     if isinstance(validator, list):
-        return _OptionalValidator(tuple(validator))
-    return _OptionalValidator((validator,))
+        return _OptionalValidator(_AndValidator(validator))
+    return _OptionalValidator(validator)
