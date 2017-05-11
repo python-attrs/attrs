@@ -15,6 +15,8 @@ def and_(*validators):
 
     :param validators: Arbitrary number of validators.
     :type validators: callables
+
+    .. versionadded:: 17.1.0
     """
     return _AndValidator(validators)
 
@@ -125,6 +127,7 @@ def optional(validator):
         non-``None`` values.
     :type validator: callable or :class:`list` of callables.
 
+    .. versionadded:: 15.1.0
     .. versionchanged:: 17.1.0 *validator* can be a list of validators.
     """
     if isinstance(validator, list):
