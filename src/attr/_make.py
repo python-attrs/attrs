@@ -50,7 +50,7 @@ Sentinel to indicate the lack of a value when ``None`` is ambiguous.
 
 def attr(default=NOTHING, validator=None,
          repr=True, cmp=True, hash=None, init=True,
-         convert=None, metadata={}):
+         convert=None, metadata={}, annotation=NOTHING):
     """
     Create a new attribute on a class.
 
@@ -108,6 +108,8 @@ def attr(default=NOTHING, validator=None,
         value is converted before being passed to the validator, if any.
     :param metadata: An arbitrary mapping, to be used by third-party
         components.  See :ref:`extending_metadata`.
+    :param annotation: An arbitrary object that will be exposed as a type
+        annotation on a constructed __init__.
 
     ..  versionchanged:: 17.1.0 *validator* can be a ``list`` now.
     ..  versionchanged:: 17.1.0
@@ -126,6 +128,7 @@ def attr(default=NOTHING, validator=None,
         init=init,
         convert=convert,
         metadata=metadata,
+        annotation=annotation,
     )
 
 
@@ -347,6 +350,7 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
 
         if init is True:
             cls = _add_init(cls, effectively_frozen)
+
         if effectively_frozen is True:
             cls.__setattr__ = _frozen_setattrs
             cls.__delattr__ = _frozen_delattrs
@@ -563,6 +567,16 @@ def _add_init(cls, frozen):
         globs["_cached_setattr"] = _obj_setattr
     eval(bytecode, globs, locs)
     init = locs["__init__"]
+
+    attrs_with_annotations = [a for a in attrs if a.annotation != NOTHING]
+
+    if attrs_with_annotations:
+        try:
+            init.__annotations__
+        except AttributeError:
+            init.__annotations__ = {}
+        for a in attrs_with_annotations:
+            init.__annotations__[a.name] = a.annotation
 
     # In order of debuggers like PDB being able to step through the code,
     # we add a fake linecache entry.
@@ -805,11 +819,11 @@ class Attribute(object):
     """
     __slots__ = (
         "name", "default", "validator", "repr", "cmp", "hash", "init",
-        "convert", "metadata",
+        "convert", "metadata", 'annotation',
     )
 
     def __init__(self, name, default, _validator, repr, cmp, hash, init,
-                 convert=None, metadata=None):
+                 convert=None, metadata=None, annotation=NOTHING):
         # Cache this descriptor here to speed things up later.
         __bound_setattr = _obj_setattr.__get__(self, Attribute)
 
@@ -823,6 +837,7 @@ class Attribute(object):
         __bound_setattr("convert", convert)
         __bound_setattr("metadata", (metadata_proxy(metadata) if metadata
                                      else _empty_metadata_singleton))
+        __bound_setattr("annotation", annotation)
 
     def __setattr__(self, name, value):
         raise FrozenInstanceError()
@@ -878,7 +893,7 @@ class _CountingAttr(object):
     likely the result of a bug like a forgotten `@attr.s` decorator.
     """
     __slots__ = ("counter", "default", "repr", "cmp", "hash", "init",
-                 "metadata", "_validator", "convert")
+                 "metadata", "_validator", "convert", "annotation")
     __attrs_attrs__ = tuple(
         Attribute(name=name, default=NOTHING, _validator=None,
                   repr=True, cmp=True, hash=True, init=True)
@@ -891,7 +906,7 @@ class _CountingAttr(object):
     cls_counter = 0
 
     def __init__(self, default, validator, repr, cmp, hash, init, convert,
-                 metadata):
+                 metadata, annotation):
         _CountingAttr.cls_counter += 1
         self.counter = _CountingAttr.cls_counter
         self.default = default
@@ -906,6 +921,7 @@ class _CountingAttr(object):
         self.init = init
         self.convert = convert
         self.metadata = metadata
+        self.annotation = annotation
 
     def validator(self, meth):
         """
