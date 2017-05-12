@@ -4,7 +4,15 @@ Commonly useful validators.
 
 from __future__ import absolute_import, division, print_function
 
-from ._make import attr, attributes
+from ._make import attr, attributes, and_, _AndValidator
+
+
+__all__ = [
+    "and_",
+    "instance_of",
+    "optional",
+    "provides",
+]
 
 
 @attributes(repr=False, slots=True)
@@ -93,12 +101,13 @@ class _OptionalValidator(object):
     def __call__(self, inst, attr, value):
         if value is None:
             return
-        return self.validator(inst, attr, value)
+
+        self.validator(inst, attr, value)
 
     def __repr__(self):
         return (
-            "<optional validator for {type} or None>"
-            .format(type=repr(self.validator))
+            "<optional validator for {what} or None>"
+            .format(what=repr(self.validator))
         )
 
 
@@ -108,6 +117,13 @@ def optional(validator):
     which can be set to ``None`` in addition to satisfying the requirements of
     the sub-validator.
 
-    :param validator: A validator that is used for non-``None`` values.
+    :param validator: A validator (or a list of validators) that is used for
+        non-``None`` values.
+    :type validator: callable or :class:`list` of callables.
+
+    .. versionadded:: 15.1.0
+    .. versionchanged:: 17.1.0 *validator* can be a list of validators.
     """
+    if isinstance(validator, list):
+        return _OptionalValidator(_AndValidator(validator))
     return _OptionalValidator(validator)

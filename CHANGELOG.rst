@@ -52,8 +52,12 @@ Changes:
   `#128 <https://github.com/python-attrs/attrs/pull/128>`_
 - ``__attrs_post_init__()`` is now run if validation is disabled.
   `#130 <https://github.com/python-attrs/attrs/pull/130>`_
-- The ``validator`` argument of ``@attr.s`` now can take a ``list`` of validators that all have to pass.
+- Added ``attr.validators.and_()`` that composes multiple validators into one.
+  `#161 <https://github.com/python-attrs/attrs/issues/161>`_
+- For convenience, the ``validator`` argument of ``@attr.s`` now can take a ``list`` of validators that are wrapped using ``and_()``.
   `#138 <https://github.com/python-attrs/attrs/issues/138>`_
+- Accordingly, ``attr.validators.optional()`` now can take a ``list`` of validators too.
+  `#161 <https://github.com/python-attrs/attrs/issues/161>`_
 - Validators can now be defined conveniently inline by using the attribute as a decorator.
   Check out the `examples <http://www.attrs.org/en/stable/examples.html#validators>`_ to see it in action!
   `#143 <https://github.com/python-attrs/attrs/issues/143>`_

@@ -7,8 +7,9 @@ from __future__ import absolute_import, division, print_function
 import pytest
 import zope.interface
 
-from attr.validators import instance_of, provides, optional
+from attr.validators import and_, instance_of, provides, optional
 from attr._compat import TYPE
+from attr._make import attributes, attr
 
 from .utils import simple_attr
 
@@ -56,6 +57,53 @@ class TestInstanceOf(object):
             "<instance_of validator for type <{type} 'int'>>"
             .format(type=TYPE)
         ) == repr(v)
+
+
+def always_pass(_, __, ___):
+    """
+    Toy validator that always passses.
+    """
+
+
+def always_fail(_, __, ___):
+    """
+    Toy validator that always fails.
+    """
+    0/0
+
+
+class TestAnd(object):
+    def test_success(self):
+        """
+        Succeeds if all wrapped validators succeed.
+        """
+        v = and_(instance_of(int), always_pass)
+
+        v(None, simple_attr("test"), 42)
+
+    def test_fail(self):
+        """
+        Fails if any wrapped validator fails.
+        """
+        v = and_(instance_of(int), always_fail)
+
+        with pytest.raises(ZeroDivisionError):
+            v(None, simple_attr("test"), 42)
+
+    def test_sugar(self):
+        """
+        `and_(v1, v2, v3)` and `[v1, v2, v3]` are equivalent.
+        """
+        @attributes
+        class C(object):
+            a1 = attr("a1", validator=and_(
+                instance_of(int),
+            ))
+            a2 = attr("a2", validator=[
+                instance_of(int),
+            ])
+
+        assert C.__attrs_attrs__[0].validator == C.__attrs_attrs__[1].validator
 
 
 class IFoo(zope.interface.Interface):
@@ -111,29 +159,33 @@ class TestProvides(object):
         ) == repr(v)
 
 
+@pytest.mark.parametrize("validator", [
+    instance_of(int),
+    [always_pass, instance_of(int)],
+])
 class TestOptional(object):
     """
     Tests for `optional`.
     """
-    def test_success_with_type(self):
+    def test_success(self, validator):
         """
-        Nothing happens if types match.
+        Nothing happens if validator succeeds.
         """
-        v = optional(instance_of(int))
+        v = optional(validator)
         v(None, simple_attr("test"), 42)
 
-    def test_success_with_none(self):
+    def test_success_with_none(self, validator):
         """
         Nothing happens if None.
         """
-        v = optional(instance_of(int))
+        v = optional(validator)
         v(None, simple_attr("test"), None)
 
-    def test_fail(self):
+    def test_fail(self, validator):
         """
         Raises `TypeError` on wrong types.
         """
-        v = optional(instance_of(int))
+        v = optional(validator)
         a = simple_attr("test")
         with pytest.raises(TypeError) as e:
             v(None, a, "42")
@@ -144,13 +196,21 @@ class TestOptional(object):
 
         ) == e.value.args
 
-    def test_repr(self):
+    def test_repr(self, validator):
         """
         Returned validator has a useful `__repr__`.
         """
-        v = optional(instance_of(int))
-        assert (
-            ("<optional validator for <instance_of validator for type "
-             "<{type} 'int'>> or None>")
-            .format(type=TYPE)
-        ) == repr(v)
+        v = optional(validator)
+
+        if isinstance(validator, list):
+            assert (
+                ("<optional validator for _AndValidator(_validators=[{func}, "
+                 "<instance_of validator for type <{type} 'int'>>]) or None>")
+                .format(func=repr(always_pass), type=TYPE)
+            ) == repr(v)
+        else:
+            assert (
+                ("<optional validator for <instance_of validator for type "
+                 "<{type} 'int'>> or None>")
+                .format(type=TYPE)
+            ) == repr(v)
