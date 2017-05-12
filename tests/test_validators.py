@@ -7,7 +7,7 @@ from __future__ import absolute_import, division, print_function
 import pytest
 import zope.interface
 
-from attr.validators import instance_of, provides, optional
+from attr.validators import instance_of, provides, optional, in_
 from attr._compat import TYPE
 
 from .utils import simple_attr
@@ -153,4 +153,29 @@ class TestOptional(object):
             ("<optional validator for <instance_of validator for type "
              "<{type} 'int'>> or None>")
             .format(type=TYPE)
+        ) == repr(v)
+
+
+class TestIn_(object):
+    """
+    Tests for `in_`.
+    """
+    def test_success_with_value(self):
+        v = in_([1, 2, 3])
+        a = simple_attr("test")
+        v(1, a, 3)
+
+    def test_fail(self):
+        v = in_([1, 2, 3])
+        a = simple_attr("test")
+        with pytest.raises(TypeError) as e:
+            v(None, a, None)
+        assert (
+            "'test' must be one of [1, 2, 3] (got None)",
+        ) == e.value.args
+
+    def test_repr(self):
+        v = in_([3, 4, 5])
+        assert(
+            ("<in_ validator with options [3, 4, 5]>")
         ) == repr(v)

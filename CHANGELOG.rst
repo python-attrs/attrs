@@ -36,6 +36,8 @@ Deprecations:
 Changes:
 ^^^^^^^^
 
+- Added `attr.validators.in_(options)`` that, given the allowed `options`, checks whether the attribute value is in it. This can be used to check constants, enums, mappings, etc.
+  `#181 <https://github.com/python-attrs/attrs/pull/181>`_
 - Fix default hashing behavior.
   Now *hash* mirrors the value of *cmp* and classes are unhashable by default.
   `#136`_

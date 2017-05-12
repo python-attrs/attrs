@@ -111,3 +111,39 @@ def optional(validator):
     :param validator: A validator that is used for non-``None`` values.
     """
     return _OptionalValidator(validator)
+
+
+@attributes(repr=False, slots=True)
+class _InValidator(object):
+    options = attr()
+
+    def __call__(self, inst, attr, value):
+        if value not in self.options:
+            raise TypeError(
+                "'{name}' must be one of {options!r} (got {value!r})"
+                .format(name=attr.name, options=self.options, value=value)
+            )
+
+    def __repr__(self):
+        return (
+            "<in_ validator with options {options!r}>"
+            .format(options=self.options)
+        )
+
+
+def in_(options):
+    """
+    A validator that raises a :exc:`TypeError` if the initializer is called
+    with a value that does not belong in the options provided. The check is
+    performed using ``value in options``.
+
+    :param options: Allowed options
+    :type options: list, tuple, enum.Enum
+
+    The :exc:`TypeError` is raised with a human readable error message, the
+    attribute (of type :class:`attr.Attribute`), the expected options, and the
+    value it got.
+
+    .. versionadded:: 17.1.0
+    """
+    return _InValidator(options)
