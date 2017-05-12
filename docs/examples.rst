@@ -318,7 +318,8 @@ Since the validators runs *after* the instance is initialized, you can refer to 
    ...         raise ValueError("'x' has to be smaller than 'y'!")
    >>> @attr.s
    ... class C(object):
-   ...     x = attr.ib(validator=x_smaller_than_y)
+   ...     x = attr.ib(validator=[attr.validators.instance_of(int),
+   ...                            x_smaller_than_y])
    ...     y = attr.ib()
    >>> C(x=3, y=4)
    C(x=3, y=4)
@@ -326,6 +327,8 @@ Since the validators runs *after* the instance is initialized, you can refer to 
    Traceback (most recent call last):
       ...
    ValueError: 'x' has to be smaller than 'y'!
+
+This example also shows of some syntactic sugar for using the :func:`attr.validators.and_` validator: if you pass a list, all validators have to pass.
 
 ``attrs`` won't intercept your changes to those attributes but you can always call :func:`attr.validate` on any instance to verify that it's still valid:
 

@@ -21,6 +21,7 @@ from attr._make import (
     _AndValidator,
     _CountingAttr,
     _transform_attrs,
+    and_,
     attr,
     attributes,
     fields,
@@ -71,6 +72,8 @@ class TestCountingAttr(object):
 
     def test_validator_decorator_single(self):
         """
+        If _CountingAttr.validator is used as a decorator and there is no
+        decorator set, the decorated method is used as the validator.
         """
         a = attr()
 
@@ -78,17 +81,23 @@ class TestCountingAttr(object):
         def v():
             pass
 
-        assert _AndValidator((v,)) == a._validator
+        assert v == a._validator
 
-    def test_validator_decorator(self):
+    @pytest.mark.parametrize("wrap", [
+        lambda v: v,
+        lambda v: [v],
+        lambda v: and_(v)
+
+    ])
+    def test_validator_decorator(self, wrap):
         """
-        If _CountingAttr.validator is used as a decorator, the decorated method
-        is added to validators.
+        If _CountingAttr.validator is used as a decorator and there is already
+        a decorator set, the decorators are composed using `and_`.
         """
         def v(_, __):
             pass
 
-        a = attr(validator=[v])
+        a = attr(validator=wrap(v))
 
         @a.validator
         def v2(self, _, __):
