@@ -4,21 +4,15 @@ Commonly useful validators.
 
 from __future__ import absolute_import, division, print_function
 
-from ._make import attr, attributes, _AndValidator
+from ._make import attr, attributes, and_, _AndValidator
 
 
-def and_(*validators):
-    """
-    A validator that composes multiple validators into one.
-
-    When called on a value, it runs all wrapped validators.
-
-    :param validators: Arbitrary number of validators.
-    :type validators: callables
-
-    .. versionadded:: 17.1.0
-    """
-    return _AndValidator(validators)
+__all__ = [
+    "and_",
+    "instance_of",
+    "optional",
+    "provides",
+]
 
 
 @attributes(repr=False, slots=True)

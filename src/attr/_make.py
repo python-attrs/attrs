@@ -897,7 +897,7 @@ class _CountingAttr(object):
         self.default = default
         # If validator is a list/tuple, wrap it using helper validator.
         if validator and isinstance(validator, (list, tuple)):
-            self._validator = _AndValidator(tuple(validator))
+            self._validator = and_(*validator)
         else:
             self._validator = validator
         self.repr = repr
@@ -911,35 +911,16 @@ class _CountingAttr(object):
         """
         Decorator that adds *meth* to the list of validators.
 
-        Returns meth unchanged.
+        Returns *meth* unchanged.
         """
-        if not isinstance(self._validator, _AndValidator):
-            self._validator = _AndValidator(
-                (self._validator,) if self._validator else ()
-            )
-        self._validator.add(meth)
+        if self._validator is None:
+            self._validator = meth
+        else:
+            self._validator = and_(self._validator, meth)
         return meth
 
 
 _CountingAttr = _add_cmp(_add_repr(_CountingAttr))
-
-
-@attributes(slots=True)
-class _AndValidator(object):
-    """
-    Compose many validators to a single one.
-    """
-    _validators = attr()
-
-    def __call__(self, inst, attr, value):
-        for v in self._validators:
-            v(inst, attr, value)
-
-    def add(self, validator):
-        """
-        Add *validator*.  Shouldn't be called after the class is done.
-        """
-        self._validators += (validator,)
 
 
 @attributes(slots=True)
@@ -981,3 +962,40 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
         raise TypeError("attrs argument must be a dict or a list.")
 
     return attributes(**attributes_arguments)(type(name, bases, cls_dict))
+
+
+# These are required by whithin this module so we define them here and merely
+# import into .validators.
+
+
+@attributes(slots=True)
+class _AndValidator(object):
+    """
+    Compose many validators to a single one.
+    """
+    _validators = attr()
+
+    def __call__(self, inst, attr, value):
+        for v in self._validators:
+            v(inst, attr, value)
+
+
+def and_(*validators):
+    """
+    A validator that composes multiple validators into one.
+
+    When called on a value, it runs all wrapped validators.
+
+    :param validators: Arbitrary number of validators.
+    :type validators: callables
+
+    .. versionadded:: 17.1.0
+    """
+    vals = []
+    for validator in validators:
+        vals.extend(
+            validator._validators if isinstance(validator, _AndValidator)
+            else [validator]
+        )
+
+    return _AndValidator(tuple(vals))
