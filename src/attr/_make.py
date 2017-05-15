@@ -17,6 +17,7 @@ from .exceptions import (
 # This is used at least twice, so cache it here.
 _obj_setattr = object.__setattr__
 _init_convert_pat = "__attr_convert_{}"
+_init_factory_pat = "__attr_factory_{}"
 _tuple_property_pat = "    {attr_name} = property(itemgetter({index}))"
 _empty_metadata_singleton = metadata_proxy({})
 
@@ -712,19 +713,19 @@ def _attrs_to_script(attrs, frozen, post_init):
             maybe_self = ""
         if a.init is False:
             if has_factory:
+                init_factory_name = _init_factory_pat.format(a.name)
                 if a.convert is not None:
                     lines.append(fmt_setter_with_converter(
                         attr_name,
-                        "attr_dict['{attr_name}'].default.factory({self})"
-                        .format(attr_name=attr_name, self=maybe_self)))
+                        init_factory_name + "({0})".format(maybe_self)))
                     conv_name = _init_convert_pat.format(a.name)
                     names_for_globals[conv_name] = a.convert
                 else:
                     lines.append(fmt_setter(
                         attr_name,
-                        "attr_dict['{attr_name}'].default.factory({self})"
-                        .format(attr_name=attr_name, self=maybe_self)
+                        init_factory_name + "({0})".format(maybe_self)
                     ))
+                names_for_globals[init_factory_name] = a.default.factory
             else:
                 if a.convert is not None:
                     lines.append(fmt_setter_with_converter(
@@ -756,14 +757,14 @@ def _attrs_to_script(attrs, frozen, post_init):
             args.append("{arg_name}=NOTHING".format(arg_name=arg_name))
             lines.append("if {arg_name} is not NOTHING:"
                          .format(arg_name=arg_name))
+            init_factory_name = _init_factory_pat.format(a.name)
             if a.convert is not None:
                 lines.append("    " + fmt_setter_with_converter(attr_name,
                                                                 arg_name))
                 lines.append("else:")
                 lines.append("    " + fmt_setter_with_converter(
                     attr_name,
-                    "attr_dict['{attr_name}'].default.factory({self})"
-                    .format(attr_name=attr_name, self=maybe_self)
+                    init_factory_name + "({0})".format(maybe_self)
                 ))
                 names_for_globals[_init_convert_pat.format(a.name)] = a.convert
             else:
@@ -771,9 +772,9 @@ def _attrs_to_script(attrs, frozen, post_init):
                 lines.append("else:")
                 lines.append("    " + fmt_setter(
                     attr_name,
-                    "attr_dict['{attr_name}'].default.factory({self})"
-                    .format(attr_name=attr_name, self=maybe_self)
+                    init_factory_name + "({0})".format(maybe_self)
                 ))
+            names_for_globals[init_factory_name] = a.default.factory
         else:
             args.append(arg_name)
             if a.convert is not None:
