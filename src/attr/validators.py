@@ -48,9 +48,9 @@ def instance_of(type):
     :param type: The type to check for.
     :type type: type or tuple of types
 
-    The :exc:`TypeError` is raised with a human readable error message, the
-    attribute (of type :class:`attr.Attribute`), the expected type, and the
-    value it got.
+    :raises TypeError: With a human readable error message, the attribute
+        (of type :class:`attr.Attribute`), the expected type, and the value it
+        got.
     """
     return _InstanceOfValidator(type)
 
@@ -87,9 +87,9 @@ def provides(interface):
 
     :param zope.interface.Interface interface: The interface to check for.
 
-    The :exc:`TypeError` is raised with a human readable error message, the
-    attribute (of type :class:`attr.Attribute`), the expected interface, and
-    the value it got.
+    :raises TypeError: With a human readable error message, the attribute
+        (of type :class:`attr.Attribute`), the expected interface, and the
+        value it got.
     """
     return _ProvidesValidator(interface)
 
@@ -127,3 +127,39 @@ def optional(validator):
     if isinstance(validator, list):
         return _OptionalValidator(_AndValidator(validator))
     return _OptionalValidator(validator)
+
+
+@attributes(repr=False, slots=True)
+class _InValidator(object):
+    options = attr()
+
+    def __call__(self, inst, attr, value):
+        if value not in self.options:
+            raise ValueError(
+                "'{name}' must be in {options!r} (got {value!r})"
+                .format(name=attr.name, options=self.options, value=value)
+            )
+
+    def __repr__(self):
+        return (
+            "<in_ validator with options {options!r}>"
+            .format(options=self.options)
+        )
+
+
+def in_(options):
+    """
+    A validator that raises a :exc:`ValueError` if the initializer is called
+    with a value that does not belong in the options provided.  The check is
+    performed using ``value in options``.
+
+    :param options: Allowed options.
+    :type options: list, tuple, :class:`enum.Enum`, ...
+
+    :raises ValueError: With a human readable error message, the attribute (of
+       type :class:`attr.Attribute`), the expected options, and the value it
+       got.
+
+    .. versionadded:: 17.1.0
+    """
+    return _InValidator(options)

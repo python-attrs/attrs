@@ -52,6 +52,9 @@ Changes:
   `#128 <https://github.com/python-attrs/attrs/pull/128>`_
 - ``__attrs_post_init__()`` is now run if validation is disabled.
   `#130 <https://github.com/python-attrs/attrs/pull/130>`_
+- Added `attr.validators.in_(options)`` that, given the allowed `options`, checks whether the attribute value is in it.
+  This can be used to check constants, enums, mappings, etc.
+  `#181 <https://github.com/python-attrs/attrs/pull/181>`_
 - Added ``attr.validators.and_()`` that composes multiple validators into one.
   `#161 <https://github.com/python-attrs/attrs/issues/161>`_
 - For convenience, the ``validator`` argument of ``@attr.s`` now can take a ``list`` of validators that are wrapped using ``and_()``.
