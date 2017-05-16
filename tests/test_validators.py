@@ -221,20 +221,29 @@ class TestIn_(object):
     Tests for `in_`.
     """
     def test_success_with_value(self):
+        """
+        If the value is in our options, nothing happens.
+        """
         v = in_([1, 2, 3])
         a = simple_attr("test")
         v(1, a, 3)
 
     def test_fail(self):
+        """
+        Raise ValueError if the value is outside our options.
+        """
         v = in_([1, 2, 3])
         a = simple_attr("test")
-        with pytest.raises(TypeError) as e:
+        with pytest.raises(ValueError) as e:
             v(None, a, None)
         assert (
-            "'test' must be one of [1, 2, 3] (got None)",
+            "'test' must be in [1, 2, 3] (got None)",
         ) == e.value.args
 
     def test_repr(self):
+        """
+        Returned validator has a useful `__repr__`.
+        """
         v = in_([3, 4, 5])
         assert(
             ("<in_ validator with options [3, 4, 5]>")

@@ -270,6 +270,33 @@ Validators
          ...
       TypeError: ("'x' must be <type 'int'> (got None that is a <type 'NoneType'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>, repr=True, cmp=True, hash=None, init=True), <type 'int'>, None)
 
+.. autofunction:: attr.validators.in_
+
+   For example:
+
+   .. doctest::
+
+       >>> import enum
+       >>> class State(enum.Enum):
+       ...     ON = "on"
+       ...     OFF = "off"
+       >>> @attr.s
+       ... class C(object):
+       ...     state = attr.ib(validator=attr.validators.in_(State))
+       ...     val = attr.ib(validator=attr.validators.in_([1, 2, 3]))
+       >>> C(State.ON, 1)
+       C(state=<State.ON: 'on'>, val=1)
+       >>> C("on", 1)
+       Traceback (most recent call last):
+          ...
+       ValueError: 'state' must be in <enum 'State'> (got 'on')
+       >>> C(State.ON, 4)
+       Traceback (most recent call last):
+          ...
+       ValueError: 'val' must be in [1, 2, 3] (got 4)
+
+.. autofunction:: attr.validators.provides
+
 .. autofunction:: attr.validators.and_
 
    For convenience, it's also possible to pass a list to :func:`attr.ib`'s validator argument.
@@ -278,8 +305,6 @@ Validators
 
       x = attr.ib(validator=attr.validators.and_(v1, v2, v3))
       x = attr.ib(validator=[v1, v2, v3])
-
-.. autofunction:: attr.validators.provides
 
 .. autofunction:: attr.validators.optional
 

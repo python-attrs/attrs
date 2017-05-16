@@ -48,9 +48,9 @@ def instance_of(type):
     :param type: The type to check for.
     :type type: type or tuple of types
 
-    The :exc:`TypeError` is raised with a human readable error message, the
-    attribute (of type :class:`attr.Attribute`), the expected type, and the
-    value it got.
+    :raises TypeError: With a human readable error message, the attribute
+        (of type :class:`attr.Attribute`), the expected type, and the value it
+        got.
     """
     return _InstanceOfValidator(type)
 
@@ -87,9 +87,9 @@ def provides(interface):
 
     :param zope.interface.Interface interface: The interface to check for.
 
-    The :exc:`TypeError` is raised with a human readable error message, the
-    attribute (of type :class:`attr.Attribute`), the expected interface, and
-    the value it got.
+    :raises TypeError: With a human readable error message, the attribute
+        (of type :class:`attr.Attribute`), the expected interface, and the
+        value it got.
     """
     return _ProvidesValidator(interface)
 
@@ -135,8 +135,8 @@ class _InValidator(object):
 
     def __call__(self, inst, attr, value):
         if value not in self.options:
-            raise TypeError(
-                "'{name}' must be one of {options!r} (got {value!r})"
+            raise ValueError(
+                "'{name}' must be in {options!r} (got {value!r})"
                 .format(name=attr.name, options=self.options, value=value)
             )
 
@@ -149,16 +149,16 @@ class _InValidator(object):
 
 def in_(options):
     """
-    A validator that raises a :exc:`TypeError` if the initializer is called
-    with a value that does not belong in the options provided. The check is
+    A validator that raises a :exc:`ValueError` if the initializer is called
+    with a value that does not belong in the options provided.  The check is
     performed using ``value in options``.
 
-    :param options: Allowed options
-    :type options: list, tuple, enum.Enum
+    :param options: Allowed options.
+    :type options: list, tuple, :class:`enum.Enum`, ...
 
-    The :exc:`TypeError` is raised with a human readable error message, the
-    attribute (of type :class:`attr.Attribute`), the expected options, and the
-    value it got.
+    :raises ValueError: With a human readable error message, the attribute (of
+       type :class:`attr.Attribute`), the expected options, and the value it
+       got.
 
     .. versionadded:: 17.1.0
     """
