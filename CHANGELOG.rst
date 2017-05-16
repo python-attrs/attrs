@@ -5,7 +5,7 @@ Versions follow `CalVer <http://calver.org>`_ with a strict backwards compatibil
 The third digit is only for regressions.
 
 
-17.1.0 (UNRELEASED)
+17.1.0 (2017-05-16)
 -------------------
 
 To encourage more participation, the project has also been moved into a `dedicated GitHub organization <https://github.com/python-attrs/>`_ and everyone is most welcome to join!

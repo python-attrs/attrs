@@ -27,7 +27,7 @@ from . import converters
 from . import validators
 
 
-__version__ = "17.1.0.dev0"
+__version__ = "17.1.0"
 
 __title__ = "attrs"
 __description__ = "Classes Without Boilerplate"
