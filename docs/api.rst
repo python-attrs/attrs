@@ -100,13 +100,20 @@ Core
       >>> @attr.s
       ... class C(object):
       ...     x = attr.ib(default=attr.Factory(list))
+      ...     y = attr.ib(default=attr.Factory(
+      ...         lambda self: set(self.x),
+      ...         takes_self=True)
+      ...     )
       >>> C()
-      C(x=[])
+      C(x=[], y=set())
+      >>> C([1, 2, 3])
+      C(x=[1, 2, 3], y={1, 2, 3})
 
 
 .. autoexception:: attr.exceptions.FrozenInstanceError
 .. autoexception:: attr.exceptions.AttrsAttributeNotFoundError
 .. autoexception:: attr.exceptions.NotAnAttrsClassError
+.. autoexception:: attr.exceptions.DefaultAlreadySetError
 
 
 .. _helpers:
@@ -203,11 +210,12 @@ See :ref:`asdict` for examples.
       >>> i1 == i2
       False
 
-    ``evolve`` creates a new instance using ``__init__``. This fact has several implications:
+  ``evolve`` creates a new instance using ``__init__``.
+  This fact has several implications:
 
-    * private attributes should be specified without the leading underscore, just like in ``__init__``.
-    * attributes with ``init=False`` can't be set with ``evolve``.
-    * the usual ``__init__`` validators will validate the new values.
+  * private attributes should be specified without the leading underscore, just like in ``__init__``.
+  * attributes with ``init=False`` can't be set with ``evolve``.
+  * the usual ``__init__`` validators will validate the new values.
 
 .. autofunction:: validate
 

@@ -262,6 +262,21 @@ And sometimes you even want mutable objects as default values (ever used acciden
 
 More information on why class methods for constructing objects are awesome can be found in this insightful `blog post <http://as.ynchrono.us/2014/12/asynchronous-object-initialization.html>`_.
 
+Default factories can also be set using a decorator.
+The method receives the partially initialiazed instance which enables you to base a default value on other attributes:
+
+.. doctest::
+
+   >>> @attr.s
+   ... class C(object):
+   ...     x = attr.ib(default=1)
+   ...     y = attr.ib()
+   ...     @y.default
+   ...     def name_does_not_matter(self):
+   ...         return self.x + 1
+   >>> C()
+   C(x=1, y=2)
+
 
 .. _examples_validators:
 

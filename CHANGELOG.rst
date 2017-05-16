@@ -61,6 +61,12 @@ Changes:
 - Validators can now be defined conveniently inline by using the attribute as a decorator.
   Check out the `examples <http://www.attrs.org/en/stable/examples.html#validators>`_ to see it in action!
   `#143 <https://github.com/python-attrs/attrs/issues/143>`_
+- ``attr.Factory()`` now has a ``takes_self`` argument that makes the initializer to pass the partially initialized instance into the factory.
+  In other words you can define attribute defaults based on other attributes.
+  `#165`_
+- Default factories can now also be defined inline using decorators.
+  They are *always* passed the partially initialized instance.
+  `#165`_
 - Conversion can now be made optional using ``attr.converters.optional()``.
   `#105 <https://github.com/python-attrs/attrs/issues/105>`_
   `#173 <https://github.com/python-attrs/attrs/pull/173>`_
@@ -70,6 +76,7 @@ Changes:
   `#155 <https://github.com/python-attrs/attrs/pull/155>`_
 
 .. _`#136`: https://github.com/python-attrs/attrs/issues/136
+.. _`#165`: https://github.com/python-attrs/attrs/issues/165
 
 
 ----
