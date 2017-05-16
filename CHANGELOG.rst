@@ -98,6 +98,7 @@ Changes:
 - ``attr.Factory()`` now has a ``takes_self`` argument that makes the initializer to pass the partially initialized instance into the factory.
   In other words you can define attribute defaults based on other attributes.
   `#165`_
+  `#189 <https://github.com/python-attrs/attrs/issues/189>`_
 - Default factories can now also be defined inline using decorators.
   They are *always* passed the partially initialized instance.
   `#165`_
