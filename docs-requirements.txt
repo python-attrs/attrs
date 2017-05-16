@@ -1,0 +1,3 @@
+-e .
+sphinx<1.6
+zope.interface
