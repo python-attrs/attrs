@@ -24,6 +24,12 @@ Backward-incompatible changes:
   This *may* break some software although this breakage is most likely just surfacing of latent bugs.
   You can always make ``attrs`` create the ``__hash__()`` method using ``@attr.s(hash=True)``.
   See `#136`_ for the rationale of this change.
+
+  .. warning::
+
+    Please *do not* upgrade blindly and *do* test your software!
+    *Especially* if you use instances as dict keys or put them into sets!
+
 - Correspondingly, ``attr.ib``'s ``hash`` argument is ``None`` by default too and mirrors the ``cmp`` argument as it should.
 
 
