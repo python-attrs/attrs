@@ -35,7 +35,7 @@ def simple_attr(name, default=NOTHING, validator=None, repr=True,
     Return an attribute with a name and no other bells and whistles.
     """
     return Attribute(
-        name=name, default=default, _validator=validator, repr=repr,
+        name=name, _default=default, _validator=validator, repr=repr,
         cmp=cmp, hash=hash, init=init
     )
 

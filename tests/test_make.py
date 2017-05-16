@@ -28,7 +28,7 @@ from attr._make import (
     make_class,
     validate,
 )
-from attr.exceptions import NotAnAttrsClassError
+from attr.exceptions import NotAnAttrsClassError, DefaultAlreadySetError
 
 from .utils import (gen_attr_names, list_of_attrs, simple_attr, simple_attrs,
                     simple_attrs_without_metadata, simple_classes)
@@ -104,6 +104,31 @@ class TestCountingAttr(object):
             pass
 
         assert _AndValidator((v, v2,)) == a._validator
+
+    def test_default_decorator_already_set(self):
+        """
+        Raise DefaultAlreadySetError if the decorator is used after a default
+        has been set.
+        """
+        a = attr(default=42)
+
+        with pytest.raises(DefaultAlreadySetError):
+            @a.default
+            def f(self):
+                pass
+
+    def test_default_decorator_sets(self):
+        """
+        Decorator wraps the method in a Factory with pass_self=True and sets
+        the default.
+        """
+        a = attr()
+
+        @a.default
+        def f(self):
+            pass
+
+        assert Factory(f, True) == a._default
 
 
 def make_tc():
@@ -534,6 +559,18 @@ class TestConvert(object):
         c = C(2)
         assert c.x == val + 1
         assert c.y == 2
+
+    def test_factory_takes_self(self):
+        """
+        If takes_self on factories is True, self is passed.
+        """
+        C = make_class("C", {"x": attr(default=Factory(
+            (lambda self: self), takes_self=True
+        ))})
+
+        i = C()
+
+        assert i is i.x
 
     def test_convert_before_validate(self):
         """

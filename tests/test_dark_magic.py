@@ -109,9 +109,9 @@ class TestDarkMagic(object):
         `attr.fields` works.
         """
         assert (
-            Attribute(name="x", default=foo, _validator=None,
+            Attribute(name="x", _default=foo, _validator=None,
                       repr=True, cmp=True, hash=None, init=True),
-            Attribute(name="y", default=attr.Factory(list), _validator=None,
+            Attribute(name="y", _default=attr.Factory(list), _validator=None,
                       repr=True, cmp=True, hash=None, init=True),
         ) == attr.fields(cls)
 
@@ -158,9 +158,9 @@ class TestDarkMagic(object):
         """
         PC = attr.make_class("PC", ["a", "b"], slots=slots, frozen=frozen)
         assert (
-            Attribute(name="a", default=NOTHING, _validator=None,
+            Attribute(name="a", _default=NOTHING, _validator=None,
                       repr=True, cmp=True, hash=None, init=True),
-            Attribute(name="b", default=NOTHING, _validator=None,
+            Attribute(name="b", _default=NOTHING, _validator=None,
                       repr=True, cmp=True, hash=None, init=True),
         ) == attr.fields(PC)
 
@@ -251,4 +251,23 @@ class TestDarkMagic(object):
 
     @pytest.mark.parametrize("cls", [WithMeta, WithMetaSlots])
     def test_metaclass_preserved(self, cls):
+        """
+        Metaclass data is preserved.
+        """
         assert Meta == type(cls)
+
+    def test_default_decorator(self):
+        """
+        Default decorator sets the default and the respective method gets
+        called.
+        """
+        @attr.s
+        class C(object):
+            x = attr.ib(default=1)
+            y = attr.ib()
+
+            @y.default
+            def compute(self):
+                return self.x + 1
+
+        assert C(1, 2) == C()
