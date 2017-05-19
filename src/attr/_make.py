@@ -1016,7 +1016,7 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
 # import into .validators.
 
 
-@attributes(slots=True)
+@attributes(slots=True, hash=True)
 class _AndValidator(object):
     """
     Compose many validators to a single one.

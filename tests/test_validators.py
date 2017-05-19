@@ -7,6 +7,7 @@ from __future__ import absolute_import, division, print_function
 import pytest
 import zope.interface
 
+from attr import validators as validator_module, has
 from attr.validators import and_, instance_of, provides, optional, in_
 from attr._compat import TYPE
 from attr._make import attributes, attr
@@ -248,3 +249,16 @@ class TestIn_(object):
         assert(
             ("<in_ validator with options [3, 4, 5]>")
         ) == repr(v)
+
+
+def test_hashability():
+    """
+    Validator classes are hashable.
+    """
+    for obj_name in dir(validator_module):
+        obj = getattr(validator_module, obj_name)
+        if not has(obj):
+            continue
+        hash_func = getattr(obj, '__hash__', None)
+        assert hash_func is not None
+        assert hash_func is not object.__hash__
