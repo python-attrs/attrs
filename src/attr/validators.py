@@ -9,6 +9,7 @@ from ._make import attr, attributes, and_, _AndValidator
 
 __all__ = [
     "and_",
+    "in_",
     "instance_of",
     "optional",
     "provides",
