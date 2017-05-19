@@ -109,9 +109,9 @@ class TestDarkMagic(object):
         `attr.fields` works.
         """
         assert (
-            Attribute(name="x", _default=foo, _validator=None,
+            Attribute(name="x", default=foo, validator=None,
                       repr=True, cmp=True, hash=None, init=True),
-            Attribute(name="y", _default=attr.Factory(list), _validator=None,
+            Attribute(name="y", default=attr.Factory(list), validator=None,
                       repr=True, cmp=True, hash=None, init=True),
         ) == attr.fields(cls)
 
@@ -158,9 +158,9 @@ class TestDarkMagic(object):
         """
         PC = attr.make_class("PC", ["a", "b"], slots=slots, frozen=frozen)
         assert (
-            Attribute(name="a", _default=NOTHING, _validator=None,
+            Attribute(name="a", default=NOTHING, validator=None,
                       repr=True, cmp=True, hash=None, init=True),
-            Attribute(name="b", _default=NOTHING, _validator=None,
+            Attribute(name="b", default=NOTHING, validator=None,
                       repr=True, cmp=True, hash=None, init=True),
         ) == attr.fields(PC)
 

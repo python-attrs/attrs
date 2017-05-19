@@ -24,7 +24,9 @@ Deprecations:
 Changes:
 ^^^^^^^^
 
-*none*
+- Validators are hashable again.
+  Note that validators may become frozen in the future, pending availability of no-overhead frozen classes.
+  `#192 <https://github.com/python-attrs/attrs/issues/192>`_
 
 
 ----

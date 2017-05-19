@@ -9,13 +9,14 @@ from ._make import attr, attributes, and_, _AndValidator
 
 __all__ = [
     "and_",
+    "in_",
     "instance_of",
     "optional",
     "provides",
 ]
 
 
-@attributes(repr=False, slots=True)
+@attributes(repr=False, slots=True, hash=True)
 class _InstanceOfValidator(object):
     type = attr()
 
@@ -55,7 +56,7 @@ def instance_of(type):
     return _InstanceOfValidator(type)
 
 
-@attributes(repr=False, slots=True)
+@attributes(repr=False, slots=True, hash=True)
 class _ProvidesValidator(object):
     interface = attr()
 
@@ -94,7 +95,7 @@ def provides(interface):
     return _ProvidesValidator(interface)
 
 
-@attributes(repr=False, slots=True)
+@attributes(repr=False, slots=True, hash=True)
 class _OptionalValidator(object):
     validator = attr()
 
@@ -129,7 +130,7 @@ def optional(validator):
     return _OptionalValidator(validator)
 
 
-@attributes(repr=False, slots=True)
+@attributes(repr=False, slots=True, hash=True)
 class _InValidator(object):
     options = attr()
 

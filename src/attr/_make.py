@@ -818,14 +818,14 @@ class Attribute(object):
         "convert", "metadata",
     )
 
-    def __init__(self, name, _default, _validator, repr, cmp, hash, init,
+    def __init__(self, name, default, validator, repr, cmp, hash, init,
                  convert=None, metadata=None):
         # Cache this descriptor here to speed things up later.
         bound_setattr = _obj_setattr.__get__(self, Attribute)
 
         bound_setattr("name", name)
-        bound_setattr("default", _default)
-        bound_setattr("validator", _validator)
+        bound_setattr("default", default)
+        bound_setattr("validator", validator)
         bound_setattr("repr", repr)
         bound_setattr("cmp", cmp)
         bound_setattr("hash", hash)
@@ -842,12 +842,13 @@ class Attribute(object):
         inst_dict = {
             k: getattr(ca, k)
             for k
-            in Attribute.__slots__ + ("_validator", "_default")
-            if k != "name" and k not in (
-                "validator", "default",
+            in Attribute.__slots__
+            if k not in (
+                "name", "validator", "default",
             )  # exclude methods
         }
-        return cls(name=name, **inst_dict)
+        return cls(name=name, validator=ca._validator, default=ca._default,
+                   **inst_dict)
 
     # Don't use _add_pickle since fields(Attribute) doesn't work
     def __getstate__(self):
@@ -871,7 +872,7 @@ class Attribute(object):
                               _empty_metadata_singleton)
 
 
-_a = [Attribute(name=name, _default=NOTHING, _validator=None,
+_a = [Attribute(name=name, default=NOTHING, validator=None,
                 repr=True, cmp=True, hash=(name != "metadata"), init=True)
       for name in Attribute.__slots__]
 
@@ -892,12 +893,12 @@ class _CountingAttr(object):
     __slots__ = ("counter", "_default", "repr", "cmp", "hash", "init",
                  "metadata", "_validator", "convert")
     __attrs_attrs__ = tuple(
-        Attribute(name=name, _default=NOTHING, _validator=None,
+        Attribute(name=name, default=NOTHING, validator=None,
                   repr=True, cmp=True, hash=True, init=True)
         for name
         in ("counter", "_default", "repr", "cmp", "hash", "init",)
     ) + (
-        Attribute(name="metadata", _default=None, _validator=None,
+        Attribute(name="metadata", default=None, validator=None,
                   repr=True, cmp=True, hash=False, init=True),
     )
     cls_counter = 0
@@ -1015,7 +1016,7 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
 # import into .validators.
 
 
-@attributes(slots=True)
+@attributes(slots=True, hash=True)
 class _AndValidator(object):
     """
     Compose many validators to a single one.
