@@ -193,7 +193,7 @@ See :ref:`asdict` for examples.
 
 .. autofunction:: attr.evolve
 
-For example:
+   For example:
 
    .. doctest::
 
@@ -210,12 +210,12 @@ For example:
       >>> i1 == i2
       False
 
-  ``evolve`` creates a new instance using ``__init__``.
-  This fact has several implications:
+   ``evolve`` creates a new instance using ``__init__``.
+   This fact has several implications:
 
-  * private attributes should be specified without the leading underscore, just like in ``__init__``.
-  * attributes with ``init=False`` can't be set with ``evolve``.
-  * the usual ``__init__`` validators will validate the new values.
+   * private attributes should be specified without the leading underscore, just like in ``__init__``.
+   * attributes with ``init=False`` can't be set with ``evolve``.
+   * the usual ``__init__`` validators will validate the new values.
 
 .. autofunction:: validate
 
