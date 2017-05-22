@@ -8,7 +8,7 @@ include tox.ini .coveragerc conftest.py dev-requirements.txt docs-requirements.t
 recursive-include tests *.py
 
 # Documentation
-include docs/Makefile
+include docs/Makefile docs/docutils.conf
 recursive-include docs *.png
 recursive-include docs *.py
 recursive-include docs *.rst

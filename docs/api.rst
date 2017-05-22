@@ -193,7 +193,7 @@ See :ref:`asdict` for examples.
 
 .. autofunction:: attr.evolve
 
-   For example:
+For example:
 
    .. doctest::
 
