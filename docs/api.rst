@@ -50,8 +50,27 @@ Core
 
       ``attrs`` also comes with a serious business alias ``attr.attrib``.
 
-   The object returned by :func:`attr.ib` also has a method called ``validator()`` that can be used as a decorator *within the class body* to define inline validators (see :ref:`examples_validators`).
+   The object returned by :func:`attr.ib` also allows for setting the default and the validator using decorators:
 
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib()
+      ...     y = attr.ib()
+      ...     @x.validator
+      ...     def name_can_be_anything(self, attribute, value):
+      ...         if value < 0:
+      ...             raise ValueError("x must be positive")
+      ...     @y.default
+      ...     def name_does_not_matter(self):
+      ...         return self.x + 1
+      >>> C(1)
+      C(x=1, y=2)
+      >>> C(-1)
+      Traceback (most recent call last):
+          ...
+      ValueError: x must be positive
 
 .. autoclass:: attr.Attribute
 

@@ -76,6 +76,8 @@ def attr(default=NOTHING, validator=None,
         *must* be supplied when instantiating; otherwise a :exc:`TypeError`
         will be raised.
 
+        The default can also be set using decorator notation as shown below.
+
     :type default: Any value.
 
     :param validator: :func:`callable` that is called by ``attrs``-generated
@@ -91,6 +93,9 @@ def attr(default=NOTHING, validator=None,
 
         Validators can be globally disabled and re-enabled using
         :func:`get_run_validators`.
+
+        The validator can also be set using decorator notation as shown below.
+
     :type validator: ``callable`` or a ``list`` of ``callable``\ s.
 
     :param bool repr: Include this attribute in the generated ``__repr__``
