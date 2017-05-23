@@ -77,25 +77,25 @@ Never again violate the `single responsibility principle <https://en.wikipedia.o
 Testimonials
 ============
 
-  I’m looking forward to is being able to program in Python-with-attrs everywhere.
-  It exerts a subtle, but positive, design influence in all the codebases I’ve see it used in.
+  *I’m looking forward to is being able to program in Python-with-attrs everywhere.
+  It exerts a subtle, but positive, design influence in all the codebases I’ve see it used in.*
 
-  -- Glyph Lefkowitz, creator of `Twisted <https://twistedmatrix.com/>`_, `Automat <https://pypi.python.org/pypi/Automat>`_, and other open source software, in `The One Python Library Everyone Needs <https://glyph.twistedmatrix.com/2016/08/attrs.html>`_
-
-
-  I'm increasingly digging your attr.ocity. Good job!
-
-  -- Łukasz Langa, prolific CPython core developer and Production Engineer at Facebook
+  -- **Glyph Lefkowitz**, creator of `Twisted <https://twistedmatrix.com/>`_, `Automat <https://pypi.python.org/pypi/Automat>`_, and other open source software, in `The One Python Library Everyone Needs <https://glyph.twistedmatrix.com/2016/08/attrs.html>`_
 
 
-  Writing a fully-functional class using ``attrs`` takes me less time than writing this testimonial.
+  *I'm increasingly digging your attr.ocity. Good job!*
 
-  -- Amber Hawkie Brown, Twisted Release Manager and Computer Owl
+  -- **Łukasz Langa**, prolific CPython core developer and Production Engineer at Facebook
 
 
-  attrs—classes for humans.  I like it.
+  *Writing a fully-functional class using ``attrs`` takes me less time than writing this testimonial.*
 
-  -- Kenneth Reitz, author of `requests <http://www.python-requests.org/>`_, Python Overlord at Heroku, `on paper no less <https://twitter.com/hynek/status/866817877650751488>`_
+  -- **Amber Hawkie Brown**, Twisted Release Manager and Computer Owl
+
+
+  *attrs—classes for humans.  I like it.*
+
+  -- **Kenneth Reitz**, author of `requests <http://www.python-requests.org/>`_, Python Overlord at Heroku, `on paper no less <https://twitter.com/hynek/status/866817877650751488>`_
 
 
 .. -end-
