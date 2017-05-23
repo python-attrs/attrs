@@ -79,6 +79,10 @@ pygments_style = 'sphinx'
 # a list of builtin themes.
 
 html_theme = "alabaster"
+html_theme_options = {
+    "font_family": "Palatino, Georgia, serif",
+    "font_size": "18px",
+}
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
