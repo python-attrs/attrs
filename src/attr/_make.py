@@ -306,8 +306,9 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
                ``__init__`` is slightly slower with ``frozen=True``.
 
             4. If a class is frozen, you cannot modify ``self`` in
-               ``__attrs_post_init__``.  You can circumvent that limitation by
-               using ``object.__setattr__(self, "attribute_name", value)``.
+               ``__attrs_post_init__`` or a self-written ``__init__``. You can
+               circumvent that limitation by using
+               ``object.__setattr__(self, "attribute_name", value)``.
 
         ..  _slots: https://docs.python.org/3.5/reference/datamodel.html#slots
 
