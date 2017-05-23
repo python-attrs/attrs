@@ -93,6 +93,11 @@ Testimonials
   -- Amber Hawkie Brown, Twisted Release Manager and Computer Owl
 
 
+  attrs—classes for humans.  I like it.
+
+  -- Kenneth Reitz, author of `requests <http://www.python-requests.org/>`_, Python Overlord at Heroku
+
+
 .. -end-
 
 .. -project-information-
