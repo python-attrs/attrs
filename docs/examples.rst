@@ -86,7 +86,7 @@ If you want to initialize your private attributes yourself, you can do that too:
       ...
    TypeError: __init__() takes exactly 1 argument (2 given)
 
-An additional way (not unlike ``characteristic``) of defining attributes is supported too.
+An additional way of defining attributes is supported too.
 This is useful in times when you want to enhance classes that are not yours (nice ``__repr__`` for Django models anyone?):
 
 .. doctest::
