@@ -95,7 +95,7 @@ Testimonials
 
   attrs—classes for humans.  I like it.
 
-  -- Kenneth Reitz, author of `requests <http://www.python-requests.org/>`_, Python Overlord at Heroku
+  -- Kenneth Reitz, author of `requests <http://www.python-requests.org/>`_, Python Overlord at Heroku, `on paper no less <https://twitter.com/hynek/status/866817877650751488>`_
 
 
 .. -end-
