@@ -531,6 +531,20 @@ Slot classes are a little different than ordinary, dictionary-backed classes:
   Those methods are created for frozen slot classes because they won't pickle otherwise.
   `Think twice <https://www.youtube.com/watch?v=7KnfGDajDQw>`_ before using :mod:`pickle` though.
 
+- As always with slot classes, you must specify a ``__weakref__`` slot if you wish for the class to be weak-referenceable.
+  Here's how it looks using attrs:
+
+  .. doctest::
+
+    >>> import weakref
+    >>> @attr.s(slots=True)
+    ... class C(object):
+    ...     __weakref__ = attr.ib(init=False, hash=False, repr=False, cmp=False)
+    ...     x = attr.ib()
+    >>> c = C(1)
+    >>> weakref.ref(c)
+    <weakref at 0x...; to 'C' at 0x...>
+
 All in all, setting ``slots=True`` is usually a very good idea.
 
 
