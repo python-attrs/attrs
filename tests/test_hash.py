@@ -19,7 +19,7 @@ def test_no_subclass_no_hash(slots, frozen, cmp):
     class A(object):
         a = attr.ib()
 
-    assert A.__hash__ is object.__hash__
+    assert A.__hash__ == object.__hash__
     hash(A(1))  # Should not raise.
 
     assert hash(A(1)) != hash(A(1))   # Identity-based hash.
@@ -64,7 +64,7 @@ def test_no_subclass_default_hash(slots, frozen, cmp):
             hash(A(1))
     elif not cmp:
         # Fall back to object.__hash__.
-        assert A.__hash__ is object.__hash__
+        assert A.__hash__ == object.__hash__
         hash(A(1))  # Should not raise.
 
         assert hash(A(1)) != hash(A(1))   # Identity-based hash.
