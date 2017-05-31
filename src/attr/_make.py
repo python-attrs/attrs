@@ -376,6 +376,12 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
 
             qualname = getattr(cls, "__qualname__", None)
             cls = type(cls)(cls.__name__, cls.__bases__, cls_dict)
+
+            s = object()  # A sentinel.
+            if hash is False and cls.__dict__.get('__hash__', s) is None:
+                # Python just set __hash__ = None for us, revert this.
+                del cls.__hash__
+
             if qualname is not None:
                 cls.__qualname__ = qualname
 
