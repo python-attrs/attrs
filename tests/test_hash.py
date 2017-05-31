@@ -85,4 +85,4 @@ def test_subclass_default_hash(super_slots, super_frozen, slots, frozen):
     class B(A):
         b = attr.ib()
 
-    assert B.__hash__ is A.__hash__
+    assert B.__hash__ == A.__hash__  # ``is`` doesn't work on Py2.
