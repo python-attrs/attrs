@@ -198,15 +198,15 @@ class TestAddRepr(object):
 
         assert "C(_x=42)" == repr(i)
 
-    @pytest.mark.parametrize("add_str", [True, False])
-    def test_str(self, add_str):
+    @given(add_str=booleans(), slots=booleans())
+    def test_str(self, add_str, slots):
         """
         If str is True, it returns the same as repr.
 
         This only makes sense when subclassing a class with an poor __str__
         (like Exceptions).
         """
-        @attributes(str=add_str)
+        @attributes(str=add_str, slots=slots)
         class Error(Exception):
             x = attr()
 
