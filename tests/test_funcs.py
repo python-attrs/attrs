@@ -352,7 +352,8 @@ class TestAssoc(object):
             pass
 
         i1 = C()
-        i2 = assoc(i1)
+        with pytest.deprecated_call():
+            i2 = assoc(i1)
 
         assert i1 is not i2
         assert i1 == i2
@@ -363,7 +364,8 @@ class TestAssoc(object):
         No changes means a verbatim copy.
         """
         i1 = C()
-        i2 = assoc(i1)
+        with pytest.deprecated_call():
+            i2 = assoc(i1)
 
         assert i1 is not i2
         assert i1 == i2
@@ -380,7 +382,10 @@ class TestAssoc(object):
         chosen_names = data.draw(st.sets(st.sampled_from(field_names)))
         change_dict = {name: data.draw(st.integers())
                        for name in chosen_names}
-        changed = assoc(original, **change_dict)
+
+        with pytest.deprecated_call():
+            changed = assoc(original, **change_dict)
+
         for k, v in change_dict.items():
             assert getattr(changed, k) == v
 
@@ -391,8 +396,10 @@ class TestAssoc(object):
         AttrsAttributeNotFoundError.
         """
         # No generated class will have a four letter attribute.
-        with pytest.raises(AttrsAttributeNotFoundError) as e:
+        with pytest.raises(AttrsAttributeNotFoundError) as e, \
+                pytest.deprecated_call():
             assoc(C(), aaaa=2)
+
         assert (
             "aaaa is not an attrs attribute on {cls!r}.".format(cls=C),
         ) == e.value.args
@@ -406,7 +413,8 @@ class TestAssoc(object):
             x = attr()
             y = attr()
 
-        assert C(3, 2) == assoc(C(1, 2), x=3)
+        with pytest.deprecated_call():
+            assert C(3, 2) == assoc(C(1, 2), x=3)
 
 
 class TestEvolve(object):
