@@ -343,9 +343,7 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
         # Can't compare function objects because Python 2 is terrible. :(
         effectively_frozen = _has_frozen_superclass(cls) or frozen
         if repr is True:
-            cls = _add_repr(cls, ns=repr_ns)
-        if str is True:
-            cls.__str__ = cls.__repr__
+            cls = _add_repr(cls, ns=repr_ns, str=str)
         if cmp is True:
             cls = _add_cmp(cls)
 
@@ -516,9 +514,9 @@ def _add_cmp(cls, attrs=None):
     return cls
 
 
-def _add_repr(cls, ns=None, attrs=None):
+def _add_repr(cls, ns=None, attrs=None, str=False):
     """
-    Add a repr method to *cls*.
+    Add a repr method to *cls*. If *str* is True, also add __str__.
     """
     if attrs is None:
         attrs = [a for a in cls.__attrs_attrs__ if a.repr]
@@ -543,6 +541,8 @@ def _add_repr(cls, ns=None, attrs=None):
                       for a in attrs)
         )
     cls.__repr__ = repr_
+    if str is True:
+        cls.__str__ = repr_
     return cls
 
 

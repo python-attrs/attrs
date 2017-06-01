@@ -24,7 +24,8 @@ Deprecations:
 Changes:
 ^^^^^^^^
 
-*none*
+- Fix *str* on Python 2 when ``slots=True``.
+  `#198 <https://github.com/python-attrs/attrs/issues/198>`_
 
 
 ----
