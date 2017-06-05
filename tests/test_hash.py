@@ -86,3 +86,20 @@ def test_subclass_default_hash(super_slots, super_frozen, slots, frozen):
         b = attr.ib()
 
     assert B.__hash__ == A.__hash__  # ``is`` doesn't work on Py2.
+
+
+@given(slots=booleans(), frozen=booleans())
+def test_make_unhashable(slots, frozen):
+    """
+    Creating classes that have a __cmp__ but are unhashable is possible.
+    """
+    @attr.s(cmp=True, hash=False, slots=slots, frozen=frozen)
+    class A(object):
+        a = attr.ib()
+
+        __hash__ = None
+
+    with pytest.raises(TypeError):
+        hash(A(1))
+
+    assert A.__hash__ is None

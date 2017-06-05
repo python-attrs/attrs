@@ -368,6 +368,8 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
                 cls = _add_pickle(cls)
         if slots is True:
             cls_dict = dict(cls.__dict__)
+            was_unhashable = ('__hash__' in cls_dict and
+                              cls_dict['__hash__'] is None)
             cls_dict["__slots__"] = tuple(ca_list)
             for ca_name in ca_list:
                 # It might not actually be in there, e.g. if using 'these'.
@@ -377,8 +379,10 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
             qualname = getattr(cls, "__qualname__", None)
             cls = type(cls)(cls.__name__, cls.__bases__, cls_dict)
 
-            s = object()  # A sentinel.
-            if hash is False and cls.__dict__.get('__hash__', s) is None:
+            if (not was_unhashable and hash is False and
+                    '__hash__' in cls.__dict__ and
+                    cls.__dict__['__hash__'] is None):
+
                 # Python just set __hash__ = None for us, revert this.
                 del cls.__hash__
 
