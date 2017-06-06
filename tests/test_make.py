@@ -572,6 +572,12 @@ class TestConvert(object):
 
         assert i is i.x
 
+    def test_factory_hashable(self):
+        """
+        Factory is hashable.
+        """
+        assert hash(Factory(None, False)) == hash(Factory(None, False))
+
     def test_convert_before_validate(self):
         """
         Validation happens after conversion.
