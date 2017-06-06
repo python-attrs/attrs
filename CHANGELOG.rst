@@ -26,6 +26,7 @@ Changes:
 
 - Fix *str* on Python 2 when ``slots=True``.
   `#198 <https://github.com/python-attrs/attrs/issues/198>`_
+- ``attr.Factory`` is now hashable again.
 
 
 ----

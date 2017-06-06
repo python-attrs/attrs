@@ -965,7 +965,7 @@ class _CountingAttr(object):
 _CountingAttr = _add_cmp(_add_repr(_CountingAttr))
 
 
-@attributes(slots=True, init=False)
+@attributes(slots=True, init=False, hash=True)
 class Factory(object):
     """
     Stores a factory callable.
