@@ -308,7 +308,7 @@ If the value does not pass the validator's standards, it just raises an appropri
    ...     @x.validator
    ...     def check(self, attribute, value):
    ...         if value > 42:
-   ...             raise ValueError("y must be smaller or equal to 42")
+   ...             raise ValueError("x must be smaller or equal to 42")
    >>> C(42)
    C(x=42)
    >>> C(43)
