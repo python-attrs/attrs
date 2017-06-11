@@ -605,7 +605,7 @@ class TestValidate(object):
     """
     def test_success(self):
         """
-        If the validator suceeds, nothing gets raised.
+        If the validator succeeds, nothing gets raised.
         """
         C = make_class("C", {"x": attr(validator=lambda *a: None),
                              "y": attr()})
