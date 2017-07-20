@@ -183,7 +183,7 @@ class TestDarkMagic(object):
     def test_subclass_without_extra_attrs(self, base):
         """
         Sub-classing (where the subclass does not have extra attrs) still
-        behaves the same as a subclss with extra attrs.
+        behaves the same as a subclass with extra attrs.
         """
         class Sub2(base):
             pass

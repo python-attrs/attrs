@@ -51,7 +51,7 @@ Immutability
 
 In order to give you immutability, ``attrs`` will attach a ``__setattr__`` method to your class that raises a :exc:`attr.exceptions.FrozenInstanceError` whenever anyone tries to set an attribute.
 
-In order to circumvent that ourselves in ``__init__``, ``attrs`` uses (an agressively cached) :meth:`object.__setattr__` to set your attributes.  This is (still) slower than a plain assignment:
+In order to circumvent that ourselves in ``__init__``, ``attrs`` uses (an aggressively cached) :meth:`object.__setattr__` to set your attributes.  This is (still) slower than a plain assignment:
 
 .. code-block:: none
 
