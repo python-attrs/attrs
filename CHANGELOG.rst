@@ -28,6 +28,7 @@ Changes:
   `#198 <https://github.com/python-attrs/attrs/issues/198>`_
 - ``attr.Factory`` is now hashable again.
   `#204 <https://github.com/python-attrs/attrs/issues/204>`_
+- Hashing behavior when ``hash=False`` is now consistent for slot and non-slot classes.
 
 
 ----
