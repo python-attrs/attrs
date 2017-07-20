@@ -2,7 +2,7 @@
 Overview
 ========
 
-In order to fullfil its ambitious goal of bringing back the joy to writing classes, it gives you a class decorator and a way to declaratively define the attributes on that class:
+In order to fulfill its ambitious goal of bringing back the joy to writing classes, it gives you a class decorator and a way to declaratively define the attributes on that class:
 
 .. include:: ../README.rst
    :start-after: -code-begin-

@@ -263,7 +263,7 @@ And sometimes you even want mutable objects as default values (ever used acciden
 More information on why class methods for constructing objects are awesome can be found in this insightful `blog post <http://as.ynchrono.us/2014/12/asynchronous-object-initialization.html>`_.
 
 Default factories can also be set using a decorator.
-The method receives the partially initialiazed instance which enables you to base a default value on other attributes:
+The method receives the partially initialized instance which enables you to base a default value on other attributes:
 
 .. doctest::
 
