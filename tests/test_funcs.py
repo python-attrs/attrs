@@ -416,6 +416,19 @@ class TestAssoc(object):
         with pytest.deprecated_call():
             assert C(3, 2) == assoc(C(1, 2), x=3)
 
+    def test_warning(self):
+        """
+        DeprecationWarning points to the correct file.
+        """
+        @attributes
+        class C(object):
+            x = attr()
+
+        with pytest.warns(DeprecationWarning) as wi:
+            assert C(2) == assoc(C(1), x=2)
+
+        assert __file__ == wi.list[0].filename
+
 
 class TestEvolve(object):
     """

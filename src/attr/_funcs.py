@@ -170,7 +170,7 @@ def assoc(inst, **changes):
     """
     import warnings
     warnings.warn("assoc is deprecated and will be removed after 2018/01.",
-                  DeprecationWarning)
+                  DeprecationWarning, stacklevel=2)
     new = copy.copy(inst)
     attrs = fields(inst.__class__)
     for k, v in iteritems(changes):
