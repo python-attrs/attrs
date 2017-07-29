@@ -424,7 +424,7 @@ class TestAssoc(object):
         class C(object):
             x = attr()
 
-        with pytest.deprecated_call() as wi:
+        with pytest.warns(DeprecationWarning) as wi:
             assert C(2) == assoc(C(1), x=2)
 
         assert __file__ == wi.list[0].filename
