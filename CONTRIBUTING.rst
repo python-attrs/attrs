@@ -94,10 +94,10 @@ Documentation
 
      - Added ``attr.validators.func()``.
        The feature really *is* awesome.
-       [`#1 <https://github.com/python-attrs/attrs/pull/1>`_]
+       `#1 <https://github.com/python-attrs/attrs/pull/1>`_
      - ``attr.func()`` now doesn't crash the Large Hadron Collider anymore.
        The bug really *was* nasty.
-       [`#2 <https://github.com/python-attrs/attrs/pull/2>`_]
+       `#2 <https://github.com/python-attrs/attrs/pull/2>`_
 
 
 Local Development Environment
