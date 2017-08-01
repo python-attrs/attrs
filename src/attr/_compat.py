@@ -6,7 +6,7 @@ import types
 
 
 PY2 = sys.version_info[0] == 2
-PYPY = platform.python_implementation == 'PyPy'
+PYPY = platform.python_implementation() == 'PyPy'
 
 
 if PY2:
