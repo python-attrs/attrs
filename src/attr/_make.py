@@ -6,7 +6,14 @@ import linecache
 from operator import itemgetter
 
 from . import _config
-from ._compat import PY2, iteritems, isclass, iterkeys, metadata_proxy
+from ._compat import (
+    PY2, 
+    iteritems, 
+    isclass, 
+    iterkeys, 
+    metadata_proxy,
+    set_closure_cell,
+)
 from .exceptions import (
     DefaultAlreadySetError,
     FrozenInstanceError,
@@ -373,11 +380,19 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
                 # It might not actually be in there, e.g. if using 'these'.
                 cls_dict.pop(ca_name, None)
             cls_dict.pop("__dict__", None)
+            old_cls = cls
 
             qualname = getattr(cls, "__qualname__", None)
             cls = type(cls)(cls.__name__, cls.__bases__, cls_dict)
             if qualname is not None:
                 cls.__qualname__ = qualname
+            for item in cls.__dict__.values():
+                closure_cells = getattr(item, '__closure__', [])
+                if not closure_cells:
+                    continue
+                for cell in closure_cells:
+                    if cell.cell_contents is old_cls:
+                        set_closure_cell(cell, cls)
 
         return cls
 
