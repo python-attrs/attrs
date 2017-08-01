@@ -99,4 +99,3 @@ else:
     set_closure_cell = ctypes.pythonapi.PyCell_Set
     set_closure_cell.argtypes = (ctypes.py_object, ctypes.py_object)
     set_closure_cell.restype = ctypes.c_int
-    

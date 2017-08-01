@@ -7,10 +7,10 @@ from operator import itemgetter
 
 from . import _config
 from ._compat import (
-    PY2, 
-    iteritems, 
-    isclass, 
-    iterkeys, 
+    PY2,
+    iteritems,
+    isclass,
+    iterkeys,
     metadata_proxy,
     set_closure_cell,
 )

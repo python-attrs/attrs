@@ -34,7 +34,7 @@ class C1(object):
 
     if not PY2:
         def my_class(self):
-            return __class__
+            return __class__  # NOQA: F821
 
         def my_super(self):
             """Just to test out the no-arg super."""
@@ -59,7 +59,7 @@ class C1Slots(object):
 
     if not PY2:
         def my_class(self):
-            return __class__
+            return __class__  # NOQA: F821
 
         def my_super(self):
             """Just to test out the no-arg super."""
@@ -335,6 +335,7 @@ def test_closure_cell_rewriting():
     assert non_slot_instance.my_super()
     assert slot_instance.my_super()
 
+
 @pytest.mark.skipif(PY2, reason="closure cell rewriting is PY3-only.")
 def test_closure_cell_rewriting_inheritance():
     """
@@ -345,12 +346,12 @@ def test_closure_cell_rewriting_inheritance():
     @attr.s
     class C2(C1):
         def my_subclass(self):
-            return __class__
-    
+            return __class__  # NOQA: F821
+
     @attr.s
     class C2Slots(C1Slots):
         def my_subclass(self):
-            return __class__
+            return __class__  # NOQA: F821
 
     non_slot_instance = C2(x=1, y="test")
     slot_instance = C2Slots(x=1, y="test")
