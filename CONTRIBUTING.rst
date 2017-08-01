@@ -18,8 +18,7 @@ Workflow
   This is a hard rule; patches with missing tests or documentation can't be accepted.
 - Make sure your changes pass our CI_.
   You won't get any feedback until it's green unless you ask for it.
-- Once you've addressed review feedback, make sure to bump the pull request with a short note.
-  Maintainers don’t receive notifications when you push new commits.
+- Once you've addressed review feedback, make sure to bump the pull request with a short note, so we know you're done.
 - Don’t break `backward compatibility`_.
 
 
