@@ -745,7 +745,6 @@ class TestMetadata(object):
                     a.metadata.popitem()
 
     @given(lists(simple_attrs_without_metadata, min_size=2, max_size=5))
-    @settings(suppress_health_check=[HealthCheck.too_slow])
     def test_empty_metadata_singleton(self, list_of_attrs):
         """
         All empty metadata attributes share the same empty metadata dict.
