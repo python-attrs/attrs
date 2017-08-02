@@ -91,9 +91,9 @@ else:
     def metadata_proxy(d):
         return types.MappingProxyType(dict(d))
 
-if PYPY:
-    def set_closure_cell(cell, value):  # NOQA
-        cell.__setstate__((value,))     # NOQA
+if PYPY:  # pragma: no cover
+    def set_closure_cell(cell, value):
+        cell.__setstate__((value,))
 else:
     import ctypes
     set_closure_cell = ctypes.pythonapi.PyCell_Set
