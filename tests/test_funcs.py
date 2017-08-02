@@ -154,6 +154,7 @@ class TestAsDict(object):
         assert instance == roundtrip_instance
 
     @given(simple_classes())
+    @settings(suppress_health_check=[HealthCheck.too_slow])
     def test_asdict_preserve_order(self, cls):
         """
         Field order should be preserved when dumping to OrderedDicts.
