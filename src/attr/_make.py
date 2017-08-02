@@ -386,9 +386,16 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
             cls = type(cls)(cls.__name__, cls.__bases__, cls_dict)
             if qualname is not None:
                 cls.__qualname__ = qualname
+
+            # The following is a fix for
+            # https://github.com/python-attrs/attrs/issues/102.
+            # On Python 3, if a method mentions `__class__` or the no-arg
+            # super, the compiler will bake a reference to the class in the
+            # method itself, under `method.__closure__`. Since we replace the
+            # class with it's clone, we rewrite these references too.
             for item in cls.__dict__.values():
-                closure_cells = getattr(item, '__closure__', [])
-                if not closure_cells:
+                closure_cells = getattr(item, "__closure__", None)
+                if not closure_cells:  # Catch None or the empty list.
                     continue
                 for cell in closure_cells:
                     if cell.cell_contents is old_cls:

@@ -6,7 +6,7 @@ import types
 
 
 PY2 = sys.version_info[0] == 2
-PYPY = platform.python_implementation() == 'PyPy'
+PYPY = platform.python_implementation() == "PyPy"
 
 
 if PY2:
@@ -92,8 +92,8 @@ else:
         return types.MappingProxyType(dict(d))
 
 if PYPY:
-    def set_closure_cell(cell, value):
-        cell.__setstate__((value,))
+    def set_closure_cell(cell, value):  # NOQA
+        cell.__setstate__((value,))     # NOQA
 else:
     import ctypes
     set_closure_cell = ctypes.pythonapi.PyCell_Set
