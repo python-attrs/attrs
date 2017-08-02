@@ -10,7 +10,7 @@ from operator import attrgetter
 
 import pytest
 
-from hypothesis import given, settings, HealthCheck
+from hypothesis import given
 from hypothesis.strategies import booleans, integers, lists, sampled_from, text
 
 from attr import _config
@@ -697,7 +697,6 @@ class TestMetadata(object):
     Tests for metadata handling.
     """
     @given(sorted_lists_of_attrs)
-    @settings(suppress_health_check=[HealthCheck.too_slow])
     def test_metadata_present(self, list_of_attrs):
         """
         Assert dictionaries are copied and present.
@@ -719,7 +718,6 @@ class TestMetadata(object):
                             class_attr.metadata.get(k))
 
     @given(simple_classes(), text())
-    @settings(suppress_health_check=[HealthCheck.too_slow])
     def test_metadata_immutability(self, C, string):
         """
         The metadata dict should be best-effort immutable.
