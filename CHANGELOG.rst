@@ -24,9 +24,12 @@ Deprecations:
 Changes:
 ^^^^^^^^
 
-- Fix *str* on Python 2 when ``slots=True``.
+- ``super()`` and ``__class__`` now work on Python 3 when ``slots=True``.
+  `#102 <https://github.com/python-attrs/attrs/issues/102>`_
+  `#226 <https://github.com/python-attrs/attrs/issues/226>`_
+- The combination of ``str=True`` and ``slots=True`` now works on Python 2.
   `#198 <https://github.com/python-attrs/attrs/issues/198>`_
-- ``attr.Factory`` is now hashable again.
+- ``attr.Factory`` is hashable again.
   `#204 <https://github.com/python-attrs/attrs/issues/204>`_
 
 

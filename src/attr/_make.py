@@ -6,7 +6,14 @@ import linecache
 from operator import itemgetter
 
 from . import _config
-from ._compat import PY2, iteritems, isclass, iterkeys, metadata_proxy
+from ._compat import (
+    PY2,
+    iteritems,
+    isclass,
+    iterkeys,
+    metadata_proxy,
+    set_closure_cell,
+)
 from .exceptions import (
     DefaultAlreadySetError,
     FrozenInstanceError,
@@ -373,11 +380,26 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
                 # It might not actually be in there, e.g. if using 'these'.
                 cls_dict.pop(ca_name, None)
             cls_dict.pop("__dict__", None)
+            old_cls = cls
 
             qualname = getattr(cls, "__qualname__", None)
             cls = type(cls)(cls.__name__, cls.__bases__, cls_dict)
             if qualname is not None:
                 cls.__qualname__ = qualname
+
+            # The following is a fix for
+            # https://github.com/python-attrs/attrs/issues/102.  On Python 3,
+            # if a method mentions `__class__` or uses the no-arg super(), the
+            # compiler will bake a reference to the class in the method itself
+            # as `method.__closure__`.  Since we replace the class with a
+            # clone, we rewrite these references so it keeps working.
+            for item in cls.__dict__.values():
+                closure_cells = getattr(item, "__closure__", None)
+                if not closure_cells:  # Catch None or the empty list.
+                    continue
+                for cell in closure_cells:
+                    if cell.cell_contents is old_cls:
+                        set_closure_cell(cell, cls)
 
         return cls
 
