@@ -15,7 +15,7 @@ Workflow
   Please submit as many fixes for typos and grammar bloopers as you can!
 - Try to limit each pull request to *one* change only.
 - *Always* add tests and docs for your code.
-  This is a hard rule; patches with missing tests or documentation can't be accepted.
+  This is a hard rule; patches with missing tests or documentation can't be merged.
 - Make sure your changes pass our CI_.
   You won't get any feedback until it's green unless you ask for it.
 - Once you've addressed review feedback, make sure to bump the pull request with a short note, so we know you're done.
