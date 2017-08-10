@@ -1,3 +1,4 @@
+dist: trusty
 sudo: false
 cache:
   directories:
@@ -16,7 +17,7 @@ matrix:
       env: TOXENV=py35
     - python: "3.6"
       env: TOXENV=py36
-    - python: "pypy"
+    - python: "pypy2.7-5.8.0"
       env: TOXENV=pypy
     - python: "pypy3.5-5.8.0"
       env: TOXENV=pypy3
