@@ -181,11 +181,6 @@ def _transform_attrs(cls, these):
 
     If *these* is passed, use that and don't look for them on the class.
     """
-    super_cls = []
-    for c in reversed(cls.__mro__[1:-1]):
-        sub_attrs = getattr(c, "__attrs_attrs__", None)
-        if sub_attrs is not None:
-            super_cls.extend(a for a in sub_attrs if a not in super_cls)
     if these is None:
         ca_list = [(name, attr)
                    for name, attr
@@ -201,6 +196,17 @@ def _transform_attrs(cls, these):
         for attr_name, ca
         in sorted(ca_list, key=lambda e: e[1].counter)
     ]
+
+    super_cls = []
+    non_super_names = set(a.name for a in non_super_attrs)
+    for c in reversed(cls.__mro__[1:-1]):
+        sub_attrs = getattr(c, "__attrs_attrs__", None)
+        if sub_attrs is not None:
+            super_cls.extend(
+                a for a in sub_attrs
+                if a not in super_cls and a.name not in non_super_names
+            )
+
     attr_names = [a.name for a in super_cls + non_super_attrs]
 
     AttrsClass = _make_attr_tuple_class(cls.__name__, attr_names)
