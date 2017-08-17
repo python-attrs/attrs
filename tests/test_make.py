@@ -626,6 +626,22 @@ class TestValidate(object):
         with pytest.raises(FloatingPointError):
             validate(i)
 
+    def test_init_validation(self):
+        """
+        Setting init_validation to False prevent validation from
+        running during init.
+        """
+        def raiser(_, __, value):
+            if value == 42:
+                raise FloatingPointError
+
+        C = make_class("C", {"x": attr(validator=raiser)},
+                       init_validation=False)
+        i = C(42)
+
+        with pytest.raises(FloatingPointError):
+            validate(i)
+
     def test_run_validators(self):
         """
         Setting `_run_validators` to False prevents validators from running.

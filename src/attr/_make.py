@@ -242,7 +242,7 @@ def _frozen_delattrs(self, name):
 
 
 def attributes(maybe_cls=None, these=None, repr_ns=None,
-               repr=True, cmp=True, hash=None, init=True,
+               repr=True, cmp=True, hash=None, init=True, init_validation=True,
                slots=False, frozen=False, str=False):
     r"""
     A class decorator that adds `dunder
@@ -295,6 +295,10 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
         ``attrs`` attributes.  Leading underscores are stripped for the
         argument name.  If a ``__attrs_post_init__`` method exists on the
         class, it will be called after the class is fully initialized.
+    :param bool init_validation: If ``True``, run validators for the attributes
+        in the ``__init__`` method after the attributes have been set.
+        Otherwise :func:`validate` must be called separately to validate the
+        attributes.
     :param bool slots: Create a slots_-style class that's more
         memory-efficient.  See :ref:`slots` for further ramifications.
     :param bool frozen: Make instances immutable after initialization.  If
@@ -325,6 +329,7 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
     ..  versionchanged::
             17.1.0 *hash* supports ``None`` as value which is also the default
             now.
+    ..  versionadded:: 17.3.0 *init_validation*
     """
     def wrap(cls):
         if getattr(cls, "__class__", None) is None:
@@ -366,7 +371,8 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
             cls.__hash__ = None
 
         if init is True:
-            cls = _add_init(cls, effectively_frozen)
+            cls = _add_init(cls, effectively_frozen,
+                            init_validation=init_validation)
         if effectively_frozen is True:
             cls.__setattr__ = _frozen_setattrs
             cls.__delattr__ = _frozen_delattrs
@@ -568,7 +574,7 @@ def _add_repr(cls, ns=None, attrs=None, str=False):
     return cls
 
 
-def _add_init(cls, frozen):
+def _add_init(cls, frozen, *, init_validation=True):
     """
     Add a __init__ method to *cls*.  If *frozen* is True, make it immutable.
     """
@@ -585,6 +591,7 @@ def _add_init(cls, frozen):
     script, globs = _attrs_to_script(
         attrs,
         frozen,
+        init_validation,
         getattr(cls, "__attrs_post_init__", False),
     )
     locs = {}
@@ -681,7 +688,7 @@ def validate(inst):
             v(inst, a, getattr(inst, a.name))
 
 
-def _attrs_to_script(attrs, frozen, post_init):
+def _attrs_to_script(attrs, frozen, init_validation, post_init):
     """
     Return a script of an initializer for *attrs* and a dict of globals.
 
@@ -689,6 +696,9 @@ def _attrs_to_script(attrs, frozen, post_init):
 
      If *frozen* is True, we cannot set the attributes directly so we use
     a cached ``object.__setattr__``.
+
+     If *init_validation* is True, run the validators after the attributes
+     have been set.
     """
     lines = []
     if frozen is True:
@@ -734,7 +744,7 @@ def _attrs_to_script(attrs, frozen, post_init):
     names_for_globals = {}
 
     for a in attrs:
-        if a.validator:
+        if a.validator and init_validation:
             attrs_to_validate.append(a)
         attr_name = a.name
         arg_name = a.name.lstrip("_")
