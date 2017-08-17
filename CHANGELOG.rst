@@ -31,6 +31,7 @@ Changes:
   `#198 <https://github.com/python-attrs/attrs/issues/198>`_
 - ``attr.Factory`` is hashable again.
   `#204 <https://github.com/python-attrs/attrs/issues/204>`_
+- Add ``init_validation`` option to ``attr.s`` that controls whether validators are run at the end of the ``__init__()`` method.
 
 
 ----
