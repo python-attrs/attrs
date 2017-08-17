@@ -371,8 +371,7 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
             cls.__hash__ = None
 
         if init is True:
-            cls = _add_init(cls, effectively_frozen,
-                            init_validation=init_validation)
+            cls = _add_init(cls, effectively_frozen, init_validation)
         if effectively_frozen is True:
             cls.__setattr__ = _frozen_setattrs
             cls.__delattr__ = _frozen_delattrs
@@ -574,7 +573,7 @@ def _add_repr(cls, ns=None, attrs=None, str=False):
     return cls
 
 
-def _add_init(cls, frozen, *, init_validation=True):
+def _add_init(cls, frozen, init_validation):
     """
     Add a __init__ method to *cls*.  If *frozen* is True, make it immutable.
     """
