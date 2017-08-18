@@ -51,7 +51,8 @@ Immutability
 
 In order to give you immutability, ``attrs`` will attach a ``__setattr__`` method to your class that raises a :exc:`attr.exceptions.FrozenInstanceError` whenever anyone tries to set an attribute.
 
-In order to circumvent that ourselves in ``__init__``, ``attrs`` uses (an aggressively cached) :meth:`object.__setattr__` to set your attributes.  This is (still) slower than a plain assignment:
+To circumvent that ourselves in ``__init__``, ``attrs`` uses (an aggressively cached) :meth:`object.__setattr__` to set your attributes.
+This is (still) slower than a plain assignment:
 
 .. code-block:: none
 
@@ -67,10 +68,10 @@ In order to circumvent that ourselves in ``__init__``, ``attrs`` uses (an aggres
   ........................................
   Median +- std dev: 676 ns +- 16 ns
 
-So on my notebook the difference is about 300 nanoseconds (1 second is 1,000,000,000 nanoseconds).
+So on a standard notebook the difference is about 300 nanoseconds (1 second is 1,000,000,000 nanoseconds).
 It's certainly something you'll feel in a hot loop but shouldn't matter in normal code.
 Pick what's more important to you.
 
 ****
 
-Once constructed, frozen instances differ in no way from regular ones except that you cannot change its attributes.
+Once constructed, frozen instances don't differ in any way from regular ones except that you cannot change its attributes.
