@@ -135,6 +135,55 @@ Core
 .. autoexception:: attr.exceptions.DefaultAlreadySetError
 
 
+Influencing Initialization
+++++++++++++++++++++++++++
+
+Generally speaking, it's best to keep logic out of your ``__init__``.
+The moment you need a finer control over how your class is instantiated, it's usually best to use a classmethod factory or to apply the `builder pattern <https://en.wikipedia.org/wiki/Builder_pattern>`_.
+
+However, sometimes you need to do that one quick thing after your class is initialized.
+And for that ``attrs`` offers the ``__attrs_post_init__`` hook that is automatically detected and run after ``attrs`` is done initializing your instance:
+
+.. doctest::
+
+   >>> @attr.s
+   ... class C(object):
+   ...     x = attr.ib()
+   ...     y = attr.ib(init=False)
+   ...     def __attrs_post_init__(self):
+   ...         self.y = self.x + 1
+   >>> C(1)
+   C(x=1, y=2)
+
+Please note that you can't directly set attributes on frozen classes:
+
+.. doctest::
+
+   >>> @attr.s(frozen=True)
+   ... class FrozenBroken(object):
+   ...     x = attr.ib()
+   ...     y = attr.ib(init=False)
+   ...     def __attrs_post_init__(self):
+   ...         self.y = self.x + 1
+   >>> FrozenBroken(1)
+   Traceback (most recent call last):
+      ...
+   attr.exceptions.FrozenInstanceError: can't set attribute
+
+If you need to set attributes on a frozen class, you'll have to resort to the :ref:`same trick <how-frozen>` as ``attrs`` and use :meth:`object.__setattr__`:
+
+.. doctest::
+
+   >>> @attr.s(frozen=True)
+   ... class Frozen(object):
+   ...     x = attr.ib()
+   ...     y = attr.ib(init=False)
+   ...     def __attrs_post_init__(self):
+   ...         object.__setattr__(self, "y", self.x + 1)
+   >>> Frozen(1)
+   Frozen(x=1, y=2)
+
+
 .. _helpers:
 
 Helpers
