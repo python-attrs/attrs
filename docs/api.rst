@@ -142,7 +142,7 @@ Generally speaking, it's best to keep logic out of your ``__init__``.
 The moment you need a finer control over how your class is instantiated, it's usually best to use a classmethod factory or to apply the `builder pattern <https://en.wikipedia.org/wiki/Builder_pattern>`_.
 
 However, sometimes you need to do that one quick thing after your class is initialized.
-And for that ``attrs`` offers the ``__attrs_post_init__`` hook that is automatically detected and ran after ``attrs`` is done initializing your instance:
+And for that ``attrs`` offers the ``__attrs_post_init__`` hook that is automatically detected and run after ``attrs`` is done initializing your instance:
 
 .. doctest::
 
