@@ -23,18 +23,6 @@ Changes for the upcoming release can be found in the `"changelog.d" directory <h
 -------------------
 
 
-Backward-incompatible Changes:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-*none*
-
-
-Deprecations:
-^^^^^^^^^^^^^
-
-*none*
-
-
 Changes:
 ^^^^^^^^
 
