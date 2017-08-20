@@ -271,3 +271,15 @@ class TestDarkMagic(object):
                 return self.x + 1
 
         assert C(1, 2) == C()
+
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("frozen", [True, False])
+    def test_attrib_overwrite(self, slots, frozen):
+        """
+        Subclasses can overwrite attributes of their superclass.
+        """
+        @attr.s(slots=slots, frozen=frozen)
+        class SubOverwrite(Super):
+            x = attr.ib(default=attr.Factory(list))
+
+        assert SubOverwrite([]) == SubOverwrite()
