@@ -4,6 +4,8 @@ Changelog
 Versions follow `CalVer <http://calver.org>`_ with a strict backwards compatibility policy.
 The third digit is only for regressions.
 
+Changes for the upcoming release can be found in the `"changelog.d" directory <https://github.com/python-attrs/attrs/tree/master/changelog.d>`_ in our repository.
+
 .. towncrier release notes start
 
 
