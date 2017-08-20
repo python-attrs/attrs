@@ -31,6 +31,8 @@ matrix:
       env: TOXENV=docs
     - python: "3.6"
       env: TOXENV=readme
+    - python: "3.6"
+      env: TOXENV=changelog
 
 
 install:

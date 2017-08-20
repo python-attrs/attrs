@@ -4,33 +4,7 @@ Changelog
 Versions follow `CalVer <http://calver.org>`_ with a strict backwards compatibility policy.
 The third digit is only for regressions.
 
-
-17.3.0 (UNRELEASED)
--------------------
-
-
-Backward-incompatible changes:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-*none*
-
-
-Deprecations:
-^^^^^^^^^^^^^
-
-*none*
-
-
-Changes:
-^^^^^^^^
-
-- ``super()`` and ``__class__`` now work on Python 3 when ``slots=True``.
-  `#102 <https://github.com/python-attrs/attrs/issues/102>`_
-  `#226 <https://github.com/python-attrs/attrs/issues/226>`_
-- The combination of ``str=True`` and ``slots=True`` now works on Python 2.
-  `#198 <https://github.com/python-attrs/attrs/issues/198>`_
-- ``attr.Factory`` is hashable again.
-  `#204 <https://github.com/python-attrs/attrs/issues/204>`_
+.. towncrier release notes start
 
 
 ----
@@ -40,7 +14,7 @@ Changes:
 -------------------
 
 
-Backward-incompatible changes:
+Backward-incompatible Changes:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 *none*
@@ -74,7 +48,7 @@ To encourage more participation, the project has also been moved into a `dedicat
    :alt: attrs logo
 
 
-Backward-incompatible changes:
+Backward-incompatible Changes:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - ``attrs`` will set the ``__hash__()`` method to ``None`` by default now.
@@ -200,7 +174,7 @@ Changes:
 16.1.0 (2016-08-30)
 -------------------
 
-Backward-incompatible changes:
+Backward-incompatible Changes:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - All instances where function arguments were called ``cl`` have been changed to the more Pythonic ``cls``.
@@ -244,7 +218,7 @@ Changes:
 16.0.0 (2016-05-23)
 -------------------
 
-Backward-incompatible changes:
+Backward-incompatible Changes:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Python 3.3 and 2.6 aren't supported anymore.

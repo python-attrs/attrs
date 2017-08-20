@@ -7,6 +7,6 @@ This is just a reminder about the most common mistakes.  Please make sure that y
 - [ ] Updated **documentation** for changed code.
 - [ ] Documentation in `.rst` files is written using [semantic newlines](http://rhodesmill.org/brandon/2012/one-sentence-per-line/).
 - [ ] Changed/added classes/methods/functions have appropriate `versionadded`, `versionchanged`, or `deprecated` [directives](http://www.sphinx-doc.org/en/stable/markup/para.html#directive-versionadded).
-- [ ] Changes (and possible deprecations) are documented in [`CHANGELOG.rst`](https://github.com/python-attrs/attrs/blob/master/CHANGELOG.rst).
+- [ ] Changes (and possible deprecations) have news fragments in [`changelog.d`](https://github.com/python-attrs/attrs/blob/master/changelog.d).
 
 If you have *any* questions to *any* of the points above, just **submit and ask**!  This checklist is here to *help* you, not to deter you from contributing!

@@ -1,4 +1,4 @@
-include LICENSE *.rst
+include LICENSE *.rst *.toml
 
 # Don't package GitHub-specific files.
 exclude *.md .travis.yml
@@ -13,3 +13,6 @@ recursive-include docs *.png
 recursive-include docs *.py
 recursive-include docs *.rst
 prune docs/_build
+
+# Changelog news fragments -- is empty on releases.
+prune changelog.d
