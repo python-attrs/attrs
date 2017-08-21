@@ -75,9 +75,7 @@ The most obvious difference between ``namedtuple``\ s and ``attrs``-based classe
    >>> i1 == i2
    False
 
-
-…while a namedtuple is *explicitly* intended to behave like a tuple which means the type of a tuple is *ignored*:
-
+…while a ``namedtuple`` is *intentionally* `behaving like a tuple`_ which means the type of a tuple is *ignored*:
 
 .. doctest::
 
@@ -91,17 +89,26 @@ The most obvious difference between ``namedtuple``\ s and ``attrs``-based classe
 
 Other often surprising behaviors include:
 
-- Since they are a subclass of tuples_, ``namedtuple``\ s have a length and are both iterable and indexable.
+- Since they are a subclass of tuples, ``namedtuple``\ s have a length and are both iterable and indexable.
   That's not what you'd expect from a class and is likely to shadow subtle typo bugs.
 - Iterability also implies that it's easy to accidentally unpack a ``namedtuple`` which leads to hard-to-find bugs. [#iter]_
 - ``namedtuple``\ s have their methods *on your instances* whether you like it or not. [#pollution]_
 - ``namedtuple``\ s are *always* immutable.
-  Not only does that mean that you can't decide for yourself whether your instances should be immutable or not, it also means that if you want to influence your class' initialization (validation?  default values?), you have to implement :meth:`object.__new__` which is a particularly hacky and error-prone requirement for a very common problem. [#immutable]_
+  Not only does that mean that you can't decide for yourself whether your instances should be immutable or not, it also means that if you want to influence your class' initialization (validation?  default values?), you have to implement :meth:`__new__() <object.__new__>` which is a particularly hacky and error-prone requirement for a very common problem. [#immutable]_
 - To attach methods to a ``namedtuple`` you have to subclass it.
-  And if you follow the standard library documentation's recommendation of ``class Point(namedtuple('Point', ['x', 'y']))``, you end up with a class that has *two* ``Point``\ s in its ``__mro__``: ``[<class 'point.Point'>, <class 'point.Point'>, <type 'tuple'>, <type 'object'>]``.
+  And if you follow the standard library documentation's recommendation of::
+
+    class Point(namedtuple('Point', ['x', 'y'])):
+        # ...
+
+  you end up with a class that has *two* ``Point``\ s in its :attr:`__mro__ <class.__mro__>`: ``[<class 'point.Point'>, <class 'point.Point'>, <type 'tuple'>, <type 'object'>]``.
+
+  That's not only confusing, it also has very practical consequences:
+  for example if you create documentation that includes class hierarchies like `Sphinx's autodoc <http://www.sphinx-doc.org/en/stable/ext/autodoc.html>`_ with ``show-inheritance``.
   Again: common problem, hacky solution with confusing fallout.
 
 All these things make ``namedtuple``\ s a particularly poor choice for public APIs because all your objects are irrevocably tainted.
+With ``attrs`` your users won't notice a difference because it creates regular, well-behaved classes.
 
 .. admonition:: Summary
 
@@ -125,7 +132,7 @@ All these things make ``namedtuple``\ s a particularly poor choice for public AP
 .. [#perf] Although ``attrs`` would serve you just as well!
            Since both employ the same method of writing and compiling Python code for you, the performance penalty is negligible at worst and in some cases ``attrs`` is even faster if you use ``slots=True`` (which is generally a good idea anyway).
 
-.. _tuples: https://docs.python.org/3/tutorial/datastructures.html#tuples-and-sequences
+.. _behaving like a tuple: https://docs.python.org/3/tutorial/datastructures.html#tuples-and-sequences
 
 
 …dicts?
@@ -136,7 +143,7 @@ Dictionaries are not for fixed fields.
 If you have a dict, it maps something to something else.
 You should be able to add and remove values.
 
-Objects, on the other hand, are supposed to have specific fields of specific types, because their methods have strong expectations of what those fields and types are.
+
 
 ``attrs`` lets you be specific about those expectations; a dictionary does not.
 It gives you a named entity (the class) in your code, which lets you explain in other places whether you take a parameter of that class or return a value of that class.
