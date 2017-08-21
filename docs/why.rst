@@ -58,7 +58,7 @@ Adding an attribute to a class concerns only those who actually care about that 
 -------------
 
 :func:`collections.namedtuple`\ s are tuples with names, not classes. [#history]_
-Since writing classes is tiresome in Python, now and then someone discovers all the typing they can save and get really excited.
+Since writing classes is tiresome in Python, every now and then someone discovers all the typing they could save and gets really excited.
 However that convenience comes at a price.
 
 The most obvious difference between ``namedtuple``\ s and ``attrs``-based classes is that the latter are type-sensitive:
@@ -76,7 +76,7 @@ The most obvious difference between ``namedtuple``\ s and ``attrs``-based classe
    False
 
 
-…while a namedtuple is *explicitly* intended to behave like a tuple which means the type of a tuple is ignored:
+…while a namedtuple is *explicitly* intended to behave like a tuple which means the type of a tuple is *ignored*:
 
 
 .. doctest::
@@ -91,15 +91,17 @@ The most obvious difference between ``namedtuple``\ s and ``attrs``-based classe
 
 Other often surprising behaviors include:
 
-- ``namedtuple``\ s are iterable and indexable which is not what you'd expect from a class.
-- Iterability also implies it's easy to accidentally unpack a ``namedtuple`` which leads to hard-to-find bugs. [#iter]_
-- ``namedtuple`` adds its methods to your instances whether you want or not. [#pollution]_
+- Since they are a subclass of tuples_, ``namedtuple``\ s have a length and are both iterable and indexable.
+  That's not what you'd expect from a class and is likely to shadow subtle typo bugs.
+- Iterability also implies that it's easy to accidentally unpack a ``namedtuple`` which leads to hard-to-find bugs. [#iter]_
+- ``namedtuple``\ s have their methods *on your instances* whether you like it or not. [#pollution]_
 - ``namedtuple``\ s are *always* immutable.
   Not only does that mean that you can't decide for yourself whether your instances should be immutable or not, it also means that if you want to influence your class' initialization (validation?  default values?), you have to implement :meth:`object.__new__` which is a particularly hacky and error-prone requirement for a very common problem. [#immutable]_
 - To attach methods to a ``namedtuple`` you have to subclass it.
-  Again: common problem, hacky solution.
+  And if you follow the standard library documentation's recommendation of ``class Point(namedtuple('Point', ['x', 'y']))``, you end up with a class that has *two* ``Point``\ s in its ``__mro__``: ``[<class 'point.Point'>, <class 'point.Point'>, <type 'tuple'>, <type 'object'>]``.
+  Again: common problem, hacky solution with confusing fallout.
 
-All these things make ``namedtuple``\ s particular poor choice for public APIs because all your objects are irrevocably tainted.
+All these things make ``namedtuple``\ s a particularly poor choice for public APIs because all your objects are irrevocably tainted.
 
 .. admonition:: Summary
 
@@ -108,20 +110,22 @@ All these things make ``namedtuple``\ s particular poor choice for public APIs b
 
   Other than that, ``attrs`` also adds nifty features like validators, converters, and (mutable!) default values.
 
-.. _tuple: https://docs.python.org/3/tutorial/datastructures.html#tuples-and-sequences
 
 .. rubric:: Footnotes
 
-.. [#history] The word is that ``namedtuple``\ s have been added to the Python standard library as a way to make tuples in return values more readable.
+.. [#history] The word is that ``namedtuple``\ s were added to the Python standard library as a way to make tuples in return values more readable.
               And indeed that is something you see throughout the standard library.
+
+              Looking at what for the makers of ``namedtuple``\ s use it themselves is a good guideline for deciding on your own use cases.
 .. [#pollution] ``attrs`` only adds a single attribute: ``__attrs_attrs__`` for introspection.
                 All helpers are functions in the ``attr`` package.
                 Since they take the instance as first argument, you can easily attach them to your classes under a name of your own choice.
 .. [#iter] :func:`attr.astuple` can be used to get that behavior in ``attrs`` on *explicit demand*.
-           Additionally it also offers :func:`attr.asdict` which is great for JSON serialization.
 .. [#immutable] ``attrs`` offers *optional* immutability through the ``frozen`` keyword.
 .. [#perf] Although ``attrs`` would serve you just as well!
            Since both employ the same method of writing and compiling Python code for you, the performance penalty is negligible at worst and in some cases ``attrs`` is even faster if you use ``slots=True`` (which is generally a good idea anyway).
+
+.. _tuples: https://docs.python.org/3/tutorial/datastructures.html#tuples-and-sequences
 
 
 …dicts?
