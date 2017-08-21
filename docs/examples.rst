@@ -532,7 +532,7 @@ Slot classes are a little different than ordinary, dictionary-backed classes:
   `Think twice <https://www.youtube.com/watch?v=7KnfGDajDQw>`_ before using :mod:`pickle` though.
 
 - As always with slot classes, you must specify a ``__weakref__`` slot if you wish for the class to be weak-referenceable.
-  Here's how it looks using attrs:
+  Here's how it looks using ``attrs``:
 
   .. doctest::
 
