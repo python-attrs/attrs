@@ -228,4 +228,19 @@ Also: no tests whatsoever.
 And who will guarantee you, that you don't accidentally flip the ``<`` in your tenth implementation of ``__gt__``?
 
 If you don't care and like typing, we're not gonna stop you.
-But if you ever get sick of the repetitiveness, ``attrs`` will be waiting for you. :)
+But if you ever get sick of the repetitiveness, ``attrs`` will be waiting for you.
+
+It also should be noted that ``attrs`` is not an all-or-nothing solution.
+You can freely choose which features you want and disable those that you want more control over:
+
+.. doctest::
+
+   >>> @attr.s(repr=False)
+   ... class SmartClass(object):
+   ...    a = attr.ib()
+   ...    b = attr.ib()
+   ...
+   ...    def __repr__(self):
+   ...        return "<SmartClass(a=%d)>" % (self.a,)
+   >>> SmartClass(1, 2)
+   <SmartClass(a=1)>
