@@ -57,81 +57,82 @@ Adding an attribute to a class concerns only those who actually care about that 
 …namedtuples?
 -------------
 
-The difference between :func:`collections.namedtuple`\ s and classes decorated by ``attrs`` is that the latter are type-sensitive and require less typing as compared with regular classes:
+:func:`collections.namedtuple`\ s are tuples with names, not classes. [#history]_
+Since writing classes is tiresome in Python, every now and then someone discovers all the typing they could save and gets really excited.
+However that convenience comes at a price.
 
+The most obvious difference between ``namedtuple``\ s and ``attrs``-based classes is that the latter are type-sensitive:
 
 .. doctest::
 
    >>> import attr
-   >>> @attr.s
-   ... class C1(object):
-   ...     a = attr.ib()
-   ...     def print_a(self):
-   ...        print(self.a)
-   >>> @attr.s
-   ... class C2(object):
-   ...     a = attr.ib()
-   >>> c1 = C1(a=1)
-   >>> c2 = C2(a=1)
-   >>> c1.a == c2.a
+   >>> C1 = attr.make_class("C1", ["a"])
+   >>> C2 = attr.make_class("C2", ["a"])
+   >>> i1 = C1(1)
+   >>> i2 = C2(1)
+   >>> i1.a == i2.a
    True
-   >>> c1 == c2
+   >>> i1 == i2
    False
-   >>> c1.print_a()
-   1
 
-
-…while a namedtuple is *explicitly* intended to behave like a tuple:
-
+…while a ``namedtuple`` is *intentionally* `behaving like a tuple`_ which means the type of a tuple is *ignored*:
 
 .. doctest::
 
    >>> from collections import namedtuple
    >>> NT1 = namedtuple("NT1", "a")
    >>> NT2 = namedtuple("NT2", "b")
-   >>> t1 = NT1._make([1,])
-   >>> t2 = NT2._make([1,])
+   >>> t1 = NT1(1)
+   >>> t2 = NT2(1)
    >>> t1 == t2 == (1,)
    True
 
+Other often surprising behaviors include:
 
-This can easily lead to surprising and unintended behaviors.
+- Since they are a subclass of tuples, ``namedtuple``\ s have a length and are both iterable and indexable.
+  That's not what you'd expect from a class and is likely to shadow subtle typo bugs.
+- Iterability also implies that it's easy to accidentally unpack a ``namedtuple`` which leads to hard-to-find bugs. [#iter]_
+- ``namedtuple``\ s have their methods *on your instances* whether you like it or not. [#pollution]_
+- ``namedtuple``\ s are *always* immutable.
+  Not only does that mean that you can't decide for yourself whether your instances should be immutable or not, it also means that if you want to influence your class' initialization (validation?  default values?), you have to implement :meth:`__new__() <object.__new__>` which is a particularly hacky and error-prone requirement for a very common problem. [#immutable]_
+- To attach methods to a ``namedtuple`` you have to subclass it.
+  And if you follow the standard library documentation's recommendation of::
 
-Opinions on object immutability vary.
-With ``attrs``, the choice is yours.
-Immutable classes are created by passing a ``frozen=True`` argument to the :func:`attr.s` decorator.
-By default, however, classes created by ``attrs`` are regular Python classes and therefore mutable:
+    class Point(namedtuple('Point', ['x', 'y'])):
+        # ...
 
-.. doctest::
+  you end up with a class that has *two* ``Point``\ s in its :attr:`__mro__ <class.__mro__>`: ``[<class 'point.Point'>, <class 'point.Point'>, <type 'tuple'>, <type 'object'>]``.
 
-   >>> import attr
-   >>> @attr.s
-   ... class Customer(object):
-   ...     first_name = attr.ib()
-   >>> c1 = Customer(first_name="Kaitlyn")
-   >>> c1.first_name
-   'Kaitlyn'
-   >>> c1.first_name = "Katelyn"
-   >>> c1.first_name
-   'Katelyn'
+  That's not only confusing, it also has very practical consequences:
+  for example if you create documentation that includes class hierarchies like `Sphinx's autodoc <http://www.sphinx-doc.org/en/stable/ext/autodoc.html>`_ with ``show-inheritance``.
+  Again: common problem, hacky solution with confusing fallout.
 
-…while classes created with :func:`collections.namedtuple` inherit from tuple and are therefore always immutable:
+All these things make ``namedtuple``\ s a particularly poor choice for public APIs because all your objects are irrevocably tainted.
+With ``attrs`` your users won't notice a difference because it creates regular, well-behaved classes.
 
-.. doctest::
+.. admonition:: Summary
 
-   >>> from collections import namedtuple
-   >>> Customer = namedtuple("Customer", "first_name")
-   >>> c1 = Customer(first_name="Kaitlyn")
-   >>> c1.first_name
-   'Kaitlyn'
-   >>> c1.first_name = "Katelyn"
-   Traceback (most recent call last):
-     File "<stdin>", line 1, in <module>
-   AttributeError: can't set attribute
+  If you want a *tuple with names*, by all means: go for a ``namedtuple``. [#perf]_
+  But if you want a class with methods, you're doing yourself a disservice by relying on a pile of hacks that requires you to employ even more hacks as your requirements expand.
 
-Other than that, ``attrs`` also adds nifty features like validators, converters, and default values.
+  Other than that, ``attrs`` also adds nifty features like validators, converters, and (mutable!) default values.
 
-.. _tuple: https://docs.python.org/2/tutorial/datastructures.html#tuples-and-sequences
+
+.. rubric:: Footnotes
+
+.. [#history] The word is that ``namedtuple``\ s were added to the Python standard library as a way to make tuples in return values more readable.
+              And indeed that is something you see throughout the standard library.
+
+              Looking at what for the makers of ``namedtuple``\ s use it themselves is a good guideline for deciding on your own use cases.
+.. [#pollution] ``attrs`` only adds a single attribute: ``__attrs_attrs__`` for introspection.
+                All helpers are functions in the ``attr`` package.
+                Since they take the instance as first argument, you can easily attach them to your classes under a name of your own choice.
+.. [#iter] :func:`attr.astuple` can be used to get that behavior in ``attrs`` on *explicit demand*.
+.. [#immutable] ``attrs`` offers *optional* immutability through the ``frozen`` keyword.
+.. [#perf] Although ``attrs`` would serve you just as well!
+           Since both employ the same method of writing and compiling Python code for you, the performance penalty is negligible at worst and in some cases ``attrs`` is even faster if you use ``slots=True`` (which is generally a good idea anyway).
+
+.. _behaving like a tuple: https://docs.python.org/3/tutorial/datastructures.html#tuples-and-sequences
 
 
 …dicts?
@@ -142,12 +143,13 @@ Dictionaries are not for fixed fields.
 If you have a dict, it maps something to something else.
 You should be able to add and remove values.
 
-Objects, on the other hand, are supposed to have specific fields of specific types, because their methods have strong expectations of what those fields and types are.
+
 
 ``attrs`` lets you be specific about those expectations; a dictionary does not.
 It gives you a named entity (the class) in your code, which lets you explain in other places whether you take a parameter of that class or return a value of that class.
 
 In other words: if your dict has a fixed and known set of keys, it is an object, not a hash.
+So if you never iterate over the keys of a dict, you should use a proper class.
 
 
 …hand-written classes?
