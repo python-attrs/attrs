@@ -1,0 +1,3 @@
+from . import ConverterType
+
+def optional(converter: ConverterType) -> ConverterType: ...
