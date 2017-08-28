@@ -90,7 +90,7 @@ Core
       ... class C(object):
       ...     x = attr.ib()
       >>> C.x
-      Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({}))
+      Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({}), type=None)
 
 
 .. autofunction:: attr.make_class
@@ -202,9 +202,9 @@ Helpers
       ...     x = attr.ib()
       ...     y = attr.ib()
       >>> attr.fields(C)
-      (Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({})), Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({})))
+      (Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({}), type=None), Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({}), type=None))
       >>> attr.fields(C)[1]
-      Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({}))
+      Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({}), type=None)
       >>> attr.fields(C).y is attr.fields(C)[1]
       True
 
@@ -299,7 +299,7 @@ See :ref:`asdict` for examples.
       >>> attr.validate(i)
       Traceback (most recent call last):
          ...
-      TypeError: ("'x' must be <type 'int'> (got '1' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>, repr=True, cmp=True, hash=None, init=True), <type 'int'>, '1')
+      TypeError: ("'x' must be <type 'int'> (got '1' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>, repr=True, cmp=True, hash=None, init=True, type=None), <type 'int'>, '1')
 
 
 Validators can be globally disabled if you want to run them only in development and tests but not in production because you fear their performance impact:
@@ -332,11 +332,11 @@ Validators
       >>> C("42")
       Traceback (most recent call last):
          ...
-      TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>), <type 'int'>, '42')
+      TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>, type=None), <type 'int'>, '42')
       >>> C(None)
       Traceback (most recent call last):
          ...
-      TypeError: ("'x' must be <type 'int'> (got None that is a <type 'NoneType'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>, repr=True, cmp=True, hash=None, init=True), <type 'int'>, None)
+      TypeError: ("'x' must be <type 'int'> (got None that is a <type 'NoneType'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>, repr=True, cmp=True, hash=None, init=True, type=None), <type 'int'>, None)
 
 .. autofunction:: attr.validators.in_
 
@@ -388,7 +388,7 @@ Validators
       >>> C("42")
       Traceback (most recent call last):
          ...
-      TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>), <type 'int'>, '42')
+      TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>, type=None), <type 'int'>, '42')
       >>> C(None)
       C(x=None)
 
