@@ -127,7 +127,8 @@ def attr(default=NOTHING, validator=None,
         components.  See :ref:`extending_metadata`.
     :param type: The type of the attribute.  In Python 3.6 or greater, the
         preferred method to specify the type is using a variable annotation
-        (see PEP-526 ).  This argument is provided for backward compatibility.
+        (see `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_).  
+        This argument is provided for backward compatibility.
         Regardless of the approach used, the type will be stored on
         ``Attribute.type``.
 
