@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
+import sys
 import pytest
 
 
@@ -16,3 +17,8 @@ def C():
         y = attr()
 
     return C
+
+
+collect_ignore = []
+if sys.version_info[:2] < (3, 6):
+    collect_ignore.append("tests/test_annotations.py")

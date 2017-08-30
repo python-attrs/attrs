@@ -1,5 +1,5 @@
 """
-Tests for python 3 type annotations.
+Tests for PEP-526 type annotations.
 """
 
 from __future__ import absolute_import, division, print_function
@@ -9,6 +9,7 @@ import pytest
 from attr._make import (
     attr,
     attributes,
+    fields
 )
 
 import typing
@@ -28,20 +29,20 @@ class TestAnnotations(object):
             x: int = attr()
             y = attr(type=str)
             z = attr()
-        assert int is C.__attrs_attrs__[0].type
-        assert str is C.__attrs_attrs__[1].type
-        assert None is C.__attrs_attrs__[2].type
+        assert int is fields(C).x.type
+        assert str is fields(C).y.type
+        assert None is fields(C).z.type
 
     def test_catches_basic_type_conflict(self):
         """
-        Raises ValueError if types conflict.
+        Raises ValueError type is specified both ways.
         """
         with pytest.raises(ValueError) as e:
             @attributes
             class C:
-                x: int = attr(type=str)
-        assert ("Type conflict: annotated type and given type differ: "
-                "<class 'int'> is not <class 'str'>.",) == e.value.args
+                x: int = attr(type=int)
+        assert ("Type annotation and type argument are both present: "
+                "<class 'int'>, <class 'int'>.",) == e.value.args
 
     def test_typing_annotations(self):
         """
@@ -52,16 +53,5 @@ class TestAnnotations(object):
             x: typing.List[int] = attr()
             y = attr(type=typing.Optional[str])
 
-        assert typing.List[int] is C.__attrs_attrs__[0].type
-        assert typing.Optional[str] is C.__attrs_attrs__[1].type
-
-    def test_catches_typing_type_conflict(self):
-        """
-        Raises ValueError if types conflict.
-        """
-        with pytest.raises(ValueError) as e:
-            @attributes
-            class C:
-                x: int = attr(type=typing.List[str])
-        assert ("Type conflict: annotated type and given type differ: "
-                "<class 'int'> is not typing.List[str].",) == e.value.args
+        assert typing.List[int] is fields(C).x.type
+        assert typing.Optional[str] is fields(C).y.type

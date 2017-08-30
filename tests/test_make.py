@@ -415,9 +415,9 @@ class TestAttributes(object):
             x = attr(type=int)
             y = attr(type=str)
             z = attr()
-        assert int is C.__attrs_attrs__[0].type
-        assert str is C.__attrs_attrs__[1].type
-        assert None is C.__attrs_attrs__[2].type
+        assert int is fields(C).x.type
+        assert str is fields(C).y.type
+        assert None is fields(C).z.type
 
 
 @attributes

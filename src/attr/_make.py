@@ -125,7 +125,7 @@ def attr(default=NOTHING, validator=None,
         value is converted before being passed to the validator, if any.
     :param metadata: An arbitrary mapping, to be used by third-party
         components.  See :ref:`extending_metadata`.
-    :param type: The type of the attribute.  In python 3.6 or greater, the
+    :param type: The type of the attribute.  In Python 3.6 or greater, the
         preferred method to specify the type is using a variable annotation
         (see PEP-526 ).  This argument is provided for backward compatibility.
         Regardless of the approach used, the type will be stored on
@@ -198,7 +198,7 @@ def _transform_attrs(cls, these):
                    for name, ca
                    in iteritems(these)]
 
-    ann = getattr(cls, '__annotations__', {})
+    ann = getattr(cls, "__annotations__", {})
 
     non_super_attrs = [
         Attribute.from_counting_attr(name=attr_name, ca=ca,
@@ -892,10 +892,10 @@ class Attribute(object):
         # type holds the annotated value. deal with conflicts:
         if type is None:
             type = ca.type
-        elif ca.type is not None and type is not ca.type:
+        elif ca.type is not None:
             raise ValueError(
-                "Type conflict: annotated type and given type differ: {ann} "
-                "is not {given}.".format(given=ca.type, ann=type)
+                "Type annotation and type argument are both present: "
+                "{ann}, {given}.".format(given=ca.type, ann=type)
             )
         inst_dict = {
             k: getattr(ca, k)
