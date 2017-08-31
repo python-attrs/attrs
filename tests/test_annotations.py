@@ -41,8 +41,8 @@ class TestAnnotations(object):
             @attributes
             class C:
                 x: int = attr(type=int)
-        assert ("Type annotation and type argument are both present: "
-                "<class 'int'>, <class 'int'>.",) == e.value.args
+        assert ("Type annotation and type argument cannot "
+                "both be present",) == e.value.args
 
     def test_typing_annotations(self):
         """
