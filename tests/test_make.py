@@ -194,7 +194,7 @@ class TestTransformAttrs(object):
             "default value or factory.  Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, repr=True, "
             "cmp=True, hash=None, init=True, convert=None, "
-            "metadata=mappingproxy({}))",
+            "metadata=mappingproxy({}), type=None)",
         ) == e.value.args
 
     def test_these(self):
@@ -405,6 +405,19 @@ class TestAttributes(object):
 
         c = C(x=10, y=20)
         assert 30 == getattr(c, 'z', None)
+
+    def test_types(self):
+        """
+        Sets the `Attribute.type` attr from type argument.
+        """
+        @attributes
+        class C(object):
+            x = attr(type=int)
+            y = attr(type=str)
+            z = attr()
+        assert int is fields(C).x.type
+        assert str is fields(C).y.type
+        assert None is fields(C).z.type
 
 
 @attributes

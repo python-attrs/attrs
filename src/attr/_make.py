@@ -62,7 +62,7 @@ Sentinel to indicate the lack of a value when ``None`` is ambiguous.
 
 def attr(default=NOTHING, validator=None,
          repr=True, cmp=True, hash=None, init=True,
-         convert=None, metadata={}):
+         convert=None, metadata={}, type=None):
     """
     Create a new attribute on a class.
 
@@ -125,10 +125,17 @@ def attr(default=NOTHING, validator=None,
         value is converted before being passed to the validator, if any.
     :param metadata: An arbitrary mapping, to be used by third-party
         components.  See :ref:`extending_metadata`.
+    :param type: The type of the attribute.  In Python 3.6 or greater, the
+        preferred method to specify the type is using a variable annotation
+        (see `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_).
+        This argument is provided for backward compatibility.
+        Regardless of the approach used, the type will be stored on
+        ``Attribute.type``.
 
     ..  versionchanged:: 17.1.0 *validator* can be a ``list`` now.
     ..  versionchanged:: 17.1.0
         *hash* is ``None`` and therefore mirrors *cmp* by default .
+    ..  versionadded:: 17.3.0 *type*
     """
     if hash is not None and hash is not True and hash is not False:
         raise TypeError(
@@ -143,6 +150,7 @@ def attr(default=NOTHING, validator=None,
         init=init,
         convert=convert,
         metadata=metadata,
+        type=type,
     )
 
 
@@ -191,8 +199,11 @@ def _transform_attrs(cls, these):
                    for name, ca
                    in iteritems(these)]
 
+    ann = getattr(cls, "__annotations__", {})
+
     non_super_attrs = [
-        Attribute.from_counting_attr(name=attr_name, ca=ca)
+        Attribute.from_counting_attr(name=attr_name, ca=ca,
+                                     type=ann.get(attr_name))
         for attr_name, ca
         in sorted(ca_list, key=lambda e: e[1].counter)
     ]
@@ -212,7 +223,8 @@ def _transform_attrs(cls, these):
     AttrsClass = _make_attr_tuple_class(cls.__name__, attr_names)
 
     cls.__attrs_attrs__ = AttrsClass(super_cls + [
-        Attribute.from_counting_attr(name=attr_name, ca=ca)
+        Attribute.from_counting_attr(name=attr_name, ca=ca,
+                                     type=ann.get(attr_name))
         for attr_name, ca
         in sorted(ca_list, key=lambda e: e[1].counter)
     ])
@@ -853,11 +865,11 @@ class Attribute(object):
     """
     __slots__ = (
         "name", "default", "validator", "repr", "cmp", "hash", "init",
-        "convert", "metadata",
+        "convert", "metadata", "type"
     )
 
     def __init__(self, name, default, validator, repr, cmp, hash, init,
-                 convert=None, metadata=None):
+                 convert=None, metadata=None, type=None):
         # Cache this descriptor here to speed things up later.
         bound_setattr = _obj_setattr.__get__(self, Attribute)
 
@@ -871,22 +883,30 @@ class Attribute(object):
         bound_setattr("convert", convert)
         bound_setattr("metadata", (metadata_proxy(metadata) if metadata
                                    else _empty_metadata_singleton))
+        bound_setattr("type", type)
 
     def __setattr__(self, name, value):
         raise FrozenInstanceError()
 
     @classmethod
-    def from_counting_attr(cls, name, ca):
+    def from_counting_attr(cls, name, ca, type=None):
+        # type holds the annotated value. deal with conflicts:
+        if type is None:
+            type = ca.type
+        elif ca.type is not None:
+            raise ValueError(
+                "Type annotation and type argument cannot both be present"
+            )
         inst_dict = {
             k: getattr(ca, k)
             for k
             in Attribute.__slots__
             if k not in (
-                "name", "validator", "default",
+                "name", "validator", "default", "type"
             )  # exclude methods
         }
         return cls(name=name, validator=ca._validator, default=ca._default,
-                   **inst_dict)
+                   type=type, **inst_dict)
 
     # Don't use _add_pickle since fields(Attribute) doesn't work
     def __getstate__(self):
@@ -929,7 +949,7 @@ class _CountingAttr(object):
     likely the result of a bug like a forgotten `@attr.s` decorator.
     """
     __slots__ = ("counter", "_default", "repr", "cmp", "hash", "init",
-                 "metadata", "_validator", "convert")
+                 "metadata", "_validator", "convert", "type")
     __attrs_attrs__ = tuple(
         Attribute(name=name, default=NOTHING, validator=None,
                   repr=True, cmp=True, hash=True, init=True)
@@ -942,7 +962,7 @@ class _CountingAttr(object):
     cls_counter = 0
 
     def __init__(self, default, validator, repr, cmp, hash, init, convert,
-                 metadata):
+                 metadata, type):
         _CountingAttr.cls_counter += 1
         self.counter = _CountingAttr.cls_counter
         self._default = default
@@ -957,6 +977,7 @@ class _CountingAttr(object):
         self.init = init
         self.convert = convert
         self.metadata = metadata
+        self.type = type
 
     def validator(self, meth):
         """
