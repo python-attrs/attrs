@@ -37,7 +37,7 @@ or::
 Why would you want to write ``customer[2]`` instead of ``customer.first_name``?
 
 Don't get me started when you add nesting.
-If you've never ran into mysterious tuples you had no idea what the hell they meant while debugging, you're much smarter then yours truly.
+If you've never run into mysterious tuples you had no idea what the hell they meant while debugging, you're much smarter than yours truly.
 
 Using proper classes with names and types makes program code much more readable and comprehensible_.
 Especially when trying to grok a new piece of software or returning to old code after several months.
@@ -123,7 +123,7 @@ With ``attrs`` your users won't notice a difference because it creates regular, 
 .. [#history] The word is that ``namedtuple``\ s were added to the Python standard library as a way to make tuples in return values more readable.
               And indeed that is something you see throughout the standard library.
 
-              Looking at what for the makers of ``namedtuple``\ s use it themselves is a good guideline for deciding on your own use cases.
+              Looking at what the makers of ``namedtuple``\ s use it for themselves is a good guideline for deciding on your own use cases.
 .. [#pollution] ``attrs`` only adds a single attribute: ``__attrs_attrs__`` for introspection.
                 All helpers are functions in the ``attr`` package.
                 Since they take the instance as first argument, you can easily attach them to your classes under a name of your own choice.
