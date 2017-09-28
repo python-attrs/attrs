@@ -26,8 +26,8 @@ class TestSplitWhat(object):
         """
         assert (
             frozenset((int, str)),
-            frozenset((C.a,)),
-        ) == _split_what((str, C.a, int,))
+            frozenset((fields(C).a,)),
+        ) == _split_what((str, fields(C).a, int,))
 
 
 class TestInclude(object):

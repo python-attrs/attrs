@@ -10,7 +10,6 @@ from ._compat import (
     PY2,
     iteritems,
     isclass,
-    iterkeys,
     metadata_proxy,
     set_closure_cell,
 )
@@ -184,20 +183,25 @@ def _make_attr_tuple_class(cls_name, attr_names):
 
 def _transform_attrs(cls, these):
     """
-    Transforms all `_CountingAttr`s on a class into `Attribute`s and saves the
-    list in `__attrs_attrs__`.
+    Transform all `_CountingAttr`s on a class into `Attribute`s and save the
+    list in `__attrs_attrs__` while potentially deleting them from *cls*.
 
     If *these* is passed, use that and don't look for them on the class.
+
+    Return a list of tuples of (attribute name, attribute).
     """
     if these is None:
         ca_list = [(name, attr)
                    for name, attr
                    in cls.__dict__.items()
                    if isinstance(attr, _CountingAttr)]
+        for name, _ in ca_list:
+            delattr(cls, name)
     else:
         ca_list = [(name, ca)
                    for name, ca
                    in iteritems(these)]
+    ca_list = sorted(ca_list, key=lambda e: e[1].counter)
 
     ann = getattr(cls, "__annotations__", {})
 
@@ -205,7 +209,7 @@ def _transform_attrs(cls, these):
         Attribute.from_counting_attr(name=attr_name, ca=ca,
                                      type=ann.get(attr_name))
         for attr_name, ca
-        in sorted(ca_list, key=lambda e: e[1].counter)
+        in ca_list
     ]
 
     super_cls = []
@@ -226,13 +230,11 @@ def _transform_attrs(cls, these):
         Attribute.from_counting_attr(name=attr_name, ca=ca,
                                      type=ann.get(attr_name))
         for attr_name, ca
-        in sorted(ca_list, key=lambda e: e[1].counter)
+        in ca_list
     ])
 
     had_default = False
     for a in cls.__attrs_attrs__:
-        if these is None and a not in super_cls:
-            setattr(cls, a.name, a)
         if had_default is True and a.default is NOTHING and a.init is True:
             raise ValueError(
                 "No mandatory attributes allowed after an attribute with a "
@@ -243,6 +245,8 @@ def _transform_attrs(cls, these):
                 a.default is not NOTHING and \
                 a.init is not False:
             had_default = True
+
+    return ca_list
 
 
 def _frozen_setattrs(self, name, value):
@@ -353,16 +357,7 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
                 "__str__ can only be generated if a __repr__ exists."
             )
 
-        if slots:
-            # Only need this later if we're using slots.
-            if these is None:
-                ca_list = [name
-                           for name, attr
-                           in cls.__dict__.items()
-                           if isinstance(attr, _CountingAttr)]
-            else:
-                ca_list = list(iterkeys(these))
-        _transform_attrs(cls, these)
+        ca_list = _transform_attrs(cls, these)
 
         # Can't just re-use frozen name because Python's scoping. :(
         # Can't compare function objects because Python 2 is terrible. :(
@@ -393,8 +388,9 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
                 cls = _add_pickle(cls)
         if slots is True:
             cls_dict = dict(cls.__dict__)
-            cls_dict["__slots__"] = tuple(ca_list)
-            for ca_name in ca_list:
+            attr_names = tuple(t[0] for t in ca_list)
+            cls_dict["__slots__"] = attr_names
+            for ca_name in attr_names:
                 # It might not actually be in there, e.g. if using 'these'.
                 cls_dict.pop(ca_name, None)
             cls_dict.pop("__dict__", None)
@@ -1068,7 +1064,14 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
     else:
         raise TypeError("attrs argument must be a dict or a list.")
 
-    return attributes(**attributes_arguments)(type(name, bases, cls_dict))
+    post_init = cls_dict.pop("__attrs_post_init__", None)
+    return attributes(
+        these=cls_dict, **attributes_arguments
+    )(type(
+        name,
+        bases,
+        {} if post_init is None else {"__attrs_post_init__": post_init}
+    ))
 
 
 # These are required by within this module so we define them here and merely
