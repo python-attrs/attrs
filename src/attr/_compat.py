@@ -23,9 +23,6 @@ if PY2:
     def iteritems(d):
         return d.iteritems()
 
-    def iterkeys(d):
-        return d.iterkeys()
-
     # Python 2 is bereft of a read-only dict proxy, so we make one!
     class ReadOnlyDict(IterableUserDict):
         """
@@ -84,9 +81,6 @@ else:
 
     def iteritems(d):
         return d.items()
-
-    def iterkeys(d):
-        return d.keys()
 
     def metadata_proxy(d):
         return types.MappingProxyType(dict(d))
