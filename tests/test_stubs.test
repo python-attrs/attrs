@@ -1,0 +1,20 @@
+[case test_type_annotations]
+# cmd: mypy a.py
+[file a.py]
+import attr
+
+@attr.s
+class C(object):
+    a : int = attr.ib()
+    b = attr.ib(type=int)
+
+c = C()
+reveal_type(c.a)
+reveal_type(c.b)
+reveal_type(C.a)
+reveal_type(C.b)
+[out]
+a.py:9: error: Revealed type is 'builtins.int'
+a.py:10: error: Revealed type is 'builtins.int'
+a.py:11: error: Revealed type is 'builtins.int'
+a.py:12: error: Revealed type is 'builtins.int'

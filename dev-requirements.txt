@@ -4,3 +4,4 @@ zope.interface
 pympler
 hypothesis
 six
+git+git://github.com/python/mypy.git#egg=mypy; python_version >= '3.5'
