@@ -4,7 +4,7 @@ Commonly useful validators.
 
 from __future__ import absolute_import, division, print_function
 
-from ._make import attr, attributes, and_, _AndValidator
+from ._make import attrib, attrs, and_, _AndValidator
 
 
 __all__ = [
@@ -16,9 +16,9 @@ __all__ = [
 ]
 
 
-@attributes(repr=False, slots=True, hash=True)
+@attrs(repr=False, slots=True, hash=True)
 class _InstanceOfValidator(object):
-    type = attr()
+    type = attrib()
 
     def __call__(self, inst, attr, value):
         """
@@ -56,9 +56,9 @@ def instance_of(type):
     return _InstanceOfValidator(type)
 
 
-@attributes(repr=False, slots=True, hash=True)
+@attrs(repr=False, slots=True, hash=True)
 class _ProvidesValidator(object):
-    interface = attr()
+    interface = attrib()
 
     def __call__(self, inst, attr, value):
         """
@@ -95,9 +95,9 @@ def provides(interface):
     return _ProvidesValidator(interface)
 
 
-@attributes(repr=False, slots=True, hash=True)
+@attrs(repr=False, slots=True, hash=True)
 class _OptionalValidator(object):
-    validator = attr()
+    validator = attrib()
 
     def __call__(self, inst, attr, value):
         if value is None:
@@ -130,9 +130,9 @@ def optional(validator):
     return _OptionalValidator(validator)
 
 
-@attributes(repr=False, slots=True, hash=True)
+@attrs(repr=False, slots=True, hash=True)
 class _InValidator(object):
-    options = attr()
+    options = attrib()
 
     def __call__(self, inst, attr, value):
         if value not in self.options:

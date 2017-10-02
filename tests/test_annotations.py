@@ -7,8 +7,8 @@ from __future__ import absolute_import, division, print_function
 import pytest
 
 from attr._make import (
-    attr,
-    attributes,
+    attrib,
+    attrs,
     fields
 )
 
@@ -24,11 +24,12 @@ class TestAnnotations(object):
         """
         Sets the `Attribute.type` attr from basic type annotations.
         """
-        @attributes
+        @attrs
         class C(object):
-            x: int = attr()
-            y = attr(type=str)
-            z = attr()
+            x: int = attrib()
+            y = attrib(type=str)
+            z = attrib()
+
         assert int is fields(C).x.type
         assert str is fields(C).y.type
         assert None is fields(C).z.type
@@ -38,9 +39,10 @@ class TestAnnotations(object):
         Raises ValueError type is specified both ways.
         """
         with pytest.raises(ValueError) as e:
-            @attributes
+            @attrs
             class C:
-                x: int = attr(type=int)
+                x: int = attrib(type=int)
+
         assert ("Type annotation and type argument cannot "
                 "both be present",) == e.value.args
 
@@ -48,10 +50,10 @@ class TestAnnotations(object):
         """
         Sets the `Attribute.type` attr from typing annotations.
         """
-        @attributes
+        @attrs
         class C(object):
-            x: typing.List[int] = attr()
-            y = attr(type=typing.Optional[str])
+            x: typing.List[int] = attrib()
+            y = attrib(type=typing.Optional[str])
 
         assert typing.List[int] is fields(C).x.type
         assert typing.Optional[str] is fields(C).y.type

@@ -11,8 +11,8 @@ from ._make import (
     Attribute,
     Factory,
     NOTHING,
-    attr,
-    attributes,
+    attrib,
+    attrs,
     fields,
     make_class,
     validate,
@@ -41,8 +41,8 @@ __license__ = "MIT"
 __copyright__ = "Copyright (c) 2015 Hynek Schlawack"
 
 
-s = attrs = attributes
-ib = attrib = attr
+s = attributes = attrs
+ib = attr = attrib
 
 __all__ = [
     "Attribute",

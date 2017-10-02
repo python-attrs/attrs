@@ -6,14 +6,14 @@ from __future__ import absolute_import, division, print_function
 
 import pytest
 
-from attr._make import attributes, attr, fields
+from attr._make import attrs, attrib, fields
 from attr.filters import _split_what, include, exclude
 
 
-@attributes
+@attrs
 class C(object):
-    a = attr()
-    b = attr()
+    a = attrib()
+    b = attrib()
 
 
 class TestSplitWhat(object):
