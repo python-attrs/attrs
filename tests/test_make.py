@@ -606,7 +606,9 @@ class TestConvert(object):
         If takes_self on factories is True, self is passed.
         """
         C = make_class("C", {
-            "x": attr.ib(default=Factory((lambda self: self), takes_self=True)),
+            "x": attr.ib(
+                default=Factory((lambda self: self), takes_self=True)
+            ),
         })
 
         i = C()
