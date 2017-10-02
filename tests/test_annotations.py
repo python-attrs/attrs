@@ -6,11 +6,7 @@ from __future__ import absolute_import, division, print_function
 
 import pytest
 
-from attr._make import (
-    attrib,
-    attrs,
-    fields
-)
+import attr
 
 import typing
 
@@ -24,24 +20,24 @@ class TestAnnotations(object):
         """
         Sets the `Attribute.type` attr from basic type annotations.
         """
-        @attrs
+        @attr.s
         class C(object):
-            x: int = attrib()
-            y = attrib(type=str)
-            z = attrib()
+            x: int = attr.ib()
+            y = attr.ib(type=str)
+            z = attr.ib()
 
-        assert int is fields(C).x.type
-        assert str is fields(C).y.type
-        assert None is fields(C).z.type
+        assert int is attr.fields(C).x.type
+        assert str is attr.fields(C).y.type
+        assert None is attr.fields(C).z.type
 
     def test_catches_basic_type_conflict(self):
         """
         Raises ValueError type is specified both ways.
         """
         with pytest.raises(ValueError) as e:
-            @attrs
+            @attr.s
             class C:
-                x: int = attrib(type=int)
+                x: int = attr.ib(type=int)
 
         assert ("Type annotation and type argument cannot "
                 "both be present",) == e.value.args
@@ -50,10 +46,10 @@ class TestAnnotations(object):
         """
         Sets the `Attribute.type` attr from typing annotations.
         """
-        @attrs
+        @attr.s
         class C(object):
-            x: typing.List[int] = attrib()
-            y = attrib(type=typing.Optional[str])
+            x: typing.List[int] = attr.ib()
+            y = attr.ib(type=typing.Optional[str])
 
-        assert typing.List[int] is fields(C).x.type
-        assert typing.Optional[str] is fields(C).y.type
+        assert typing.List[int] is attr.fields(C).x.type
+        assert typing.Optional[str] is attr.fields(C).y.type

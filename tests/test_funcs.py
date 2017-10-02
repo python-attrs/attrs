@@ -12,9 +12,9 @@ from hypothesis import assume, given, strategies as st, settings, HealthCheck
 
 from .utils import simple_classes, nested_classes
 
+import attr
+
 from attr import (
-    attrib,
-    attrs,
     asdict,
     assoc,
     astuple,
@@ -327,7 +327,7 @@ class TestHas(object):
         """
         Returns `True` on decorated classes even if there are no attributes.
         """
-        @attrs
+        @attr.s
         class D(object):
             pass
 
@@ -349,7 +349,7 @@ class TestAssoc(object):
         """
         Empty classes without changes get copied.
         """
-        @attrs(slots=slots, frozen=frozen)
+        @attr.s(slots=slots, frozen=frozen)
         class C(object):
             pass
 
@@ -410,10 +410,10 @@ class TestAssoc(object):
         """
         Works on frozen classes.
         """
-        @attrs(frozen=True)
+        @attr.s(frozen=True)
         class C(object):
-            x = attrib()
-            y = attrib()
+            x = attr.ib()
+            y = attr.ib()
 
         with pytest.deprecated_call():
             assert C(3, 2) == assoc(C(1, 2), x=3)
@@ -422,9 +422,9 @@ class TestAssoc(object):
         """
         DeprecationWarning points to the correct file.
         """
-        @attrs
+        @attr.s
         class C(object):
-            x = attrib()
+            x = attr.ib()
 
         with pytest.warns(DeprecationWarning) as wi:
             assert C(2) == assoc(C(1), x=2)
@@ -441,7 +441,7 @@ class TestEvolve(object):
         """
         Empty classes without changes get copied.
         """
-        @attrs(slots=slots, frozen=frozen)
+        @attr.s(slots=slots, frozen=frozen)
         class C(object):
             pass
 
@@ -496,9 +496,9 @@ class TestEvolve(object):
         """
         TypeError isn't swallowed when validation fails within evolve.
         """
-        @attrs
+        @attr.s
         class C(object):
-            a = attrib(validator=instance_of(int))
+            a = attr.ib(validator=instance_of(int))
 
         with pytest.raises(TypeError) as e:
             evolve(C(a=1), a="some string")
@@ -510,9 +510,9 @@ class TestEvolve(object):
         """
         evolve() acts as `__init__` with regards to private attributes.
         """
-        @attrs
+        @attr.s
         class C(object):
-            _a = attrib()
+            _a = attr.ib()
 
         assert evolve(C(1), a=2)._a == 2
 
@@ -526,9 +526,9 @@ class TestEvolve(object):
         """
         evolve() handles `init=False` attributes.
         """
-        @attrs
+        @attr.s
         class C(object):
-            a = attrib()
-            b = attrib(init=False, default=0)
+            a = attr.ib()
+            b = attr.ib(init=False, default=0)
 
         assert evolve(C(1), a=2).a == 2
