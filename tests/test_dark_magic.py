@@ -137,7 +137,7 @@ class TestDarkMagic(object):
         assert (
             "'x' must be <{type} 'int'> (got '1' that is a <{type} "
             "'str'>).".format(type=TYPE),
-            C1.x, int, "1",
+            attr.fields(C1).x, int, "1",
         ) == e.value.args
 
     @given(booleans())

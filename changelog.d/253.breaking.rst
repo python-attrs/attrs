@@ -1,0 +1,5 @@
+Attributes are not defined on the class body anymore.
+This means that if you define a class ``C`` with an attribute ``x``, the class will *not* have an attribute ``x`` for introspection anymore.
+Instead of ``C.x``, use ``attr.fields(C).x`` or look at ``C.__attrs_attrs__``.
+
+The old behavior has been deprecated since version 16.1.

@@ -176,7 +176,7 @@ class TestTransformAttrs(object):
         C = make_tc()
         _transform_attrs(C, None)
 
-        assert isinstance(getattr(C, attribute), Attribute)
+        assert isinstance(getattr(fields(C), attribute), Attribute)
 
     def test_conflicting_defaults(self):
         """
@@ -404,6 +404,7 @@ class TestAttributes(object):
                 self2.z = self2.x + self2.y
 
         c = C(x=10, y=20)
+
         assert 30 == getattr(c, 'z', None)
 
     def test_types(self):
@@ -415,9 +416,23 @@ class TestAttributes(object):
             x = attr(type=int)
             y = attr(type=str)
             z = attr()
+
         assert int is fields(C).x.type
         assert str is fields(C).y.type
         assert None is fields(C).z.type
+
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_clean_class(self, slots):
+        """
+        Attribute definitions do not appear on the class body after @attr.s.
+        """
+        @attributes(slots=slots)
+        class C(object):
+            x = attr()
+
+        x = getattr(C, "x", None)
+
+        assert not isinstance(x, _CountingAttr)
 
 
 @attributes
@@ -492,6 +507,17 @@ class TestMakeClass(object):
         cls = make_class("C", {}, bases=(D,))
         assert D in cls.__mro__
         assert isinstance(cls(), D)
+
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_clean_class(self, slots):
+        """
+        Attribute definitions do not appear on the class body.
+        """
+        C = make_class("C", ["x"], slots=slots)
+
+        x = getattr(C, "x", None)
+
+        assert not isinstance(x, _CountingAttr)
 
 
 class TestFields(object):

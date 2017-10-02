@@ -70,6 +70,7 @@ class TestAsDict(object):
 
         def assert_proper_dict_class(obj, obj_dict):
             assert isinstance(obj_dict, dict_class)
+
             for field in fields(obj.__class__):
                 field_val = getattr(obj, field.name)
                 if has(field_val.__class__):
@@ -83,6 +84,7 @@ class TestAsDict(object):
                 elif isinstance(field_val, Mapping):
                     # This field holds a dictionary.
                     assert isinstance(obj_dict[field.name], dict_class)
+
                     for key, val in field_val.items():
                         if has(val.__class__):
                             assert_proper_dict_class(val,

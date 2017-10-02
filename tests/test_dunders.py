@@ -418,7 +418,7 @@ class TestAddInit(object):
         C = make_class("C", {"a": attr("a", validator=raiser)})
         with pytest.raises(VException) as e:
             C(42)
-        assert (C.a, 42,) == e.value.args[1:]
+        assert (fields(C).a, 42,) == e.value.args[1:]
         assert isinstance(e.value.args[0], C)
 
     def test_validator_slots(self):

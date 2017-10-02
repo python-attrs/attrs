@@ -505,22 +505,6 @@ Slot classes are a little different than ordinary, dictionary-backed classes:
          ...
      AttributeError: 'Coordinates' object has no attribute 'z'
 
-- Slot classes cannot share attribute names with their instances, while non-slot classes can.
-  The following behaves differently if slot classes are used:
-
-  .. doctest::
-
-    >>> @attr.s
-    ... class C(object):
-    ...     x = attr.ib()
-    >>> C.x
-    Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({}), type=None)
-    >>> @attr.s(slots=True)
-    ... class C(object):
-    ...     x = attr.ib()
-    >>> C.x
-    <member 'x' of 'C' objects>
-
 - Since non-slot classes cannot be turned into slot classes after they have been created, ``attr.s(.., slots=True)`` will *replace* the class it is applied to with a copy.
   In almost all cases this isn't a problem, but we mention it for the sake of completeness.
 
