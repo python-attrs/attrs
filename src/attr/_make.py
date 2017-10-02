@@ -59,9 +59,9 @@ Sentinel to indicate the lack of a value when ``None`` is ambiguous.
 """
 
 
-def attr(default=NOTHING, validator=None,
-         repr=True, cmp=True, hash=None, init=True,
-         convert=None, metadata={}, type=None):
+def attrib(default=NOTHING, validator=None,
+           repr=True, cmp=True, hash=None, init=True,
+           convert=None, metadata={}, type=None):
     """
     Create a new attribute on a class.
 
@@ -263,9 +263,9 @@ def _frozen_delattrs(self, name):
     raise FrozenInstanceError()
 
 
-def attributes(maybe_cls=None, these=None, repr_ns=None,
-               repr=True, cmp=True, hash=None, init=True,
-               slots=False, frozen=False, str=False):
+def attrs(maybe_cls=None, these=None, repr_ns=None,
+          repr=True, cmp=True, hash=None, init=True,
+          slots=False, frozen=False, str=False):
     r"""
     A class decorator that adds `dunder
     <https://wiki.python.org/moin/DunderAlias>`_\ -methods according to the
@@ -417,12 +417,19 @@ def attributes(maybe_cls=None, these=None, repr_ns=None,
 
         return cls
 
-    # attrs_or class type depends on the usage of the decorator.  It's a class
-    # if it's used as `@attributes` but ``None`` if used # as `@attributes()`.
+    # maybe_cls's type depends on the usage of the decorator.  It's a class
+    # if it's used as `@attrs` but ``None`` if used as `@attrs()`.
     if maybe_cls is None:
         return wrap
     else:
         return wrap(maybe_cls)
+
+
+_attrs = attrs
+"""
+Internal alias so we can use it in functions that take an argument called
+*attrs*.
+"""
 
 
 if PY2:
@@ -1010,7 +1017,7 @@ class _CountingAttr(object):
 _CountingAttr = _add_cmp(_add_repr(_CountingAttr))
 
 
-@attributes(slots=True, init=False, hash=True)
+@attrs(slots=True, init=False, hash=True)
 class Factory(object):
     """
     Stores a factory callable.
@@ -1025,8 +1032,8 @@ class Factory(object):
 
     .. versionadded:: 17.1.0  *takes_self*
     """
-    factory = attr()
-    takes_self = attr()
+    factory = attrib()
+    takes_self = attrib()
 
     def __init__(self, factory, takes_self=False):
         """
@@ -1060,12 +1067,12 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
     if isinstance(attrs, dict):
         cls_dict = attrs
     elif isinstance(attrs, (list, tuple)):
-        cls_dict = dict((a, attr()) for a in attrs)
+        cls_dict = dict((a, attrib()) for a in attrs)
     else:
         raise TypeError("attrs argument must be a dict or a list.")
 
     post_init = cls_dict.pop("__attrs_post_init__", None)
-    return attributes(
+    return _attrs(
         these=cls_dict, **attributes_arguments
     )(type(
         name,
@@ -1078,12 +1085,12 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
 # import into .validators.
 
 
-@attributes(slots=True, hash=True)
+@attrs(slots=True, hash=True)
 class _AndValidator(object):
     """
     Compose many validators to a single one.
     """
-    _validators = attr()
+    _validators = attrib()
 
     def __call__(self, inst, attr, value):
         for v in self._validators:

@@ -7,22 +7,24 @@ from __future__ import absolute_import, division, print_function
 import copy
 
 import pytest
+
 from hypothesis import given
 from hypothesis.strategies import booleans
 
-from .utils import simple_attr, simple_class
+import attr
+
 from attr._make import (
     Factory,
     NOTHING,
     _Nothing,
     _add_init,
     _add_repr,
-    attr,
-    attributes,
     fields,
     make_class,
 )
 from attr.validators import instance_of
+
+from .utils import simple_attr, simple_class
 
 
 CmpC = simple_class(cmp=True)
@@ -52,7 +54,10 @@ class TestAddCmp(object):
         """
         If `cmp` is False, ignore that attribute.
         """
-        C = make_class("C", {"a": attr(cmp=False), "b": attr()}, slots=slots)
+        C = make_class("C", {
+            "a": attr.ib(cmp=False),
+            "b": attr.ib()
+        }, slots=slots)
 
         assert C(1, 2) == C(2, 2)
 
@@ -174,7 +179,10 @@ class TestAddRepr(object):
         """
         If `repr` is False, ignore that attribute.
         """
-        C = make_class("C", {"a": attr(repr=False), "b": attr()}, slots=slots)
+        C = make_class("C", {
+            "a": attr.ib(repr=False),
+            "b": attr.ib()
+        }, slots=slots)
 
         assert "C(b=2)" == repr(C(1, 2))
 
@@ -206,9 +214,9 @@ class TestAddRepr(object):
         This only makes sense when subclassing a class with an poor __str__
         (like Exceptions).
         """
-        @attributes(str=add_str, slots=slots)
+        @attr.s(str=add_str, slots=slots)
         class Error(Exception):
-            x = attr()
+            x = attr.ib()
 
         e = Error(42)
 
@@ -243,7 +251,7 @@ class TestAddHash(object):
         assert exc_args == e.value.args
 
         with pytest.raises(TypeError) as e:
-            make_class("C", {"a": attr(hash=1)}),
+            make_class("C", {"a": attr.ib(hash=1)}),
 
         assert exc_args == e.value.args
 
@@ -252,7 +260,7 @@ class TestAddHash(object):
         """
         If `hash` is False on an attribute, ignore that attribute.
         """
-        C = make_class("C", {"a": attr(hash=False), "b": attr()},
+        C = make_class("C", {"a": attr.ib(hash=False), "b": attr.ib()},
                        slots=slots, hash=True)
 
         assert hash(C(1, 2)) == hash(C(2, 2))
@@ -262,7 +270,7 @@ class TestAddHash(object):
         """
         If `hash` is None, the hash generation mirrors `cmp`.
         """
-        C = make_class("C", {"a": attr(cmp=cmp)}, cmp=True, frozen=True)
+        C = make_class("C", {"a": attr.ib(cmp=cmp)}, cmp=True, frozen=True)
 
         if cmp:
             assert C(1) != C(2)
@@ -277,7 +285,7 @@ class TestAddHash(object):
         """
         If `hash` is None, the hash generation mirrors `cmp`.
         """
-        C = make_class("C", {"a": attr()}, cmp=cmp, frozen=True)
+        C = make_class("C", {"a": attr.ib()}, cmp=cmp, frozen=True)
 
         i = C(1)
 
@@ -322,7 +330,7 @@ class TestAddInit(object):
         """
         If `init` is False, ignore that attribute.
         """
-        C = make_class("C", {"a": attr(init=False), "b": attr()},
+        C = make_class("C", {"a": attr.ib(init=False), "b": attr.ib()},
                        slots=slots, frozen=frozen)
         with pytest.raises(TypeError) as e:
             C(a=1, b=2)
@@ -339,9 +347,9 @@ class TestAddInit(object):
         argument but initialize it anyway.
         """
         C = make_class("C", {
-            "_a": attr(init=False, default=42),
-            "_b": attr(init=False, default=Factory(list)),
-            "c": attr()
+            "_a": attr.ib(init=False, default=42),
+            "_b": attr.ib(init=False, default=Factory(list)),
+            "c": attr.ib()
         }, slots=slots, frozen=frozen)
         with pytest.raises(TypeError):
             C(a=1, c=2)
@@ -358,8 +366,8 @@ class TestAddInit(object):
         attribute.
         """
         make_class("C", {
-            "a": attr(default=Factory(list)),
-            "b": attr(init=False),
+            "a": attr.ib(default=Factory(list)),
+            "b": attr.ib(init=False),
         }, slots=slots, frozen=frozen)
 
     def test_sets_attributes(self):
@@ -401,6 +409,7 @@ class TestAddInit(object):
             ]
         C = _add_init(C, False)
         i = C()
+
         assert [] == i.a
         assert isinstance(i.b, D)
 
@@ -415,9 +424,10 @@ class TestAddInit(object):
         def raiser(*args):
             raise VException(*args)
 
-        C = make_class("C", {"a": attr("a", validator=raiser)})
+        C = make_class("C", {"a": attr.ib("a", validator=raiser)})
         with pytest.raises(VException) as e:
             C(42)
+
         assert (fields(C).a, 42,) == e.value.args[1:]
         assert isinstance(e.value.args[0], C)
 
@@ -432,9 +442,10 @@ class TestAddInit(object):
         def raiser(*args):
             raise VException(*args)
 
-        C = make_class("C", {"a": attr("a", validator=raiser)}, slots=True)
+        C = make_class("C", {"a": attr.ib("a", validator=raiser)}, slots=True)
         with pytest.raises(VException) as e:
             C(42)
+
         assert (fields(C)[0], 42,) == e.value.args[1:]
         assert isinstance(e.value.args[0], C)
 
@@ -443,10 +454,13 @@ class TestAddInit(object):
         """
         Does not interfere when setting non-attrs attributes.
         """
-        C = make_class("C", {"a": attr("a", validator=instance_of(int))},
-                       slots=slots)
+        C = make_class("C", {
+            "a": attr.ib("a", validator=instance_of(int))
+        }, slots=slots)
         i = C(1)
+
         assert 1 == i.a
+
         if not slots:
             i.b = "foo"
             assert "foo" == i.b

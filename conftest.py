@@ -9,12 +9,12 @@ def C():
     """
     Return a simple but fully featured attrs class with an x and a y attribute.
     """
-    from attr import attributes, attr
+    import attr
 
-    @attributes
+    @attr.s
     class C(object):
-        x = attr()
-        y = attr()
+        x = attr.ib()
+        y = attr.ib()
 
     return C
 

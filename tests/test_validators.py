@@ -7,10 +7,11 @@ from __future__ import absolute_import, division, print_function
 import pytest
 import zope.interface
 
+import attr
+
 from attr import validators as validator_module, has
 from attr.validators import and_, instance_of, provides, optional, in_
 from attr._compat import TYPE
-from attr._make import attributes, attr
 
 from .utils import simple_attr
 
@@ -95,12 +96,12 @@ class TestAnd(object):
         """
         `and_(v1, v2, v3)` and `[v1, v2, v3]` are equivalent.
         """
-        @attributes
+        @attr.s
         class C(object):
-            a1 = attr("a1", validator=and_(
+            a1 = attr.ib("a1", validator=and_(
                 instance_of(int),
             ))
-            a2 = attr("a2", validator=[
+            a2 = attr.ib("a2", validator=[
                 instance_of(int),
             ])
 

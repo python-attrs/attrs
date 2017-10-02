@@ -13,6 +13,8 @@ import pytest
 from hypothesis import given
 from hypothesis.strategies import booleans, integers, lists, sampled_from, text
 
+import attr
+
 from attr import _config
 from attr._compat import PY2
 from attr._make import (
@@ -22,8 +24,6 @@ from attr._make import (
     _CountingAttr,
     _transform_attrs,
     and_,
-    attr,
-    attributes,
     fields,
     make_class,
     validate,
@@ -33,7 +33,7 @@ from attr.exceptions import NotAnAttrsClassError, DefaultAlreadySetError
 from .utils import (gen_attr_names, list_of_attrs, simple_attr, simple_attrs,
                     simple_attrs_without_metadata, simple_classes)
 
-attrs = simple_attrs.map(lambda c: Attribute.from_counting_attr("name", c))
+attrs_st = simple_attrs.map(lambda c: Attribute.from_counting_attr("name", c))
 
 
 class TestCountingAttr(object):
@@ -44,7 +44,7 @@ class TestCountingAttr(object):
         """
         Returns an instance of _CountingAttr.
         """
-        a = attr()
+        a = attr.ib()
 
         assert isinstance(a, _CountingAttr)
 
@@ -58,7 +58,7 @@ class TestCountingAttr(object):
         def v2(_, __):
             pass
 
-        a = attr(validator=[v1, v2])
+        a = attr.ib(validator=[v1, v2])
 
         assert _AndValidator((v1, v2,)) == a._validator
 
@@ -67,7 +67,7 @@ class TestCountingAttr(object):
         If _CountingAttr.validator is used as a decorator and there is no
         decorator set, the decorated method is used as the validator.
         """
-        a = attr()
+        a = attr.ib()
 
         @a.validator
         def v():
@@ -89,7 +89,7 @@ class TestCountingAttr(object):
         def v(_, __):
             pass
 
-        a = attr(validator=wrap(v))
+        a = attr.ib(validator=wrap(v))
 
         @a.validator
         def v2(self, _, __):
@@ -102,7 +102,7 @@ class TestCountingAttr(object):
         Raise DefaultAlreadySetError if the decorator is used after a default
         has been set.
         """
-        a = attr(default=42)
+        a = attr.ib(default=42)
 
         with pytest.raises(DefaultAlreadySetError):
             @a.default
@@ -114,7 +114,7 @@ class TestCountingAttr(object):
         Decorator wraps the method in a Factory with pass_self=True and sets
         the default.
         """
-        a = attr()
+        a = attr.ib()
 
         @a.default
         def f(self):
@@ -125,9 +125,9 @@ class TestCountingAttr(object):
 
 def make_tc():
     class TransformC(object):
-        z = attr()
-        y = attr()
-        x = attr()
+        z = attr.ib()
+        y = attr.ib()
+        x = attr.ib()
         a = 42
     return TransformC
 
@@ -148,7 +148,7 @@ class TestTransformAttrs(object):
         """
         No attributes works as expected.
         """
-        @attributes
+        @attr.s
         class C(object):
             pass
 
@@ -176,8 +176,8 @@ class TestTransformAttrs(object):
         mandatory attributes.
         """
         class C(object):
-            x = attr(default=None)
-            y = attr()
+            x = attr.ib(default=None)
+            y = attr.ib()
 
         with pytest.raises(ValueError) as e:
             _transform_attrs(C, None)
@@ -194,9 +194,9 @@ class TestTransformAttrs(object):
         If these is passed, use it and ignore body.
         """
         class C(object):
-            y = attr()
+            y = attr.ib()
 
-        _transform_attrs(C, {"x": attr()})
+        _transform_attrs(C, {"x": attr.ib()})
         assert (
             simple_attr("x"),
         ) == C.__attrs_attrs__
@@ -210,22 +210,22 @@ class TestTransformAttrs(object):
             a = None
 
         class B(A):
-            b = attr()
+            b = attr.ib()
 
         _transform_attrs(B, None)
 
         class C(B):
-            c = attr()
+            c = attr.ib()
 
         _transform_attrs(C, None)
 
         class D(C):
-            d = attr()
+            d = attr.ib()
 
         _transform_attrs(D, None)
 
         class E(D):
-            e = attr()
+            e = attr.ib()
 
         _transform_attrs(E, None)
 
@@ -247,7 +247,7 @@ class TestAttributes(object):
         Raises TypeError on old-style classes.
         """
         with pytest.raises(TypeError) as e:
-            @attributes
+            @attr.s
             class C:
                 pass
         assert ("attrs only works with new-style classes.",) == e.value.args
@@ -256,9 +256,9 @@ class TestAttributes(object):
         """
         Sets the `__attrs_attrs__` class attribute with a list of `Attribute`s.
         """
-        @attributes
+        @attr.s
         class C(object):
-            x = attr()
+            x = attr.ib()
         assert "x" == C.__attrs_attrs__[0].name
         assert all(isinstance(a, Attribute) for a in C.__attrs_attrs__)
 
@@ -266,13 +266,13 @@ class TestAttributes(object):
         """
         No attributes, no problems.
         """
-        @attributes
+        @attr.s
         class C3(object):
             pass
         assert "C3()" == repr(C3())
         assert C3() == C3()
 
-    @given(attr=attrs, attr_name=sampled_from(Attribute.__slots__))
+    @given(attr=attrs_st, attr_name=sampled_from(Attribute.__slots__))
     def test_immutable(self, attr, attr_name):
         """
         Attribute instances are immutable.
@@ -296,11 +296,11 @@ class TestAttributes(object):
         sentinel = object()
 
         class C(object):
-            x = attr()
+            x = attr.ib()
 
         setattr(C, method_name, sentinel)
 
-        C = attributes(C)
+        C = attr.s(C)
         meth = getattr(C, method_name)
 
         assert sentinel != meth
@@ -330,11 +330,11 @@ class TestAttributes(object):
         am_args[arg_name] = False
 
         class C(object):
-            x = attr()
+            x = attr.ib()
 
         setattr(C, method_name, sentinel)
 
-        C = attributes(**am_args)(C)
+        C = attr.s(**am_args)(C)
 
         assert sentinel == getattr(C, method_name)
 
@@ -344,9 +344,9 @@ class TestAttributes(object):
         """
         On Python 3, the name in repr is the __qualname__.
         """
-        @attributes(slots=slots_outer)
+        @attr.s(slots=slots_outer)
         class C(object):
-            @attributes(slots=slots_inner)
+            @attr.s(slots=slots_inner)
             class D(object):
                 pass
 
@@ -358,9 +358,9 @@ class TestAttributes(object):
         """
         Setting repr_ns overrides a potentially guessed namespace.
         """
-        @attributes(slots=slots_outer)
+        @attr.s(slots=slots_outer)
         class C(object):
-            @attributes(repr_ns="C", slots=slots_inner)
+            @attr.s(repr_ns="C", slots=slots_inner)
             class D(object):
                 pass
         assert "C.D()" == repr(C.D())
@@ -371,9 +371,9 @@ class TestAttributes(object):
         """
         On Python 3, __name__ is different from __qualname__.
         """
-        @attributes(slots=slots_outer)
+        @attr.s(slots=slots_outer)
         class C(object):
-            @attributes(slots=slots_inner)
+            @attr.s(slots=slots_inner)
             class D(object):
                 pass
 
@@ -387,10 +387,10 @@ class TestAttributes(object):
         """
         monkeypatch.setattr(_config, "_run_validators", with_validation)
 
-        @attributes
+        @attr.s
         class C(object):
-            x = attr()
-            y = attr()
+            x = attr.ib()
+            y = attr.ib()
 
             def __attrs_post_init__(self2):
                 self2.z = self2.x + self2.y
@@ -403,11 +403,11 @@ class TestAttributes(object):
         """
         Sets the `Attribute.type` attr from type argument.
         """
-        @attributes
+        @attr.s
         class C(object):
-            x = attr(type=int)
-            y = attr(type=str)
-            z = attr()
+            x = attr.ib(type=int)
+            y = attr.ib(type=str)
+            z = attr.ib()
 
         assert int is fields(C).x.type
         assert str is fields(C).y.type
@@ -418,18 +418,18 @@ class TestAttributes(object):
         """
         Attribute definitions do not appear on the class body after @attr.s.
         """
-        @attributes(slots=slots)
+        @attr.s(slots=slots)
         class C(object):
-            x = attr()
+            x = attr.ib()
 
         x = getattr(C, "x", None)
 
         assert not isinstance(x, _CountingAttr)
 
 
-@attributes
+@attr.s
 class GC(object):
-    @attributes
+    @attr.s
     class D(object):
         pass
 
@@ -448,10 +448,10 @@ class TestMakeClass(object):
         """
         C1 = make_class("C1", ls(["a", "b"]))
 
-        @attributes
+        @attr.s
         class C2(object):
-            a = attr()
-            b = attr()
+            a = attr.ib()
+            b = attr.ib()
 
         assert C1.__attrs_attrs__ == C2.__attrs_attrs__
 
@@ -459,12 +459,15 @@ class TestMakeClass(object):
         """
         Passing a dict of name: _CountingAttr creates an equivalent class.
         """
-        C1 = make_class("C1", {"a": attr(default=42), "b": attr(default=None)})
+        C1 = make_class("C1", {
+            "a": attr.ib(default=42),
+            "b": attr.ib(default=None),
+        })
 
-        @attributes
+        @attr.s
         class C2(object):
-            a = attr(default=42)
-            b = attr(default=None)
+            a = attr.ib(default=42)
+            b = attr.ib(default=None)
 
         assert C1.__attrs_attrs__ == C2.__attrs_attrs__
 
@@ -558,9 +561,12 @@ class TestConvert(object):
         """
         Return value of convert is used as the attribute's value.
         """
-        C = make_class("C", {"x": attr(convert=lambda v: v + 1),
-                             "y": attr()})
+        C = make_class("C", {
+            "x": attr.ib(convert=lambda v: v + 1),
+            "y": attr.ib(),
+        })
         c = C(1, 2)
+
         assert c.x == 2
         assert c.y == 2
 
@@ -569,11 +575,12 @@ class TestConvert(object):
         """
         Property tests for attributes with convert.
         """
-        C = make_class("C", {"y": attr(),
-                             "x": attr(init=init, default=val,
-                                       convert=lambda v: v + 1),
-                             })
+        C = make_class("C", {
+            "y": attr.ib(),
+            "x": attr.ib(init=init, default=val, convert=lambda v: v + 1),
+        })
         c = C(2)
+
         assert c.x == val + 1
         assert c.y == 2
 
@@ -582,12 +589,15 @@ class TestConvert(object):
         """
         Property tests for attributes with convert, and a factory default.
         """
-        C = make_class("C", {"y": attr(),
-                             "x": attr(init=init,
-                                       default=Factory(lambda: val),
-                                       convert=lambda v: v + 1),
-                             })
+        C = make_class("C", {
+            "y": attr.ib(),
+            "x": attr.ib(
+                init=init,
+                default=Factory(lambda: val),
+                convert=lambda v: v + 1),
+        })
         c = C(2)
+
         assert c.x == val + 1
         assert c.y == 2
 
@@ -595,9 +605,11 @@ class TestConvert(object):
         """
         If takes_self on factories is True, self is passed.
         """
-        C = make_class("C", {"x": attr(default=Factory(
-            (lambda self: self), takes_self=True
-        ))})
+        C = make_class("C", {
+            "x": attr.ib(
+                default=Factory((lambda self: self), takes_self=True)
+            ),
+        })
 
         i = C()
 
@@ -616,9 +628,10 @@ class TestConvert(object):
         def validator(inst, attr, val):
             raise RuntimeError("foo")
         C = make_class(
-            "C",
-            {"x": attr(validator=validator, convert=lambda v: 1 / 0),
-             "y": attr()})
+            "C", {
+                "x": attr.ib(validator=validator, convert=lambda v: 1 / 0),
+                "y": attr.ib(),
+            })
         with pytest.raises(ZeroDivisionError):
             C(1, 2)
 
@@ -626,7 +639,9 @@ class TestConvert(object):
         """
         Converters circumvent immutability.
         """
-        C = make_class("C", {"x": attr(convert=lambda v: int(v))}, frozen=True)
+        C = make_class("C", {
+            "x": attr.ib(convert=lambda v: int(v)),
+        }, frozen=True)
         C("1")
 
 
@@ -638,8 +653,10 @@ class TestValidate(object):
         """
         If the validator succeeds, nothing gets raised.
         """
-        C = make_class("C", {"x": attr(validator=lambda *a: None),
-                             "y": attr()})
+        C = make_class("C", {
+            "x": attr.ib(validator=lambda *a: None),
+            "y": attr.ib()
+        })
         validate(C(1, 2))
 
     def test_propagates(self):
@@ -650,7 +667,7 @@ class TestValidate(object):
             if value == 42:
                 raise FloatingPointError
 
-        C = make_class("C", {"x": attr(validator=raiser)})
+        C = make_class("C", {"x": attr.ib(validator=raiser)})
         i = C(1)
         i.x = 42
 
@@ -667,7 +684,7 @@ class TestValidate(object):
         def raiser(_, __, ___):
             raise Exception(obj)
 
-        C = make_class("C", {"x": attr(validator=raiser)})
+        C = make_class("C", {"x": attr.ib(validator=raiser)})
         c = C(1)
         validate(c)
         assert 1 == c.x
@@ -693,7 +710,7 @@ class TestValidate(object):
             if value == 42:
                 raise ValueError("omg")
 
-        C = make_class("C", {"x": attr(validator=[v1, v2])})
+        C = make_class("C", {"x": attr.ib(validator=[v1, v2])})
 
         validate(C(1))
 
@@ -711,8 +728,8 @@ class TestValidate(object):
         """
         Empty list/tuple for validator is the same as None.
         """
-        C1 = make_class("C", {"x": attr(validator=[])})
-        C2 = make_class("C", {"x": attr(validator=None)})
+        C1 = make_class("C", {"x": attr.ib(validator=[])})
+        C2 = make_class("C", {"x": attr.ib(validator=None)})
 
         assert inspect.getsource(C1.__init__) == inspect.getsource(C2.__init__)
 
