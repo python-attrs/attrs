@@ -48,14 +48,6 @@ class TestCountingAttr(object):
 
         assert isinstance(a, _CountingAttr)
 
-    def _test_validator_none_is_empty_tuple(self):
-        """
-        If validator is None, it's transformed into an empty tuple.
-        """
-        a = attr(validator=None)
-
-        assert () == a._validator
-
     def test_validators_lists_to_wrapped_tuples(self):
         """
         If a list is passed as validator, it's just converted to a tuple.
