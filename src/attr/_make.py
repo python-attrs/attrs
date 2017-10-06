@@ -265,7 +265,7 @@ def _frozen_delattrs(self, name):
 
 def attrs(maybe_cls=None, these=None, repr_ns=None,
           repr=True, cmp=True, hash=None, init=True,
-          slots=False, frozen=False, str=False):
+          slots=False, frozen=False, str=False, replace_class=False):
     r"""
     A class decorator that adds `dunder
     <https://wiki.python.org/moin/DunderAlias>`_\ -methods according to the
@@ -340,6 +340,10 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
                ``object.__setattr__(self, "attribute_name", value)``.
 
         ..  _slots: https://docs.python.org/3.5/reference/datamodel.html#slots
+    :param bool replace_class: Do not attach methods to the decorated class
+        directly.  Instead create a new class with them.  This is always
+        ``True`` if ``slot=True``.
+        (default: ``False``, will change to ``True`` after October 2018)
 
     ..  versionadded:: 16.0.0 *slots*
     ..  versionadded:: 16.1.0 *frozen*
@@ -347,6 +351,7 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
     ..  versionchanged::
             17.1.0 *hash* supports ``None`` as value which is also the default
             now.
+    ..  versionadded:: 17.3.0 *replace_class*
     """
     def wrap(cls):
         if getattr(cls, "__class__", None) is None:
@@ -386,7 +391,8 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
             if slots is True:
                 # slots and frozen require __getstate__/__setstate__ to work
                 cls = _add_pickle(cls)
-        if slots is True:
+
+        if replace_class is True or slots is True:
             cls_dict = dict(cls.__dict__)
             attr_names = tuple(t[0] for t in ca_list)
             cls_dict["__slots__"] = attr_names

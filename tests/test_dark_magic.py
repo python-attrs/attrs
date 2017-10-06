@@ -1,3 +1,7 @@
+"""
+End-to-end tests.
+"""
+
 from __future__ import absolute_import, division, print_function
 
 import pickle
@@ -10,7 +14,7 @@ from hypothesis.strategies import booleans
 
 import attr
 
-from attr._compat import TYPE
+from attr._compat import TYPE, PY2
 from attr._make import Attribute, NOTHING
 from attr.exceptions import FrozenInstanceError
 
@@ -283,3 +287,77 @@ class TestDarkMagic(object):
             x = attr.ib(default=attr.Factory(list))
 
         assert SubOverwrite([]) == SubOverwrite()
+
+    def test_replace_class(self):
+        """
+        Setting replace_class to True returns new classes.
+        """
+        class C(object):
+            x = attr.ib()
+
+        C_new = attr.s(C, replace_class=True)
+        C_old = attr.s(C, replace_class=False)
+
+        assert C_old is C
+        assert C_new is not C
+
+    @pytest.mark.skipif(PY2, reason="Python 3-specific behavior.")
+    def test_hash_replaced_class(self):
+        """
+        Regression test: hash creation works as expected on replaced classes.
+
+        See
+        https://github.com/python-attrs/attrs/issues/202#issuecomment-307896363
+        """
+        @attr.s(replace_class=True, hash=False)
+        class Unhashable(object):
+            x = attr.ib()
+
+        with pytest.raises(TypeError) as ei:
+            hash(Unhashable(1))
+
+        assert ei.value.args[0] in (
+            "unhashable type: 'Unhashable'",
+            "'Unhashable' objects are unhashable",
+        )
+
+        @attr.s(replace_class=True, hash=False, cmp=False)
+        class HashByID(object):
+            x = attr.ib()
+
+        assert hash(HashByID(1)) != hash(HashByID(1))
+
+        @attr.s(replace_class=True, hash=True)
+        class HashByValues(object):
+            x = attr.ib()
+
+        assert hash(HashByValues(1)) == hash(HashByValues(1))
+
+    @pytest.mark.skipif(not PY2, reason="Python 2-specific behavior.")
+    def test_hash_replaced_class_py2(self):
+        """
+        Regression test: hash creation works as expected on replaced classes.
+
+        Contrary to Python 3, Python 2 classes with an `__eq__` but without
+        a `__hash__` are hashed by ID.
+
+        See
+        https://github.com/python-attrs/attrs/issues/202#issuecomment-307896363
+        """
+        @attr.s(replace_class=True, hash=False)
+        class HashByIDPy2(object):
+            x = attr.ib()
+
+        assert hash(HashByIDPy2(1)) != hash(HashByIDPy2(1))
+
+        @attr.s(replace_class=True, hash=False, cmp=False)
+        class HashByID(object):
+            x = attr.ib()
+
+        assert hash(HashByID(1)) != hash(HashByID(1))
+
+        @attr.s(replace_class=True, hash=True)
+        class HashByValues(object):
+            x = attr.ib()
+
+        assert hash(HashByValues(1)) == hash(HashByValues(1))

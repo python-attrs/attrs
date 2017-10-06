@@ -1,0 +1,8 @@
+Added new option to ``@attr.s()``: *replace_class* will make ``attrs`` stop attaching methods to the existing class.
+Instead it will create a new class with the methods attached.
+This is consistent with how ``slots``-classes have *always* been created.
+
+For the next year, the default value is ``replace_classes=False`` which is the current behavior.
+
+The default value will change to ``True`` no sooner than one year after this release.
+There are no concrete plans to remove ``replace_classes=False`` altogether but its use is discouraged.
