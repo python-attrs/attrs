@@ -18,7 +18,7 @@ from attr._make import NOTHING, make_class
 
 
 def simple_class(cmp=False, repr=False, hash=False, str=False, slots=False,
-                 frozen=False):
+                 frozen=False, replace_class=True):
     """
     Return a new simple class.
     """
@@ -218,8 +218,16 @@ def simple_classes(draw, slots=None, frozen=None, private_attrs=None):
         def post_init(self):
             pass
         cls_dict["__attrs_post_init__"] = post_init
-    return make_class("HypClass", cls_dict,
-                      slots=slots_flag, frozen=frozen_flag)
+
+    return make_class(
+        "HypClass",
+        cls_dict,
+        slots=slots_flag,
+        frozen=frozen_flag,
+        replace_class=True,
+    )
+
+
 
 
 # st.recursive works by taking a base strategy (in this case, simple_classes)
