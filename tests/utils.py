@@ -228,8 +228,6 @@ def simple_classes(draw, slots=None, frozen=None, private_attrs=None):
     )
 
 
-
-
 # st.recursive works by taking a base strategy (in this case, simple_classes)
 # and a special function.  This function receives a strategy, and returns
 # another strategy (building on top of the base strategy).

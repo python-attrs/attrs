@@ -395,7 +395,8 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
         if replace_class is True or slots is True:
             cls_dict = dict(cls.__dict__)
             attr_names = tuple(t[0] for t in ca_list)
-            cls_dict["__slots__"] = attr_names
+            if slots is True:
+                cls_dict["__slots__"] = attr_names
             for ca_name in attr_names:
                 # It might not actually be in there, e.g. if using 'these'.
                 cls_dict.pop(ca_name, None)
