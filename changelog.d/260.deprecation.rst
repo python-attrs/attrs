@@ -2,7 +2,12 @@ Added new option to ``@attr.s()``: *replace_class* will make ``attrs`` stop atta
 Instead it will create a new class with the methods attached.
 This is consistent with how ``slots``-classes have *always* been created.
 
+So far only one implication of this is known to us: on Python **3**, a class created using ``@attr.s(hash=False)`` (which implies ``cmp=True`` and ``slots=False``) is currently hashable by object id (i.e. the hash of two different instances is never equal).
+``replace_classes=True`` will make hashing attempts raise a ``TypeError``.
+To get hashing by object id with ``replace_classes=True``, you also have to set ``cmp=False``.
+This behavior is `intended <https://docs.python.org/3/reference/datamodel.html#object.__hash__>`_ by Python core and ``attrs`` follows suit with this change.
+
 For the next year, the default value is ``replace_classes=False`` which is the current behavior.
 
-The default value will change to ``True`` no sooner than one year after this release.
-There are no concrete plans to remove ``replace_classes=False`` altogether but its use is discouraged.
+The default value will change to ``True`` after September 2018.
+The option will become a noop after September 2019 and will start raising a ``DeprecationWarning``.
