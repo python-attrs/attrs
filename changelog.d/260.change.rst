@@ -1,0 +1,4 @@
+``attrs``-decoratorated classes are never modified now.
+Instead a new class is created with the appropriated methods and attributes attached from the get go.
+
+For backward-compatibility, the behavior of getting hashing by ID on Python 3 when passing ``@attr.s(hash=False)`` is manually retained by setting ``__hash__`` to ``object.__hash__``.
