@@ -142,7 +142,7 @@ def test_inheritance_from_nonslots():
     assert "clsmethod" == c2.classmethod()
     assert "staticmethod" == c2.staticmethod()
 
-    # assert set(["z"]) == set(C2Slots.__slots__)
+    assert set(["z"]) == set(C2Slots.__slots__)
 
     c3 = C2Slots(x=1, y=3, z="test")
 
