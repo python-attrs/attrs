@@ -37,6 +37,40 @@ So it is fairly simple to build your own decorators on top of ``attrs``:
 
       f = a(b(original_f))
 
+
+Wrapping the Decorator
+----------------------
+
+A more elegant way can be to wrap ``attrs`` altogether and build a class `DSL <https://en.wikipedia.org/wiki/Domain-specific_language>`_ on top of it.
+
+An example for that is the package `environ_config <https://github.com/hynek/environ_config>`_ that uses ``attrs`` under the hood to define environment-based configurations declaratively without exposing ``attrs`` APIs at all.
+
+
+Types
+-----
+
+``attrs`` offers two ways of attaching type information to attributes:
+
+- `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_ annotations on Python 3.6 and later,
+- and the *type* argument to :func:`attr.ib`.
+
+This information is available to you:
+
+.. doctest::
+
+   >>> import attr
+   >>> @attr.s
+   ... class C(object):
+   ...     x: int = attr.ib()
+   ...     y = attr.ib(type=str)
+   >>> attr.fields(C).x.type
+   <class 'int'>
+   >>> attr.fields(C).y.type
+   <class 'str'>
+
+Currently, ``attrs`` doesn't do anything with this information but it's very useful if you'd like to write your own validators or serializers!
+
+
 .. _extending_metadata:
 
 Metadata
