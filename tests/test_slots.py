@@ -371,3 +371,30 @@ def test_closure_cell_rewriting_inheritance():
 
     assert non_slot_instance.my_subclass() is C2
     assert slot_instance.my_subclass() is C2Slots
+
+
+@pytest.mark.skipif(PY2, reason="closure cell rewriting is PY3-only.")
+@pytest.mark.parametrize("slots", [True, False])
+def test_closure_cell_rewriting_cls_static(slots):
+    """
+    Slot classes support proper closure cell rewriting for class- and static
+    methods.
+    """
+    # Python can reuse closure cells, so we create new classes just for
+    # this test.
+
+    @attr.s(slots=slots)
+    class C:
+        @classmethod
+        def clsmethod(cls):
+            return __class__
+
+    assert C.clsmethod() is C
+
+    @attr.s(slots=slots)
+    class D:
+        @staticmethod
+        def statmethod():
+            return __class__
+
+    assert D.statmethod() is D
