@@ -323,3 +323,19 @@ class TestDarkMagic(object):
             x = attr.ib()
 
         assert hash(HashByValues(1)) == hash(HashByValues(1))
+
+    def test_handles_different_defaults(self):
+        """
+        Unhashable defaults + subclassing values work.
+        """
+        @attr.s
+        class Unhashable(object):
+            pass
+
+        @attr.s
+        class C(object):
+            x = attr.ib(default=Unhashable())
+
+        @attr.s
+        class D(C):
+            pass

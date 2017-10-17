@@ -305,7 +305,7 @@ class _ClassBuilder(object):
             slots=slots,
             counting_attrs=counting_attrs,
             attrs=attrs,
-            super_attrs=set(super_attrs),
+            super_attrs=super_attrs,
             attr_names=tuple(a.name for a in attrs),
             frozen=frozen or _has_frozen_superclass(old_cls),
             has_post_init=getattr(old_cls, "__attrs_post_init__", False),
