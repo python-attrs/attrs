@@ -387,7 +387,7 @@ def test_closure_cell_rewriting_cls_static(slots):
     class C:
         @classmethod
         def clsmethod(cls):
-            return __class__
+            return __class__  # noqa: F821
 
     assert C.clsmethod() is C
 
@@ -395,6 +395,6 @@ def test_closure_cell_rewriting_cls_static(slots):
     class D:
         @staticmethod
         def statmethod():
-            return __class__
+            return __class__  # noqa: F821
 
     assert D.statmethod() is D
