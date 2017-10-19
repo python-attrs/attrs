@@ -98,6 +98,13 @@ Testimonials
   -- **Kenneth Reitz**, author of `requests <http://www.python-requests.org/>`_, Python Overlord at Heroku, `on paper no less <https://twitter.com/hynek/status/866817877650751488>`_
 
 
+Getting Help
+============
+
+Please use the ``python-attrs`` tag on `StackOverflow <https://stackoverflow.com/questions/tagged/python-attrs>`_ to get help.
+
+Answering questions of your fellow developers is also great way to help the project!
+
 .. -end-
 
 .. -project-information-

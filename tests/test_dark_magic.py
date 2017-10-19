@@ -339,3 +339,38 @@ class TestDarkMagic(object):
         @attr.s
         class D(C):
             pass
+
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_hash_false_cmp_false(self, slots):
+        """
+        hash=False and cmp=False make a class hashable by ID.
+        """
+        @attr.s(hash=False, cmp=False, slots=slots)
+        class C(object):
+            pass
+
+        hash(C())
+
+    def test_overwrite_super(self):
+        """
+        Super classes can overwrite each other and the attributes are added
+        in the order they are defined.
+        """
+        @attr.s
+        class C(object):
+            c = attr.ib(default=100)
+            x = attr.ib(default=1)
+            b = attr.ib(default=23)
+
+        @attr.s
+        class D(C):
+            a = attr.ib(default=42)
+            x = attr.ib(default=2)
+            d = attr.ib(default=3.14)
+
+        @attr.s
+        class E(D):
+            y = attr.ib(default=3)
+            z = attr.ib(default=4)
+
+        assert "E(c=100, b=23, a=42, x=2, d=3.14, y=3, z=4)" == repr(E())
