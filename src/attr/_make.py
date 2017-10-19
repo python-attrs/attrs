@@ -222,11 +222,9 @@ def _transform_attrs(cls, these):
     for c in reversed(cls.__mro__[1:-1]):
         sub_attrs = getattr(c, "__attrs_attrs__", None)
         if sub_attrs is not None:
-            super_attrs.extend(
-                a
-                for a in sub_attrs
-                if a not in super_attrs and a.name not in non_super_names
-            )
+            for a in sub_attrs:
+                if a not in super_attrs and a.name not in non_super_names:
+                    super_attrs.append(a)
 
     attr_names = [a.name for a in super_attrs + non_super_attrs]
 
