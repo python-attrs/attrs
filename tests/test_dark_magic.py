@@ -339,3 +339,14 @@ class TestDarkMagic(object):
         @attr.s
         class D(C):
             pass
+
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_hash_false_cmp_false(self, slots):
+        """
+        hash=False and cmp=False make a class hashable by ID.
+        """
+        @attr.s(hash=False, cmp=False, slots=slots)
+        class C(object):
+            pass
+
+        hash(C())

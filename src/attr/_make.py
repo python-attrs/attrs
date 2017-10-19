@@ -534,6 +534,9 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
                 "Invalid value for hash.  Must be True, False, or None."
             )
         elif hash is False or (hash is None and cmp is False):
+            # The `hash is False` case is to ensure backward-compatibility
+            # to the pre 17.3 times when dict classes accidentally got hashing
+            # by ID because we tacked our methods to finished classes.
             builder.add_hash_by_id()
         elif hash is True or (hash is None and cmp is True and frozen is True):
             builder.add_hash()
