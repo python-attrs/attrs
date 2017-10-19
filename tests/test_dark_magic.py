@@ -288,16 +288,16 @@ class TestDarkMagic(object):
 
         assert SubOverwrite([]) == SubOverwrite()
 
-    def test_replace_class(self):
+    def test_dict_patch_class(self):
         """
-        Classes are always replaced.
+        dict-classes are never replaced.
         """
         class C(object):
             x = attr.ib()
 
         C_new = attr.s(C)
 
-        assert C_new is not C
+        assert C_new is C
 
     def test_hash_by_id(self):
         """

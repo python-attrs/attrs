@@ -1,0 +1,1 @@
+``super()`` and ``__class__`` now work on Python 3 when ``slots=True``.

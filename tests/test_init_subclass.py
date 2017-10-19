@@ -13,8 +13,7 @@ import attr
 def test_init_subclass_vanilla(slots):
     """
     `super().__init_subclass__` can be used if the subclass is not an attrs
-    class. This is problematic due to certain cell intricacies around static
-    and class methods.
+    class.
     """
     @attr.s(slots=slots)
     class Base:
@@ -26,3 +25,20 @@ def test_init_subclass_vanilla(slots):
         pass
 
     assert "foo" == Vanilla().param
+
+
+def test_init_subclass_attrs():
+    """
+    `__init_subclass__` works with attrs classes as long as slots=False.
+    """
+    @attr.s(slots=False)
+    class Base:
+        def __init_subclass__(cls, param, **kw):
+            super().__init_subclass__(**kw)
+            cls.param = param
+
+    @attr.s
+    class Attrs(Base, param="foo"):
+        pass
+
+    assert "foo" == Attrs().param

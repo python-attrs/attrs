@@ -292,16 +292,20 @@ class _ClassBuilder(object):
         "_frozen", "_has_post_init",
     )
 
-    def __init__(self, cls, cls_dict, slots, counting_attrs, attrs, attr_names,
-                 frozen, has_post_init, super_attrs):
+    def __init__(self, cls, slots, frozen, has_post_init,
+                 counting_attrs, attrs, super_attrs):
         self._cls = cls
-        self._cls_dict = cls_dict
+        self._cls_dict = dict(cls.__dict__) if slots else {}
         self._attrs = attrs
         self._super_attrs = super_attrs
-        self._attr_names = attr_names
+        self._attr_names = tuple(a.name for a in attrs)
         self._slots = slots
         self._frozen = frozen
         self._has_post_init = has_post_init
+
+        if frozen:
+            self._cls_dict["__setattr__"] = _frozen_setattrs
+            self._cls_dict["__delattr__"] = _frozen_delattrs
 
     def __repr__(self):
         return "<_ClassBuilder(cls={cls})>".format(cls=self._cls.__name__)
@@ -312,17 +316,51 @@ class _ClassBuilder(object):
 
         return cls(
             cls=old_cls,
-            cls_dict=dict(old_cls.__dict__),
             slots=slots,
+            frozen=frozen or _has_frozen_superclass(old_cls),
+            has_post_init=bool(getattr(old_cls, "__attrs_post_init__", False)),
             counting_attrs=counting_attrs,
             attrs=attrs,
             super_attrs=super_attrs,
-            attr_names=tuple(a.name for a in attrs),
-            frozen=frozen or _has_frozen_superclass(old_cls),
-            has_post_init=getattr(old_cls, "__attrs_post_init__", False),
         )
 
-    def build(self):
+    def build_class(self):
+        """
+        Finalize class based on the accumulated configuration.
+
+        Builder cannot be used anymore after calling this method.
+        """
+        if self._slots is True:
+            return self._create()
+        else:
+            return self._patch()
+
+    def _patch(self):
+        """
+        Apply accumulated methods and return the class.
+        """
+        cls = self._cls
+        super_names = set(a.name for a in self._super_attrs)
+
+        # First clean class from definitions.
+        for name in self._attr_names:
+            if name not in super_names and \
+                    getattr(cls, name, None) is not None:
+                delattr(cls, name)
+
+        cd = self._cls_dict
+        cd["__attrs_attrs__"] = self._attrs
+
+        qualname = getattr(cls, "__qualname__", None)
+        if qualname is not None:
+            cd["__qualname__"] = qualname
+
+        for name, value in cd.items():
+            setattr(cls, name, value)
+
+        return cls
+
+    def _create(self):
         """
         Build and return the class.
         """
@@ -334,43 +372,37 @@ class _ClassBuilder(object):
 
         cd["__attrs_attrs__"] = self._attrs
 
-        if self._slots is True:
-            # We only add the names of attributes that aren't inherited.
-            # Settings __slots__ to inherited attributes wastes memory.
-            cd["__slots__"] = tuple(
-                name
-                for name in self._attr_names
-                if name not in {a.name for a in self._super_attrs}
-            )
+        # We only add the names of attributes that aren't inherited.
+        # Settings __slots__ to inherited attributes wastes memory.
+        cd["__slots__"] = tuple(
+            name
+            for name in self._attr_names
+            if name not in {a.name for a in self._super_attrs}
+        )
 
         qualname = getattr(self._cls, "__qualname__", None)
         if qualname is not None:
             cd["__qualname__"] = qualname
 
-        if self._frozen:
-            cd["__setattr__"] = _frozen_setattrs
-            cd["__delattr__"] = _frozen_delattrs
+        attr_names = tuple(self._attr_names)
 
-        if self._slots is True:
-            attr_names = tuple(self._attr_names)
+        def slots_getstate(self):
+            """
+            Automatically created by attrs.
+            """
+            return tuple(getattr(self, name) for name in attr_names)
 
-            def slots_getstate(self):
-                """
-                Automatically created by attrs.
-                """
-                return tuple(getattr(self, name) for name in attr_names)
+        def slots_setstate(self, state):
+            """
+            Automatically created by attrs.
+            """
+            __bound_setattr = _obj_setattr.__get__(self, Attribute)
+            for name, value in zip(attr_names, state):
+                __bound_setattr(name, value)
 
-            def slots_setstate(self, state):
-                """
-                Automatically created by attrs.
-                """
-                __bound_setattr = _obj_setattr.__get__(self, Attribute)
-                for name, value in zip(attr_names, state):
-                    __bound_setattr(name, value)
-
-            # slots and frozen require __getstate__/__setstate__ to work
-            cd["__getstate__"] = slots_getstate
-            cd["__setstate__"] = slots_setstate
+        # slots and frozen require __getstate__/__setstate__ to work
+        cd["__getstate__"] = slots_getstate
+        cd["__setstate__"] = slots_setstate
 
         # Create new class based on old class and our methods.
         cls = type(self._cls)(
@@ -421,10 +453,6 @@ class _ClassBuilder(object):
 
     def add_hash(self):
         self._cls_dict["__hash__"] = _make_hash(self._attrs)
-        return self
-
-    def add_hash_by_id(self):
-        self._cls_dict["__hash__"] = object.__hash__
         return self
 
     def add_init(self):
@@ -528,9 +556,6 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
     ..  versionchanged::
             17.1.0 *hash* supports ``None`` as value which is also the default
             now.
-    ..  versionchanged:: 17.3.0
-            All classes are replaced instead of attaching methods to the
-            original class.
     """
     def wrap(cls):
         if getattr(cls, "__class__", None) is None:
@@ -551,10 +576,7 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
                 "Invalid value for hash.  Must be True, False, or None."
             )
         elif hash is False or (hash is None and cmp is False):
-            # The `hash is False` case is to ensure backward-compatibility
-            # to the pre 17.3 times when dict classes accidentally got hashing
-            # by ID because we tacked our methods to finished classes.
-            builder.add_hash_by_id()
+            pass
         elif hash is True or (hash is None and cmp is True and frozen is True):
             builder.add_hash()
         else:
@@ -563,7 +585,7 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
         if init is True:
             builder.add_init()
 
-        return builder.build()
+        return builder.build_class()
 
     # maybe_cls's type depends on the usage of the decorator.  It's a class
     # if it's used as `@attrs` but ``None`` if used as `@attrs()`.

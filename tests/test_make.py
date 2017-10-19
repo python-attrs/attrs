@@ -316,10 +316,7 @@ class TestAttributes(object):
         C = attr.s(**am_args)(C)
         method = getattr(C, method_name)
 
-        if arg_name == "hash":
-            assert object.__hash__ == method
-        else:
-            assert sentinel == method
+        assert sentinel == method
 
     @pytest.mark.skipif(PY2, reason="__qualname__ is PY3-only.")
     @given(slots_outer=booleans(), slots_inner=booleans())
@@ -819,8 +816,7 @@ class TestClassBuilder(object):
 
         b = _ClassBuilder.from_class(C, None, True, True)
 
-        cls = \
-            b.add_cmp().add_hash_by_id().add_hash().add_init().add_repr("ns") \
-            .add_str().build()
+        cls = b.add_cmp().add_hash().add_init().add_repr("ns").add_str() \
+            .build_class()
 
         assert "ns.C(x=1)" == repr(cls(1))
