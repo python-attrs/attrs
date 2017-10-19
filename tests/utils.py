@@ -218,8 +218,13 @@ def simple_classes(draw, slots=None, frozen=None, private_attrs=None):
         def post_init(self):
             pass
         cls_dict["__attrs_post_init__"] = post_init
-    return make_class("HypClass", cls_dict,
-                      slots=slots_flag, frozen=frozen_flag)
+
+    return make_class(
+        "HypClass",
+        cls_dict,
+        slots=slots_flag,
+        frozen=frozen_flag,
+    )
 
 
 # st.recursive works by taking a base strategy (in this case, simple_classes)
