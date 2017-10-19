@@ -217,28 +217,41 @@ def _transform_attrs(cls, these):
         in ca_list
     ]
 
+    # Walk *down* the MRO for attributes.  While doing so, we collect the names
+    # of attributes we've seen in `take_attr_names` and ignore their
+    # redefinitions deeper in the hierarchy.
     super_attrs = []
-    non_super_names = set(a.name for a in non_super_attrs)
-    for c in reversed(cls.__mro__[1:-1]):
-        sub_attrs = getattr(c, "__attrs_attrs__", None)
+    taken_attr_names = set(a.name for a in non_super_attrs)
+    for super_cls in cls.__mro__[1:-1]:
+        sub_attrs = getattr(super_cls, "__attrs_attrs__", None)
         if sub_attrs is not None:
-            for a in sub_attrs:
-                if a not in super_attrs and a.name not in non_super_names:
+            # We iterate over sub_attrs backwards so we can reverse the whole
+            # list in the end and get all attributes in the order they have
+            # been defined.
+            for a in reversed(sub_attrs):
+                if a.name not in taken_attr_names:
                     super_attrs.append(a)
+                    taken_attr_names.add(a.name)
+
+    # Now reverse the list, such that the attributes are sorted by *descending*
+    # age.  IOW: the oldest attribute definition is at the head of the list.
+    super_attrs.reverse()
 
     attr_names = [a.name for a in super_attrs + non_super_attrs]
 
     AttrsClass = _make_attr_tuple_class(cls.__name__, attr_names)
 
-    attrs = AttrsClass(super_attrs + [
-        Attribute.from_counting_attr(
-            name=attr_name,
-            ca=ca,
-            type=ann.get(attr_name)
-        )
-        for attr_name, ca
-        in ca_list
-    ])
+    attrs = AttrsClass(
+        super_attrs + [
+            Attribute.from_counting_attr(
+                name=attr_name,
+                ca=ca,
+                type=ann.get(attr_name)
+            )
+            for attr_name, ca
+            in ca_list
+        ]
+    )
 
     had_default = False
     for a in attrs:
