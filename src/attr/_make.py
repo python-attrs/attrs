@@ -386,7 +386,13 @@ class _ClassBuilder(object):
         # as `method.__closure__`.  Since we replace the class with a
         # clone, we rewrite these references so it keeps working.
         for item in cls.__dict__.values():
-            closure_cells = getattr(item, "__closure__", None)
+            if isinstance(item, (classmethod, staticmethod)):
+                # Class- and staticmethods hide their functions inside.
+                # These might need to be rewritten as well.
+                closure_cells = getattr(item.__func__, "__closure__", None)
+            else:
+                closure_cells = getattr(item, "__closure__", None)
+
             if not closure_cells:  # Catch None or the empty list.
                 continue
             for cell in closure_cells:
