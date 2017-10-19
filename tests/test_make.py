@@ -803,7 +803,7 @@ class TestClassBuilder(object):
         class C(object):
             pass
 
-        b = _ClassBuilder.from_class(C, None, True, True)
+        b = _ClassBuilder(C, None, True, True)
 
         assert "<_ClassBuilder(cls=C)>" == repr(b)
 
@@ -814,7 +814,7 @@ class TestClassBuilder(object):
         class C(object):
             x = attr.ib()
 
-        b = _ClassBuilder.from_class(C, None, True, True)
+        b = _ClassBuilder(C, None, True, True)
 
         cls = b.add_cmp().add_hash().add_init().add_repr("ns").add_str() \
             .build_class()

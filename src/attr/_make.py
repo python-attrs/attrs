@@ -285,23 +285,26 @@ def _frozen_delattrs(self, name):
 
 class _ClassBuilder(object):
     """
-    Iteratively build a class.
+    Iteratively build *one* class.
     """
     __slots__ = (
         "_cls", "_cls_dict", "_attrs", "_super_attrs", "_attr_names", "_slots",
         "_frozen", "_has_post_init",
     )
 
-    def __init__(self, cls, slots, frozen, has_post_init,
-                 counting_attrs, attrs, super_attrs):
+    def __init__(self, cls, these, slots, frozen):
+        attrs, super_attrs, counting_attrs = _transform_attrs(cls, these)
+
         self._cls = cls
         self._cls_dict = dict(cls.__dict__) if slots else {}
         self._attrs = attrs
         self._super_attrs = super_attrs
         self._attr_names = tuple(a.name for a in attrs)
         self._slots = slots
-        self._frozen = frozen
-        self._has_post_init = has_post_init
+        self._frozen = frozen or _has_frozen_superclass(cls)
+        self._has_post_init = bool(getattr(cls, "__attrs_post_init__", False))
+
+        self._cls_dict["__attrs_attrs__"] = self._attrs
 
         if frozen:
             self._cls_dict["__setattr__"] = _frozen_setattrs
@@ -310,20 +313,6 @@ class _ClassBuilder(object):
     def __repr__(self):
         return "<_ClassBuilder(cls={cls})>".format(cls=self._cls.__name__)
 
-    @classmethod
-    def from_class(cls, old_cls, these, slots, frozen):
-        attrs, super_attrs, counting_attrs = _transform_attrs(old_cls, these)
-
-        return cls(
-            cls=old_cls,
-            slots=slots,
-            frozen=frozen or _has_frozen_superclass(old_cls),
-            has_post_init=bool(getattr(old_cls, "__attrs_post_init__", False)),
-            counting_attrs=counting_attrs,
-            attrs=attrs,
-            super_attrs=super_attrs,
-        )
-
     def build_class(self):
         """
         Finalize class based on the accumulated configuration.
@@ -331,46 +320,38 @@ class _ClassBuilder(object):
         Builder cannot be used anymore after calling this method.
         """
         if self._slots is True:
-            return self._create()
+            return self._create_slots_class()
         else:
-            return self._patch()
+            return self._patch_original_class()
 
-    def _patch(self):
+    def _patch_original_class(self):
         """
         Apply accumulated methods and return the class.
         """
         cls = self._cls
         super_names = set(a.name for a in self._super_attrs)
 
-        # First clean class from definitions.
+        # Clean class of attribute definitions (`attr.ib()`s).
         for name in self._attr_names:
             if name not in super_names and \
                     getattr(cls, name, None) is not None:
                 delattr(cls, name)
 
-        cd = self._cls_dict
-        cd["__attrs_attrs__"] = self._attrs
-
-        qualname = getattr(cls, "__qualname__", None)
-        if qualname is not None:
-            cd["__qualname__"] = qualname
-
-        for name, value in cd.items():
+        # Attach our dunder methods.
+        for name, value in self._cls_dict.items():
             setattr(cls, name, value)
 
         return cls
 
-    def _create(self):
+    def _create_slots_class(self):
         """
-        Build and return the class.
+        Build and return a new class with a `__slots__` attribute.
         """
         cd = {
             k: v
             for k, v in iteritems(self._cls_dict)
             if k not in tuple(self._attr_names) + ("__dict__",)
         }
-
-        cd["__attrs_attrs__"] = self._attrs
 
         # We only add the names of attributes that aren't inherited.
         # Settings __slots__ to inherited attributes wastes memory.
@@ -561,7 +542,7 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
         if getattr(cls, "__class__", None) is None:
             raise TypeError("attrs only works with new-style classes.")
 
-        builder = _ClassBuilder.from_class(cls, these, slots, frozen)
+        builder = _ClassBuilder(cls, these, slots, frozen)
 
         if repr is True:
             builder.add_repr(repr_ns)
