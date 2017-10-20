@@ -152,7 +152,7 @@ class TestTransformAttrs(object):
         Transforms every `_CountingAttr` and leaves others (a) be.
         """
         C = make_tc()
-        attrs, _, _ = _transform_attrs(C, None)
+        attrs, _, = _transform_attrs(C, None)
 
         assert ["z", "y", "x"] == [a.name for a in attrs]
 
@@ -164,17 +164,17 @@ class TestTransformAttrs(object):
         class C(object):
             pass
 
-        assert _Attributes(((), (), ())) == _transform_attrs(C, None)
+        assert _Attributes(((), ())) == _transform_attrs(C, None)
 
     def test_transforms_to_attribute(self):
         """
         All `_CountingAttr`s are transformed into `Attribute`s.
         """
         C = make_tc()
-        attrs, super_attrs, cas = _transform_attrs(C, None)
+        attrs, super_attrs = _transform_attrs(C, None)
 
         assert () == super_attrs
-        assert 3 == len(attrs) == len(cas)
+        assert 3 == len(attrs)
         assert all(isinstance(a, Attribute) for a in attrs)
 
     def test_conflicting_defaults(self):
@@ -198,19 +198,20 @@ class TestTransformAttrs(object):
 
     def test_these(self):
         """
-        If these is passed, use it and ignore body.
+        If these is passed, use it and ignore body and super classes.
         """
-        class C(object):
+        class Base(object):
+            z = attr.ib()
+
+        class C(Base):
             y = attr.ib()
 
-        attrs, _, cas = _transform_attrs(C, {"x": attr.ib()})
-        ca, = cas
+        attrs, super_attrs = _transform_attrs(C, {"x": attr.ib()})
 
+        assert () == super_attrs
         assert (
             simple_attr("x"),
         ) == attrs
-        assert "x" == ca[0]
-        assert isinstance(ca[1], _CountingAttr)
 
 
 class TestAttributes(object):

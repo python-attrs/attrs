@@ -181,8 +181,11 @@ def _make_attr_tuple_class(cls_name, attr_names):
     return globs[attr_class_name]
 
 
+# Tuple class for extracted attributes from a class definition.
+# `super_attrs` is a subset of `attrs`.
 _Attributes = _make_attr_tuple_class("_Attributes", [
-    "attrs", "super_attrs", "counting_attrs",
+    "attrs",        # all attributes to build dunder methods for
+    "super_attrs",  # attributes that have been inherited from super classes
 ])
 
 
@@ -266,7 +269,7 @@ def _transform_attrs(cls, these):
                 a.init is not False:
             had_default = True
 
-    return _Attributes((attrs, tuple(super_attrs), tuple(ca_list)))
+    return _Attributes((attrs, tuple(super_attrs)))
 
 
 def _frozen_setattrs(self, name, value):
@@ -293,7 +296,7 @@ class _ClassBuilder(object):
     )
 
     def __init__(self, cls, these, slots, frozen):
-        attrs, super_attrs, counting_attrs = _transform_attrs(cls, these)
+        attrs, super_attrs = _transform_attrs(cls, these)
 
         self._cls = cls
         self._cls_dict = dict(cls.__dict__) if slots else {}
