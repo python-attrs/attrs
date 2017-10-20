@@ -315,9 +315,8 @@ class TestAttributes(object):
         setattr(C, method_name, sentinel)
 
         C = attr.s(**am_args)(C)
-        method = getattr(C, method_name)
 
-        assert sentinel == method
+        assert sentinel == getattr(C, method_name)
 
     @pytest.mark.skipif(PY2, reason="__qualname__ is PY3-only.")
     @given(slots_outer=booleans(), slots_inner=booleans())

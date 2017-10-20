@@ -301,8 +301,9 @@ class TestDarkMagic(object):
 
     def test_hash_by_id(self):
         """
-        To not break backward compatibility, hashing by ID is active for
-        hash=False even on Python 3.
+        With dict classes, hashing by ID is active for hash=False even on
+        Python 3.  This is incorrect behavior but we have to retain it for
+        backward compatibility.
         """
         @attr.s(hash=False)
         class HashByIDBackwardCompat(object):
@@ -349,7 +350,7 @@ class TestDarkMagic(object):
         class C(object):
             pass
 
-        hash(C())
+        assert hash(C()) != hash(C())
 
     def test_overwrite_super(self):
         """
