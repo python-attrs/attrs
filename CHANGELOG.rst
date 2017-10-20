@@ -230,7 +230,7 @@ Changes:
 ^^^^^^^^
 
 - ``__slots__`` have arrived!
-  Classes now can automatically be `slots <https://docs.python.org/3.5/reference/datamodel.html#slots>`_-style (and save your precious memory) just by passing ``slots=True``.
+  Classes now can automatically be `slots <https://docs.python.org/3/reference/datamodel.html#slots>`_-style (and save your precious memory) just by passing ``slots=True``.
   `#35 <https://github.com/python-attrs/attrs/issues/35>`_
 - Allow the case of initializing attributes that are set to ``init=False``.
   This allows for clean initializer parameter lists while being able to initialize attributes to default values.

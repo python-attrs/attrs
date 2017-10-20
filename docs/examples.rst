@@ -470,7 +470,7 @@ By default, instances of classes have a dictionary for attribute storage.
 This wastes space for objects having very few data attributes.
 The space consumption can become significant when creating large numbers of instances.
 
-Normal Python classes can avoid using a separate dictionary for each instance of a class by `defining <https://docs.python.org/3.5/reference/datamodel.html#slots>`_ ``__slots__``.
+Normal Python classes can avoid using a separate dictionary for each instance of a class by `defining <https://docs.python.org/3/reference/datamodel.html#slots>`_ ``__slots__``.
 For ``attrs`` classes it's enough to set ``slots=True``:
 
 .. doctest::
@@ -505,8 +505,10 @@ Slot classes are a little different than ordinary, dictionary-backed classes:
          ...
      AttributeError: 'Coordinates' object has no attribute 'z'
 
-- Since non-slot classes cannot be turned into slot classes after they have been created, ``attr.s(.., slots=True)`` will *replace* the class it is applied to with a copy.
+- Since non-slot classes cannot be turned into slot classes after they have been created, ``attr.s(slots=True)`` will *replace* the class it is applied to with a copy.
   In almost all cases this isn't a problem, but we mention it for the sake of completeness.
+
+  * One notable problem is that certain metaclass features like ``__init_subclass__`` do not work with slot classes.
 
 - Using :mod:`pickle` with slot classes requires pickle protocol 2 or greater.
   Python 2 uses protocol 0 by default so the protocol needs to be specified.

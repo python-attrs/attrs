@@ -532,7 +532,7 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
                circumvent that limitation by using
                ``object.__setattr__(self, "attribute_name", value)``.
 
-        ..  _slots: https://docs.python.org/3.5/reference/datamodel.html#slots
+        ..  _slots: https://docs.python.org/3/reference/datamodel.html#slots
 
     ..  versionadded:: 16.0.0 *slots*
     ..  versionadded:: 16.1.0 *frozen*
