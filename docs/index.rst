@@ -8,10 +8,6 @@ Release v\ |release| (:doc:`What's new? <changelog>`).
    :start-after: teaser-begin
    :end-before: -spiel-end-
 
-.. include:: ../README.rst
-   :start-after: -testimonials-
-   :end-before: -end-
-
 
 Getting Started
 ===============
@@ -43,6 +39,10 @@ Day-to-Day Usage
 - ``attrs`` is built for extension from the ground up.
   :doc:`extending` will show you the affordances it offers and how to make it a building block of your own projects.
 
+
+.. include:: ../README.rst
+   :start-after: -testimonials-
+   :end-before: -end-
 
 .. include:: ../README.rst
    :start-after: -project-information-
