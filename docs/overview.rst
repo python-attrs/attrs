@@ -15,13 +15,13 @@ Philosophy
 ==========
 
 It's about regular classes.
-   ``attrs`` for creating well-behaved classes with a type, attributes, methods, and everything that comes with a class.
+   ``attrs`` is for creating well-behaved classes with a type, attributes, methods, and everything that comes with a class.
    It can be used for data-only containers like ``namedtuple``\ s or ``types.SimpleNamespace`` but they're just a sub-genre of what ``attrs`` is good for.
 
 The class belongs to the users.
    You define a class and ``attrs`` adds static methods to that class based on the attributes you declare.
    The end.
-   It doesn't add meta classes.
+   It doesn't add metaclasses.
    It doesn't add classes you've never heard of to your inheritance tree.
    An ``attrs`` class in runtime is indistiguishable from a regular class: because it *is* a regular class with a few boilerplate-y methods attached.
 
@@ -47,7 +47,12 @@ What ``attrs`` Is Not
 
 ``attrs`` does *not* invent some kind of magic system that pulls classes out of its hat using meta classes, runtime introspection, and shaky interdependencies.
 
-All ``attrs`` does is take your declaration, write dunder methods based on that information, and attach them to your class.
+All ``attrs`` does is:
+
+1. take your declaration,
+2. write dunder methods based on that information,
+3. and attach them to your class.
+
 It does *nothing* dynamic at runtime, hence zero runtime overhead.
 It's still *your* class.
 Do with it as you please.
@@ -70,10 +75,13 @@ Therefore, the following class definition is identical to the previous one:
 
    >>> from attr import attrs, attrib, Factory
    >>> @attrs
-   ... class C(object):
-   ...     x = attrib(default=42)
-   ...     y = attrib(default=Factory(list))
-   >>> C()
-   C(x=42, y=[])
+   ... class SomeClass(object):
+   ...     a_number = attrib(default=42)
+   ...     list_of_numbers = attrib(default=Factory(list))
+   ...
+   ...     def hard_math(self, another_number):
+   ...         return self.a_number + sum(self.list_of_numbers) * another_number
+   >>> SomeClass(1, [1, 2, 3])
+   SomeClass(a_number=1, list_of_numbers=[1, 2, 3])
 
 Use whichever variant fits your taste better.
