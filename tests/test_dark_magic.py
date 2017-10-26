@@ -1,3 +1,7 @@
+"""
+End-to-end tests.
+"""
+
 from __future__ import absolute_import, division, print_function
 
 import pickle
@@ -283,3 +287,91 @@ class TestDarkMagic(object):
             x = attr.ib(default=attr.Factory(list))
 
         assert SubOverwrite([]) == SubOverwrite()
+
+    def test_dict_patch_class(self):
+        """
+        dict-classes are never replaced.
+        """
+        class C(object):
+            x = attr.ib()
+
+        C_new = attr.s(C)
+
+        assert C_new is C
+
+    def test_hash_by_id(self):
+        """
+        With dict classes, hashing by ID is active for hash=False even on
+        Python 3.  This is incorrect behavior but we have to retain it for
+        backward compatibility.
+        """
+        @attr.s(hash=False)
+        class HashByIDBackwardCompat(object):
+            x = attr.ib()
+
+        assert (
+            hash(HashByIDBackwardCompat(1)) != hash(HashByIDBackwardCompat(1))
+        )
+
+        @attr.s(hash=False, cmp=False)
+        class HashByID(object):
+            x = attr.ib()
+
+        assert hash(HashByID(1)) != hash(HashByID(1))
+
+        @attr.s(hash=True)
+        class HashByValues(object):
+            x = attr.ib()
+
+        assert hash(HashByValues(1)) == hash(HashByValues(1))
+
+    def test_handles_different_defaults(self):
+        """
+        Unhashable defaults + subclassing values work.
+        """
+        @attr.s
+        class Unhashable(object):
+            pass
+
+        @attr.s
+        class C(object):
+            x = attr.ib(default=Unhashable())
+
+        @attr.s
+        class D(C):
+            pass
+
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_hash_false_cmp_false(self, slots):
+        """
+        hash=False and cmp=False make a class hashable by ID.
+        """
+        @attr.s(hash=False, cmp=False, slots=slots)
+        class C(object):
+            pass
+
+        assert hash(C()) != hash(C())
+
+    def test_overwrite_super(self):
+        """
+        Super classes can overwrite each other and the attributes are added
+        in the order they are defined.
+        """
+        @attr.s
+        class C(object):
+            c = attr.ib(default=100)
+            x = attr.ib(default=1)
+            b = attr.ib(default=23)
+
+        @attr.s
+        class D(C):
+            a = attr.ib(default=42)
+            x = attr.ib(default=2)
+            d = attr.ib(default=3.14)
+
+        @attr.s
+        class E(D):
+            y = attr.ib(default=3)
+            z = attr.ib(default=4)
+
+        assert "E(c=100, b=23, a=42, x=2, d=3.14, y=3, z=4)" == repr(E())

@@ -21,6 +21,8 @@ from attr._make import (
     Attribute,
     Factory,
     _AndValidator,
+    _Attributes,
+    _ClassBuilder,
     _CountingAttr,
     _transform_attrs,
     and_,
@@ -136,13 +138,23 @@ class TestTransformAttrs(object):
     """
     Tests for `_transform_attrs`.
     """
+    def test_no_modifications(self):
+        """
+        Doesn't attach __attrs_attrs__ to the class anymore.
+        """
+        C = make_tc()
+        _transform_attrs(C, None)
+
+        assert None is getattr(C, "__attrs_attrs__", None)
+
     def test_normal(self):
         """
         Transforms every `_CountingAttr` and leaves others (a) be.
         """
         C = make_tc()
-        _transform_attrs(C, None)
-        assert ["z", "y", "x"] == [a.name for a in C.__attrs_attrs__]
+        attrs, _, = _transform_attrs(C, None)
+
+        assert ["z", "y", "x"] == [a.name for a in attrs]
 
     def test_empty(self):
         """
@@ -152,23 +164,18 @@ class TestTransformAttrs(object):
         class C(object):
             pass
 
-        _transform_attrs(C, None)
+        assert _Attributes(((), [])) == _transform_attrs(C, None)
 
-        assert () == C.__attrs_attrs__
-
-    @pytest.mark.parametrize("attribute", [
-        "z",
-        "y",
-        "x",
-    ])
-    def test_transforms_to_attribute(self, attribute):
+    def test_transforms_to_attribute(self):
         """
         All `_CountingAttr`s are transformed into `Attribute`s.
         """
         C = make_tc()
-        _transform_attrs(C, None)
+        attrs, super_attrs = _transform_attrs(C, None)
 
-        assert isinstance(getattr(fields(C), attribute), Attribute)
+        assert [] == super_attrs
+        assert 3 == len(attrs)
+        assert all(isinstance(a, Attribute) for a in attrs)
 
     def test_conflicting_defaults(self):
         """
@@ -191,50 +198,20 @@ class TestTransformAttrs(object):
 
     def test_these(self):
         """
-        If these is passed, use it and ignore body.
+        If these is passed, use it and ignore body and super classes.
         """
-        class C(object):
+        class Base(object):
+            z = attr.ib()
+
+        class C(Base):
             y = attr.ib()
 
-        _transform_attrs(C, {"x": attr.ib()})
+        attrs, super_attrs = _transform_attrs(C, {"x": attr.ib()})
+
+        assert [] == super_attrs
         assert (
             simple_attr("x"),
-        ) == C.__attrs_attrs__
-        assert isinstance(C.y, _CountingAttr)
-
-    def test_recurse(self):
-        """
-        Collect attributes from all sub-classes.
-        """
-        class A(object):
-            a = None
-
-        class B(A):
-            b = attr.ib()
-
-        _transform_attrs(B, None)
-
-        class C(B):
-            c = attr.ib()
-
-        _transform_attrs(C, None)
-
-        class D(C):
-            d = attr.ib()
-
-        _transform_attrs(D, None)
-
-        class E(D):
-            e = attr.ib()
-
-        _transform_attrs(E, None)
-
-        assert (
-            simple_attr("b"),
-            simple_attr("c"),
-            simple_attr("d"),
-            simple_attr("e"),
-        ) == E.__attrs_attrs__
+        ) == attrs
 
 
 class TestAttributes(object):
@@ -250,6 +227,7 @@ class TestAttributes(object):
             @attr.s
             class C:
                 pass
+
         assert ("attrs only works with new-style classes.",) == e.value.args
 
     def test_sets_attrs(self):
@@ -259,6 +237,7 @@ class TestAttributes(object):
         @attr.s
         class C(object):
             x = attr.ib()
+
         assert "x" == C.__attrs_attrs__[0].name
         assert all(isinstance(a, Attribute) for a in C.__attrs_attrs__)
 
@@ -269,6 +248,7 @@ class TestAttributes(object):
         @attr.s
         class C3(object):
             pass
+
         assert "C3()" == repr(C3())
         assert C3() == C3()
 
@@ -798,3 +778,45 @@ class TestMetadata(object):
         C = make_class("C", dict(zip(gen_attr_names(), list_of_attrs)))
         for a in fields(C)[1:]:
             assert a.metadata is fields(C)[0].metadata
+
+
+class TestClassBuilder(object):
+    """
+    Tests for `_ClassBuilder`.
+    """
+    def test_repr_str(self):
+        """
+        Trying to add a `__str__` without having a `__repr__` raises a
+        ValueError.
+        """
+        with pytest.raises(ValueError) as ei:
+            make_class("C", {}, repr=False, str=True)
+
+        assert (
+            "__str__ can only be generated if a __repr__ exists.",
+        ) == ei.value.args
+
+    def test_repr(self):
+        """
+        repr of builder itself makes sense.
+        """
+        class C(object):
+            pass
+
+        b = _ClassBuilder(C, None, True, True)
+
+        assert "<_ClassBuilder(cls=C)>" == repr(b)
+
+    def test_returns_self(self):
+        """
+        All methods return the builder for chaining.
+        """
+        class C(object):
+            x = attr.ib()
+
+        b = _ClassBuilder(C, None, True, True)
+
+        cls = b.add_cmp().add_hash().add_init().add_repr("ns").add_str() \
+            .build_class()
+
+        assert "ns.C(x=1)" == repr(cls(1))

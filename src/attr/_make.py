@@ -181,22 +181,27 @@ def _make_attr_tuple_class(cls_name, attr_names):
     return globs[attr_class_name]
 
 
+# Tuple class for extracted attributes from a class definition.
+# `super_attrs` is a subset of `attrs`.
+_Attributes = _make_attr_tuple_class("_Attributes", [
+    "attrs",        # all attributes to build dunder methods for
+    "super_attrs",  # attributes that have been inherited from super classes
+])
+
+
 def _transform_attrs(cls, these):
     """
-    Transform all `_CountingAttr`s on a class into `Attribute`s and save the
-    list in `__attrs_attrs__` while potentially deleting them from *cls*.
+    Transform all `_CountingAttr`s on a class into `Attribute`s.
 
     If *these* is passed, use that and don't look for them on the class.
 
-    Return a list of tuples of (attribute name, attribute).
+    Return an `_Attributes`.
     """
     if these is None:
         ca_list = [(name, attr)
                    for name, attr
                    in cls.__dict__.items()
                    if isinstance(attr, _CountingAttr)]
-        for name, _ in ca_list:
-            delattr(cls, name)
     else:
         ca_list = [(name, ca)
                    for name, ca
@@ -206,35 +211,53 @@ def _transform_attrs(cls, these):
     ann = getattr(cls, "__annotations__", {})
 
     non_super_attrs = [
-        Attribute.from_counting_attr(name=attr_name, ca=ca,
-                                     type=ann.get(attr_name))
+        Attribute.from_counting_attr(
+            name=attr_name,
+            ca=ca,
+            type=ann.get(attr_name),
+        )
         for attr_name, ca
         in ca_list
     ]
 
-    super_cls = []
-    non_super_names = set(a.name for a in non_super_attrs)
-    for c in reversed(cls.__mro__[1:-1]):
-        sub_attrs = getattr(c, "__attrs_attrs__", None)
+    # Walk *down* the MRO for attributes.  While doing so, we collect the names
+    # of attributes we've seen in `take_attr_names` and ignore their
+    # redefinitions deeper in the hierarchy.
+    super_attrs = []
+    taken_attr_names = set(a.name for a in non_super_attrs)
+    for super_cls in cls.__mro__[1:-1]:
+        sub_attrs = getattr(super_cls, "__attrs_attrs__", None)
         if sub_attrs is not None:
-            super_cls.extend(
-                a for a in sub_attrs
-                if a not in super_cls and a.name not in non_super_names
-            )
+            # We iterate over sub_attrs backwards so we can reverse the whole
+            # list in the end and get all attributes in the order they have
+            # been defined.
+            for a in reversed(sub_attrs):
+                if a.name not in taken_attr_names:
+                    super_attrs.append(a)
+                    taken_attr_names.add(a.name)
 
-    attr_names = [a.name for a in super_cls + non_super_attrs]
+    # Now reverse the list, such that the attributes are sorted by *descending*
+    # age.  IOW: the oldest attribute definition is at the head of the list.
+    super_attrs.reverse()
+
+    attr_names = [a.name for a in super_attrs + non_super_attrs]
 
     AttrsClass = _make_attr_tuple_class(cls.__name__, attr_names)
 
-    cls.__attrs_attrs__ = AttrsClass(super_cls + [
-        Attribute.from_counting_attr(name=attr_name, ca=ca,
-                                     type=ann.get(attr_name))
-        for attr_name, ca
-        in ca_list
-    ])
+    attrs = AttrsClass(
+        super_attrs + [
+            Attribute.from_counting_attr(
+                name=attr_name,
+                ca=ca,
+                type=ann.get(attr_name)
+            )
+            for attr_name, ca
+            in ca_list
+        ]
+    )
 
     had_default = False
-    for a in cls.__attrs_attrs__:
+    for a in attrs:
         if had_default is True and a.default is NOTHING and a.init is True:
             raise ValueError(
                 "No mandatory attributes allowed after an attribute with a "
@@ -246,7 +269,7 @@ def _transform_attrs(cls, these):
                 a.init is not False:
             had_default = True
 
-    return ca_list
+    return _Attributes((attrs, super_attrs))
 
 
 def _frozen_setattrs(self, name, value):
@@ -261,6 +284,177 @@ def _frozen_delattrs(self, name):
     Attached to frozen classes as __delattr__.
     """
     raise FrozenInstanceError()
+
+
+class _ClassBuilder(object):
+    """
+    Iteratively build *one* class.
+    """
+    __slots__ = (
+        "_cls", "_cls_dict", "_attrs", "_super_names", "_attr_names", "_slots",
+        "_frozen", "_has_post_init",
+    )
+
+    def __init__(self, cls, these, slots, frozen):
+        attrs, super_attrs = _transform_attrs(cls, these)
+
+        self._cls = cls
+        self._cls_dict = dict(cls.__dict__) if slots else {}
+        self._attrs = attrs
+        self._super_names = set(a.name for a in super_attrs)
+        self._attr_names = tuple(a.name for a in attrs)
+        self._slots = slots
+        self._frozen = frozen or _has_frozen_superclass(cls)
+        self._has_post_init = bool(getattr(cls, "__attrs_post_init__", False))
+
+        self._cls_dict["__attrs_attrs__"] = self._attrs
+
+        if frozen:
+            self._cls_dict["__setattr__"] = _frozen_setattrs
+            self._cls_dict["__delattr__"] = _frozen_delattrs
+
+    def __repr__(self):
+        return "<_ClassBuilder(cls={cls})>".format(cls=self._cls.__name__)
+
+    def build_class(self):
+        """
+        Finalize class based on the accumulated configuration.
+
+        Builder cannot be used anymore after calling this method.
+        """
+        if self._slots is True:
+            return self._create_slots_class()
+        else:
+            return self._patch_original_class()
+
+    def _patch_original_class(self):
+        """
+        Apply accumulated methods and return the class.
+        """
+        cls = self._cls
+        super_names = self._super_names
+
+        # Clean class of attribute definitions (`attr.ib()`s).
+        for name in self._attr_names:
+            if name not in super_names and \
+                    getattr(cls, name, None) is not None:
+                delattr(cls, name)
+
+        # Attach our dunder methods.
+        for name, value in self._cls_dict.items():
+            setattr(cls, name, value)
+
+        return cls
+
+    def _create_slots_class(self):
+        """
+        Build and return a new class with a `__slots__` attribute.
+        """
+        super_names = self._super_names
+        cd = {
+            k: v
+            for k, v in iteritems(self._cls_dict)
+            if k not in tuple(self._attr_names) + ("__dict__",)
+        }
+
+        # We only add the names of attributes that aren't inherited.
+        # Settings __slots__ to inherited attributes wastes memory.
+        cd["__slots__"] = tuple(
+            name
+            for name in self._attr_names
+            if name not in super_names
+        )
+
+        qualname = getattr(self._cls, "__qualname__", None)
+        if qualname is not None:
+            cd["__qualname__"] = qualname
+
+        attr_names = tuple(self._attr_names)
+
+        def slots_getstate(self):
+            """
+            Automatically created by attrs.
+            """
+            return tuple(getattr(self, name) for name in attr_names)
+
+        def slots_setstate(self, state):
+            """
+            Automatically created by attrs.
+            """
+            __bound_setattr = _obj_setattr.__get__(self, Attribute)
+            for name, value in zip(attr_names, state):
+                __bound_setattr(name, value)
+
+        # slots and frozen require __getstate__/__setstate__ to work
+        cd["__getstate__"] = slots_getstate
+        cd["__setstate__"] = slots_setstate
+
+        # Create new class based on old class and our methods.
+        cls = type(self._cls)(
+            self._cls.__name__,
+            self._cls.__bases__,
+            cd,
+        )
+
+        # The following is a fix for
+        # https://github.com/python-attrs/attrs/issues/102.  On Python 3,
+        # if a method mentions `__class__` or uses the no-arg super(), the
+        # compiler will bake a reference to the class in the method itself
+        # as `method.__closure__`.  Since we replace the class with a
+        # clone, we rewrite these references so it keeps working.
+        for item in cls.__dict__.values():
+            if isinstance(item, (classmethod, staticmethod)):
+                # Class- and staticmethods hide their functions inside.
+                # These might need to be rewritten as well.
+                closure_cells = getattr(item.__func__, "__closure__", None)
+            else:
+                closure_cells = getattr(item, "__closure__", None)
+
+            if not closure_cells:  # Catch None or the empty list.
+                continue
+            for cell in closure_cells:
+                if cell.cell_contents is self._cls:
+                    set_closure_cell(cell, cls)
+
+        return cls
+
+    def add_repr(self, ns):
+        self._cls_dict["__repr__"] = _make_repr(self._attrs, ns=ns)
+        return self
+
+    def add_str(self):
+        repr_ = self._cls_dict.get("__repr__")
+        if repr_ is None:
+            raise ValueError(
+                "__str__ can only be generated if a __repr__ exists."
+            )
+
+        self._cls_dict["__str__"] = repr_
+        return self
+
+    def make_unhashable(self):
+        self._cls_dict["__hash__"] = None
+        return self
+
+    def add_hash(self):
+        self._cls_dict["__hash__"] = _make_hash(self._attrs)
+        return self
+
+    def add_init(self):
+        self._cls_dict["__init__"] = _make_init(
+            self._attrs,
+            self._has_post_init,
+            self._frozen,
+        )
+        return self
+
+    def add_cmp(self):
+        cd = self._cls_dict
+
+        cd["__eq__"], cd["__ne__"], cd["__lt__"], cd["__le__"], cd["__gt__"], \
+            cd["__ge__"] = _make_cmp(self._attrs)
+
+        return self
 
 
 def attrs(maybe_cls=None, these=None, repr_ns=None,
@@ -339,7 +533,7 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
                circumvent that limitation by using
                ``object.__setattr__(self, "attribute_name", value)``.
 
-        ..  _slots: https://docs.python.org/3.5/reference/datamodel.html#slots
+        ..  _slots: https://docs.python.org/3/reference/datamodel.html#slots
 
     ..  versionadded:: 16.0.0 *slots*
     ..  versionadded:: 16.1.0 *frozen*
@@ -352,70 +546,31 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
         if getattr(cls, "__class__", None) is None:
             raise TypeError("attrs only works with new-style classes.")
 
-        if repr is False and str is True:
-            raise ValueError(
-                "__str__ can only be generated if a __repr__ exists."
-            )
+        builder = _ClassBuilder(cls, these, slots, frozen)
 
-        ca_list = _transform_attrs(cls, these)
-
-        # Can't just re-use frozen name because Python's scoping. :(
-        # Can't compare function objects because Python 2 is terrible. :(
-        effectively_frozen = _has_frozen_superclass(cls) or frozen
         if repr is True:
-            cls = _add_repr(cls, ns=repr_ns, str=str)
+            builder.add_repr(repr_ns)
+        if str is True:
+            builder.add_str()
         if cmp is True:
-            cls = _add_cmp(cls)
+            builder.add_cmp()
 
         if hash is not True and hash is not False and hash is not None:
+            # Can't use `hash in` because 1 == True for example.
             raise TypeError(
                 "Invalid value for hash.  Must be True, False, or None."
             )
         elif hash is False or (hash is None and cmp is False):
             pass
         elif hash is True or (hash is None and cmp is True and frozen is True):
-            cls = _add_hash(cls)
+            builder.add_hash()
         else:
-            cls.__hash__ = None
+            builder.make_unhashable()
 
         if init is True:
-            cls = _add_init(cls, effectively_frozen)
-        if effectively_frozen is True:
-            cls.__setattr__ = _frozen_setattrs
-            cls.__delattr__ = _frozen_delattrs
-            if slots is True:
-                # slots and frozen require __getstate__/__setstate__ to work
-                cls = _add_pickle(cls)
-        if slots is True:
-            cls_dict = dict(cls.__dict__)
-            attr_names = tuple(t[0] for t in ca_list)
-            cls_dict["__slots__"] = attr_names
-            for ca_name in attr_names:
-                # It might not actually be in there, e.g. if using 'these'.
-                cls_dict.pop(ca_name, None)
-            cls_dict.pop("__dict__", None)
-            old_cls = cls
+            builder.add_init()
 
-            qualname = getattr(cls, "__qualname__", None)
-            cls = type(cls)(cls.__name__, cls.__bases__, cls_dict)
-            if qualname is not None:
-                cls.__qualname__ = qualname
-
-            # The following is a fix for
-            # https://github.com/python-attrs/attrs/issues/102.  On Python 3,
-            # if a method mentions `__class__` or uses the no-arg super(), the
-            # compiler will bake a reference to the class in the method itself
-            # as `method.__closure__`.  Since we replace the class with a
-            # clone, we rewrite these references so it keeps working.
-            for item in cls.__dict__.values():
-                closure_cells = getattr(item, "__closure__", None)
-                if not closure_cells:  # Catch None or the empty list.
-                    continue
-                for cell in closure_cells:
-                    if cell.cell_contents is old_cls:
-                        set_closure_cell(cell, cls)
-
-        return cls
+        return builder.build_class()
 
     # maybe_cls's type depends on the usage of the decorator.  It's a class
     # if it's used as `@attrs` but ``None`` if used as `@attrs()`.
@@ -460,14 +615,12 @@ def _attrs_to_tuple(obj, attrs):
     return tuple(getattr(obj, a.name) for a in attrs)
 
 
-def _add_hash(cls, attrs=None):
-    """
-    Add a hash method to *cls*.
-    """
-    if attrs is None:
-        attrs = [a
-                 for a in cls.__attrs_attrs__
-                 if a.hash is True or (a.hash is None and a.cmp is True)]
+def _make_hash(attrs):
+    attrs = tuple(
+        a
+        for a in attrs
+        if a.hash is True or (a.hash is None and a.cmp is True)
+    )
 
     def hash_(self):
         """
@@ -475,16 +628,19 @@ def _add_hash(cls, attrs=None):
         """
         return hash(_attrs_to_tuple(self, attrs))
 
-    cls.__hash__ = hash_
+    return hash_
+
+
+def _add_hash(cls, attrs):
+    """
+    Add a hash method to *cls*.
+    """
+    cls.__hash__ = _make_hash(attrs)
     return cls
 
 
-def _add_cmp(cls, attrs=None):
-    """
-    Add comparison methods to *cls*.
-    """
-    if attrs is None:
-        attrs = [a for a in cls.__attrs_attrs__ if a.cmp]
+def _make_cmp(attrs):
+    attrs = [a for a in attrs if a.cmp]
 
     def attrs_to_tuple(obj):
         """
@@ -547,22 +703,31 @@ def _add_cmp(cls, attrs=None):
         else:
             return NotImplemented
 
-    cls.__eq__ = eq
-    cls.__ne__ = ne
-    cls.__lt__ = lt
-    cls.__le__ = le
-    cls.__gt__ = gt
-    cls.__ge__ = ge
+    return eq, ne, lt, le, gt, ge
+
+
+def _add_cmp(cls, attrs=None):
+    """
+    Add comparison methods to *cls*.
+    """
+    if attrs is None:
+        attrs = cls.__attrs_attrs__
+
+    cls.__eq__, cls.__ne__, cls.__lt__, cls.__le__, cls.__gt__, cls.__ge__ = \
+        _make_cmp(attrs)
 
     return cls
 
 
-def _add_repr(cls, ns=None, attrs=None, str=False):
+def _make_repr(attrs, ns):
     """
-    Add a repr method to *cls*. If *str* is True, also add __str__.
+    Make a repr method for *attr_names* adding *ns* to the full name.
     """
-    if attrs is None:
-        attrs = [a for a in cls.__attrs_attrs__ if a.repr]
+    attr_names = tuple(
+        a.name
+        for a in attrs
+        if a.repr
+    )
 
     def repr_(self):
         """
@@ -580,21 +745,32 @@ def _add_repr(cls, ns=None, attrs=None, str=False):
 
         return "{0}({1})".format(
             class_name,
-            ", ".join(a.name + "=" + repr(getattr(self, a.name))
-                      for a in attrs)
+            ", ".join(
+                name + "=" + repr(getattr(self, name))
+                for name in attr_names
+            )
         )
+    return repr_
+
+
+def _add_repr(cls, ns=None, attrs=None):
+    """
+    Add a repr method to *cls*.
+    """
+    if attrs is None:
+        attrs = cls.__attrs_attrs__
+
+    repr_ = _make_repr(attrs, ns)
     cls.__repr__ = repr_
-    if str is True:
-        cls.__str__ = repr_
     return cls
 
 
-def _add_init(cls, frozen):
-    """
-    Add a __init__ method to *cls*.  If *frozen* is True, make it immutable.
-    """
-    attrs = [a for a in cls.__attrs_attrs__
-             if a.init or a.default is not NOTHING]
+def _make_init(attrs, post_init, frozen):
+    attrs = [
+        a
+        for a in attrs
+        if a.init or a.default is not NOTHING
+    ]
 
     # We cache the generated init methods for the same kinds of attributes.
     sha1 = hashlib.sha1()
@@ -606,7 +782,7 @@ def _add_init(cls, frozen):
     script, globs = _attrs_to_script(
         attrs,
         frozen,
-        getattr(cls, "__attrs_post_init__", False),
+        post_init,
     )
     locs = {}
     bytecode = compile(script, unique_filename, "exec")
@@ -630,30 +806,19 @@ def _add_init(cls, frozen):
         script.splitlines(True),
         unique_filename
     )
-    cls.__init__ = init
-    return cls
+
+    return init
 
 
-def _add_pickle(cls):
+def _add_init(cls, frozen):
     """
-    Add pickle helpers, needed for frozen and slotted classes
+    Add a __init__ method to *cls*.  If *frozen* is True, make it immutable.
     """
-    def _slots_getstate__(obj):
-        """
-        Play nice with pickle.
-        """
-        return tuple(getattr(obj, a.name) for a in fields(obj.__class__))
-
-    def _slots_setstate__(obj, state):
-        """
-        Play nice with pickle.
-        """
-        __bound_setattr = _obj_setattr.__get__(obj, Attribute)
-        for a, value in zip(fields(obj.__class__), state):
-            __bound_setattr(a.name, value)
-
-    cls.__getstate__ = _slots_getstate__
-    cls.__setstate__ = _slots_setstate__
+    cls.__init__ = _make_init(
+        cls.__attrs_attrs__,
+        getattr(cls, "__attrs_post_init__", False),
+        frozen,
+    )
     return cls
 
 

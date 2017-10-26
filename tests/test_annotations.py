@@ -1,12 +1,14 @@
 """
 Tests for PEP-526 type annotations.
+
+Python 3.6+ only.
 """
+
+import typing
 
 import pytest
 
 import attr
-
-import typing
 
 
 class TestAnnotations:

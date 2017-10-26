@@ -8,7 +8,7 @@ import pytest
 try:
     from pympler.asizeof import asizeof
     has_pympler = True
-except:  # Won't be an import error.
+except BaseException:  # Won't be an import error.
     has_pympler = False
 
 import attr
@@ -129,10 +129,13 @@ def test_inheritance_from_nonslots():
         z = attr.ib()
 
     c2 = C2Slots(x=1, y=2, z="test")
+
     assert 1 == c2.x
     assert 2 == c2.y
     assert "test" == c2.z
+
     c2.t = "test"  # This will work, using the base class.
+
     assert "test" == c2.t
 
     assert 1 == c2.method()
@@ -142,8 +145,11 @@ def test_inheritance_from_nonslots():
     assert set(["z"]) == set(C2Slots.__slots__)
 
     c3 = C2Slots(x=1, y=3, z="test")
+
     assert c3 > c2
+
     c2_ = C2Slots(x=1, y=2, z="test")
+
     assert c2 == c2_
 
     assert "C2Slots(x=1, y=2, z='test')" == repr(c2)
@@ -365,3 +371,30 @@ def test_closure_cell_rewriting_inheritance():
 
     assert non_slot_instance.my_subclass() is C2
     assert slot_instance.my_subclass() is C2Slots
+
+
+@pytest.mark.skipif(PY2, reason="closure cell rewriting is PY3-only.")
+@pytest.mark.parametrize("slots", [True, False])
+def test_closure_cell_rewriting_cls_static(slots):
+    """
+    Slot classes support proper closure cell rewriting for class- and static
+    methods.
+    """
+    # Python can reuse closure cells, so we create new classes just for
+    # this test.
+
+    @attr.s(slots=slots)
+    class C:
+        @classmethod
+        def clsmethod(cls):
+            return __class__  # noqa: F821
+
+    assert C.clsmethod() is C
+
+    @attr.s(slots=slots)
+    class D:
+        @staticmethod
+        def statmethod():
+            return __class__  # noqa: F821
+
+    assert D.statmethod() is D
