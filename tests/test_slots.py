@@ -8,7 +8,7 @@ import pytest
 try:
     from pympler.asizeof import asizeof
     has_pympler = True
-except:  # Won't be an import error.
+except BaseException:  # Won't be an import error.
     has_pympler = False
 
 import attr
