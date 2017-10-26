@@ -144,7 +144,8 @@ or:
 Local Development Environment
 -----------------------------
 
-You can (and should) run our test suite using tox_ however you’ll probably want a more traditional environment too.
+You can (and should) run our test suite using tox_.
+However you’ll probably want a more traditional environment too.
 We highly recommend to develop using the latest Python 3 release because ``attrs`` tries to take advantage of modern features whenever possible.
 
 First create a `virtual environment <https://virtualenv.pypa.io/>`_.

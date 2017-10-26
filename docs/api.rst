@@ -1,7 +1,7 @@
 .. _api:
 
-API
-===
+API Reference
+=============
 
 .. currentmodule:: attr
 

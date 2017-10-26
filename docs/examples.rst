@@ -1,7 +1,7 @@
 .. _examples:
 
-Examples
-========
+``attrs`` by Example
+====================
 
 
 Basics
