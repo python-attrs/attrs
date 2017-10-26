@@ -164,7 +164,7 @@ class TestTransformAttrs(object):
         class C(object):
             pass
 
-        assert _Attributes(((), ())) == _transform_attrs(C, None)
+        assert _Attributes(((), [])) == _transform_attrs(C, None)
 
     def test_transforms_to_attribute(self):
         """
@@ -173,7 +173,7 @@ class TestTransformAttrs(object):
         C = make_tc()
         attrs, super_attrs = _transform_attrs(C, None)
 
-        assert () == super_attrs
+        assert [] == super_attrs
         assert 3 == len(attrs)
         assert all(isinstance(a, Attribute) for a in attrs)
 
@@ -208,7 +208,7 @@ class TestTransformAttrs(object):
 
         attrs, super_attrs = _transform_attrs(C, {"x": attr.ib()})
 
-        assert () == super_attrs
+        assert [] == super_attrs
         assert (
             simple_attr("x"),
         ) == attrs

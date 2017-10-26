@@ -269,7 +269,7 @@ def _transform_attrs(cls, these):
                 a.init is not False:
             had_default = True
 
-    return _Attributes((attrs, tuple(super_attrs)))
+    return _Attributes((attrs, super_attrs))
 
 
 def _frozen_setattrs(self, name, value):
@@ -291,7 +291,7 @@ class _ClassBuilder(object):
     Iteratively build *one* class.
     """
     __slots__ = (
-        "_cls", "_cls_dict", "_attrs", "_super_attrs", "_attr_names", "_slots",
+        "_cls", "_cls_dict", "_attrs", "_super_names", "_attr_names", "_slots",
         "_frozen", "_has_post_init",
     )
 
@@ -301,7 +301,7 @@ class _ClassBuilder(object):
         self._cls = cls
         self._cls_dict = dict(cls.__dict__) if slots else {}
         self._attrs = attrs
-        self._super_attrs = super_attrs
+        self._super_names = set(a.name for a in super_attrs)
         self._attr_names = tuple(a.name for a in attrs)
         self._slots = slots
         self._frozen = frozen or _has_frozen_superclass(cls)
@@ -332,7 +332,7 @@ class _ClassBuilder(object):
         Apply accumulated methods and return the class.
         """
         cls = self._cls
-        super_names = set(a.name for a in self._super_attrs)
+        super_names = self._super_names
 
         # Clean class of attribute definitions (`attr.ib()`s).
         for name in self._attr_names:
@@ -350,6 +350,7 @@ class _ClassBuilder(object):
         """
         Build and return a new class with a `__slots__` attribute.
         """
+        super_names = self._super_names
         cd = {
             k: v
             for k, v in iteritems(self._cls_dict)
@@ -361,7 +362,7 @@ class _ClassBuilder(object):
         cd["__slots__"] = tuple(
             name
             for name in self._attr_names
-            if name not in {a.name for a in self._super_attrs}
+            if name not in super_names
         )
 
         qualname = getattr(self._cls, "__qualname__", None)
