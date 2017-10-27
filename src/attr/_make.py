@@ -189,7 +189,7 @@ _Attributes = _make_attr_tuple_class("_Attributes", [
 ])
 
 
-def _transform_attrs(cls, these):
+def _transform_attrs(cls, these, auto_attribs):
     """
     Transform all `_CountingAttr`s on a class into `Attribute`s.
 
@@ -197,24 +197,36 @@ def _transform_attrs(cls, these):
 
     Return an `_Attributes`.
     """
-    if these is None:
-        ca_list = [(name, attr)
-                   for name, attr
-                   in cls.__dict__.items()
-                   if isinstance(attr, _CountingAttr)]
-    else:
-        ca_list = [(name, ca)
-                   for name, ca
-                   in iteritems(these)]
-    ca_list = sorted(ca_list, key=lambda e: e[1].counter)
+    cd = cls.__dict__
+    anns = getattr(cls, "__annotations__", {})
 
-    ann = getattr(cls, "__annotations__", {})
+    if auto_attribs is True:
+        ca_list = [
+            (attr_name, cd.get(attr_name, None) or attrib())
+            for attr_name
+            in anns
+        ]
+    else:
+        if these is None:
+            ca_list = [
+                (name, attr)
+                for name, attr
+                in cd.items()
+                if isinstance(attr, _CountingAttr)
+            ]
+        else:
+            ca_list = [
+                (name, ca)
+                for name, ca
+                in iteritems(these)
+            ]
+        ca_list.sort(key=lambda e: e[1].counter)
 
     non_super_attrs = [
         Attribute.from_counting_attr(
             name=attr_name,
             ca=ca,
-            type=ann.get(attr_name),
+            type=anns.get(attr_name),
         )
         for attr_name, ca
         in ca_list
@@ -249,7 +261,7 @@ def _transform_attrs(cls, these):
             Attribute.from_counting_attr(
                 name=attr_name,
                 ca=ca,
-                type=ann.get(attr_name)
+                type=anns.get(attr_name)
             )
             for attr_name, ca
             in ca_list
@@ -295,8 +307,8 @@ class _ClassBuilder(object):
         "_frozen", "_has_post_init",
     )
 
-    def __init__(self, cls, these, slots, frozen):
-        attrs, super_attrs = _transform_attrs(cls, these)
+    def __init__(self, cls, these, slots, frozen, auto_attribs):
+        attrs, super_attrs = _transform_attrs(cls, these, auto_attribs)
 
         self._cls = cls
         self._cls_dict = dict(cls.__dict__) if slots else {}
@@ -459,7 +471,7 @@ class _ClassBuilder(object):
 
 def attrs(maybe_cls=None, these=None, repr_ns=None,
           repr=True, cmp=True, hash=None, init=True,
-          slots=False, frozen=False, str=False):
+          slots=False, frozen=False, str=False, auto_attribs=False):
     r"""
     A class decorator that adds `dunder
     <https://wiki.python.org/moin/DunderAlias>`_\ -methods according to the
@@ -534,6 +546,12 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
                ``object.__setattr__(self, "attribute_name", value)``.
 
         ..  _slots: https://docs.python.org/3/reference/datamodel.html#slots
+    :param bool auto_attribs: If True, collect `PEP 526`_-annotated attributes
+        from the class body.  In this case, you can **not** use
+        :func:`attr.ib` to define unannotated attributes (they are silently
+        ignored).  Use ``field_name: typing.Any = attr.ib(...)`` instead.
+
+        .. _`PEP 526`: https://www.python.org/dev/peps/pep-0526/
 
     ..  versionadded:: 16.0.0 *slots*
     ..  versionadded:: 16.1.0 *frozen*
@@ -541,12 +559,13 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
     ..  versionchanged::
             17.1.0 *hash* supports ``None`` as value which is also the default
             now.
+    .. versionadded:: 17.3.0 *auto_attribs*
     """
     def wrap(cls):
         if getattr(cls, "__class__", None) is None:
             raise TypeError("attrs only works with new-style classes.")
 
-        builder = _ClassBuilder(cls, these, slots, frozen)
+        builder = _ClassBuilder(cls, these, slots, frozen, auto_attribs)
 
         if repr is True:
             builder.add_repr(repr_ns)

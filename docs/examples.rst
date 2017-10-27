@@ -461,6 +461,51 @@ The metadata dictionary follows the normal dictionary rules: keys need to be has
 If you're the author of a third-party library with ``attrs`` integration, please see :ref:`Extending Metadata <extending_metadata>`.
 
 
+Types
+-----
+
+``attrs`` also allows you to associate a type with an attribute using either the *type* argument to :func:`attr.ib` or -- as of Python 3.6 -- using `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_-annotations:
+
+
+.. doctest::
+
+   >>> @attr.s
+   ... class C:
+   ...     x = attr.ib(type=int)
+   ...     y: int = attr.ib()
+   >>> attr.fields(C).x.type
+   <class 'int'>
+   >>> attr.fields(C).y.type
+   <class 'int'>
+
+If you don't mind annotating all attributes, you can even drop the :func:`attr.ib`:
+
+.. doctest::
+
+   >>> import typing
+   >>> @attr.s(auto_attribs=True)
+   ... class AutoC:
+   ...     x: int
+   ...     y: int
+   ...     foo: typing.Any = attr.ib(
+   ...          default="every attrib needs a type if auto_attribs=True"
+   ...     )
+   >>> attr.fields(AutoC).x.type
+   <class 'int'>
+   >>> attr.fields(AutoC).y.type
+   <class 'int'>
+   >>> attr.fields(AutoC).foo.type
+   typing.Any
+   >>> AutoC(1, 2)
+   AutoC(x=1, y=2, foo='every attrib needs a type if auto_attribs=True')
+
+
+.. warning::
+
+   ``attrs`` itself doesn't have any features that work on top of type metadata *yet*.
+   However it's useful for writing your own validators or serialization frameworks.
+
+
 .. _slots:
 
 Slots

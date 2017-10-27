@@ -1,0 +1,1 @@
+Added new option ``auto_attribs`` to ``@attr.s`` that allows to collect annotated fields without setting them to ``attr.ib()``.

@@ -65,3 +65,18 @@ class TestAnnotations:
             y: int
 
         assert 1 == len(attr.fields(C))
+
+    def test_auto_attribs(self):
+        """
+        If *auto_attribs* is True, bare annotations are collected too.
+        """
+        @attr.s(auto_attribs=True)
+        class C:
+            x: typing.List[int]
+            y: int
+            z: typing.Any = attr.ib(default=3)
+
+        assert "C(x=1, y=2, z=3)" == repr(C(1, 2))
+        assert typing.List[int] == attr.fields(C).x.type
+        assert int == attr.fields(C).y.type
+        assert typing.Any == attr.fields(C).z.type
