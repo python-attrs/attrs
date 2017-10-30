@@ -5,6 +5,7 @@ Tests for `attr._make`.
 from __future__ import absolute_import, division, print_function
 
 import inspect
+import itertools
 
 from operator import attrgetter
 
@@ -778,6 +779,14 @@ class TestMetadata(object):
         C = make_class("C", dict(zip(gen_attr_names(), list_of_attrs)))
         for a in fields(C)[1:]:
             assert a.metadata is fields(C)[0].metadata
+
+    @given(lists(simple_attrs_without_metadata, min_size=2, max_size=5))
+    def test_empty_countingattr_metadata_independent(self, list_of_attrs):
+        """
+        All empty metadata attributes are independent before ``@attr.s``.
+        """
+        for x, y in itertools.combinations(list_of_attrs, 2):
+            assert x.metadata is not y.metadata
 
 
 class TestClassBuilder(object):

@@ -145,7 +145,7 @@ def _create_hyp_nested_strategy(simple_class_strategy):
                      attrs_and_classes.map(ordereddict_of_class))
 
 
-bare_attrs = st.just(attr.ib(default=None))
+bare_attrs = st.none().map(lambda _: attr.ib(default=None))
 int_attrs = st.integers().map(lambda i: attr.ib(default=i))
 str_attrs = st.text().map(lambda s: attr.ib(default=s))
 float_attrs = st.floats().map(lambda f: attr.ib(default=f))
