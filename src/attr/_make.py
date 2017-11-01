@@ -79,6 +79,7 @@ def attrib(
     type=None,
     converter=None,
     factory=None,
+    kw_only=False,
 ):
     """
     Create a new attribute on a class.
@@ -151,6 +152,9 @@ def attrib(
         This argument is provided for backward compatibility.
         Regardless of the approach used, the type will be stored on
         ``Attribute.type``.
+    :param kw_only: Make this attribute keyword-only (Python 3+)
+        in the generated ``__init__`` (if ``init`` is ``False``, this
+        parameter is simply ignored).
 
     .. versionadded:: 15.2.0 *convert*
     .. versionadded:: 16.3.0 *metadata*
@@ -163,6 +167,7 @@ def attrib(
        *convert* to achieve consistency with other noun-based arguments.
     .. versionadded:: 18.1.0
        ``factory=f`` is syntactic sugar for ``default=attr.Factory(f)``.
+    ..  versionadded:: 18.2.0 *kw_only*
     """
     if hash is not None and hash is not True and hash is not False:
         raise TypeError(
@@ -206,6 +211,7 @@ def attrib(
         converter=converter,
         metadata=metadata,
         type=type,
+        kw_only=kw_only,
     )
 
 
@@ -379,8 +385,15 @@ def _transform_attrs(cls, these, auto_attribs):
     )
 
     had_default = False
+    was_kw_only = False
     for a in attrs:
-        if had_default is True and a.default is NOTHING and a.init is True:
+        if (
+            was_kw_only is False
+            and had_default is True
+            and a.default is NOTHING
+            and a.init is True
+            and a.kw_only is False
+        ):
             raise ValueError(
                 "No mandatory attributes allowed after an attribute with a "
                 "default value or factory.  Attribute in question: %r" % (a,)
@@ -389,8 +402,21 @@ def _transform_attrs(cls, these, auto_attribs):
             had_default is False
             and a.default is not NOTHING
             and a.init is not False
+            and
+            # Keyword-only attributes without defaults can be specified
+            # after keyword-only attributes with defaults.
+            a.kw_only is False
         ):
             had_default = True
+        if was_kw_only is True and a.kw_only is False:
+            raise ValueError(
+                "Non keyword-only attributes are not allowed after a "
+                "keyword-only attribute.  Attribute in question: {a!r}".format(
+                    a=a
+                )
+            )
+        if was_kw_only is False and a.init is True and a.kw_only is True:
+            was_kw_only = True
 
     return _Attributes((attrs, super_attrs, super_attr_map))
 
@@ -1298,6 +1324,7 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
             }
 
     args = []
+    kw_only_args = []
     attrs_to_validate = []
 
     # This is a dictionary of names to validator and converter callables.
@@ -1357,11 +1384,13 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
                         )
                     )
         elif a.default is not NOTHING and not has_factory:
-            args.append(
-                "{arg_name}=attr_dict['{attr_name}'].default".format(
-                    arg_name=arg_name, attr_name=attr_name
-                )
+            arg = "{arg_name}=attr_dict['{attr_name}'].default".format(
+                arg_name=arg_name, attr_name=attr_name
             )
+            if a.kw_only:
+                kw_only_args.append(arg)
+            else:
+                args.append(arg)
             if a.converter is not None:
                 lines.append(fmt_setter_with_converter(attr_name, arg_name))
                 names_for_globals[
@@ -1370,7 +1399,11 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
             else:
                 lines.append(fmt_setter(attr_name, arg_name))
         elif has_factory:
-            args.append("{arg_name}=NOTHING".format(arg_name=arg_name))
+            arg = "{arg_name}=NOTHING".format(arg_name=arg_name)
+            if a.kw_only:
+                kw_only_args.append(arg)
+            else:
+                args.append(arg)
             lines.append(
                 "if {arg_name} is not NOTHING:".format(arg_name=arg_name)
             )
@@ -1402,7 +1435,10 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
                 )
             names_for_globals[init_factory_name] = a.default.factory
         else:
-            args.append(arg_name)
+            if a.kw_only:
+                kw_only_args.append(arg_name)
+            else:
+                args.append(arg_name)
             if a.converter is not None:
                 lines.append(fmt_setter_with_converter(attr_name, arg_name))
                 names_for_globals[
@@ -1428,13 +1464,18 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
     if post_init:
         lines.append("self.__attrs_post_init__()")
 
+    args = ", ".join(args)
+    if kw_only_args:
+        args += "{leading_comma}*, {kw_only_args}".format(
+            leading_comma=", " if args else "",
+            kw_only_args=", ".join(kw_only_args),
+        )
     return (
         """\
 def __init__(self, {args}):
     {lines}
 """.format(
-            args=", ".join(args),
-            lines="\n    ".join(lines) if lines else "pass",
+            args=args, lines="\n    ".join(lines) if lines else "pass"
         ),
         names_for_globals,
         annotations,
@@ -1463,6 +1504,7 @@ class Attribute(object):
         "metadata",
         "type",
         "converter",
+        "kw_only",
     )
 
     def __init__(
@@ -1478,6 +1520,7 @@ class Attribute(object):
         metadata=None,
         type=None,
         converter=None,
+        kw_only=False,
     ):
         # Cache this descriptor here to speed things up later.
         bound_setattr = _obj_setattr.__get__(self, Attribute)
@@ -1515,6 +1558,7 @@ class Attribute(object):
             ),
         )
         bound_setattr("type", type)
+        bound_setattr("kw_only", kw_only)
 
     def __setattr__(self, name, value):
         raise FrozenInstanceError()
@@ -1625,6 +1669,7 @@ class _CountingAttr(object):
         "_validator",
         "converter",
         "type",
+        "kw_only",
     )
     __attrs_attrs__ = tuple(
         Attribute(
@@ -1635,6 +1680,7 @@ class _CountingAttr(object):
             cmp=True,
             hash=True,
             init=True,
+            kw_only=False,
         )
         for name in ("counter", "_default", "repr", "cmp", "hash", "init")
     ) + (
@@ -1646,6 +1692,7 @@ class _CountingAttr(object):
             cmp=True,
             hash=False,
             init=True,
+            kw_only=False,
         ),
     )
     cls_counter = 0
@@ -1661,6 +1708,7 @@ class _CountingAttr(object):
         converter,
         metadata,
         type,
+        kw_only,
     ):
         _CountingAttr.cls_counter += 1
         self.counter = _CountingAttr.cls_counter
@@ -1677,6 +1725,7 @@ class _CountingAttr(object):
         self.converter = converter
         self.metadata = metadata
         self.type = type
+        self.kw_only = kw_only
 
     def validator(self, meth):
         """

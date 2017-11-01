@@ -36,6 +36,7 @@ def simple_attr(
     hash=None,
     init=True,
     converter=None,
+    kw_only=False,
 ):
     """
     Return an attribute with a name and no other bells and whistles.
@@ -49,6 +50,7 @@ def simple_attr(
         hash=hash,
         init=init,
         converter=converter,
+        kw_only=False,
     )
 
 
