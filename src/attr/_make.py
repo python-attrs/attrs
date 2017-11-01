@@ -61,7 +61,7 @@ Sentinel to indicate the lack of a value when ``None`` is ambiguous.
 
 def attrib(default=NOTHING, validator=None,
            repr=True, cmp=True, hash=None, init=True,
-           convert=None, metadata={}, type=None):
+           convert=None, metadata={}, type=None, kwonly=False):
     """
     Create a new attribute on a class.
 
@@ -130,11 +130,15 @@ def attrib(default=NOTHING, validator=None,
         This argument is provided for backward compatibility.
         Regardless of the approach used, the type will be stored on
         ``Attribute.type``.
+    :param kwonly: Make this attribute keyword-only (Python 3+)
+        in the generated ``__init__`` (if ``init`` is ``False``, this
+        parameter is simply ignored).
 
     ..  versionchanged:: 17.1.0 *validator* can be a ``list`` now.
     ..  versionchanged:: 17.1.0
         *hash* is ``None`` and therefore mirrors *cmp* by default .
     ..  versionadded:: 17.3.0 *type*
+    ..  versionadded:: 17.3.0 *kwonly*
     """
     if hash is not None and hash is not True and hash is not False:
         raise TypeError(
@@ -150,6 +154,7 @@ def attrib(default=NOTHING, validator=None,
         convert=convert,
         metadata=metadata,
         type=type,
+        kwonly=kwonly,
     )
 
 
@@ -257,17 +262,31 @@ def _transform_attrs(cls, these):
     )
 
     had_default = False
+    was_kwonly = False
     for a in attrs:
-        if had_default is True and a.default is NOTHING and a.init is True:
+        if (was_kwonly is False and had_default is True and
+                a.default is NOTHING and a.init is True and
+                a.kwonly is False):
             raise ValueError(
                 "No mandatory attributes allowed after an attribute with a "
                 "default value or factory.  Attribute in question: {a!r}"
                 .format(a=a)
             )
-        elif had_default is False and \
-                a.default is not NOTHING and \
-                a.init is not False:
+        elif (had_default is False and
+                a.default is not NOTHING and
+                a.init is not False and
+                # Keyword-only attributes without defaults can be specified
+                # after keyword-only attributes with defaults.
+                a.kwonly is False):
             had_default = True
+        if was_kwonly is True and a.kwonly is False:
+            raise ValueError(
+                "Non keyword-only attributes are not allowed after a "
+                "keyword-only attribute.  Attribute in question: {a!r}"
+                .format(a=a)
+            )
+        if was_kwonly is False and a.init is True and a.kwonly is True:
+            was_kwonly = True
 
     return _Attributes((attrs, super_attrs))
 
@@ -913,6 +932,7 @@ def _attrs_to_script(attrs, frozen, post_init):
             }
 
     args = []
+    kwonly_args = []
     attrs_to_validate = []
 
     # This is a dictionary of names to validator and converter callables.
@@ -960,19 +980,25 @@ def _attrs_to_script(attrs, frozen, post_init):
                         .format(attr_name=attr_name)
                     ))
         elif a.default is not NOTHING and not has_factory:
-            args.append(
-                "{arg_name}=attr_dict['{attr_name}'].default".format(
-                    arg_name=arg_name,
-                    attr_name=attr_name,
-                )
+            arg = "{arg_name}=attr_dict['{attr_name}'].default".format(
+                arg_name=arg_name,
+                attr_name=attr_name,
             )
+            if a.kwonly:
+                kwonly_args.append(arg)
+            else:
+                args.append(arg)
             if a.convert is not None:
                 lines.append(fmt_setter_with_converter(attr_name, arg_name))
                 names_for_globals[_init_convert_pat.format(a.name)] = a.convert
             else:
                 lines.append(fmt_setter(attr_name, arg_name))
         elif has_factory:
-            args.append("{arg_name}=NOTHING".format(arg_name=arg_name))
+            arg = "{arg_name}=NOTHING".format(arg_name=arg_name)
+            if a.kwonly:
+                kwonly_args.append(arg)
+            else:
+                args.append(arg)
             lines.append("if {arg_name} is not NOTHING:"
                          .format(arg_name=arg_name))
             init_factory_name = _init_factory_pat.format(a.name)
@@ -994,7 +1020,10 @@ def _attrs_to_script(attrs, frozen, post_init):
                 ))
             names_for_globals[init_factory_name] = a.default.factory
         else:
-            args.append(arg_name)
+            if a.kwonly:
+                kwonly_args.append(arg_name)
+            else:
+                args.append(arg_name)
             if a.convert is not None:
                 lines.append(fmt_setter_with_converter(attr_name, arg_name))
                 names_for_globals[_init_convert_pat.format(a.name)] = a.convert
@@ -1014,11 +1043,17 @@ def _attrs_to_script(attrs, frozen, post_init):
     if post_init:
         lines.append("self.__attrs_post_init__()")
 
+    args = ", ".join(args)
+    if kwonly_args:
+        args += "{leading_comma}*, {kwonly_args}".format(
+            leading_comma=", " if args else "",
+            kwonly_args=", ".join(kwonly_args)
+        )
     return """\
 def __init__(self, {args}):
     {lines}
 """.format(
-        args=", ".join(args),
+        args=args,
         lines="\n    ".join(lines) if lines else "pass",
     ), names_for_globals
 
@@ -1033,11 +1068,11 @@ class Attribute(object):
     """
     __slots__ = (
         "name", "default", "validator", "repr", "cmp", "hash", "init",
-        "convert", "metadata", "type"
+        "convert", "metadata", "type", "kwonly"
     )
 
     def __init__(self, name, default, validator, repr, cmp, hash, init,
-                 convert=None, metadata=None, type=None):
+                 convert=None, metadata=None, type=None, kwonly=False):
         # Cache this descriptor here to speed things up later.
         bound_setattr = _obj_setattr.__get__(self, Attribute)
 
@@ -1052,6 +1087,7 @@ class Attribute(object):
         bound_setattr("metadata", (metadata_proxy(metadata) if metadata
                                    else _empty_metadata_singleton))
         bound_setattr("type", type)
+        bound_setattr("kwonly", kwonly)
 
     def __setattr__(self, name, value):
         raise FrozenInstanceError()
@@ -1117,20 +1153,20 @@ class _CountingAttr(object):
     likely the result of a bug like a forgotten `@attr.s` decorator.
     """
     __slots__ = ("counter", "_default", "repr", "cmp", "hash", "init",
-                 "metadata", "_validator", "convert", "type")
+                 "metadata", "_validator", "convert", "type", "kwonly")
     __attrs_attrs__ = tuple(
         Attribute(name=name, default=NOTHING, validator=None,
-                  repr=True, cmp=True, hash=True, init=True)
+                  repr=True, cmp=True, hash=True, init=True, kwonly=False)
         for name
         in ("counter", "_default", "repr", "cmp", "hash", "init",)
     ) + (
         Attribute(name="metadata", default=None, validator=None,
-                  repr=True, cmp=True, hash=False, init=True),
+                  repr=True, cmp=True, hash=False, init=True, kwonly=False),
     )
     cls_counter = 0
 
     def __init__(self, default, validator, repr, cmp, hash, init, convert,
-                 metadata, type):
+                 metadata, type, kwonly):
         _CountingAttr.cls_counter += 1
         self.counter = _CountingAttr.cls_counter
         self._default = default
@@ -1146,6 +1182,7 @@ class _CountingAttr(object):
         self.convert = convert
         self.metadata = metadata
         self.type = type
+        self.kwonly = kwonly
 
     def validator(self, meth):
         """

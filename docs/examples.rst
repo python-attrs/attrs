@@ -141,6 +141,55 @@ Therefore ``@attr.s`` comes with the ``repr_ns`` option to set it manually:
 ``repr_ns`` works on both Python 2 and 3.
 On Python 3 it overrides the implicit detection.
 
+Keyword-only Attributes
+~~~~~~~~~~~~~~~~~~~~~~~
+
+When using ``attrs`` on Python 3, you can also add `keyword-only <https://docs.python.org/3/glossary.html#keyword-only-parameter>`_ attributes:
+
+.. doctest::
+
+    >>> @attr.s
+    ... class A:
+    ...     a = attr.ib(kwonly=True)
+    >>> A()
+    Traceback (most recent call last):
+      ...
+    TypeError: A() missing 1 required keyword-only argument: 'a'
+    >>> A(a=1)
+    A(a=1)
+
+If you create an attribute with ``init=False``, ``kwonly`` argument is simply ignored.
+
+Keyword-only attributes allow subclasses to add attributes without default values, even if the base class defines attributes with default values:
+
+.. doctest::
+
+    >>> @attr.s
+    ... class A:
+    ...     a = attr.ib(default=0)
+    >>> @attr.s
+    ... class B(A):
+    ...     b = attr.ib(kwonly=True)
+    >>> B(b=1)
+    B(a=0, b=1)
+    >>> B()
+    Traceback (most recent call last):
+      ...
+    TypeError: B() missing 1 required keyword-only argument: 'b'
+
+If you omit ``kwonly`` or specify ``kwonly=False``, then you'll get an error:
+
+.. doctest::
+
+    >>> @attr.s
+    ... class A:
+    ...     a = attr.ib(default=0)
+    >>> @attr.s
+    ... class B(Base):
+    ...     b = attr.ib()
+    Traceback (most recent call last):
+      ...
+    ValueError: No mandatory attributes allowed after an attribute with a default value or factory.  Attribute in question: Attribute(name='b', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({}), type=None, kwonly=False)
 
 .. _asdict:
 

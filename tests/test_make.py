@@ -193,7 +193,7 @@ class TestTransformAttrs(object):
             "default value or factory.  Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, repr=True, "
             "cmp=True, hash=None, init=True, convert=None, "
-            "metadata=mappingproxy({}), type=None)",
+            "metadata=mappingproxy({}), type=None, kwonly=False)",
         ) == e.value.args
 
     def test_these(self):
@@ -405,6 +405,97 @@ class TestAttributes(object):
         x = getattr(C, "x", None)
 
         assert not isinstance(x, _CountingAttr)
+
+
+@pytest.mark.skipif(PY2, reason="keyword-only arguments is PY3-only.")
+class TestKeywordOnlyAttributes(object):
+    """
+    Tests for keyword-only attributes.
+    """
+
+    def test_adds_keyword_only_arguments(self):
+        """
+        Attributes can be added as keyword-only.
+        """
+        @attr.s
+        class C(object):
+            a = attr.ib()
+            b = attr.ib(default=2, kwonly=True)
+            c = attr.ib(kwonly=True)
+            d = attr.ib(default=attr.Factory(lambda: 4), kwonly=True)
+
+        c = C(1, c=3)
+
+        assert c.a == 1
+        assert c.b == 2
+        assert c.c == 3
+        assert c.d == 4
+
+    def test_ignores_kwonly_when_init_is_false(self):
+        """
+        Specifying ``kwonly=True`` when ``init=False`` is essentially a no-op.
+        """
+        @attr.s
+        class C(object):
+            x = attr.ib(init=False, default=0, kwonly=True)
+            y = attr.ib()
+
+        c = C(1)
+        assert c.x == 0
+        assert c.y == 1
+
+    def test_keyword_only_attributes_presence(self):
+        """
+        Raises `TypeError` when keyword-only arguments are
+        not specified.
+        """
+        @attr.s
+        class C(object):
+            x = attr.ib(kwonly=True)
+
+        with pytest.raises(TypeError) as e:
+            C()
+
+        assert (
+            "missing 1 required keyword-only argument: 'x'"
+        ) in e.value.args[0]
+
+    def test_conflicting_keyword_only_attributes(self):
+        """
+        Raises `ValueError` if keyword-only attributes are followed by
+        regular (non keyword-only) attributes.
+        """
+        class C(object):
+            x = attr.ib(kwonly=True)
+            y = attr.ib()
+
+        with pytest.raises(ValueError) as e:
+            _transform_attrs(C, None)
+        assert (
+            "Non keyword-only attributes are not allowed after a "
+            "keyword-only attribute.  Attribute in question: Attribute"
+            "(name='y', default=NOTHING, validator=None, repr=True, "
+            "cmp=True, hash=None, init=True, convert=None, "
+            "metadata=mappingproxy({}), type=None, kwonly=False)",
+        ) == e.value.args
+
+    def test_keyword_only_attributes_allow_subclassing(self):
+        """
+        Subclass can define keyword-only attributed without defaults,
+        when the base class has attributes with defaults.
+        """
+        @attr.s
+        class Base(object):
+            x = attr.ib(default=0)
+
+        @attr.s
+        class C(Base):
+            y = attr.ib(kwonly=True)
+
+        c = C(y=1)
+
+        assert c.x == 0
+        assert c.y == 1
 
 
 @attr.s
