@@ -150,7 +150,7 @@ When using ``attrs`` on Python 3, you can also add `keyword-only <https://docs.p
 
     >>> @attr.s
     ... class A:
-    ...     a = attr.ib(kwonly=True)
+    ...     a = attr.ib(kw_only=True)
     >>> A()
     Traceback (most recent call last):
       ...
@@ -158,7 +158,7 @@ When using ``attrs`` on Python 3, you can also add `keyword-only <https://docs.p
     >>> A(a=1)
     A(a=1)
 
-If you create an attribute with ``init=False``, ``kwonly`` argument is simply ignored.
+If you create an attribute with ``init=False``, ``kw_only`` argument is simply ignored.
 
 Keyword-only attributes allow subclasses to add attributes without default values, even if the base class defines attributes with default values:
 
@@ -169,7 +169,7 @@ Keyword-only attributes allow subclasses to add attributes without default value
     ...     a = attr.ib(default=0)
     >>> @attr.s
     ... class B(A):
-    ...     b = attr.ib(kwonly=True)
+    ...     b = attr.ib(kw_only=True)
     >>> B(b=1)
     B(a=0, b=1)
     >>> B()
@@ -177,7 +177,7 @@ Keyword-only attributes allow subclasses to add attributes without default value
       ...
     TypeError: B() missing 1 required keyword-only argument: 'b'
 
-If you omit ``kwonly`` or specify ``kwonly=False``, then you'll get an error:
+If you omit ``kw_only`` or specify ``kw_only=False``, then you'll get an error:
 
 .. doctest::
 
@@ -189,7 +189,7 @@ If you omit ``kwonly`` or specify ``kwonly=False``, then you'll get an error:
     ...     b = attr.ib()
     Traceback (most recent call last):
       ...
-    ValueError: No mandatory attributes allowed after an attribute with a default value or factory.  Attribute in question: Attribute(name='b', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({}), type=None, kwonly=False)
+    ValueError: No mandatory attributes allowed after an attribute with a default value or factory.  Attribute in question: Attribute(name='b', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({}), type=None, kw_only=False)
 
 .. _asdict:
 

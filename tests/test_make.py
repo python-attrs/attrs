@@ -193,7 +193,7 @@ class TestTransformAttrs(object):
             "default value or factory.  Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, repr=True, "
             "cmp=True, hash=None, init=True, convert=None, "
-            "metadata=mappingproxy({}), type=None, kwonly=False)",
+            "metadata=mappingproxy({}), type=None, kw_only=False)",
         ) == e.value.args
 
     def test_these(self):
@@ -420,9 +420,9 @@ class TestKeywordOnlyAttributes(object):
         @attr.s
         class C(object):
             a = attr.ib()
-            b = attr.ib(default=2, kwonly=True)
-            c = attr.ib(kwonly=True)
-            d = attr.ib(default=attr.Factory(lambda: 4), kwonly=True)
+            b = attr.ib(default=2, kw_only=True)
+            c = attr.ib(kw_only=True)
+            d = attr.ib(default=attr.Factory(lambda: 4), kw_only=True)
 
         c = C(1, c=3)
 
@@ -431,13 +431,13 @@ class TestKeywordOnlyAttributes(object):
         assert c.c == 3
         assert c.d == 4
 
-    def test_ignores_kwonly_when_init_is_false(self):
+    def test_ignores_kw_only_when_init_is_false(self):
         """
-        Specifying ``kwonly=True`` when ``init=False`` is essentially a no-op.
+        Specifying ``kw_only=True`` when ``init=False`` is essentially a no-op.
         """
         @attr.s
         class C(object):
-            x = attr.ib(init=False, default=0, kwonly=True)
+            x = attr.ib(init=False, default=0, kw_only=True)
             y = attr.ib()
 
         c = C(1)
@@ -451,7 +451,7 @@ class TestKeywordOnlyAttributes(object):
         """
         @attr.s
         class C(object):
-            x = attr.ib(kwonly=True)
+            x = attr.ib(kw_only=True)
 
         with pytest.raises(TypeError) as e:
             C()
@@ -466,7 +466,7 @@ class TestKeywordOnlyAttributes(object):
         regular (non keyword-only) attributes.
         """
         class C(object):
-            x = attr.ib(kwonly=True)
+            x = attr.ib(kw_only=True)
             y = attr.ib()
 
         with pytest.raises(ValueError) as e:
@@ -476,7 +476,7 @@ class TestKeywordOnlyAttributes(object):
             "keyword-only attribute.  Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, repr=True, "
             "cmp=True, hash=None, init=True, convert=None, "
-            "metadata=mappingproxy({}), type=None, kwonly=False)",
+            "metadata=mappingproxy({}), type=None, kw_only=False)",
         ) == e.value.args
 
     def test_keyword_only_attributes_allow_subclassing(self):
@@ -490,7 +490,7 @@ class TestKeywordOnlyAttributes(object):
 
         @attr.s
         class C(Base):
-            y = attr.ib(kwonly=True)
+            y = attr.ib(kw_only=True)
 
         c = C(y=1)
 

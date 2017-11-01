@@ -1,2 +1,2 @@
-Added ``kwonly`` argument to ``attr.ib`` and corresponding ``kwonly`` attribute to ``attr.Attribute``.
+Added ``kw_only`` argument to ``attr.ib`` and corresponding ``kw_only`` attribute to ``attr.Attribute``.
 This change makes it possible to have a generated ``__init__`` with keyword-only arguments on Python 3.
