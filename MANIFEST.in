@@ -10,6 +10,7 @@ recursive-include tests *.py
 # Documentation
 include docs/Makefile docs/docutils.conf
 recursive-include docs *.png
+recursive-include docs *.svg
 recursive-include docs *.py
 recursive-include docs *.rst
 prune docs/_build
