@@ -1,4 +1,4 @@
-[case test_type_annotations]
+[case test_type_annotations_pep526]
 # cmd: mypy a.py
 [file a.py]
 import attr
@@ -6,15 +6,44 @@ import attr
 @attr.s
 class C(object):
     a : int = attr.ib()
-    b = attr.ib(type=int)
 
 c = C()
 reveal_type(c.a)
-reveal_type(c.b)
 reveal_type(C.a)
-reveal_type(C.b)
 [out]
+a.py:8: error: Revealed type is 'builtins.int'
 a.py:9: error: Revealed type is 'builtins.int'
-a.py:10: error: Revealed type is 'builtins.int'
-a.py:11: error: Revealed type is 'builtins.int'
-a.py:12: error: Revealed type is 'builtins.int'
+
+
+[case test_type_annotations_arg]
+# cmd: mypy a.py
+[file a.py]
+import attr
+
+@attr.s
+class C(object):
+    a = attr.ib(type=int)
+
+c = C()
+reveal_type(c.a)
+reveal_type(C.a)
+[out]
+a.py:8: error: Revealed type is 'builtins.int*'
+a.py:9: error: Revealed type is 'builtins.int*'
+
+
+[case test_type_annotations_missing]
+# cmd: mypy a.py
+[file a.py]
+import attr
+
+@attr.s
+class C(object):
+    a = attr.ib()
+
+c = C()
+reveal_type(c.a)
+reveal_type(C.a)
+[out]
+a.py:8: error: Revealed type is 'Any'
+a.py:9: error: Revealed type is 'Any'

@@ -5,9 +5,7 @@ import re
 import subprocess
 import sys
 
-from typing import Tuple, List, Dict, Set
-
-from mypy.test.data import parse_test_cases, DataDrivenTestCase, DataSuite
+from mypy.test.data import parse_test_cases, DataSuite
 from mypy.test.helpers import (assert_string_arrays_equal,
                                normalize_error_messages)
 
@@ -21,18 +19,18 @@ prefix_dir = os.path.join(os.path.dirname(os.path.dirname(test_file)), 'src')
 class PythonEvaluationSuite(DataSuite):
 
     @classmethod
-    def cases(cls) -> List[DataDrivenTestCase]:
+    def cases(cls):
         return parse_test_cases(test_file,
                                 _test_python_evaluation,
                                 base_path=test_temp_dir,
                                 optional_out=True,
                                 native_sep=True)
 
-    def run_case(self, testcase: DataDrivenTestCase):
+    def run_case(self, testcase):
         _test_python_evaluation(testcase)
 
 
-def _test_python_evaluation(testcase: DataDrivenTestCase) -> None:
+def _test_python_evaluation(testcase):
     assert testcase.old_cwd is not None, "test was not properly set up"
     # Write the program to a file.
     program = '_program.py'
@@ -61,7 +59,7 @@ def _test_python_evaluation(testcase: DataDrivenTestCase) -> None:
                                    testcase.file, testcase.line))
 
 
-def parse_args(line: str) -> List[str]:
+def parse_args(line):
     """Parse the first line of the program for the command line.
 
     This should have the form
