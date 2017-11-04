@@ -456,7 +456,7 @@ class TestMakeClass(object):
         attributes_arguments are passed to attributes
         """
         C = make_class("C", ["x"], repr=False)
-        assert repr(C(1)).startswith("<attr._make.C object at 0x")
+        assert repr(C(1)).startswith("<tests.test_make.C object at 0x")
 
     def test_catches_wrong_attrs_type(self):
         """
