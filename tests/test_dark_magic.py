@@ -103,7 +103,7 @@ class WithMetaSlots(object):
     pass
 
 
-FromMakeClass = attr.make_class('FromMakeClass', ['x'])
+FromMakeClass = attr.make_class("FromMakeClass", ["x"])
 
 
 class TestDarkMagic(object):
