@@ -4,6 +4,7 @@ Tests for PEP-526 type annotations.
 Python 3.6+ only.
 """
 
+import types
 import typing
 
 import pytest
@@ -66,12 +67,13 @@ class TestAnnotations:
 
         assert 1 == len(attr.fields(C))
 
-    def test_auto_attribs(self):
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_auto_attribs(self, slots):
         """
         If *auto_attribs* is True, bare annotations are collected too.
         Defaults work and class variables are ignored.
         """
-        @attr.s(auto_attribs=True)
+        @attr.s(auto_attribs=True, slots=slots)
         class C:
             cls_var: typing.ClassVar[int] = 23
             a: int
@@ -80,7 +82,8 @@ class TestAnnotations:
             z: int = attr.ib(default=3)
             foo: typing.Any = None
 
-        assert "C(a=42, x=[], y=2, z=3, foo=None)" == repr(C(42))
+        i = C(42)
+        assert "C(a=42, x=[], y=2, z=3, foo=None)" == repr(i)
 
         attr_names = set(a.name for a in C.__attrs_attrs__)
         assert "a" in attr_names  # just double check that the set works
@@ -97,3 +100,15 @@ class TestAnnotations:
         assert int == attr.fields(C).z.type
 
         assert typing.Any == attr.fields(C).foo.type
+
+        # Class body is clean.
+        if slots is False:
+            with pytest.raises(AttributeError):
+                C.y
+
+            assert 2 == i.y
+        else:
+            assert isinstance(C.y, types.MemberDescriptorType)
+
+            i.y = 23
+            assert 23 == i.y
