@@ -3,6 +3,10 @@ include LICENSE *.rst *.toml
 # Don't package GitHub-specific files.
 exclude *.md .travis.yml
 
+# Stubs
+recursive-include src *.pyi
+recursive-include tests *.test
+
 # Tests
 include tox.ini .coveragerc conftest.py dev-requirements.txt docs-requirements.txt
 recursive-include tests *.py
