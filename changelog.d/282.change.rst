@@ -1,0 +1,1 @@
+Instances of classes created using ``attr.make_class()`` can now be pickled.

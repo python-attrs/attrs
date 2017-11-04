@@ -5,6 +5,7 @@ Tests for `attr._make`.
 from __future__ import absolute_import, division, print_function
 
 import inspect
+import sys
 
 from operator import attrgetter
 
@@ -456,7 +457,7 @@ class TestMakeClass(object):
         attributes_arguments are passed to attributes
         """
         C = make_class("C", ["x"], repr=False)
-        assert repr(C(1)).startswith("<attr._make.C object at 0x")
+        assert repr(C(1)).startswith("<tests.test_make.C object at 0x")
 
     def test_catches_wrong_attrs_type(self):
         """
@@ -493,6 +494,14 @@ class TestMakeClass(object):
         x = getattr(C, "x", None)
 
         assert not isinstance(x, _CountingAttr)
+
+    def test_missing_sys_getframe(self, monkeypatch):
+        """
+        `make_class()` does not fail when `sys._getframe()` is not available.
+        """
+        monkeypatch.delattr(sys, '_getframe')
+        C = make_class("C", ["x"])
+        assert C.__attrs_attrs__
 
 
 class TestFields(object):

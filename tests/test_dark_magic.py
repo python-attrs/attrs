@@ -103,6 +103,9 @@ class WithMetaSlots(object):
     pass
 
 
+FromMakeClass = attr.make_class('FromMakeClass', ['x'])
+
+
 class TestDarkMagic(object):
     """
     Integration tests.
@@ -218,7 +221,8 @@ class TestDarkMagic(object):
 
     @pytest.mark.parametrize("cls",
                              [C1, C1Slots, C2, C2Slots, Super, SuperSlots,
-                              Sub, SubSlots, Frozen, FrozenNoSlots])
+                              Sub, SubSlots, Frozen, FrozenNoSlots,
+                              FromMakeClass])
     @pytest.mark.parametrize("protocol",
                              range(2, pickle.HIGHEST_PROTOCOL + 1))
     def test_pickle_attributes(self, cls, protocol):
@@ -230,7 +234,8 @@ class TestDarkMagic(object):
 
     @pytest.mark.parametrize("cls",
                              [C1, C1Slots, C2, C2Slots, Super, SuperSlots,
-                              Sub, SubSlots, Frozen, FrozenNoSlots])
+                              Sub, SubSlots, Frozen, FrozenNoSlots,
+                              FromMakeClass])
     @pytest.mark.parametrize("protocol",
                              range(2, pickle.HIGHEST_PROTOCOL + 1))
     def test_pickle_object(self, cls, protocol):
