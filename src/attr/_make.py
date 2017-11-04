@@ -1244,12 +1244,13 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
         {} if post_init is None else {"__attrs_post_init__": post_init}
     )
     # For pickling to work, the __module__ variable needs to be set to the
-    # frame where the class is created. Bypass this step in environments where
+    # frame where the class is created.  Bypass this step in environments where
     # sys._getframe is not defined (Jython for example) or sys._getframe is not
-    # defined for arguments greater than 0 (IronPython)
+    # defined for arguments greater than 0 (IronPython).
     try:
-        type_.__module__ = sys._getframe(1).f_globals.get('__name__',
-                                                          '__main__')
+        type_.__module__ = sys._getframe(1).f_globals.get(
+            "__name__", "__main__",
+        )
     except (AttributeError, ValueError):
         pass
 

@@ -457,6 +457,7 @@ class TestMakeClass(object):
         attributes_arguments are passed to attributes
         """
         C = make_class("C", ["x"], repr=False)
+
         assert repr(C(1)).startswith("<tests.test_make.C object at 0x")
 
     def test_catches_wrong_attrs_type(self):
@@ -478,9 +479,11 @@ class TestMakeClass(object):
             pass
 
         cls = make_class("C", {})
+
         assert cls.__mro__[-1] == object
 
         cls = make_class("C", {}, bases=(D,))
+
         assert D in cls.__mro__
         assert isinstance(cls(), D)
 
@@ -501,7 +504,8 @@ class TestMakeClass(object):
         """
         monkeypatch.delattr(sys, '_getframe')
         C = make_class("C", ["x"])
-        assert C.__attrs_attrs__
+
+        assert 1 == len(C.__attrs_attrs__)
 
 
 class TestFields(object):
@@ -514,6 +518,7 @@ class TestFields(object):
         """
         with pytest.raises(TypeError) as e:
             fields(C(1, 2))
+
         assert "Passed object must be a class." == e.value.args[0]
 
     def test_handler_non_attrs_class(self, C):
