@@ -189,6 +189,18 @@ _Attributes = _make_attr_tuple_class("_Attributes", [
 ])
 
 
+try:
+    from typing import ClassVar
+
+    # You cannot use ClassVar together with isinstance.
+    _CLASS_VAR_CLS = ClassVar.__class__
+except ImportError:
+    class FakeClassVar(object):
+        pass
+
+    _CLASS_VAR_CLS = FakeClassVar
+
+
 def _transform_attrs(cls, these, auto_attribs):
     """
     Transform all `_CountingAttr`s on a class into `Attribute`s.
@@ -202,7 +214,9 @@ def _transform_attrs(cls, these, auto_attribs):
 
     if auto_attribs is True:
         ca_list = []
-        for attr_name in anns:
+        for attr_name, type in anns.items():
+            if isinstance(type, _CLASS_VAR_CLS):
+                continue
             a = cd.get(attr_name, NOTHING)
             if not isinstance(a, _CountingAttr):
                 if a is NOTHING:
@@ -551,14 +565,18 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
 
         ..  _slots: https://docs.python.org/3/reference/datamodel.html#slots
     :param bool auto_attribs: If True, collect `PEP 526`_-annotated attributes
-        from the class body.  In this case, you can **not** use :func:`attr.ib`
-        only to define unannotated attributes (they are silently ignored).  Use
-        ``field_name: typing.Any = attr.ib(...)`` instead.
+        from the class body.  In this case, you **must** annotate every field.
+        Fields that are assigned an :func:`attr.ib` but have no type
+        annotation are silently ignored.  Use
+        ``field_name: typing.Any = attr.ib(...)`` if you don't want to set a
+        type.
 
         If you assign a value to those attributes (e.g. ``x: int = 42``), that
         value becomes the default value like if it were passed using
         ``attr.ib(default=42)``.  Passing an instance of :class:`Factory` also
         works as expected.
+
+        Attributes annotated as :class:`typing.ClassVar` are **ignored**.
 
         .. _`PEP 526`: https://www.python.org/dev/peps/pep-0526/
 

@@ -69,9 +69,11 @@ class TestAnnotations:
     def test_auto_attribs(self):
         """
         If *auto_attribs* is True, bare annotations are collected too.
+        Defaults work and class variables are ignored.
         """
         @attr.s(auto_attribs=True)
         class C:
+            cls_var: typing.ClassVar[int] = 23
             a: int
             x: typing.List[int] = attr.Factory(list)
             y: int = 2
@@ -79,6 +81,10 @@ class TestAnnotations:
             foo: typing.Any = None
 
         assert "C(a=42, x=[], y=2, z=3, foo=None)" == repr(C(42))
+
+        attr_names = set(a.name for a in C.__attrs_attrs__)
+        assert "a" in attr_names  # just double check that the set works
+        assert "cls_var" not in attr_names
 
         assert int == attr.fields(C).a.type
 
