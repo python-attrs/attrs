@@ -601,7 +601,7 @@ You can still have power over the attributes if you pass a dictionary of name: `
    ...                     repr=False)
    >>> i = C()
    >>> i  # no repr added!
-   <attr._make.C object at ...>
+   <__main__.C object at ...>
    >>> i.x
    42
    >>> i.y

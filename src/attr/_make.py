@@ -2,6 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 import hashlib
 import linecache
+import sys
 
 from operator import itemgetter
 
@@ -1237,13 +1238,22 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
         raise TypeError("attrs argument must be a dict or a list.")
 
     post_init = cls_dict.pop("__attrs_post_init__", None)
-    return _attrs(
-        these=cls_dict, **attributes_arguments
-    )(type(
+    type_ = type(
         name,
         bases,
         {} if post_init is None else {"__attrs_post_init__": post_init}
-    ))
+    )
+    # For pickling to work, the __module__ variable needs to be set to the
+    # frame where the class is created. Bypass this step in environments where
+    # sys._getframe is not defined (Jython for example) or sys._getframe is not
+    # defined for arguments greater than 0 (IronPython)
+    try:
+        type_.__module__ = sys._getframe(1).f_globals.get('__name__',
+                                                          '__main__')
+    except (AttributeError, ValueError):
+        pass
+
+    return _attrs(these=cls_dict, **attributes_arguments)(type_)
 
 
 # These are required by within this module so we define them here and merely
