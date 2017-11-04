@@ -20,14 +20,11 @@ def C():
 
 
 collect_ignore = []
-pytest_plugins = []
 
 if sys.version_info[:2] < (3, 6):
     collect_ignore.extend([
         "tests/test_annotations.py",
         "tests/test_init_subclass.py",
     ])
-if sys.version_info[:2] < (3, 5):
-    collect_ignore.append("tests/test_stubs.py")
-else:
-    pytest_plugins.append('mypy.test.data')
+
+collect_ignore.append("tests/test_stubs.py")

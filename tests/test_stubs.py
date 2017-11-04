@@ -9,6 +9,8 @@ from mypy.test.data import parse_test_cases, DataSuite
 from mypy.test.helpers import (assert_string_arrays_equal,
                                normalize_error_messages)
 
+pytest_plugins = ['mypy.test.data']
+
 # Path to Python 3 interpreter
 python3_path = sys.executable
 test_temp_dir = 'tmp'
