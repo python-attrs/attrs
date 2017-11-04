@@ -503,6 +503,7 @@ class TestMakeClass(object):
         C = make_class("C", ["x"])
         assert C.__attrs_attrs__
 
+
 class TestFields(object):
     """
     Tests for `fields`.
