@@ -201,11 +201,15 @@ def _transform_attrs(cls, these, auto_attribs):
     anns = getattr(cls, "__annotations__", {})
 
     if auto_attribs is True:
-        ca_list = [
-            (attr_name, cd.get(attr_name, None) or attrib())
-            for attr_name
-            in anns
-        ]
+        ca_list = []
+        for attr_name in anns:
+            a = cd.get(attr_name, NOTHING)
+            if not isinstance(a, _CountingAttr):
+                if a is NOTHING:
+                    a = attrib()
+                else:
+                    a = attrib(default=a)
+            ca_list.append((attr_name, a))
     else:
         if these is None:
             ca_list = [

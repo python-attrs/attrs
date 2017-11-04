@@ -478,26 +478,29 @@ Types
    >>> attr.fields(C).y.type
    <class 'int'>
 
-If you don't mind annotating all attributes, you can even drop the :func:`attr.ib`:
+If you don't mind annotating all attributes, you can even drop the :func:`attr.ib` and assign default values instead:
 
 .. doctest::
 
    >>> import typing
    >>> @attr.s(auto_attribs=True)
    ... class AutoC:
-   ...     x: int
-   ...     y: int
-   ...     foo: typing.Any = attr.ib(
+   ...     x: int = attr.Factory(list)
+   ...     y: int = 2
+   ...     foo: str = attr.ib(
    ...          default="every attrib needs a type if auto_attribs=True"
    ...     )
+   ...     bar: typing.Any = None
    >>> attr.fields(AutoC).x.type
    <class 'int'>
    >>> attr.fields(AutoC).y.type
    <class 'int'>
    >>> attr.fields(AutoC).foo.type
+   <class 'str'>
+   >>> attr.fields(AutoC).bar.type
    typing.Any
    >>> AutoC(1, 2)
-   AutoC(x=1, y=2, foo='every attrib needs a type if auto_attribs=True')
+   AutoC(x=1, y=2, foo='every attrib needs a type if auto_attribs=True', bar=None)
 
 
 .. warning::

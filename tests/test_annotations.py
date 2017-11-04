@@ -72,11 +72,22 @@ class TestAnnotations:
         """
         @attr.s(auto_attribs=True)
         class C:
-            x: typing.List[int]
-            y: int
-            z: typing.Any = attr.ib(default=3)
+            a: int
+            x: typing.List[int] = attr.Factory(list)
+            y: int = 2
+            z: int = attr.ib(default=3)
+            foo: typing.Any = None
 
-        assert "C(x=1, y=2, z=3)" == repr(C(1, 2))
+        assert "C(a=42, x=[], y=2, z=3, foo=None)" == repr(C(42))
+
+        assert int == attr.fields(C).a.type
+
+        assert attr.Factory(list) == attr.fields(C).x.default
         assert typing.List[int] == attr.fields(C).x.type
+
         assert int == attr.fields(C).y.type
-        assert typing.Any == attr.fields(C).z.type
+        assert 2 == attr.fields(C).y.default
+
+        assert int == attr.fields(C).z.type
+
+        assert typing.Any == attr.fields(C).foo.type
