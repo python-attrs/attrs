@@ -557,8 +557,8 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
 
         If you assign a value to those attributes (e.g. ``x: int = 42``), that
         value becomes the default value like if it were passed using
-        ``attr.ib(default=42)``.  Passing a :class:`Factory` also works as
-        expected.
+        ``attr.ib(default=42)``.  Passing an instance of :class:`Factory` also
+        works as expected.
 
         .. _`PEP 526`: https://www.python.org/dev/peps/pep-0526/
 
