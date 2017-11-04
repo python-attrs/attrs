@@ -1,1 +1,3 @@
 Added new option ``auto_attribs`` to ``@attr.s`` that allows to collect annotated fields without setting them to ``attr.ib()``.
+Setting to an ``attr.ib()`` is still possible to supply options like validators.
+Setting it to any other value is treated like it was passed as ``attr.ib(default=value)`` -- passing an ``attr.Factory`` also works as expected.
