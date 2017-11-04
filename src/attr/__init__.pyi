@@ -19,7 +19,8 @@ _FilterType = Callable[['Attribute', Any], bool]
 
 # _make --
 
-class _CountingAttr: ...
+class _CountingAttr:
+    def __init__(self, default: Any = ..., validator: Optional[Union[_ValidatorType, List[_ValidatorType], Tuple[_ValidatorType, ...]]] = ..., repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ..., convert: Optional[_ConverterType] = ..., metadata: Mapping = ..., type: type = ...) -> None: ...
 
 NOTHING : object
 
@@ -30,7 +31,16 @@ class Factory(Generic[_T]):
 
 class Attribute:
     __slots__ = ("name", "default", "validator", "repr", "cmp", "hash", "init", "convert", "metadata", "type")
-    def __init__(self, name: str, default: Any, validator: Optional[Union[_ValidatorType, List[_ValidatorType], Tuple[_ValidatorType, ...]]], repr: bool, cmp: bool, hash: Optional[bool], init: bool, convert: Optional[_ConverterType] = ..., metadata: Mapping = ..., type: Union[type, Factory] = ...) -> None: ...
+    name: str
+    default: Any
+    validator: Optional[Union[_ValidatorType, List[_ValidatorType], Tuple[_ValidatorType, ...]]]
+    repr: bool
+    cmp: bool
+    hash: Optional[bool]
+    init: bool
+    convert: Optional[_ConverterType]
+    metadata: Mapping
+    type: Any
 
 # NOTE: this overload for `attr` returns Any so that static analysis passes when used in the form:  x : int = attr()
 @overload
