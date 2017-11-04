@@ -32,6 +32,51 @@ a.py:8: error: Revealed type is 'builtins.int*'
 a.py:9: error: Revealed type is 'builtins.int*'
 
 
+[case test_defaults]
+# cmd: mypy a.py
+[file a.py]
+import attr
+from typing import List
+
+def int_factory() -> int:
+    return 0
+
+a = attr.ib(type=int)
+reveal_type(a)  # int
+
+b = attr.ib(default=0, type=int)
+reveal_type(b)  # int
+
+c = attr.ib(default=attr.Factory(int_factory), type=int)
+reveal_type(c)  # int
+
+d = attr.ib(default=0)
+reveal_type(d)  # Any.  ideally this would be int. not sure why it's not working.
+
+e: int = attr.ib(default=0)
+reveal_type(e)  # int
+
+f = attr.ib(default='bad', type=int)
+reveal_type(f)  # object, the common base of str and int
+
+g: int = attr.ib(default='bad', type=int)  # as above, but results in assignment error: object <> int
+
+h: List[int] = attr.ib(default=attr.Factory(list))
+reveal_type(h)
+
+i: List[int] = attr.Factory(list)
+
+[out]
+a.py:8: error: Revealed type is 'builtins.int*'
+a.py:11: error: Revealed type is 'builtins.int*'
+a.py:14: error: Revealed type is 'builtins.int*'
+a.py:17: error: Revealed type is 'Any'
+a.py:20: error: Revealed type is 'builtins.int'
+a.py:23: error: Revealed type is 'builtins.object*'
+a.py:25: error: Incompatible types in assignment (expression has type "object", variable has type "int")
+a.py:28: error: Revealed type is 'builtins.list[builtins.int]'
+a.py:30: error: Incompatible types in assignment (expression has type "Factory[List[_T]]", variable has type "List[int]")
+
 [case test_type_annotations_missing]
 # cmd: mypy a.py
 [file a.py]
@@ -47,3 +92,19 @@ reveal_type(C.a)
 [out]
 a.py:8: error: Revealed type is 'Any'
 a.py:9: error: Revealed type is 'Any'
+
+
+[case test_validators]
+# cmd: mypy a.py
+[file a.py]
+import attr
+from attr.validators import in_, and_, instance_of
+
+a = attr.ib(type=int, validator=in_([1, 2, 3]))
+b = attr.ib(type=int, validator=[in_([1, 2, 3]), instance_of(int)])
+c = attr.ib(type=int, validator=(in_([1, 2, 3]), instance_of(int)))
+d = attr.ib(type=int, validator=and_(in_([1, 2, 3]), instance_of(int)))
+e = attr.ib(type=int, validator=1)
+
+[out]
+a.py:8: error: No overload variant matches argument types [Overload(def (x: Union[builtins.str, builtins.bytes, typing.SupportsInt] =) -> builtins.int, def (x: Union[builtins.str, builtins.bytes], base: builtins.int) -> builtins.int), builtins.int]
