@@ -551,9 +551,14 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
 
         ..  _slots: https://docs.python.org/3/reference/datamodel.html#slots
     :param bool auto_attribs: If True, collect `PEP 526`_-annotated attributes
-        from the class body.  In this case, you can **not** use
-        :func:`attr.ib` to define unannotated attributes (they are silently
-        ignored).  Use ``field_name: typing.Any = attr.ib(...)`` instead.
+        from the class body.  In this case, you can **not** use :func:`attr.ib`
+        only to define unannotated attributes (they are silently ignored).  Use
+        ``field_name: typing.Any = attr.ib(...)`` instead.
+
+        If you assign a value to those attributes (e.g. ``x: int = 42``), that
+        value becomes the default value like if it were passed using
+        ``attr.ib(default=42)``.  Passing a :class:`Factory` also works as
+        expected.
 
         .. _`PEP 526`: https://www.python.org/dev/peps/pep-0526/
 
