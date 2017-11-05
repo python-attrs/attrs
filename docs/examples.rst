@@ -486,22 +486,22 @@ If you don't mind annotating all attributes, you can even drop the :func:`attr.i
    >>> @attr.s(auto_attribs=True)
    ... class AutoC:
    ...     cls_var: typing.ClassVar[int] = 5  # this one is ignored
-   ...     x: int = attr.Factory(list)
-   ...     y: int = 2
+   ...     l: typing.List[int] = attr.Factory(list)
+   ...     x: int = 1
    ...     foo: str = attr.ib(
    ...          default="every attrib needs a type if auto_attribs=True"
    ...     )
    ...     bar: typing.Any = None
+   >>> attr.fields(AutoC).l.type
+   typing.List[int]
    >>> attr.fields(AutoC).x.type
-   <class 'int'>
-   >>> attr.fields(AutoC).y.type
    <class 'int'>
    >>> attr.fields(AutoC).foo.type
    <class 'str'>
    >>> attr.fields(AutoC).bar.type
    typing.Any
-   >>> AutoC(1, 2)
-   AutoC(x=1, y=2, foo='every attrib needs a type if auto_attribs=True', bar=None)
+   >>> AutoC()
+   AutoC(l=[], x=1, foo='every attrib needs a type if auto_attribs=True', bar=None)
    >>> AutoC.cls_var
    5
 
