@@ -11,6 +11,8 @@ import pytest
 
 import attr
 
+from attr.exceptions import UnannotatedAttributeError
+
 
 class TestAnnotations:
     """
@@ -112,3 +114,20 @@ class TestAnnotations:
 
             i.y = 23
             assert 23 == i.y
+
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_auto_attribs_unannotated(self, slots):
+        """
+        Unannotated `attr.ib`s raise an error.
+        """
+        with pytest.raises(UnannotatedAttributeError) as e:
+            @attr.s(slots=slots, auto_attribs=True)
+            class C:
+                v = attr.ib()
+                x: int
+                y = attr.ib()
+                z: str
+
+        assert (
+            "The following `attr.ib`s lack a type annotation: v, y.",
+        ) == e.value.args

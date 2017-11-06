@@ -18,6 +18,7 @@ from .exceptions import (
     DefaultAlreadySetError,
     FrozenInstanceError,
     NotAnAttrsClassError,
+    UnannotatedAttributeError,
 )
 
 
@@ -213,11 +214,26 @@ def _transform_attrs(cls, these, auto_attribs):
     cd = cls.__dict__
     anns = getattr(cls, "__annotations__", {})
 
-    if auto_attribs is True:
+    if these is None and auto_attribs is False:
+        ca_list = sorted((
+            (name, attr)
+            for name, attr
+            in cd.items()
+            if isinstance(attr, _CountingAttr)
+        ), key=lambda e: e[1].counter)
+    elif these is None and auto_attribs is True:
+        ca_names = {
+            name
+            for name, attr
+            in cd.items()
+            if isinstance(attr, _CountingAttr)
+        }
         ca_list = []
+        annot_names = set()
         for attr_name, type in anns.items():
             if isinstance(type, _CLASS_VAR_CLS):
                 continue
+            annot_names.add(attr_name)
             a = cd.get(attr_name, NOTHING)
             if not isinstance(a, _CountingAttr):
                 if a is NOTHING:
@@ -225,21 +241,22 @@ def _transform_attrs(cls, these, auto_attribs):
                 else:
                     a = attrib(default=a)
             ca_list.append((attr_name, a))
+
+        unannotated = ca_names - annot_names
+        if len(unannotated) > 0:
+            raise UnannotatedAttributeError(
+                "The following `attr.ib`s lack a type annotation: " +
+                ", ".join(sorted(
+                    unannotated,
+                    key=lambda n: cd.get(n).counter
+                )) + "."
+            )
     else:
-        if these is None:
-            ca_list = [
-                (name, attr)
-                for name, attr
-                in cd.items()
-                if isinstance(attr, _CountingAttr)
-            ]
-        else:
-            ca_list = [
-                (name, ca)
-                for name, ca
-                in iteritems(these)
-            ]
-        ca_list.sort(key=lambda e: e[1].counter)
+        ca_list = sorted((
+            (name, ca)
+            for name, ca
+            in iteritems(these)
+        ), key=lambda e: e[1].counter)
 
     non_super_attrs = [
         Attribute.from_counting_attr(
@@ -566,11 +583,13 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
 
         ..  _slots: https://docs.python.org/3/reference/datamodel.html#slots
     :param bool auto_attribs: If True, collect `PEP 526`_-annotated attributes
-        from the class body.  In this case, you **must** annotate every field.
-        Fields that are assigned an :func:`attr.ib` but have no type
-        annotation are silently ignored.  Use
-        ``field_name: typing.Any = attr.ib(...)`` if you don't want to set a
-        type.
+        (Python 3.6 and later only) from the class body.
+
+        In this case, you **must** annotate every field.  If ``attrs``
+        encounters a field that is set to an :func:`attr.ib` but lacks a type
+        annotation, an :exc:`attr.exceptions.UnannotatedAttributeError` is
+        raised.  Use ``field_name: typing.Any = attr.ib(...)`` if you don't
+        want to set a type.
 
         If you assign a value to those attributes (e.g. ``x: int = 42``), that
         value becomes the default value like if it were passed using

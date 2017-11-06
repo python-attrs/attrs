@@ -478,7 +478,7 @@ Types
    >>> attr.fields(C).y.type
    <class 'int'>
 
-If you don't mind annotating all attributes, you can even drop the :func:`attr.ib` and assign default values instead:
+If you don't mind annotating *all* attributes, you can even drop the :func:`attr.ib` and assign default values instead:
 
 .. doctest::
 
