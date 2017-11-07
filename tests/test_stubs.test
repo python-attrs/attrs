@@ -108,3 +108,25 @@ e = attr.ib(type=int, validator=1)
 
 [out]
 a.py:8: error: No overload variant matches argument types [Overload(def (x: Union[builtins.str, builtins.bytes, typing.SupportsInt] =) -> builtins.int, def (x: Union[builtins.str, builtins.bytes], base: builtins.int) -> builtins.int), builtins.int]
+
+
+[case test_make_from_dict]
+# cmd: mypy a.py
+[file a.py]
+import attr
+C = attr.make_class("C", {
+    "x": attr.Attr(type=int),
+    "y": attr.Attr()
+})
+[out]
+
+
+[case test_make_from_attrib]
+# cmd: mypy a.py
+[file a.py]
+import attr
+C = attr.make_class("C", [
+    attr.ib(type=int),
+    attr.ib()
+])
+[out]
