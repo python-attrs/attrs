@@ -191,16 +191,14 @@ _Attributes = _make_attr_tuple_class("_Attributes", [
 ])
 
 
-try:
-    from typing import ClassVar
+def _is_class_var(annot):
+    """
+    Check whether *annot* is a typing.ClassVar.
 
-    # You cannot use ClassVar together with isinstance.
-    _CLASS_VAR_CLS = ClassVar.__class__
-except ImportError:
-    class FakeClassVar(object):
-        pass
-
-    _CLASS_VAR_CLS = FakeClassVar
+    The implementation is gross but importing `typing` is slow and there are
+    discussions to remove it from the stdlib alltogether.
+    """
+    return str(annot).startswith("typing.ClassVar")
 
 
 def _transform_attrs(cls, these, auto_attribs):
@@ -231,7 +229,7 @@ def _transform_attrs(cls, these, auto_attribs):
         ca_list = []
         annot_names = set()
         for attr_name, type in anns.items():
-            if isinstance(type, _CLASS_VAR_CLS):
+            if _is_class_var(type):
                 continue
             annot_names.add(attr_name)
             a = cd.get(attr_name, NOTHING)
