@@ -80,7 +80,7 @@ pygments_style = 'sphinx'
 
 html_theme = "alabaster"
 html_theme_options = {
-    "font_family": "Palatino, Georgia, serif",
+    "font_family": '"Avenir Next", "Helvetica Neue", Calibri, sans-serif',
     "font_size": "18px",
 }
 
