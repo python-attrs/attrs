@@ -594,7 +594,7 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
         ``attr.ib(default=42)``.  Passing an instance of :class:`Factory` also
         works as expected.
 
-        Attributes annotated as :class:`typing.ClassVar` are **ignored**.
+        Attributes annotated as :data:`typing.ClassVar` are **ignored**.
 
         .. _`PEP 526`: https://www.python.org/dev/peps/pep-0526/
 
