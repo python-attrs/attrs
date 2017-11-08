@@ -84,25 +84,26 @@ Never again violate the `single responsibility principle <https://en.wikipedia.o
 Testimonials
 ============
 
-  *I’m looking forward to is being able to program in Python-with-attrs everywhere.
-  It exerts a subtle, but positive, design influence in all the codebases I’ve see it used in.*
+**Amber Hawkie Brown**, Twisted Release Manager and Computer Owl:
 
-  -- **Glyph Lefkowitz**, creator of `Twisted <https://twistedmatrix.com/>`_, `Automat <https://pypi.python.org/pypi/Automat>`_, and other open source software, in `The One Python Library Everyone Needs <https://glyph.twistedmatrix.com/2016/08/attrs.html>`_
-
-
-  *I'm increasingly digging your attr.ocity. Good job!*
-
-  -- **Łukasz Langa**, prolific CPython core developer and Production Engineer at Facebook
+  Writing a fully-functional class using attrs takes me less time than writing this testimonial.
 
 
-  *Writing a fully-functional class using attrs takes me less time than writing this testimonial.*
+**Glyph Lefkowitz**, creator of `Twisted <https://twistedmatrix.com/>`_, `Automat <https://pypi.python.org/pypi/Automat>`_, and other open source software, in `The One Python Library Everyone Needs <https://glyph.twistedmatrix.com/2016/08/attrs.html>`_:
 
-  -- **Amber Hawkie Brown**, Twisted Release Manager and Computer Owl
+  I’m looking forward to is being able to program in Python-with-attrs everywhere.
+  It exerts a subtle, but positive, design influence in all the codebases I’ve see it used in.
 
 
-  *attrs—classes for humans.  I like it.*
+**Kenneth Reitz**, author of `requests <http://www.python-requests.org/>`_, Python Overlord at Heroku, `on paper no less <https://twitter.com/hynek/status/866817877650751488>`_:
 
-  -- **Kenneth Reitz**, author of `requests <http://www.python-requests.org/>`_, Python Overlord at Heroku, `on paper no less <https://twitter.com/hynek/status/866817877650751488>`_
+  attrs—classes for humans.  I like it.
+
+
+**Łukasz Langa**, prolific CPython core developer and Production Engineer at Facebook:
+
+  I'm increasingly digging your attr.ocity. Good job!
+
 
 .. -end-
 
