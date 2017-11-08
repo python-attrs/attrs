@@ -1,9 +1,9 @@
 .. image:: http://www.attrs.org/en/latest/_static/attrs_logo.png
    :alt: attrs Logo
 
-==================================
-attrs: Classes Without Boilerplate
-==================================
+======================================
+``attrs``: Classes Without Boilerplate
+======================================
 
 .. image:: https://readthedocs.org/projects/attrs/badge/?version=stable
    :target: http://www.attrs.org/en/stable/?badge=stable
