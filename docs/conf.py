@@ -80,8 +80,9 @@ pygments_style = 'sphinx'
 
 html_theme = "alabaster"
 html_theme_options = {
-    "font_family": '"Avenir Next", "Helvetica Neue", Calibri, sans-serif',
+    "font_family": '"Avenir Next", Calibri, "PT Sans", sans-serif',
     "font_size": "18px",
+    "head_font_family": 'serif',
 }
 
 # The name of an image file (relative to this directory) to place at the top
