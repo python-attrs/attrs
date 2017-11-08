@@ -94,7 +94,10 @@ This is useful in times when you want to enhance classes that are not yours (nic
    >>> class SomethingFromSomeoneElse(object):
    ...     def __init__(self, x):
    ...         self.x = x
-   >>> SomethingFromSomeoneElse = attr.s(these={"x": attr.ib()}, init=False)(SomethingFromSomeoneElse)
+   >>> SomethingFromSomeoneElse = attr.s(
+   ...     these={
+   ...         "x": attr.ib()
+   ...     }, init=False)(SomethingFromSomeoneElse)
    >>> SomethingFromSomeoneElse(1)
    SomethingFromSomeoneElse(x=1)
 
