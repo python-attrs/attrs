@@ -1,2 +1,0 @@
-Subclasses now can overwrite attribute definitions of their superclass.
-That means that you can -- for example -- change the default value for an attribute by redefining it.
