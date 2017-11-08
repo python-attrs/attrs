@@ -4,8 +4,17 @@ Changelog
 Versions follow `CalVer <http://calver.org>`_ with a strict backwards compatibility policy.
 The third digit is only for regressions.
 
+Changes for the upcoming release can be found in the `"changelog.d" directory <https://github.com/python-attrs/attrs/tree/master/changelog.d>`_ in our repository.
+
+..
+   Do *NOT* add changelog entries here!
+
+   This changelog is managed by towncrier and is compiled at release time.
+
+   See http://www.attrs.org/en/latest/contributing.html#changelog for details."""  # noqa
 
 .. towncrier release notes start
+
 
 17.3.0 (2017-11-08)
 -------------------
