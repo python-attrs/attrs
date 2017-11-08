@@ -4,16 +4,48 @@ Changelog
 Versions follow `CalVer <http://calver.org>`_ with a strict backwards compatibility policy.
 The third digit is only for regressions.
 
-Changes for the upcoming release can be found in the `"changelog.d" directory <https://github.com/python-attrs/attrs/tree/master/changelog.d>`_ in our repository.
-
-..
-   Do *NOT* add changelog entries here!
-
-   This changelog is managed by towncrier and is compiled at release time.
-
-   See http://www.attrs.org/en/latest/contributing.html#changelog for details.
 
 .. towncrier release notes start
+
+17.3.0 (2017-11-08)
+-------------------
+
+Backward-incompatible Changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Attributes are not defined on the class body anymore.
+
+  This means that if you define a class ``C`` with an attribute ``x``, the class will *not* have an attribute ``x`` for introspection anymore.
+  Instead of ``C.x``, use ``attr.fields(C).x`` or look at ``C.__attrs_attrs__``.
+  The old behavior has been deprecated since version 16.1.
+  (`#253 <https://github.com/python-attrs/attrs/issues/253>`_)
+
+
+Changes
+^^^^^^^
+
+- ``super()`` and ``__class__`` now work on Python 3 when ``slots=True``.
+  (`#102 <https://github.com/python-attrs/attrs/issues/102>`_, `#226 <https://github.com/python-attrs/attrs/issues/226>`_, `#269 <https://github.com/python-attrs/attrs/issues/269>`_, `#270 <https://github.com/python-attrs/attrs/issues/270>`_, `#272 <https://github.com/python-attrs/attrs/issues/272>`_)
+- Added ``type`` argument to ``attr.ib()`` and corresponding ``type`` attribute to ``attr.Attribute``.
+
+  This change paves the way for automatic type checking and serialization (though as of this release ``attrs`` does not make use of it).
+  In Python 3.6 or higher, the value of ``attr.Attribute.type`` can alternately be set using variable type annotations
+  (see `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_). (`#151 <https://github.com/python-attrs/attrs/issues/151>`_, `#214 <https://github.com/python-attrs/attrs/issues/214>`_, `#215 <https://github.com/python-attrs/attrs/issues/215>`_, `#239 <https://github.com/python-attrs/attrs/issues/239>`_)
+- The combination of ``str=True`` and ``slots=True`` now works on Python 2.
+  (`#198 <https://github.com/python-attrs/attrs/issues/198>`_)
+- ``attr.Factory`` is hashable again. (`#204
+  <https://github.com/python-attrs/attrs/issues/204>`_)
+- Subclasses now can overwrite attribute definitions of their superclass.
+
+  That means that you can -- for example -- change the default value for an attribute by redefining it.
+  (`#221 <https://github.com/python-attrs/attrs/issues/221>`_, `#229 <https://github.com/python-attrs/attrs/issues/229>`_)
+- Added new option ``auto_attribs`` to ``@attr.s`` that allows to collect annotated fields without setting them to ``attr.ib()``.
+
+  Setting a field to an ``attr.ib()`` is still possible to supply options like validators.
+  Setting it to any other value is treated like it was passed as ``attr.ib(default=value)`` -- passing an instance of ``attr.Factory`` also works as expected.
+  (`#262 <https://github.com/python-attrs/attrs/issues/262>`_, `#277 <https://github.com/python-attrs/attrs/issues/277>`_)
+- Instances of classes created using ``attr.make_class()`` can now be pickled.
+  (`#282 <https://github.com/python-attrs/attrs/issues/282>`_)
 
 
 ----
