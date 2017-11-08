@@ -18,6 +18,7 @@ from .exceptions import (
     DefaultAlreadySetError,
     FrozenInstanceError,
     NotAnAttrsClassError,
+    UnannotatedAttributeError,
 )
 
 
@@ -190,7 +191,17 @@ _Attributes = _make_attr_tuple_class("_Attributes", [
 ])
 
 
-def _transform_attrs(cls, these):
+def _is_class_var(annot):
+    """
+    Check whether *annot* is a typing.ClassVar.
+
+    The implementation is gross but importing `typing` is slow and there are
+    discussions to remove it from the stdlib alltogether.
+    """
+    return str(annot).startswith("typing.ClassVar")
+
+
+def _transform_attrs(cls, these, auto_attribs):
     """
     Transform all `_CountingAttr`s on a class into `Attribute`s.
 
@@ -198,24 +209,58 @@ def _transform_attrs(cls, these):
 
     Return an `_Attributes`.
     """
-    if these is None:
-        ca_list = [(name, attr)
-                   for name, attr
-                   in cls.__dict__.items()
-                   if isinstance(attr, _CountingAttr)]
-    else:
-        ca_list = [(name, ca)
-                   for name, ca
-                   in iteritems(these)]
-    ca_list = sorted(ca_list, key=lambda e: e[1].counter)
+    cd = cls.__dict__
+    anns = getattr(cls, "__annotations__", {})
 
-    ann = getattr(cls, "__annotations__", {})
+    if these is None and auto_attribs is False:
+        ca_list = sorted((
+            (name, attr)
+            for name, attr
+            in cd.items()
+            if isinstance(attr, _CountingAttr)
+        ), key=lambda e: e[1].counter)
+    elif these is None and auto_attribs is True:
+        ca_names = {
+            name
+            for name, attr
+            in cd.items()
+            if isinstance(attr, _CountingAttr)
+        }
+        ca_list = []
+        annot_names = set()
+        for attr_name, type in anns.items():
+            if _is_class_var(type):
+                continue
+            annot_names.add(attr_name)
+            a = cd.get(attr_name, NOTHING)
+            if not isinstance(a, _CountingAttr):
+                if a is NOTHING:
+                    a = attrib()
+                else:
+                    a = attrib(default=a)
+            ca_list.append((attr_name, a))
+
+        unannotated = ca_names - annot_names
+        if len(unannotated) > 0:
+            raise UnannotatedAttributeError(
+                "The following `attr.ib`s lack a type annotation: " +
+                ", ".join(sorted(
+                    unannotated,
+                    key=lambda n: cd.get(n).counter
+                )) + "."
+            )
+    else:
+        ca_list = sorted((
+            (name, ca)
+            for name, ca
+            in iteritems(these)
+        ), key=lambda e: e[1].counter)
 
     non_super_attrs = [
         Attribute.from_counting_attr(
             name=attr_name,
             ca=ca,
-            type=ann.get(attr_name),
+            type=anns.get(attr_name),
         )
         for attr_name, ca
         in ca_list
@@ -250,7 +295,7 @@ def _transform_attrs(cls, these):
             Attribute.from_counting_attr(
                 name=attr_name,
                 ca=ca,
-                type=ann.get(attr_name)
+                type=anns.get(attr_name)
             )
             for attr_name, ca
             in ca_list
@@ -296,8 +341,8 @@ class _ClassBuilder(object):
         "_frozen", "_has_post_init",
     )
 
-    def __init__(self, cls, these, slots, frozen):
-        attrs, super_attrs = _transform_attrs(cls, these)
+    def __init__(self, cls, these, slots, frozen, auto_attribs):
+        attrs, super_attrs = _transform_attrs(cls, these, auto_attribs)
 
         self._cls = cls
         self._cls_dict = dict(cls.__dict__) if slots else {}
@@ -460,7 +505,7 @@ class _ClassBuilder(object):
 
 def attrs(maybe_cls=None, these=None, repr_ns=None,
           repr=True, cmp=True, hash=None, init=True,
-          slots=False, frozen=False, str=False):
+          slots=False, frozen=False, str=False, auto_attribs=False):
     r"""
     A class decorator that adds `dunder
     <https://wiki.python.org/moin/DunderAlias>`_\ -methods according to the
@@ -535,6 +580,23 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
                ``object.__setattr__(self, "attribute_name", value)``.
 
         ..  _slots: https://docs.python.org/3/reference/datamodel.html#slots
+    :param bool auto_attribs: If True, collect `PEP 526`_-annotated attributes
+        (Python 3.6 and later only) from the class body.
+
+        In this case, you **must** annotate every field.  If ``attrs``
+        encounters a field that is set to an :func:`attr.ib` but lacks a type
+        annotation, an :exc:`attr.exceptions.UnannotatedAttributeError` is
+        raised.  Use ``field_name: typing.Any = attr.ib(...)`` if you don't
+        want to set a type.
+
+        If you assign a value to those attributes (e.g. ``x: int = 42``), that
+        value becomes the default value like if it were passed using
+        ``attr.ib(default=42)``.  Passing an instance of :class:`Factory` also
+        works as expected.
+
+        Attributes annotated as :class:`typing.ClassVar` are **ignored**.
+
+        .. _`PEP 526`: https://www.python.org/dev/peps/pep-0526/
 
     ..  versionadded:: 16.0.0 *slots*
     ..  versionadded:: 16.1.0 *frozen*
@@ -542,12 +604,13 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
     ..  versionchanged::
             17.1.0 *hash* supports ``None`` as value which is also the default
             now.
+    .. versionadded:: 17.3.0 *auto_attribs*
     """
     def wrap(cls):
         if getattr(cls, "__class__", None) is None:
             raise TypeError("attrs only works with new-style classes.")
 
-        builder = _ClassBuilder(cls, these, slots, frozen)
+        builder = _ClassBuilder(cls, these, slots, frozen, auto_attribs)
 
         if repr is True:
             builder.add_repr(repr_ns)

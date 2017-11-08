@@ -1,5 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
+from functools import partial
+
 from ._funcs import (
     asdict,
     assoc,
@@ -43,6 +45,7 @@ __copyright__ = "Copyright (c) 2015 Hynek Schlawack"
 
 s = attributes = attrs
 ib = attr = attrib
+dataclass = partial(attrs, auto_attribs=True)  # happy Easter ;)
 
 __all__ = [
     "Attribute",
