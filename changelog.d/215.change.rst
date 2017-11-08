@@ -1,3 +1,0 @@
-Added ``type`` argument to ``attr.ib()`` and corresponding ``type`` attribute to ``attr.Attribute``.
-This change paves the way for automatic type checking and serialization (though as of this release ``attrs`` does not make use of it).
-In Python 3.6 or higher, the value of ``attr.Attribute.type`` can alternately be set using variable type annotations (see `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_).

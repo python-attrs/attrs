@@ -5,6 +5,7 @@ Tests for `attr._make`.
 from __future__ import absolute_import, division, print_function
 
 import inspect
+import sys
 
 from operator import attrgetter
 
@@ -143,7 +144,7 @@ class TestTransformAttrs(object):
         Doesn't attach __attrs_attrs__ to the class anymore.
         """
         C = make_tc()
-        _transform_attrs(C, None)
+        _transform_attrs(C, None, False)
 
         assert None is getattr(C, "__attrs_attrs__", None)
 
@@ -152,7 +153,7 @@ class TestTransformAttrs(object):
         Transforms every `_CountingAttr` and leaves others (a) be.
         """
         C = make_tc()
-        attrs, _, = _transform_attrs(C, None)
+        attrs, _, = _transform_attrs(C, None, False)
 
         assert ["z", "y", "x"] == [a.name for a in attrs]
 
@@ -164,14 +165,14 @@ class TestTransformAttrs(object):
         class C(object):
             pass
 
-        assert _Attributes(((), [])) == _transform_attrs(C, None)
+        assert _Attributes(((), [])) == _transform_attrs(C, None, False)
 
     def test_transforms_to_attribute(self):
         """
         All `_CountingAttr`s are transformed into `Attribute`s.
         """
         C = make_tc()
-        attrs, super_attrs = _transform_attrs(C, None)
+        attrs, super_attrs = _transform_attrs(C, None, False)
 
         assert [] == super_attrs
         assert 3 == len(attrs)
@@ -187,7 +188,7 @@ class TestTransformAttrs(object):
             y = attr.ib()
 
         with pytest.raises(ValueError) as e:
-            _transform_attrs(C, None)
+            _transform_attrs(C, None, False)
         assert (
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
@@ -206,7 +207,7 @@ class TestTransformAttrs(object):
         class C(Base):
             y = attr.ib()
 
-        attrs, super_attrs = _transform_attrs(C, {"x": attr.ib()})
+        attrs, super_attrs = _transform_attrs(C, {"x": attr.ib()}, False)
 
         assert [] == super_attrs
         assert (
@@ -456,7 +457,8 @@ class TestMakeClass(object):
         attributes_arguments are passed to attributes
         """
         C = make_class("C", ["x"], repr=False)
-        assert repr(C(1)).startswith("<attr._make.C object at 0x")
+
+        assert repr(C(1)).startswith("<tests.test_make.C object at 0x")
 
     def test_catches_wrong_attrs_type(self):
         """
@@ -477,9 +479,11 @@ class TestMakeClass(object):
             pass
 
         cls = make_class("C", {})
+
         assert cls.__mro__[-1] == object
 
         cls = make_class("C", {}, bases=(D,))
+
         assert D in cls.__mro__
         assert isinstance(cls(), D)
 
@@ -494,6 +498,15 @@ class TestMakeClass(object):
 
         assert not isinstance(x, _CountingAttr)
 
+    def test_missing_sys_getframe(self, monkeypatch):
+        """
+        `make_class()` does not fail when `sys._getframe()` is not available.
+        """
+        monkeypatch.delattr(sys, '_getframe')
+        C = make_class("C", ["x"])
+
+        assert 1 == len(C.__attrs_attrs__)
+
 
 class TestFields(object):
     """
@@ -505,6 +518,7 @@ class TestFields(object):
         """
         with pytest.raises(TypeError) as e:
             fields(C(1, 2))
+
         assert "Passed object must be a class." == e.value.args[0]
 
     def test_handler_non_attrs_class(self, C):
@@ -803,7 +817,7 @@ class TestClassBuilder(object):
         class C(object):
             pass
 
-        b = _ClassBuilder(C, None, True, True)
+        b = _ClassBuilder(C, None, True, True, False)
 
         assert "<_ClassBuilder(cls=C)>" == repr(b)
 
@@ -814,7 +828,7 @@ class TestClassBuilder(object):
         class C(object):
             x = attr.ib()
 
-        b = _ClassBuilder(C, None, True, True)
+        b = _ClassBuilder(C, None, True, True, False)
 
         cls = b.add_cmp().add_hash().add_init().add_repr("ns").add_str() \
             .build_class()
