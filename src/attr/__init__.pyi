@@ -13,7 +13,6 @@ _M = TypeVar('_M', bound=Mapping)
 _I = TypeVar('_I', bound=Iterable)
 
 _ValidatorType = Callable[[Any, 'Attribute', Any], Any]
-# FIXME: Bind to attribute type?
 _ConverterType = Callable[[Any], Any]
 _FilterType = Callable[['Attribute', Any], bool]
 
@@ -21,10 +20,8 @@ _FilterType = Callable[['Attribute', Any], bool]
 
 NOTHING : object
 
-class Factory(Generic[_T]):
-    factory : Union[Callable[[], _T], Callable[[Any], _T]]
-    takes_self : bool
-    def __init__(self, factory: Union[Callable[[], _T], Callable[[Any], _T]], takes_self: bool = ...) -> None: ...
+# Factory lies about its return type to make this possible: `x: List[int] = Factory(list)`
+def Factory(factory: Union[Callable[[], _T], Callable[[Any], _T]], takes_self: bool = ...) -> _T: ...
 
 class Attribute:
     __slots__ = ("name", "default", "validator", "repr", "cmp", "hash", "init", "convert", "metadata", "type")
@@ -37,13 +34,17 @@ class Attribute:
     init: bool
     convert: Optional[_ConverterType]
     metadata: Mapping
-    type: Any
+    type: Optional[Any]
 
+
+# order here matters:  if default is provided but not type, we want the first overload chosen so that the type is based on default
+@overload
+def attr(default: _T = ..., validator: Optional[Union[_ValidatorType, List[_ValidatorType], Tuple[_ValidatorType, ...]]] = ..., repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ..., convert: Optional[_ConverterType] = ..., metadata: Mapping = ..., type: Type[_T] = ...) -> _T: ...
 # NOTE: this overload for `attr` returns Any so that static analysis passes when used in the form:  x : int = attr()
 @overload
-def attr(default: Union[_T, Factory[_T]] = ..., validator: Optional[Union[_ValidatorType, List[_ValidatorType], Tuple[_ValidatorType, ...]]] = ..., repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ..., convert: Optional[_ConverterType] = ..., metadata: Mapping = ...) -> Any: ...
-@overload
-def attr(default: Union[_T, Factory[_T]] = ..., validator: Optional[Union[_ValidatorType, List[_ValidatorType], Tuple[_ValidatorType, ...]]] = ..., repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ..., convert: Optional[_ConverterType] = ..., metadata: Mapping = ..., type: Type[_T] = ...) -> _T: ...
+def attr(default: _T = ..., validator: Optional[Union[_ValidatorType, List[_ValidatorType], Tuple[_ValidatorType, ...]]] = ..., repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ..., convert: Optional[_ConverterType] = ..., metadata: Mapping = ...) -> Any: ...
+
+# we use Any instead of _CountingAttr so that e.g. `make_class('Foo', [attr.ib()])` is valid
 
 @overload
 def attributes(maybe_cls: _C = ..., these: Optional[Dict[str, Any]] = ..., repr_ns: Optional[str] = ..., repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ..., slots: bool = ..., frozen: bool = ..., str: bool = ...) -> _C: ...
