@@ -7,7 +7,7 @@
 Basics
 ------
 
-The simplest possible usage would be:
+The simplest possible usage is:
 
 .. doctest::
 
@@ -99,7 +99,7 @@ This is useful in times when you want to enhance classes that are not yours (nic
    SomethingFromSomeoneElse(x=1)
 
 
-`Subclassing <https://www.youtube.com/watch?v=3MNVP9-hglc>`_ is bad for you, but ``attrs`` will still do what you'd hope for:
+`Subclassing is bad for you <https://www.youtube.com/watch?v=3MNVP9-hglc>`_, but ``attrs`` will still do what you'd hope for:
 
 .. doctest::
 
@@ -180,8 +180,9 @@ For the common case where you want to :func:`include <attr.filters.include>` or 
    ...     login = attr.ib()
    ...     password = attr.ib()
    ...     id = attr.ib()
-   >>> attr.asdict(User("jane", "s33kred", 42),
-   ...                  filter=attr.filters.exclude(attr.fields(User).password, int))
+   >>> attr.asdict(
+   ...     User("jane", "s33kred", 42),
+   ...     filter=attr.filters.exclude(attr.fields(User).password, int))
    {'login': 'jane'}
    >>> @attr.s
    ... class C(object):

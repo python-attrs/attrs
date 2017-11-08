@@ -134,7 +134,7 @@ def attrib(default=NOTHING, validator=None,
 
     ..  versionchanged:: 17.1.0 *validator* can be a ``list`` now.
     ..  versionchanged:: 17.1.0
-        *hash* is ``None`` and therefore mirrors *cmp* by default .
+        *hash* is ``None`` and therefore mirrors *cmp* by default.
     ..  versionadded:: 17.3.0 *type*
     """
     if hash is not None and hash is not True and hash is not False:
