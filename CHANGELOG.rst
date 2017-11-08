@@ -13,7 +13,7 @@ Changes for the upcoming release can be found in the `"changelog.d" directory <h
 
    See http://www.attrs.org/en/latest/contributing.html#changelog for details.
 
-   towncrier release notes start
+.. towncrier release notes start
 
 
 ----
