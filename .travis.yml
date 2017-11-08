@@ -33,7 +33,8 @@ matrix:
       env: TOXENV=readme
     - python: "3.6"
       env: TOXENV=changelog
-
+    - python: "3.6"
+      env: TOXENV=stubs
 
 install:
   - pip install tox
