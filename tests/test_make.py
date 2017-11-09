@@ -214,6 +214,42 @@ class TestTransformAttrs(object):
             simple_attr("x"),
         ) == attrs
 
+    def test_multiple_inheritance(self):
+        """
+        Order of attributes doesn't get mixed up by multiple inheritance.
+
+        See #285
+        """
+        @attr.s
+        class A(object):
+            a1 = attr.ib(default="a1")
+            a2 = attr.ib(default="a2")
+
+        @attr.s
+        class B(A):
+            b1 = attr.ib(default="b1")
+            b2 = attr.ib(default="b2")
+
+        @attr.s
+        class C(B, A):
+            c1 = attr.ib(default="c1")
+            c2 = attr.ib(default="c2")
+
+        @attr.s
+        class D(A):
+            d1 = attr.ib(default="d1")
+            d2 = attr.ib(default="d2")
+
+        @attr.s
+        class E(D, C):
+            e1 = attr.ib(default="e1")
+            e2 = attr.ib(default="e2")
+
+        assert (
+            "E(a1='a1', a2='a2', b1='b1', b2='b2', c1='c1', c2='c2', d1='d1', "
+            "d2='d2', e1='e1', e2='e2')"
+        ) == repr(E())
+
 
 class TestAttributes(object):
     """
