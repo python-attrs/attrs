@@ -85,11 +85,38 @@ else:
     def metadata_proxy(d):
         return types.MappingProxyType(dict(d))
 
-if PYPY:  # pragma: no cover
-    def set_closure_cell(cell, value):
-        cell.__setstate__((value,))
-else:
-    import ctypes
-    set_closure_cell = ctypes.pythonapi.PyCell_Set
-    set_closure_cell.argtypes = (ctypes.py_object, ctypes.py_object)
-    set_closure_cell.restype = ctypes.c_int
+
+def import_ctypes():  # pragma: nocover
+    """
+    Moved into a function for testability.
+    """
+    try:
+        import ctypes
+        return ctypes
+    except ImportError:
+        return None
+
+
+def nop(*args, **kw):  # pragma: nocover
+    pass
+
+
+def make_set_closure_cell():
+    """
+    Moved into a function for testability.
+    """
+    if PYPY:  # pragma: no cover
+        def set_closure_cell(cell, value):
+            cell.__setstate__((value,))
+    else:
+        ctypes = import_ctypes()
+        if ctypes is not None:
+            set_closure_cell = ctypes.pythonapi.PyCell_Set
+            set_closure_cell.argtypes = (ctypes.py_object, ctypes.py_object)
+            set_closure_cell.restype = ctypes.c_int
+        else:
+            set_closure_cell = nop
+    return set_closure_cell
+
+
+set_closure_cell = make_set_closure_cell()
