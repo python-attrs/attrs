@@ -13,7 +13,7 @@ except BaseException:  # Won't be an import error.
 
 import attr
 
-from attr._compat import PY2
+from attr._compat import PY2, PYPY, just_warn, make_set_closure_cell
 
 
 @attr.s
@@ -325,76 +325,98 @@ def test_bare_inheritance_from_slots():
 
 
 @pytest.mark.skipif(PY2, reason="closure cell rewriting is PY3-only.")
-def test_closure_cell_rewriting():
-    """
-    Slot classes support proper closure cell rewriting.
+class TestClosureCellRewriting(object):
+    def test_closure_cell_rewriting(self):
+        """
+        Slot classes support proper closure cell rewriting.
 
-    This affects features like `__class__` and the no-arg super().
-    """
-    non_slot_instance = C1(x=1, y="test")
-    slot_instance = C1Slots(x=1, y="test")
+        This affects features like `__class__` and the no-arg super().
+        """
+        non_slot_instance = C1(x=1, y="test")
+        slot_instance = C1Slots(x=1, y="test")
 
-    assert non_slot_instance.my_class() is C1
-    assert slot_instance.my_class() is C1Slots
+        assert non_slot_instance.my_class() is C1
+        assert slot_instance.my_class() is C1Slots
 
-    # Just assert they return something, and not an exception.
-    assert non_slot_instance.my_super()
-    assert slot_instance.my_super()
+        # Just assert they return something, and not an exception.
+        assert non_slot_instance.my_super()
+        assert slot_instance.my_super()
 
+    def test_inheritance(self):
+        """
+        Slot classes support proper closure cell rewriting when inheriting.
 
-@pytest.mark.skipif(PY2, reason="closure cell rewriting is PY3-only.")
-def test_closure_cell_rewriting_inheritance():
-    """
-    Slot classes support proper closure cell rewriting when inheriting.
+        This affects features like `__class__` and the no-arg super().
+        """
+        @attr.s
+        class C2(C1):
+            def my_subclass(self):
+                return __class__  # NOQA: F821
 
-    This affects features like `__class__` and the no-arg super().
-    """
-    @attr.s
-    class C2(C1):
-        def my_subclass(self):
-            return __class__  # NOQA: F821
+        @attr.s
+        class C2Slots(C1Slots):
+            def my_subclass(self):
+                return __class__  # NOQA: F821
 
-    @attr.s
-    class C2Slots(C1Slots):
-        def my_subclass(self):
-            return __class__  # NOQA: F821
+        non_slot_instance = C2(x=1, y="test")
+        slot_instance = C2Slots(x=1, y="test")
 
-    non_slot_instance = C2(x=1, y="test")
-    slot_instance = C2Slots(x=1, y="test")
+        assert non_slot_instance.my_class() is C1
+        assert slot_instance.my_class() is C1Slots
 
-    assert non_slot_instance.my_class() is C1
-    assert slot_instance.my_class() is C1Slots
+        # Just assert they return something, and not an exception.
+        assert non_slot_instance.my_super()
+        assert slot_instance.my_super()
 
-    # Just assert they return something, and not an exception.
-    assert non_slot_instance.my_super()
-    assert slot_instance.my_super()
+        assert non_slot_instance.my_subclass() is C2
+        assert slot_instance.my_subclass() is C2Slots
 
-    assert non_slot_instance.my_subclass() is C2
-    assert slot_instance.my_subclass() is C2Slots
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_cls_static(self, slots):
+        """
+        Slot classes support proper closure cell rewriting for class- and
+        static methods.
+        """
+        # Python can reuse closure cells, so we create new classes just for
+        # this test.
 
+        @attr.s(slots=slots)
+        class C:
+            @classmethod
+            def clsmethod(cls):
+                return __class__  # noqa: F821
 
-@pytest.mark.skipif(PY2, reason="closure cell rewriting is PY3-only.")
-@pytest.mark.parametrize("slots", [True, False])
-def test_closure_cell_rewriting_cls_static(slots):
-    """
-    Slot classes support proper closure cell rewriting for class- and static
-    methods.
-    """
-    # Python can reuse closure cells, so we create new classes just for
-    # this test.
+        assert C.clsmethod() is C
 
-    @attr.s(slots=slots)
-    class C:
-        @classmethod
-        def clsmethod(cls):
-            return __class__  # noqa: F821
+        @attr.s(slots=slots)
+        class D:
+            @staticmethod
+            def statmethod():
+                return __class__  # noqa: F821
 
-    assert C.clsmethod() is C
+        assert D.statmethod() is D
 
-    @attr.s(slots=slots)
-    class D:
-        @staticmethod
-        def statmethod():
-            return __class__  # noqa: F821
+    @pytest.mark.skipif(
+        PYPY,
+        reason="ctypes are used only on CPython"
+    )
+    def test_missing_ctypes(self, monkeypatch):
+        """
+        Keeps working if ctypes is missing.
 
-    assert D.statmethod() is D
+        A warning is emitted that points to the actual code.
+        """
+        monkeypatch.setattr(attr._compat, "import_ctypes", lambda: None)
+        func = make_set_closure_cell()
+
+        with pytest.warns(RuntimeWarning) as wr:
+            func()
+
+        w = wr.pop()
+        assert __file__ == w.filename
+        assert (
+            "Missing ctypes.  Some features like bare super() or accessing "
+            "__class__ will not work with slots classes.",
+        ) == w.message.args
+
+        assert just_warn is func
