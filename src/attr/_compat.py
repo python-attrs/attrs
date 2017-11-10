@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 import platform
 import sys
 import types
+import warnings
 
 
 PY2 = sys.version_info[0] == 2
@@ -115,6 +116,14 @@ def make_set_closure_cell():
             set_closure_cell.argtypes = (ctypes.py_object, ctypes.py_object)
             set_closure_cell.restype = ctypes.c_int
         else:
+            # We only warn on Python 3 because we are not aware of any concrete
+            # consequences of not setting the cell on Python 2.
+            if not PY2:
+                warnings.warn(
+                    "Missing ctypes.  Some features like bare super() or "
+                    "accessing __class__ will not work with slots classes.",
+                    RuntimeWarning
+                )
             set_closure_cell = nop
     return set_closure_cell
 

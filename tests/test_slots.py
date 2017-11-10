@@ -398,13 +398,18 @@ class TestClosureCellRewriting(object):
 
     @pytest.mark.skipif(
         PYPY,
-        reason="ctypes are used only on CPython 3"
+        reason="ctypes are used only on CPython"
     )
     def test_missing_ctypes(self, monkeypatch):
         """
         Keeps working if ctypes is missing.
         """
         monkeypatch.setattr(attr._compat, "import_ctypes", lambda: None)
-        rv = make_set_closure_cell()
+        with pytest.warns(RuntimeWarning) as wr:
+            rv = make_set_closure_cell()
 
+        assert (
+            "Missing ctypes.  Some features like bare super() or accessing "
+            "__class__ will not work with slots classes.",
+        ) == wr.pop().message.args
         assert nop is rv
