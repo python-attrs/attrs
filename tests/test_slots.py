@@ -13,7 +13,7 @@ except BaseException:  # Won't be an import error.
 
 import attr
 
-from attr._compat import PY2, PYPY, nop, make_set_closure_cell
+from attr._compat import PY2, PYPY, just_warn, make_set_closure_cell
 
 
 @attr.s
@@ -403,13 +403,20 @@ class TestClosureCellRewriting(object):
     def test_missing_ctypes(self, monkeypatch):
         """
         Keeps working if ctypes is missing.
+
+        A warning is emitted that points to the actual code.
         """
         monkeypatch.setattr(attr._compat, "import_ctypes", lambda: None)
-        with pytest.warns(RuntimeWarning) as wr:
-            rv = make_set_closure_cell()
+        func = make_set_closure_cell()
 
+        with pytest.warns(RuntimeWarning) as wr:
+            func()
+
+        w = wr.pop()
+        assert __file__ == w.filename
         assert (
             "Missing ctypes.  Some features like bare super() or accessing "
             "__class__ will not work with slots classes.",
-        ) == wr.pop().message.args
-        assert nop is rv
+        ) == w.message.args
+
+        assert just_warn is func
