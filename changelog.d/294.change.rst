@@ -1,0 +1,1 @@
+``@attr.ib().default`` and ``@attr.ib().validate`` decorators now return ``self`` instead of ``meth``
