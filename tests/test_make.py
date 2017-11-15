@@ -125,6 +125,20 @@ class TestCountingAttr(object):
 
         assert Factory(f, True) == a._default
 
+    def test_default_decorator_sets_same_name(self):
+        """
+        Decorator wraps the method in a Factory with pass_self=True and sets
+        the default, even if the decorated method has the same name as
+        the attribute.
+        """
+        a = attr.ib()
+
+        @a.default
+        def a(self):
+            pass
+
+        assert Factory(a, True) == a._default
+
 
 def make_tc():
     class TransformC(object):
