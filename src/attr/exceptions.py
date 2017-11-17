@@ -37,3 +37,12 @@ class DefaultAlreadySetError(RuntimeError):
 
     .. versionadded:: 17.1.0
     """
+
+
+class UnannotatedAttributeError(RuntimeError):
+    """
+    A class with ``auto_attribs=True`` has an ``attr.ib()`` without a type
+    annotation.
+
+    .. versionadded:: 17.3.0
+    """

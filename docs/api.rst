@@ -133,6 +133,14 @@ Core
 .. autoexception:: attr.exceptions.AttrsAttributeNotFoundError
 .. autoexception:: attr.exceptions.NotAnAttrsClassError
 .. autoexception:: attr.exceptions.DefaultAlreadySetError
+.. autoexception:: attr.exceptions.UnannotatedAttributeError
+
+   For example::
+
+       @attr.s(auto_attribs=True)
+       class C:
+           x: int
+           y = attr.ib()
 
 
 Influencing Initialization

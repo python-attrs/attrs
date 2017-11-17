@@ -7,7 +7,7 @@
 Basics
 ------
 
-The simplest possible usage would be:
+The simplest possible usage is:
 
 .. doctest::
 
@@ -94,12 +94,15 @@ This is useful in times when you want to enhance classes that are not yours (nic
    >>> class SomethingFromSomeoneElse(object):
    ...     def __init__(self, x):
    ...         self.x = x
-   >>> SomethingFromSomeoneElse = attr.s(these={"x": attr.ib()}, init=False)(SomethingFromSomeoneElse)
+   >>> SomethingFromSomeoneElse = attr.s(
+   ...     these={
+   ...         "x": attr.ib()
+   ...     }, init=False)(SomethingFromSomeoneElse)
    >>> SomethingFromSomeoneElse(1)
    SomethingFromSomeoneElse(x=1)
 
 
-`Subclassing <https://www.youtube.com/watch?v=3MNVP9-hglc>`_ is bad for you, but ``attrs`` will still do what you'd hope for:
+`Subclassing is bad for you <https://www.youtube.com/watch?v=3MNVP9-hglc>`_, but ``attrs`` will still do what you'd hope for:
 
 .. doctest::
 
@@ -180,8 +183,9 @@ For the common case where you want to :func:`include <attr.filters.include>` or 
    ...     login = attr.ib()
    ...     password = attr.ib()
    ...     id = attr.ib()
-   >>> attr.asdict(User("jane", "s33kred", 42),
-   ...                  filter=attr.filters.exclude(attr.fields(User).password, int))
+   >>> attr.asdict(
+   ...     User("jane", "s33kred", 42),
+   ...     filter=attr.filters.exclude(attr.fields(User).password, int))
    {'login': 'jane'}
    >>> @attr.s
    ... class C(object):
@@ -461,6 +465,57 @@ The metadata dictionary follows the normal dictionary rules: keys need to be has
 If you're the author of a third-party library with ``attrs`` integration, please see :ref:`Extending Metadata <extending_metadata>`.
 
 
+Types
+-----
+
+``attrs`` also allows you to associate a type with an attribute using either the *type* argument to :func:`attr.ib` or -- as of Python 3.6 -- using `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_-annotations:
+
+
+.. doctest::
+
+   >>> @attr.s
+   ... class C:
+   ...     x = attr.ib(type=int)
+   ...     y: int = attr.ib()
+   >>> attr.fields(C).x.type
+   <class 'int'>
+   >>> attr.fields(C).y.type
+   <class 'int'>
+
+If you don't mind annotating *all* attributes, you can even drop the :func:`attr.ib` and assign default values instead:
+
+.. doctest::
+
+   >>> import typing
+   >>> @attr.s(auto_attribs=True)
+   ... class AutoC:
+   ...     cls_var: typing.ClassVar[int] = 5  # this one is ignored
+   ...     l: typing.List[int] = attr.Factory(list)
+   ...     x: int = 1
+   ...     foo: str = attr.ib(
+   ...          default="every attrib needs a type if auto_attribs=True"
+   ...     )
+   ...     bar: typing.Any = None
+   >>> attr.fields(AutoC).l.type
+   typing.List[int]
+   >>> attr.fields(AutoC).x.type
+   <class 'int'>
+   >>> attr.fields(AutoC).foo.type
+   <class 'str'>
+   >>> attr.fields(AutoC).bar.type
+   typing.Any
+   >>> AutoC()
+   AutoC(l=[], x=1, foo='every attrib needs a type if auto_attribs=True', bar=None)
+   >>> AutoC.cls_var
+   5
+
+
+.. warning::
+
+   ``attrs`` itself doesn't have any features that work on top of type metadata *yet*.
+   However it's useful for writing your own validators or serialization frameworks.
+
+
 .. _slots:
 
 Slots
@@ -601,7 +656,7 @@ You can still have power over the attributes if you pass a dictionary of name: `
    ...                     repr=False)
    >>> i = C()
    >>> i  # no repr added!
-   <attr._make.C object at ...>
+   <__main__.C object at ...>
    >>> i.x
    42
    >>> i.y

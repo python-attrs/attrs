@@ -1,5 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
+from functools import partial
+
 from ._funcs import (
     asdict,
     assoc,
@@ -27,7 +29,7 @@ from . import converters
 from . import validators
 
 
-__version__ = "17.3.0.dev0"
+__version__ = "17.4.0.dev0"
 
 __title__ = "attrs"
 __description__ = "Classes Without Boilerplate"
@@ -43,6 +45,7 @@ __copyright__ = "Copyright (c) 2015 Hynek Schlawack"
 
 s = attributes = attrs
 ib = attr = attrib
+dataclass = partial(attrs, auto_attribs=True)  # happy Easter ;)
 
 __all__ = [
     "Attribute",

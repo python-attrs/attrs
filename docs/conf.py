@@ -80,13 +80,15 @@ pygments_style = 'sphinx'
 
 html_theme = "alabaster"
 html_theme_options = {
-    "font_family": "Palatino, Georgia, serif",
+    "font_family": '"Avenir Next", Calibri, "PT Sans", sans-serif',
+    "head_font_family": '"Avenir Next", Calibri, "PT Sans", sans-serif',
     "font_size": "18px",
+    "page_width": "980px",
 }
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = "_static/attrs_logo.png"
+html_logo = "_static/attrs_logo.svg"
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32

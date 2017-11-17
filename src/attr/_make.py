@@ -2,6 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 import hashlib
 import linecache
+import sys
 
 from operator import itemgetter
 
@@ -17,6 +18,7 @@ from .exceptions import (
     DefaultAlreadySetError,
     FrozenInstanceError,
     NotAnAttrsClassError,
+    UnannotatedAttributeError,
 )
 
 
@@ -133,7 +135,7 @@ def attrib(default=NOTHING, validator=None,
 
     ..  versionchanged:: 17.1.0 *validator* can be a ``list`` now.
     ..  versionchanged:: 17.1.0
-        *hash* is ``None`` and therefore mirrors *cmp* by default .
+        *hash* is ``None`` and therefore mirrors *cmp* by default.
     ..  versionadded:: 17.3.0 *type*
     """
     if hash is not None and hash is not True and hash is not False:
@@ -191,7 +193,33 @@ _Attributes = _make_attr_tuple_class("_Attributes", [
 ])
 
 
-def _transform_attrs(cls, these):
+def _is_class_var(annot):
+    """
+    Check whether *annot* is a typing.ClassVar.
+
+    The implementation is gross but importing `typing` is slow and there are
+    discussions to remove it from the stdlib alltogether.
+    """
+    return str(annot).startswith("typing.ClassVar")
+
+
+def _get_annotations(cls):
+    """
+    Get annotations for *cls*.
+    """
+    anns = getattr(cls, "__annotations__", None)
+    if anns is None:
+        return {}
+
+    # Verify that the annotations aren't merely inherited.
+    for super_cls in cls.__mro__[1:]:
+        if anns is getattr(super_cls, "__annotations__", None):
+            return {}
+
+    return anns
+
+
+def _transform_attrs(cls, these, auto_attribs):
     """
     Transform all `_CountingAttr`s on a class into `Attribute`s.
 
@@ -199,24 +227,58 @@ def _transform_attrs(cls, these):
 
     Return an `_Attributes`.
     """
-    if these is None:
-        ca_list = [(name, attr)
-                   for name, attr
-                   in cls.__dict__.items()
-                   if isinstance(attr, _CountingAttr)]
-    else:
-        ca_list = [(name, ca)
-                   for name, ca
-                   in iteritems(these)]
-    ca_list = sorted(ca_list, key=lambda e: e[1].counter)
+    cd = cls.__dict__
+    anns = _get_annotations(cls)
 
-    ann = getattr(cls, "__annotations__", {})
+    if these is not None:
+        ca_list = sorted((
+            (name, ca)
+            for name, ca
+            in iteritems(these)
+        ), key=lambda e: e[1].counter)
+    elif auto_attribs is True:
+        ca_names = {
+            name
+            for name, attr
+            in cd.items()
+            if isinstance(attr, _CountingAttr)
+        }
+        ca_list = []
+        annot_names = set()
+        for attr_name, type in anns.items():
+            if _is_class_var(type):
+                continue
+            annot_names.add(attr_name)
+            a = cd.get(attr_name, NOTHING)
+            if not isinstance(a, _CountingAttr):
+                if a is NOTHING:
+                    a = attrib()
+                else:
+                    a = attrib(default=a)
+            ca_list.append((attr_name, a))
+
+        unannotated = ca_names - annot_names
+        if len(unannotated) > 0:
+            raise UnannotatedAttributeError(
+                "The following `attr.ib`s lack a type annotation: " +
+                ", ".join(sorted(
+                    unannotated,
+                    key=lambda n: cd.get(n).counter
+                )) + "."
+            )
+    else:
+        ca_list = sorted((
+            (name, attr)
+            for name, attr
+            in cd.items()
+            if isinstance(attr, _CountingAttr)
+        ), key=lambda e: e[1].counter)
 
     non_super_attrs = [
         Attribute.from_counting_attr(
             name=attr_name,
             ca=ca,
-            type=ann.get(attr_name),
+            type=anns.get(attr_name),
         )
         for attr_name, ca
         in ca_list
@@ -226,7 +288,7 @@ def _transform_attrs(cls, these):
     # of attributes we've seen in `take_attr_names` and ignore their
     # redefinitions deeper in the hierarchy.
     super_attrs = []
-    taken_attr_names = set(a.name for a in non_super_attrs)
+    taken_attr_names = {a.name: a for a in non_super_attrs}
     for super_cls in cls.__mro__[1:-1]:
         sub_attrs = getattr(super_cls, "__attrs_attrs__", None)
         if sub_attrs is not None:
@@ -234,9 +296,16 @@ def _transform_attrs(cls, these):
             # list in the end and get all attributes in the order they have
             # been defined.
             for a in reversed(sub_attrs):
-                if a.name not in taken_attr_names:
+                prev_a = taken_attr_names.get(a.name)
+                if prev_a is None:
                     super_attrs.append(a)
-                    taken_attr_names.add(a.name)
+                    taken_attr_names[a.name] = a
+                elif prev_a == a:
+                    # This happens thru multiple inheritance.  We don't want
+                    # to favor attributes that are further down in the tree
+                    # so we move them to the back.
+                    super_attrs.remove(a)
+                    super_attrs.append(a)
 
     # Now reverse the list, such that the attributes are sorted by *descending*
     # age.  IOW: the oldest attribute definition is at the head of the list.
@@ -251,7 +320,7 @@ def _transform_attrs(cls, these):
             Attribute.from_counting_attr(
                 name=attr_name,
                 ca=ca,
-                type=ann.get(attr_name)
+                type=anns.get(attr_name)
             )
             for attr_name, ca
             in ca_list
@@ -297,8 +366,8 @@ class _ClassBuilder(object):
         "_frozen", "_has_post_init",
     )
 
-    def __init__(self, cls, these, slots, frozen):
-        attrs, super_attrs = _transform_attrs(cls, these)
+    def __init__(self, cls, these, slots, frozen, auto_attribs):
+        attrs, super_attrs = _transform_attrs(cls, these, auto_attribs)
 
         self._cls = cls
         self._cls_dict = dict(cls.__dict__) if slots else {}
@@ -461,7 +530,7 @@ class _ClassBuilder(object):
 
 def attrs(maybe_cls=None, these=None, repr_ns=None,
           repr=True, cmp=True, hash=None, init=True,
-          slots=False, frozen=False, str=False):
+          slots=False, frozen=False, str=False, auto_attribs=False):
     r"""
     A class decorator that adds `dunder
     <https://wiki.python.org/moin/DunderAlias>`_\ -methods according to the
@@ -536,6 +605,23 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
                ``object.__setattr__(self, "attribute_name", value)``.
 
         ..  _slots: https://docs.python.org/3/reference/datamodel.html#slots
+    :param bool auto_attribs: If True, collect `PEP 526`_-annotated attributes
+        (Python 3.6 and later only) from the class body.
+
+        In this case, you **must** annotate every field.  If ``attrs``
+        encounters a field that is set to an :func:`attr.ib` but lacks a type
+        annotation, an :exc:`attr.exceptions.UnannotatedAttributeError` is
+        raised.  Use ``field_name: typing.Any = attr.ib(...)`` if you don't
+        want to set a type.
+
+        If you assign a value to those attributes (e.g. ``x: int = 42``), that
+        value becomes the default value like if it were passed using
+        ``attr.ib(default=42)``.  Passing an instance of :class:`Factory` also
+        works as expected.
+
+        Attributes annotated as :data:`typing.ClassVar` are **ignored**.
+
+        .. _`PEP 526`: https://www.python.org/dev/peps/pep-0526/
 
     ..  versionadded:: 16.0.0 *slots*
     ..  versionadded:: 16.1.0 *frozen*
@@ -543,12 +629,13 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
     ..  versionchanged::
             17.1.0 *hash* supports ``None`` as value which is also the default
             now.
+    .. versionadded:: 17.3.0 *auto_attribs*
     """
     def wrap(cls):
         if getattr(cls, "__class__", None) is None:
             raise TypeError("attrs only works with new-style classes.")
 
-        builder = _ClassBuilder(cls, these, slots, frozen)
+        builder = _ClassBuilder(cls, these, slots, frozen, auto_attribs)
 
         if repr is True:
             builder.add_repr(repr_ns)
@@ -1239,13 +1326,23 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
         raise TypeError("attrs argument must be a dict or a list.")
 
     post_init = cls_dict.pop("__attrs_post_init__", None)
-    return _attrs(
-        these=cls_dict, **attributes_arguments
-    )(type(
+    type_ = type(
         name,
         bases,
         {} if post_init is None else {"__attrs_post_init__": post_init}
-    ))
+    )
+    # For pickling to work, the __module__ variable needs to be set to the
+    # frame where the class is created.  Bypass this step in environments where
+    # sys._getframe is not defined (Jython for example) or sys._getframe is not
+    # defined for arguments greater than 0 (IronPython).
+    try:
+        type_.__module__ = sys._getframe(1).f_globals.get(
+            "__name__", "__main__",
+        )
+    except (AttributeError, ValueError):
+        pass
+
+    return _attrs(these=cls_dict, **attributes_arguments)(type_)
 
 
 # These are required by within this module so we define them here and merely

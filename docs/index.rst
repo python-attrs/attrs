@@ -26,7 +26,7 @@ The next three steps should bring you up and running in no time:
 - :doc:`examples` will give you a comprehensive tour of ``attrs``'s features.
   After reading, you will know about our advanced features and how to use them.
 - Finally :doc:`why` gives you a rundown of potential alternatives and why we think ``attrs`` is superior.
-  Yes, we've heard about ``nametuple``\ s!
+  Yes, we've heard about ``namedtuple``\ s!
 
 
 If you need any help while getting started, feel free to use the ``python-attrs`` tag on `StackOverflow <https://stackoverflow.com/questions/tagged/python-attrs>`_ and someone will surely help you out!
