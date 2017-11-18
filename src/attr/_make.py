@@ -201,6 +201,22 @@ def _is_class_var(annot):
     return str(annot).startswith("typing.ClassVar")
 
 
+def _get_annotations(cls):
+    """
+    Get annotations for *cls*.
+    """
+    anns = getattr(cls, "__annotations__", None)
+    if anns is None:
+        return {}
+
+    # Verify that the annotations aren't merely inherited.
+    for super_cls in cls.__mro__[1:]:
+        if anns is getattr(super_cls, "__annotations__", None):
+            return {}
+
+    return anns
+
+
 def _transform_attrs(cls, these, auto_attribs):
     """
     Transform all `_CountingAttr`s on a class into `Attribute`s.
@@ -210,16 +226,15 @@ def _transform_attrs(cls, these, auto_attribs):
     Return an `_Attributes`.
     """
     cd = cls.__dict__
-    anns = getattr(cls, "__annotations__", {})
+    anns = _get_annotations(cls)
 
-    if these is None and auto_attribs is False:
+    if these is not None:
         ca_list = sorted((
-            (name, attr)
-            for name, attr
-            in cd.items()
-            if isinstance(attr, _CountingAttr)
+            (name, ca)
+            for name, ca
+            in iteritems(these)
         ), key=lambda e: e[1].counter)
-    elif these is None and auto_attribs is True:
+    elif auto_attribs is True:
         ca_names = {
             name
             for name, attr
@@ -251,9 +266,10 @@ def _transform_attrs(cls, these, auto_attribs):
             )
     else:
         ca_list = sorted((
-            (name, ca)
-            for name, ca
-            in iteritems(these)
+            (name, attr)
+            for name, attr
+            in cd.items()
+            if isinstance(attr, _CountingAttr)
         ), key=lambda e: e[1].counter)
 
     non_super_attrs = [
