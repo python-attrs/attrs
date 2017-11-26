@@ -15,7 +15,7 @@ from hypothesis.strategies import booleans
 import attr
 
 from attr._compat import TYPE
-from attr._make import Attribute, NOTHING
+from attr._make import NOTHING, Attribute
 from attr.exceptions import FrozenInstanceError
 
 

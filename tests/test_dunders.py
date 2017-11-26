@@ -14,13 +14,7 @@ from hypothesis.strategies import booleans
 import attr
 
 from attr._make import (
-    Factory,
-    NOTHING,
-    _Nothing,
-    _add_init,
-    _add_repr,
-    fields,
-    make_class,
+    NOTHING, Factory, _add_init, _add_repr, _Nothing, fields, make_class
 )
 from attr.validators import instance_of
 

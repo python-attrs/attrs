@@ -4,16 +4,17 @@ Unit tests for slot-related functionality.
 
 import pytest
 
+import attr
+
+from attr._compat import PY2, PYPY, just_warn, make_set_closure_cell
+
+
 # Pympler doesn't work on PyPy.
 try:
     from pympler.asizeof import asizeof
     has_pympler = True
 except BaseException:  # Won't be an import error.
     has_pympler = False
-
-import attr
-
-from attr._compat import PY2, PYPY, just_warn, make_set_closure_cell
 
 
 @attr.s
