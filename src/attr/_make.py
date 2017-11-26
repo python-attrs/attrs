@@ -2,7 +2,6 @@ from __future__ import absolute_import, division, print_function
 
 import hashlib
 import linecache
-import random
 import sys
 
 from operator import itemgetter
@@ -713,21 +712,12 @@ def _make_hash(attrs):
     # We cache the generated init methods for the same kinds of attributes.
     sha1 = hashlib.sha1()
     sha1.update(repr(attrs).encode("utf-8"))
-    unique_filename = "<attrs generated hash {0}>".format(
-        sha1.hexdigest()
-    )
-    # Instead of hashing the class itself, we use a random number between -1.0
-    # and 1.0 (except 0.0) and hash that.  A collision is not tragic but we try
-    # to avoid it as well as we can. The more obvious UUIDs would cause a too
-    # big of a performance regression on most versions of CPython:
-    # https://bugs.python.org/issue11063
-    type_hash = random.random() * random.choice((1.0, -1.0))
-
+    unique_filename = "<attrs generated hash %s>" % (sha1.hexdigest(),)
+    type_hash = hash(unique_filename)
     lines = [
         "def __hash__(self):",
         "    return hash((",
-        # Hashing a string is around 4% faster than hashing a float on CPython.
-        "        '%f'," % (type_hash,),
+        "        %d," % (type_hash,),
     ]
     for a in attrs:
         lines.append("        self.%s," % (a.name))
