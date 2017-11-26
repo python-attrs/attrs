@@ -1,6 +1,5 @@
 coverage
 hypothesis
-isort
 pympler
 pytest
 six
