@@ -31,7 +31,11 @@ from attr._make import (
     make_class,
     validate,
 )
-from attr.exceptions import NotAnAttrsClassError, DefaultAlreadySetError
+from attr.exceptions import (
+    NotAnAttrsClassError,
+    DefaultAlreadySetError,
+    ConverterAlreadySetError,
+)
 
 from .utils import (gen_attr_names, list_of_attrs, simple_attr, simple_attrs,
                     simple_attrs_without_metadata, simple_classes)
@@ -100,6 +104,7 @@ class TestCountingAttr(object):
 
         assert _AndValidator((v, v2,)) == a._validator
 
+
     def test_default_decorator_already_set(self):
         """
         Raise DefaultAlreadySetError if the decorator is used after a default
@@ -124,6 +129,43 @@ class TestCountingAttr(object):
             pass
 
         assert Factory(f, True) == a._default
+
+    def test_converter_decorator(self):
+        """
+        If _CountingAttr.converter is used as a decorator and there is already
+        a decorator set, raise ConverterAlreadySetError
+        """
+
+        def StubConverter(value):
+            return value
+
+        a = attr.ib(convert=StubConverter)
+
+        with pytest.raises(ConverterAlreadySetError):
+            @a.converter
+            def f(self, value):
+                pass        
+        
+    def test_converter_decorator_already_set(self):
+        
+        def stub(raw_value):
+            return raw_value
+            
+        a = attr.ib(convert=stub)
+
+        with pytest.raises(ConverterAlreadySetError):
+            @a.converter
+            def new_converter(self, raw_value):
+                return "{0}".format(raw_value)
+
+    def test_converter_decorator_sets(self):
+
+        a = attr.ib()
+        @a.converter
+        def stub(self, raw_value):
+            return 42
+
+        assert stub == a._converter
 
 
 def make_tc():
@@ -193,7 +235,7 @@ class TestTransformAttrs(object):
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, repr=True, "
-            "cmp=True, hash=None, init=True, convert=None, "
+            "cmp=True, hash=None, init=True, converter=None, "
             "metadata=mappingproxy({}), type=None)",
         ) == e.value.args
 
@@ -870,3 +912,4 @@ class TestClassBuilder(object):
             .build_class()
 
         assert "ns.C(x=1)" == repr(cls(1))
+

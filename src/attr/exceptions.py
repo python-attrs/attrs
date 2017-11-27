@@ -38,6 +38,12 @@ class DefaultAlreadySetError(RuntimeError):
     .. versionadded:: 17.1.0
     """
 
+class ConverterAlreadySetError(RuntimeError):
+    """
+    A converter has been set using ``attr.ib()`` and is attempted to be overwritten
+    using the decorator (@converter).
+    """
+
 
 class UnannotatedAttributeError(RuntimeError):
     """

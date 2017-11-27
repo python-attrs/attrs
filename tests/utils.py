@@ -167,7 +167,7 @@ def simple_attrs_with_metadata(draw):
     metadata = draw(st.dictionaries(keys=keys, values=vals))
 
     return attr.ib(c_attr._default, c_attr._validator, c_attr.repr,
-                   c_attr.cmp, c_attr.hash, c_attr.init, c_attr.convert,
+                   c_attr.cmp, c_attr.hash, c_attr.init, c_attr._converter,
                    metadata)
 
 
