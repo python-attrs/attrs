@@ -9,7 +9,7 @@ import pytest
 import attr
 
 from attr import fields
-from attr.filters import _split_what, include, exclude
+from attr.filters import _split_what, exclude, include
 
 
 @attr.s

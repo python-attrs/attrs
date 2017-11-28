@@ -9,9 +9,10 @@ import zope.interface
 
 import attr
 
-from attr import validators as validator_module, has
-from attr.validators import and_, instance_of, provides, optional, in_
+from attr import validators as validator_module
+from attr import has
 from attr._compat import TYPE
+from attr.validators import and_, in_, instance_of, optional, provides
 
 from .utils import simple_attr
 
