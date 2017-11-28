@@ -380,7 +380,8 @@ class TestDarkMagic(object):
             z = attr.ib(default=4)
 
         assert "E(c=100, b=23, a=42, x=2, d=3.14, y=3, z=4)" == repr(E())
-        assert "E(c=100, b=23, a=42, x=2, d=3.14, y=3, z=4)" == repr(E(100, 23, 42, 2, 3.14, 3, 4))
+        assert "E(c=100, b=23, a=42, x=2, d=3.14, y=3, z=4)" == \
+               repr(E(100, 23, 42, 2, 3.14, 3, 4))
 
     def test_multiple_inheritance2(self):
 
