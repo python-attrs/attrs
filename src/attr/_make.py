@@ -279,13 +279,12 @@ def _transform_attrs(cls, these, auto_attribs):
     # redefinitions deeper in the hierarchy.
     super_attrs = []
     taken_attr_names = {a.name: a for a in non_super_attrs}
-    for super_cls in reversed(cls.__mro__[1:-1]):
+    for super_cls in cls.__mro__[1:]:
         sub_attrs = getattr(super_cls, "__attrs_attrs__", None)
         if sub_attrs is not None:
-            # We iterate over sub_attrs backwards so we can reverse the whole
-            # list in the end and get all attributes in the order they have
-            # been defined.
-            for a in reversed(sub_attrs):
+            # We iterate over sub_attrs forward and populate them as soon
+            # as we see it
+            for a in sub_attrs:
                 prev_a = taken_attr_names.get(a.name)
                 if prev_a is None:
                     super_attrs.append(a)
@@ -293,13 +292,12 @@ def _transform_attrs(cls, these, auto_attribs):
                 elif prev_a == a:
                     # This happens through multiple inheritance.  We don't want
                     # to favor attributes that are further down in the tree
-                    # so we move them to the back.
-                    super_attrs.remove(a)
-                    super_attrs.append(a)
+                    # so we ... skip them altogether
+                    continue
 
     # Now reverse the list, such that the attributes are sorted by *descending*
     # age.  IOW: the oldest attribute definition is at the head of the list.
-    super_attrs.reverse()
+    # super_attrs.reverse()
 
     attr_names = [a.name for a in super_attrs + non_super_attrs]
 
