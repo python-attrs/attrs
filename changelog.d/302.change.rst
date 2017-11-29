@@ -1,0 +1,2 @@
+Added ``attr.resolve_types()``.
+This function lets you resolve forward references that might exist in your annotations.
