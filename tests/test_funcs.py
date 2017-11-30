@@ -4,28 +4,21 @@ Tests for `attr._funcs`.
 
 from __future__ import absolute_import, division, print_function
 
-from collections import OrderedDict, Sequence, Mapping
+from collections import Mapping, OrderedDict, Sequence
 
 import pytest
 
-from hypothesis import assume, given, strategies as st, settings, HealthCheck
-
-from .utils import simple_classes, nested_classes
+from hypothesis import strategies as st
+from hypothesis import HealthCheck, assume, given, settings
 
 import attr
 
-from attr import (
-    asdict,
-    assoc,
-    astuple,
-    evolve,
-    fields,
-    has,
-)
-
+from attr import asdict, assoc, astuple, evolve, fields, has
+from attr._compat import TYPE
 from attr.exceptions import AttrsAttributeNotFoundError
 from attr.validators import instance_of
-from attr._compat import TYPE
+
+from .utils import nested_classes, simple_classes
 
 
 MAPPING_TYPES = (dict, OrderedDict)

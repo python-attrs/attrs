@@ -2,31 +2,12 @@ from __future__ import absolute_import, division, print_function
 
 from functools import partial
 
-from ._funcs import (
-    asdict,
-    assoc,
-    astuple,
-    evolve,
-    has,
-)
+from . import converters, exceptions, filters, validators
+from ._config import get_run_validators, set_run_validators
+from ._funcs import asdict, assoc, astuple, evolve, has
 from ._make import (
-    Attribute,
-    Factory,
-    NOTHING,
-    attrib,
-    attrs,
-    fields,
-    make_class,
-    validate,
+    NOTHING, Attribute, Factory, attrib, attrs, fields, make_class, validate
 )
-from ._config import (
-    get_run_validators,
-    set_run_validators,
-)
-from . import exceptions
-from . import filters
-from . import converters
-from . import validators
 
 
 __version__ = "17.4.0.dev0"

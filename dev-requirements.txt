@@ -1,6 +1,6 @@
 coverage
-pytest
-zope.interface
-pympler
 hypothesis
+pympler
+pytest
 six
+zope.interface

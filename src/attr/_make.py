@@ -7,18 +7,10 @@ import sys
 from operator import itemgetter
 
 from . import _config
-from ._compat import (
-    PY2,
-    iteritems,
-    isclass,
-    metadata_proxy,
-    set_closure_cell,
-)
+from ._compat import PY2, isclass, iteritems, metadata_proxy, set_closure_cell
 from .exceptions import (
-    DefaultAlreadySetError,
-    FrozenInstanceError,
-    NotAnAttrsClassError,
-    UnannotatedAttributeError,
+    DefaultAlreadySetError, FrozenInstanceError, NotAnAttrsClassError,
+    UnannotatedAttributeError
 )
 
 
