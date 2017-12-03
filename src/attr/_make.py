@@ -264,7 +264,7 @@ def _transform_attrs(cls, these, auto_attribs):
             if isinstance(attr, _CountingAttr)
         ), key=lambda e: e[1].counter)
 
-    non_super_attrs = [
+    own_attrs = [
         Attribute.from_counting_attr(
             name=attr_name,
             ca=ca,
@@ -274,34 +274,22 @@ def _transform_attrs(cls, these, auto_attribs):
         in ca_list
     ]
 
-    # Walk *down* the MRO for attributes.  While doing so, we collect the names
-    # of attributes we've seen in `take_attr_names` and ignore their
-    # redefinitions deeper in the hierarchy.
     super_attrs = []
-    taken_attr_names = {a.name: a for a in non_super_attrs}
+    taken_attr_names = {a.name: a for a in own_attrs}
+
+    # Traverse the MRO and collect attributes.
     for super_cls in cls.__mro__[1:-1]:
         sub_attrs = getattr(super_cls, "__attrs_attrs__", None)
         if sub_attrs is not None:
-            # We iterate over sub_attrs backwards so we can reverse the whole
-            # list in the end and get all attributes in the order they have
-            # been defined.
-            for a in reversed(sub_attrs):
+            for a in sub_attrs:
                 prev_a = taken_attr_names.get(a.name)
+                # Only add an attribute if it hasn't been defined before.  This
+                # allows for overwriting attribute definitions by subclassing.
                 if prev_a is None:
                     super_attrs.append(a)
                     taken_attr_names[a.name] = a
-                elif prev_a == a:
-                    # This happens thru multiple inheritance.  We don't want
-                    # to favor attributes that are further down in the tree
-                    # so we move them to the back.
-                    super_attrs.remove(a)
-                    super_attrs.append(a)
 
-    # Now reverse the list, such that the attributes are sorted by *descending*
-    # age.  IOW: the oldest attribute definition is at the head of the list.
-    super_attrs.reverse()
-
-    attr_names = [a.name for a in super_attrs + non_super_attrs]
+    attr_names = [a.name for a in super_attrs + own_attrs]
 
     AttrsClass = _make_attr_tuple_class(cls.__name__, attr_names)
 
