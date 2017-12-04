@@ -64,11 +64,11 @@ class TestCountingAttr(object):
         If _CountingAttr.validator is used as a decorator and there is no
         decorator set, the decorated method is used as the validator.
         """
-        a = attr.ib()
-
-        @a.validator
         def v():
             pass
+
+        a = attr.ib()
+        a.validator(v)
 
         assert v == a._validator
 
@@ -88,9 +88,10 @@ class TestCountingAttr(object):
 
         a = attr.ib(validator=wrap(v))
 
-        @a.validator
         def v2(self, _, __):
             pass
+
+        a.validator(v2)
 
         assert _AndValidator((v, v2,)) == a._validator
 
@@ -113,9 +114,10 @@ class TestCountingAttr(object):
         """
         a = attr.ib()
 
-        @a.default
         def f(self):
             pass
+
+        a.default(f)
 
         assert Factory(f, True) == a._default
 
@@ -123,15 +125,19 @@ class TestCountingAttr(object):
         """
         Decorator wraps the method in a Factory with pass_self=True and sets
         the default, even if the decorated method has the same name as
-        the attribute.
+        the attribute.  This means that the attribute isn't overwritten.
         """
-        a = attr.ib()
 
-        @a.default
-        def a(self):
-            pass
+        @attr.s
+        class C(object):
+            a = attr.ib()
 
-        assert Factory(a, True) == a._default
+            @a.default
+            def a(self):
+                return 42
+
+        assert None is getattr(C, "a", None)
+        assert 42 == C().a
 
 
 def make_tc():
