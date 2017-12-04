@@ -701,13 +701,37 @@ def _make_hash(attrs):
         if a.hash is True or (a.hash is None and a.cmp is True)
     )
 
-    def hash_(self):
-        """
-        Automatically created by attrs.
-        """
-        return hash(_attrs_to_tuple(self, attrs))
+    # We cache the generated init methods for the same kinds of attributes.
+    sha1 = hashlib.sha1()
+    sha1.update(repr(attrs).encode("utf-8"))
+    unique_filename = "<attrs generated hash %s>" % (sha1.hexdigest(),)
+    type_hash = hash(unique_filename)
+    lines = [
+        "def __hash__(self):",
+        "    return hash((",
+        "        %d," % (type_hash,),
+    ]
+    for a in attrs:
+        lines.append("        self.%s," % (a.name))
 
-    return hash_
+    lines.append("    ))")
+
+    script = "\n".join(lines)
+    globs = {}
+    locs = {}
+    bytecode = compile(script, unique_filename, "exec")
+    eval(bytecode, globs, locs)
+
+    # In order of debuggers like PDB being able to step through the code,
+    # we add a fake linecache entry.
+    linecache.cache[unique_filename] = (
+        len(script),
+        None,
+        script.splitlines(True),
+        unique_filename,
+    )
+
+    return locs["__hash__"]
 
 
 def _add_hash(cls, attrs):
@@ -858,7 +882,7 @@ def _make_init(attrs, post_init, frozen):
         sha1.hexdigest()
     )
 
-    script, globs = _attrs_to_script(
+    script, globs = _attrs_to_init_script(
         attrs,
         frozen,
         post_init,
@@ -875,7 +899,6 @@ def _make_init(attrs, post_init, frozen):
         # immutability.
         globs["_cached_setattr"] = _obj_setattr
     eval(bytecode, globs, locs)
-    init = locs["__init__"]
 
     # In order of debuggers like PDB being able to step through the code,
     # we add a fake linecache entry.
@@ -883,10 +906,10 @@ def _make_init(attrs, post_init, frozen):
         len(script),
         None,
         script.splitlines(True),
-        unique_filename
+        unique_filename,
     )
 
-    return init
+    return locs["__init__"]
 
 
 def _add_init(cls, frozen):
@@ -946,7 +969,7 @@ def validate(inst):
             v(inst, a, getattr(inst, a.name))
 
 
-def _attrs_to_script(attrs, frozen, post_init):
+def _attrs_to_init_script(attrs, frozen, post_init):
     """
     Return a script of an initializer for *attrs* and a dict of globals.
 
