@@ -240,8 +240,8 @@ class TestTransformAttrs(object):
             e2 = attr.ib(default="e2")
 
         assert (
-            "E(a1='a1', a2='a2', b1='b1', b2='b2', c1='c1', c2='c2', d1='d1', "
-            "d2='d2', e1='e1', e2='e2')"
+            "E(a1='a1', a2='a2', d1='d1', d2='d2', b1='b1', b2='b2', "
+            "c1='c1', c2='c2', e1='e1', e2='e2')"
         ) == repr(E())
 
 
