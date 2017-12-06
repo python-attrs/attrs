@@ -701,7 +701,7 @@ def _make_hash(attrs):
         if a.hash is True or (a.hash is None and a.cmp is True)
     )
 
-    # We cache the generated init methods for the same kinds of attributes.
+    # We cache the generated hash methods for the same kinds of attributes.
     sha1 = hashlib.sha1()
     sha1.update(repr(attrs).encode("utf-8"))
     unique_filename = "<attrs generated hash %s>" % (sha1.hexdigest(),)
@@ -742,33 +742,67 @@ def _add_hash(cls, attrs):
     return cls
 
 
+def _ne(self, other):
+    """
+    Check equality and either forward a NotImplemented or return the result
+    negated.
+    """
+    result = self.__eq__(other)
+    if result is NotImplemented:
+        return NotImplemented
+
+    return not result
+
+
 def _make_cmp(attrs):
     attrs = [a for a in attrs if a.cmp]
+
+    # We cache the generated eq methods for the same kinds of attributes.
+    sha1 = hashlib.sha1()
+    sha1.update(repr(attrs).encode("utf-8"))
+    unique_filename = "<attrs generated eq %s>" % (sha1.hexdigest(),)
+    lines = [
+        "def __eq__(self, other):",
+        "    if other.__class__ is not self.__class__:",
+        "        return NotImplemented",
+    ]
+    # We can't just do a big self.x = other.x and... clause due to
+    # irregularities like nan == nan is false but (nan,) == (nan,) is true.
+    if attrs:
+        lines.append("    return  (")
+        others = [
+            "    ) == (",
+        ]
+        for a in attrs:
+            lines.append("        self.%s," % (a.name,))
+            others.append("        other.%s," % (a.name,))
+
+        lines += others + ["    )"]
+    else:
+        lines.append("    return True")
+
+    script = "\n".join(lines)
+    globs = {}
+    locs = {}
+    bytecode = compile(script, unique_filename, "exec")
+    eval(bytecode, globs, locs)
+
+    # In order of debuggers like PDB being able to step through the code,
+    # we add a fake linecache entry.
+    linecache.cache[unique_filename] = (
+        len(script),
+        None,
+        script.splitlines(True),
+        unique_filename,
+    )
+    eq = locs["__eq__"]
+    ne = _ne
 
     def attrs_to_tuple(obj):
         """
         Save us some typing.
         """
         return _attrs_to_tuple(obj, attrs)
-
-    def eq(self, other):
-        """
-        Automatically created by attrs.
-        """
-        if other.__class__ is self.__class__:
-            return attrs_to_tuple(self) == attrs_to_tuple(other)
-        else:
-            return NotImplemented
-
-    def ne(self, other):
-        """
-        Automatically created by attrs.
-        """
-        result = eq(self, other)
-        if result is NotImplemented:
-            return NotImplemented
-        else:
-            return not result
 
     def lt(self, other):
         """
