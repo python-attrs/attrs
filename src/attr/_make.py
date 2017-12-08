@@ -883,7 +883,7 @@ def _make_repr(attrs, ns):
         return "{0}({1})".format(
             class_name,
             ", ".join(
-                name + "=" + repr(getattr(self, name))
+                name + "=" + repr(getattr(self, name, NOTHING))
                 for name in attr_names
             )
         )

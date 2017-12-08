@@ -200,6 +200,16 @@ class TestAddRepr(object):
 
         assert "C(_x=42)" == repr(i)
 
+    def test_repr_uninitialized_member(self):
+        """
+        repr signals unset attributes
+        """
+        C = make_class("C", {
+            "a": attr.ib(init=False),
+        })
+
+        assert "C(a=NOTHING)" == repr(C())
+
     @given(add_str=booleans(), slots=booleans())
     def test_str(self, add_str, slots):
         """
