@@ -115,7 +115,7 @@ This is useful in times when you want to enhance classes that are not yours (nic
    ... class B(object):
    ...     b = attr.ib()
    >>> @attr.s
-   ... class C(B, A):
+   ... class C(A, B):
    ...     c = attr.ib()
    >>> i = C(1, 2, 3)
    >>> i

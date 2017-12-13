@@ -235,7 +235,7 @@ class TestTransformAttrs(object):
             d2 = attr.ib(default="d2")
 
         @attr.s
-        class E(D, C):
+        class E(C, D):
             e1 = attr.ib(default="e1")
             e2 = attr.ib(default="e2")
 
