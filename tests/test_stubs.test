@@ -8,18 +8,23 @@
 import attr
 
 @attr.s
-class C(object):
-    a = attr.ib()  # error: need annotation
+class C:
+    a = attr.ib()
+    b = attr.ib(init=False, metadata={'foo': 1})
 
 c = C()
 reveal_type(c.a)  # Any
 reveal_type(C.a)  # Any
+reveal_type(c.b)  # Any
+reveal_type(C.b)  # Any
 [out]
 a.py:5: error: Need type annotation for variable
-a.py:8: error: Revealed type is 'Any'
 a.py:9: error: Revealed type is 'Any'
-a.py:9: error: Cannot determine type of 'a'
-
+a.py:10: error: Revealed type is 'Any'
+a.py:10: error: Cannot determine type of 'a'
+a.py:11: error: Revealed type is 'Any'
+a.py:12: error: Revealed type is 'Any'
+a.py:12: error: Cannot determine type of 'b'
 
 [case test_type_arg]
 # cmd: mypy a.py
@@ -66,8 +71,12 @@ import attr
 a = attr.ib(default=0)
 reveal_type(a)  # int
 
+b = attr.ib(0)
+reveal_type(b)  # int
+
 [out]
 a.py:4: error: Revealed type is 'builtins.int*'
+a.py:7: error: Revealed type is 'builtins.int*'
 
 
 [case test_defaults_type_arg]
@@ -123,7 +132,7 @@ a = attr.ib(type=List[int])
 reveal_type(a)  # List[int]
 
 b = attr.ib(default=attr.Factory(list), type=List[int])
-reveal_type(b)  # object:  FIXME: shouldn't the `default` type be upgraded from `list` to `List[int]``?  make issue on mypy about this
+reveal_type(b)  # object:  FIXME: shouldn't the `default` type be upgraded from `list` to `List[int]``?  make a mypy github issue
 
 c = attr.ib(default=attr.Factory(list), type=int)
 reveal_type(c)  # object, the common base of list and int
@@ -185,8 +194,27 @@ d = attr.ib(type=int, validator=and_(in_([1, 2, 3]), instance_of(int)))
 e = attr.ib(type=int, validator=1)  # error
 
 [out]
-a.py:8: error: No overload variant matches argument types [Overload(def (x: Union[builtins.str, builtins.bytes, typing.SupportsInt] =) -> builtins.int, def (x: Union[builtins.str, builtins.bytes], base: builtins.int) -> builtins.int), builtins.int]
+a.py:8: error: Argument 2 has incompatible type "int"; expected "Union[Callable[[Any, Attribute[Any], int], Any], List[Callable[[Any, Attribute[Any], int], Any]], Tuple[Callable[[Any, Attribute[Any], int], Any], ...]]"
 
+[case test_custom_validators]
+# cmd: mypy a.py
+[file a.py]
+import attr
+
+def validate_int(inst, at, val: int):
+    pass
+
+def validate_str(inst, at, val: str):
+    pass
+
+a = attr.ib(type=int, validator=validate_int)  # int
+b = attr.ib(type=int, validator=validate_str)  # error
+
+reveal_type(a)
+
+[out]
+a.py:10: error: Argument 2 has incompatible type "Callable[[Any, Any, str], Any]"; expected "Union[Callable[[Any, Attribute[Any], int], Any], List[Callable[[Any, Attribute[Any], int], Any]], Tuple[Callable[[Any, Attribute[Any], int], Any], ...]]"
+a.py:12: error: Revealed type is 'builtins.int'
 
 --  ---------------------------
 --  Make
@@ -203,12 +231,39 @@ C = attr.make_class("C", {
 [out]
 
 
-[case test_make_from_attrib]
+[case test_make_from_str]
 # cmd: mypy a.py
 [file a.py]
 import attr
-C = attr.make_class("C", [
-    attr.ib(type=int),
-    attr.ib()
-])
+C = attr.make_class("C", ["x", "y"])
 [out]
+
+
+[case test_astuple]
+# cmd: mypy a.py
+[file a.py]
+import attr
+@attr.s
+class C:
+    a: int = attr.ib()
+
+t1 = attr.astuple(C)
+reveal_type(t1)
+
+[out]
+a.py:7: error: Revealed type is 'builtins.tuple[Any]'
+
+
+[case test_asdict]
+# cmd: mypy a.py
+[file a.py]
+import attr
+@attr.s
+class C:
+    a: int = attr.ib()
+
+t1 = attr.asdict(C)
+reveal_type(t1)
+
+[out]
+a.py:7: error: Revealed type is 'builtins.dict[builtins.str, Any]'
