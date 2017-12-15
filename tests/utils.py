@@ -30,13 +30,13 @@ def simple_class(cmp=False, repr=False, hash=False, str=False, slots=False,
 
 
 def simple_attr(name, default=NOTHING, validator=None, repr=True,
-                cmp=True, hash=None, init=True):
+                cmp=True, hash=None, init=True, kw_only=False):
     """
     Return an attribute with a name and no other bells and whistles.
     """
     return Attribute(
         name=name, default=default, validator=validator, repr=repr,
-        cmp=cmp, hash=hash, init=init
+        cmp=cmp, hash=hash, init=init, kw_only=kw_only,
     )
 
 
