@@ -166,9 +166,17 @@ def simple_attrs_with_metadata(draw):
     vals = st.booleans() | st.binary() | st.integers() | st.text()
     metadata = draw(st.dictionaries(keys=keys, values=vals))
 
-    return attr.ib(c_attr._default, c_attr._validator, c_attr.repr,
-                   c_attr.cmp, c_attr.hash, c_attr.init, c_attr.convert,
-                   metadata)
+    return attr.ib(
+        default=c_attr._default,
+        validator=c_attr._validator,
+        repr=c_attr.repr,
+        cmp=c_attr.cmp,
+        hash=c_attr.hash,
+        init=c_attr.init,
+        metadata=metadata,
+        type=None,
+        converter=c_attr.converter,
+    )
 
 
 simple_attrs = simple_attrs_without_metadata | simple_attrs_with_metadata()

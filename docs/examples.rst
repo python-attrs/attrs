@@ -411,14 +411,14 @@ And finally you can disable validators globally:
 Conversion
 ----------
 
-Attributes can have a ``convert`` function specified, which will be called with the attribute's passed-in value to get a new value to use.
+Attributes can have a ``converter`` function specified, which will be called with the attribute's passed-in value to get a new value to use.
 This can be useful for doing type-conversions on values that you don't want to force your callers to do.
 
 .. doctest::
 
     >>> @attr.s
     ... class C(object):
-    ...     x = attr.ib(convert=int)
+    ...     x = attr.ib(converter=int)
     >>> o = C("1")
     >>> o.x
     1
@@ -432,7 +432,7 @@ Converters are run *before* validators, so you can use validators to check the f
     ...         raise ValueError("x must be be at least 0.")
     >>> @attr.s
     ... class C(object):
-    ...     x = attr.ib(convert=int, validator=validate_x)
+    ...     x = attr.ib(converter=int, validator=validate_x)
     >>> o = C("0")
     >>> o.x
     0
