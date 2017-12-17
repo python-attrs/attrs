@@ -468,17 +468,22 @@ class _ClassBuilder(object):
         return cls
 
     def add_repr(self, ns):
-        self._cls_dict["__repr__"] = _make_repr(self._attrs, ns=ns)
+        self._cls_dict["__repr__"] = self._add_method_dunders(
+            _make_repr(self._attrs, ns=ns)
+        )
         return self
 
     def add_str(self):
-        repr_ = self._cls_dict.get("__repr__")
-        if repr_ is None:
+        repr = self._cls_dict.get("__repr__")
+        if repr is None:
             raise ValueError(
                 "__str__ can only be generated if a __repr__ exists."
             )
 
-        self._cls_dict["__str__"] = repr_
+        def __str__(self):
+            return self.__repr__()
+
+        self._cls_dict["__str__"] = self._add_method_dunders(__str__)
         return self
 
     def make_unhashable(self):
@@ -486,24 +491,44 @@ class _ClassBuilder(object):
         return self
 
     def add_hash(self):
-        self._cls_dict["__hash__"] = _make_hash(self._attrs)
+        self._cls_dict["__hash__"] = self._add_method_dunders(
+            _make_hash(self._attrs)
+        )
+
         return self
 
     def add_init(self):
-        self._cls_dict["__init__"] = _make_init(
-            self._attrs,
-            self._has_post_init,
-            self._frozen,
+        self._cls_dict["__init__"] = self._add_method_dunders(
+            _make_init(
+                self._attrs,
+                self._has_post_init,
+                self._frozen,
+            )
         )
+
         return self
 
     def add_cmp(self):
         cd = self._cls_dict
 
         cd["__eq__"], cd["__ne__"], cd["__lt__"], cd["__le__"], cd["__gt__"], \
-            cd["__ge__"] = _make_cmp(self._attrs)
+            cd["__ge__"] = (
+                self._add_method_dunders(meth)
+                for meth in _make_cmp(self._attrs)
+            )
 
         return self
+
+    def _add_method_dunders(self, meth):
+        """
+        Add __module__ and __qualname__ to a method *method*.
+        """
+        meth.__module__ = self._cls.__module__
+        if not PY2:
+            meth.__qualname__ = ".".join(
+                (self._cls.__qualname__, meth.__name__,)
+            )
+        return meth
 
 
 def attrs(maybe_cls=None, these=None, repr_ns=None,
@@ -730,7 +755,7 @@ def _add_hash(cls, attrs):
     return cls
 
 
-def _ne(self, other):
+def __ne__(self, other):
     """
     Check equality and either forward a NotImplemented or return the result
     negated.
@@ -784,7 +809,7 @@ def _make_cmp(attrs):
         unique_filename,
     )
     eq = locs["__eq__"]
-    ne = _ne
+    ne = __ne__
 
     def attrs_to_tuple(obj):
         """
@@ -792,7 +817,7 @@ def _make_cmp(attrs):
         """
         return _attrs_to_tuple(obj, attrs)
 
-    def lt(self, other):
+    def __lt__(self, other):
         """
         Automatically created by attrs.
         """
@@ -801,7 +826,7 @@ def _make_cmp(attrs):
         else:
             return NotImplemented
 
-    def le(self, other):
+    def __le__(self, other):
         """
         Automatically created by attrs.
         """
@@ -810,7 +835,7 @@ def _make_cmp(attrs):
         else:
             return NotImplemented
 
-    def gt(self, other):
+    def __gt__(self, other):
         """
         Automatically created by attrs.
         """
@@ -819,7 +844,7 @@ def _make_cmp(attrs):
         else:
             return NotImplemented
 
-    def ge(self, other):
+    def __ge__(self, other):
         """
         Automatically created by attrs.
         """
@@ -828,7 +853,7 @@ def _make_cmp(attrs):
         else:
             return NotImplemented
 
-    return eq, ne, lt, le, gt, ge
+    return eq, ne, __lt__, __le__, __gt__, __ge__
 
 
 def _add_cmp(cls, attrs=None):
@@ -854,7 +879,7 @@ def _make_repr(attrs, ns):
         if a.repr
     )
 
-    def repr_(self):
+    def __repr__(self):
         """
         Automatically created by attrs.
         """
@@ -875,7 +900,7 @@ def _make_repr(attrs, ns):
                 for name in attr_names
             )
         )
-    return repr_
+    return __repr__
 
 
 def _add_repr(cls, ns=None, attrs=None):
@@ -885,8 +910,7 @@ def _add_repr(cls, ns=None, attrs=None):
     if attrs is None:
         attrs = cls.__attrs_attrs__
 
-    repr_ = _make_repr(attrs, ns)
-    cls.__repr__ = repr_
+    cls.__repr__ = _make_repr(attrs, ns)
     return cls
 
 

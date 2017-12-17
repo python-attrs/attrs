@@ -864,3 +864,25 @@ class TestClassBuilder(object):
             .build_class()
 
         assert "ns.C(x=1)" == repr(cls(1))
+
+    @pytest.mark.parametrize("meth_name", [
+        "__init__", "__hash__", "__repr__", "__str__",
+        "__eq__", "__ne__", "__lt__", "__le__", "__gt__", "__ge__",
+    ])
+    def test_attaches_meta_dunders(self, meth_name):
+        """
+        Generated methods have correct __module__, __name__, and __qualname__
+        attributes.
+        """
+        @attr.s(hash=True, str=True)
+        class C(object):
+            def organic(self):
+                pass
+
+        meth = getattr(C, meth_name)
+
+        assert meth_name == meth.__name__
+        assert C.organic.__module__ == meth.__module__
+        if not PY2:
+            organic_prefix = C.organic.__qualname__.rsplit(".", 1)[0]
+            assert organic_prefix + "." + meth_name == meth.__qualname__
