@@ -845,6 +845,13 @@ class TestMetadata(object):
             assert cls_a.metadata != {}
             assert cls_a.metadata == raw_a.metadata
 
+    def test_not_none_metadata_force_coverage(self):
+        """
+        Force coverage of metadata is not None case even though other tests
+        should do so anyways.
+        """
+        attr.ib(metadata={})
+
 
 class TestClassBuilder(object):
     """
