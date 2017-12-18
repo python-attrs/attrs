@@ -519,16 +519,16 @@ class _ClassBuilder(object):
 
         return self
 
-    def _add_method_dunders(self, meth):
+    def _add_method_dunders(self, method):
         """
-        Add __module__ and __qualname__ to a method *method*.
+        Add __module__ and __qualname__ to a *method*.
         """
-        meth.__module__ = self._cls.__module__
+        method.__module__ = self._cls.__module__
         if not PY2:
-            meth.__qualname__ = ".".join(
-                (self._cls.__qualname__, meth.__name__,)
+            method.__qualname__ = ".".join(
+                (self._cls.__qualname__, method.__name__,)
             )
-        return meth
+        return method
 
 
 def attrs(maybe_cls=None, these=None, repr_ns=None,
