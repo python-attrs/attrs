@@ -1,0 +1,2 @@
+``attrib`` now defaults to a unique empty ``dict`` instance for the returned ``_CountingAttr`` instead of sharing a common empty ``dict`` for all.
+The singleton empty ``dict`` is still enforced by ``@attr.s``.
