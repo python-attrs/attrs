@@ -7,18 +7,10 @@ import sys
 from operator import itemgetter
 
 from . import _config
-from ._compat import (
-    PY2,
-    iteritems,
-    isclass,
-    metadata_proxy,
-    set_closure_cell,
-)
+from ._compat import PY2, isclass, iteritems, metadata_proxy, set_closure_cell
 from .exceptions import (
-    DefaultAlreadySetError,
-    FrozenInstanceError,
-    NotAnAttrsClassError,
-    UnannotatedAttributeError,
+    DefaultAlreadySetError, FrozenInstanceError, NotAnAttrsClassError,
+    UnannotatedAttributeError
 )
 
 
@@ -274,7 +266,7 @@ def _transform_attrs(cls, these, auto_attribs):
             if isinstance(attr, _CountingAttr)
         ), key=lambda e: e[1].counter)
 
-    non_super_attrs = [
+    own_attrs = [
         Attribute.from_counting_attr(
             name=attr_name,
             ca=ca,
@@ -284,34 +276,22 @@ def _transform_attrs(cls, these, auto_attribs):
         in ca_list
     ]
 
-    # Walk *down* the MRO for attributes.  While doing so, we collect the names
-    # of attributes we've seen in `take_attr_names` and ignore their
-    # redefinitions deeper in the hierarchy.
     super_attrs = []
-    taken_attr_names = {a.name: a for a in non_super_attrs}
+    taken_attr_names = {a.name: a for a in own_attrs}
+
+    # Traverse the MRO and collect attributes.
     for super_cls in cls.__mro__[1:-1]:
         sub_attrs = getattr(super_cls, "__attrs_attrs__", None)
         if sub_attrs is not None:
-            # We iterate over sub_attrs backwards so we can reverse the whole
-            # list in the end and get all attributes in the order they have
-            # been defined.
-            for a in reversed(sub_attrs):
+            for a in sub_attrs:
                 prev_a = taken_attr_names.get(a.name)
+                # Only add an attribute if it hasn't been defined before.  This
+                # allows for overwriting attribute definitions by subclassing.
                 if prev_a is None:
                     super_attrs.append(a)
                     taken_attr_names[a.name] = a
-                elif prev_a == a:
-                    # This happens thru multiple inheritance.  We don't want
-                    # to favor attributes that are further down in the tree
-                    # so we move them to the back.
-                    super_attrs.remove(a)
-                    super_attrs.append(a)
 
-    # Now reverse the list, such that the attributes are sorted by *descending*
-    # age.  IOW: the oldest attribute definition is at the head of the list.
-    super_attrs.reverse()
-
-    attr_names = [a.name for a in super_attrs + non_super_attrs]
+    attr_names = [a.name for a in super_attrs + own_attrs]
 
     AttrsClass = _make_attr_tuple_class(cls.__name__, attr_names)
 
@@ -711,13 +691,37 @@ def _make_hash(attrs):
         if a.hash is True or (a.hash is None and a.cmp is True)
     )
 
-    def hash_(self):
-        """
-        Automatically created by attrs.
-        """
-        return hash(_attrs_to_tuple(self, attrs))
+    # We cache the generated hash methods for the same kinds of attributes.
+    sha1 = hashlib.sha1()
+    sha1.update(repr(attrs).encode("utf-8"))
+    unique_filename = "<attrs generated hash %s>" % (sha1.hexdigest(),)
+    type_hash = hash(unique_filename)
+    lines = [
+        "def __hash__(self):",
+        "    return hash((",
+        "        %d," % (type_hash,),
+    ]
+    for a in attrs:
+        lines.append("        self.%s," % (a.name))
 
-    return hash_
+    lines.append("    ))")
+
+    script = "\n".join(lines)
+    globs = {}
+    locs = {}
+    bytecode = compile(script, unique_filename, "exec")
+    eval(bytecode, globs, locs)
+
+    # In order of debuggers like PDB being able to step through the code,
+    # we add a fake linecache entry.
+    linecache.cache[unique_filename] = (
+        len(script),
+        None,
+        script.splitlines(True),
+        unique_filename,
+    )
+
+    return locs["__hash__"]
 
 
 def _add_hash(cls, attrs):
@@ -728,33 +732,67 @@ def _add_hash(cls, attrs):
     return cls
 
 
+def _ne(self, other):
+    """
+    Check equality and either forward a NotImplemented or return the result
+    negated.
+    """
+    result = self.__eq__(other)
+    if result is NotImplemented:
+        return NotImplemented
+
+    return not result
+
+
 def _make_cmp(attrs):
     attrs = [a for a in attrs if a.cmp]
+
+    # We cache the generated eq methods for the same kinds of attributes.
+    sha1 = hashlib.sha1()
+    sha1.update(repr(attrs).encode("utf-8"))
+    unique_filename = "<attrs generated eq %s>" % (sha1.hexdigest(),)
+    lines = [
+        "def __eq__(self, other):",
+        "    if other.__class__ is not self.__class__:",
+        "        return NotImplemented",
+    ]
+    # We can't just do a big self.x = other.x and... clause due to
+    # irregularities like nan == nan is false but (nan,) == (nan,) is true.
+    if attrs:
+        lines.append("    return  (")
+        others = [
+            "    ) == (",
+        ]
+        for a in attrs:
+            lines.append("        self.%s," % (a.name,))
+            others.append("        other.%s," % (a.name,))
+
+        lines += others + ["    )"]
+    else:
+        lines.append("    return True")
+
+    script = "\n".join(lines)
+    globs = {}
+    locs = {}
+    bytecode = compile(script, unique_filename, "exec")
+    eval(bytecode, globs, locs)
+
+    # In order of debuggers like PDB being able to step through the code,
+    # we add a fake linecache entry.
+    linecache.cache[unique_filename] = (
+        len(script),
+        None,
+        script.splitlines(True),
+        unique_filename,
+    )
+    eq = locs["__eq__"]
+    ne = _ne
 
     def attrs_to_tuple(obj):
         """
         Save us some typing.
         """
         return _attrs_to_tuple(obj, attrs)
-
-    def eq(self, other):
-        """
-        Automatically created by attrs.
-        """
-        if other.__class__ is self.__class__:
-            return attrs_to_tuple(self) == attrs_to_tuple(other)
-        else:
-            return NotImplemented
-
-    def ne(self, other):
-        """
-        Automatically created by attrs.
-        """
-        result = eq(self, other)
-        if result is NotImplemented:
-            return NotImplemented
-        else:
-            return not result
 
     def lt(self, other):
         """
@@ -835,7 +873,7 @@ def _make_repr(attrs, ns):
         return "{0}({1})".format(
             class_name,
             ", ".join(
-                name + "=" + repr(getattr(self, name))
+                name + "=" + repr(getattr(self, name, NOTHING))
                 for name in attr_names
             )
         )
@@ -868,7 +906,7 @@ def _make_init(attrs, post_init, frozen):
         sha1.hexdigest()
     )
 
-    script, globs = _attrs_to_script(
+    script, globs = _attrs_to_init_script(
         attrs,
         frozen,
         post_init,
@@ -885,7 +923,6 @@ def _make_init(attrs, post_init, frozen):
         # immutability.
         globs["_cached_setattr"] = _obj_setattr
     eval(bytecode, globs, locs)
-    init = locs["__init__"]
 
     # In order of debuggers like PDB being able to step through the code,
     # we add a fake linecache entry.
@@ -893,10 +930,10 @@ def _make_init(attrs, post_init, frozen):
         len(script),
         None,
         script.splitlines(True),
-        unique_filename
+        unique_filename,
     )
 
-    return init
+    return locs["__init__"]
 
 
 def _add_init(cls, frozen):
@@ -956,7 +993,7 @@ def validate(inst):
             v(inst, a, getattr(inst, a.name))
 
 
-def _attrs_to_script(attrs, frozen, post_init):
+def _attrs_to_init_script(attrs, frozen, post_init):
     """
     Return a script of an initializer for *attrs* and a dict of globals.
 

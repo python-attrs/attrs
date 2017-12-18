@@ -4,7 +4,7 @@ Commonly useful validators.
 
 from __future__ import absolute_import, division, print_function
 
-from ._make import attrib, attrs, and_, _AndValidator
+from ._make import _AndValidator, and_, attrib, attrs
 
 
 __all__ = [

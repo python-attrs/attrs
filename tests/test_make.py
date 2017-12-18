@@ -20,23 +20,16 @@ import attr
 from attr import _config
 from attr._compat import PY2
 from attr._make import (
-    Attribute,
-    Factory,
-    _AndValidator,
-    _Attributes,
-    _ClassBuilder,
-    _CountingAttr,
-    _transform_attrs,
-    and_,
-    fields,
-    make_class,
-    validate,
+    Attribute, Factory, _AndValidator, _Attributes, _ClassBuilder,
+    _CountingAttr, _transform_attrs, and_, fields, make_class, validate
 )
-from attr.exceptions import NotAnAttrsClassError, DefaultAlreadySetError
+from attr.exceptions import DefaultAlreadySetError, NotAnAttrsClassError
 
-from .utils import (gen_attr_names, list_of_attrs, simple_attr, simple_attrs,
-                    simple_attrs_without_metadata, simple_attrs_with_metadata,
-                    simple_classes)
+from .utils import (
+    gen_attr_names, list_of_attrs, simple_attr, simple_attrs,
+    simple_attrs_without_metadata, simple_attrs_with_metadata, simple_classes
+)
+
 
 attrs_st = simple_attrs.map(lambda c: Attribute.from_counting_attr("name", c))
 
@@ -243,7 +236,7 @@ class TestTransformAttrs(object):
             d2 = attr.ib(default="d2")
 
         @attr.s
-        class E(D, C):
+        class E(C, D):
             e1 = attr.ib(default="e1")
             e2 = attr.ib(default="e2")
 

@@ -8,6 +8,8 @@ language: python
 
 
 matrix:
+  fast_finish: true
+
   include:
     - python: "2.7"
       env: TOXENV=py27
@@ -22,6 +24,10 @@ matrix:
     - python: "pypy3.5-5.8.0"
       env: TOXENV=pypy3
 
+    # Prevent breakage by a new release
+    - python: "3.6-dev"
+      env: TOXENV=py36
+
     # Meta
     - python: "3.6"
       env: TOXENV=flake8
@@ -33,6 +39,9 @@ matrix:
       env: TOXENV=readme
     - python: "3.6"
       env: TOXENV=changelog
+
+  allow_failures:
+    python: "3.6-dev"
 
 
 install:
