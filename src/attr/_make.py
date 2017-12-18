@@ -521,13 +521,20 @@ class _ClassBuilder(object):
 
     def _add_method_dunders(self, method):
         """
-        Add __module__ and __qualname__ to a *method*.
+        Add __module__ and __qualname__ to a *method* if possible.
         """
-        method.__module__ = self._cls.__module__
-        if not PY2:
+        try:
+            method.__module__ = self._cls.__module__
+        except AttributeError:
+            pass
+
+        try:
             method.__qualname__ = ".".join(
                 (self._cls.__qualname__, method.__name__,)
             )
+        except AttributeError:
+            pass
+
         return method
 
 

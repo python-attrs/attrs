@@ -886,3 +886,27 @@ class TestClassBuilder(object):
         if not PY2:
             organic_prefix = C.organic.__qualname__.rsplit(".", 1)[0]
             assert organic_prefix + "." + meth_name == meth.__qualname__
+
+    def test_handles_missing_meta_on_class(self):
+        """
+        If the class hasn't a __module__ or __qualname__, the method hasn't
+        either.
+        """
+        class C(object):
+            pass
+
+        b = _ClassBuilder(
+            C, these=None, slots=False, frozen=False, auto_attribs=False,
+        )
+        b._cls = {}  # no __module__; no __qualname__
+
+        def fake_meth(self):
+            pass
+
+        fake_meth.__module__ = "42"
+        fake_meth.__qualname__ = "23"
+
+        rv = b._add_method_dunders(fake_meth)
+
+        assert "42" == rv.__module__ == fake_meth.__module__
+        assert "23" == rv.__qualname__ == fake_meth.__qualname__
