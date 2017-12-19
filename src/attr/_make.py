@@ -56,7 +56,7 @@ Sentinel to indicate the lack of a value when ``None`` is ambiguous.
 
 def attrib(default=NOTHING, validator=None,
            repr=True, cmp=True, hash=None, init=True,
-           convert=None, metadata={}, type=None, converter=None):
+           convert=None, metadata=None, type=None, converter=None):
     """
     Create a new attribute on a class.
 
@@ -140,6 +140,7 @@ def attrib(default=NOTHING, validator=None,
         raise TypeError(
             "Invalid value for hash.  Must be True, False, or None."
         )
+        
     if convert is not None:
         if converter is not None:
             raise RuntimeError(
@@ -152,6 +153,10 @@ def attrib(default=NOTHING, validator=None,
             DeprecationWarning, stacklevel=2
         )
         converter = convert
+
+    if metadata is None:
+        metadata = {}
+
     return _CountingAttr(
         default=default,
         validator=validator,
