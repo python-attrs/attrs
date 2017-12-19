@@ -140,7 +140,7 @@ def attrib(default=NOTHING, validator=None,
         raise TypeError(
             "Invalid value for hash.  Must be True, False, or None."
         )
-        
+
     if convert is not None:
         if converter is not None:
             raise RuntimeError(
