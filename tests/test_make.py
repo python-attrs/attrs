@@ -5,6 +5,7 @@ Tests for `attr._make`.
 from __future__ import absolute_import, division, print_function
 
 import inspect
+import itertools
 import sys
 
 from operator import attrgetter
@@ -26,7 +27,7 @@ from attr.exceptions import DefaultAlreadySetError, NotAnAttrsClassError
 
 from .utils import (
     gen_attr_names, list_of_attrs, simple_attr, simple_attrs,
-    simple_attrs_without_metadata, simple_classes
+    simple_attrs_with_metadata, simple_attrs_without_metadata, simple_classes
 )
 
 
@@ -822,6 +823,34 @@ class TestMetadata(object):
         C = make_class("C", dict(zip(gen_attr_names(), list_of_attrs)))
         for a in fields(C)[1:]:
             assert a.metadata is fields(C)[0].metadata
+
+    @given(lists(simple_attrs_without_metadata, min_size=2, max_size=5))
+    def test_empty_countingattr_metadata_independent(self, list_of_attrs):
+        """
+        All empty metadata attributes are independent before ``@attr.s``.
+        """
+        for x, y in itertools.combinations(list_of_attrs, 2):
+            assert x.metadata is not y.metadata
+
+    @given(lists(simple_attrs_with_metadata(), min_size=2, max_size=5))
+    def test_not_none_metadata(self, list_of_attrs):
+        """
+        Non-empty metadata attributes exist as fields after ``@attr.s``.
+        """
+        C = make_class("C", dict(zip(gen_attr_names(), list_of_attrs)))
+
+        assert len(fields(C)) > 0
+
+        for cls_a, raw_a in zip(fields(C), list_of_attrs):
+            assert cls_a.metadata != {}
+            assert cls_a.metadata == raw_a.metadata
+
+    def test_not_none_metadata_force_coverage(self):
+        """
+        Force coverage of metadata is not None case even though other tests
+        should do so anyways.
+        """
+        attr.ib(metadata={})
 
 
 class TestClassBuilder(object):
