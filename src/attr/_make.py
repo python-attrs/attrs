@@ -55,7 +55,7 @@ Sentinel to indicate the lack of a value when ``None`` is ambiguous.
 
 def attrib(default=NOTHING, validator=None,
            repr=True, cmp=True, hash=None, init=True,
-           convert=None, metadata={}, type=None):
+           convert=None, metadata=None, type=None):
     """
     Create a new attribute on a class.
 
@@ -134,6 +134,8 @@ def attrib(default=NOTHING, validator=None,
         raise TypeError(
             "Invalid value for hash.  Must be True, False, or None."
         )
+    if metadata is None:
+        metadata = {}
     return _CountingAttr(
         default=default,
         validator=validator,
