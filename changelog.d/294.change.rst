@@ -1,0 +1,1 @@
+``@attr.ib().default`` and ``@attr.ib().validator`` decorators now return ``self`` instead of ``meth`` such that the original attribute is not overwritten und the methods can have the same names as the attributes.

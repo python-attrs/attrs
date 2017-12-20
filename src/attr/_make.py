@@ -1277,32 +1277,34 @@ class _CountingAttr(object):
         """
         Decorator that adds *meth* to the list of validators.
 
-        Returns *meth* unchanged.
-
         .. versionadded:: 17.1.0
+        .. versionchanged:: 17.4.0
+            *self* is returned instead of *meth*, so the *meth* name
+            truly does not matter.
         """
         if self._validator is None:
             self._validator = meth
         else:
             self._validator = and_(self._validator, meth)
-        return meth
+        return self
 
     def default(self, meth):
         """
         Decorator that allows to set the default for an attribute.
 
-        Returns *meth* unchanged.
-
         :raises DefaultAlreadySetError: If default has been set before.
 
         .. versionadded:: 17.1.0
+        .. versionchanged:: 17.4.0
+            *self* is returned instead of *meth*, so the *meth* name
+            truly does not matter.
         """
         if self._default is not NOTHING:
             raise DefaultAlreadySetError()
 
         self._default = Factory(meth, takes_self=True)
 
-        return meth
+        return self
 
 
 _CountingAttr = _add_cmp(_add_repr(_CountingAttr))
