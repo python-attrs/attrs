@@ -1189,7 +1189,7 @@ class Attribute(object):
     """
     __slots__ = (
         "name", "default", "validator", "repr", "cmp", "hash", "init",
-        "convert", "metadata", "type", "converter",
+        "metadata", "type", "converter",
     )
 
     def __init__(self, name, default, validator, repr, cmp, hash, init,
@@ -1219,7 +1219,6 @@ class Attribute(object):
         bound_setattr("cmp", cmp)
         bound_setattr("hash", hash)
         bound_setattr("init", init)
-        bound_setattr("convert", converter)
         bound_setattr("converter", converter)
         bound_setattr("metadata", (
             metadata_proxy(metadata) if metadata
@@ -1229,6 +1228,15 @@ class Attribute(object):
 
     def __setattr__(self, name, value):
         raise FrozenInstanceError()
+
+    @property
+    def convert(self):
+        warnings.warn(
+            "The `convert` attribute is deprecated in favor of `converter`.  "
+            "It will be removed after 2019/01.",
+            DeprecationWarning, stacklevel=2,
+        )
+        return self.converter
 
     @classmethod
     def from_counting_attr(cls, name, ca, type=None):

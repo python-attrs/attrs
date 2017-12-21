@@ -125,7 +125,7 @@ class TestAttribute(object):
     """
     Tests for `attr.Attribute`.
     """
-    def test_deprecated_convert(self):
+    def test_deprecated_convert_argument(self):
         """
         Using *convert* raises a DeprecationWarning and sets the converter
         field.
@@ -139,9 +139,28 @@ class TestAttribute(object):
             )
         w = wi.pop()
 
-        assert conv == a.converter == a.convert
+        assert conv == a.converter
         assert (
             "The `convert` argument is deprecated in favor of `converter`.  "
+            "It will be removed after 2019/01.",
+        ) == w.message.args
+        assert __file__ == w.filename
+
+    def test_deprecated_convert_attribute(self):
+        """
+        If Attribute.convert is accessed, a DeprecationWarning is raised.
+        """
+        def conv(v):
+            return v
+
+        a = simple_attr("a", converter=conv)
+        with pytest.warns(DeprecationWarning) as wi:
+            convert = a.convert
+        w = wi.pop()
+
+        assert conv is convert is a.converter
+        assert (
+            "The `convert` attribute is deprecated in favor of `converter`.  "
             "It will be removed after 2019/01.",
         ) == w.message.args
         assert __file__ == w.filename
@@ -229,8 +248,8 @@ class TestTransformAttrs(object):
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, repr=True, "
-            "cmp=True, hash=None, init=True, convert=None, "
-            "metadata=mappingproxy({}), type=None, converter=None)",
+            "cmp=True, hash=None, init=True, metadata=mappingproxy({}), "
+            "type=None, converter=None)",
         ) == e.value.args
 
     def test_these(self):
@@ -723,9 +742,12 @@ class TestConverter(object):
             class C(object):
                 x = attr.ib(convert=conv)
 
+            convert = fields(C).x.convert
+
+        assert 2 == len(wi.list)
         w = wi.pop()
 
-        assert conv == fields(C).x.converter == fields(C).x.convert
+        assert conv == fields(C).x.converter == convert
         assert (
             "The `convert` argument is deprecated in favor of `converter`.  "
             "It will be removed after 2019/01.",
