@@ -1274,9 +1274,12 @@ class Attribute(object):
                               _empty_metadata_singleton)
 
 
-_a = [Attribute(name=name, default=NOTHING, validator=None,
-                repr=True, cmp=True, hash=(name != "metadata"), init=True)
-      for name in Attribute.__slots__]
+_a = [
+    Attribute(name=name, default=NOTHING, validator=None,
+              repr=True, cmp=True, hash=(name != "metadata"), init=True)
+    for name in Attribute.__slots__
+    if name != "convert"  # XXX: remove once `convert` is gone
+]
 
 Attribute = _add_hash(
     _add_cmp(_add_repr(Attribute, attrs=_a), attrs=_a),
