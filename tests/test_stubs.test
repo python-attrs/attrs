@@ -12,13 +12,14 @@ class C:
     a = attr.ib()
     b = attr.ib(init=False, metadata={'foo': 1})
 
-c = C()
+c = C(1)
 reveal_type(c.a)  # Any
 reveal_type(C.a)  # Any
 reveal_type(c.b)  # Any
 reveal_type(C.b)  # Any
 [out]
 a.py:5: error: Need type annotation for variable
+a.py:6: error: Need type annotation for variable
 a.py:9: error: Revealed type is 'Any'
 a.py:10: error: Revealed type is 'Any'
 a.py:10: error: Cannot determine type of 'a'
@@ -35,7 +36,7 @@ import attr
 class C(object):
     a = attr.ib(type=int)
 
-c = C()
+c = C(1)
 reveal_type(c.a)  # int
 reveal_type(C.a)  # int
 [out]
@@ -52,7 +53,7 @@ import attr
 class C(object):
     a : int = attr.ib()
 
-c = C()
+c = C(1)
 reveal_type(c.a)  # int
 reveal_type(C.a)  # int
 [out]

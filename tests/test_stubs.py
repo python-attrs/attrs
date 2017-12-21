@@ -5,11 +5,10 @@ import re
 import subprocess
 import sys
 
-from mypy.test.data import parse_test_cases, DataSuite
-from mypy.test.helpers import (assert_string_arrays_equal,
-                               normalize_error_messages)
+from tests.mypy_pytest_plugin import (DataSuite, assert_string_arrays_equal,
+                                      normalize_error_messages)
 
-pytest_plugins = ['mypy.test.data']
+pytest_plugins = ['tests.mypy_pytest_plugin']
 
 # Path to Python 3 interpreter
 python3_path = sys.executable
@@ -19,14 +18,10 @@ prefix_dir = os.path.join(os.path.dirname(os.path.dirname(test_file)), 'src')
 
 
 class PythonEvaluationSuite(DataSuite):
-
-    @classmethod
-    def cases(cls):
-        return parse_test_cases(test_file,
-                                _test_python_evaluation,
-                                base_path=test_temp_dir,
-                                optional_out=True,
-                                native_sep=True)
+    files = [test_file]
+    base_path = test_temp_dir
+    optional_out = True
+    native_sep = True
 
     def run_case(self, testcase):
         _test_python_evaluation(testcase)
