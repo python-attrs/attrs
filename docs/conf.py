@@ -5,13 +5,15 @@ import os
 import re
 
 
+HERE = os.path.abspath(os.path.dirname(__file__))
+
+
 def read(*parts):
     """
     Build an absolute path from *parts* and and return the contents of the
     resulting file.  Assume UTF-8 encoding.
     """
-    here = os.path.abspath(os.path.dirname(__file__))
-    with codecs.open(os.path.join(here, *parts), "rb", "utf-8") as f:
+    with codecs.open(os.path.join(HERE, *parts), "rb", "utf-8") as f:
         return f.read()
 
 
@@ -35,11 +37,13 @@ def find_version(*file_paths):
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
+    'doctest2',
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
 ]
 
+
+doctest_path = [os.path.join(HERE, '..', 'src')]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

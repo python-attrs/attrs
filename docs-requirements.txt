@@ -1,3 +1,4 @@
--e .
+-e docs
 sphinx
 zope.interface
+git+git://github.com/euresti/mypy.git@attrs_plugin#egg=mypy
