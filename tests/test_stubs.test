@@ -18,14 +18,10 @@ reveal_type(C.a)  # Any
 reveal_type(c.b)  # Any
 reveal_type(C.b)  # Any
 [out]
-a.py:5: error: Need type annotation for variable
-a.py:6: error: Need type annotation for variable
 a.py:9: error: Revealed type is 'Any'
 a.py:10: error: Revealed type is 'Any'
-a.py:10: error: Cannot determine type of 'a'
 a.py:11: error: Revealed type is 'Any'
 a.py:12: error: Revealed type is 'Any'
-a.py:12: error: Cannot determine type of 'b'
 
 [case test_type_arg]
 # cmd: mypy a.py
@@ -195,7 +191,7 @@ d = attr.ib(type=int, validator=and_(in_([1, 2, 3]), instance_of(int)))
 e = attr.ib(type=int, validator=1)  # error
 
 [out]
-a.py:8: error: Argument 2 has incompatible type "int"; expected "Union[Callable[[Any, Attribute[Any], int], Any], List[Callable[[Any, Attribute[Any], int], Any]], Tuple[Callable[[Any, Attribute[Any], int], Any], ...]]"
+a.py:8: error: No overload variant matches argument types [Overload(def (x: Union[builtins.str, builtins.bytes, typing.SupportsInt] =) -> builtins.int, def (x: Union[builtins.str, builtins.bytes], base: builtins.int) -> builtins.int), builtins.int]
 
 [case test_custom_validators]
 # cmd: mypy a.py
