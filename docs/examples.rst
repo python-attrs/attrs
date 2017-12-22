@@ -385,7 +385,7 @@ Of course you can mix and match the two approaches at your convenience:
    >>> @attr.s
    ... class C(object):
    ...     x = attr.ib(validator=attr.validators.instance_of(int))
-   ...     @x.validator
+   ...     @x.validator  # type: ignore
    ...     def fits_byte(self, attribute, value):
    ...         if not 0 < value < 256:
    ...             raise ValueError("value out of bounds")
@@ -563,7 +563,7 @@ Slot classes are a little different than ordinary, dictionary-backed classes:
      ...     y = attr.ib()
      ...
      >>> c = Coordinates(x=1, y=2)
-     >>> c.z = 3
+     >>> c.z = 3  # type: ignore
      Traceback (most recent call last):
          ...
      AttributeError: 'Coordinates' object has no attribute 'z'

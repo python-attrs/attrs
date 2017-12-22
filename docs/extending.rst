@@ -3,6 +3,10 @@
 Extending
 =========
 
+.. testsetup:: *
+
+    import attr
+
 Each ``attrs``-decorated class has a ``__attrs_attrs__`` class attribute.
 It is a tuple of :class:`attr.Attribute` carrying meta-data about each attribute.
 
@@ -56,7 +60,7 @@ Types
 
 This information is available to you:
 
-.. doctest::
+.. doctest:: types
 
    >>> import attr
    >>> @attr.s
@@ -96,7 +100,7 @@ Here are some tips for effective use of metadata:
 - Expose ``attr.ib`` wrappers for your specific metadata.
   This is a more graceful approach if your users don't require metadata from other libraries.
 
-  .. doctest::
+  .. doctest:: metadata
 
     >>> MY_TYPE_METADATA = '__my_type_metadata'
     >>>

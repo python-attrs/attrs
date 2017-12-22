@@ -13,7 +13,9 @@ API Reference
 
 What follows is the API explanation, if you'd like a more hands-on introduction, have a look at :doc:`examples`.
 
+.. testsetup:: *
 
+    import attr
 
 Core
 ----
@@ -26,7 +28,7 @@ Core
 
    For example:
 
-   .. doctest::
+   .. doctest::  core
 
       >>> import attr
       >>> @attr.s
@@ -39,7 +41,7 @@ Core
       ...         self.x = x
       >>> D(1)
       <D object at ...>
-      >>> D = attr.s(these={"x": attr.ib()}, init=False)(D)
+      >>> D = attr.s(these={"x": attr.ib()}, init=False)(D)  # type: ignore
       >>> D(1)
       D(x=1)
 
@@ -52,7 +54,7 @@ Core
 
    The object returned by :func:`attr.ib` also allows for setting the default and the validator using decorators:
 
-   .. doctest::
+   .. doctest::  attrib
 
       >>> @attr.s
       ... class C(object):
@@ -65,9 +67,9 @@ Core
       ...     @y.default
       ...     def name_does_not_matter(self):
       ...         return self.x + 1
-      >>> C(1)
+      >>> C(1)  # type: ignore  # default decorator not recognized
       C(x=1, y=2)
-      >>> C(-1)
+      >>> C(-1)  # type: ignore  # default decorator not recognized
       Traceback (most recent call last):
           ...
       ValueError: x must be positive
@@ -83,7 +85,7 @@ Core
 
        You should never instantiate this class yourself!
 
-   .. doctest::
+   .. doctest::  Attribute
 
       >>> import attr
       >>> @attr.s
@@ -99,7 +101,7 @@ Core
 
    For example:
 
-   .. doctest::
+   .. doctest:: make_class
 
       >>> C1 = attr.make_class("C1", ["x", "y"])
       >>> C1(1, 2)
@@ -114,7 +116,7 @@ Core
 
    For example:
 
-   .. doctest::
+   .. doctest:: Factory
 
       >>> @attr.s
       ... class C(object):
@@ -152,7 +154,7 @@ The moment you need a finer control over how your class is instantiated, it's us
 However, sometimes you need to do that one quick thing after your class is initialized.
 And for that ``attrs`` offers the ``__attrs_post_init__`` hook that is automatically detected and run after ``attrs`` is done initializing your instance:
 
-.. doctest::
+.. doctest:: post_init1
 
    >>> @attr.s
    ... class C(object):
@@ -165,7 +167,7 @@ And for that ``attrs`` offers the ``__attrs_post_init__`` hook that is automatic
 
 Please note that you can't directly set attributes on frozen classes:
 
-.. doctest::
+.. doctest:: post_init2
 
    >>> @attr.s(frozen=True)
    ... class FrozenBroken(object):
@@ -180,7 +182,7 @@ Please note that you can't directly set attributes on frozen classes:
 
 If you need to set attributes on a frozen class, you'll have to resort to the :ref:`same trick <how-frozen>` as ``attrs`` and use :meth:`object.__setattr__`:
 
-.. doctest::
+.. doctest:: post_init3
 
    >>> @attr.s(frozen=True)
    ... class Frozen(object):
@@ -203,7 +205,7 @@ Helpers
 
    For example:
 
-   .. doctest::
+   .. doctest:: fields
 
       >>> @attr.s
       ... class C(object):
@@ -221,7 +223,7 @@ Helpers
 
    For example:
 
-   .. doctest::
+   .. doctest:: has
 
       >>> @attr.s
       ... class C(object):
@@ -236,7 +238,7 @@ Helpers
 
    For example:
 
-   .. doctest::
+   .. doctest:: asdict
 
       >>> @attr.s
       ... class C(object):
@@ -250,7 +252,7 @@ Helpers
 
    For example:
 
-   .. doctest::
+   .. doctest:: astuple
 
       >>> @attr.s
       ... class C(object):
@@ -271,7 +273,7 @@ See :ref:`asdict` for examples.
 
    For example:
 
-   .. doctest::
+   .. doctest:: evolve
 
       >>> @attr.s
       ... class C(object):
@@ -297,13 +299,13 @@ See :ref:`asdict` for examples.
 
    For example:
 
-   .. doctest::
+   .. doctest:: validate
 
       >>> @attr.s
       ... class C(object):
       ...     x = attr.ib(validator=attr.validators.instance_of(int))
       >>> i = C(1)
-      >>> i.x = "1"
+      >>> i.x = "1"  # type: ignore  # this is a legit error
       >>> attr.validate(i)
       Traceback (most recent call last):
          ...
@@ -330,7 +332,7 @@ Validators
 
    For example:
 
-   .. doctest::
+   .. doctest:: validators.instance_of
 
       >>> @attr.s
       ... class C(object):
@@ -350,7 +352,7 @@ Validators
 
    For example:
 
-   .. doctest::
+   .. doctest:: validators.in_
 
        >>> import enum
        >>> class State(enum.Enum):
@@ -386,7 +388,7 @@ Validators
 
    For example:
 
-   .. doctest::
+   .. doctest:: validators.optional
 
       >>> @attr.s
       ... class C(object):
@@ -408,7 +410,7 @@ Converters
 
    For example:
 
-   .. doctest::
+   .. doctest:: converters.optional
 
       >>> @attr.s
       ... class C(object):
