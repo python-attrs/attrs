@@ -14,13 +14,7 @@ from hypothesis.strategies import booleans
 import attr
 
 from attr._make import (
-    Factory,
-    NOTHING,
-    _Nothing,
-    _add_init,
-    _add_repr,
-    fields,
-    make_class,
+    NOTHING, Factory, _add_init, _add_repr, _Nothing, fields, make_class
 )
 from attr.validators import instance_of
 
@@ -205,6 +199,16 @@ class TestAddRepr(object):
         i._x = 42
 
         assert "C(_x=42)" == repr(i)
+
+    def test_repr_uninitialized_member(self):
+        """
+        repr signals unset attributes
+        """
+        C = make_class("C", {
+            "a": attr.ib(init=False),
+        })
+
+        assert "C(a=NOTHING)" == repr(C())
 
     @given(add_str=booleans(), slots=booleans())
     def test_str(self, add_str, slots):

@@ -5,6 +5,7 @@ Tests for `attr._make`.
 from __future__ import absolute_import, division, print_function
 
 import inspect
+import itertools
 import sys
 
 from operator import attrgetter
@@ -19,22 +20,16 @@ import attr
 from attr import _config
 from attr._compat import PY2
 from attr._make import (
-    Attribute,
-    Factory,
-    _AndValidator,
-    _Attributes,
-    _ClassBuilder,
-    _CountingAttr,
-    _transform_attrs,
-    and_,
-    fields,
-    make_class,
-    validate,
+    Attribute, Factory, _AndValidator, _Attributes, _ClassBuilder,
+    _CountingAttr, _transform_attrs, and_, fields, make_class, validate
 )
-from attr.exceptions import NotAnAttrsClassError, DefaultAlreadySetError
+from attr.exceptions import DefaultAlreadySetError, NotAnAttrsClassError
 
-from .utils import (gen_attr_names, list_of_attrs, simple_attr, simple_attrs,
-                    simple_attrs_without_metadata, simple_classes)
+from .utils import (
+    gen_attr_names, list_of_attrs, simple_attr, simple_attrs,
+    simple_attrs_with_metadata, simple_attrs_without_metadata, simple_classes
+)
+
 
 attrs_st = simple_attrs.map(lambda c: Attribute.from_counting_attr("name", c))
 
@@ -213,6 +208,42 @@ class TestTransformAttrs(object):
         assert (
             simple_attr("x"),
         ) == attrs
+
+    def test_multiple_inheritance(self):
+        """
+        Order of attributes doesn't get mixed up by multiple inheritance.
+
+        See #285
+        """
+        @attr.s
+        class A(object):
+            a1 = attr.ib(default="a1")
+            a2 = attr.ib(default="a2")
+
+        @attr.s
+        class B(A):
+            b1 = attr.ib(default="b1")
+            b2 = attr.ib(default="b2")
+
+        @attr.s
+        class C(B, A):
+            c1 = attr.ib(default="c1")
+            c2 = attr.ib(default="c2")
+
+        @attr.s
+        class D(A):
+            d1 = attr.ib(default="d1")
+            d2 = attr.ib(default="d2")
+
+        @attr.s
+        class E(C, D):
+            e1 = attr.ib(default="e1")
+            e2 = attr.ib(default="e2")
+
+        assert (
+            "E(a1='a1', a2='a2', b1='b1', b2='b2', c1='c1', c2='c2', d1='d1', "
+            "d2='d2', e1='e1', e2='e2')"
+        ) == repr(E())
 
 
 class TestAttributes(object):
@@ -792,6 +823,39 @@ class TestMetadata(object):
         C = make_class("C", dict(zip(gen_attr_names(), list_of_attrs)))
         for a in fields(C)[1:]:
             assert a.metadata is fields(C)[0].metadata
+
+    @given(lists(simple_attrs_without_metadata, min_size=2, max_size=5))
+    def test_empty_countingattr_metadata_independent(self, list_of_attrs):
+        """
+        All empty metadata attributes are independent before ``@attr.s``.
+        """
+        for x, y in itertools.combinations(list_of_attrs, 2):
+            assert x.metadata is not y.metadata
+
+    @given(lists(simple_attrs_with_metadata(), min_size=2, max_size=5))
+    def test_not_none_metadata(self, list_of_attrs):
+        """
+        Non-empty metadata attributes exist as fields after ``@attr.s``.
+        """
+        C = make_class("C", dict(zip(gen_attr_names(), list_of_attrs)))
+
+        assert len(fields(C)) > 0
+
+        for cls_a, raw_a in zip(fields(C), list_of_attrs):
+            assert cls_a.metadata != {}
+            assert cls_a.metadata == raw_a.metadata
+
+    def test_metadata(self):
+        """
+        If metadata that is not None is passed, it is used.
+
+        This is necessary for coverage because the previous test is
+        hypothesis-based.
+        """
+        md = {}
+        a = attr.ib(metadata=md)
+
+        assert md is a.metadata
 
 
 class TestClassBuilder(object):

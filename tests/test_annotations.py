@@ -131,3 +131,26 @@ class TestAnnotations:
         assert (
             "The following `attr.ib`s lack a type annotation: v, y.",
         ) == e.value.args
+
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_auto_attribs_subclassing(self, slots):
+        """
+        Attributes from super classes are inherited, it doesn't matter if the
+        subclass has annotations or not.
+
+        Ref #291
+        """
+        @attr.s(slots=slots, auto_attribs=True)
+        class A:
+            a: int = 1
+
+        @attr.s(slots=slots, auto_attribs=True)
+        class B(A):
+            b: int = 2
+
+        @attr.s(slots=slots, auto_attribs=True)
+        class C(A):
+            pass
+
+        assert "B(a=1, b=2)" == repr(B())
+        assert "C(a=1)" == repr(C())

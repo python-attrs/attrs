@@ -145,7 +145,7 @@ def _create_hyp_nested_strategy(simple_class_strategy):
                      attrs_and_classes.map(ordereddict_of_class))
 
 
-bare_attrs = st.just(attr.ib(default=None))
+bare_attrs = st.builds(attr.ib, default=st.none())
 int_attrs = st.integers().map(lambda i: attr.ib(default=i))
 str_attrs = st.text().map(lambda s: attr.ib(default=s))
 float_attrs = st.floats().map(lambda f: attr.ib(default=f))
@@ -164,7 +164,8 @@ def simple_attrs_with_metadata(draw):
     c_attr = draw(simple_attrs)
     keys = st.booleans() | st.binary() | st.integers() | st.text()
     vals = st.booleans() | st.binary() | st.integers() | st.text()
-    metadata = draw(st.dictionaries(keys=keys, values=vals))
+    metadata = draw(st.dictionaries(
+        keys=keys, values=vals, min_size=1, max_size=5))
 
     return attr.ib(c_attr._default, c_attr._validator, c_attr.repr,
                    c_attr.cmp, c_attr.hash, c_attr.init, c_attr.convert,
