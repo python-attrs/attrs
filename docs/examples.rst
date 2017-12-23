@@ -390,7 +390,7 @@ Of course you can mix and match the two approaches at your convenience:
    >>> C("128")
    Traceback (most recent call last):
       ...
-   TypeError: ("'x' must be <class 'int'> (got '128' that is a <class 'str'>).", Attribute(name='x', default=NOTHING, validator=[<instance_of validator for type <class 'int'>>, <function fits_byte at 0x10fd7a0d0>], repr=True, cmp=True, hash=True, init=True, convert=None, metadata=mappingproxy({}), type=None), <class 'int'>, '128')
+   TypeError: ("'x' must be <class 'int'> (got '128' that is a <class 'str'>).", Attribute(name='x', default=NOTHING, validator=[<instance_of validator for type <class 'int'>>, <function fits_byte at 0x10fd7a0d0>], repr=True, cmp=True, hash=True, init=True, metadata=mappingproxy({}), type=None, converter=one), <class 'int'>, '128')
    >>> C(256)
    Traceback (most recent call last):
       ...
@@ -405,20 +405,20 @@ And finally you can disable validators globally:
    >>> C("128")
    Traceback (most recent call last):
       ...
-   TypeError: ("'x' must be <class 'int'> (got '128' that is a <class 'str'>).", Attribute(name='x', default=NOTHING, validator=[<instance_of validator for type <class 'int'>>, <function fits_byte at 0x10fd7a0d0>], repr=True, cmp=True, hash=True, init=True, convert=None, metadata=mappingproxy({}), type=None), <class 'int'>, '128')
+   TypeError: ("'x' must be <class 'int'> (got '128' that is a <class 'str'>).", Attribute(name='x', default=NOTHING, validator=[<instance_of validator for type <class 'int'>>, <function fits_byte at 0x10fd7a0d0>], repr=True, cmp=True, hash=True, init=True, metadata=mappingproxy({}), type=None, converter=None), <class 'int'>, '128')
 
 
 Conversion
 ----------
 
-Attributes can have a ``convert`` function specified, which will be called with the attribute's passed-in value to get a new value to use.
+Attributes can have a ``converter`` function specified, which will be called with the attribute's passed-in value to get a new value to use.
 This can be useful for doing type-conversions on values that you don't want to force your callers to do.
 
 .. doctest::
 
     >>> @attr.s
     ... class C(object):
-    ...     x = attr.ib(convert=int)
+    ...     x = attr.ib(converter=int)
     >>> o = C("1")
     >>> o.x
     1
@@ -432,7 +432,7 @@ Converters are run *before* validators, so you can use validators to check the f
     ...         raise ValueError("x must be be at least 0.")
     >>> @attr.s
     ... class C(object):
-    ...     x = attr.ib(convert=int, validator=validate_x)
+    ...     x = attr.ib(converter=int, validator=validate_x)
     >>> o = C("0")
     >>> o.x
     0

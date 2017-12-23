@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 import hashlib
 import linecache
 import sys
+import warnings
 
 from operator import itemgetter
 
@@ -16,7 +17,7 @@ from .exceptions import (
 
 # This is used at least twice, so cache it here.
 _obj_setattr = object.__setattr__
-_init_convert_pat = "__attr_convert_{}"
+_init_converter_pat = "__attr_converter_{}"
 _init_factory_pat = "__attr_factory_{}"
 _tuple_property_pat = "    {attr_name} = property(itemgetter({index}))"
 _empty_metadata_singleton = metadata_proxy({})
@@ -55,7 +56,7 @@ Sentinel to indicate the lack of a value when ``None`` is ambiguous.
 
 def attrib(default=NOTHING, validator=None,
            repr=True, cmp=True, hash=None, init=True,
-           convert=None, metadata=None, type=None):
+           convert=None, metadata=None, type=None, converter=None):
     """
     Create a new attribute on a class.
 
@@ -111,8 +112,8 @@ def attrib(default=NOTHING, validator=None,
         method.  It is possible to set this to ``False`` and set a default
         value.  In that case this attributed is unconditionally initialized
         with the specified default value or factory.
-    :param callable convert: :func:`callable` that is called by
-        ``attrs``-generated ``__init__`` methods to convert attribute's value
+    :param callable converter: :func:`callable` that is called by
+        ``attrs``-generated ``__init__`` methods to converter attribute's value
         to the desired format.  It is given the passed-in value, and the
         returned value will be used as the new value of the attribute.  The
         value is converted before being passed to the validator, if any.
@@ -125,17 +126,37 @@ def attrib(default=NOTHING, validator=None,
         Regardless of the approach used, the type will be stored on
         ``Attribute.type``.
 
+    .. versionadded:: 15.2.0 *convert*
+    .. versionadded:: 16.3.0 *metadata*
     ..  versionchanged:: 17.1.0 *validator* can be a ``list`` now.
     ..  versionchanged:: 17.1.0
         *hash* is ``None`` and therefore mirrors *cmp* by default.
     ..  versionadded:: 17.3.0 *type*
+    ..  deprecated:: 17.4.0 *convert*
+    ..  versionadded:: 17.4.0 *converter* as a replacement for the deprecated
+        *convert* to achieve consistency with other noun-based arguments.
     """
     if hash is not None and hash is not True and hash is not False:
         raise TypeError(
             "Invalid value for hash.  Must be True, False, or None."
         )
+
+    if convert is not None:
+        if converter is not None:
+            raise RuntimeError(
+                "Can't pass both `convert` and `converter`.  "
+                "Please use `converter` only."
+            )
+        warnings.warn(
+            "The `convert` argument is deprecated in favor of `converter`.  "
+            "It will be removed after 2019/01.",
+            DeprecationWarning, stacklevel=2
+        )
+        converter = convert
+
     if metadata is None:
         metadata = {}
+
     return _CountingAttr(
         default=default,
         validator=validator,
@@ -143,7 +164,7 @@ def attrib(default=NOTHING, validator=None,
         cmp=cmp,
         hash=hash,
         init=init,
-        convert=convert,
+        converter=converter,
         metadata=metadata,
         type=type,
     )
@@ -1017,7 +1038,7 @@ def _attrs_to_init_script(attrs, frozen, post_init):
             }
 
         def fmt_setter_with_converter(attr_name, value_var):
-            conv_name = _init_convert_pat.format(attr_name)
+            conv_name = _init_converter_pat.format(attr_name)
             return "_setattr('%(attr_name)s', %(conv)s(%(value_var)s))" % {
                 "attr_name": attr_name,
                 "value_var": value_var,
@@ -1031,7 +1052,7 @@ def _attrs_to_init_script(attrs, frozen, post_init):
             }
 
         def fmt_setter_with_converter(attr_name, value_var):
-            conv_name = _init_convert_pat.format(attr_name)
+            conv_name = _init_converter_pat.format(attr_name)
             return "self.%(attr_name)s = %(conv)s(%(value_var)s)" % {
                 "attr_name": attr_name,
                 "value_var": value_var,
@@ -1058,12 +1079,12 @@ def _attrs_to_init_script(attrs, frozen, post_init):
         if a.init is False:
             if has_factory:
                 init_factory_name = _init_factory_pat.format(a.name)
-                if a.convert is not None:
+                if a.converter is not None:
                     lines.append(fmt_setter_with_converter(
                         attr_name,
                         init_factory_name + "({0})".format(maybe_self)))
-                    conv_name = _init_convert_pat.format(a.name)
-                    names_for_globals[conv_name] = a.convert
+                    conv_name = _init_converter_pat.format(a.name)
+                    names_for_globals[conv_name] = a.converter
                 else:
                     lines.append(fmt_setter(
                         attr_name,
@@ -1071,14 +1092,14 @@ def _attrs_to_init_script(attrs, frozen, post_init):
                     ))
                 names_for_globals[init_factory_name] = a.default.factory
             else:
-                if a.convert is not None:
+                if a.converter is not None:
                     lines.append(fmt_setter_with_converter(
                         attr_name,
                         "attr_dict['{attr_name}'].default"
                         .format(attr_name=attr_name)
                     ))
-                    conv_name = _init_convert_pat.format(a.name)
-                    names_for_globals[conv_name] = a.convert
+                    conv_name = _init_converter_pat.format(a.name)
+                    names_for_globals[conv_name] = a.converter
                 else:
                     lines.append(fmt_setter(
                         attr_name,
@@ -1092,9 +1113,11 @@ def _attrs_to_init_script(attrs, frozen, post_init):
                     attr_name=attr_name,
                 )
             )
-            if a.convert is not None:
+            if a.converter is not None:
                 lines.append(fmt_setter_with_converter(attr_name, arg_name))
-                names_for_globals[_init_convert_pat.format(a.name)] = a.convert
+                names_for_globals[_init_converter_pat.format(a.name)] = (
+                    a.converter
+                )
             else:
                 lines.append(fmt_setter(attr_name, arg_name))
         elif has_factory:
@@ -1102,15 +1125,18 @@ def _attrs_to_init_script(attrs, frozen, post_init):
             lines.append("if {arg_name} is not NOTHING:"
                          .format(arg_name=arg_name))
             init_factory_name = _init_factory_pat.format(a.name)
-            if a.convert is not None:
-                lines.append("    " + fmt_setter_with_converter(attr_name,
-                                                                arg_name))
+            if a.converter is not None:
+                lines.append("    " + fmt_setter_with_converter(
+                    attr_name, arg_name
+                ))
                 lines.append("else:")
                 lines.append("    " + fmt_setter_with_converter(
                     attr_name,
                     init_factory_name + "({0})".format(maybe_self)
                 ))
-                names_for_globals[_init_convert_pat.format(a.name)] = a.convert
+                names_for_globals[_init_converter_pat.format(a.name)] = (
+                    a.converter
+                )
             else:
                 lines.append("    " + fmt_setter(attr_name, arg_name))
                 lines.append("else:")
@@ -1121,9 +1147,11 @@ def _attrs_to_init_script(attrs, frozen, post_init):
             names_for_globals[init_factory_name] = a.default.factory
         else:
             args.append(arg_name)
-            if a.convert is not None:
+            if a.converter is not None:
                 lines.append(fmt_setter_with_converter(attr_name, arg_name))
-                names_for_globals[_init_convert_pat.format(a.name)] = a.convert
+                names_for_globals[_init_converter_pat.format(a.name)] = (
+                    a.converter
+                )
             else:
                 lines.append(fmt_setter(attr_name, arg_name))
 
@@ -1156,16 +1184,33 @@ class Attribute(object):
     :attribute name: The name of the attribute.
 
     Plus *all* arguments of :func:`attr.ib`.
+
+    For the version history of the fields, see :func:`attr.ib`.
     """
     __slots__ = (
         "name", "default", "validator", "repr", "cmp", "hash", "init",
-        "convert", "metadata", "type"
+        "metadata", "type", "converter",
     )
 
     def __init__(self, name, default, validator, repr, cmp, hash, init,
-                 convert=None, metadata=None, type=None):
+                 convert=None, metadata=None, type=None, converter=None):
         # Cache this descriptor here to speed things up later.
         bound_setattr = _obj_setattr.__get__(self, Attribute)
+
+        # Despite the big red warning, people *do* instantiate `Attribute`
+        # themselves.
+        if convert is not None:
+            if converter is not None:
+                raise RuntimeError(
+                    "Can't pass both `convert` and `converter`.  "
+                    "Please use `converter` only."
+                )
+            warnings.warn(
+                "The `convert` argument is deprecated in favor of `converter`."
+                "  It will be removed after 2019/01.",
+                DeprecationWarning, stacklevel=2
+            )
+            converter = convert
 
         bound_setattr("name", name)
         bound_setattr("default", default)
@@ -1174,13 +1219,24 @@ class Attribute(object):
         bound_setattr("cmp", cmp)
         bound_setattr("hash", hash)
         bound_setattr("init", init)
-        bound_setattr("convert", convert)
-        bound_setattr("metadata", (metadata_proxy(metadata) if metadata
-                                   else _empty_metadata_singleton))
+        bound_setattr("converter", converter)
+        bound_setattr("metadata", (
+            metadata_proxy(metadata) if metadata
+            else _empty_metadata_singleton
+        ))
         bound_setattr("type", type)
 
     def __setattr__(self, name, value):
         raise FrozenInstanceError()
+
+    @property
+    def convert(self):
+        warnings.warn(
+            "The `convert` attribute is deprecated in favor of `converter`.  "
+            "It will be removed after 2019/01.",
+            DeprecationWarning, stacklevel=2,
+        )
+        return self.converter
 
     @classmethod
     def from_counting_attr(cls, name, ca, type=None):
@@ -1196,11 +1252,13 @@ class Attribute(object):
             for k
             in Attribute.__slots__
             if k not in (
-                "name", "validator", "default", "type"
-            )  # exclude methods
+                "name", "validator", "default", "type", "convert",
+            )  # exclude methods and deprecated alias
         }
-        return cls(name=name, validator=ca._validator, default=ca._default,
-                   type=type, **inst_dict)
+        return cls(
+            name=name, validator=ca._validator, default=ca._default, type=type,
+            **inst_dict
+        )
 
     # Don't use _add_pickle since fields(Attribute) doesn't work
     def __getstate__(self):
@@ -1224,9 +1282,12 @@ class Attribute(object):
                               _empty_metadata_singleton)
 
 
-_a = [Attribute(name=name, default=NOTHING, validator=None,
-                repr=True, cmp=True, hash=(name != "metadata"), init=True)
-      for name in Attribute.__slots__]
+_a = [
+    Attribute(name=name, default=NOTHING, validator=None,
+              repr=True, cmp=True, hash=(name != "metadata"), init=True)
+    for name in Attribute.__slots__
+    if name != "convert"  # XXX: remove once `convert` is gone
+]
 
 Attribute = _add_hash(
     _add_cmp(_add_repr(Attribute, attrs=_a), attrs=_a),
@@ -1243,7 +1304,7 @@ class _CountingAttr(object):
     likely the result of a bug like a forgotten `@attr.s` decorator.
     """
     __slots__ = ("counter", "_default", "repr", "cmp", "hash", "init",
-                 "metadata", "_validator", "convert", "type")
+                 "metadata", "_validator", "converter", "type")
     __attrs_attrs__ = tuple(
         Attribute(name=name, default=NOTHING, validator=None,
                   repr=True, cmp=True, hash=True, init=True)
@@ -1255,7 +1316,7 @@ class _CountingAttr(object):
     )
     cls_counter = 0
 
-    def __init__(self, default, validator, repr, cmp, hash, init, convert,
+    def __init__(self, default, validator, repr, cmp, hash, init, converter,
                  metadata, type):
         _CountingAttr.cls_counter += 1
         self.counter = _CountingAttr.cls_counter
@@ -1269,7 +1330,7 @@ class _CountingAttr(object):
         self.cmp = cmp
         self.hash = hash
         self.init = init
-        self.convert = convert
+        self.converter = converter
         self.metadata = metadata
         self.type = type
 
