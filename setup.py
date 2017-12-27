@@ -29,6 +29,16 @@ CLASSIFIERS = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 INSTALL_REQUIRES = []
+EXTRAS_REQUIRE = {
+    "test": [
+        "coverage",
+        "hypothesis",
+        "pympler",
+        "pytest",
+        "six",
+        "zope.interface",
+    ]
+}
 
 ###############################################################################
 
@@ -92,4 +102,5 @@ if __name__ == "__main__":
         zip_safe=False,
         classifiers=CLASSIFIERS,
         install_requires=INSTALL_REQUIRES,
+        extras_require=EXTRAS_REQUIRE,
     )
