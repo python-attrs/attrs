@@ -1,4 +1,5 @@
 The traversal of of MROs when using multiple inheritance was backward:
 If you defined a class ``C`` that subclasses ``A`` and ``B`` like ``C(A, B)``, ``attrs`` would have collected the attributes from ``B`` *before* those of ``A``.
 
-This is fixed now however due to its nature, it may require fixes on your side too unfortunately.
+This is now fixed and means that in classes that employ multiple inheritance, the output of ``__repr__`` and the order of positional arguments in ``__init__`` changes.
+Due to the nature of this bug, a proper deprecation cycle was unfortunately impossible.
