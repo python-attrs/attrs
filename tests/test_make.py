@@ -997,3 +997,49 @@ class TestClassBuilder(object):
             .build_class()
 
         assert "ns.C(x=1)" == repr(cls(1))
+
+    @pytest.mark.parametrize("meth_name", [
+        "__init__", "__hash__", "__repr__", "__str__",
+        "__eq__", "__ne__", "__lt__", "__le__", "__gt__", "__ge__",
+    ])
+    def test_attaches_meta_dunders(self, meth_name):
+        """
+        Generated methods have correct __module__, __name__, and __qualname__
+        attributes.
+        """
+        @attr.s(hash=True, str=True)
+        class C(object):
+            def organic(self):
+                pass
+
+        meth = getattr(C, meth_name)
+
+        assert meth_name == meth.__name__
+        assert C.organic.__module__ == meth.__module__
+        if not PY2:
+            organic_prefix = C.organic.__qualname__.rsplit(".", 1)[0]
+            assert organic_prefix + "." + meth_name == meth.__qualname__
+
+    def test_handles_missing_meta_on_class(self):
+        """
+        If the class hasn't a __module__ or __qualname__, the method hasn't
+        either.
+        """
+        class C(object):
+            pass
+
+        b = _ClassBuilder(
+            C, these=None, slots=False, frozen=False, auto_attribs=False,
+        )
+        b._cls = {}  # no __module__; no __qualname__
+
+        def fake_meth(self):
+            pass
+
+        fake_meth.__module__ = "42"
+        fake_meth.__qualname__ = "23"
+
+        rv = b._add_method_dunders(fake_meth)
+
+        assert "42" == rv.__module__ == fake_meth.__module__
+        assert "23" == rv.__qualname__ == fake_meth.__qualname__
