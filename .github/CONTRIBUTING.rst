@@ -157,7 +157,7 @@ Next, get an up to date checkout of the ``attrs`` repository:
 
     $ git checkout git@github.com:python-attrs/attrs.git
 
-Change into the newly created directory and **after activating your virtual environment** install an editable version of ``attrs`` and its test requirements:
+Change into the newly created directory and **after activating your virtual environment** install an editable version of ``attrs`` along with its test requirements:
 
 .. code-block:: bash
 
