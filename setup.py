@@ -30,15 +30,20 @@ CLASSIFIERS = [
 ]
 INSTALL_REQUIRES = []
 EXTRAS_REQUIRE = {
-    "test": [
+    "docs": [
+        "sphinx",
+        "zope.interface",
+    ],
+    "tests": [
         "coverage",
         "hypothesis",
         "pympler",
         "pytest",
         "six",
         "zope.interface",
-    ]
+    ],
 }
+EXTRAS_REQUIRE["dev"] = EXTRAS_REQUIRE["tests"] + EXTRAS_REQUIRE["docs"]
 
 ###############################################################################
 
