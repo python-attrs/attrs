@@ -41,7 +41,7 @@ Core
       ...         self.x = x
       >>> D(1)
       <D object at ...>
-      >>> D = attr.s(these={"x": attr.ib()}, init=False)(D)  # type: ignore
+      >>> D = attr.s(these={"x": attr.ib()}, init=False)(D)  # type: ignore  # can't override a type
       >>> D(1)
       D(x=1)
 
@@ -67,9 +67,9 @@ Core
       ...     @y.default
       ...     def name_does_not_matter(self):
       ...         return self.x + 1
-      >>> C(1)  # type: ignore  # default decorator not recognized
+      >>> C(1)
       C(x=1, y=2)
-      >>> C(-1)  # type: ignore  # default decorator not recognized
+      >>> C(-1)
       Traceback (most recent call last):
           ...
       ValueError: x must be positive

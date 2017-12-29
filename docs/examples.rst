@@ -98,7 +98,7 @@ This is useful in times when you want to enhance classes that are not yours (nic
    >>> class SomethingFromSomeoneElse(object):
    ...     def __init__(self, x):
    ...         self.x = x
-   >>> SomethingFromSomeoneElse = attr.s(  # type: ignore
+   >>> SomethingFromSomeoneElse = attr.s(  # type: ignore  # can't override a type
    ...     these={
    ...         "x": attr.ib()
    ...     }, init=False)(SomethingFromSomeoneElse)
@@ -385,7 +385,7 @@ Of course you can mix and match the two approaches at your convenience:
    >>> @attr.s
    ... class C(object):
    ...     x = attr.ib(validator=attr.validators.instance_of(int))
-   ...     @x.validator  # type: ignore
+   ...     @x.validator
    ...     def fits_byte(self, attribute, value):
    ...         if not 0 < value < 256:
    ...             raise ValueError("value out of bounds")
@@ -610,7 +610,7 @@ If you'd like to enforce it, ``attrs`` will try to help:
    ... class C(object):
    ...     x = attr.ib()
    >>> i = C(1)
-   >>> i.x = 2
+   >>> i.x = 2  # type: ignore
    Traceback (most recent call last):
       ...
    attr.exceptions.FrozenInstanceError: can't set attribute
