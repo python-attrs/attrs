@@ -5,8 +5,10 @@ import re
 import subprocess
 import sys
 
-from tests.mypy_pytest_plugin import (DataSuite, assert_string_arrays_equal,
-                                      normalize_error_messages)
+from tests.mypy_pytest_plugin import (
+    DataSuite, assert_string_arrays_equal, normalize_error_messages
+)
+
 
 pytest_plugins = ['tests.mypy_pytest_plugin']
 
@@ -30,15 +32,18 @@ class PythonEvaluationSuite(DataSuite):
 def _test_python_evaluation(testcase):
     assert testcase.old_cwd is not None, "test was not properly set up"
     # Write the program to a file.
-    program = '_program.py'
+    # we omit .py extension to be compatible with called to
+    # expand_errors parse_test_cases.
+    program = 'main'
     program_path = os.path.join(test_temp_dir, program)
     with open(program_path, 'w') as file:
         for s in testcase.input:
             file.write('{}\n'.format(s))
+
     args = parse_args(testcase.input[0])
     args.append('--show-traceback')
     # Type check the program.
-    fixed = [python3_path, '-m', 'mypy']
+    fixed = [python3_path, '-m', 'mypy', program]
     process = subprocess.Popen(fixed + args,
                                stdout=subprocess.PIPE,
                                stderr=subprocess.STDOUT,
@@ -69,5 +74,5 @@ def parse_args(line):
     """
     m = re.match('# cmd: mypy (.*)$', line)
     if not m:
-        return []  # No args; mypy will spit out an error.
+        return []  # No args
     return m.group(1).split()

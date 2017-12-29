@@ -85,7 +85,7 @@ If you want to initialize your private attributes yourself, you can do that too:
    ...     _x = attr.ib(init=False, default=42)
    >>> C()
    C(_x=42)
-   >>> C(23)  # type: ignore
+   >>> C(23)  # E: Too many arguments for "C"
    Traceback (most recent call last):
       ...
    TypeError: __init__() takes exactly 1 argument (2 given)
@@ -563,7 +563,7 @@ Slot classes are a little different than ordinary, dictionary-backed classes:
      ...     y = attr.ib()
      ...
      >>> c = Coordinates(x=1, y=2)
-     >>> c.z = 3  # type: ignore
+     >>> c.z = 3  # E: "Coordinates" has no attribute "z"
      Traceback (most recent call last):
          ...
      AttributeError: 'Coordinates' object has no attribute 'z'
@@ -610,7 +610,7 @@ If you'd like to enforce it, ``attrs`` will try to help:
    ... class C(object):
    ...     x = attr.ib()
    >>> i = C(1)
-   >>> i.x = 2  # type: ignore
+   >>> i.x = 2  # E: Property "x" defined in "C" is read-only
    Traceback (most recent call last):
       ...
    attr.exceptions.FrozenInstanceError: can't set attribute

@@ -3,8 +3,6 @@
 --  ---------------------------
 
 [case test_no_type]
-# cmd: mypy a.py
-[file a.py]
 import attr
 
 @attr.s
@@ -13,19 +11,12 @@ class C:
     b = attr.ib(init=False, metadata={'foo': 1})
 
 c = C(1)
-reveal_type(c.a)  # Any
-reveal_type(C.a)  # Any
-reveal_type(c.b)  # Any
-reveal_type(C.b)  # Any
-[out]
-a.py:9: error: Revealed type is 'Any'
-a.py:10: error: Revealed type is 'Any'
-a.py:11: error: Revealed type is 'Any'
-a.py:12: error: Revealed type is 'Any'
+reveal_type(c.a)  # E: Revealed type is 'Any'
+reveal_type(C.a)  # E: Revealed type is 'Any'
+reveal_type(c.b)  # E: Revealed type is 'Any'
+reveal_type(C.b)  # E: Revealed type is 'Any'
 
 [case test_type_arg]
-# cmd: mypy a.py
-[file a.py]
 import attr
 
 @attr.s
@@ -33,16 +24,11 @@ class C(object):
     a = attr.ib(type=int)
 
 c = C(1)
-reveal_type(c.a)  # int
-reveal_type(C.a)  # int
-[out]
-a.py:8: error: Revealed type is 'builtins.int*'
-a.py:9: error: Revealed type is 'builtins.int*'
+reveal_type(c.a)  # E: Revealed type is 'builtins.int*'
+reveal_type(C.a)  # E: Revealed type is 'builtins.int*'
 
 
 [case test_type_annotations]
-# cmd: mypy a.py
-[file a.py]
 import attr
 
 @attr.s
@@ -50,69 +36,48 @@ class C(object):
     a : int = attr.ib()
 
 c = C(1)
-reveal_type(c.a)  # int
-reveal_type(C.a)  # int
-[out]
-a.py:8: error: Revealed type is 'builtins.int'
-a.py:9: error: Revealed type is 'builtins.int'
+reveal_type(c.a)  # E: Revealed type is 'builtins.int'
+reveal_type(C.a)  # E: Revealed type is 'builtins.int'
+
 
 --  ---------------------------
 --  Defaults
 --  ---------------------------
 
 [case test_defaults_no_type]
-# cmd: mypy a.py
-[file a.py]
 import attr
 
 a = attr.ib(default=0)
-reveal_type(a)  # int
+reveal_type(a)  # E: Revealed type is 'builtins.int*'
 
 b = attr.ib(0)
-reveal_type(b)  # int
-
-[out]
-a.py:4: error: Revealed type is 'builtins.int*'
-a.py:7: error: Revealed type is 'builtins.int*'
+reveal_type(b)  # E: Revealed type is 'builtins.int*'
 
 
 [case test_defaults_type_arg]
-# cmd: mypy a.py
-[file a.py]
 import attr
 
 a = attr.ib(type=int)
-reveal_type(a)  # int
+reveal_type(a)  # E: Revealed type is 'builtins.int*'
 
 b = attr.ib(default=0, type=int)
-reveal_type(b)  # int
+reveal_type(b)  # E: Revealed type is 'builtins.int*'
 
 c = attr.ib(default='bad', type=int)
-reveal_type(c)  # object, the common base of str and int
-
-[out]
-a.py:4: error: Revealed type is 'builtins.int*'
-a.py:7: error: Revealed type is 'builtins.int*'
-a.py:10: error: Revealed type is 'builtins.object*'
+# object, the common base of str and int:
+reveal_type(c)  # E: Revealed type is 'builtins.object*'
 
 
 [case test_defaults_type_annotations]
-# cmd: mypy a.py
-[file a.py]
 import attr
 
 a: int = attr.ib()
-reveal_type(a)  # int
+reveal_type(a)  # E: Revealed type is 'builtins.int'
 
 b: int = attr.ib(default=0)
-reveal_type(b)  # int
+reveal_type(b)  # E: Revealed type is 'builtins.int'
 
-c: int = attr.ib(default=0, type=str)  # error: object <> int
-
-[out]
-a.py:4: error: Revealed type is 'builtins.int'
-a.py:7: error: Revealed type is 'builtins.int'
-a.py:9: error: Incompatible types in assignment (expression has type "object", variable has type "int")
+c: int = attr.ib(default=0, type=str)  # E: Incompatible types in assignment (expression has type "object", variable has type "int")
 
 
 --  ---------------------------
@@ -120,58 +85,45 @@ a.py:9: error: Incompatible types in assignment (expression has type "object", v
 --  ---------------------------
 
 [case test_factory_defaults_type_arg]
-# cmd: mypy a.py
-[file a.py]
 import attr
 from typing import List
 
 a = attr.ib(type=List[int])
-reveal_type(a)  # List[int]
+reveal_type(a)  # E: Revealed type is 'builtins.list*[builtins.int*]'
 
 b = attr.ib(default=attr.Factory(list), type=List[int])
-reveal_type(b)  # object:  FIXME: shouldn't the `default` type be upgraded from `list` to `List[int]``?  make a mypy github issue
+# FIXME: shouldn't the `default` type be upgraded from `list` to `List[int]``?  make a mypy github issue
+reveal_type(b)  # E: Revealed type is 'builtins.object*'
 
 c = attr.ib(default=attr.Factory(list), type=int)
-reveal_type(c)  # object, the common base of list and int
+
+# object, the common base of list and int:
+reveal_type(c)  # E: Revealed type is 'builtins.object*'
 
 def int_factory() -> int:
     return 0
 
 d = attr.ib(default=attr.Factory(int_factory), type=int)
-reveal_type(d)  # int
-
-[out]
-a.py:5: error: Revealed type is 'builtins.list*[builtins.int*]'
-a.py:8: error: Revealed type is 'builtins.object*'
-a.py:11: error: Revealed type is 'builtins.object*'
-a.py:17: error: Revealed type is 'builtins.int*'
+reveal_type(d)  # E: Revealed type is 'builtins.int*'
 
 
 [case test_factory_defaults_type_annotations]
-# cmd: mypy a.py
-[file a.py]
 import attr
 from typing import List
 
 a: List[int] = attr.ib()
-reveal_type(a)  # List[int]
+reveal_type(a)  # E: Revealed type is 'builtins.list[builtins.int]'
 
 b: List[int] = attr.ib(default=attr.Factory(list), type=List[int])
-reveal_type(b)  # List[int]
+reveal_type(b)  # E: Revealed type is 'builtins.list[builtins.int]'
 
-c: List[int] = attr.ib(default=attr.Factory(list), type=str)  # error: str <> List[int]
+c: List[int] = attr.ib(default=attr.Factory(list), type=str)  # E: Argument 2 has incompatible type "Type[str]"; expected "Type[List[int]]"
 
 def int_factory() -> int:
     return 0
 
 d: int = attr.ib(default=attr.Factory(int_factory))
-reveal_type(d)  # int
-
-[out]
-a.py:5: error: Revealed type is 'builtins.list[builtins.int]'
-a.py:8: error: Revealed type is 'builtins.list[builtins.int]'
-a.py:10: error: Argument 2 has incompatible type "Type[str]"; expected "Type[List[int]]"
-a.py:16: error: Revealed type is 'builtins.int'
+reveal_type(d)  # E: Revealed type is 'builtins.int'
 
 
 --  ---------------------------
@@ -179,8 +131,6 @@ a.py:16: error: Revealed type is 'builtins.int'
 --  ---------------------------
 
 [case test_validators]
-# cmd: mypy a.py
-[file a.py]
 import attr
 from attr.validators import in_, and_, instance_of
 
@@ -188,14 +138,10 @@ a = attr.ib(type=int, validator=in_([1, 2, 3]))
 b = attr.ib(type=int, validator=[in_([1, 2, 3]), instance_of(int)])
 c = attr.ib(type=int, validator=(in_([1, 2, 3]), instance_of(int)))
 d = attr.ib(type=int, validator=and_(in_([1, 2, 3]), instance_of(int)))
-e = attr.ib(type=int, validator=1)  # error
+e = attr.ib(type=int, validator=1)  # E: No overload variant matches argument types [Overload(def (x: Union[builtins.str, builtins.bytes, typing.SupportsInt] =) -> builtins.int, def (x: Union[builtins.str, builtins.bytes], base: builtins.int) -> builtins.int), builtins.int]
 
-[out]
-a.py:8: error: No overload variant matches argument types [Overload(def (x: Union[builtins.str, builtins.bytes, typing.SupportsInt] =) -> builtins.int, def (x: Union[builtins.str, builtins.bytes], base: builtins.int) -> builtins.int), builtins.int]
 
 [case test_custom_validators]
-# cmd: mypy a.py
-[file a.py]
 import attr
 
 def validate_int(inst, at, val: int):
@@ -205,62 +151,43 @@ def validate_str(inst, at, val: str):
     pass
 
 a = attr.ib(type=int, validator=validate_int)  # int
-b = attr.ib(type=int, validator=validate_str)  # error
+b = attr.ib(type=int, validator=validate_str)  # E: Argument 2 has incompatible type "Callable[[Any, Any, str], Any]"; expected "Union[Callable[[Any, Attribute[Any], int], Any], List[Callable[[Any, Attribute[Any], int], Any]], Tuple[Callable[[Any, Attribute[Any], int], Any], ...]]"
 
-reveal_type(a)
+reveal_type(a) # E: Revealed type is 'builtins.int'
 
-[out]
-a.py:10: error: Argument 2 has incompatible type "Callable[[Any, Any, str], Any]"; expected "Union[Callable[[Any, Attribute[Any], int], Any], List[Callable[[Any, Attribute[Any], int], Any]], Tuple[Callable[[Any, Attribute[Any], int], Any], ...]]"
-a.py:12: error: Revealed type is 'builtins.int'
 
 --  ---------------------------
 --  Make
 --  ---------------------------
 
 [case test_make_from_dict]
-# cmd: mypy a.py
-[file a.py]
 import attr
 C = attr.make_class("C", {
     "x": attr.ib(type=int),
     "y": attr.ib()
 })
-[out]
 
 
 [case test_make_from_str]
-# cmd: mypy a.py
-[file a.py]
 import attr
 C = attr.make_class("C", ["x", "y"])
-[out]
 
 
 [case test_astuple]
-# cmd: mypy a.py
-[file a.py]
 import attr
 @attr.s
 class C:
     a: int = attr.ib()
 
 t1 = attr.astuple(C)
-reveal_type(t1)
-
-[out]
-a.py:7: error: Revealed type is 'builtins.tuple[Any]'
+reveal_type(t1)  # E: Revealed type is 'builtins.tuple[Any]'
 
 
 [case test_asdict]
-# cmd: mypy a.py
-[file a.py]
 import attr
 @attr.s
 class C:
     a: int = attr.ib()
 
 t1 = attr.asdict(C)
-reveal_type(t1)
-
-[out]
-a.py:7: error: Revealed type is 'builtins.dict[builtins.str, Any]'
+reveal_type(t1)  # E: Revealed type is 'builtins.dict[builtins.str, Any]'

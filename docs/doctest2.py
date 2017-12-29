@@ -18,6 +18,39 @@ python3_path = sys.executable
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
+MAIN = 'main'
+
+import re
+# FIXME: pull this from mypy_test_plugin
+def expand_errors(input, output, fnam: str):
+    """Transform comments such as '# E: message' or
+    '# E:3: message' in input.
+
+    The result is lines like 'fnam:line: error: message'.
+    """
+
+    for i in range(len(input)):
+        # The first in the split things isn't a comment
+        for possible_err_comment in input[i].split(' # ')[1:]:
+            m = re.search(
+                '^([ENW]):((?P<col>\d+):)? (?P<message>.*)$',
+                possible_err_comment.strip())
+            if m:
+                if m.group(1) == 'E':
+                    severity = 'error'
+                elif m.group(1) == 'N':
+                    severity = 'note'
+                elif m.group(1) == 'W':
+                    severity = 'warning'
+                col = m.group('col')
+                if col is None:
+                    output.append(
+                        '{}:{}: {}: {}'.format(fnam, i + 1, severity,
+                                               m.group('message')))
+                else:
+                    output.append('{}:{}:{}: {}: {}'.format(
+                        fnam, i + 1, col, severity, m.group('message')))
+
 
 class SphinxDocTestRunner(sphinx.ext.doctest.SphinxDocTestRunner):
     group_source = ''
@@ -50,13 +83,16 @@ class DocTest2Builder(DocTestBuilder):
                   self.test_runner.group_source +
                   self.cleanup_runner.group_source)
 
+        want_lines = []
+        expand_errors(source.splitlines(), want_lines, MAIN)
+        want = '\n'.join(want_lines) + '\n' if want_lines else ''
         got = run_mypy(source, self.config.doctest_path)
-
-        if got:
+        if want != got:
             test = doctest.DocTest([], {}, group.name, '', 0, None)
-            example = doctest.Example('', '')
+            example = doctest.Example(source, want)
             # if not quiet:
-            self.test_runner.report_failure(self._warn_out, test, example, got)
+            self.test_runner.report_failure(self._warn_out, test, example,
+                                            got)
             # we hardwire no. of failures and no. of tries to 1
             self.test_runner._DocTestRunner__record_outcome(test, 1, 1)
 
@@ -64,13 +100,15 @@ class DocTest2Builder(DocTestBuilder):
 
 
 def run_mypy(code, mypy_path):
-    program = '_program.py'
+    """
+    Returns error output
+    """
     test_temp_dir = tempfile.mkdtemp()
-    program_path = os.path.join(test_temp_dir, program)
+    program_path = os.path.join(test_temp_dir, MAIN)
     with open(program_path, 'w') as file:
         file.write(code)
     args = [
-        program,
+        MAIN,
         '--hide-error-context',  # don't precede errors w/ notes about context
         '--show-traceback',
     ]
@@ -86,18 +124,17 @@ def run_mypy(code, mypy_path):
     # Remove temp file.
     os.remove(program_path)
     shutil.rmtree(test_temp_dir)
+    return str(outb, 'utf8')
+    # return str(outb, 'utf8').splitlines()
     # Split output into lines and strip the file name.
-    out = []
-    for line in str(outb, 'utf8').splitlines():
-        parts = line.split(':', 1)
-        if len(parts) == 2:
-            out.append(parts[1])
-        else:
-            out.append(line)
-    if out:
-        return '\n'.join(out) + '\n'
-    else:
-        return ''
+    # out = []
+    # for line in str(outb, 'utf8').splitlines():
+    #     parts = line.split(':', 1)
+    #     if len(parts) == 2:
+    #         out.append(parts[1])
+    #     else:
+    #         out.append(line)
+    # return out
 
 
 def setup(app):
