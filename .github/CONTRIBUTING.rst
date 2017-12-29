@@ -151,34 +151,33 @@ We highly recommend to develop using the latest Python 3 release because ``attrs
 First create a `virtual environment <https://virtualenv.pypa.io/>`_.
 It’s out of scope for this document to list all the ways to manage virtual environments in Python but if you don’t have already a pet way, take some time to look at tools like `pew <https://github.com/berdario/pew>`_, `virtualfish <http://virtualfish.readthedocs.io/>`_, and `virtualenvwrapper <http://virtualenvwrapper.readthedocs.io/>`_.
 
-Next get an up to date checkout of the ``attrs`` repository:
+Next, get an up to date checkout of the ``attrs`` repository:
 
 .. code-block:: bash
 
-    git checkout git@github.com:python-attrs/attrs.git
+    $ git checkout git@github.com:python-attrs/attrs.git
 
-Change into the newly created directory and **after activating your virtual environment** install an editable version of ``attrs``:
-
-.. code-block:: bash
-
-    cd attrs
-    pip install -e .
-
-If you run the virtual environment’s Python and try to ``import attr`` it should work!
-
-To run the test suite, you'll need our development dependencies which can be installed using
+Change into the newly created directory and **after activating your virtual environment** install an editable version of ``attrs`` along with its tests and docs requirements:
 
 .. code-block:: bash
 
-    pip install -r dev-requirements.txt
+    $ cd attrs
+    $ pip install -e .[dev]
 
 At this point
 
 .. code-block:: bash
 
-   python -m pytest
+   $ python -m pytest
 
-should work and pass!
+should work and pass, as should:
+
+.. code-block:: bash
+
+   $ cd docs
+   $ make html
+
+The built documentation can then be found in ``docs/_build/html/``.
 
 
 Governance
@@ -205,7 +204,7 @@ Thank you for considering contributing to ``attrs``!
 .. _`PEP 8`: https://www.python.org/dev/peps/pep-0008/
 .. _`PEP 257`: https://www.python.org/dev/peps/pep-0257/
 .. _`good test docstrings`: https://jml.io/pages/test-docstrings.html
-.. _`Code of Conduct`: https://github.com/python-attrs/attrs/blob/master/CODE_OF_CONDUCT.rst
+.. _`Code of Conduct`: https://github.com/python-attrs/attrs/blob/master/.github/CODE_OF_CONDUCT.rst
 .. _changelog: https://github.com/python-attrs/attrs/blob/master/CHANGELOG.rst
 .. _`backward compatibility`: http://www.attrs.org/en/latest/backward-compatibility.html
 .. _tox: https://tox.readthedocs.io/
