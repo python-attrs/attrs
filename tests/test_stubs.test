@@ -27,6 +27,11 @@ c = C(1)
 reveal_type(c.a)  # E: Revealed type is 'builtins.int*'
 reveal_type(C.a)  # E: Revealed type is 'builtins.int*'
 
+C("1")  # E: Argument 1 to "C" has incompatible type "str"; expected "int"
+C(a="1")  # E: Argument 1 to "C" has incompatible type "str"; expected "int"
+C(None)
+C(a=None)
+C(a=1)
 
 [case test_type_annotations]
 import attr
@@ -133,12 +138,37 @@ reveal_type(d)  # E: Revealed type is 'builtins.int'
 [case test_validators]
 import attr
 from attr.validators import in_, and_, instance_of
+import enum
+
+class State(enum.Enum):
+    ON = "on"
+    OFF = "off"
 
 a = attr.ib(type=int, validator=in_([1, 2, 3]))
+aa = attr.ib(validator=in_([1, 2, 3]))
 b = attr.ib(type=int, validator=[in_([1, 2, 3]), instance_of(int)])
 c = attr.ib(type=int, validator=(in_([1, 2, 3]), instance_of(int)))
 d = attr.ib(type=int, validator=and_(in_([1, 2, 3]), instance_of(int)))
 e = attr.ib(type=int, validator=1)  # E: No overload variant matches argument types [Overload(def (x: Union[builtins.str, builtins.bytes, typing.SupportsInt] =) -> builtins.int, def (x: Union[builtins.str, builtins.bytes], base: builtins.int) -> builtins.int), builtins.int]
+f = attr.ib(type=State, validator=in_(State))
+# mypy does not know how to get the contained type from an enum:
+ff = attr.ib(validator=in_(State))  # E: Need type annotation for variable
+
+
+[case test_init_with_validators]
+import attr
+from attr.validators import instance_of
+
+@attr.s
+class C:
+    x = attr.ib(validator=instance_of(int))
+
+reveal_type(C.x)  # E: Revealed type is 'builtins.int*'
+
+C(42)
+C(x=42)
+C("42")  # E: Argument 1 to "C" has incompatible type "str"; expected "int"
+C(None)
 
 
 [case test_custom_validators]
