@@ -83,6 +83,9 @@ def run_mypy(code, mypy_path):
                                env=env,
                                cwd=test_temp_dir)
     outb = process.stdout.read()
+    # Remove temp file.
+    os.remove(program_path)
+    shutil.rmtree(test_temp_dir)
     # Split output into lines and strip the file name.
     out = []
     for line in str(outb, 'utf8').splitlines():
@@ -91,10 +94,10 @@ def run_mypy(code, mypy_path):
             out.append(parts[1])
         else:
             out.append(line)
-    # Remove temp file.
-    os.remove(program_path)
-    shutil.rmtree(test_temp_dir)
-    return '\n'.join(out)
+    if out:
+        return '\n'.join(out) + '\n'
+    else:
+        return ''
 
 
 def setup(app):
