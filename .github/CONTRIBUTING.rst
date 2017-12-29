@@ -170,7 +170,14 @@ At this point
 
    $ python -m pytest
 
-should work and pass!
+should work and pass, as should:
+
+.. code-block:: bash
+
+   $ cd docs
+   $ make html
+
+The built documentation can then be found in ``docs/_build/html/``.
 
 
 Governance
