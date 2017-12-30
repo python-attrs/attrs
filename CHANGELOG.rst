@@ -4,16 +4,100 @@ Changelog
 Versions follow `CalVer <http://calver.org>`_ with a strict backwards compatibility policy.
 The third digit is only for regressions.
 
-Changes for the upcoming release can be found in the `"changelog.d" directory <https://github.com/python-attrs/attrs/tree/master/changelog.d>`_ in our repository.
-
-..
-   Do *NOT* add changelog entries here!
-
-   This changelog is managed by towncrier and is compiled at release time.
-
-   See http://www.attrs.org/en/latest/contributing.html#changelog for details.
 
 .. towncrier release notes start
+
+17.4.0 (2017-12-30)
+-------------------
+
+Backward-incompatible Changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- The traversal of MROs when using multiple inheritance was backward:
+  If you defined a class ``C`` that subclasses ``A`` and ``B`` like ``C(A, B)``, ``attrs`` would have collected the attributes from ``B`` *before* those of ``A``.
+
+  This is now fixed and means that in classes that employ multiple inheritance, the output of ``__repr__`` and the order of positional arguments in ``__init__`` changes.
+  Due to the nature of this bug, a proper deprecation cycle was unfortunately impossible.
+
+  Generally speaking, it's advisable to prefer ``kwargs``-based initialization anyways – *especially* if you employ multiple inheritance and diamond-shaped hierarchies.
+
+  `#298 <https://github.com/python-attrs/attrs/issues/298>`_,
+  `#299 <https://github.com/python-attrs/attrs/issues/299>`_,
+  `#304 <https://github.com/python-attrs/attrs/issues/304>`_
+- The ``__repr__`` set by ``attrs``
+  no longer produces an ``AttributeError``
+  when the instance is missing some of the specified attributes
+  (either through deleting
+  or after using ``init=False`` on some attributes).
+
+  This can break code
+  that relied on ``repr(attr_cls_instance)`` raising ``AttributeError``
+  to check if any attr-specified members were unset.
+
+  If you were using this,
+  you can implement a custom method for checking this::
+
+      def has_unset_members(self):
+          for field in attr.fields(type(self)):
+              try:
+                  getattr(self, field.name)
+              except AttributeError:
+                  return True
+          return False
+
+  `#308 <https://github.com/python-attrs/attrs/issues/308>`_
+
+
+Deprecations
+^^^^^^^^^^^^
+
+- The ``attr.ib(convert=callable)`` option is now deprecated in favor of ``attr.ib(converter=callable)``.
+
+  This is done to achieve consistency with other noun-based arguments like *validator*.
+
+  *convert* will keep working until at least January 2019 while raising a ``DeprecationWarning``.
+
+  `#307 <https://github.com/python-attrs/attrs/issues/307>`_
+
+
+Changes
+^^^^^^^
+
+- Generated ``__hash__`` methods now hash the class type along with the attribute values.
+  Until now the hashes of two classes with the same values were identical which was a bug.
+
+  The generated method is also *much* faster now.
+
+  `#261 <https://github.com/python-attrs/attrs/issues/261>`_,
+  `#295 <https://github.com/python-attrs/attrs/issues/295>`_,
+  `#296 <https://github.com/python-attrs/attrs/issues/296>`_
+- ``attr.ib``\ ’s ``metadata`` argument now defaults to a unique empty ``dict`` instance instead of sharing a common empty ``dict`` for all.
+  The singleton empty ``dict`` is still enforced.
+
+  `#280 <https://github.com/python-attrs/attrs/issues/280>`_
+- ``ctypes`` is optional now however if it's missing, a bare ``super()`` will not work in slots classes.
+  This should only happen in special environments like Google App Engine.
+
+  `#284 <https://github.com/python-attrs/attrs/issues/284>`_,
+  `#286 <https://github.com/python-attrs/attrs/issues/286>`_
+- The attribute redefinition feature introduced in 17.3.0 now takes into account if an attribute is redefined via multiple inheritance.
+  In that case, the definition that is closer to the base of the class hierarchy wins.
+
+  `#285 <https://github.com/python-attrs/attrs/issues/285>`_,
+  `#287 <https://github.com/python-attrs/attrs/issues/287>`_
+- Subclasses of ``auto_attribs=True`` can be empty now.
+
+  `#291 <https://github.com/python-attrs/attrs/issues/291>`_,
+  `#292 <https://github.com/python-attrs/attrs/issues/292>`_
+- Equality tests are *much* faster now.
+
+  `#306 <https://github.com/python-attrs/attrs/issues/306>`_
+- All generated methods now have correct ``__module__``, ``__name__``, and (on Python 3) ``__qualname__`` attributes.
+
+  `#309 <https://github.com/python-attrs/attrs/issues/309>`_
+
+
+----
 
 
 17.3.0 (2017-11-08)
