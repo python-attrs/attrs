@@ -1,10 +1,10 @@
-include LICENSE *.rst *.toml
+include LICENSE *.rst *.toml .readthedocs.yml
 
 # Don't package GitHub-specific files.
 exclude .github/*.md .travis.yml
 
 # Tests
-include tox.ini .coveragerc conftest.py docs-requirements.txt
+include tox.ini .coveragerc conftest.py
 recursive-include tests *.py
 recursive-include .github *.rst
 
