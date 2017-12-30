@@ -10,7 +10,7 @@ from ._make import (
 )
 
 
-__version__ = "17.4.0"
+__version__ = "18.1.0.dev0"
 
 __title__ = "attrs"
 __description__ = "Classes Without Boilerplate"
