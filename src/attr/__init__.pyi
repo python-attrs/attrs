@@ -52,7 +52,7 @@ class Attribute(Generic[_T]):
 def attrib(default: _T, validator: Optional[_ValidatorArgType[_T]] = ...,
            repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ...,
            convert: _ConverterType[_T] = ..., metadata: Mapping = ...,
-           type: Type[_T] = ...) -> _T: ...
+           type: type = ...) -> _T: ...
 @overload
 def attrib(default: None = ..., validator: Optional[_ValidatorArgType[_T]] = ...,
            repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ...,

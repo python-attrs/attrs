@@ -86,7 +86,7 @@ b = attr.ib(default=0, type=int)
 reveal_type(b)  # E: Revealed type is 'builtins.int*'
 
 c = attr.ib(default='bad', type=int)
-# object, the common base of str and int:
+# FXIME: this is now str.  should be error in line above.
 reveal_type(c)  # E: Revealed type is 'builtins.object*'
 
 
@@ -101,7 +101,8 @@ reveal_type(b)  # E: Revealed type is 'builtins.int'
 
 c: int = attr.ib(default='bad')  # E: Incompatible types in assignment (expression has type "str", variable has type "int")
 
-d: int = attr.ib(default=0, type=str)  # E: Incompatible types in assignment (expression has type "object", variable has type "int")
+# type arg is ignored.  should be error?
+d: int = attr.ib(default=0, type=str)
 
 
 --  ---------------------------
@@ -116,12 +117,12 @@ a = attr.ib(default=attr.Factory(list))
 reveal_type(a)  # E: Revealed type is 'builtins.list*[_T`1]'
 
 b = attr.ib(default=attr.Factory(list), type=List[int])
-# FIXME: shouldn't this be some form of list?  Open mypy github issue
-reveal_type(b)  # E: Revealed type is 'builtins.object*'
+# FIXME: should be List[int]
+reveal_type(b)  # E: Revealed type is 'builtins.list*[_T`1]'
 
 c = attr.ib(default=attr.Factory(list), type=int)
-# object, the common base of list and int:
-reveal_type(c)  # E: Revealed type is 'builtins.object*'
+# FIXME: should be int, and error should be generated above
+reveal_type(c)  # E: Revealed type is 'builtins.list*[_T`1]'
 
 def int_factory() -> int:
     return 0
