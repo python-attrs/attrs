@@ -15,7 +15,7 @@ pytest_plugins = ['tests.mypy_pytest_plugin']
 # Path to Python 3 interpreter
 python3_path = sys.executable
 test_temp_dir = 'tmp'
-test_file = os.path.splitext(os.path.realpath(__file__))[0] + '.test'
+test_file = os.path.splitext(os.path.realpath(__file__))[0] + '.tests.py'
 prefix_dir = os.path.join(os.path.dirname(os.path.dirname(test_file)), 'src')
 
 
@@ -49,7 +49,7 @@ def _test_python_evaluation(testcase):
                                stderr=subprocess.STDOUT,
                                env={'MYPYPATH': prefix_dir},
                                cwd=test_temp_dir)
-    outb = process.stdout.read()
+    outb, errb = process.communicate()
     # Split output into lines.
     out = [s.rstrip('\n\r') for s in str(outb, 'utf8').splitlines()]
     # Remove temp file.

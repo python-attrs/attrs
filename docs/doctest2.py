@@ -20,6 +20,19 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 
 MAIN = 'main'
 
+
+doctest.register_optionflag('MYPY_ERROR')
+doctest.register_optionflag('MYPY_IGNORE')
+
+
+def convert_source(input):
+    for i in range(len(input)):
+        # FIXME: convert to regex
+        input[i] = input[i].replace('#doctest: +MYPY_ERROR', '')
+        input[i] = input[i].replace('#doctest: +MYPY_IGNORE', '# type: ignore')
+    return input
+
+
 import re
 # FIXME: pull this from mypy_test_plugin
 def expand_errors(input, output, fnam: str):
@@ -84,7 +97,9 @@ class DocTest2Builder(DocTestBuilder):
                   self.cleanup_runner.group_source)
 
         want_lines = []
-        expand_errors(source.splitlines(), want_lines, MAIN)
+        lines = convert_source(source.splitlines(keepends=True))
+        expand_errors(lines, want_lines, MAIN)
+        source = ''.join(lines)
         want = '\n'.join(want_lines) + '\n' if want_lines else ''
         got = run_mypy(source, self.config.doctest_path)
         if want != got:

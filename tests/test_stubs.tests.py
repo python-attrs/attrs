@@ -17,7 +17,9 @@ reveal_type(c.b)  # E: Revealed type is 'Any'
 reveal_type(C.b)  # E: Revealed type is 'Any'
 
 [case test_type_arg]
+# cmd: mypy --strict-optional
 import attr
+from typing import List
 
 @attr.s
 class C(object):
@@ -27,14 +29,20 @@ c = C(1)
 reveal_type(c.a)  # E: Revealed type is 'builtins.int*'
 reveal_type(C.a)  # E: Revealed type is 'builtins.int*'
 
-C("1")  # E: Argument 1 to "C" has incompatible type "str"; expected "int"
-C(a="1")  # E: Argument 1 to "C" has incompatible type "str"; expected "int"
-C(None)
-C(a=None)
+C("1")     # E: Argument 1 to "C" has incompatible type "str"; expected "int"
+C(a="1")   # E: Argument 1 to "C" has incompatible type "str"; expected "int"
+C(None)    # E: Argument 1 to "C" has incompatible type "None"; expected "int"
+C(a=None)  # E: Argument 1 to "C" has incompatible type "None"; expected "int"
 C(a=1)
 
+a = attr.ib(type=List[int])
+reveal_type(a)  # E: Revealed type is 'builtins.list*[builtins.int*]'
+
+
 [case test_type_annotations]
+# cmd: mypy --strict-optional
 import attr
+from typing import List
 
 @attr.s
 class C(object):
@@ -43,6 +51,15 @@ class C(object):
 c = C(1)
 reveal_type(c.a)  # E: Revealed type is 'builtins.int'
 reveal_type(C.a)  # E: Revealed type is 'builtins.int'
+
+C("1")     # E: Argument 1 to "C" has incompatible type "str"; expected "int"
+C(a="1")   # E: Argument 1 to "C" has incompatible type "str"; expected "int"
+C(None)    # E: Argument 1 to "C" has incompatible type "None"; expected "int"
+C(a=None)  # E: Argument 1 to "C" has incompatible type "None"; expected "int"
+C(a=1)
+
+a: List[int] = attr.ib()
+reveal_type(a)  # E: Revealed type is 'builtins.list[builtins.int]'
 
 
 --  ---------------------------
@@ -82,7 +99,9 @@ reveal_type(a)  # E: Revealed type is 'builtins.int'
 b: int = attr.ib(default=0)
 reveal_type(b)  # E: Revealed type is 'builtins.int'
 
-c: int = attr.ib(default=0, type=str)  # E: Incompatible types in assignment (expression has type "object", variable has type "int")
+c: int = attr.ib(default='bad')  # E: Incompatible types in assignment (expression has type "str", variable has type "int")
+
+d: int = attr.ib(default=0, type=str)  # E: Incompatible types in assignment (expression has type "object", variable has type "int")
 
 
 --  ---------------------------
@@ -93,15 +112,14 @@ c: int = attr.ib(default=0, type=str)  # E: Incompatible types in assignment (ex
 import attr
 from typing import List
 
-a = attr.ib(type=List[int])
-reveal_type(a)  # E: Revealed type is 'builtins.list*[builtins.int*]'
+a = attr.ib(default=attr.Factory(list))
+reveal_type(a)  # E: Revealed type is 'builtins.list*[_T`1]'
 
 b = attr.ib(default=attr.Factory(list), type=List[int])
-# FIXME: shouldn't the `default` type be upgraded from `list` to `List[int]``?  make a mypy github issue
+# FIXME: shouldn't this be some form of list?  Open mypy github issue
 reveal_type(b)  # E: Revealed type is 'builtins.object*'
 
 c = attr.ib(default=attr.Factory(list), type=int)
-
 # object, the common base of list and int:
 reveal_type(c)  # E: Revealed type is 'builtins.object*'
 
@@ -116,13 +134,13 @@ reveal_type(d)  # E: Revealed type is 'builtins.int*'
 import attr
 from typing import List
 
-a: List[int] = attr.ib()
-reveal_type(a)  # E: Revealed type is 'builtins.list[builtins.int]'
+a = attr.ib(default=attr.Factory(list))
+reveal_type(a)  # E: Revealed type is 'builtins.list*[_T`1]'
 
-b: List[int] = attr.ib(default=attr.Factory(list), type=List[int])
+b: List[int] = attr.ib(default=attr.Factory(list))
 reveal_type(b)  # E: Revealed type is 'builtins.list[builtins.int]'
 
-c: List[int] = attr.ib(default=attr.Factory(list), type=str)  # E: Argument 2 has incompatible type "Type[str]"; expected "Type[List[int]]"
+c: int = attr.ib(default=attr.Factory(list))  # E: Incompatible types in assignment (expression has type "List[_T]", variable has type "int")
 
 def int_factory() -> int:
     return 0
@@ -144,14 +162,18 @@ class State(enum.Enum):
     ON = "on"
     OFF = "off"
 
-a = attr.ib(type=int, validator=in_([1, 2, 3]))
+a =  attr.ib(type=int, validator=in_([1, 2, 3]))
 aa = attr.ib(validator=in_([1, 2, 3]))
-b = attr.ib(type=int, validator=[in_([1, 2, 3]), instance_of(int)])
-c = attr.ib(type=int, validator=(in_([1, 2, 3]), instance_of(int)))
-d = attr.ib(type=int, validator=and_(in_([1, 2, 3]), instance_of(int)))
+
+# multiple:
+b =   attr.ib(type=int, validator=[in_([1, 2, 3]), instance_of(int)])
+bb =  attr.ib(type=int, validator=(in_([1, 2, 3]), instance_of(int)))
+bbb = attr.ib(type=int, validator=and_(in_([1, 2, 3]), instance_of(int)))
+
 e = attr.ib(type=int, validator=1)  # E: No overload variant matches argument types [Overload(def (x: Union[builtins.str, builtins.bytes, typing.SupportsInt] =) -> builtins.int, def (x: Union[builtins.str, builtins.bytes], base: builtins.int) -> builtins.int), builtins.int]
-f = attr.ib(type=State, validator=in_(State))
+
 # mypy does not know how to get the contained type from an enum:
+f = attr.ib(type=State, validator=in_(State))
 ff = attr.ib(validator=in_(State))  # E: Need type annotation for variable
 
 
@@ -167,11 +189,13 @@ reveal_type(C.x)  # E: Revealed type is 'builtins.int*'
 
 C(42)
 C(x=42)
-C("42")  # E: Argument 1 to "C" has incompatible type "str"; expected "int"
+# NOTE: even though the type of C.x is known to be int, the following is not an error.
+# The mypy plugin that generates __init__ runs at semantic analysis time, but type inference (which handles TypeVars happens later)
+C("42")
 C(None)
 
 
-[case test_custom_validators]
+[case test_custom_validators_type_arg]
 import attr
 
 def validate_int(inst, at, val: int):
@@ -185,6 +209,38 @@ b = attr.ib(type=int, validator=validate_str)  # E: Argument 2 has incompatible 
 
 reveal_type(a) # E: Revealed type is 'builtins.int'
 
+
+[case test_custom_validators_type_annotations]
+import attr
+
+def validate_int(inst, at, val: int):
+    pass
+
+def validate_str(inst, at, val: str):
+    pass
+
+a: int = attr.ib(validator=validate_int)
+b: int = attr.ib(validator=validate_str)  # E: Incompatible types in assignment (expression has type "str", variable has type "int")
+
+reveal_type(a) # E: Revealed type is 'builtins.int'
+
+--  ---------------------------
+--  Converters
+--  ---------------------------
+
+[case test_converters]
+import attr
+
+def str_to_int(s: str) -> int:
+    return int(s)
+
+@attr.s
+class C:
+    x: int = attr.ib(convert=str_to_int)
+
+C(1)
+# FIXME: this should not be an error
+# C('1')
 
 --  ---------------------------
 --  Make

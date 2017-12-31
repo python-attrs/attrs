@@ -1,2 +1,2 @@
 pytest
-git+git://github.com/euresti/mypy.git@attrs_plugin#egg=mypy
+git+git://github.com/euresti/mypy.git@99bc87efffea07176d8da04963d2bda7bed0c85d#egg=mypy

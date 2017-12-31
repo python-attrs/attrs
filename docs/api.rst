@@ -360,7 +360,7 @@ Validators
        ...     OFF = "off"
        >>> @attr.s
        ... class C(object):
-       ...     state = attr.ib(validator=attr.validators.in_(State))
+       ...     state = attr.ib(validator=attr.validators.in_(State))  # E: Need type annotation for variable
        ...     val = attr.ib(validator=attr.validators.in_([1, 2, 3]))
        >>> C(State.ON, 1)
        C(state=<State.ON: 'on'>, val=1)
