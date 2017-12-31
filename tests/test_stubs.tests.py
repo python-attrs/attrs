@@ -2,6 +2,9 @@
 --  Basics
 --  ---------------------------
 
+-- Note: the plugin only affects calls to attr.ib if they are within a class definition
+
+
 [case test_no_type]
 import attr
 
@@ -22,12 +25,12 @@ import attr
 from typing import List
 
 @attr.s
-class C(object):
+class C:
     a = attr.ib(type=int)
 
 c = C(1)
-reveal_type(c.a)  # E: Revealed type is 'builtins.int*'
-reveal_type(C.a)  # E: Revealed type is 'builtins.int*'
+reveal_type(c.a)  # E: Revealed type is 'builtins.int'
+reveal_type(C.a)  # E: Revealed type is 'builtins.int'
 
 C("1")     # E: Argument 1 to "C" has incompatible type "str"; expected "int"
 C(a="1")   # E: Argument 1 to "C" has incompatible type "str"; expected "int"
@@ -45,7 +48,7 @@ import attr
 from typing import List
 
 @attr.s
-class C(object):
+class C:
     a : int = attr.ib()
 
 c = C(1)
@@ -69,40 +72,43 @@ reveal_type(a)  # E: Revealed type is 'builtins.list[builtins.int]'
 [case test_defaults_no_type]
 import attr
 
-a = attr.ib(default=0)
-reveal_type(a)  # E: Revealed type is 'builtins.int*'
+@attr.s
+class C:
+    a = attr.ib(default=0)
+    reveal_type(a)  # E: Revealed type is 'builtins.int*'
 
-b = attr.ib(0)
-reveal_type(b)  # E: Revealed type is 'builtins.int*'
+    b = attr.ib(0)
+    reveal_type(b)  # E: Revealed type is 'builtins.int*'
 
 
 [case test_defaults_type_arg]
 import attr
 
-a = attr.ib(type=int)
-reveal_type(a)  # E: Revealed type is 'builtins.int*'
+@attr.s
+class C:
+    a = attr.ib(type=int)
+    reveal_type(a)  # E: Revealed type is 'builtins.int'
 
-b = attr.ib(default=0, type=int)
-reveal_type(b)  # E: Revealed type is 'builtins.int*'
+    b = attr.ib(default=0, type=int)
+    reveal_type(b)  # E: Revealed type is 'builtins.int'
 
-c = attr.ib(default='bad', type=int)
-# FXIME: this is now str.  should be error in line above.
-reveal_type(c)  # E: Revealed type is 'builtins.object*'
+    c = attr.ib(default='bad', type=int)  # E: Incompatible types in assignment (expression has type "object", variable has type "int")
 
 
 [case test_defaults_type_annotations]
 import attr
 
-a: int = attr.ib()
-reveal_type(a)  # E: Revealed type is 'builtins.int'
+@attr.s
+class C:
+    a: int = attr.ib()
+    reveal_type(a)  # E: Revealed type is 'builtins.int'
 
-b: int = attr.ib(default=0)
-reveal_type(b)  # E: Revealed type is 'builtins.int'
+    b: int = attr.ib(default=0)
+    reveal_type(b)  # E: Revealed type is 'builtins.int'
 
-c: int = attr.ib(default='bad')  # E: Incompatible types in assignment (expression has type "str", variable has type "int")
+    c: int = attr.ib(default='bad')  # E: Incompatible types in assignment (expression has type "str", variable has type "int")
 
-# type arg is ignored.  should be error?
-d: int = attr.ib(default=0, type=str)
+    d: int = attr.ib(default=0, type=str)  # E: Incompatible types in assignment (expression has type "object", variable has type "int")
 
 
 --  ---------------------------
@@ -113,41 +119,44 @@ d: int = attr.ib(default=0, type=str)
 import attr
 from typing import List
 
-a = attr.ib(default=attr.Factory(list))
-reveal_type(a)  # E: Revealed type is 'builtins.list*[_T`1]'
-
-b = attr.ib(default=attr.Factory(list), type=List[int])
-# FIXME: should be List[int]
-reveal_type(b)  # E: Revealed type is 'builtins.list*[_T`1]'
-
-c = attr.ib(default=attr.Factory(list), type=int)
-# FIXME: should be int, and error should be generated above
-reveal_type(c)  # E: Revealed type is 'builtins.list*[_T`1]'
-
 def int_factory() -> int:
     return 0
 
-d = attr.ib(default=attr.Factory(int_factory), type=int)
-reveal_type(d)  # E: Revealed type is 'builtins.int*'
+
+@attr.s
+class C:
+    a = attr.ib(default=attr.Factory(list))
+    reveal_type(a)  # E: Revealed type is 'builtins.list*[_T`1]'
+
+    b = attr.ib(default=attr.Factory(list), type=List[int])
+    reveal_type(b)  # E: Revealed type is 'builtins.list[builtins.int]'
+
+    c = attr.ib(default=attr.Factory(list), type=int)  # E: Incompatible types in assignment (expression has type "object", variable has type "int")
+
+    d = attr.ib(default=attr.Factory(int_factory), type=int)
+    reveal_type(d)  # E: Revealed type is 'builtins.int'
 
 
 [case test_factory_defaults_type_annotations]
 import attr
 from typing import List
 
-a = attr.ib(default=attr.Factory(list))
-reveal_type(a)  # E: Revealed type is 'builtins.list*[_T`1]'
-
-b: List[int] = attr.ib(default=attr.Factory(list))
-reveal_type(b)  # E: Revealed type is 'builtins.list[builtins.int]'
-
-c: int = attr.ib(default=attr.Factory(list))  # E: Incompatible types in assignment (expression has type "List[_T]", variable has type "int")
 
 def int_factory() -> int:
     return 0
 
-d: int = attr.ib(default=attr.Factory(int_factory))
-reveal_type(d)  # E: Revealed type is 'builtins.int'
+@attr.s
+class C:
+    a = attr.ib(default=attr.Factory(list))
+    reveal_type(a)  # E: Revealed type is 'builtins.list*[_T`1]'
+
+    b: List[int] = attr.ib(default=attr.Factory(list))
+    reveal_type(b)  # E: Revealed type is 'builtins.list[builtins.int]'
+
+    c: int = attr.ib(default=attr.Factory(list))  # E: Incompatible types in assignment (expression has type "List[_T]", variable has type "int")
+
+    d: int = attr.ib(default=attr.Factory(int_factory))
+    reveal_type(d)  # E: Revealed type is 'builtins.int'
 
 
 --  ---------------------------
@@ -163,19 +172,21 @@ class State(enum.Enum):
     ON = "on"
     OFF = "off"
 
-a =  attr.ib(type=int, validator=in_([1, 2, 3]))
-aa = attr.ib(validator=in_([1, 2, 3]))
+@attr.s
+class C:
+    a =  attr.ib(type=int, validator=in_([1, 2, 3]))
+    aa = attr.ib(validator=in_([1, 2, 3]))
 
-# multiple:
-b =   attr.ib(type=int, validator=[in_([1, 2, 3]), instance_of(int)])
-bb =  attr.ib(type=int, validator=(in_([1, 2, 3]), instance_of(int)))
-bbb = attr.ib(type=int, validator=and_(in_([1, 2, 3]), instance_of(int)))
+    # multiple:
+    b =   attr.ib(type=int, validator=[in_([1, 2, 3]), instance_of(int)])
+    bb =  attr.ib(type=int, validator=(in_([1, 2, 3]), instance_of(int)))
+    bbb = attr.ib(type=int, validator=and_(in_([1, 2, 3]), instance_of(int)))
 
-e = attr.ib(type=int, validator=1)  # E: No overload variant matches argument types [Overload(def (x: Union[builtins.str, builtins.bytes, typing.SupportsInt] =) -> builtins.int, def (x: Union[builtins.str, builtins.bytes], base: builtins.int) -> builtins.int), builtins.int]
+    e = attr.ib(type=int, validator=1)  # E: No overload variant matches argument types [Overload(def (x: Union[builtins.str, builtins.bytes, typing.SupportsInt] =) -> builtins.int, def (x: Union[builtins.str, builtins.bytes], base: builtins.int) -> builtins.int), builtins.int]
 
-# mypy does not know how to get the contained type from an enum:
-f = attr.ib(type=State, validator=in_(State))
-ff = attr.ib(validator=in_(State))  # E: Need type annotation for variable
+    # mypy does not know how to get the contained type from an enum:
+    f = attr.ib(type=State, validator=in_(State))
+    ff = attr.ib(validator=in_(State))  # E: Need type annotation for variable
 
 
 [case test_init_with_validators]
@@ -240,8 +251,7 @@ class C:
     x: int = attr.ib(convert=str_to_int)
 
 C(1)
-# FIXME: this should not be an error
-# C('1')
+C('1')
 
 --  ---------------------------
 --  Make
