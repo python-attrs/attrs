@@ -38,8 +38,10 @@ C(None)    # E: Argument 1 to "C" has incompatible type "None"; expected "int"
 C(a=None)  # E: Argument 1 to "C" has incompatible type "None"; expected "int"
 C(a=1)
 
-a = attr.ib(type=List[int])
-reveal_type(a)  # E: Revealed type is 'builtins.list*[builtins.int*]'
+@attr.s
+class D:
+    a = attr.ib(type=List[int])
+    reveal_type(a)  # E: Revealed type is 'builtins.list[builtins.int]'
 
 
 [case test_type_annotations]
@@ -61,8 +63,10 @@ C(None)    # E: Argument 1 to "C" has incompatible type "None"; expected "int"
 C(a=None)  # E: Argument 1 to "C" has incompatible type "None"; expected "int"
 C(a=1)
 
-a: List[int] = attr.ib()
-reveal_type(a)  # E: Revealed type is 'builtins.list[builtins.int]'
+@attr.s
+class D:
+    a: List[int] = attr.ib()
+    reveal_type(a)  # E: Revealed type is 'builtins.list[builtins.int]'
 
 
 --  ---------------------------
@@ -121,7 +125,6 @@ from typing import List
 
 def int_factory() -> int:
     return 0
-
 
 @attr.s
 class C:
@@ -182,7 +185,7 @@ class C:
     bb =  attr.ib(type=int, validator=(in_([1, 2, 3]), instance_of(int)))
     bbb = attr.ib(type=int, validator=and_(in_([1, 2, 3]), instance_of(int)))
 
-    e = attr.ib(type=int, validator=1)  # E: No overload variant matches argument types [Overload(def (x: Union[builtins.str, builtins.bytes, typing.SupportsInt] =) -> builtins.int, def (x: Union[builtins.str, builtins.bytes], base: builtins.int) -> builtins.int), builtins.int]
+    e = attr.ib(type=int, validator=1)  # E: No overload variant of "ib" matches argument types [Overload(def (x: Union[builtins.str, builtins.bytes, typing.SupportsInt] =) -> builtins.int, def (x: Union[builtins.str, builtins.bytes], base: builtins.int) -> builtins.int), builtins.int]
 
     # mypy does not know how to get the contained type from an enum:
     f = attr.ib(type=State, validator=in_(State))
@@ -204,7 +207,6 @@ C(x=42)
 # NOTE: even though the type of C.x is known to be int, the following is not an error.
 # The mypy plugin that generates __init__ runs at semantic analysis time, but type inference (which handles TypeVars happens later)
 C("42")
-C(None)
 
 
 [case test_custom_validators_type_arg]
@@ -216,10 +218,12 @@ def validate_int(inst, at, val: int):
 def validate_str(inst, at, val: str):
     pass
 
-a = attr.ib(type=int, validator=validate_int)  # int
-b = attr.ib(type=int, validator=validate_str)  # E: Argument 2 has incompatible type "Callable[[Any, Any, str], Any]"; expected "Union[Callable[[Any, Attribute[Any], int], Any], List[Callable[[Any, Attribute[Any], int], Any]], Tuple[Callable[[Any, Attribute[Any], int], Any], ...]]"
+@attr.s
+class C:
+    a = attr.ib(type=int, validator=validate_int)  # int
+    b = attr.ib(type=int, validator=validate_str)  # E: Argument 2 to "ib" has incompatible type "Callable[[Any, Any, str], Any]"; expected "Union[Callable[[Any, Attribute[Any], int], Any], List[Callable[[Any, Attribute[Any], int], Any]], Tuple[Callable[[Any, Attribute[Any], int], Any], ...]]"
 
-reveal_type(a) # E: Revealed type is 'builtins.int'
+    reveal_type(a) # E: Revealed type is 'builtins.int'
 
 
 [case test_custom_validators_type_annotations]
@@ -231,10 +235,12 @@ def validate_int(inst, at, val: int):
 def validate_str(inst, at, val: str):
     pass
 
-a: int = attr.ib(validator=validate_int)
-b: int = attr.ib(validator=validate_str)  # E: Incompatible types in assignment (expression has type "str", variable has type "int")
+@attr.s
+class C:
+    a: int = attr.ib(validator=validate_int)
+    b: int = attr.ib(validator=validate_str)  # E: Incompatible types in assignment (expression has type "str", variable has type "int")
 
-reveal_type(a) # E: Revealed type is 'builtins.int'
+    reveal_type(a) # E: Revealed type is 'builtins.int'
 
 --  ---------------------------
 --  Converters
