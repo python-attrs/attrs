@@ -47,30 +47,21 @@ class Attribute(Generic[_T]):
 # This makes this type of assignments possible:
 #     x: int = attr(8)
 #
-# 1st form catches a default value set.  Can't use = ... or you get "overloaded overlap" error.
+# Note: If you update these update `ib` and `attr` below.
+# 1st form catches _T set.
 @overload
-def attrib(
-    default: _T, validator: Optional[_ValidatorArgType[_T]] = ...,
-    repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ...,
-    init: bool = ..., convert: _ConverterType[_T] = ...,
-    metadata: Mapping = ..., type: Type[_T] = ...) -> _T: ...
-
+def attrib(default: Optional[_T] = ..., validator: Optional[_ValidatorArgType[_T]] = ...,
+           repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ...,
+           convert: Optional[_ConverterType[_T]] = ..., metadata: Mapping = ...,
+           type: Optional[Type[_T]] = ...) -> _T: ...
+# 2nd form no _T , so returns Any.
 @overload
-def attrib(
-    default: None = ..., validator: Optional[_ValidatorArgType[_T]] = ...,
-    repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ...,
-    init: bool = ..., convert: Optional[_ConverterType[_T]] = ...,
-    metadata: Mapping = ..., type: Optional[Type[_T]] = ...) -> _T: ...
+def attrib(default: None = ..., validator: None = ...,
+           repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ...,
+           convert: None = ..., metadata: Mapping = ...,
+           type: None = ...) -> Any: ...
 
-# 3rd form catches nothing set. So returns Any.
-@overload
-def attrib(
-    default: None = ..., validator: None = ...,
-    repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ...,
-    init: bool = ..., convert: None = ..., metadata: Mapping = ...,
-    type: None = ...) -> Any: ...
-
-
+# Note: If you update these update `s` and `attributes` below.
 @overload
 def attrs(
     maybe_cls: _C, these: Optional[Dict[str, Any]] = ...,
@@ -128,42 +119,27 @@ def get_run_validators() -> bool: ...
 # https://youtrack.jetbrains.com/issue/PY-27788
 
 @overload
-def ib(
-    default: _T, validator: Optional[_ValidatorArgType[_T]] = ...,
-    repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ...,
-    init: bool = ..., convert: _ConverterType[_T] = ...,
-    metadata: Mapping = ..., type: Type[_T] = ...) -> _T: ...
+def ib(default: Optional[_T] = ..., validator: Optional[_ValidatorArgType[_T]] = ...,
+           repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ...,
+           convert: Optional[_ConverterType[_T]] = ..., metadata: Mapping = ...,
+           type: Optional[Type[_T]] = ...) -> _T: ...
+# 2nd form catches no type-setters. So returns Any.
 @overload
-def ib(
-    default: None = ..., validator: Optional[_ValidatorArgType[_T]] = ...,
-    repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ...,
-    init: bool = ..., convert: Optional[_ConverterType[_T]] = ...,
-    metadata: Mapping = ..., type: Optional[Type[_T]] = ...) -> _T: ...
+def ib(default: None = ..., validator: None = ...,
+           repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ...,
+           convert: None = ..., metadata: Mapping = ...,
+           type: None = ...) -> Any: ...
 @overload
-def ib(
-    default: None = ..., validator: None = ...,
-    repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ...,
-    init: bool = ..., convert: None = ..., metadata: Mapping = ...,
-    type: None = ...) -> Any: ...
-
+def attr(default: Optional[_T] = ..., validator: Optional[_ValidatorArgType[_T]] = ...,
+           repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ...,
+           convert: Optional[_ConverterType[_T]] = ..., metadata: Mapping = ...,
+           type: Optional[Type[_T]] = ...) -> _T: ...
+# 2nd form catches no type-setters. So returns Any.
 @overload
-def attr(
-    default: _T, validator: Optional[_ValidatorArgType[_T]] = ...,
-    repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ...,
-    init: bool = ..., convert: _ConverterType[_T] = ...,
-    metadata: Mapping = ..., type: Type[_T] = ...) -> _T: ...
-@overload
-def attr(
-    default: None = ..., validator: Optional[_ValidatorArgType[_T]] = ...,
-    repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ...,
-    init: bool = ..., convert: Optional[_ConverterType[_T]] = ...,
-    metadata: Mapping = ..., type: Optional[Type[_T]] = ...) -> _T: ...
-@overload
-def attr(
-    default: None = ..., validator: None = ...,
-    repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ...,
-    init: bool = ..., convert: None = ..., metadata: Mapping = ...,
-    type: None = ...) -> Any: ...
+def attr(default: None = ..., validator: None = ...,
+           repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ...,
+           convert: None = ..., metadata: Mapping = ...,
+           type: None = ...) -> Any: ...
 
 
 @overload
