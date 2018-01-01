@@ -1,5 +1,6 @@
 from __future__ import absolute_import, print_function
 
+import re
 import sys
 import sphinx
 import doctest
@@ -20,21 +21,20 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 
 MAIN = 'main'
 
+type_comment_re = re.compile(r'#\s*type:\s*ignore\b.*$', re.MULTILINE)
 
-doctest.register_optionflag('MYPY_ERROR')
-doctest.register_optionflag('MYPY_IGNORE')
+
+MYPY_SKIP = doctest.register_optionflag('MYPY_SKIP')
 
 
 def convert_source(input):
     for i in range(len(input)):
         # FIXME: convert to regex
-        input[i] = input[i].replace('#doctest: +MYPY_ERROR', '')
+        input[i] = input[i].replace('# mypy error:', '# E:')
         input[i] = input[i].replace('#doctest: +MYPY_IGNORE', '# type: ignore')
     return input
 
 
-import re
-# FIXME: pull this from mypy_test_plugin
 def expand_errors(input, output, fnam: str):
     """Transform comments such as '# E: message' or
     '# E:3: message' in input.
@@ -65,6 +65,7 @@ def expand_errors(input, output, fnam: str):
                         fnam, i + 1, col, severity, m.group('message')))
 
 
+# Override SphinxDocTestRunner to gather the source for each group.
 class SphinxDocTestRunner(sphinx.ext.doctest.SphinxDocTestRunner):
     group_source = ''
 
@@ -75,13 +76,36 @@ class SphinxDocTestRunner(sphinx.ext.doctest.SphinxDocTestRunner):
         # add the source for this block to the group
         result = doctest.DocTestRunner.run(self, test, compileflags, out,
                                            clear_globs)
-        self.group_source += ''.join(example.source
-                                     for example in test.examples)
+        sources = [example.source for example in test.examples
+                   if not example.options.get(MYPY_SKIP, False)]
+        self.group_source += ''.join(sources)
         return result
 
 
 # patch the runner
 sphinx.ext.doctest.SphinxDocTestRunner = SphinxDocTestRunner
+
+# _orig_run = sphinx.ext.doctest.TestDirective.run
+# def _new_run(self):
+#     nodes = _orig_run(self)
+#     node = nodes[0]
+#     code = node.rawsource
+#     test = None
+#     if 'test' in node:
+#         test = node['test']
+#
+#     if type_comment_re.search(code):
+#         print("here")
+#         if not test:
+#             test = code
+#         node.rawsource = type_comment_re.sub('', code)
+#         print(node.rawsource)
+#     if test is not None:
+#         # only save if it differs from code
+#         node['test'] = test
+#     return nodes
+
+# sphinx.ext.doctest.TestDirective.run = _new_run
 
 
 class DocTest2Builder(DocTestBuilder):

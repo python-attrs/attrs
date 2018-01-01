@@ -36,12 +36,16 @@ Core
       ...     _private = attr.ib()
       >>> C(private=42)
       C(_private=42)
+
+   .. doctest::  core
+      :options: +MYPY_SKIP
+
       >>> class D(object):
       ...     def __init__(self, x):
       ...         self.x = x
       >>> D(1)
       <D object at ...>
-      >>> D = attr.s(these={"x": attr.ib()}, init=False)(D)  # type: ignore  # can't override a type
+      >>> D = attr.s(these={"x": attr.ib()}, init=False)(D)
       >>> D(1)
       D(x=1)
 
@@ -305,7 +309,7 @@ See :ref:`asdict` for examples.
       ... class C(object):
       ...     x = attr.ib(validator=attr.validators.instance_of(int))
       >>> i = C(1)
-      >>> i.x = "1"  # type: ignore  # this is a legit error
+      >>> i.x = "1"  # mypy error: Incompatible types in assignment (expression has type "str", variable has type "int")
       >>> attr.validate(i)
       Traceback (most recent call last):
          ...
@@ -360,7 +364,7 @@ Validators
        ...     OFF = "off"
        >>> @attr.s
        ... class C(object):
-       ...     state = attr.ib(validator=attr.validators.in_(State))  # E: Need type annotation for variable
+       ...     state = attr.ib(validator=attr.validators.in_(State))  # type: ignore
        ...     val = attr.ib(validator=attr.validators.in_([1, 2, 3]))
        >>> C(State.ON, 1)
        C(state=<State.ON: 'on'>, val=1)

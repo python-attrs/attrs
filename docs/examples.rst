@@ -85,7 +85,7 @@ If you want to initialize your private attributes yourself, you can do that too:
    ...     _x = attr.ib(init=False, default=42)
    >>> C()
    C(_x=42)
-   >>> C(23)  # E: Too many arguments for "C"
+   >>> C(23)  # mypy error: Too many arguments for "C"
    Traceback (most recent call last):
       ...
    TypeError: __init__() takes exactly 1 argument (2 given)
@@ -94,11 +94,12 @@ An additional way of defining attributes is supported too.
 This is useful in times when you want to enhance classes that are not yours (nice ``__repr__`` for Django models anyone?):
 
 .. doctest:: enhance
+   :options: +MYPY_SKIP
 
    >>> class SomethingFromSomeoneElse(object):
    ...     def __init__(self, x):
    ...         self.x = x
-   >>> SomethingFromSomeoneElse = attr.s(  # type: ignore  # can't override a type
+   >>> SomethingFromSomeoneElse = attr.s(
    ...     these={
    ...         "x": attr.ib()
    ...     }, init=False)(SomethingFromSomeoneElse)
@@ -563,7 +564,7 @@ Slot classes are a little different than ordinary, dictionary-backed classes:
      ...     y = attr.ib()
      ...
      >>> c = Coordinates(x=1, y=2)
-     >>> c.z = 3  # E: "Coordinates" has no attribute "z"
+     >>> c.z = 3  # mypy error: "Coordinates" has no attribute "z"
      Traceback (most recent call last):
          ...
      AttributeError: 'Coordinates' object has no attribute 'z'
@@ -610,7 +611,7 @@ If you'd like to enforce it, ``attrs`` will try to help:
    ... class C(object):
    ...     x = attr.ib()
    >>> i = C(1)
-   >>> i.x = 2  # E: Property "x" defined in "C" is read-only
+   >>> i.x = 2  # mypy error: Property "x" defined in "C" is read-only
    Traceback (most recent call last):
       ...
    attr.exceptions.FrozenInstanceError: can't set attribute
