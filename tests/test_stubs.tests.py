@@ -1,11 +1,13 @@
---  ---------------------------
---  Basics
---  ---------------------------
+# :---------------------------
+# :Basics
+# :---------------------------
 
--- Note: the plugin only affects calls to attr.ib if they are within a class definition
+# :Note: the attrs plugin for mypy only affects calls to attr.ib if they are
+# :within a class definition, so we include a class in each test.
 
 
-[case test_no_type]
+# [case test_no_type]
+# :------------------
 import attr
 
 @attr.s
@@ -19,7 +21,9 @@ reveal_type(C.a)  # E: Revealed type is 'Any'
 reveal_type(c.b)  # E: Revealed type is 'Any'
 reveal_type(C.b)  # E: Revealed type is 'Any'
 
-[case test_type_arg]
+
+# [case test_type_arg]
+# :-------------------
 # cmd: mypy --strict-optional
 import attr
 from typing import List
@@ -44,7 +48,8 @@ class D:
     reveal_type(a)  # E: Revealed type is 'builtins.list[builtins.int]'
 
 
-[case test_type_annotations]
+# [case test_type_annotations]
+# :---------------------------
 # cmd: mypy --strict-optional
 import attr
 from typing import List
@@ -69,11 +74,12 @@ class D:
     reveal_type(a)  # E: Revealed type is 'builtins.list[builtins.int]'
 
 
---  ---------------------------
---  Defaults
---  ---------------------------
+# :---------------------------
+# :Defaults
+# :---------------------------
 
-[case test_defaults_no_type]
+# [case test_defaults_no_type]
+# :----------------------------
 import attr
 
 @attr.s
@@ -85,7 +91,8 @@ class C:
     reveal_type(b)  # E: Revealed type is 'builtins.int*'
 
 
-[case test_defaults_type_arg]
+# [case test_defaults_type_arg]
+# :----------------------------
 import attr
 
 @attr.s
@@ -99,7 +106,8 @@ class C:
     c = attr.ib(default='bad', type=int)  # E: Incompatible types in assignment (expression has type "object", variable has type "int")
 
 
-[case test_defaults_type_annotations]
+# [case test_defaults_type_annotations]
+# :------------------------------------
 import attr
 
 @attr.s
@@ -115,11 +123,12 @@ class C:
     d: int = attr.ib(default=0, type=str)  # E: Incompatible types in assignment (expression has type "object", variable has type "int")
 
 
---  ---------------------------
---  Factory Defaults
---  ---------------------------
+# :---------------------------
+# :Factory Defaults
+# :---------------------------
 
-[case test_factory_defaults_type_arg]
+# [case test_factory_defaults_type_arg]
+# :------------------------------------
 import attr
 from typing import List
 
@@ -140,7 +149,8 @@ class C:
     reveal_type(d)  # E: Revealed type is 'builtins.int'
 
 
-[case test_factory_defaults_type_annotations]
+# [case test_factory_defaults_type_annotations]
+# :--------------------------------------------
 import attr
 from typing import List
 
@@ -162,11 +172,12 @@ class C:
     reveal_type(d)  # E: Revealed type is 'builtins.int'
 
 
---  ---------------------------
---  Validators
---  ---------------------------
+# :---------------------------
+# :Validators
+# :---------------------------
 
-[case test_validators]
+# [case test_validators]
+# :---------------------
 import attr
 from attr.validators import in_, and_, instance_of
 import enum
@@ -192,7 +203,7 @@ class C:
     ff = attr.ib(validator=in_(State))  # E: Need type annotation for variable
 
 
-[case test_init_with_validators]
+# [case test_init_with_validators]
 import attr
 from attr.validators import instance_of
 
@@ -209,7 +220,8 @@ C(x=42)
 C("42")
 
 
-[case test_custom_validators_type_arg]
+# [case test_custom_validators_type_arg]
+# :-------------------------------------
 import attr
 
 def validate_int(inst, at, val: int):
@@ -223,10 +235,11 @@ class C:
     a = attr.ib(type=int, validator=validate_int)  # int
     b = attr.ib(type=int, validator=validate_str)  # E: Argument 2 to "ib" has incompatible type "Callable[[Any, Any, str], Any]"; expected "Union[Callable[[Any, Attribute[Any], int], Any], List[Callable[[Any, Attribute[Any], int], Any]], Tuple[Callable[[Any, Attribute[Any], int], Any], ...]]"
 
-    reveal_type(a) # E: Revealed type is 'builtins.int'
+    reveal_type(a)  # E: Revealed type is 'builtins.int'
 
 
-[case test_custom_validators_type_annotations]
+# [case test_custom_validators_type_annotations]
+# :---------------------------------------------
 import attr
 
 def validate_int(inst, at, val: int):
@@ -242,14 +255,32 @@ class C:
 
     reveal_type(a) # E: Revealed type is 'builtins.int'
 
---  ---------------------------
---  Converters
---  ---------------------------
+# :---------------------------
+# :Converters
+# :---------------------------
 
-[case test_converters]
+# [case test_converters]
+# :---------------------
 import attr
+from typing import Union
 
-def str_to_int(s: str) -> int:
+def str_to_int(s: Union[str, int]) -> int:
+    return int(s)
+
+@attr.s
+class C:
+    a = attr.ib(convert=str_to_int)
+    reveal_type(a)  # E: Revealed type is 'builtins.int*'
+
+    b: str = attr.ib(convert=str_to_int)  # E: Incompatible types in assignment (expression has type "int", variable has type "str")
+
+
+# [case test_converter_init]
+# :-------------------------
+import attr
+from typing import Union
+
+def str_to_int(s: Union[str, int]) -> int:
     return int(s)
 
 @attr.s
@@ -258,12 +289,14 @@ class C:
 
 C(1)
 C('1')
+C(1.1)  # E: Argument 1 to "C" has incompatible type "float"; expected "Union[str, int]"
 
---  ---------------------------
---  Make
---  ---------------------------
+# :---------------------------
+# :Make
+# :---------------------------
 
-[case test_make_from_dict]
+# [case test_make_from_dict]
+# :-------------------------
 import attr
 C = attr.make_class("C", {
     "x": attr.ib(type=int),
@@ -271,12 +304,14 @@ C = attr.make_class("C", {
 })
 
 
-[case test_make_from_str]
+# [case test_make_from_str]
+# :------------------------
 import attr
 C = attr.make_class("C", ["x", "y"])
 
 
-[case test_astuple]
+# [case test_astuple]
+# :------------------
 import attr
 @attr.s
 class C:
@@ -286,7 +321,8 @@ t1 = attr.astuple(C)
 reveal_type(t1)  # E: Revealed type is 'builtins.tuple[Any]'
 
 
-[case test_asdict]
+# [case test_asdict]
+# :-----------------
 import attr
 @attr.s
 class C:

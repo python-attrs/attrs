@@ -698,24 +698,24 @@ def parse_test_data(l: List[str], fnam: str) -> List[TestItem]:
     while i < len(l):
         s = l[i].strip()
 
-        if l[i].startswith('[') and s.endswith(']') and not s.startswith('[['):
+        if l[i].startswith('# [') and s.endswith(']') and not s.startswith('# [['):
             if id:
                 data = collapse_line_continuation(data)
                 data = strip_list(data)
                 ret.append(TestItem(id, arg, strip_list(data), fnam, i0 + 1))
             i0 = i
-            id = s[1:-1]
+            id = s[3:-1]
             arg = None
             if ' ' in id:
                 arg = id[id.index(' ') + 1:]
                 id = id[:id.index(' ')]
             data = []
-        elif l[i].startswith('[['):
-            data.append(l[i][1:])
-        elif not l[i].startswith('--'):
+        # elif l[i].startswith('# [['):
+        #     data.append(l[i][3:])
+        elif not l[i].startswith('# :'):
             data.append(l[i])
-        elif l[i].startswith('----'):
-            data.append(l[i][2:])
+        # elif l[i].startswith('----'):
+        #     data.append(l[i][2:])
         i += 1
 
     # Process the last item.
