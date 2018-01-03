@@ -30,7 +30,7 @@ class Attribute(Generic[_T]):
     cmp: bool
     hash: Optional[bool]
     init: bool
-    convert: Optional[_ConverterType[_T]]
+    converter: Optional[_ConverterType[_T]]
     metadata: Dict[Any, Any]
     type: Optional[Type[_T]]
 
@@ -70,14 +70,14 @@ class Attribute(Generic[_T]):
 @overload
 def attrib(default: Optional[_T] = ..., validator: Optional[_ValidatorArgType[_T]] = ...,
            repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ...,
-           convert: Optional[_ConverterType[_T]] = ..., metadata: Mapping = ...,
-           type: Optional[Type[_T]] = ...) -> _T: ...
+           metadata: Mapping = ..., type: Optional[Type[_T]] = ...,
+           converter: Optional[_ConverterType[_T]] = ...) -> _T: ...
 # 2nd form no _T , so returns Any.
 @overload
 def attrib(default: None = ..., validator: None = ...,
            repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ...,
-           convert: None = ..., metadata: Mapping = ...,
-           type: None = ...) -> Any: ...
+           metadata: Mapping = ..., type: None = ...,
+           converter: None = ...) -> Any: ...
 
 # Note: If you update these update `s` and `attributes` below.
 @overload
@@ -142,25 +142,25 @@ def get_run_validators() -> bool: ...
 @overload
 def ib(default: Optional[_T] = ..., validator: Optional[_ValidatorArgType[_T]] = ...,
            repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ...,
-           convert: Optional[_ConverterType[_T]] = ..., metadata: Mapping = ...,
-           type: Optional[Type[_T]] = ...) -> _T: ...
+           metadata: Mapping = ..., type: Optional[Type[_T]] = ...,
+           converter: Optional[_ConverterType[_T]] = ...) -> _T: ...
 # 2nd form catches no type-setters. So returns Any.
 @overload
 def ib(default: None = ..., validator: None = ...,
            repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ...,
-           convert: None = ..., metadata: Mapping = ...,
-           type: None = ...) -> Any: ...
+           metadata: Mapping = ..., type: None = ...,
+           converter: None = ..., ) -> Any: ...
 @overload
 def attr(default: Optional[_T] = ..., validator: Optional[_ValidatorArgType[_T]] = ...,
            repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ...,
-           convert: Optional[_ConverterType[_T]] = ..., metadata: Mapping = ...,
-           type: Optional[Type[_T]] = ...) -> _T: ...
+           metadata: Mapping = ..., type: Optional[Type[_T]] = ...,
+           converter: Optional[_ConverterType[_T]] = ...) -> _T: ...
 # 2nd form catches no type-setters. So returns Any.
 @overload
 def attr(default: None = ..., validator: None = ...,
            repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ...,
-           convert: None = ..., metadata: Mapping = ...,
-           type: None = ...) -> Any: ...
+           metadata: Mapping = ..., type: None = ...,
+           converter: None = ...) -> Any: ...
 
 
 @overload

@@ -339,10 +339,10 @@ def str_to_int(s: Union[str, int]) -> int:
 
 @attr.s
 class C:
-    a = attr.ib(convert=str_to_int)
+    a = attr.ib(converter=str_to_int)
     reveal_type(a)  # E: Revealed type is 'builtins.int*'
 
-    b: str = attr.ib(convert=str_to_int)  # E: Incompatible types in assignment (expression has type "int", variable has type "str")
+    b: str = attr.ib(converter=str_to_int)  # E: Incompatible types in assignment (expression has type "int", variable has type "str")
 
 
 # [case test_converter_init]
@@ -354,7 +354,7 @@ def str_to_int(s: str) -> int:
 
 @attr.s
 class C:
-    x: int = attr.ib(convert=str_to_int)
+    x: int = attr.ib(converter=str_to_int)
 
 C('1')
 C(1)  # E: Argument 1 to "C" has incompatible type "int"; expected "str"
