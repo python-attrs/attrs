@@ -47,7 +47,25 @@ class Attribute(Generic[_T]):
 # This makes this type of assignments possible:
 #     x: int = attr(8)
 #
-# Note: If you update these update `ib` and `attr` below.
+
+# FIXME: We had several choices for the annotation to use for type arg:
+# 1) Type[_T]
+#   - Pros: works in PyCharm without plugin support
+#   - Cons: produces less informative error in the case of conflicting TypeVars
+#     e.g. `attr.ib(default='bad', type=int)`
+# 2) Callable[..., _T]
+#   - Pros: more informative errors than #1
+#   - Cons: validator tests results in confusing error.
+#     e.g. `attr.ib(type=int, validator=validate_str)`
+# 3) type
+#   - Pros: in mypy, the behavior of type argument is exactly the same as with
+#     annotations.
+#   - Cons: completely disables type inspections in PyCharm when using the
+#     type arg.
+# We chose option #1 until either PyCharm adds support for attrs, or python 2
+# reaches EOL.
+
+# NOTE: If you update these update `ib` and `attr` below.
 # 1st form catches _T set.
 @overload
 def attrib(default: Optional[_T] = ..., validator: Optional[_ValidatorArgType[_T]] = ...,
@@ -83,6 +101,7 @@ class _Fields(Tuple[Attribute, ...]):
 def fields(cls: type) -> _Fields: ...
 def validate(inst: Any) -> None: ...
 
+# TODO: add support for returning a proper attrs class from the mypy plugin
 # we use Any instead of _CountingAttr so that e.g. `make_class('Foo', [attr.ib()])` is valid
 def make_class(name, attrs: Union[List[str], Dict[str, Any]],
                bases: Tuple[type, ...] = ...,
@@ -90,12 +109,14 @@ def make_class(name, attrs: Union[List[str], Dict[str, Any]],
 
 # _funcs --
 
+# TODO: add support for returning TypedDict from the mypy plugin
 # FIXME: asdict/astuple do not honor their factory args.  waiting on one of these:
 # https://github.com/python/mypy/issues/4236
 # https://github.com/python/typing/issues/253
 def asdict(inst: Any, recurse: bool = ..., filter: Optional[_FilterType] = ...,
            dict_factory: Type[Mapping] = ...,
            retain_collection_types: bool = ...) -> Dict[str, Any]: ...
+# TODO: add support for returning NamedTuple from the mypy plugin
 def astuple(inst: Any, recurse: bool = ..., filter: Optional[_FilterType] = ...,
             tuple_factory: Type[Sequence] = ...,
             retain_collection_types: bool = ...) -> Tuple[Any, ...]: ...
