@@ -68,30 +68,16 @@ class Attribute(Generic[_T]):
 # NOTE: If you update these update `ib` and `attr` below.
 # 1st form catches _T set.
 @overload
-def attrib(default: Optional[_T] = ..., validator: Optional[_ValidatorArgType[_T]] = ...,
-           repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ...,
-           metadata: Mapping = ..., type: Optional[Type[_T]] = ...,
-           converter: Optional[_ConverterType[_T]] = ...) -> _T: ...
+def attrib(default: Optional[_T] = ..., validator: Optional[_ValidatorArgType[_T]] = ..., repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ..., metadata: Mapping = ..., type: Optional[Type[_T]] = ..., converter: Optional[_ConverterType[_T]] = ...) -> _T: ...
 # 2nd form no _T , so returns Any.
 @overload
-def attrib(default: None = ..., validator: None = ...,
-           repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ...,
-           metadata: Mapping = ..., type: None = ...,
-           converter: None = ...) -> Any: ...
+def attrib(default: None = ..., validator: None = ..., repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ..., metadata: Mapping = ..., type: None = ..., converter: None = ...) -> Any: ...
 
 # Note: If you update these update `s` and `attributes` below.
 @overload
-def attrs(
-    maybe_cls: _C, these: Optional[Dict[str, Any]] = ...,
-    repr_ns: Optional[str] = ..., repr: bool = ..., cmp: bool = ...,
-    hash: Optional[bool] = ..., init: bool = ..., slots: bool = ...,
-    frozen: bool = ..., str: bool = ...) -> _C: ...
+def attrs(maybe_cls: _C, these: Optional[Dict[str, Any]] = ..., repr_ns: Optional[str] = ..., repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ..., slots: bool = ..., frozen: bool = ..., str: bool = ..., auto_attribs: bool = ...) -> _C: ...
 @overload
-def attrs(
-    maybe_cls: None = ..., these: Optional[Dict[str, Any]] = ...,
-    repr_ns: Optional[str] = ..., repr: bool = ..., cmp: bool = ...,
-    hash: Optional[bool] = ..., init: bool = ..., slots: bool = ...,
-    frozen: bool = ..., str: bool = ...) -> Callable[[_C], _C]: ...
+def attrs(maybe_cls: None = ..., these: Optional[Dict[str, Any]] = ..., repr_ns: Optional[str] = ..., repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ..., slots: bool = ..., frozen: bool = ..., str: bool = ..., auto_attribs: bool = ...) -> Callable[[_C], _C]: ...
 
 
 # TODO: add support for returning NamedTuple from the mypy plugin
@@ -103,9 +89,7 @@ def validate(inst: Any) -> None: ...
 
 # TODO: add support for returning a proper attrs class from the mypy plugin
 # we use Any instead of _CountingAttr so that e.g. `make_class('Foo', [attr.ib()])` is valid
-def make_class(name, attrs: Union[List[str], Dict[str, Any]],
-               bases: Tuple[type, ...] = ...,
-               **attributes_arguments) -> type: ...
+def make_class(name, attrs: Union[List[str], Dict[str, Any]], bases: Tuple[type, ...] = ..., **attributes_arguments) -> type: ...
 
 # _funcs --
 
@@ -113,13 +97,9 @@ def make_class(name, attrs: Union[List[str], Dict[str, Any]],
 # FIXME: asdict/astuple do not honor their factory args.  waiting on one of these:
 # https://github.com/python/mypy/issues/4236
 # https://github.com/python/typing/issues/253
-def asdict(inst: Any, recurse: bool = ..., filter: Optional[_FilterType] = ...,
-           dict_factory: Type[Mapping] = ...,
-           retain_collection_types: bool = ...) -> Dict[str, Any]: ...
+def asdict(inst: Any, recurse: bool = ..., filter: Optional[_FilterType] = ..., dict_factory: Type[Mapping] = ..., retain_collection_types: bool = ...) -> Dict[str, Any]: ...
 # TODO: add support for returning NamedTuple from the mypy plugin
-def astuple(inst: Any, recurse: bool = ..., filter: Optional[_FilterType] = ...,
-            tuple_factory: Type[Sequence] = ...,
-            retain_collection_types: bool = ...) -> Tuple[Any, ...]: ...
+def astuple(inst: Any, recurse: bool = ..., filter: Optional[_FilterType] = ..., tuple_factory: Type[Sequence] = ..., retain_collection_types: bool = ...) -> Tuple[Any, ...]: ...
 
 def has(cls: type) -> bool: ...
 def assoc(inst: _T, **changes: Any) -> _T: ...
@@ -140,65 +120,30 @@ def get_run_validators() -> bool: ...
 # https://youtrack.jetbrains.com/issue/PY-27788
 
 @overload
-def ib(default: Optional[_T] = ..., validator: Optional[_ValidatorArgType[_T]] = ...,
-           repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ...,
-           metadata: Mapping = ..., type: Optional[Type[_T]] = ...,
-           converter: Optional[_ConverterType[_T]] = ...) -> _T: ...
-# 2nd form catches no type-setters. So returns Any.
+def ib(default: Optional[_T] = ..., validator: Optional[_ValidatorArgType[_T]] = ..., repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ..., metadata: Mapping = ..., type: Optional[Type[_T]] = ..., converter: Optional[_ConverterType[_T]] = ...) -> _T: ...
 @overload
-def ib(default: None = ..., validator: None = ...,
-           repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ...,
-           metadata: Mapping = ..., type: None = ...,
-           converter: None = ..., ) -> Any: ...
+def ib(default: None = ..., validator: None = ..., repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ..., metadata: Mapping = ..., type: None = ..., converter: None = ...) -> Any: ...
+
 @overload
-def attr(default: Optional[_T] = ..., validator: Optional[_ValidatorArgType[_T]] = ...,
-           repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ...,
-           metadata: Mapping = ..., type: Optional[Type[_T]] = ...,
-           converter: Optional[_ConverterType[_T]] = ...) -> _T: ...
-# 2nd form catches no type-setters. So returns Any.
+def attr(default: Optional[_T] = ..., validator: Optional[_ValidatorArgType[_T]] = ..., repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ..., metadata: Mapping = ..., type: Optional[Type[_T]] = ..., converter: Optional[_ConverterType[_T]] = ...) -> _T: ...
 @overload
-def attr(default: None = ..., validator: None = ...,
-           repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ...,
-           metadata: Mapping = ..., type: None = ...,
-           converter: None = ...) -> Any: ...
+def attr(default: None = ..., validator: None = ..., repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ..., metadata: Mapping = ..., type: None = ..., converter: None = ...) -> Any: ...
 
 
 @overload
-def attributes(
-    maybe_cls: _C, these: Optional[Dict[str, Any]] = ...,
-    repr_ns: Optional[str] = ..., repr: bool = ..., cmp: bool = ...,
-    hash: Optional[bool] = ..., init: bool = ..., slots: bool = ...,
-    frozen: bool = ..., str: bool = ...) -> _C: ...
+def attributes(maybe_cls: _C, these: Optional[Dict[str, Any]] = ..., repr_ns: Optional[str] = ..., repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ..., slots: bool = ..., frozen: bool = ..., str: bool = ..., auto_attribs: bool = ...) -> _C: ...
 @overload
-def attributes(
-    maybe_cls: None = ..., these: Optional[Dict[str, Any]] = ...,
-    repr_ns: Optional[str] = ..., repr: bool = ..., cmp: bool = ...,
-    hash: Optional[bool] = ..., init: bool = ..., slots: bool = ...,
-    frozen: bool = ..., str: bool = ...) -> Callable[[_C], _C]: ...
+def attributes(maybe_cls: None = ..., these: Optional[Dict[str, Any]] = ..., repr_ns: Optional[str] = ..., repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ..., slots: bool = ..., frozen: bool = ..., str: bool = ..., auto_attribs: bool = ...) -> Callable[[_C], _C]: ...
 
 @overload
-def s(
-    maybe_cls: _C, these: Optional[Dict[str, Any]] = ...,
-    repr_ns: Optional[str] = ..., repr: bool = ..., cmp: bool = ...,
-    hash: Optional[bool] = ..., init: bool = ..., slots: bool = ...,
-    frozen: bool = ..., str: bool = ...) -> _C: ...
+def s(maybe_cls: _C, these: Optional[Dict[str, Any]] = ..., repr_ns: Optional[str] = ..., repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ..., slots: bool = ..., frozen: bool = ..., str: bool = ..., auto_attribs: bool = ...) -> _C: ...
 @overload
-def s(
-    maybe_cls: None = ..., these: Optional[Dict[str, Any]] = ...,
-    repr_ns: Optional[str] = ..., repr: bool = ..., cmp: bool = ...,
-    hash: Optional[bool] = ..., init: bool = ..., slots: bool = ...,
-    frozen: bool = ..., str: bool = ...) -> Callable[[_C], _C]: ...
+def s(maybe_cls: None = ..., these: Optional[Dict[str, Any]] = ..., repr_ns: Optional[str] = ..., repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ..., slots: bool = ..., frozen: bool = ..., str: bool = ..., auto_attribs: bool = ...) -> Callable[[_C], _C]: ...
 
+# auto_attrib=True
 @overload
-def dataclass(
-    maybe_cls: _C, these: Optional[Dict[str, Any]] = ...,
-    repr_ns: Optional[str] = ..., repr: bool = ..., cmp: bool = ...,
-    hash: Optional[bool] = ..., init: bool = ..., slots: bool = ...,
-    frozen: bool = ..., str: bool = ...) -> _C: ...
+def dataclass(maybe_cls: _C, these: Optional[Dict[str, Any]] = ..., repr_ns: Optional[str] = ..., repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ..., slots: bool = ..., frozen: bool = ..., str: bool = ...) -> _C: ...
 @overload
-def dataclass(
-    maybe_cls: None = ..., these: Optional[Dict[str, Any]] = ...,
-    repr_ns: Optional[str] = ..., repr: bool = ..., cmp: bool = ...,
-    hash: Optional[bool] = ..., init: bool = ..., slots: bool = ...,
-    frozen: bool = ..., str: bool = ...) -> Callable[[_C], _C]: ...
+def dataclass(maybe_cls: None = ..., these: Optional[Dict[str, Any]] = ..., repr_ns: Optional[str] = ..., repr: bool = ..., cmp: bool = ..., hash: Optional[bool] = ..., init: bool = ..., slots: bool = ..., frozen: bool = ..., str: bool = ...) -> Callable[[_C], _C]: ...
+
 # --
