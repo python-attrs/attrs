@@ -56,7 +56,7 @@ from typing import List
 
 @attr.s
 class C:
-    a : int = attr.ib()
+    a: int = attr.ib()
 
 c = C(1)
 reveal_type(c.a)  # E: Revealed type is 'builtins.int'
@@ -72,6 +72,76 @@ C(a=1)
 class D:
     a: List[int] = attr.ib()
     reveal_type(a)  # E: Revealed type is 'builtins.list[builtins.int]'
+
+
+# [case test_inheritance]
+# :----------------------
+import attr
+
+@attr.s
+class A:
+    x: int = attr.ib()
+
+@attr.s
+class B(A):
+    y: str = attr.ib()
+
+B(x=1, y='foo')
+B(x=1, y=2)  # E: Argument 2 to "B" has incompatible type "int"; expected "str"
+
+
+# [case test_multiple_inheritance]
+# :----------------------
+import attr
+
+@attr.s
+class A:
+    x: int = attr.ib()
+
+@attr.s
+class B:
+    y: str = attr.ib()
+
+@attr.s
+class C(B, A):
+    z: float = attr.ib()
+
+C(x=1, y='foo', z=1.1)
+C(x=1, y=2, z=1.1)  # E: Argument 2 to "C" has incompatible type "int"; expected "str"
+
+
+# [case test_dunders]
+# :------------------
+import attr
+
+@attr.s
+class A:
+    x: int = attr.ib()
+
+@attr.s
+class B(A):
+    y: str = attr.ib()
+
+class C:
+    pass
+
+# same class
+B(x=1, y='foo') == B(x=1, y='foo')
+# child class
+B(x=1, y='foo') == A(x=1)
+# parent class
+A(x=1) == B(x=1, y='foo')
+# not attrs class
+A(x=1) == C()
+
+# same class
+B(x=1, y='foo') > B(x=1, y='foo')
+# child class
+B(x=1, y='foo') > A(x=1)
+# parent class
+A(x=1) > B(x=1, y='foo')
+# not attrs class
+A(x=1) > C()  # E: Unsupported operand types for > ("A" and "C")
 
 
 # :---------------------------
@@ -278,18 +348,16 @@ class C:
 # [case test_converter_init]
 # :-------------------------
 import attr
-from typing import Union
 
-def str_to_int(s: Union[str, int]) -> int:
+def str_to_int(s: str) -> int:
     return int(s)
 
 @attr.s
 class C:
     x: int = attr.ib(convert=str_to_int)
 
-C(1)
 C('1')
-C(1.1)  # E: Argument 1 to "C" has incompatible type "float"; expected "Union[str, int]"
+C(1)  # E: Argument 1 to "C" has incompatible type "int"; expected "str"
 
 # :---------------------------
 # :Make
