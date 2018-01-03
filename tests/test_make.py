@@ -121,6 +121,66 @@ class TestCountingAttr(object):
         assert Factory(f, True) == a._default
 
 
+class TestAttribute(object):
+    """
+    Tests for `attr.Attribute`.
+    """
+    def test_deprecated_convert_argument(self):
+        """
+        Using *convert* raises a DeprecationWarning and sets the converter
+        field.
+        """
+        def conv(v):
+            return v
+
+        with pytest.warns(DeprecationWarning) as wi:
+            a = Attribute(
+                "a", True, True, True, True, True, True, convert=conv
+            )
+        w = wi.pop()
+
+        assert conv == a.converter
+        assert (
+            "The `convert` argument is deprecated in favor of `converter`.  "
+            "It will be removed after 2019/01.",
+        ) == w.message.args
+        assert __file__ == w.filename
+
+    def test_deprecated_convert_attribute(self):
+        """
+        If Attribute.convert is accessed, a DeprecationWarning is raised.
+        """
+        def conv(v):
+            return v
+
+        a = simple_attr("a", converter=conv)
+        with pytest.warns(DeprecationWarning) as wi:
+            convert = a.convert
+        w = wi.pop()
+
+        assert conv is convert is a.converter
+        assert (
+            "The `convert` attribute is deprecated in favor of `converter`.  "
+            "It will be removed after 2019/01.",
+        ) == w.message.args
+        assert __file__ == w.filename
+
+    def test_convert_converter(self):
+        """
+        A TypeError is raised if both *convert* and *converter* are passed.
+        """
+        with pytest.raises(RuntimeError) as ei:
+            Attribute(
+                "a", True, True, True, True, True, True,
+                convert=lambda v: v, converter=lambda v: v,
+            )
+
+        assert (
+            "Can't pass both `convert` and `converter`.  "
+            "Please use `converter` only.",
+        ) == ei.value.args
+
+
 def make_tc():
     class TransformC(object):
         z = attr.ib()
@@ -188,8 +248,8 @@ class TestTransformAttrs(object):
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, repr=True, "
-            "cmp=True, hash=None, init=True, convert=None, "
-            "metadata=mappingproxy({}), type=None)",
+            "cmp=True, hash=None, init=True, metadata=mappingproxy({}), "
+            "type=None, converter=None)",
         ) == e.value.args
 
     def test_these(self):
@@ -578,16 +638,16 @@ class TestFields(object):
             assert getattr(fields(C), attribute.name) is attribute
 
 
-class TestConvert(object):
+class TestConverter(object):
     """
     Tests for attribute conversion.
     """
     def test_convert(self):
         """
-        Return value of convert is used as the attribute's value.
+        Return value of converter is used as the attribute's value.
         """
         C = make_class("C", {
-            "x": attr.ib(convert=lambda v: v + 1),
+            "x": attr.ib(converter=lambda v: v + 1),
             "y": attr.ib(),
         })
         c = C(1, 2)
@@ -602,7 +662,7 @@ class TestConvert(object):
         """
         C = make_class("C", {
             "y": attr.ib(),
-            "x": attr.ib(init=init, default=val, convert=lambda v: v + 1),
+            "x": attr.ib(init=init, default=val, converter=lambda v: v + 1),
         })
         c = C(2)
 
@@ -619,7 +679,7 @@ class TestConvert(object):
             "x": attr.ib(
                 init=init,
                 default=Factory(lambda: val),
-                convert=lambda v: v + 1),
+                converter=lambda v: v + 1),
         })
         c = C(2)
 
@@ -654,7 +714,7 @@ class TestConvert(object):
             raise RuntimeError("foo")
         C = make_class(
             "C", {
-                "x": attr.ib(validator=validator, convert=lambda v: 1 / 0),
+                "x": attr.ib(validator=validator, converter=lambda v: 1 / 0),
                 "y": attr.ib(),
             })
         with pytest.raises(ZeroDivisionError):
@@ -665,9 +725,48 @@ class TestConvert(object):
         Converters circumvent immutability.
         """
         C = make_class("C", {
-            "x": attr.ib(convert=lambda v: int(v)),
+            "x": attr.ib(converter=lambda v: int(v)),
         }, frozen=True)
         C("1")
+
+    def test_deprecated_convert(self):
+        """
+        Using *convert* raises a DeprecationWarning and sets the converter
+        field.
+        """
+        def conv(v):
+            return v
+
+        with pytest.warns(DeprecationWarning) as wi:
+            @attr.s
+            class C(object):
+                x = attr.ib(convert=conv)
+
+            convert = fields(C).x.convert
+
+        assert 2 == len(wi.list)
+        w = wi.pop()
+
+        assert conv == fields(C).x.converter == convert
+        assert (
+            "The `convert` argument is deprecated in favor of `converter`.  "
+            "It will be removed after 2019/01.",
+        ) == w.message.args
+        assert __file__ == w.filename
+
+    def test_convert_converter(self):
+        """
+        A TypeError is raised if both *convert* and *converter* are passed.
+        """
+        with pytest.raises(RuntimeError) as ei:
+            @attr.s
+            class C(object):
+                x = attr.ib(convert=lambda v: v, converter=lambda v: v)
+
+        assert (
+            "Can't pass both `convert` and `converter`.  "
+            "Please use `converter` only.",
+        ) == ei.value.args
 
 
 class TestValidate(object):
@@ -898,3 +997,49 @@ class TestClassBuilder(object):
             .build_class()
 
         assert "ns.C(x=1)" == repr(cls(1))
+
+    @pytest.mark.parametrize("meth_name", [
+        "__init__", "__hash__", "__repr__", "__str__",
+        "__eq__", "__ne__", "__lt__", "__le__", "__gt__", "__ge__",
+    ])
+    def test_attaches_meta_dunders(self, meth_name):
+        """
+        Generated methods have correct __module__, __name__, and __qualname__
+        attributes.
+        """
+        @attr.s(hash=True, str=True)
+        class C(object):
+            def organic(self):
+                pass
+
+        meth = getattr(C, meth_name)
+
+        assert meth_name == meth.__name__
+        assert C.organic.__module__ == meth.__module__
+        if not PY2:
+            organic_prefix = C.organic.__qualname__.rsplit(".", 1)[0]
+            assert organic_prefix + "." + meth_name == meth.__qualname__
+
+    def test_handles_missing_meta_on_class(self):
+        """
+        If the class hasn't a __module__ or __qualname__, the method hasn't
+        either.
+        """
+        class C(object):
+            pass
+
+        b = _ClassBuilder(
+            C, these=None, slots=False, frozen=False, auto_attribs=False,
+        )
+        b._cls = {}  # no __module__; no __qualname__
+
+        def fake_meth(self):
+            pass
+
+        fake_meth.__module__ = "42"
+        fake_meth.__qualname__ = "23"
+
+        rv = b._add_method_dunders(fake_meth)
+
+        assert "42" == rv.__module__ == fake_meth.__module__
+        assert "23" == rv.__qualname__ == fake_meth.__qualname__

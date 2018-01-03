@@ -30,13 +30,13 @@ def simple_class(cmp=False, repr=False, hash=False, str=False, slots=False,
 
 
 def simple_attr(name, default=NOTHING, validator=None, repr=True,
-                cmp=True, hash=None, init=True):
+                cmp=True, hash=None, init=True, converter=None):
     """
     Return an attribute with a name and no other bells and whistles.
     """
     return Attribute(
         name=name, default=default, validator=validator, repr=repr,
-        cmp=cmp, hash=hash, init=init
+        cmp=cmp, hash=hash, init=init, converter=converter,
     )
 
 
@@ -167,9 +167,17 @@ def simple_attrs_with_metadata(draw):
     metadata = draw(st.dictionaries(
         keys=keys, values=vals, min_size=1, max_size=5))
 
-    return attr.ib(c_attr._default, c_attr._validator, c_attr.repr,
-                   c_attr.cmp, c_attr.hash, c_attr.init, c_attr.convert,
-                   metadata)
+    return attr.ib(
+        default=c_attr._default,
+        validator=c_attr._validator,
+        repr=c_attr.repr,
+        cmp=c_attr.cmp,
+        hash=c_attr.hash,
+        init=c_attr.init,
+        metadata=metadata,
+        type=None,
+        converter=c_attr.converter,
+    )
 
 
 simple_attrs = simple_attrs_without_metadata | simple_attrs_with_metadata()
