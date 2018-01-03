@@ -25,7 +25,7 @@ def Factory(factory: Union[Callable[[], _T], Callable[[Any], _T]], takes_self: b
 class Attribute(Generic[_T]):
     name: str
     default: Optional[_T]
-    validator: Optional[_ValidatorArgType[_T]]
+    validator: Optional[_ValidatorType[_T]]
     repr: bool
     cmp: bool
     hash: Optional[bool]
