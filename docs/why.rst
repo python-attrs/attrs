@@ -155,7 +155,7 @@ So if you never iterate over the keys of a dict, you should use a proper class.
 …hand-written classes?
 ----------------------
 
-While we're fans of all things artisanal, writing the same nine methods all over again doesn't qualify for me.
+While we're fans of all things artisanal, writing the same nine methods again and again doesn't qualify.
 I usually manage to get some typos inside and there's simply more code that can break and thus has to be tested.
 
 To bring it into perspective, the equivalent of
