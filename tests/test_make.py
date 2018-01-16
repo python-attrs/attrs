@@ -269,6 +269,17 @@ class TestTransformAttrs(object):
             simple_attr("x"),
         ) == attrs
 
+    def test_these_leave_body(self):
+        """
+        If these is passed, no attributes are removed from the body.
+        """
+        @attr.s(init=False, these={"x": attr.ib()})
+        class C(object):
+            x = 5
+
+        assert 5 == C().x
+        assert "C(x=5)" == repr(C())
+
     def test_multiple_inheritance(self):
         """
         Order of attributes doesn't get mixed up by multiple inheritance.
