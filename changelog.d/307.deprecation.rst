@@ -1,5 +1,0 @@
-The ``attr.ib(convert=callable)`` option is now deprecated in favor of ``attr.ib(converter=callable)``.
-
-This is done to achieve consistency with other noun-based arguments like *validator*.
-
-*convert* will keep working until at least January 2019 while raising a ``DeprecationWarning``.

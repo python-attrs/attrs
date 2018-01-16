@@ -1,1 +1,0 @@
-All generated methods now have correct ``__module__``, ``__name__``, and (on Python 3) ``__qualname__`` attributes.

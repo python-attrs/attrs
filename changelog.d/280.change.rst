@@ -1,2 +1,0 @@
-``attr.ib``\ ’s ``metadata`` argument now defaults to a unique empty ``dict`` instance instead of sharing a common empty ``dict`` for all.
-The singleton empty ``dict`` is still enforced.
