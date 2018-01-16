@@ -128,13 +128,13 @@ def attrib(default=NOTHING, validator=None,
 
     .. versionadded:: 15.2.0 *convert*
     .. versionadded:: 16.3.0 *metadata*
-    ..  versionchanged:: 17.1.0 *validator* can be a ``list`` now.
-    ..  versionchanged:: 17.1.0
-        *hash* is ``None`` and therefore mirrors *cmp* by default.
-    ..  versionadded:: 17.3.0 *type*
-    ..  deprecated:: 17.4.0 *convert*
-    ..  versionadded:: 17.4.0 *converter* as a replacement for the deprecated
-        *convert* to achieve consistency with other noun-based arguments.
+    .. versionchanged:: 17.1.0 *validator* can be a ``list`` now.
+    .. versionchanged:: 17.1.0
+       *hash* is ``None`` and therefore mirrors *cmp* by default.
+    .. versionadded:: 17.3.0 *type*
+    .. deprecated:: 17.4.0 *convert*
+    .. versionadded:: 17.4.0 *converter* as a replacement for the deprecated
+       *convert* to achieve consistency with other noun-based arguments.
     """
     if hash is not None and hash is not True and hash is not False:
         raise TypeError(
@@ -364,7 +364,7 @@ class _ClassBuilder(object):
     """
     __slots__ = (
         "_cls", "_cls_dict", "_attrs", "_super_names", "_attr_names", "_slots",
-        "_frozen", "_has_post_init",
+        "_frozen", "_has_post_init", "_delete_attribs",
     )
 
     def __init__(self, cls, these, slots, frozen, auto_attribs):
@@ -378,6 +378,7 @@ class _ClassBuilder(object):
         self._slots = slots
         self._frozen = frozen or _has_frozen_superclass(cls)
         self._has_post_init = bool(getattr(cls, "__attrs_post_init__", False))
+        self._delete_attribs = not bool(these)
 
         self._cls_dict["__attrs_attrs__"] = self._attrs
 
@@ -407,10 +408,11 @@ class _ClassBuilder(object):
         super_names = self._super_names
 
         # Clean class of attribute definitions (`attr.ib()`s).
-        for name in self._attr_names:
-            if name not in super_names and \
-                    getattr(cls, name, None) is not None:
-                delattr(cls, name)
+        if self._delete_attribs:
+            for name in self._attr_names:
+                if name not in super_names and \
+                        getattr(cls, name, None) is not None:
+                    delattr(cls, name)
 
         # Attach our dunder methods.
         for name, value in self._cls_dict.items():
@@ -575,7 +577,7 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
         Django models) or don't want to.
 
         If *these* is not ``None``, ``attrs`` will *not* search the class body
-        for attributes.
+        for attributes and will *not* remove any attributes from it.
 
     :type these: :class:`dict` of :class:`str` to :func:`attr.ib`
 
@@ -656,13 +658,15 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
 
         .. _`PEP 526`: https://www.python.org/dev/peps/pep-0526/
 
-    ..  versionadded:: 16.0.0 *slots*
-    ..  versionadded:: 16.1.0 *frozen*
-    ..  versionadded:: 16.3.0 *str*, and support for ``__attrs_post_init__``.
-    ..  versionchanged::
-            17.1.0 *hash* supports ``None`` as value which is also the default
-            now.
+    .. versionadded:: 16.0.0 *slots*
+    .. versionadded:: 16.1.0 *frozen*
+    .. versionadded:: 16.3.0 *str*
+    .. versionadded:: 16.3.0 Support for ``__attrs_post_init__``.
+    .. versionchanged:: 17.1.0
+       *hash* supports ``None`` as value which is also the default now.
     .. versionadded:: 17.3.0 *auto_attribs*
+    .. versionchanged:: 18.1.0
+       If *these* is passed, no attributes are deleted from the class body.
     """
     def wrap(cls):
         if getattr(cls, "__class__", None) is None:
