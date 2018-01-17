@@ -4,6 +4,7 @@ Tests for `attr._make`.
 
 from __future__ import absolute_import, division, print_function
 
+import copy
 import inspect
 import itertools
 import sys
@@ -1054,3 +1055,16 @@ class TestClassBuilder(object):
 
         assert "42" == rv.__module__ == fake_meth.__module__
         assert "23" == rv.__qualname__ == fake_meth.__qualname__
+
+    def test_weakref_setstate(self):
+        """
+        __weakref__ is not set on in setstate because it's not writable in
+        slots classes.
+        """
+        @attr.s(slots=True)
+        class C(object):
+            __weakref__ = attr.ib(
+                init=False, hash=False, repr=False, cmp=False
+            )
+
+        assert C() == copy.deepcopy(C())
