@@ -443,20 +443,26 @@ class _ClassBuilder(object):
         if qualname is not None:
             cd["__qualname__"] = qualname
 
-        attr_names = tuple(self._attr_names)
+        # __weakref__ is not writable.
+        state_attr_names = tuple(
+            an for an in self._attr_names if an != "__weakref__"
+        )
 
         def slots_getstate(self):
             """
             Automatically created by attrs.
             """
-            return tuple(getattr(self, name) for name in attr_names)
+            return tuple(
+                getattr(self, name)
+                for name in state_attr_names
+            )
 
         def slots_setstate(self, state):
             """
             Automatically created by attrs.
             """
             __bound_setattr = _obj_setattr.__get__(self, Attribute)
-            for name, value in zip(attr_names, state):
+            for name, value in zip(state_attr_names, state):
                 __bound_setattr(name, value)
 
         # slots and frozen require __getstate__/__setstate__ to work
