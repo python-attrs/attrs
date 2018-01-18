@@ -169,7 +169,7 @@ To bring it into perspective, the equivalent of
    >>> SmartClass(1, 2)
    SmartClass(a=1, b=2)
 
-is
+is roughly
 
 .. doctest::
 
@@ -219,7 +219,7 @@ is
    ...             return NotImplemented
    ...
    ...     def __hash__(self):
-   ...         return hash((self.a, self.b))
+   ...         return hash((self.__class__, self.a, self.b))
    >>> ArtisanalClass(a=1, b=2)
    ArtisanalClass(a=1, b=2)
 
