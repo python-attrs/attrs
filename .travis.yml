@@ -1,4 +1,5 @@
 dist: trusty
+group: travis_latest
 sudo: false
 cache:
   directories:
@@ -19,9 +20,9 @@ matrix:
       env: TOXENV=py35
     - python: "3.6"
       env: TOXENV=py36
-    - python: "pypy2.7-5.8.0"
+    - python: "pypy"
       env: TOXENV=pypy
-    - python: "pypy3.5-5.8.0"
+    - python: "pypy3"
       env: TOXENV=pypy3
 
     # Prevent breakage by a new release
