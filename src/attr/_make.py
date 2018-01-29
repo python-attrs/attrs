@@ -201,9 +201,9 @@ def _make_attr_tuple_class(cls_name, attr_names):
 # Tuple class for extracted attributes from a class definition.
 # `super_attrs` is a subset of `attrs`.
 _Attributes = _make_attr_tuple_class("_Attributes", [
-    "attrs",        # all attributes to build dunder methods for
-    "super_attrs",  # attributes that have been inherited from super classes
-    "super_attrs_map",  # map super attributes to their originating classes
+    "attrs",            # all attributes to build dunder methods for
+    "super_attrs",      # attributes that have been inherited
+    "super_attrs_map",  # map inherited attributes to their originating classes
 ])
 
 
@@ -371,8 +371,9 @@ class _ClassBuilder(object):
     )
 
     def __init__(self, cls, these, slots, frozen, auto_attribs):
-        attrs, super_attrs, super_map = _transform_attrs(cls, these,
-                                                         auto_attribs)
+        attrs, super_attrs, super_map = _transform_attrs(
+            cls, these, auto_attribs
+        )
 
         self._cls = cls
         self._cls_dict = dict(cls.__dict__) if slots else {}
@@ -1015,7 +1016,7 @@ def _add_init(cls, frozen):
         cls.__attrs_attrs__,
         getattr(cls, "__attrs_post_init__", False),
         frozen,
-        '__slots__' in cls.__dict__,
+        _is_slot_cls(cls),
         {},
     )
     return cls
@@ -1066,15 +1067,15 @@ def validate(inst):
             v(inst, a, getattr(inst, a.name))
 
 
-def _is_slot_cl(cl):
-    return '__slots__' in cl.__dict__
+def _is_slot_cls(cls):
+    return "__slots__" in cls.__dict__
 
 
 def _is_slot_attr(a_name, super_attr_map):
     """
     Check if the attribute name comes from a slot class.
     """
-    return a_name in super_attr_map and _is_slot_cl(super_attr_map[a_name])
+    return a_name in super_attr_map and _is_slot_cls(super_attr_map[a_name])
 
 
 def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
@@ -1087,8 +1088,10 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
     a cached ``object.__setattr__``.
     """
     lines = []
-    any_slot_ancestors = any(_is_slot_attr(a.name, super_attr_map)
-                             for a in attrs)
+    any_slot_ancestors = any(
+        _is_slot_attr(a.name, super_attr_map)
+        for a in attrs
+    )
     if frozen is True:
         if slots is True:
             lines.append(
