@@ -209,7 +209,7 @@ class TestTransformAttrs(object):
         Transforms every `_CountingAttr` and leaves others (a) be.
         """
         C = make_tc()
-        attrs, _, = _transform_attrs(C, None, False)
+        attrs, _, _ = _transform_attrs(C, None, False)
 
         assert ["z", "y", "x"] == [a.name for a in attrs]
 
@@ -221,14 +221,14 @@ class TestTransformAttrs(object):
         class C(object):
             pass
 
-        assert _Attributes(((), [])) == _transform_attrs(C, None, False)
+        assert _Attributes(((), [], {})) == _transform_attrs(C, None, False)
 
     def test_transforms_to_attribute(self):
         """
         All `_CountingAttr`s are transformed into `Attribute`s.
         """
         C = make_tc()
-        attrs, super_attrs = _transform_attrs(C, None, False)
+        attrs, super_attrs, _ = _transform_attrs(C, None, False)
 
         assert [] == super_attrs
         assert 3 == len(attrs)
@@ -263,7 +263,7 @@ class TestTransformAttrs(object):
         class C(Base):
             y = attr.ib()
 
-        attrs, super_attrs = _transform_attrs(C, {"x": attr.ib()}, False)
+        attrs, super_attrs, _ = _transform_attrs(C, {"x": attr.ib()}, False)
 
         assert [] == super_attrs
         assert (

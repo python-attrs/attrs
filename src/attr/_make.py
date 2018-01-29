@@ -203,6 +203,7 @@ def _make_attr_tuple_class(cls_name, attr_names):
 _Attributes = _make_attr_tuple_class("_Attributes", [
     "attrs",        # all attributes to build dunder methods for
     "super_attrs",  # attributes that have been inherited from super classes
+    "super_attrs_map",  # map super attributes to their originating classes
 ])
 
 
@@ -298,6 +299,7 @@ def _transform_attrs(cls, these, auto_attribs):
     ]
 
     super_attrs = []
+    super_attr_map = {}  # A dictionary of superattrs to their classes.
     taken_attr_names = {a.name: a for a in own_attrs}
 
     # Traverse the MRO and collect attributes.
@@ -311,6 +313,7 @@ def _transform_attrs(cls, these, auto_attribs):
                 if prev_a is None:
                     super_attrs.append(a)
                     taken_attr_names[a.name] = a
+                    super_attr_map[a.name] = super_cls
 
     attr_names = [a.name for a in super_attrs + own_attrs]
 
@@ -341,7 +344,7 @@ def _transform_attrs(cls, these, auto_attribs):
                 a.init is not False:
             had_default = True
 
-    return _Attributes((attrs, super_attrs))
+    return _Attributes((attrs, super_attrs, super_attr_map))
 
 
 def _frozen_setattrs(self, name, value):
@@ -364,16 +367,18 @@ class _ClassBuilder(object):
     """
     __slots__ = (
         "_cls", "_cls_dict", "_attrs", "_super_names", "_attr_names", "_slots",
-        "_frozen", "_has_post_init", "_delete_attribs",
+        "_frozen", "_has_post_init", "_delete_attribs", "_super_attr_map",
     )
 
     def __init__(self, cls, these, slots, frozen, auto_attribs):
-        attrs, super_attrs = _transform_attrs(cls, these, auto_attribs)
+        attrs, super_attrs, super_map = _transform_attrs(cls, these,
+                                                         auto_attribs)
 
         self._cls = cls
         self._cls_dict = dict(cls.__dict__) if slots else {}
         self._attrs = attrs
         self._super_names = set(a.name for a in super_attrs)
+        self._super_attr_map = super_map
         self._attr_names = tuple(a.name for a in attrs)
         self._slots = slots
         self._frozen = frozen or _has_frozen_superclass(cls)
@@ -534,6 +539,8 @@ class _ClassBuilder(object):
                 self._attrs,
                 self._has_post_init,
                 self._frozen,
+                self._slots,
+                self._super_attr_map,
             )
         )
 
@@ -954,7 +961,7 @@ def _add_repr(cls, ns=None, attrs=None):
     return cls
 
 
-def _make_init(attrs, post_init, frozen):
+def _make_init(attrs, post_init, frozen, slots, super_attr_map):
     attrs = [
         a
         for a in attrs
@@ -971,7 +978,9 @@ def _make_init(attrs, post_init, frozen):
     script, globs = _attrs_to_init_script(
         attrs,
         frozen,
+        slots,
         post_init,
+        super_attr_map,
     )
     locs = {}
     bytecode = compile(script, unique_filename, "exec")
@@ -1006,6 +1015,8 @@ def _add_init(cls, frozen):
         cls.__attrs_attrs__,
         getattr(cls, "__attrs_post_init__", False),
         frozen,
+        '__slots__' in cls.__dict__,
+        {},
     )
     return cls
 
@@ -1055,37 +1066,90 @@ def validate(inst):
             v(inst, a, getattr(inst, a.name))
 
 
-def _attrs_to_init_script(attrs, frozen, post_init):
+def _is_slot_cl(cl):
+    return '__slots__' in cl.__dict__
+
+
+def _is_slot_attr(a_name, super_attr_map):
+    """
+    Check if the attribute name comes from a slot class.
+    """
+    return a_name in super_attr_map and _is_slot_cl(super_attr_map[a_name])
+
+
+def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
     """
     Return a script of an initializer for *attrs* and a dict of globals.
 
     The globals are expected by the generated script.
 
-     If *frozen* is True, we cannot set the attributes directly so we use
+    If *frozen* is True, we cannot set the attributes directly so we use
     a cached ``object.__setattr__``.
     """
     lines = []
+    any_slot_ancestors = any(_is_slot_attr(a.name, super_attr_map)
+                             for a in attrs)
     if frozen is True:
-        lines.append(
-            # Circumvent the __setattr__ descriptor to save one lookup per
-            # assignment.
-            "_setattr = _cached_setattr.__get__(self, self.__class__)"
-        )
+        if slots is True:
+            lines.append(
+                # Circumvent the __setattr__ descriptor to save one lookup per
+                # assignment.
+                "_setattr = _cached_setattr.__get__(self, self.__class__)"
+            )
 
-        def fmt_setter(attr_name, value_var):
-            return "_setattr('%(attr_name)s', %(value_var)s)" % {
-                "attr_name": attr_name,
-                "value_var": value_var,
-            }
+            def fmt_setter(attr_name, value_var):
+                return "_setattr('%(attr_name)s', %(value_var)s)" % {
+                    "attr_name": attr_name,
+                    "value_var": value_var,
+                }
 
-        def fmt_setter_with_converter(attr_name, value_var):
-            conv_name = _init_converter_pat.format(attr_name)
-            return "_setattr('%(attr_name)s', %(conv)s(%(value_var)s))" % {
-                "attr_name": attr_name,
-                "value_var": value_var,
-                "conv": conv_name,
-            }
+            def fmt_setter_with_converter(attr_name, value_var):
+                conv_name = _init_converter_pat.format(attr_name)
+                return "_setattr('%(attr_name)s', %(conv)s(%(value_var)s))" % {
+                    "attr_name": attr_name,
+                    "value_var": value_var,
+                    "conv": conv_name,
+                }
+        else:
+            # Dict frozen classes assign directly to __dict__.
+            # But only if the attribute doesn't come from an ancestor slot
+            # class.
+            lines.append(
+                "_inst_dict = self.__dict__"
+            )
+            if any_slot_ancestors:
+                lines.append(
+                    # Circumvent the __setattr__ descriptor to save one lookup
+                    # per assignment.
+                    "_setattr = _cached_setattr.__get__(self, self.__class__)"
+                )
+
+            def fmt_setter(attr_name, value_var):
+                if _is_slot_attr(attr_name, super_attr_map):
+                    res = "_setattr('%(attr_name)s', %(value_var)s)" % {
+                        "attr_name": attr_name,
+                        "value_var": value_var,
+                    }
+                else:
+                    res = "_inst_dict['%(attr_name)s'] = %(value_var)s" % {
+                        "attr_name": attr_name,
+                        "value_var": value_var,
+                    }
+                return res
+
+            def fmt_setter_with_converter(attr_name, value_var):
+                conv_name = _init_converter_pat.format(attr_name)
+                if _is_slot_attr(attr_name, super_attr_map):
+                    tmpl = "_setattr('%(attr_name)s', %(c)s(%(value_var)s))"
+                else:
+                    tmpl = "_inst_dict['%(attr_name)s'] = %(c)s(%(value_var)s)"
+                return tmpl % {
+                    "attr_name": attr_name,
+                    "value_var": value_var,
+                    "c": conv_name,
+                }
     else:
+        # Not frozen.
         def fmt_setter(attr_name, value):
             return "self.%(attr_name)s = %(value)s" % {
                 "attr_name": attr_name,
