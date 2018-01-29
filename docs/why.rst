@@ -147,10 +147,9 @@ Nevertheless, there are still reasons to prefer ``attrs`` over Data Classes whos
 
 - ``attrs`` supports all maintream Python versions, including CPython 2.7 and PyPy.
 - Data Classes are intentionally less powerful than ``attrs``.
-  There is a long list of features that were sacrificed for the sake of simplicity.
-  The most obvious ones are validators, converters, and metadata but it permeates throughout all APIs.
+  There is a long list of features that were sacrificed for the sake of simplicity and while the most obvious ones are validators, converters, and metadata, it permeates throughout all APIs.
 
-  On the other hand, Data Classes currently do not offer any significant feature that ``attrs`` doesn't already already have.
+  On the other hand, Data Classes currently do not offer any significant feature that ``attrs`` doesn't already have.
 - ``attrs`` can and will move faster.
   We are not bound to any release schedules and we have a clear deprecation policy.
 
