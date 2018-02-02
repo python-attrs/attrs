@@ -26,7 +26,7 @@ reveal_type(C.b)  # E: Revealed type is 'Any'
 # :-------------------
 # cmd: mypy --strict-optional
 import attr
-from typing import List
+from typing import List, Any
 
 @attr.s
 class C:
@@ -47,12 +47,22 @@ class D:
     a = attr.ib(type=List[int])
     reveal_type(a)  # E: Revealed type is 'builtins.list[builtins.int]'
 
+@attr.s
+class E:
+    a = attr.ib(type='List[int]')
+    reveal_type(a)  # E: Revealed type is 'builtins.list[builtins.int]'
+
+@attr.s
+class F:
+    a = attr.ib(type=Any)
+    reveal_type(a)  # E: Revealed type is 'Any'
+
 
 # [case test_type_annotations]
 # :---------------------------
 # cmd: mypy --strict-optional
 import attr
-from typing import List
+from typing import List, Any
 
 @attr.s
 class C:
@@ -72,6 +82,18 @@ C(a=1)
 class D:
     a: List[int] = attr.ib()
     reveal_type(a)  # E: Revealed type is 'builtins.list[builtins.int]'
+
+@attr.s
+class E:
+    a: 'List[int]' = attr.ib()
+    reveal_type(a)  # E: Revealed type is 'builtins.list[builtins.int]'
+
+@attr.s
+class F:
+    a: Any = attr.ib()
+    reveal_type(a)  # E: Revealed type is 'Any'
+
+
 
 
 # [case test_inheritance]
@@ -270,7 +292,7 @@ class C:
 
     # mypy does not know how to get the contained type from an enum:
     f = attr.ib(type=State, validator=in_(State))
-    ff = attr.ib(validator=in_(State))  # E: Need type annotation for variable
+    ff = attr.ib(validator=in_(State))  # E: Need type annotation for 'ff'
 
 
 # [case test_init_with_validators]
