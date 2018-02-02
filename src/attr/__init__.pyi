@@ -11,7 +11,10 @@ _C = TypeVar('_C', bound=type)
 _ValidatorType = Callable[[Any, Attribute, _T], Any]
 _ConverterType = Callable[[Any], _T]
 _FilterType = Callable[[Attribute, Any], bool]
-_ValidatorArgType = Union[_ValidatorType[_T], List[_ValidatorType[_T]], Tuple[_ValidatorType[_T], ...]]
+# FIXME: in reality, if multiple validators are passed they must be in a list or tuple,
+# but those are invariant and so would prevent subtypes of _ValidatorType from working
+# when passed in a list or tuple.
+_ValidatorArgType = Union[_ValidatorType[_T], Sequence[_ValidatorType[_T]]]
 
 # _make --
 

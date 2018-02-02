@@ -324,10 +324,13 @@ def validate_str(inst, at, val: str):
 
 @attr.s
 class C:
-    a = attr.ib(type=int, validator=validate_int)  # int
-    b = attr.ib(type=int, validator=validate_str)  # E: Argument 2 to "ib" has incompatible type "Callable[[Any, Any, str], Any]"; expected "Union[Callable[[Any, Attribute[Any], int], Any], List[Callable[[Any, Attribute[Any], int], Any]], Tuple[Callable[[Any, Attribute[Any], int], Any], ...]]"
-
+    a = attr.ib(type=int, validator=validate_int)
     reveal_type(a)  # E: Revealed type is 'builtins.int'
+
+    b = attr.ib(type=int, validator=[validate_int])
+    reveal_type(b)  # E: Revealed type is 'builtins.int'
+
+    c = attr.ib(type=int, validator=validate_str)  # E: Argument 2 to "ib" has incompatible type "Callable[[Any, Any, str], Any]"; expected "Union[Callable[[Any, Attribute[Any], int], Any], Sequence[Callable[[Any, Attribute[Any], int], Any]]]"
 
 
 # [case test_custom_validators_type_annotations]
@@ -343,9 +346,13 @@ def validate_str(inst, at, val: str):
 @attr.s
 class C:
     a: int = attr.ib(validator=validate_int)
-    b: int = attr.ib(validator=validate_str)  # E: Incompatible types in assignment (expression has type "str", variable has type "int")
+    reveal_type(a)  # E: Revealed type is 'builtins.int'
 
-    reveal_type(a) # E: Revealed type is 'builtins.int'
+    b: int = attr.ib(validator=[validate_int])
+    reveal_type(b)  # E: Revealed type is 'builtins.int'
+
+    c: int = attr.ib(validator=validate_str)  # E: Incompatible types in assignment (expression has type "str", variable has type "int")
+
 
 # :---------------------------
 # :Converters
