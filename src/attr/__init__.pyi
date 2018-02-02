@@ -85,6 +85,18 @@ def attrib(default: None = ...,
            metadata: Mapping = ...,
            type: None = ...,
            converter: None = ...) -> Any: ...
+# 3rd form non-Type: e.g. forward references, Any
+@overload
+def attrib(default: Optional[_T] = ...,
+           validator: Optional[_ValidatorArgType[_T]] = ...,
+           repr: bool = ...,
+           cmp: bool = ...,
+           hash: Optional[bool] = ...,
+           init: bool = ...,
+           metadata: Mapping = ...,
+           type: object = ...,
+           converter: Optional[_ConverterType[_T]] = ...) -> Any: ...
+
 
 # NOTE: If you update these, update `s` and `attributes` below.
 @overload
@@ -171,6 +183,16 @@ def ib(default: None = ...,
        metadata: Mapping = ...,
        type: None = ...,
        converter: None = ...) -> Any: ...
+@overload
+def ib(default: Optional[_T] = ...,
+       validator: Optional[_ValidatorArgType[_T]] = ...,
+       repr: bool = ...,
+       cmp: bool = ...,
+       hash: Optional[bool] = ...,
+       init: bool = ...,
+       metadata: Mapping = ...,
+       type: object = ...,
+       converter: Optional[_ConverterType[_T]] = ...) -> Any: ...
 
 @overload
 def attr(default: Optional[_T] = ...,
@@ -192,6 +214,16 @@ def attr(default: None = ...,
          metadata: Mapping = ...,
          type: None = ...,
          converter: None = ...) -> Any: ...
+@overload
+def attr(default: Optional[_T] = ...,
+         validator: Optional[_ValidatorArgType[_T]] = ...,
+         repr: bool = ...,
+         cmp: bool = ...,
+         hash: Optional[bool] = ...,
+         init: bool = ...,
+         metadata: Mapping = ...,
+         type: object = ...,
+         converter: Optional[_ConverterType[_T]] = ...) -> Any: ...
 
 @overload
 def attributes(maybe_cls: _C,
