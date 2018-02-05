@@ -605,6 +605,11 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
         If *these* is not ``None``, ``attrs`` will *not* search the class body
         for attributes and will *not* remove any attributes from it.
 
+        If *these* is an ordered dict (:class:`dict` on Python 3.6+,
+        :class:`collections.OrderedDict` otherwise), the order is deduced from
+        the order of the attributes inside *these*.  Otherwise the order
+        of the definition of the attributes is used.
+
     :type these: :class:`dict` of :class:`str` to :func:`attr.ib`
 
     :param str repr_ns: When using nested classes, there's no way in Python 2
@@ -693,6 +698,7 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
     .. versionadded:: 17.3.0 *auto_attribs*
     .. versionchanged:: 18.1.0
        If *these* is passed, no attributes are deleted from the class body.
+    .. versionchanged:: 18.1.0 If *these* is ordered, the order is retained.
     """
     def wrap(cls):
         if getattr(cls, "__class__", None) is None:
@@ -1525,6 +1531,11 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
 
     :param attrs: A list of names or a dictionary of mappings of names to
         attributes.
+
+        If *attrs* is a list or an ordered dict (:class:`dict` on Python 3.6+,
+        :class:`collections.OrderedDict` otherwise), the order is deduced from
+        the order of the names or attributes inside *attrs*.  Otherwise the
+        order of the definition of the attributes is used.
     :type attrs: :class:`list` or :class:`dict`
 
     :param tuple bases: Classes that the new class will subclass.
@@ -1534,7 +1545,8 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
     :return: A new class with *attrs*.
     :rtype: type
 
-    ..  versionadded:: 17.1.0 *bases*
+    .. versionadded:: 17.1.0 *bases*
+    .. versionchanged:: 18.1.0 If *attrs* is ordered, the order is retained.
     """
     if isinstance(attrs, dict):
         cls_dict = attrs
