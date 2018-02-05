@@ -5,8 +5,6 @@ import sys
 import types
 import warnings
 
-from collections import OrderedDict
-
 
 PY2 = sys.version_info[0] == 2
 PYPY = platform.python_implementation() == "PyPy"
@@ -15,6 +13,7 @@ PYPY = platform.python_implementation() == "PyPy"
 if PYPY or sys.version_info[:2] >= (3, 6):
     ordered_dict = dict
 else:
+    from collections import OrderedDict
     ordered_dict = OrderedDict
 
 
