@@ -5,10 +5,14 @@ import sys
 import types
 import warnings
 
+from collections import OrderedDict
+
 
 PY2 = sys.version_info[0] == 2
 PYPY = platform.python_implementation() == "PyPy"
 
+
+ordered_dict = OrderedDict  # gets overwritten on Python 3.6+.
 
 if PY2:
     from UserDict import IterableUserDict
@@ -75,6 +79,9 @@ if PY2:
         return res
 
 else:
+    if sys.version_info[1] >= 6:
+        ordered_dict = dict
+
     def isclass(klass):
         return isinstance(klass, type)
 

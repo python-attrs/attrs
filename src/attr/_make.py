@@ -8,7 +8,9 @@ import warnings
 from operator import itemgetter
 
 from . import _config
-from ._compat import PY2, isclass, iteritems, metadata_proxy, set_closure_cell
+from ._compat import (
+    PY2, isclass, iteritems, metadata_proxy, ordered_dict, set_closure_cell
+)
 from .exceptions import (
     DefaultAlreadySetError, FrozenInstanceError, NotAnAttrsClassError,
     UnannotatedAttributeError
@@ -233,6 +235,13 @@ def _get_annotations(cls):
     return anns
 
 
+def _counter_getter(e):
+    """
+    Key function for sorting to avoid re-creating a lambda for every class.
+    """
+    return e[1].counter
+
+
 def _transform_attrs(cls, these, auto_attribs):
     """
     Transform all `_CountingAttr`s on a class into `Attribute`s.
@@ -245,11 +254,14 @@ def _transform_attrs(cls, these, auto_attribs):
     anns = _get_annotations(cls)
 
     if these is not None:
-        ca_list = sorted((
+        ca_list = [
             (name, ca)
             for name, ca
             in iteritems(these)
-        ), key=lambda e: e[1].counter)
+        ]
+
+        if not isinstance(these, ordered_dict):
+            ca_list.sort(key=_counter_getter)
     elif auto_attribs is True:
         ca_names = {
             name
