@@ -12,7 +12,11 @@ PY2 = sys.version_info[0] == 2
 PYPY = platform.python_implementation() == "PyPy"
 
 
-ordered_dict = OrderedDict  # gets overwritten on Python 3.6+.
+if PYPY or sys.version_info[:2] >= (3, 6):
+    ordered_dict = dict
+else:
+    ordered_dict = OrderedDict
+
 
 if PY2:
     from UserDict import IterableUserDict
@@ -79,11 +83,6 @@ if PY2:
         return res
 
 else:
-    # Disabling coverage because we run the test suite under coverage only for
-    # the latest Python 3.
-    if sys.version_info[1] >= 6:  # pragma: nocover
-        ordered_dict = dict
-
     def isclass(klass):
         return isinstance(klass, type)
 
