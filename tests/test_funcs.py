@@ -8,8 +8,8 @@ from collections import Mapping, OrderedDict, Sequence
 
 import pytest
 
-from hypothesis import strategies as st
 from hypothesis import HealthCheck, assume, given, settings
+from hypothesis import strategies as st
 
 import attr
 
