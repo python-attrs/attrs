@@ -38,6 +38,16 @@ def asdict(inst, recurse=True, filter=None, dict_factory=dict,
     """
     attrs = fields(inst.__class__)
     rv = dict_factory()
+
+    def encode_sequence_item(item):
+        if has(item.__class__):
+            return asdict(item, recurse=True, filter=filter,
+                          dict_factory=dict_factory)
+        elif isinstance(item, (tuple, list, set)):
+            cf = item.__class__ if retain_collection_types is True else list
+            return cf(map(encode_sequence_item, item))
+        return item
+
     for a in attrs:
         v = getattr(inst, a.name)
         if filter is not None and not filter(a, v):
@@ -48,12 +58,7 @@ def asdict(inst, recurse=True, filter=None, dict_factory=dict,
                                     dict_factory=dict_factory)
             elif isinstance(v, (tuple, list, set)):
                 cf = v.__class__ if retain_collection_types is True else list
-                rv[a.name] = cf([
-                    asdict(i, recurse=True, filter=filter,
-                           dict_factory=dict_factory)
-                    if has(i.__class__) else i
-                    for i in v
-                ])
+                rv[a.name] = cf(map(encode_sequence_item, v))
             elif isinstance(v, dict):
                 df = dict_factory
                 rv[a.name] = df((
