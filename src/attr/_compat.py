@@ -79,7 +79,9 @@ if PY2:
         return res
 
 else:
-    if sys.version_info[1] >= 6:
+    # Disabling coverage because we run the test suite under coverage only for
+    # the latest Python 3.
+    if sys.version_info[1] >= 6:  # pragma: nocover
         ordered_dict = dict
 
     def isclass(klass):
