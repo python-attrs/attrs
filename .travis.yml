@@ -25,9 +25,11 @@ matrix:
     - python: "pypy3"
       env: TOXENV=pypy3
 
-    # Prevent breakage by a new release
+    # Prevent breakage by a new releases
     - python: "3.6-dev"
       env: TOXENV=py36
+    - python: "3.7-dev"
+      env: TOXENV=py37
 
     # Meta
     - python: "3.6"
@@ -42,7 +44,8 @@ matrix:
       env: TOXENV=changelog
 
   allow_failures:
-    python: "3.6-dev"
+    - python: "3.6-dev"
+    - python: "3.7-dev"
 
 
 install:
