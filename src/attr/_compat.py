@@ -10,6 +10,13 @@ PY2 = sys.version_info[0] == 2
 PYPY = platform.python_implementation() == "PyPy"
 
 
+if PYPY or sys.version_info[:2] >= (3, 6):
+    ordered_dict = dict
+else:
+    from collections import OrderedDict
+    ordered_dict = OrderedDict
+
+
 if PY2:
     from UserDict import IterableUserDict
 

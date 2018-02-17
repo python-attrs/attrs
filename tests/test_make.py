@@ -19,7 +19,7 @@ from hypothesis.strategies import booleans, integers, lists, sampled_from, text
 import attr
 
 from attr import _config
-from attr._compat import PY2
+from attr._compat import PY2, ordered_dict
 from attr._make import (
     Attribute, Factory, _AndValidator, _Attributes, _ClassBuilder,
     _CountingAttr, _transform_attrs, and_, fields, make_class, validate
@@ -280,6 +280,20 @@ class TestTransformAttrs(object):
 
         assert 5 == C().x
         assert "C(x=5)" == repr(C())
+
+    def test_these_ordered(self):
+        """
+        If these is passed ordered attrs, their order respect instead of the
+        counter.
+        """
+        b = attr.ib(default=2)
+        a = attr.ib(default=1)
+
+        @attr.s(these=ordered_dict([("a", a), ("b", b)]))
+        class C(object):
+            pass
+
+        assert "C(a=1, b=2)" == repr(C())
 
     def test_multiple_inheritance(self):
         """
@@ -610,6 +624,18 @@ class TestMakeClass(object):
 
         assert 1 == len(C.__attrs_attrs__)
 
+    def test_make_class_ordered(self):
+        """
+        If `make_class()` is passed ordered attrs, their order is respected
+        instead of the counter.
+        """
+        b = attr.ib(default=2)
+        a = attr.ib(default=1)
+
+        C = attr.make_class("C", ordered_dict([("a", a), ("b", b)]))
+
+        assert "C(a=1, b=2)" == repr(C())
+
 
 class TestFields(object):
     """
@@ -686,13 +712,14 @@ class TestConverter(object):
         """
         Property tests for attributes with convert, and a factory default.
         """
-        C = make_class("C", {
-            "y": attr.ib(),
-            "x": attr.ib(
+        C = make_class("C", ordered_dict([
+            ("y", attr.ib()),
+            ("x", attr.ib(
                 init=init,
                 default=Factory(lambda: val),
-                converter=lambda v: v + 1),
-        })
+                converter=lambda v: v + 1
+            )),
+        ]))
         c = C(2)
 
         assert c.x == val + 1
