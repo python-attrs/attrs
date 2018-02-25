@@ -66,7 +66,19 @@ class Attribute(Generic[_T]):
 # This makes this type of assignments possible:
 #     x: int = attr(8)
 
-# 1st form catches _T set.
+# 1st form catches _T set and works around mypy issue #4554
+@overload
+def attrib(default: _T,
+           validator: Optional[_ValidatorArgType[_T]] = ...,
+           repr: bool = ...,
+           cmp: bool = ...,
+           hash: Optional[bool] = ...,
+           init: bool = ...,
+           convert: Optional[_ConverterType[_T]] = ...,
+           metadata: Optional[Mapping[Any, Any]] = ...,
+           type: Optional[Type[_T]] = ...,
+           converter: Optional[_ConverterType[_T]] = ...) -> _T: ...
+# 2nd one with an optional default.
 @overload
 def attrib(default: Optional[_T] = ...,
            validator: Optional[_ValidatorArgType[_T]] = ...,
@@ -78,7 +90,7 @@ def attrib(default: Optional[_T] = ...,
            metadata: Optional[Mapping[Any, Any]] = ...,
            type: Optional[Type[_T]] = ...,
            converter: Optional[_ConverterType[_T]] = ...) -> _T: ...
-# 2nd form no _T , so returns Any.
+# 3rd form no _T , so returns Any.
 @overload
 def attrib(default: None = ...,
            validator: None = ...,
@@ -86,11 +98,11 @@ def attrib(default: None = ...,
            cmp: bool = ...,
            hash: Optional[bool] = ...,
            init: bool = ...,
-           convert: Optional[_ConverterType[_T]] = ...,
+           convert: None = ...,
            metadata: Optional[Mapping[Any, Any]] = ...,
            type: None = ...,
            converter: None = ...) -> Any: ...
-# 3rd form covers non-Type: e.g. forward references (str), Any
+# 4th form covers type=non-Type: e.g. forward references (str), Any
 @overload
 def attrib(default: Optional[_T] = ...,
            validator: Optional[_ValidatorArgType[_T]] = ...,
@@ -150,7 +162,7 @@ def make_class(name: str,
                init: bool = ...,
                slots: bool = ...,
                frozen: bool = ...,
-               str:  bool = ...,
+               str: bool = ...,
                auto_attribs: bool = ...) -> type: ...
 
 # _funcs --
@@ -192,6 +204,17 @@ def get_run_validators() -> bool: ...
 
 
 @overload
+def ib(default: _T,
+       validator: Optional[_ValidatorArgType[_T]] = ...,
+       repr: bool = ...,
+       cmp: bool = ...,
+       hash: Optional[bool] = ...,
+       init: bool = ...,
+       convert: Optional[_ConverterType[_T]] = ...,
+       metadata: Optional[Mapping[Any, Any]] = ...,
+       type: Optional[Type[_T]] = ...,
+       converter: Optional[_ConverterType[_T]] = ...) -> _T: ...
+@overload
 def ib(default: Optional[_T] = ...,
        validator: Optional[_ValidatorArgType[_T]] = ...,
        repr: bool = ...,
@@ -209,7 +232,7 @@ def ib(default: None = ...,
        cmp: bool = ...,
        hash: Optional[bool] = ...,
        init: bool = ...,
-       convert: Optional[_ConverterType[_T]] = ...,
+       convert: None = ...,
        metadata: Optional[Mapping[Any, Any]] = ...,
        type: None = ...,
        converter: None = ...) -> Any: ...
@@ -225,6 +248,17 @@ def ib(default: Optional[_T] = ...,
        type: object = ...,
        converter: Optional[_ConverterType[_T]] = ...) -> Any: ...
 
+@overload
+def attr(default: _T,
+         validator: Optional[_ValidatorArgType[_T]] = ...,
+         repr: bool = ...,
+         cmp: bool = ...,
+         hash: Optional[bool] = ...,
+         init: bool = ...,
+         convert: Optional[_ConverterType[_T]] = ...,
+         metadata: Optional[Mapping[Any, Any]] = ...,
+         type: Optional[Type[_T]] = ...,
+         converter: Optional[_ConverterType[_T]] = ...) -> _T: ...
 @overload
 def attr(default: Optional[_T] = ...,
          validator: Optional[_ValidatorArgType[_T]] = ...,
@@ -243,7 +277,7 @@ def attr(default: None = ...,
          cmp: bool = ...,
          hash: Optional[bool] = ...,
          init: bool = ...,
-         convert: Optional[_ConverterType[_T]] = ...,
+         convert: None = ...,
          metadata: Optional[Mapping[Any, Any]] = ...,
          type: None = ...,
          converter: None = ...) -> Any: ...
