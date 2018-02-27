@@ -1042,7 +1042,7 @@ def _add_init(cls, frozen):
 
 def fields(cls):
     """
-    Returns the tuple of ``attrs`` attributes for a class.
+    Return the tuple of ``attrs`` attributes for a class.
 
     The tuple also allows accessing the fields by their names (see below for
     examples).
@@ -1070,8 +1070,8 @@ def fields(cls):
 
 def fields_dict(cls):
     """
-    Returns an OrderedDict of ``attrs`` attributes for a class, whose keys are
-    the attribute names.
+    Return an ordered dictionary of ``attrs`` attributes for a class, whose
+    keys are the attribute names.
 
     :param type cls: Class to introspect.
 
@@ -1079,8 +1079,10 @@ def fields_dict(cls):
     :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
         class.
 
-    :rtype: OrderedDict where keys are attribute names and values are
-        :class:`attr.Attribute`\ s.
+    :rtype: an ordered dict where keys are attribute names and values are
+        :class:`attr.Attribute`\ s. This will be a :class:`dict` if it's
+        naturally ordered like on Python 3.6+ or an
+        :class:`~collections.OrderedDict` otherwise.
 
     .. versionadded:: 18.1.0
     """
@@ -1091,7 +1093,7 @@ def fields_dict(cls):
         raise NotAnAttrsClassError(
             "{cls!r} is not an attrs-decorated class.".format(cls=cls)
         )
-    return ordered_dict([(a.name, a) for a in attrs])
+    return ordered_dict(((a.name, a) for a in attrs))
 
 
 def validate(inst):

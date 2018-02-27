@@ -657,6 +657,7 @@ class TestFields(object):
         """
         with pytest.raises(NotAnAttrsClassError) as e:
             fields(object)
+
         assert (
             "{o!r} is not an attrs-decorated class.".format(o=object)
         ) == e.value.args[0]
@@ -696,6 +697,7 @@ class TestFieldsDict(object):
         """
         with pytest.raises(NotAnAttrsClassError) as e:
             fields_dict(object)
+
         assert (
             "{o!r} is not an attrs-decorated class.".format(o=object)
         ) == e.value.args[0]
@@ -706,6 +708,7 @@ class TestFieldsDict(object):
         Returns an ordered dict of ``{attribute_name: Attribute}``.
         """
         d = fields_dict(C)
+
         assert isinstance(d, ordered_dict)
         assert list(fields(C)) == list(d.values())
         assert [a.name for a in fields(C)] == [field_name for field_name in d]
