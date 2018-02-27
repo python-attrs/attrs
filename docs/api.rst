@@ -216,6 +216,23 @@ Helpers
       >>> attr.fields(C).y is attr.fields(C)[1]
       True
 
+.. autofunction:: attr.fields_dict
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib()
+      ...     y = attr.ib()
+      >>> attr.fields_dict(C)
+      {'x': Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None), 'y': Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None)}
+      >>> attr.fields_dict(C)['y']
+      Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None)
+      >>> attr.fields_dict(C)['y'] is attr.fields(C).y
+      True
+
 
 .. autofunction:: attr.has
 

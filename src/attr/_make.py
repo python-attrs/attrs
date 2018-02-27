@@ -1068,6 +1068,32 @@ def fields(cls):
     return attrs
 
 
+def fields_dict(cls):
+    """
+    Returns an OrderedDict of ``attrs`` attributes for a class, whose keys are
+    the attribute names.
+
+    :param type cls: Class to introspect.
+
+    :raise TypeError: If *cls* is not a class.
+    :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
+        class.
+
+    :rtype: OrderedDict where keys are attribute names and values are
+        :class:`attr.Attribute`\ s.
+
+    .. versionadded:: 18.1.0
+    """
+    if not isclass(cls):
+        raise TypeError("Passed object must be a class.")
+    attrs = getattr(cls, "__attrs_attrs__", None)
+    if attrs is None:
+        raise NotAnAttrsClassError(
+            "{cls!r} is not an attrs-decorated class.".format(cls=cls)
+        )
+    return ordered_dict([(a.name, a) for a in attrs])
+
+
 def validate(inst):
     """
     Validate all attributes on *inst* that have a validator.
