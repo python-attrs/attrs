@@ -21,7 +21,11 @@ _ValidatorArgType = Union[_ValidatorType[_T], Sequence[_ValidatorType[_T]]]
 NOTHING: object
 
 # NOTE: Factory lies about its return type to make this possible: `x: List[int] = Factory(list)`
-def Factory(factory: Union[Callable[[], _T], Callable[[Any], _T]], takes_self: bool = ...) -> _T: ...
+# Work around mypy issue #4554 by using an overload vs a Union.
+@overload
+def Factory(factory: Callable[[], _T], takes_self: bool = ...) -> _T: ...
+@overload
+def Factory(factory: Callable[[Any], _T], takes_self: bool = ...) -> _T: ...
 
 class Attribute(Generic[_T]):
     name: str
