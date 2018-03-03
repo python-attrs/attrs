@@ -22,7 +22,8 @@ from attr import _config
 from attr._compat import PY2, ordered_dict
 from attr._make import (
     Attribute, Factory, _AndValidator, _Attributes, _ClassBuilder,
-    _CountingAttr, _transform_attrs, and_, fields, make_class, validate
+    _CountingAttr, _transform_attrs, and_, fields, fields_dict, make_class,
+    validate
 )
 from attr.exceptions import DefaultAlreadySetError, NotAnAttrsClassError
 
@@ -656,6 +657,7 @@ class TestFields(object):
         """
         with pytest.raises(NotAnAttrsClassError) as e:
             fields(object)
+
         assert (
             "{o!r} is not an attrs-decorated class.".format(o=object)
         ) == e.value.args[0]
@@ -674,6 +676,42 @@ class TestFields(object):
         """
         for attribute in fields(C):
             assert getattr(fields(C), attribute.name) is attribute
+
+
+class TestFieldsDict(object):
+    """
+    Tests for `fields_dict`.
+    """
+    def test_instance(self, C):
+        """
+        Raises `TypeError` on non-classes.
+        """
+        with pytest.raises(TypeError) as e:
+            fields_dict(C(1, 2))
+
+        assert "Passed object must be a class." == e.value.args[0]
+
+    def test_handler_non_attrs_class(self, C):
+        """
+        Raises `ValueError` if passed a non-``attrs`` instance.
+        """
+        with pytest.raises(NotAnAttrsClassError) as e:
+            fields_dict(object)
+
+        assert (
+            "{o!r} is not an attrs-decorated class.".format(o=object)
+        ) == e.value.args[0]
+
+    @given(simple_classes())
+    def test_fields_dict(self, C):
+        """
+        Returns an ordered dict of ``{attribute_name: Attribute}``.
+        """
+        d = fields_dict(C)
+
+        assert isinstance(d, ordered_dict)
+        assert list(fields(C)) == list(d.values())
+        assert [a.name for a in fields(C)] == [field_name for field_name in d]
 
 
 class TestConverter(object):
