@@ -1,10 +1,11 @@
-.tox
-.coverage*
 *.pyc
 *.egg-info
-docs/_build/
-htmlcov
-dist
 .cache
+.coverage*
 .hypothesis
 .pytest_cache
+.tox
+build
+dist
+docs/_build/
+htmlcov
