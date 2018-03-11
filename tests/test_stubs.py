@@ -15,8 +15,9 @@ pytest_plugins = ['tests.mypy_pytest_plugin']
 # Path to Python 3 interpreter
 python3_path = sys.executable
 test_temp_dir = 'tmp'
-test_file = os.path.splitext(os.path.realpath(__file__))[0] + '.tests.py'
-prefix_dir = os.path.join(os.path.dirname(os.path.dirname(test_file)), 'src')
+this_dir = os.path.dirname(os.path.realpath(__file__))
+test_file = os.path.join(this_dir, 'mypy.tests.py')
+prefix_dir = os.path.join(os.path.dirname(this_dir), 'src')
 
 
 class PythonEvaluationSuite(DataSuite):
