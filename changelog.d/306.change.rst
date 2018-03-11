@@ -1,1 +1,0 @@
-Equality tests are *much* faster now.

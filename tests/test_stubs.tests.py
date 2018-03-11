@@ -37,9 +37,9 @@ reveal_type(c.a)  # E: Revealed type is 'builtins.int'
 reveal_type(C.a)  # E: Revealed type is 'builtins.int'
 
 C("1")     # E: Argument 1 to "C" has incompatible type "str"; expected "int"
-C(a="1")   # E: Argument 1 to "C" has incompatible type "str"; expected "int"
+C(a="1")   # E: Argument "a" to "C" has incompatible type "str"; expected "int"
 C(None)    # E: Argument 1 to "C" has incompatible type "None"; expected "int"
-C(a=None)  # E: Argument 1 to "C" has incompatible type "None"; expected "int"
+C(a=None)  # E: Argument "a" to "C" has incompatible type "None"; expected "int"
 C(a=1)
 
 @attr.s
@@ -73,9 +73,9 @@ reveal_type(c.a)  # E: Revealed type is 'builtins.int'
 reveal_type(C.a)  # E: Revealed type is 'builtins.int'
 
 C("1")     # E: Argument 1 to "C" has incompatible type "str"; expected "int"
-C(a="1")   # E: Argument 1 to "C" has incompatible type "str"; expected "int"
+C(a="1")   # E: Argument "a" to "C" has incompatible type "str"; expected "int"
 C(None)    # E: Argument 1 to "C" has incompatible type "None"; expected "int"
-C(a=None)  # E: Argument 1 to "C" has incompatible type "None"; expected "int"
+C(a=None)  # E: Argument "a" to "C" has incompatible type "None"; expected "int"
 C(a=1)
 
 @attr.s
@@ -94,8 +94,6 @@ class F:
     reveal_type(a)  # E: Revealed type is 'Any'
 
 
-
-
 # [case test_inheritance]
 # :----------------------
 import attr
@@ -109,7 +107,7 @@ class B(A):
     y: str = attr.ib()
 
 B(x=1, y='foo')
-B(x=1, y=2)  # E: Argument 2 to "B" has incompatible type "int"; expected "str"
+B(x=1, y=2)  # E: Argument "y" to "B" has incompatible type "int"; expected "str"
 
 
 # [case test_multiple_inheritance]
@@ -129,7 +127,7 @@ class C(B, A):
     z: float = attr.ib()
 
 C(x=1, y='foo', z=1.1)
-C(x=1, y=2, z=1.1)  # E: Argument 2 to "C" has incompatible type "int"; expected "str"
+C(x=1, y=2, z=1.1)  # E: Argument "y" to "C" has incompatible type "int"; expected "str"
 
 
 # [case test_dunders]
@@ -330,7 +328,7 @@ class C:
     b = attr.ib(type=int, validator=[validate_int])
     reveal_type(b)  # E: Revealed type is 'builtins.int'
 
-    c = attr.ib(type=int, validator=validate_str)  # E: Argument 2 to "ib" has incompatible type "Callable[[Any, Any, str], Any]"; expected "Union[Callable[[Any, Attribute[Any], int], Any], Sequence[Callable[[Any, Attribute[Any], int], Any]]]"
+    c = attr.ib(type=int, validator=validate_str)  # E: Argument "validator" to "ib" has incompatible type "Callable[[Any, Any, str], Any]"; expected "Union[Callable[[Any, Attribute[Any], int], Any], Sequence[Callable[[Any, Attribute[Any], int], Any]]]"
 
 
 # [case test_custom_validators_type_annotations]

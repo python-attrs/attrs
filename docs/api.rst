@@ -20,7 +20,7 @@ What follows is the API explanation, if you'd like a more hands-on introduction,
 Core
 ----
 
-.. autofunction:: attr.s(these=None, repr_ns=None, repr=True, cmp=True, hash=None, init=True, slots=False, frozen=False, str=False)
+.. autofunction:: attr.s(these=None, repr_ns=None, repr=True, cmp=True, hash=None, init=True, slots=False, frozen=False, str=False, auto_attribs=False)
 
    .. note::
 
@@ -220,6 +220,23 @@ Helpers
       >>> attr.fields(C)[1]
       Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None)
       >>> attr.fields(C).y is attr.fields(C)[1]
+      True
+
+.. autofunction:: attr.fields_dict
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib()
+      ...     y = attr.ib()
+      >>> attr.fields_dict(C)
+      {'x': Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None), 'y': Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None)}
+      >>> attr.fields_dict(C)['y']
+      Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None)
+      >>> attr.fields_dict(C)['y'] is attr.fields(C).y
       True
 
 

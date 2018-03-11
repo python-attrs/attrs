@@ -4,6 +4,7 @@ Tests for `attr._make`.
 
 from __future__ import absolute_import, division, print_function
 
+import copy
 import inspect
 import itertools
 import sys
@@ -18,10 +19,11 @@ from hypothesis.strategies import booleans, integers, lists, sampled_from, text
 import attr
 
 from attr import _config
-from attr._compat import PY2
+from attr._compat import PY2, ordered_dict
 from attr._make import (
     Attribute, Factory, _AndValidator, _Attributes, _ClassBuilder,
-    _CountingAttr, _transform_attrs, and_, fields, make_class, validate
+    _CountingAttr, _transform_attrs, and_, fields, fields_dict, make_class,
+    validate
 )
 from attr.exceptions import DefaultAlreadySetError, NotAnAttrsClassError
 
@@ -208,7 +210,7 @@ class TestTransformAttrs(object):
         Transforms every `_CountingAttr` and leaves others (a) be.
         """
         C = make_tc()
-        attrs, _, = _transform_attrs(C, None, False)
+        attrs, _, _ = _transform_attrs(C, None, False)
 
         assert ["z", "y", "x"] == [a.name for a in attrs]
 
@@ -220,14 +222,14 @@ class TestTransformAttrs(object):
         class C(object):
             pass
 
-        assert _Attributes(((), [])) == _transform_attrs(C, None, False)
+        assert _Attributes(((), [], {})) == _transform_attrs(C, None, False)
 
     def test_transforms_to_attribute(self):
         """
         All `_CountingAttr`s are transformed into `Attribute`s.
         """
         C = make_tc()
-        attrs, super_attrs = _transform_attrs(C, None, False)
+        attrs, super_attrs, _ = _transform_attrs(C, None, False)
 
         assert [] == super_attrs
         assert 3 == len(attrs)
@@ -262,12 +264,37 @@ class TestTransformAttrs(object):
         class C(Base):
             y = attr.ib()
 
-        attrs, super_attrs = _transform_attrs(C, {"x": attr.ib()}, False)
+        attrs, super_attrs, _ = _transform_attrs(C, {"x": attr.ib()}, False)
 
         assert [] == super_attrs
         assert (
             simple_attr("x"),
         ) == attrs
+
+    def test_these_leave_body(self):
+        """
+        If these is passed, no attributes are removed from the body.
+        """
+        @attr.s(init=False, these={"x": attr.ib()})
+        class C(object):
+            x = 5
+
+        assert 5 == C().x
+        assert "C(x=5)" == repr(C())
+
+    def test_these_ordered(self):
+        """
+        If these is passed ordered attrs, their order respect instead of the
+        counter.
+        """
+        b = attr.ib(default=2)
+        a = attr.ib(default=1)
+
+        @attr.s(these=ordered_dict([("a", a), ("b", b)]))
+        class C(object):
+            pass
+
+        assert "C(a=1, b=2)" == repr(C())
 
     def test_multiple_inheritance(self):
         """
@@ -598,6 +625,18 @@ class TestMakeClass(object):
 
         assert 1 == len(C.__attrs_attrs__)
 
+    def test_make_class_ordered(self):
+        """
+        If `make_class()` is passed ordered attrs, their order is respected
+        instead of the counter.
+        """
+        b = attr.ib(default=2)
+        a = attr.ib(default=1)
+
+        C = attr.make_class("C", ordered_dict([("a", a), ("b", b)]))
+
+        assert "C(a=1, b=2)" == repr(C())
+
 
 class TestFields(object):
     """
@@ -618,6 +657,7 @@ class TestFields(object):
         """
         with pytest.raises(NotAnAttrsClassError) as e:
             fields(object)
+
         assert (
             "{o!r} is not an attrs-decorated class.".format(o=object)
         ) == e.value.args[0]
@@ -636,6 +676,42 @@ class TestFields(object):
         """
         for attribute in fields(C):
             assert getattr(fields(C), attribute.name) is attribute
+
+
+class TestFieldsDict(object):
+    """
+    Tests for `fields_dict`.
+    """
+    def test_instance(self, C):
+        """
+        Raises `TypeError` on non-classes.
+        """
+        with pytest.raises(TypeError) as e:
+            fields_dict(C(1, 2))
+
+        assert "Passed object must be a class." == e.value.args[0]
+
+    def test_handler_non_attrs_class(self, C):
+        """
+        Raises `ValueError` if passed a non-``attrs`` instance.
+        """
+        with pytest.raises(NotAnAttrsClassError) as e:
+            fields_dict(object)
+
+        assert (
+            "{o!r} is not an attrs-decorated class.".format(o=object)
+        ) == e.value.args[0]
+
+    @given(simple_classes())
+    def test_fields_dict(self, C):
+        """
+        Returns an ordered dict of ``{attribute_name: Attribute}``.
+        """
+        d = fields_dict(C)
+
+        assert isinstance(d, ordered_dict)
+        assert list(fields(C)) == list(d.values())
+        assert [a.name for a in fields(C)] == [field_name for field_name in d]
 
 
 class TestConverter(object):
@@ -674,13 +750,14 @@ class TestConverter(object):
         """
         Property tests for attributes with convert, and a factory default.
         """
-        C = make_class("C", {
-            "y": attr.ib(),
-            "x": attr.ib(
+        C = make_class("C", ordered_dict([
+            ("y", attr.ib()),
+            ("x", attr.ib(
                 init=init,
                 default=Factory(lambda: val),
-                converter=lambda v: v + 1),
-        })
+                converter=lambda v: v + 1
+            )),
+        ]))
         c = C(2)
 
         assert c.x == val + 1
@@ -1043,3 +1120,16 @@ class TestClassBuilder(object):
 
         assert "42" == rv.__module__ == fake_meth.__module__
         assert "23" == rv.__qualname__ == fake_meth.__qualname__
+
+    def test_weakref_setstate(self):
+        """
+        __weakref__ is not set on in setstate because it's not writable in
+        slots classes.
+        """
+        @attr.s(slots=True)
+        class C(object):
+            __weakref__ = attr.ib(
+                init=False, hash=False, repr=False, cmp=False
+            )
+
+        assert C() == copy.deepcopy(C())
