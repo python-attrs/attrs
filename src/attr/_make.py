@@ -168,6 +168,10 @@ def attrib(default=NOTHING, validator=None,
                 "The `default` and `factory` arguments are mutually "
                 "exclusive."
             )
+        if not callable(factory):
+            raise ValueError(
+                "The `factory` argument must be a callable."
+            )
         default = Factory(factory)
 
     if metadata is None:

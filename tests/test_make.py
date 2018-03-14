@@ -535,7 +535,7 @@ class TestAttributes(object):
 
         assert Factory(list) == attr.fields(C).x.default
 
-    def test_factory_mutex(self):
+    def test_sugar_factory_mutex(self):
         """
         Passing both default and factory raises ValueError.
         """
@@ -545,6 +545,18 @@ class TestAttributes(object):
                 x = attr.ib(factory=list, default=Factory(list))
 
         assert "mutually exclusive" in ei.value.args[0]
+
+    def test_sugar_callable(self):
+        """
+        Factory has to be a callable to prevent people from passing Factory
+        into it.
+        """
+        with pytest.raises(ValueError) as ei:
+            @attr.s
+            class C(object):
+                x = attr.ib(factory=Factory(list))
+
+        assert "must be a callable" in ei.value.args[0]
 
 
 @attr.s
