@@ -58,7 +58,8 @@ Sentinel to indicate the lack of a value when ``None`` is ambiguous.
 
 def attrib(default=NOTHING, validator=None,
            repr=True, cmp=True, hash=None, init=True,
-           convert=None, metadata=None, type=None, converter=None):
+           convert=None, metadata=None, type=None, converter=None,
+           factory=None):
     """
     Create a new attribute on a class.
 
@@ -82,6 +83,9 @@ def attrib(default=NOTHING, validator=None,
         The default can also be set using decorator notation as shown below.
 
     :type default: Any value.
+
+    :param callable factory: Syntactic sugar for
+        ``default=attr.Factory(callable)``.
 
     :param validator: :func:`callable` that is called by ``attrs``-generated
         ``__init__`` methods after the instance has been initialized.  They
@@ -137,6 +141,8 @@ def attrib(default=NOTHING, validator=None,
     .. deprecated:: 17.4.0 *convert*
     .. versionadded:: 17.4.0 *converter* as a replacement for the deprecated
        *convert* to achieve consistency with other noun-based arguments.
+    .. versionadded:: 18.1.0
+       ``factory=f`` is syntactic sugar for ``default=attr.Factory(f)``.
     """
     if hash is not None and hash is not True and hash is not False:
         raise TypeError(
@@ -155,6 +161,18 @@ def attrib(default=NOTHING, validator=None,
             DeprecationWarning, stacklevel=2
         )
         converter = convert
+
+    if factory is not None:
+        if default is not NOTHING:
+            raise ValueError(
+                "The `default` and `factory` arguments are mutually "
+                "exclusive."
+            )
+        if not callable(factory):
+            raise ValueError(
+                "The `factory` argument must be a callable."
+            )
+        default = Factory(factory)
 
     if metadata is None:
         metadata = {}

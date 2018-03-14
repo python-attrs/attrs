@@ -525,6 +525,35 @@ class TestAttributes(object):
 
         assert not isinstance(x, _CountingAttr)
 
+    def test_factory_sugar(self):
+        """
+        Passing factory=f is syntactic sugar for passing default=Factory(f).
+        """
+        @attr.s
+        class C(object):
+            x = attr.ib(factory=list)
+
+        assert Factory(list) == attr.fields(C).x.default
+
+    def test_sugar_factory_mutex(self):
+        """
+        Passing both default and factory raises ValueError.
+        """
+        with pytest.raises(ValueError, match="mutually exclusive"):
+            @attr.s
+            class C(object):
+                x = attr.ib(factory=list, default=Factory(list))
+
+    def test_sugar_callable(self):
+        """
+        Factory has to be a callable to prevent people from passing Factory
+        into it.
+        """
+        with pytest.raises(ValueError, match="must be a callable"):
+            @attr.s
+            class C(object):
+                x = attr.ib(factory=Factory(list))
+
 
 @attr.s
 class GC(object):

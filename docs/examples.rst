@@ -282,6 +282,16 @@ The method receives the partially initialized instance which enables you to base
    C(x=1, y=2)
 
 
+And since the case of ``attr.ib(default=attr.Factory(f))`` is so common, ``attrs`` also comes with syntactic sugar for it:
+
+.. doctest::
+
+   >>> @attr.s
+   ... class C(object):
+   ...     x = attr.ib(factory=list)
+   >>> C()
+   C(x=[])
+
 .. _examples_validators:
 
 Validators
