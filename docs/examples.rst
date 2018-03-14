@@ -383,7 +383,7 @@ Of course you can mix and match the two approaches at your convenience:
    ...     x = attr.ib(validator=attr.validators.instance_of(int))
    ...     @x.validator
    ...     def fits_byte(self, attribute, value):
-   ...         if not 0 < value < 256:
+   ...         if not 0 <= value < 256:
    ...             raise ValueError("value out of bounds")
    >>> C(128)
    C(x=128)
