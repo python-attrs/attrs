@@ -3,8 +3,8 @@ from __future__ import absolute_import, division, print_function
 import hashlib
 import linecache
 import sys
-import warnings
 import threading
+import warnings
 
 from operator import itemgetter
 
@@ -953,7 +953,9 @@ def _add_cmp(cls, attrs=None):
 
     return cls
 
+
 _already_repring = threading.local()
+
 
 def _make_repr(attrs, ns):
     """
