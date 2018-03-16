@@ -187,6 +187,20 @@ class TestAddRepr(object):
         """
         assert "C(a=1, b=2)" == repr(cls(1, 2))
 
+    def test_infinite_recursion(self):
+        """
+        In the presence of a cyclic graph, repr will emit an ellipsis and not
+        raise an exception.
+        """
+        @attr.s
+        class Cycle(object):
+            value = attr.ib(default=7)
+            cycle = attr.ib(default=None)
+
+        cycle = Cycle()
+        cycle.cycle = cycle
+        assert "Cycle(value=7, cycle=...)" == repr(cycle)
+
     def test_underscores(self):
         """
         repr does not strip underscores.
