@@ -995,13 +995,19 @@ def _make_repr(attrs, ns):
         # like weakref- or hash-ability.
         working_set.add(id(self))
         try:
-            return "{0}({1})".format(
-                class_name,
-                ", ".join(
-                    name + "=" + repr(getattr(self, name, NOTHING))
-                    for name in attr_names
-                )
-            )
+            result = class_name
+            result += "("
+            first = True
+            for name in attr_names:
+                if first:
+                    first = False
+                else:
+                    result += ", "
+                result += name
+                result += "="
+                result += repr(getattr(self, name, NOTHING))
+            result += ")"
+            return result
         finally:
             working_set.remove(id(self))
     return __repr__
