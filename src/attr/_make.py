@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 import hashlib
 import linecache
 import sys
+import threading
 import warnings
 
 from operator import itemgetter
@@ -953,6 +954,9 @@ def _add_cmp(cls, attrs=None):
     return cls
 
 
+_already_repring = threading.local()
+
+
 def _make_repr(attrs, ns):
     """
     Make a repr method for *attr_names* adding *ns* to the full name.
@@ -967,6 +971,14 @@ def _make_repr(attrs, ns):
         """
         Automatically created by attrs.
         """
+        try:
+            working_set = _already_repring.working_set
+        except AttributeError:
+            working_set = set()
+            _already_repring.working_set = working_set
+
+        if id(self) in working_set:
+            return "..."
         real_cls = self.__class__
         if ns is None:
             qualname = getattr(real_cls, "__qualname__", None)
@@ -977,13 +989,23 @@ def _make_repr(attrs, ns):
         else:
             class_name = ns + "." + real_cls.__name__
 
-        return "{0}({1})".format(
-            class_name,
-            ", ".join(
-                name + "=" + repr(getattr(self, name, NOTHING))
-                for name in attr_names
-            )
-        )
+        # Since 'self' remains on the stack (i.e.: strongly referenced) for the
+        # duration of this call, it's safe to depend on id(...) stability, and
+        # not need to track the instance and therefore worry about properties
+        # like weakref- or hash-ability.
+        working_set.add(id(self))
+        try:
+            result = [class_name, "("]
+            first = True
+            for name in attr_names:
+                if first:
+                    first = False
+                else:
+                    result.append(", ")
+                result.extend((name, "=", repr(getattr(self, name, NOTHING))))
+            return "".join(result) + ")"
+        finally:
+            working_set.remove(id(self))
     return __repr__
 
 
