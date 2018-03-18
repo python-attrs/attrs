@@ -104,7 +104,7 @@ Changelog
 If your change is noteworthy, there needs to be a changelog entry so our users can learn about it!
 
 To avoid merge conflicts, we use the towncrier_ package to manage our changelog.
-``towncrier`` uses independent files for each pull request — so called *news fragments* — instead of one monolithic changelog file.
+``towncrier`` uses independent files for each pull request -- so called *news fragments* -- instead of one monolithic changelog file.
 On release, those news fragments are compiled into our ``CHANGELOG.rst``.
 
 You don't need to install ``towncrier`` yourself, you just have to abide by a few simple rules:
@@ -115,7 +115,7 @@ You don't need to install ``towncrier`` yourself, you just have to abide by a fe
 - Wrap symbols like modules, functions, or classes into double backticks so they are rendered in a monospace font.
 - If you mention functions or other callables, add parentheses at the end of their names: ``attr.func()`` or ``attr.Class.method()``.
   This makes the changelog a lot more readable.
-- Prefer simple past tense or constructions with “now”.
+- Prefer simple past tense or constructions with "now".
   For example:
 
   + Added ``attr.validators.func()``.
