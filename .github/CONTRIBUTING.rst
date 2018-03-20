@@ -2,10 +2,10 @@ How To Contribute
 =================
 
 First off, thank you for considering contributing to ``attrs``!
-It's people like *you* who make it is such a great tool for everyone.
+It's people like *you* who make it such a great tool for everyone.
 
-This document is mainly to help you to get started by codifying tribal knowledge and expectations and make it more accessible to everyone.
-But don't be afraid to open half-finished PRs and ask questions if something is unclear!
+This document intends to make contribution more accessible by codifying tribal knowledge and expectations.
+Don't be afraid to open half-finished PRs, and ask questions if something is unclear!
 
 
 Support
@@ -14,7 +14,7 @@ Support
 In case you'd like to help out but don't want to deal with GitHub, there's a great opportunity:
 help your fellow developers on `StackOverflow <https://stackoverflow.com/questions/tagged/python-attrs>`_!
 
-The offical tag is ``python-attrs`` and helping out in support frees us up for improving ``attrs`` instead!
+The offical tag is ``python-attrs`` and helping out in support frees us up to improve ``attrs`` instead!
 
 
 Workflow
@@ -67,7 +67,7 @@ Tests
   It will ensure the test suite runs with all dependencies against all Python versions just as it will on Travis CI.
   If you lack some Python versions, you can can always limit the environments like ``tox -e py27,py35`` (in that case you may want to look into pyenv_, which makes it very easy to install many different Python versions in parallel).
 - Write `good test docstrings`_.
-- To ensure new features work well with the rest of the system, they should be also added to our `Hypothesis`_ testing strategy which you find in ``tests/util.py``.
+- To ensure new features work well with the rest of the system, they should be also added to our `Hypothesis`_ testing strategy, which is found in ``tests/util.py``.
 
 
 Documentation
@@ -80,7 +80,7 @@ Documentation
      This is a sentence.
      This is another sentence.
 
-- If you start a new section, add two blank lines before and one blank line after the header except if two headers follow immediately after each other:
+- If you start a new section, add two blank lines before and one blank line after the header, except if two headers follow immediately after each other:
 
   .. code-block:: rst
 
@@ -94,27 +94,28 @@ Documentation
      ^^^^^^^^^^^^^^^^^^^^^
 
      First line of new section.
-- If you add a new feature, demonstrate its awesomeness in the `examples page`_!
+
+- If you add a new feature, demonstrate its awesomeness on the `examples page`_!
 
 
 Changelog
 ^^^^^^^^^
 
-If your change is noteworthy, there needs to be a changelog entry, so our users can learn about it!
+If your change is noteworthy, there needs to be a changelog entry so our users can learn about it!
 
 To avoid merge conflicts, we use the towncrier_ package to manage our changelog.
 ``towncrier`` uses independent files for each pull request -- so called *news fragments* -- instead of one monolithic changelog file.
-On release those news fragments are compiled into our ``CHANGELOG.rst``.
+On release, those news fragments are compiled into our ``CHANGELOG.rst``.
 
-You don't need to install ``towncrier`` yourself, you just have to abide to a few simple rules:
+You don't need to install ``towncrier`` yourself, you just have to abide by a few simple rules:
 
 - For each pull request, add a new file into ``changelog.d`` with a filename adhering to the ``pr#.(change|deprecation|breaking).rst`` schema:
-  For example ``changelog.d/42.change.rst`` for a non-breaking change, that is proposed in pull request number 42.
+  For example, ``changelog.d/42.change.rst`` for a non-breaking change that is proposed in pull request #42.
 - As with other docs, please use `semantic newlines`_ within news fragments.
-- Wrap symbols like modules, functions, or classes into double backticks so they are rendered in a monospaced font.
-- If you mention functions or other callables, add parantheses at the end of their names: ``attr.func()`` or ``attr.Class.method()``.
+- Wrap symbols like modules, functions, or classes into double backticks so they are rendered in a monospace font.
+- If you mention functions or other callables, add parentheses at the end of their names: ``attr.func()`` or ``attr.Class.method()``.
   This makes the changelog a lot more readable.
-- Prefer simple past or constructions with "now".
+- Prefer simple past tense or constructions with "now".
   For example:
 
   + Added ``attr.validators.func()``.
@@ -145,11 +146,11 @@ Local Development Environment
 -----------------------------
 
 You can (and should) run our test suite using tox_.
-However you’ll probably want a more traditional environment too.
+However, you’ll probably want a more traditional environment as well.
 We highly recommend to develop using the latest Python 3 release because ``attrs`` tries to take advantage of modern features whenever possible.
 
 First create a `virtual environment <https://virtualenv.pypa.io/>`_.
-It’s out of scope for this document to list all the ways to manage virtual environments in Python but if you don’t have already a pet way, take some time to look at tools like `pew <https://github.com/berdario/pew>`_, `virtualfish <http://virtualfish.readthedocs.io/>`_, and `virtualenvwrapper <http://virtualenvwrapper.readthedocs.io/>`_.
+It’s out of scope for this document to list all the ways to manage virtual environments in Python, but if you don’t already have a pet way, take some time to look at tools like `pew <https://github.com/berdario/pew>`_, `virtualfish <http://virtualfish.readthedocs.io/>`_, and `virtualenvwrapper <http://virtualenvwrapper.readthedocs.io/>`_.
 
 Next, get an up to date checkout of the ``attrs`` repository:
 
@@ -164,7 +165,7 @@ Change into the newly created directory and **after activating your virtual envi
     $ cd attrs
     $ pip install -e .[dev]
 
-At this point
+At this point,
 
 .. code-block:: bash
 
@@ -183,7 +184,7 @@ The built documentation can then be found in ``docs/_build/html/``.
 Governance
 ----------
 
-``attrs`` is maintained by `team of volunteers`_ that is always open for new members that share our vision of a fast, lean, and magic-free library that empowers programmers to write better code with less effort.
+``attrs`` is maintained by `team of volunteers`_ that is always open to new members that share our vision of a fast, lean, and magic-free library that empowers programmers to write better code with less effort.
 If you'd like to join, just get a pull request merged and ask to be added in the very same pull request!
 
 **The simple rule is that everyone is welcome to review/merge pull requests of others but nobody is allowed to merge their own code.**
