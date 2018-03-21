@@ -64,16 +64,21 @@ class TestAsDict(object):
         def assert_proper_dict_class(obj, obj_dict):
             assert isinstance(obj_dict, dict_class)
 
+            def assert_sequence_value(field_val, dict_val):
+                for item, item_dict in zip(field_val, dict_val):
+                    if has(item.__class__):
+                        assert_proper_dict_class(item, item_dict)
+                    if isinstance(item, Sequence):
+                        assert isinstance(item_dict, Sequence)
+                        assert_sequence_value(item, item_dict)
+
             for field in fields(obj.__class__):
                 field_val = getattr(obj, field.name)
                 if has(field_val.__class__):
                     # This field holds a class, recurse the assertions.
                     assert_proper_dict_class(field_val, obj_dict[field.name])
-                elif isinstance(field_val, Sequence):
-                    dict_val = obj_dict[field.name]
-                    for item, item_dict in zip(field_val, dict_val):
-                        if has(item.__class__):
-                            assert_proper_dict_class(item, item_dict)
+                elif isinstance(field_val, SEQUENCE_TYPES):
+                    assert_sequence_value(field_val, obj_dict[field.name])
                 elif isinstance(field_val, Mapping):
                     # This field holds a dictionary.
                     assert isinstance(obj_dict[field.name], dict_class)

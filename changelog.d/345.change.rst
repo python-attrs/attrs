@@ -1,0 +1,1 @@
+``attr.asdict(recurse=True)`` now can handle nested lists

@@ -116,6 +116,12 @@ def _create_hyp_nested_strategy(simple_class_strategy):
         combined_attrs.append(attr.ib(default=default))
         return _create_hyp_class(combined_attrs)
 
+    def list_of_list_of_class(tup):
+        default = attr.Factory(lambda: [[tup[1]()]])
+        combined_attrs = list(tup[0])
+        combined_attrs.append(attr.ib(default=default))
+        return _create_hyp_class(combined_attrs)
+
     def tuple_of_class(tup):
         default = attr.Factory(lambda: (tup[1](),))
         combined_attrs = list(tup[0])
@@ -140,6 +146,7 @@ def _create_hyp_nested_strategy(simple_class_strategy):
 
     return st.one_of(attrs_and_classes.map(just_class),
                      attrs_and_classes.map(list_of_class),
+                     attrs_and_classes.map(list_of_list_of_class),
                      attrs_and_classes.map(tuple_of_class),
                      attrs_and_classes.map(dict_of_class),
                      attrs_and_classes.map(ordereddict_of_class))
