@@ -32,6 +32,7 @@ class TestAnnotations:
         assert int is attr.fields(C).x.type
         assert str is attr.fields(C).y.type
         assert None is attr.fields(C).z.type
+        assert C.__init__.__annotations__ == {'x': int, 'y': str}
 
     def test_catches_basic_type_conflict(self):
         """
@@ -57,6 +58,10 @@ class TestAnnotations:
 
         assert typing.List[int] is attr.fields(C).x.type
         assert typing.Optional[str] is attr.fields(C).y.type
+        assert C.__init__.__annotations__ == {
+            'x': typing.List[int],
+            'y': typing.Union[str, type(None)]
+        }
 
     def test_only_attrs_annotations_collected(self):
         """
@@ -68,6 +73,7 @@ class TestAnnotations:
             y: int
 
         assert 1 == len(attr.fields(C))
+        assert C.__init__.__annotations__ == {'x': typing.List[int]}
 
     @pytest.mark.parametrize("slots", [True, False])
     def test_auto_attribs(self, slots):
@@ -115,6 +121,14 @@ class TestAnnotations:
             i.y = 23
             assert 23 == i.y
 
+        assert C.__init__.__annotations__ == {
+            'a': int,
+            'x': typing.List[int],
+            'y': int,
+            'z': int,
+            'foo': typing.Any
+        }
+
     @pytest.mark.parametrize("slots", [True, False])
     def test_auto_attribs_unannotated(self, slots):
         """
@@ -154,3 +168,14 @@ class TestAnnotations:
 
         assert "B(a=1, b=2)" == repr(B())
         assert "C(a=1)" == repr(C())
+
+        assert A.__init__.__annotations__ == {
+            'a': int,
+        }
+        assert B.__init__.__annotations__ == {
+            'a': int,
+            'b': int,
+        }
+        assert C.__init__.__annotations__ == {
+            'a': int,
+        }
