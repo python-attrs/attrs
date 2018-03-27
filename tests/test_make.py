@@ -13,7 +13,7 @@ from operator import attrgetter
 
 import pytest
 
-from hypothesis import given
+from hypothesis import HealthCheck, given, settings
 from hypothesis.strategies import booleans, integers, lists, sampled_from, text
 
 import attr
@@ -1038,6 +1038,7 @@ class TestMetadata(object):
             assert x.metadata is not y.metadata
 
     @given(lists(simple_attrs_with_metadata(), min_size=2, max_size=5))
+    @settings(suppress_health_check=[HealthCheck.too_slow])
     def test_not_none_metadata(self, list_of_attrs):
         """
         Non-empty metadata attributes exist as fields after ``@attr.s``.
