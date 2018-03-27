@@ -1261,7 +1261,7 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
     # This is a dictionary of names to validator and converter callables.
     # Injecting this into __init__ globals lets us avoid lookups.
     names_for_globals = {}
-    annotations = {}
+    annotations = {'return': None}
 
     for a in attrs:
         if a.validator:
