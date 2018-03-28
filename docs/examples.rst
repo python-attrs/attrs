@@ -519,6 +519,7 @@ If you don't mind annotating *all* attributes, you can even drop the :func:`attr
    >>> AutoC.cls_var
    5
 
+The generated ``__init__`` method will have an attribute called ``__annotations__`` that contains this type information.
 
 .. warning::
 
