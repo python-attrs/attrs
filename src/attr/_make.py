@@ -1034,7 +1034,7 @@ def _make_init(attrs, post_init, frozen, slots, super_attr_map):
         sha1.hexdigest()
     )
 
-    script, globs = _attrs_to_init_script(
+    script, globs, annotations = _attrs_to_init_script(
         attrs,
         frozen,
         slots,
@@ -1063,7 +1063,9 @@ def _make_init(attrs, post_init, frozen, slots, super_attr_map):
         unique_filename,
     )
 
-    return locs["__init__"]
+    __init__ = locs["__init__"]
+    __init__.__annotations__ = annotations
+    return __init__
 
 
 def _add_init(cls, frozen):
@@ -1259,6 +1261,7 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
     # This is a dictionary of names to validator and converter callables.
     # Injecting this into __init__ globals lets us avoid lookups.
     names_for_globals = {}
+    annotations = {'return': None}
 
     for a in attrs:
         if a.validator:
@@ -1349,6 +1352,9 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
             else:
                 lines.append(fmt_setter(attr_name, arg_name))
 
+        if a.init is True and a.converter is None and a.type is not None:
+            annotations[arg_name] = a.type
+
     if attrs_to_validate:  # we can skip this if there are no validators.
         names_for_globals["_config"] = _config
         lines.append("if _config._run_validators is True:")
@@ -1368,7 +1374,7 @@ def __init__(self, {args}):
 """.format(
         args=", ".join(args),
         lines="\n    ".join(lines) if lines else "pass",
-    ), names_for_globals
+    ), names_for_globals, annotations
 
 
 class Attribute(object):
