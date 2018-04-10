@@ -27,10 +27,11 @@ from attr._make import (
 )
 from attr.exceptions import DefaultAlreadySetError, NotAnAttrsClassError
 
-from .utils import (
-    gen_attr_names, list_of_attrs, simple_attr, simple_attrs,
-    simple_attrs_with_metadata, simple_attrs_without_metadata, simple_classes
+from .strategies import (
+    gen_attr_names, list_of_attrs, simple_attrs, simple_attrs_with_metadata,
+    simple_attrs_without_metadata, simple_classes
 )
+from .utils import simple_attr
 
 
 attrs_st = simple_attrs.map(lambda c: Attribute.from_counting_attr("name", c))
