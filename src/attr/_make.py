@@ -229,13 +229,13 @@ _Attributes = _make_attr_tuple_class("_Attributes", [
 
 
 def _is_class_var(annot):
-    """
-    Check whether *annot* is a typing.ClassVar.
+    """Check whether *annot* is a typing.ClassVar.
 
-    The implementation is gross but importing `typing` is slow and there are
-    discussions to remove it from the stdlib alltogether.
+    The string comparison hack is used to avoid evaluating all string
+    annotations which would put attrs-based classes at a performance
+    disadvantage compared to plain old classes.
     """
-    return str(annot).startswith("typing.ClassVar")
+    return str(annot).startswith(("typing.ClassVar", "t.ClassVar", "ClassVar"))
 
 
 def _get_annotations(cls):
