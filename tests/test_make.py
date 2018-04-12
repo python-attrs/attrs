@@ -27,10 +27,11 @@ from attr._make import (
 )
 from attr.exceptions import DefaultAlreadySetError, NotAnAttrsClassError
 
-from .utils import (
-    gen_attr_names, list_of_attrs, simple_attr, simple_attrs,
-    simple_attrs_with_metadata, simple_attrs_without_metadata, simple_classes
+from .strategies import (
+    gen_attr_names, list_of_attrs, simple_attrs, simple_attrs_with_metadata,
+    simple_attrs_without_metadata, simple_classes
 )
+from .utils import simple_attr
 
 
 attrs_st = simple_attrs.map(lambda c: Attribute.from_counting_attr("name", c))
@@ -524,6 +525,35 @@ class TestAttributes(object):
         x = getattr(C, "x", None)
 
         assert not isinstance(x, _CountingAttr)
+
+    def test_factory_sugar(self):
+        """
+        Passing factory=f is syntactic sugar for passing default=Factory(f).
+        """
+        @attr.s
+        class C(object):
+            x = attr.ib(factory=list)
+
+        assert Factory(list) == attr.fields(C).x.default
+
+    def test_sugar_factory_mutex(self):
+        """
+        Passing both default and factory raises ValueError.
+        """
+        with pytest.raises(ValueError, match="mutually exclusive"):
+            @attr.s
+            class C(object):
+                x = attr.ib(factory=list, default=Factory(list))
+
+    def test_sugar_callable(self):
+        """
+        Factory has to be a callable to prevent people from passing Factory
+        into it.
+        """
+        with pytest.raises(ValueError, match="must be a callable"):
+            @attr.s
+            class C(object):
+                x = attr.ib(factory=Factory(list))
 
 
 @attr.s
