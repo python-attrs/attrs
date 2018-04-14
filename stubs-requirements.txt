@@ -1,2 +1,0 @@
-pytest
-git+git://github.com/euresti/mypy.git@attrs_plugin#egg=mypy

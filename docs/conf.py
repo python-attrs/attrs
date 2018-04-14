@@ -3,9 +3,12 @@
 import codecs
 import os
 import re
+import sys
 
 
 HERE = os.path.abspath(os.path.dirname(__file__))
+# to find the doctest2 extension:
+sys.path.append(HERE)
 
 
 def read(*parts):
@@ -42,8 +45,6 @@ extensions = [
     'sphinx.ext.todo',
 ]
 
-import sys
-sys.path.append(HERE)
 doctest_path = [os.path.join(HERE, '..', 'src')]
 
 # Add any paths that contain templates here, relative to this directory.

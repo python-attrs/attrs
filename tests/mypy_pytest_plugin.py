@@ -11,7 +11,7 @@ import tempfile
 from abc import abstractmethod
 from os import remove, rmdir
 from typing import (
-    List, Tuple, Set, Optional, Iterator, Any, Dict, NamedTuple, Union
+    Any, Dict, Iterator, List, NamedTuple, Optional, Set, Tuple, Union
 )
 
 import pytest  # type: ignore  # no pytest in typeshed
