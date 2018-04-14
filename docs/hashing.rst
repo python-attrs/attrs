@@ -1,5 +1,5 @@
-Object Hashing
-==============
+Hashing
+=======
 
 .. warning::
 
