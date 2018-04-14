@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 import hashlib
 import linecache
 import sys
+import threading
 import warnings
 
 from operator import itemgetter
@@ -58,7 +59,8 @@ Sentinel to indicate the lack of a value when ``None`` is ambiguous.
 
 def attrib(default=NOTHING, validator=None,
            repr=True, cmp=True, hash=None, init=True,
-           convert=None, metadata=None, type=None, converter=None):
+           convert=None, metadata=None, type=None, converter=None,
+           factory=None):
     """
     Create a new attribute on a class.
 
@@ -82,6 +84,9 @@ def attrib(default=NOTHING, validator=None,
         The default can also be set using decorator notation as shown below.
 
     :type default: Any value.
+
+    :param callable factory: Syntactic sugar for
+        ``default=attr.Factory(callable)``.
 
     :param validator: :func:`callable` that is called by ``attrs``-generated
         ``__init__`` methods after the instance has been initialized.  They
@@ -137,6 +142,8 @@ def attrib(default=NOTHING, validator=None,
     .. deprecated:: 17.4.0 *convert*
     .. versionadded:: 17.4.0 *converter* as a replacement for the deprecated
        *convert* to achieve consistency with other noun-based arguments.
+    .. versionadded:: 18.1.0
+       ``factory=f`` is syntactic sugar for ``default=attr.Factory(f)``.
     """
     if hash is not None and hash is not True and hash is not False:
         raise TypeError(
@@ -155,6 +162,18 @@ def attrib(default=NOTHING, validator=None,
             DeprecationWarning, stacklevel=2
         )
         converter = convert
+
+    if factory is not None:
+        if default is not NOTHING:
+            raise ValueError(
+                "The `default` and `factory` arguments are mutually "
+                "exclusive."
+            )
+        if not callable(factory):
+            raise ValueError(
+                "The `factory` argument must be a callable."
+            )
+        default = Factory(factory)
 
     if metadata is None:
         metadata = {}
@@ -935,6 +954,9 @@ def _add_cmp(cls, attrs=None):
     return cls
 
 
+_already_repring = threading.local()
+
+
 def _make_repr(attrs, ns):
     """
     Make a repr method for *attr_names* adding *ns* to the full name.
@@ -949,6 +971,14 @@ def _make_repr(attrs, ns):
         """
         Automatically created by attrs.
         """
+        try:
+            working_set = _already_repring.working_set
+        except AttributeError:
+            working_set = set()
+            _already_repring.working_set = working_set
+
+        if id(self) in working_set:
+            return "..."
         real_cls = self.__class__
         if ns is None:
             qualname = getattr(real_cls, "__qualname__", None)
@@ -959,13 +989,23 @@ def _make_repr(attrs, ns):
         else:
             class_name = ns + "." + real_cls.__name__
 
-        return "{0}({1})".format(
-            class_name,
-            ", ".join(
-                name + "=" + repr(getattr(self, name, NOTHING))
-                for name in attr_names
-            )
-        )
+        # Since 'self' remains on the stack (i.e.: strongly referenced) for the
+        # duration of this call, it's safe to depend on id(...) stability, and
+        # not need to track the instance and therefore worry about properties
+        # like weakref- or hash-ability.
+        working_set.add(id(self))
+        try:
+            result = [class_name, "("]
+            first = True
+            for name in attr_names:
+                if first:
+                    first = False
+                else:
+                    result.append(", ")
+                result.extend((name, "=", repr(getattr(self, name, NOTHING))))
+            return "".join(result) + ")"
+        finally:
+            working_set.remove(id(self))
     return __repr__
 
 
@@ -994,7 +1034,7 @@ def _make_init(attrs, post_init, frozen, slots, super_attr_map):
         sha1.hexdigest()
     )
 
-    script, globs = _attrs_to_init_script(
+    script, globs, annotations = _attrs_to_init_script(
         attrs,
         frozen,
         slots,
@@ -1023,7 +1063,9 @@ def _make_init(attrs, post_init, frozen, slots, super_attr_map):
         unique_filename,
     )
 
-    return locs["__init__"]
+    __init__ = locs["__init__"]
+    __init__.__annotations__ = annotations
+    return __init__
 
 
 def _add_init(cls, frozen):
@@ -1219,6 +1261,7 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
     # This is a dictionary of names to validator and converter callables.
     # Injecting this into __init__ globals lets us avoid lookups.
     names_for_globals = {}
+    annotations = {'return': None}
 
     for a in attrs:
         if a.validator:
@@ -1309,6 +1352,9 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
             else:
                 lines.append(fmt_setter(attr_name, arg_name))
 
+        if a.init is True and a.converter is None and a.type is not None:
+            annotations[arg_name] = a.type
+
     if attrs_to_validate:  # we can skip this if there are no validators.
         names_for_globals["_config"] = _config
         lines.append("if _config._run_validators is True:")
@@ -1328,7 +1374,7 @@ def __init__(self, {args}):
 """.format(
         args=", ".join(args),
         lines="\n    ".join(lines) if lines else "pass",
-    ), names_for_globals
+    ), names_for_globals, annotations
 
 
 class Attribute(object):

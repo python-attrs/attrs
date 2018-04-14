@@ -287,6 +287,16 @@ The method receives the partially initialized instance which enables you to base
    C(x=1, y=2)
 
 
+And since the case of ``attr.ib(default=attr.Factory(f))`` is so common, ``attrs`` also comes with syntactic sugar for it:
+
+.. doctest::
+
+   >>> @attr.s
+   ... class C(object):
+   ...     x = attr.ib(factory=list)
+   >>> C()
+   C(x=[])
+
 .. _examples_validators:
 
 Validators
@@ -388,7 +398,7 @@ Of course you can mix and match the two approaches at your convenience:
    ...     x = attr.ib(validator=attr.validators.instance_of(int))
    ...     @x.validator
    ...     def fits_byte(self, attribute, value):
-   ...         if not 0 < value < 256:
+   ...         if not 0 <= value < 256:
    ...             raise ValueError("value out of bounds")
    >>> C(128)
    C(x=128)
@@ -518,6 +528,7 @@ If you don't mind annotating *all* attributes, you can even drop the :func:`attr
    >>> AutoC.cls_var
    5
 
+The generated ``__init__`` method will have an attribute called ``__annotations__`` that contains this type information.
 
 .. warning::
 
