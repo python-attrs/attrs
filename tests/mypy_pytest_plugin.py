@@ -698,7 +698,8 @@ def parse_test_data(l: List[str], fnam: str) -> List[TestItem]:
     while i < len(l):
         s = l[i].strip()
 
-        if l[i].startswith('# [') and s.endswith(']') and not s.startswith('# [['):
+        if (l[i].startswith('# [') and s.endswith(']')
+                and not s.startswith('# [[')):
             if id:
                 data = collapse_line_continuation(data)
                 data = strip_list(data)
