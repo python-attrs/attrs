@@ -4,7 +4,10 @@ Hashing
 .. warning::
 
    The overarching theme is to never set the ``@attr.s(hash=X)`` parameter yourself.
-   Leave it at ``None`` which means that ``attrs`` will do the right thing for you, depending on the other parameters.
+   Leave it at ``None`` which means that ``attrs`` will do the right thing for you, depending on the other parameters:
+
+   - If you want to make objects hashable by value: use ``@attr.s(frozen=True)``.
+   - If you want hashing and comparison by object identity: use ``@attr.s(cmp=False)``
 
    Setting ``hash`` yourself can have unexpected consequences so we recommend to tinker with it only if you know exactly what you're doing.
 
