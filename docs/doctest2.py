@@ -109,12 +109,12 @@ sphinx.ext.doctest.SphinxDocTestRunner = SphinxDocTestRunner
 
 
 class DocTest2Builder(DocTestBuilder):
-    def test_group(self, group, filename):
+    def test_group(self, group, *args, **kwargs):
         self.setup_runner.reset_source()
         self.test_runner.reset_source()
         self.cleanup_runner.reset_source()
 
-        result = DocTestBuilder.test_group(self, group, filename)
+        result = DocTestBuilder.test_group(self, group, *args, **kwargs)
 
         source = (self.setup_runner.group_source +
                   self.test_runner.group_source +
