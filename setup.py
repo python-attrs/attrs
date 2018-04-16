@@ -32,6 +32,9 @@ CLASSIFIERS = [
     "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
+# mypy plugins are not yet externally distributable, so we must lock tests
+# against a particular version of mypy. additionally, output formatting
+# of mypy can vary by version.
 MYPY_VERSION = "mypy==0.580"
 INSTALL_REQUIRES = []
 EXTRAS_REQUIRE = {
@@ -48,15 +51,12 @@ EXTRAS_REQUIRE = {
         "six",
         "zope.interface",
     ],
+    "test-stubs": [
+        MYPY_VERSION
+    ],
 }
 
 EXTRAS_REQUIRE["dev"] = EXTRAS_REQUIRE["tests"] + EXTRAS_REQUIRE["docs"]
-
-if PY3:
-    # mypy plugins are not yet externally distributable, so we must lock tests
-    # against a particular version of mypy. additionally, output formatting
-    # of mypy can vary by version.
-    EXTRAS_REQUIRE["tests"].append(MYPY_VERSION)
 
 ###############################################################################
 
