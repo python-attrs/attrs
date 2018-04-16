@@ -18,7 +18,7 @@ The *hash* of an object is an integer that represents the contents of an object.
 It can be obtained by calling :func:`hash` on an object and is implemented by writing a ``__hash__`` method for your class.
 
 ``attrs`` will happily write a ``__hash__`` method you [#fn1]_, however it will *not* do so by default.
-Because according to the definition_ from the official Python docs, the returned hash has to fullfill certrain constraints:
+Because according to the definition_ from the official Python docs, the returned hash has to fullfil certain constraints:
 
 #. Two objects that are equal, **must** have the same hash.
    This means that if ``x == y``, it *must* follow that ``hash(x) == hash(y)``.
