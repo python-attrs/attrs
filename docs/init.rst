@@ -59,7 +59,18 @@ One thing people tend to find baffling, is the treatment of private attributes t
    <Signature (self, x) -> None>
 
 There really isn't a right or wrong, it's a matter of taste.
-But it's important to be aware of it.
+But it's important to be aware of it because it can leave to surprising syntax errors:
+
+.. doctest::
+
+   >>> @attr.s
+   ... class C(object):
+   ...    _1 = attr.ib()
+   Traceback (most recent call last):
+      ...
+   SyntaxError: invalid syntax
+
+In this case a valid attribute name ``_1`` got transformed into an invalid one ``1``.
 
 
 Defaults
