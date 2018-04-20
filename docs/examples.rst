@@ -218,8 +218,6 @@ Other times, all you want is a tuple and ``attrs`` won't let you down:
    True
 
 
-
-
 Defaults
 --------
 
