@@ -40,6 +40,7 @@ The database format can change anytime and you're stuck with a bad class design 
 Embrace classmethods as a filter between reality and what's best for you to work with.
 
 If you look for object serialization, there's a bunch of projects listed on our ``attrs`` extensions `Wiki page`_.
+Some of them even support nested schemas.
 
 
 Defaults
