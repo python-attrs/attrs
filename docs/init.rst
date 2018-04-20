@@ -65,6 +65,9 @@ This is when default values come into play:
    >>> C()
    C(a=42, b=[], c=[], d={})
 
+It's important that the decorated method doesn't have the same name as the attribute, otherwise it would overwrite the attribute definition.
+
+
 Please note that as with function and method signatures, ``default=[]`` will *not* do what you may think it might do:
 
 .. doctest::
@@ -125,6 +128,8 @@ If the value does not pass the validator's standards, it just raises an appropri
    Traceback (most recent call last):
       ...
    ValueError: x must be smaller or equal to 42
+
+Again, it's important that the decorated method doesn't have the same name as the attribute.
 
 
 Callables
