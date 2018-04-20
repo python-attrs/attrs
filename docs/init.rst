@@ -59,7 +59,7 @@ One thing people tend to find baffling, is the treatment of private attributes t
    <Signature (self, x) -> None>
 
 There really isn't a right or wrong, it's a matter of taste.
-But it's important to be aware of it because it can leave to surprising syntax errors:
+But it's important to be aware of it because it can lead to surprising syntax errors:
 
 .. doctest::
 
