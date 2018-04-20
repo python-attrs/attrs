@@ -43,6 +43,25 @@ If you look for object serialization, there's a bunch of projects listed on our 
 Some of them even support nested schemas.
 
 
+Private Attributes
+------------------
+
+One thing people tend to find baffling, is the treatment of private attributes that start with a underscore.
+``attrs`` follows the doctrine that `there is no such thing as a private argument`_ and strips the underscores from the name when writing the ``__init__`` method signature:
+
+.. doctest::
+
+   >>> import inspect, attr
+   >>> @attr.s
+   ... class C(object):
+   ...    _x = attr.ib()
+   >>> inspect.signature(C.__init__)
+   <Signature (self, x) -> None>
+
+There really isn't a right or wrong, it's a matter of taste.
+But it's important to be aware of it.
+
+
 Defaults
 --------
 
@@ -318,3 +337,4 @@ If you need to set attributes on a frozen class, you'll have to resort to the :r
 
 .. _`Wiki page`: https://github.com/python-attrs/attrs/wiki/Extensions-to-attrs
 .. _`get confused`: https://github.com/python-attrs/attrs/issues/289
+.. _`there is no such thing as a private argument`: https://github.com/hynek/characteristic/issues/6
