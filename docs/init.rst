@@ -70,7 +70,7 @@ But it's important to be aware of it because it can leave to surprising syntax e
       ...
    SyntaxError: invalid syntax
 
-In this case a valid attribute name ``_1`` got transformed into an invalid one ``1``.
+In this case a valid attribute name ``_1`` got transformed into an invalid argument name ``1``.
 
 
 Defaults
