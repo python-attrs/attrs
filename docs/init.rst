@@ -180,7 +180,8 @@ This example also shows of some syntactic sugar for using the :func:`attr.valida
       ...
    TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, factory=NOTHING, validator=<instance_of validator for type <type 'int'>>, type=None), <type 'int'>, '42')
 
-Of course you can mix and match the two approaches at your convenience:
+Of course you can mix and match the two approaches at your convenience.
+If you define validators both ways for an attribute, they are both ran:
 
 .. doctest::
 
