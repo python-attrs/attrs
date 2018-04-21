@@ -125,6 +125,7 @@ This is why ``attrs`` comes with factory options.
    Even the smartest of us can `get confused`_ by what happens if you pass partially initialized objects around.
 
 
+ .. _validators:
 
 Validators
 ----------
@@ -250,6 +251,8 @@ And finally you can disable validators globally:
       ...
    TypeError: ("'x' must be <class 'int'> (got '128' that is a <class 'str'>).", Attribute(name='x', default=NOTHING, validator=[<instance_of validator for type <class 'int'>>, <function fits_byte at 0x10fd7a0d0>], repr=True, cmp=True, hash=True, init=True, metadata=mappingproxy({}), type=None, converter=None), <class 'int'>, '128')
 
+
+.. _converters:
 
 Converters
 ----------
