@@ -21,6 +21,7 @@ Glossary
 
         .. doctest::
 
+          >>> import attr
           >>> @attr.s(slots=True)
           ... class Coordinates(object):
           ...     x = attr.ib()
