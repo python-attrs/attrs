@@ -399,15 +399,19 @@ class _ClassBuilder(object):
     __slots__ = (
         "_cls", "_cls_dict", "_attrs", "_super_names", "_attr_names", "_slots",
         "_frozen", "_has_post_init", "_delete_attribs", "_super_attr_map",
+        "_inst_validator"
     )
 
-    def __init__(self, cls, these, slots, frozen, auto_attribs):
+    def __init__(
+        self, cls, these, slots, frozen, auto_attribs, inst_validator
+    ):
         attrs, super_attrs, super_map = _transform_attrs(
             cls, these, auto_attribs
         )
 
         self._cls = cls
         self._cls_dict = dict(cls.__dict__) if slots else {}
+        self._inst_validator = inst_validator
         self._attrs = attrs
         self._super_names = set(a.name for a in super_attrs)
         self._super_attr_map = super_map
@@ -573,6 +577,7 @@ class _ClassBuilder(object):
                 self._frozen,
                 self._slots,
                 self._super_attr_map,
+                self._inst_validator,
             )
         )
 
@@ -610,7 +615,8 @@ class _ClassBuilder(object):
 
 def attrs(maybe_cls=None, these=None, repr_ns=None,
           repr=True, cmp=True, hash=None, init=True,
-          slots=False, frozen=False, str=False, auto_attribs=False):
+          slots=False, frozen=False, str=False, auto_attribs=False,
+          validator=None):
     r"""
     A class decorator that adds `dunder
     <https://wiki.python.org/moin/DunderAlias>`_\ -methods according to the
@@ -707,6 +713,8 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
         Attributes annotated as :data:`typing.ClassVar` are **ignored**.
 
         .. _`PEP 526`: https://www.python.org/dev/peps/pep-0526/
+    :param callable validator: Run after a new instance is fully initialized
+        with the instance as its only argument.
 
     .. versionadded:: 16.0.0 *slots*
     .. versionadded:: 16.1.0 *frozen*
@@ -718,12 +726,15 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
     .. versionchanged:: 18.1.0
        If *these* is passed, no attributes are deleted from the class body.
     .. versionchanged:: 18.1.0 If *these* is ordered, the order is retained.
+    .. versionadded:: 18.1.0 *validator*
     """
     def wrap(cls):
         if getattr(cls, "__class__", None) is None:
             raise TypeError("attrs only works with new-style classes.")
 
-        builder = _ClassBuilder(cls, these, slots, frozen, auto_attribs)
+        builder = _ClassBuilder(
+            cls, these, slots, frozen, auto_attribs, validator,
+        )
 
         if repr is True:
             builder.add_repr(repr_ns)
@@ -1020,7 +1031,9 @@ def _add_repr(cls, ns=None, attrs=None):
     return cls
 
 
-def _make_init(attrs, post_init, frozen, slots, super_attr_map):
+def _make_init(
+    attrs, post_init, frozen, slots, super_attr_map, inst_validator
+):
     attrs = [
         a
         for a in attrs
@@ -1040,6 +1053,7 @@ def _make_init(attrs, post_init, frozen, slots, super_attr_map):
         slots,
         post_init,
         super_attr_map,
+        inst_validator,
     )
     locs = {}
     bytecode = compile(script, unique_filename, "exec")
@@ -1078,6 +1092,7 @@ def _add_init(cls, frozen):
         frozen,
         _is_slot_cls(cls),
         {},
+        None,
     )
     return cls
 
@@ -1166,7 +1181,9 @@ def _is_slot_attr(a_name, super_attr_map):
     return a_name in super_attr_map and _is_slot_cls(super_attr_map[a_name])
 
 
-def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
+def _attrs_to_init_script(
+    attrs, frozen, slots, post_init, super_attr_map, inst_validator
+):
     """
     Return a script of an initializer for *attrs* and a dict of globals.
 
@@ -1355,7 +1372,8 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
         if a.init is True and a.converter is None and a.type is not None:
             annotations[arg_name] = a.type
 
-    if attrs_to_validate:  # we can skip this if there are no validators.
+    # We can skip this if there are no validators.
+    if attrs_to_validate or inst_validator:
         names_for_globals["_config"] = _config
         lines.append("if _config._run_validators is True:")
         for a in attrs_to_validate:
@@ -1365,6 +1383,9 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
                 val_name, attr_name, a.name))
             names_for_globals[val_name] = a.validator
             names_for_globals[attr_name] = a
+        if inst_validator:
+            names_for_globals["inst_validator"] = inst_validator
+            lines.append("    inst_validator(self)")
     if post_init:
         lines.append("self.__attrs_post_init__()")
 

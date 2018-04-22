@@ -667,6 +667,18 @@ class TestMakeClass(object):
 
         assert "C(a=1, b=2)" == repr(C())
 
+    def test_repr_str(self):
+        """
+        Trying to add a `__str__` without having a `__repr__` raises a
+        ValueError.
+        """
+        with pytest.raises(ValueError) as ei:
+            make_class("C", {}, repr=False, str=True)
+
+        assert (
+            "__str__ can only be generated if a __repr__ exists.",
+        ) == ei.value.args
+
 
 class TestFields(object):
     """
@@ -1068,18 +1080,6 @@ class TestClassBuilder(object):
     """
     Tests for `_ClassBuilder`.
     """
-    def test_repr_str(self):
-        """
-        Trying to add a `__str__` without having a `__repr__` raises a
-        ValueError.
-        """
-        with pytest.raises(ValueError) as ei:
-            make_class("C", {}, repr=False, str=True)
-
-        assert (
-            "__str__ can only be generated if a __repr__ exists.",
-        ) == ei.value.args
-
     def test_repr(self):
         """
         repr of builder itself makes sense.
@@ -1087,7 +1087,7 @@ class TestClassBuilder(object):
         class C(object):
             pass
 
-        b = _ClassBuilder(C, None, True, True, False)
+        b = _ClassBuilder(C, None, True, True, False, None)
 
         assert "<_ClassBuilder(cls=C)>" == repr(b)
 
@@ -1098,7 +1098,7 @@ class TestClassBuilder(object):
         class C(object):
             x = attr.ib()
 
-        b = _ClassBuilder(C, None, True, True, False)
+        b = _ClassBuilder(C, None, True, True, False, None)
 
         cls = b.add_cmp().add_hash().add_init().add_repr("ns").add_str() \
             .build_class()
@@ -1137,6 +1137,7 @@ class TestClassBuilder(object):
 
         b = _ClassBuilder(
             C, these=None, slots=False, frozen=False, auto_attribs=False,
+            inst_validator=None,
         )
         b._cls = {}  # no __module__; no __qualname__
 
