@@ -1,0 +1,1 @@
+``@attr.s`` now also has a *validator* argument that takes a callable and is run with the fully initialized instance.

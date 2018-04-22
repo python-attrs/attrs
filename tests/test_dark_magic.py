@@ -413,3 +413,21 @@ class TestDarkMagic(object):
 
             with pytest.raises(FrozenInstanceError):
                 i.b = "3"
+
+    def test_inst_validator(self):
+        """
+        Instance-level validators run.
+        """
+        def v(i):
+            if i.x != 42:
+                raise ValueError
+
+        @attr.s(validator=v)
+        class C(object):
+            x = attr.ib()
+            y = attr.ib()
+
+        C(42, 42)
+
+        with pytest.raises(ValueError):
+            C(23, 42)
