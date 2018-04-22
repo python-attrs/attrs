@@ -11,6 +11,7 @@ import pytest
 
 import attr
 
+from attr._make import _classvar_prefixes
 from attr.exceptions import UnannotatedAttributeError
 
 
@@ -204,13 +205,14 @@ class TestAnnotations:
         assert A.__init__.__annotations__ == {'return': None}
 
     @pytest.mark.parametrize("slots", [True, False])
-    def test_annotations_strings(self, slots):
+    @pytest.mark.parametrize("classvar", _classvar_prefixes)
+    def test_annotations_strings(self, slots, classvar):
         """
         String annotations are passed into __init__ as is.
         """
         @attr.s(auto_attribs=True, slots=slots)
         class C:
-            cls_var: 'typing.ClassVar[int]' = 23
+            cls_var: classvar + '[int]' = 23
             a: 'int'
             x: 'typing.List[int]' = attr.Factory(list)
             y: 'int' = 2

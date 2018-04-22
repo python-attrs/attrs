@@ -23,6 +23,8 @@ _obj_setattr = object.__setattr__
 _init_converter_pat = "__attr_converter_{}"
 _init_factory_pat = "__attr_factory_{}"
 _tuple_property_pat = "    {attr_name} = property(itemgetter({index}))"
+_classvar_prefixes = ("typing.ClassVar", "t.ClassVar", "ClassVar")
+
 _empty_metadata_singleton = metadata_proxy({})
 
 
@@ -229,13 +231,14 @@ _Attributes = _make_attr_tuple_class("_Attributes", [
 
 
 def _is_class_var(annot):
-    """Check whether *annot* is a typing.ClassVar.
+    """
+    Check whether *annot* is a typing.ClassVar.
 
     The string comparison hack is used to avoid evaluating all string
     annotations which would put attrs-based classes at a performance
     disadvantage compared to plain old classes.
     """
-    return str(annot).startswith(("typing.ClassVar", "t.ClassVar", "ClassVar"))
+    return str(annot).startswith(_classvar_prefixes)
 
 
 def _get_annotations(cls):
