@@ -714,7 +714,8 @@ def attrs(maybe_cls=None, these=None, repr_ns=None,
 
         .. _`PEP 526`: https://www.python.org/dev/peps/pep-0526/
     :param callable validator: Run after a new instance is fully initialized
-        with the instance as its only argument.
+        with the instance as its only argument.  *validator* runs *after*
+        the attribute validators.
 
     .. versionadded:: 16.0.0 *slots*
     .. versionadded:: 16.1.0 *frozen*
