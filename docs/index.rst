@@ -36,6 +36,8 @@ Day-to-Day Usage
 ================
 
 - Once you're comfortable with the concepts, our :doc:`api` contains all information you need to use ``attrs`` to its fullest.
+- If you want to put objects into sets or use them as keys in dictionaries, they have to be hashable.
+  The simplest way to do that is to use frozen classes, but the topic is more complex than it seems and :doc:`hashing` will give you a primer on what to look out for.
 - ``attrs`` is built for extension from the ground up.
   :doc:`extending` will show you the affordances it offers and how to make it a building block of your own projects.
 
@@ -68,6 +70,7 @@ Full Table of Contents
    overview
    why
    examples
+   hashing
    api
    extending
    how-does-it-work
