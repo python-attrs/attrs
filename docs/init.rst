@@ -2,7 +2,7 @@ Initialization
 ==============
 
 In Python, instance intialization happens in the ``__init__`` method.
-Generally speaking, you should keep as little logic as possible in it, and you should think about what the class needs and not how it is gonna be instantiated.
+Generally speaking, you should keep as little logic as possible in it, and you should think about what the class needs and not how it is going to be instantiated.
 
 Passing complex objects into ``__init__`` and then using them to derive data for the class unnecessarily couples your new class with the old class which makes it harder to test and also will cause problems later.
 
@@ -35,7 +35,7 @@ For similar reasons, we strongly discourage from patterns like::
    pt = Point(**row.attributes)
 
 which couples your classes to the data model.
-Try to design your classes in a way that are clean and convenient to use -- not based on your database format.
+Try to design your classes in a way that is clean and convenient to use -- not based on your database format.
 The database format can change anytime and you're stuck with a bad class design that is hard to change.
 Embrace classmethods as a filter between reality and what's best for you to work with.
 
@@ -46,7 +46,7 @@ Some of them even support nested schemas.
 Private Attributes
 ------------------
 
-One thing people tend to find baffling, is the treatment of private attributes that start with a underscore.
+One thing people tend to find confusing is the treatment of private attributes that start with an underscore.
 ``attrs`` follows the doctrine that `there is no such thing as a private argument`_ and strips the underscores from the name when writing the ``__init__`` method signature:
 
 .. doctest::
@@ -130,7 +130,7 @@ This is why ``attrs`` comes with factory options.
 Validators
 ----------
 
-Another thing that definitely *does* belong into ``__init__``, is checking the resulting instance for invariants.
+Another thing that definitely *does* belong into ``__init__`` is checking the resulting instance for invariants.
 This is why ``attrs`` has the concept of validators.
 
 
@@ -304,7 +304,7 @@ Arguably, you can abuse converters as one-argument validators:
 Post-Init Hook
 --------------
 
-Generally speaking, the moment you think that you need a finer control over how your class is instantiated than what ``attrs`` offers, it's usually best to use a classmethod factory or to apply the `builder pattern <https://en.wikipedia.org/wiki/Builder_pattern>`_.
+Generally speaking, the moment you think that you need finer control over how your class is instantiated than what ``attrs`` offers, it's usually best to use a classmethod factory or to apply the `builder pattern <https://en.wikipedia.org/wiki/Builder_pattern>`_.
 
 However, sometimes you need to do that one quick thing after your class is initialized.
 And for that ``attrs`` offers the ``__attrs_post_init__`` hook that is automatically detected and run after ``attrs`` is done initializing your instance:
