@@ -218,8 +218,6 @@ Other times, all you want is a tuple and ``attrs`` won't let you down:
    True
 
 
-
-
 Defaults
 --------
 
@@ -301,18 +299,7 @@ Although your initializers should do as little as possible (ideally: just initia
 
 ``attrs`` offers two ways to define validators for each attribute and it's up to you to choose which one suites better your style and project.
 
-
-Decorator
-~~~~~~~~~
-
-The more straightforward way is by using the attribute's ``validator`` method as a decorator.
-The method has to accept three arguments:
-
-#. the *instance* that's being validated (aka ``self``),
-#. the *attribute* that it's validating, and finally
-#. the *value* that is passed for it.
-
-If the value does not pass the validator's standards, it just raises an appropriate exception.
+You can use a decorator:
 
 .. doctest::
 
@@ -330,15 +317,7 @@ If the value does not pass the validator's standards, it just raises an appropri
       ...
    ValueError: x must be smaller or equal to 42
 
-
-Callables
-~~~~~~~~~
-
-If you want to re-use your validators, you should have a look at the ``validator`` argument to :func:`attr.ib()`.
-
-It takes either a callable or a list of callables (usually functions) and treats them as validators that receive the same arguments as with the decorator approach.
-
-Since the validators runs *after* the instance is initialized, you can refer to other attributes while validating:
+ ...or a callable...
 
 .. doctest::
 
@@ -357,34 +336,7 @@ Since the validators runs *after* the instance is initialized, you can refer to 
       ...
    ValueError: 'x' has to be smaller than 'y'!
 
-This example also shows of some syntactic sugar for using the :func:`attr.validators.and_` validator: if you pass a list, all validators have to pass.
-
-``attrs`` won't intercept your changes to those attributes but you can always call :func:`attr.validate` on any instance to verify that it's still valid:
-
-.. doctest::
-
-   >>> i = C(4, 5)
-   >>> i.x = 5  # works, no magic here
-   >>> attr.validate(i)
-   Traceback (most recent call last):
-      ...
-   ValueError: 'x' has to be smaller than 'y'!
-
-``attrs`` ships with a bunch of validators, make sure to :ref:`check them out <api_validators>` before writing your own:
-
-.. doctest::
-
-   >>> @attr.s
-   ... class C(object):
-   ...     x = attr.ib(validator=attr.validators.instance_of(int))
-   >>> C(42)
-   C(x=42)
-   >>> C("42")
-   Traceback (most recent call last):
-      ...
-   TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, factory=NOTHING, validator=<instance_of validator for type <type 'int'>>, type=None), <type 'int'>, '42')
-
-Of course you can mix and match the two approaches at your convenience:
+...or both at once:
 
 .. doctest::
 
@@ -406,16 +358,22 @@ Of course you can mix and match the two approaches at your convenience:
       ...
    ValueError: value out of bounds
 
-And finally you can disable validators globally:
 
-   >>> attr.set_run_validators(False)
-   >>> C("128")
-   C(x='128')
-   >>> attr.set_run_validators(True)
-   >>> C("128")
+``attrs`` ships with a bunch of validators, make sure to :ref:`check them out <api_validators>` before writing your own:
+
+.. doctest::
+
+   >>> @attr.s
+   ... class C(object):
+   ...     x = attr.ib(validator=attr.validators.instance_of(int))
+   >>> C(42)
+   C(x=42)
+   >>> C("42")
    Traceback (most recent call last):
       ...
-   TypeError: ("'x' must be <class 'int'> (got '128' that is a <class 'str'>).", Attribute(name='x', default=NOTHING, validator=[<instance_of validator for type <class 'int'>>, <function fits_byte at 0x10fd7a0d0>], repr=True, cmp=True, hash=True, init=True, metadata=mappingproxy({}), type=None, converter=None), <class 'int'>, '128')
+   TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, factory=NOTHING, validator=<instance_of validator for type <type 'int'>>, type=None), <type 'int'>, '42')
+
+Check out :ref:`validators` for more details.
 
 
 Conversion
@@ -433,23 +391,7 @@ This can be useful for doing type-conversions on values that you don't want to f
     >>> o.x
     1
 
-Converters are run *before* validators, so you can use validators to check the final form of the value.
-
-.. doctest::
-
-    >>> def validate_x(instance, attribute, value):
-    ...     if value < 0:
-    ...         raise ValueError("x must be be at least 0.")
-    >>> @attr.s
-    ... class C(object):
-    ...     x = attr.ib(converter=int, validator=validate_x)
-    >>> o = C("0")
-    >>> o.x
-    0
-    >>> C("-1")
-    Traceback (most recent call last):
-        ...
-    ValueError: x must be be at least 0.
+Check out :ref:`converters` for more details.
 
 
 .. _metadata:

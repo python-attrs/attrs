@@ -36,6 +36,9 @@ Day-to-Day Usage
 ================
 
 - Once you're comfortable with the concepts, our :doc:`api` contains all information you need to use ``attrs`` to its fullest.
+- Instance initialization is one of ``attrs`` key feature areas.
+  Our goal is to relieve you from writing as much code as possible.
+  :doc:`init` gives you an overview what ``attrs`` has to offer and explains some related philosophies we believe in.
 - If you want to put objects into sets or use them as keys in dictionaries, they have to be hashable.
   The simplest way to do that is to use frozen classes, but the topic is more complex than it seems and :doc:`hashing` will give you a primer on what to look out for.
 - ``attrs`` is built for extension from the ground up.
@@ -70,6 +73,7 @@ Full Table of Contents
    overview
    why
    examples
+   init
    hashing
    api
    extending
