@@ -278,7 +278,7 @@ Converters are run *before* validators, so you can use validators to check the f
 
     >>> def validate_x(instance, attribute, value):
     ...     if value < 0:
-    ...         raise ValueError("x must be be at least 0.")
+    ...         raise ValueError("x must be at least 0.")
     >>> @attr.s
     ... class C(object):
     ...     x = attr.ib(converter=int, validator=validate_x)
@@ -288,7 +288,7 @@ Converters are run *before* validators, so you can use validators to check the f
     >>> C("-1")
     Traceback (most recent call last):
         ...
-    ValueError: x must be be at least 0.
+    ValueError: x must be at least 0.
 
 
 Arguably, you can abuse converters as one-argument validators:
