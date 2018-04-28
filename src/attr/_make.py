@@ -106,7 +106,7 @@ def attrib(default=NOTHING, validator=None,
 
         The validator can also be set using decorator notation as shown below.
 
-    :type validator: ``callable`` or a ``list`` of ``callable``\ s.
+    :type validator: ``callable`` or a ``list`` of ``callable``\\ s.
 
     :param bool repr: Include this attribute in the generated ``__repr__``
         method.
@@ -1125,7 +1125,7 @@ def fields_dict(cls):
         class.
 
     :rtype: an ordered dict where keys are attribute names and values are
-        :class:`attr.Attribute`\ s. This will be a :class:`dict` if it's
+        :class:`attr.Attribute`\\ s. This will be a :class:`dict` if it's
         naturally ordered like on Python 3.6+ or an
         :class:`~collections.OrderedDict` otherwise.
 
