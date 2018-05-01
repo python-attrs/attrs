@@ -140,7 +140,7 @@ Core
        @attr.s(auto_attribs=True)
        class C:
            x: int
-           y = attr.ib()
+           y = attr.ib()  # <- ERROR!
 
 
 .. _helpers:
