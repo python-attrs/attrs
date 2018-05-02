@@ -84,7 +84,7 @@ Changes
   The singleton empty ``dict`` is still enforced.
 
   `#280 <https://github.com/python-attrs/attrs/issues/280>`_
-- ``ctypes`` is optional now however if it's missing, a bare ``super()`` will not work in slots classes.
+- ``ctypes`` is optional now however if it's missing, a bare ``super()`` will not work in slotted classes.
   This should only happen in special environments like Google App Engine.
 
   `#284 <https://github.com/python-attrs/attrs/issues/284>`_,
@@ -126,7 +126,7 @@ Backward-incompatible Changes
 Changes
 ^^^^^^^
 
-- ``super()`` and ``__class__`` now work on Python 3 when ``slots=True``.
+- ``super()`` and ``__class__`` now work with slotted classes on Python 3.
   (`#102 <https://github.com/python-attrs/attrs/issues/102>`_, `#226 <https://github.com/python-attrs/attrs/issues/226>`_, `#269 <https://github.com/python-attrs/attrs/issues/269>`_, `#270 <https://github.com/python-attrs/attrs/issues/270>`_, `#272 <https://github.com/python-attrs/attrs/issues/272>`_)
 - Added ``type`` argument to ``attr.ib()`` and corresponding ``type`` attribute to ``attr.Attribute``.
 
@@ -289,13 +289,13 @@ Changes:
   `#76 <https://github.com/python-attrs/attrs/issues/76>`_
 - Instantiation of ``attrs`` classes with converters is now significantly faster.
   `#80 <https://github.com/python-attrs/attrs/pull/80>`_
-- Pickling now works with ``__slots__`` classes.
+- Pickling now works with slotted classes.
   `#81 <https://github.com/python-attrs/attrs/issues/81>`_
-- ``attr.assoc()`` now works with ``__slots__`` classes.
+- ``attr.assoc()`` now works with slotted classes.
   `#84 <https://github.com/python-attrs/attrs/issues/84>`_
 - The tuple returned by ``attr.fields()`` now also allows to access the ``Attribute`` instances by name.
   Yes, we've subclassed ``tuple`` so you don't have to!
-  Therefore ``attr.fields(C).x`` is equivalent to the deprecated ``C.x`` and works with ``__slots__`` classes.
+  Therefore ``attr.fields(C).x`` is equivalent to the deprecated ``C.x`` and works with slotted classes.
   `#88 <https://github.com/python-attrs/attrs/issues/88>`_
 
 
@@ -364,7 +364,7 @@ Changes:
 ^^^^^^^^
 
 - ``__slots__`` have arrived!
-  Classes now can automatically be `slots <https://docs.python.org/3/reference/datamodel.html#slots>`_-style (and save your precious memory) just by passing ``slots=True``.
+  Classes now can automatically be `slotted <https://docs.python.org/3/reference/datamodel.html#slots>`_-style (and save your precious memory) just by passing ``slots=True``.
   `#35 <https://github.com/python-attrs/attrs/issues/35>`_
 - Allow the case of initializing attributes that are set to ``init=False``.
   This allows for clean initializer parameter lists while being able to initialize attributes to default values.

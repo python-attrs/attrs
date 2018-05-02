@@ -474,12 +474,8 @@ The generated ``__init__`` method will have an attribute called ``__annotations_
 Slots
 -----
 
-By default, instances of classes have a dictionary for attribute storage.
-This wastes space for objects having very few data attributes.
-The space consumption can become significant when creating large numbers of instances.
-
-Normal Python classes can avoid using a separate dictionary for each instance of a class by `defining <https://docs.python.org/3/reference/datamodel.html#slots>`_ ``__slots__``.
-For ``attrs`` classes it's enough to set ``slots=True``:
+:term:`Slotted classes` have a bunch of advantages on CPython.
+Defining ``__slots__`` by hand is tedious, in ``attrs`` it's just a matter of passing ``slots=True``:
 
 .. doctest::
 
@@ -487,59 +483,6 @@ For ``attrs`` classes it's enough to set ``slots=True``:
    ... class Coordinates(object):
    ...     x = attr.ib()
    ...     y = attr.ib()
-
-
-.. note::
-
-    ``attrs`` slot classes can inherit from other classes just like non-slot classes, but some of the benefits of slot classes are lost if you do that.
-    If you must inherit from other classes, try to inherit only from other slot classes.
-
-Slot classes are a little different than ordinary, dictionary-backed classes:
-
-- Assigning to a non-existent attribute of an instance will result in an ``AttributeError`` being raised.
-  Depending on your needs, this might be a good thing since it will let you catch typos early.
-  This is not the case if your class inherits from any non-slot classes.
-
-  .. doctest::
-
-     >>> @attr.s(slots=True)
-     ... class Coordinates(object):
-     ...     x = attr.ib()
-     ...     y = attr.ib()
-     ...
-     >>> c = Coordinates(x=1, y=2)
-     >>> c.z = 3
-     Traceback (most recent call last):
-         ...
-     AttributeError: 'Coordinates' object has no attribute 'z'
-
-- Since non-slot classes cannot be turned into slot classes after they have been created, ``attr.s(slots=True)`` will *replace* the class it is applied to with a copy.
-  In almost all cases this isn't a problem, but we mention it for the sake of completeness.
-
-  * One notable problem is that certain metaclass features like ``__init_subclass__`` do not work with slot classes.
-
-- Using :mod:`pickle` with slot classes requires pickle protocol 2 or greater.
-  Python 2 uses protocol 0 by default so the protocol needs to be specified.
-  Python 3 uses protocol 3 by default.
-  You can support protocol 0 and 1 by implementing :meth:`__getstate__ <object.__getstate__>` and :meth:`__setstate__ <object.__setstate__>` methods yourself.
-  Those methods are created for frozen slot classes because they won't pickle otherwise.
-  `Think twice <https://www.youtube.com/watch?v=7KnfGDajDQw>`_ before using :mod:`pickle` though.
-
-- As always with slot classes, you must specify a ``__weakref__`` slot if you wish for the class to be weak-referenceable.
-  Here's how it looks using ``attrs``:
-
-  .. doctest::
-
-    >>> import weakref
-    >>> @attr.s(slots=True)
-    ... class C(object):
-    ...     __weakref__ = attr.ib(init=False, hash=False, repr=False, cmp=False)
-    ...     x = attr.ib()
-    >>> c = C(1)
-    >>> weakref.ref(c)
-    <weakref at 0x...; to 'C' at 0x...>
-
-All in all, setting ``slots=True`` is usually a very good idea.
 
 
 Immutability
