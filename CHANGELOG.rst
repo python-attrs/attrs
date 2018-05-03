@@ -292,7 +292,7 @@ Changes:
 - Accordingly, ``attr.validators.optional()`` now can take a ``list`` of validators too.
   `#161 <https://github.com/python-attrs/attrs/issues/161>`_
 - Validators can now be defined conveniently inline by using the attribute as a decorator.
-  Check out the `examples <http://www.attrs.org/en/stable/examples.html#validators>`_ to see it in action!
+  Check out the `validator examples <http://www.attrs.org/en/stable/examples.html#validators>`_ to see it in action!
   `#143 <https://github.com/python-attrs/attrs/issues/143>`_
 - ``attr.Factory()`` now has a ``takes_self`` argument that makes the initializer to pass the partially initialized instance into the factory.
   In other words you can define attribute defaults based on other attributes.
