@@ -4,17 +4,69 @@ Changelog
 Versions follow `CalVer <http://calver.org>`_ with a strict backwards compatibility policy.
 The third digit is only for regressions.
 
-Changes for the upcoming release can be found in the `"changelog.d" directory <https://github.com/python-attrs/attrs/tree/master/changelog.d>`_ in our repository.
-
-..
-   Do *NOT* add changelog entries here!
-
-   This changelog is managed by towncrier and is compiled at release time.
-
-   See http://www.attrs.org/en/latest/contributing.html#changelog for details.
-
-
 .. towncrier release notes start
+
+18.1.0 (2018-05-03)
+-------------------
+
+Changes
+^^^^^^^
+
+- ``x=X(); x.cycle = x; repr(x)`` will no longer raise a ``RecursionError``, and will instead show as ``X(x=...)``.
+
+  `#95 <https://github.com/python-attrs/attrs/issues/95>`_
+- ``attr.ib(factory=f)`` is now syntactic sugar for the common case of ``attr.ib(default=attr.Factory(f))``.
+
+  `#178 <https://github.com/python-attrs/attrs/issues/178>`_,
+  `#356 <https://github.com/python-attrs/attrs/issues/356>`_
+- Added ``attr.field_dict()`` to return an ordered dictionary of ``attrs`` attributes for a class, whose keys are the attribute names.
+
+  `#290 <https://github.com/python-attrs/attrs/issues/290>`_,
+  `#349 <https://github.com/python-attrs/attrs/issues/349>`_
+- The order of attributes that are passed into ``attr.make_class()`` or the ``these`` argument of ``@attr.s()`` is now retained if the dictionary is ordered (i.e. ``dict`` on Python 3.6 and later, ``collections.OrderedDict`` otherwise).
+
+  Before, the order was always determined by the order in which the attributes have been defined which may not be desirable when creating classes programatically.
+
+  `#300 <https://github.com/python-attrs/attrs/issues/300>`_,
+  `#339 <https://github.com/python-attrs/attrs/issues/339>`_,
+  `#343 <https://github.com/python-attrs/attrs/issues/343>`_
+- In slotted classes, ``__getstate__`` and ``__setstate__`` now ignore the ``__weakref__`` attribute.
+
+  `#311 <https://github.com/python-attrs/attrs/issues/311>`_,
+  `#326 <https://github.com/python-attrs/attrs/issues/326>`_
+- Setting the cell type is now completely best effort.
+  This fixes ``attrs`` on Jython.
+
+  We cannot make any guarantees regarding Jython though, because our test suite cannot run due to dependency incompatabilities.
+
+  `#321 <https://github.com/python-attrs/attrs/issues/321>`_,
+  `#334 <https://github.com/python-attrs/attrs/issues/334>`_
+- If ``attr.s`` is passed a *these* argument, it will not attempt to remove attributes with the same name from the class body anymore.
+
+  `#322 <https://github.com/python-attrs/attrs/issues/322>`_,
+  `#323 <https://github.com/python-attrs/attrs/issues/323>`_
+- The hash of ``attr.NOTHING`` is now vegan and faster on 32bit Python builds.
+
+  `#331 <https://github.com/python-attrs/attrs/issues/331>`_,
+  `#332 <https://github.com/python-attrs/attrs/issues/332>`_
+- The overhead of instantiating frozen dict classes is virtually eliminated.
+  `#336 <https://github.com/python-attrs/attrs/issues/336>`_
+- Generated ``__init__`` methods now have an ``__annotations__`` attribute derived from the types of the fields.
+
+  `#363 <https://github.com/python-attrs/attrs/issues/363>`_
+- We have restructured the documentation a bit to account for ``attrs``' growth in scope.
+  Instead of putting everything into the `examples <http://www.attrs.org/en/stable/examples.html>`_ page, we have started to extract narrative chapters.
+
+  So far, we've added chapters on `initialization <http://www.attrs.org/en/stable/init.html>`_ and `hashing <http://www.attrs.org/en/stable/hashing.html>`_.
+
+  Expect more to come!
+
+  `#369 <https://github.com/python-attrs/attrs/issues/369>`_,
+  `#370 <https://github.com/python-attrs/attrs/issues/370>`_
+
+
+----
+
 
 17.4.0 (2017-12-30)
 -------------------
