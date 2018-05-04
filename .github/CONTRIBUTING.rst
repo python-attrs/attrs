@@ -67,7 +67,7 @@ Tests
   It will ensure the test suite runs with all dependencies against all Python versions just as it will on Travis CI.
   If you lack some Python versions, you can can always limit the environments like ``tox -e py27,py35`` (in that case you may want to look into pyenv_, which makes it very easy to install many different Python versions in parallel).
 - Write `good test docstrings`_.
-- To ensure new features work well with the rest of the system, they should be also added to our `Hypothesis`_ testing strategy, which is found in ``tests/util.py``.
+- To ensure new features work well with the rest of the system, they should be also added to our `Hypothesis`_ testing strategy, which is found in ``tests/strategies.py``.
 
 
 Documentation
