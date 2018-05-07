@@ -5,6 +5,21 @@ __all__ = ["set_run_validators", "get_run_validators"]
 
 _run_validators = True
 
+_config_data = dict(
+    frozen_setattrs=None,
+    frozen_delattrs=None,
+)
+
+
+def set(name, value):
+    global _config_data
+    _config_data[name] = value
+
+
+def get(name, default=None):
+    global _config_data
+    return _config_data.get(name, default)
+
 
 def set_run_validators(run):
     """

@@ -8,6 +8,7 @@ import copy
 import inspect
 import itertools
 import sys
+from unittest.mock import patch
 
 from operator import attrgetter
 
@@ -835,6 +836,74 @@ class TestConverter(object):
             "x": attr.ib(converter=lambda v: int(v)),
         }, frozen=True)
         C("1")
+
+    def test_frozen_setattr_hook(self):
+        from attr.exceptions import FrozenInstanceError
+
+        def frozen_class_setattr_hook(self, name, value):
+            if name.startswith(('_p_', '_v_')):
+                return super(type(self), self).__setattr__(name, value)
+            raise FrozenInstanceError()
+
+        import attr._config
+        with patch.dict('attr._config._config_data'):
+            attr._config.set(
+                'frozen_class_setattr_hook', frozen_class_setattr_hook)
+
+            C = make_class("C", {
+                "x": attr.ib(converter=lambda v: int(v)),
+            }, frozen=True)
+
+            i = C("1")
+            with pytest.raises(FrozenInstanceError):
+                i.x = 'new'
+                i.new = 'new'
+
+            i._p_changed = True
+            assert i._p_changed == True
+
+            i._v_cache = dict(one='two')
+            assert i._v_cache == dict(one='two')
+
+
+    def test_frozen_delattr_hook(self):
+        from attr.exceptions import FrozenInstanceError
+
+        def frozen_class_setattr_hook(self, name, value):
+            if name.startswith(('_p_', '_v_')):
+                return super(type(self), self).__setattr__(name, value)
+            raise FrozenInstanceError()
+
+        def frozen_class_delattr_hook(self, name):
+            if name.startswith(('_p_', '_v_')):
+                return super(type(self), self).__delattr__(name)
+            raise FrozenInstanceError()
+
+        import attr._config
+        with patch.dict('attr._config._config_data'):
+            attr._config.set(
+                'frozen_class_setattr_hook', frozen_class_setattr_hook)
+            attr._config.set(
+                'frozen_class_delattr_hook', frozen_class_delattr_hook)
+
+            C = make_class("C", {
+                "x": attr.ib(converter=lambda v: int(v)),
+            }, frozen=True)
+
+            i = C("1")
+
+            i._p_changed = True
+            assert i._p_changed == True
+            del i._p_changed
+            with pytest.raises(AttributeError):
+                i._p_changed
+
+            i._v_cache = dict(one='two')
+            assert i._v_cache == dict(one='two')
+            del i._v_cache
+            with pytest.raises(AttributeError):
+                i._v_cache
+
 
     def test_deprecated_convert(self):
         """

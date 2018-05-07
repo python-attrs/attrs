@@ -385,6 +385,9 @@ def _frozen_setattrs(self, name, value):
     """
     Attached to frozen classes as __setattr__.
     """
+    hook = _config.get('frozen_class_setattr_hook')
+    if hook:
+        return hook(self, name, value)
     raise FrozenInstanceError()
 
 
@@ -392,6 +395,9 @@ def _frozen_delattrs(self, name):
     """
     Attached to frozen classes as __delattr__.
     """
+    hook = _config.get('frozen_class_delattr_hook')
+    if hook:
+        return hook(self, name)
     raise FrozenInstanceError()
 
 
