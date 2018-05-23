@@ -1,0 +1,3 @@
+``in_()`` validators now raise a ValueError with a useful message
+even if the options are a string and the value is not a string.
+By contrast, e.g. ``1 in "abc"`` raises an unhelpful TypeError.
