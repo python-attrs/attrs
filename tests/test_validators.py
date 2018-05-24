@@ -245,7 +245,8 @@ class TestIn_(object):
 
     def test_fail_with_string(self):
         """
-        Same error for string options as for list options, not TypeError.
+        Raise ValueError if the value is outside our options when the
+        options are specified as a string and the value is not a string.
         """
         v = in_("abc")
         a = simple_attr("test")
