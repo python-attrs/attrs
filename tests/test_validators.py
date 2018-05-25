@@ -243,6 +243,19 @@ class TestIn_(object):
             "'test' must be in [1, 2, 3] (got None)",
         ) == e.value.args
 
+    def test_fail_with_string(self):
+        """
+        Raise ValueError if the value is outside our options when the
+        options are specified as a string and the value is not a string.
+        """
+        v = in_("abc")
+        a = simple_attr("test")
+        with pytest.raises(ValueError) as e:
+            v(None, a, None)
+        assert (
+            "'test' must be in 'abc' (got None)",
+        ) == e.value.args
+
     def test_repr(self):
         """
         Returned validator has a useful `__repr__`.
