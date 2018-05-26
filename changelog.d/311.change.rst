@@ -1,1 +1,1 @@
-In slots classes, ``__getstate__`` and ``__setstate__`` now ignore the ``__weakref__`` attribute.
+In slotted classes, ``__getstate__`` and ``__setstate__`` now ignore the ``__weakref__`` attribute.

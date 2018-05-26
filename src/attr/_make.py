@@ -23,6 +23,8 @@ _obj_setattr = object.__setattr__
 _init_converter_pat = "__attr_converter_{}"
 _init_factory_pat = "__attr_factory_{}"
 _tuple_property_pat = "    {attr_name} = property(itemgetter({index}))"
+_classvar_prefixes = ("typing.ClassVar", "t.ClassVar", "ClassVar")
+
 _empty_metadata_singleton = metadata_proxy({})
 
 
@@ -104,7 +106,7 @@ def attrib(default=NOTHING, validator=None,
 
         The validator can also be set using decorator notation as shown below.
 
-    :type validator: ``callable`` or a ``list`` of ``callable``\ s.
+    :type validator: ``callable`` or a ``list`` of ``callable``\\ s.
 
     :param bool repr: Include this attribute in the generated ``__repr__``
         method.
@@ -232,10 +234,11 @@ def _is_class_var(annot):
     """
     Check whether *annot* is a typing.ClassVar.
 
-    The implementation is gross but importing `typing` is slow and there are
-    discussions to remove it from the stdlib alltogether.
+    The string comparison hack is used to avoid evaluating all string
+    annotations which would put attrs-based classes at a performance
+    disadvantage compared to plain old classes.
     """
-    return str(annot).startswith("typing.ClassVar")
+    return str(annot).startswith(_classvar_prefixes)
 
 
 def _get_annotations(cls):
@@ -1122,7 +1125,7 @@ def fields_dict(cls):
         class.
 
     :rtype: an ordered dict where keys are attribute names and values are
-        :class:`attr.Attribute`\ s. This will be a :class:`dict` if it's
+        :class:`attr.Attribute`\\ s. This will be a :class:`dict` if it's
         naturally ordered like on Python 3.6+ or an
         :class:`~collections.OrderedDict` otherwise.
 

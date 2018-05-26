@@ -135,7 +135,12 @@ class _InValidator(object):
     options = attrib()
 
     def __call__(self, inst, attr, value):
-        if value not in self.options:
+        try:
+            in_options = value in self.options
+        except TypeError as e:  # e.g. `1 in "abc"`
+            in_options = False
+
+        if not in_options:
             raise ValueError(
                 "'{name}' must be in {options!r} (got {value!r})"
                 .format(name=attr.name, options=self.options, value=value)
