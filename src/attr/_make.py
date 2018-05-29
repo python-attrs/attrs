@@ -146,6 +146,8 @@ def attrib(default=NOTHING, validator=None,
        *convert* to achieve consistency with other noun-based arguments.
     .. versionadded:: 18.1.0
        ``factory=f`` is syntactic sugar for ``default=attr.Factory(f)``.
+    .. versionchanged:: 18.2.0
+        warn when **converter** is a plain type and default is None
     """
     if hash is not None and hash is not True and hash is not False:
         raise TypeError(
@@ -164,6 +166,13 @@ def attrib(default=NOTHING, validator=None,
             DeprecationWarning, stacklevel=2
         )
         converter = convert
+
+    if default is None and isclass(converter):
+        warnings.warn(
+            "The `converter` is a plain type "
+            "which is usually not compatible with a `default` of none. "
+            "Please consider using a factory or attr.converters.optional",
+            UserWarning, stacklevel=2)
 
     if factory is not None:
         if default is not NOTHING:

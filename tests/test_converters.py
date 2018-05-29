@@ -6,6 +6,7 @@ from __future__ import absolute_import
 
 import pytest
 
+from attr import attrib
 from attr.converters import optional
 
 
@@ -34,3 +35,12 @@ class TestOptional(object):
         c = optional(int)
         with pytest.raises(ValueError):
             c("not_an_int")
+
+
+class TestOptionalWarningWarning(object):
+
+    def test_warn_type_optional(self):
+        with pytest.warns(Warning) as record:
+            attrib(default=None, converter=int)
+        msg = list(record)[0]
+        assert "consider using " in str(msg)

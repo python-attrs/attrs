@@ -1,0 +1,1 @@
+Emmit a warning when a plain type as converter is combined with None as default as one typically wants a None-aware converter or a factory in that case
