@@ -12,6 +12,7 @@ from attr._compat import PY2, PYPY, just_warn, make_set_closure_cell
 # Pympler doesn't work on PyPy.
 try:
     from pympler.asizeof import asizeof
+
     has_pympler = True
 except BaseException:  # Won't be an import error.
     has_pympler = False
@@ -34,6 +35,7 @@ class C1(object):
         return "staticmethod"
 
     if not PY2:
+
         def my_class(self):
             return __class__  # NOQA: F821
 
@@ -59,6 +61,7 @@ class C1Slots(object):
         return "staticmethod"
 
     if not PY2:
+
         def my_class(self):
             return __class__  # NOQA: F821
 
@@ -125,6 +128,7 @@ def test_inheritance_from_nonslots():
     Note that a slots class inheriting from an ordinary class loses most of the
     benefits of slots classes, but it should still work.
     """
+
     @attr.s(slots=True, hash=True)
     class C2Slots(C1):
         z = attr.ib()
@@ -166,6 +170,7 @@ def test_nonslots_these():
 
     This will actually *replace* the class with another one, using slots.
     """
+
     class SimpleOrdinaryClass(object):
         def __init__(self, x, y, z):
             self.x = x
@@ -183,8 +188,12 @@ def test_nonslots_these():
         def staticmethod():
             return "staticmethod"
 
-    C2Slots = attr.s(these={"x": attr.ib(), "y": attr.ib(), "z": attr.ib()},
-                     init=False, slots=True, hash=True)(SimpleOrdinaryClass)
+    C2Slots = attr.s(
+        these={"x": attr.ib(), "y": attr.ib(), "z": attr.ib()},
+        init=False,
+        slots=True,
+        hash=True,
+    )(SimpleOrdinaryClass)
 
     c2 = C2Slots(x=1, y=2, z="test")
     assert 1 == c2.x
@@ -215,6 +224,7 @@ def test_inheritance_from_slots():
     """
     Inheriting from an attr slot class works.
     """
+
     @attr.s(slots=True, hash=True)
     class C2Slots(C1Slots):
         z = attr.ib()
@@ -257,6 +267,7 @@ def test_bare_inheritance_from_slots():
     """
     Inheriting from a bare attr slot class works.
     """
+
     @attr.s(init=False, cmp=False, hash=False, repr=False, slots=True)
     class C1BareSlots(object):
         x = attr.ib(validator=attr.validators.instance_of(int))
@@ -349,6 +360,7 @@ class TestClosureCellRewriting(object):
 
         This affects features like `__class__` and the no-arg super().
         """
+
         @attr.s
         class C2(C1):
             def my_subclass(self):
@@ -397,10 +409,7 @@ class TestClosureCellRewriting(object):
 
         assert D.statmethod() is D
 
-    @pytest.mark.skipif(
-        PYPY,
-        reason="ctypes are used only on CPython"
-    )
+    @pytest.mark.skipif(PYPY, reason="ctypes are used only on CPython")
     def test_missing_ctypes(self, monkeypatch):
         """
         Keeps working if ctypes is missing.

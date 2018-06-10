@@ -48,7 +48,9 @@ Code
          :rtype: str
          """
 - If you add or change public APIs, tag the docstring using ``..  versionadded:: 16.0.0 WHAT`` or ``..  versionchanged:: 16.2.0 WHAT``.
-- Prefer double quotes (``"``) over single quotes (``'``) unless the string contains double quotes itself.
+- We use isort_ to sort our imports, and we follow the Black_ code style with a line length of 79 characters.
+  As long as you run our full tox suite before committing, or install our pre-commit_ hooks (ideally you'll do both -- see below "Local Development Environment"), you won't have to spend any time on formatting your code at all.
+  If you don't, CI will catch it for you -- but that seems like a waste of your time!
 
 
 Tests
@@ -180,6 +182,21 @@ should work and pass, as should:
 
 The built documentation can then be found in ``docs/_build/html/``.
 
+To avoid committing code that violates our style guide, we strongly advice you to install pre-commit_ [#f1]_ hooks:
+
+.. code-block:: bash
+
+   $ pre-commit install
+
+You can also run them anytime (as our tox does) using:
+
+.. code-block:: bash
+
+   $ pre-commit run --all-files
+
+
+.. [#f1] pre-commit should have been installed into your virtualenv automatically when you ran ``pip install -e .[dev]`` above. If pre-commit is missing, it may be that you need to re-run ``pip install -e .[dev]``.
+
 
 Governance
 ----------
@@ -218,3 +235,6 @@ Thank you for considering contributing to ``attrs``!
 .. _`team of volunteers`: https://github.com/python-attrs
 .. _BDFL: https://en.wikipedia.org/wiki/Benevolent_dictator_for_life
 .. _towncrier: https://pypi.org/project/towncrier
+.. _black: https://github.com/ambv/black
+.. _pre-commit: https://pre-commit.com/
+.. _isort: https://github.com/timothycrosley/isort

@@ -22,7 +22,6 @@ def C():
 
 collect_ignore = []
 if sys.version_info[:2] < (3, 6):
-    collect_ignore.extend([
-        "tests/test_annotations.py",
-        "tests/test_init_subclass.py",
-    ])
+    collect_ignore.extend(
+        ["tests/test_annotations.py", "tests/test_init_subclass.py"]
+    )

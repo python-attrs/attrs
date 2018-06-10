@@ -10,6 +10,7 @@ class FrozenInstanceError(AttributeError):
 
     .. versionadded:: 16.1.0
     """
+
     msg = "can't set attribute"
     args = [msg]
 
