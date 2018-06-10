@@ -13,6 +13,7 @@ class TestOptional(object):
     """
     Tests for `optional`.
     """
+
     def test_success_with_type(self):
         """
         Wrapped converter is used as usual if value is not None.

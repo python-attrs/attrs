@@ -110,16 +110,31 @@ class TestDarkMagic(object):
     """
     Integration tests.
     """
+
     @pytest.mark.parametrize("cls", [C2, C2Slots])
     def test_fields(self, cls):
         """
         `attr.fields` works.
         """
         assert (
-            Attribute(name="x", default=foo, validator=None,
-                      repr=True, cmp=True, hash=None, init=True),
-            Attribute(name="y", default=attr.Factory(list), validator=None,
-                      repr=True, cmp=True, hash=None, init=True),
+            Attribute(
+                name="x",
+                default=foo,
+                validator=None,
+                repr=True,
+                cmp=True,
+                hash=None,
+                init=True,
+            ),
+            Attribute(
+                name="y",
+                default=attr.Factory(list),
+                validator=None,
+                repr=True,
+                cmp=True,
+                hash=None,
+                init=True,
+            ),
         ) == attr.fields(cls)
 
     @pytest.mark.parametrize("cls", [C1, C1Slots])
@@ -127,10 +142,7 @@ class TestDarkMagic(object):
         """
         `attr.asdict` works.
         """
-        assert {
-            "x": 1,
-            "y": 2,
-        } == attr.asdict(cls(x=1, y=2))
+        assert {"x": 1, "y": 2} == attr.asdict(cls(x=1, y=2))
 
     @pytest.mark.parametrize("cls", [C1, C1Slots])
     def test_validator(self, cls):
@@ -144,7 +156,9 @@ class TestDarkMagic(object):
         assert (
             "'x' must be <{type} 'int'> (got '1' that is a <{type} "
             "'str'>).".format(type=TYPE),
-            attr.fields(C1).x, int, "1",
+            attr.fields(C1).x,
+            int,
+            "1",
         ) == e.value.args
 
     @given(booleans())
@@ -152,6 +166,7 @@ class TestDarkMagic(object):
         """
         Private members are renamed but only in `__init__`.
         """
+
         @attr.s(slots=slots)
         class C3(object):
             _x = attr.ib()
@@ -165,10 +180,24 @@ class TestDarkMagic(object):
         """
         PC = attr.make_class("PC", ["a", "b"], slots=slots, frozen=frozen)
         assert (
-            Attribute(name="a", default=NOTHING, validator=None,
-                      repr=True, cmp=True, hash=None, init=True),
-            Attribute(name="b", default=NOTHING, validator=None,
-                      repr=True, cmp=True, hash=None, init=True),
+            Attribute(
+                name="a",
+                default=NOTHING,
+                validator=None,
+                repr=True,
+                cmp=True,
+                hash=None,
+                init=True,
+            ),
+            Attribute(
+                name="b",
+                default=NOTHING,
+                validator=None,
+                repr=True,
+                cmp=True,
+                hash=None,
+                init=True,
+            ),
         ) == attr.fields(PC)
 
     @pytest.mark.parametrize("cls", [Sub, SubSlots])
@@ -192,6 +221,7 @@ class TestDarkMagic(object):
         Sub-classing (where the subclass does not have extra attrs) still
         behaves the same as a subclass with extra attrs.
         """
+
         class Sub2(base):
             pass
 
@@ -200,10 +230,13 @@ class TestDarkMagic(object):
         assert i.x is i.meth() is obj
         assert "Sub2(x={obj})".format(obj=obj) == repr(i)
 
-    @pytest.mark.parametrize("frozen_class", [
-        Frozen,  # has slots=True
-        attr.make_class("FrozenToo", ["x"], slots=False, frozen=True),
-    ])
+    @pytest.mark.parametrize(
+        "frozen_class",
+        [
+            Frozen,  # has slots=True
+            attr.make_class("FrozenToo", ["x"], slots=False, frozen=True),
+        ],
+    )
     def test_frozen_instance(self, frozen_class):
         """
         Frozen instances can't be modified (easily).
@@ -219,12 +252,23 @@ class TestDarkMagic(object):
         assert e.value.args[0] == "can't set attribute"
         assert 1 == frozen.x
 
-    @pytest.mark.parametrize("cls",
-                             [C1, C1Slots, C2, C2Slots, Super, SuperSlots,
-                              Sub, SubSlots, Frozen, FrozenNoSlots,
-                              FromMakeClass])
-    @pytest.mark.parametrize("protocol",
-                             range(2, pickle.HIGHEST_PROTOCOL + 1))
+    @pytest.mark.parametrize(
+        "cls",
+        [
+            C1,
+            C1Slots,
+            C2,
+            C2Slots,
+            Super,
+            SuperSlots,
+            Sub,
+            SubSlots,
+            Frozen,
+            FrozenNoSlots,
+            FromMakeClass,
+        ],
+    )
+    @pytest.mark.parametrize("protocol", range(2, pickle.HIGHEST_PROTOCOL + 1))
     def test_pickle_attributes(self, cls, protocol):
         """
         Pickling/un-pickling of Attribute instances works.
@@ -232,12 +276,23 @@ class TestDarkMagic(object):
         for attribute in attr.fields(cls):
             assert attribute == pickle.loads(pickle.dumps(attribute, protocol))
 
-    @pytest.mark.parametrize("cls",
-                             [C1, C1Slots, C2, C2Slots, Super, SuperSlots,
-                              Sub, SubSlots, Frozen, FrozenNoSlots,
-                              FromMakeClass])
-    @pytest.mark.parametrize("protocol",
-                             range(2, pickle.HIGHEST_PROTOCOL + 1))
+    @pytest.mark.parametrize(
+        "cls",
+        [
+            C1,
+            C1Slots,
+            C2,
+            C2Slots,
+            Super,
+            SuperSlots,
+            Sub,
+            SubSlots,
+            Frozen,
+            FrozenNoSlots,
+            FromMakeClass,
+        ],
+    )
+    @pytest.mark.parametrize("protocol", range(2, pickle.HIGHEST_PROTOCOL + 1))
     def test_pickle_object(self, cls, protocol):
         """
         Pickle object serialization works on all kinds of attrs classes.
@@ -270,6 +325,7 @@ class TestDarkMagic(object):
         Default decorator sets the default and the respective method gets
         called.
         """
+
         @attr.s
         class C(object):
             x = attr.ib(default=1)
@@ -287,6 +343,7 @@ class TestDarkMagic(object):
         """
         Subclasses can overwrite attributes of their superclass.
         """
+
         @attr.s(slots=slots, frozen=frozen)
         class SubOverwrite(Super):
             x = attr.ib(default=attr.Factory(list))
@@ -297,6 +354,7 @@ class TestDarkMagic(object):
         """
         dict-classes are never replaced.
         """
+
         class C(object):
             x = attr.ib()
 
@@ -310,12 +368,13 @@ class TestDarkMagic(object):
         Python 3.  This is incorrect behavior but we have to retain it for
         backward compatibility.
         """
+
         @attr.s(hash=False)
         class HashByIDBackwardCompat(object):
             x = attr.ib()
 
-        assert (
-            hash(HashByIDBackwardCompat(1)) != hash(HashByIDBackwardCompat(1))
+        assert hash(HashByIDBackwardCompat(1)) != hash(
+            HashByIDBackwardCompat(1)
         )
 
         @attr.s(hash=False, cmp=False)
@@ -334,6 +393,7 @@ class TestDarkMagic(object):
         """
         Unhashable defaults + subclassing values work.
         """
+
         @attr.s
         class Unhashable(object):
             pass
@@ -351,6 +411,7 @@ class TestDarkMagic(object):
         """
         hash=False and cmp=False make a class hashable by ID.
         """
+
         @attr.s(hash=False, cmp=False, slots=slots)
         class C(object):
             pass
@@ -362,6 +423,7 @@ class TestDarkMagic(object):
         Super classes can overwrite each other and the attributes are added
         in the order they are defined.
         """
+
         @attr.s
         class C(object):
             c = attr.ib(default=100)
@@ -387,8 +449,15 @@ class TestDarkMagic(object):
     @pytest.mark.parametrize("sub_frozen", [True, False])
     @pytest.mark.parametrize("base_converter", [True, False])
     @pytest.mark.parametrize("sub_converter", [True, False])
-    def test_frozen_slots_combo(self, base_slots, sub_slots, base_frozen,
-                                sub_frozen, base_converter, sub_converter):
+    def test_frozen_slots_combo(
+        self,
+        base_slots,
+        sub_slots,
+        base_frozen,
+        sub_frozen,
+        base_converter,
+        sub_converter,
+    ):
         """
         A class with a single attribute, inheriting from another class
         with a single attribute.

@@ -17,6 +17,10 @@
    :target: https://codecov.io/github/python-attrs/attrs
    :alt: Test Coverage
 
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/ambv/black
+   :alt: Code style: black
+
 .. teaser-begin
 
 ``attrs`` is the Python package that will bring back the **joy** of **writing classes** by relieving you from the drudgery of implementing object protocols (aka `dunder <https://nedbatchelder.com/blog/200605/dunder.html>`_ methods).

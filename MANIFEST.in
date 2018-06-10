@@ -1,4 +1,4 @@
-include LICENSE *.rst *.toml .readthedocs.yml
+include LICENSE *.rst *.toml .readthedocs.yml .pre-commit-config.yaml
 
 # Don't package GitHub-specific files.
 exclude .github/*.md .travis.yml
