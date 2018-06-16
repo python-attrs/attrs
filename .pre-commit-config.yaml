@@ -15,5 +15,4 @@ repos:
     rev: v4.3.4
     hooks:
       - id: isort
-        types: [python]
         language_version: python3.6
