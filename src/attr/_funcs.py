@@ -83,7 +83,9 @@ def asdict(
 
 
 def _asdict_anything(val, filter, dict_factory, retain_collection_types):
-    """asdict only works on attrs instances, this works on anything."""
+    """
+    ``asdict`` only works on attrs instances, this works on anything.
+    """
     if getattr(val.__class__, "__attrs_attrs__", None) is not None:
         # Attrs class.
         rv = asdict(val, True, filter, dict_factory, retain_collection_types)
