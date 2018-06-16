@@ -671,7 +671,7 @@ def attrs(
     :param bool cmp: Create ``__eq__``, ``__ne__``, ``__lt__``, ``__le__``,
         ``__gt__``, and ``__ge__`` methods that compare the class as if it were
         a tuple of its ``attrs`` attributes.  But the attributes are *only*
-        compared, if the type of both classes is *identical*!
+        compared, if the types of both classes are *identical*!
     :param hash: If ``None`` (default), the ``__hash__`` method is generated
         according how *cmp* and *frozen* are set.
 
@@ -747,6 +747,11 @@ def attrs(
     .. versionchanged:: 18.1.0
        If *these* is passed, no attributes are deleted from the class body.
     .. versionchanged:: 18.1.0 If *these* is ordered, the order is retained.
+    .. deprecated:: 18.2.0
+       ``__lt__``, ``__le__``, ``__gt__``, and ``__ge__`` now raise a
+       :class:`DeprecationWarning` if the classes compared are subclasses of
+       each other. ``__eq`` and ``__ne__`` never tried to compared subclasses
+       to each other.
     """
 
     def wrap(cls):
@@ -885,6 +890,12 @@ def __ne__(self, other):
     return not result
 
 
+WARNING_CMP_ISINSTANCE = (
+    "Comparision of subclasses using __%s__ is deprecated and will be removed "
+    "in 2019."
+)
+
+
 def _make_cmp(attrs):
     attrs = [a for a in attrs if a.cmp]
 
@@ -938,6 +949,10 @@ def _make_cmp(attrs):
         Automatically created by attrs.
         """
         if isinstance(other, self.__class__):
+            if other.__class__ is not self.__class__:
+                warnings.warn(
+                    WARNING_CMP_ISINSTANCE % ("lt",), DeprecationWarning
+                )
             return attrs_to_tuple(self) < attrs_to_tuple(other)
         else:
             return NotImplemented
@@ -947,6 +962,10 @@ def _make_cmp(attrs):
         Automatically created by attrs.
         """
         if isinstance(other, self.__class__):
+            if other.__class__ is not self.__class__:
+                warnings.warn(
+                    WARNING_CMP_ISINSTANCE % ("le",), DeprecationWarning
+                )
             return attrs_to_tuple(self) <= attrs_to_tuple(other)
         else:
             return NotImplemented
@@ -956,6 +975,10 @@ def _make_cmp(attrs):
         Automatically created by attrs.
         """
         if isinstance(other, self.__class__):
+            if other.__class__ is not self.__class__:
+                warnings.warn(
+                    WARNING_CMP_ISINSTANCE % ("gt",), DeprecationWarning
+                )
             return attrs_to_tuple(self) > attrs_to_tuple(other)
         else:
             return NotImplemented
@@ -965,6 +988,10 @@ def _make_cmp(attrs):
         Automatically created by attrs.
         """
         if isinstance(other, self.__class__):
+            if other.__class__ is not self.__class__:
+                warnings.warn(
+                    WARNING_CMP_ISINSTANCE % ("ge",), DeprecationWarning
+                )
             return attrs_to_tuple(self) >= attrs_to_tuple(other)
         else:
             return NotImplemented
