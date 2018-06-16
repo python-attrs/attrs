@@ -1,0 +1,4 @@
+Comparing subclasses using ``<``, ``>``, ``<=``, and ``>=`` is now deprecated.
+The docs always claimed that instances are only compared if the types are identical, so this is a first step to conform to the docs.
+
+Equality operators (``==`` and ``!=``) were always strict in this regard.
