@@ -671,7 +671,7 @@ def attrs(
     :param bool cmp: Create ``__eq__``, ``__ne__``, ``__lt__``, ``__le__``,
         ``__gt__``, and ``__ge__`` methods that compare the class as if it were
         a tuple of its ``attrs`` attributes.  But the attributes are *only*
-        compared, if the type of both classes is *identical*!
+        compared, if the types of both classes are *identical*!
     :param hash: If ``None`` (default), the ``__hash__`` method is generated
         according how *cmp* and *frozen* are set.
 
