@@ -1249,3 +1249,42 @@ class TestClassBuilder(object):
             )
 
         assert C() == copy.deepcopy(C())
+
+
+class TestMakeCmp:
+    """
+    Tests for _make_cmp().
+    """
+
+    @pytest.mark.parametrize(
+        "op", ["__%s__" % (op,) for op in ("lt", "le", "gt", "ge")]
+    )
+    def test_subclasses_deprecated(self, recwarn, op):
+        """
+        Calling comparison methods on subclasses raises a deprecation warning;
+        calling them on identical classes does not..
+        """
+
+        @attr.s
+        class A(object):
+            a = attr.ib()
+
+        @attr.s
+        class B(A):
+            pass
+
+        getattr(A(42), op)(A(42))
+        getattr(B(42), op)(B(42))
+
+        assert [] == recwarn.list
+
+        getattr(A(42), op)(B(42))
+
+        w = recwarn.pop()
+
+        assert [] == recwarn.list
+        assert isinstance(w.message, DeprecationWarning)
+        assert (
+            "Comparision of subclasses using %s is deprecated and will be "
+            "removed in 2019." % (op,)
+        ) == w.message.args[0]
