@@ -49,29 +49,38 @@ def asdict(
             continue
         if recurse is True:
             if has(v.__class__):
-<<<<<<< HEAD
                 rv[a.name] = asdict(
                     v, True, filter, dict_factory, retain_collection_types
                 )
             elif isinstance(v, (tuple, list, set)):
                 cf = v.__class__ if retain_collection_types is True else list
-                rv[a.name] = cf([
-                    _asdict_anything(i, filter, dict_factory,
-                                     retain_collection_types)
-                    for i in v
-                ])
+                rv[a.name] = cf(
+                    [
+                        _asdict_anything(
+                            i, filter, dict_factory, retain_collection_types
+                        )
+                        for i in v
+                    ]
+                )
             elif isinstance(v, dict):
                 df = dict_factory
-                rv[a.name] = df((
-                    _asdict_anything(kk, filter, df, retain_collection_types),
-                    _asdict_anything(vv, filter, df, retain_collection_types))
-                    for kk, vv in iteritems(v))
-
+                rv[a.name] = df(
+                    (
+                        _asdict_anything(
+                            kk, filter, df, retain_collection_types
+                        ),
+                        _asdict_anything(
+                            vv, filter, df, retain_collection_types
+                        ),
+                    )
+                    for kk, vv in iteritems(v)
+                )
             else:
                 rv[a.name] = v
         else:
             rv[a.name] = v
     return rv
+
 
 def _asdict_anything(val, filter, dict_factory, retain_collection_types):
     """asdict only works on attrs instances, this works on anything."""
@@ -80,19 +89,27 @@ def _asdict_anything(val, filter, dict_factory, retain_collection_types):
         rv = asdict(val, True, filter, dict_factory, retain_collection_types)
     elif isinstance(val, (tuple, list, set)):
         cf = val.__class__ if retain_collection_types is True else list
-        rv = cf([_asdict_anything(i, filter, dict_factory,
-                                  retain_collection_types)
-                 for i in val
-                ])
+        rv = cf(
+            [
+                _asdict_anything(
+                    i, filter, dict_factory, retain_collection_types
+                )
+                for i in val
+            ]
+        )
     elif isinstance(val, dict):
         df = dict_factory
-        rv = df((
-            _asdict_anything(kk, filter, df, retain_collection_types),
-            _asdict_anything(vv, filter, df, retain_collection_types))
-            for kk, vv in iteritems(val))
+        rv = df(
+            (
+                _asdict_anything(kk, filter, df, retain_collection_types),
+                _asdict_anything(vv, filter, df, retain_collection_types),
+            )
+            for kk, vv in iteritems(val)
+        )
     else:
         rv = val
     return rv
+
 
 def astuple(
     inst,
