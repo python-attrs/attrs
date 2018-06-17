@@ -50,20 +50,15 @@ def asdict(
         if recurse is True:
             if has(v.__class__):
                 rv[a.name] = asdict(
-                    v, recurse=True, filter=filter, dict_factory=dict_factory
+                    v, True, filter, dict_factory, retain_collection_types
                 )
             elif isinstance(v, (tuple, list, set)):
                 cf = v.__class__ if retain_collection_types is True else list
                 rv[a.name] = cf(
                     [
-                        asdict(
-                            i,
-                            recurse=True,
-                            filter=filter,
-                            dict_factory=dict_factory,
+                        _asdict_anything(
+                            i, filter, dict_factory, retain_collection_types
                         )
-                        if has(i.__class__)
-                        else i
                         for i in v
                     ]
                 )
@@ -71,12 +66,12 @@ def asdict(
                 df = dict_factory
                 rv[a.name] = df(
                     (
-                        asdict(kk, dict_factory=df)
-                        if has(kk.__class__)
-                        else kk,
-                        asdict(vv, dict_factory=df)
-                        if has(vv.__class__)
-                        else vv,
+                        _asdict_anything(
+                            kk, filter, df, retain_collection_types
+                        ),
+                        _asdict_anything(
+                            vv, filter, df, retain_collection_types
+                        ),
                     )
                     for kk, vv in iteritems(v)
                 )
@@ -84,6 +79,37 @@ def asdict(
                 rv[a.name] = v
         else:
             rv[a.name] = v
+    return rv
+
+
+def _asdict_anything(val, filter, dict_factory, retain_collection_types):
+    """
+    ``asdict`` only works on attrs instances, this works on anything.
+    """
+    if getattr(val.__class__, "__attrs_attrs__", None) is not None:
+        # Attrs class.
+        rv = asdict(val, True, filter, dict_factory, retain_collection_types)
+    elif isinstance(val, (tuple, list, set)):
+        cf = val.__class__ if retain_collection_types is True else list
+        rv = cf(
+            [
+                _asdict_anything(
+                    i, filter, dict_factory, retain_collection_types
+                )
+                for i in val
+            ]
+        )
+    elif isinstance(val, dict):
+        df = dict_factory
+        rv = df(
+            (
+                _asdict_anything(kk, filter, df, retain_collection_types),
+                _asdict_anything(vv, filter, df, retain_collection_types),
+            )
+            for kk, vv in iteritems(val)
+        )
+    else:
+        rv = val
     return rv
 
 

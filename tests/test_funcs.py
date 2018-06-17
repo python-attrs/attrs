@@ -48,6 +48,24 @@ class TestAsDict(object):
             C(C(1, 2), C(3, 4)), dict_factory=dict_class
         )
 
+    def test_nested_lists(self, C):
+        """
+        Test unstructuring deeply nested lists.
+        """
+        inner = C(1, 2)
+        outer = C([[inner]], None)
+
+        assert {"x": [[{"x": 1, "y": 2}]], "y": None} == asdict(outer)
+
+    def test_nested_dicts(self, C):
+        """
+        Test unstructuring deeply nested dictionaries.
+        """
+        inner = C(1, 2)
+        outer = C({1: {2: inner}}, None)
+
+        assert {"x": {1: {2: {"x": 1, "y": 2}}}, "y": None} == asdict(outer)
+
     @given(nested_classes, st.sampled_from(MAPPING_TYPES))
     @settings(suppress_health_check=[HealthCheck.too_slow])
     def test_recurse_property(self, cls, dict_class):
