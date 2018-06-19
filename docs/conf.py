@@ -85,6 +85,7 @@ html_theme_options = {
     "head_font_family": '"Avenir Next", Calibri, "PT Sans", sans-serif',
     "font_size": "18px",
     "page_width": "980px",
+    "show_relbars": True,
 }
 
 # The name of an image file (relative to this directory) to place at the top
