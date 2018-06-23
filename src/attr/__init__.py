@@ -22,7 +22,8 @@ __version__ = "18.2.0.dev0"
 
 __title__ = "attrs"
 __description__ = "Classes Without Boilerplate"
-__uri__ = "http://www.attrs.org/"
+__url__ = "http://www.attrs.org/"
+__uri__ = __url__
 __doc__ = __description__ + " <" + __uri__ + ">"
 
 __author__ = "Hynek Schlawack"
