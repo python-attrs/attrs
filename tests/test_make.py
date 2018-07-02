@@ -230,8 +230,10 @@ class TestAttribute(object):
             def v(self, value):
                 pass
 
-    def test_converter_decorator_gets_self(self):
-        @attr.s
+    @pytest.mark.parametrize("frozen", (False, True))
+    @pytest.mark.parametrize("slots", (False, True))
+    def test_converter_decorator_gets_self(self, frozen, slots):
+        @attr.s(frozen=frozen, slots=slots)
         class C(object):
             a = attr.ib(default=42)
 
