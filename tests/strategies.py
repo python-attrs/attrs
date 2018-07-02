@@ -136,7 +136,7 @@ def simple_attrs_with_metadata(draw):
         init=c_attr.init,
         metadata=metadata,
         type=None,
-        converter=c_attr.converter,
+        converter=c_attr._converter,
     )
 
 

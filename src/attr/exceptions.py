@@ -40,6 +40,15 @@ class DefaultAlreadySetError(RuntimeError):
     """
 
 
+class ConverterAlreadySetError(RuntimeError):
+    """
+    A converter has been set using ``attr.ib()`` and is attempted to be reset
+    using the decorator.
+
+    .. versionadded:: 18.2.0
+    """
+
+
 class UnannotatedAttributeError(RuntimeError):
     """
     A class with ``auto_attribs=True`` has an ``attr.ib()`` without a type
