@@ -43,8 +43,8 @@ Mypy will catch that error for you:
 
 This happens *without* running your code!
 
-And it also works with one of the two supported Python 2-style annotations.
-To mypy, this code is equivalent::
+And it also works with *both* Python 2-style annotation styles.
+To mypy, this code is equivalent to the one above::
 
   @attr.s
   class SomeClass(object):
