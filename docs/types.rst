@@ -36,7 +36,7 @@ While having a nice syntax for type metadata is great, it's even greater that `m
 Imagine you add another line that tries to instantiate the defined class using ``SomeClass("23")``.
 Mypy will catch that error for you:
 
-.. code-block:: bash
+.. code-block:: console
 
    $ mypy t.py
    t.py:12: error: Argument 1 to "SomeClass" has incompatible type "str"; expected "int"
@@ -44,7 +44,9 @@ Mypy will catch that error for you:
 This happens *without* running your code!
 
 And it also works with *both* Python 2-style annotation styles.
-To mypy, this code is equivalent to the one above::
+To mypy, this code is equivalent to the one above:
+
+.. code-block:: python
 
   @attr.s
   class SomeClass(object):
