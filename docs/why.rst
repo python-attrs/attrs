@@ -138,7 +138,7 @@ With ``attrs`` your users won't notice a difference because it creates regular, 
 …Data Classes?
 --------------
 
-`PEP 557 <https://www.python.org/dev/peps/pep-0557/>`_ added Data Classes to `Python 3.7 <https://docs.python.org/3.7/whatsnew/3.7.html#pep-557-data-classes>`_ that resemble ``attrs`` in many ways.
+:pep:`557` added Data Classes to `Python 3.7 <https://docs.python.org/3.7/whatsnew/3.7.html#pep-557-data-classes>`_ that resemble ``attrs`` in many ways.
 
 They are the result of the Python community's `wish <https://mail.python.org/pipermail/python-ideas/2017-May/045618.html>`_ to have an easier way to write classes in the standard library that doesn't carry the problems of ``namedtuple``\ s.
 To that end, ``attrs`` and its developers were involved in the PEP process and while we may disagree with some minor decisions that have been made, it's a fine library and if it stops you from abusing ``namedtuple``\ s, they are a huge win.

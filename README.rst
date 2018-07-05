@@ -40,7 +40,7 @@ For that, it gives you a class decorator and a way to declaratively define the a
    >>> @attr.s
    ... class SomeClass(object):
    ...     a_number = attr.ib(default=42)
-   ...     list_of_numbers = attr.ib(default=attr.Factory(list))
+   ...     list_of_numbers = attr.ib(factory=list)
    ...
    ...     def hard_math(self, another_number):
    ...         return self.a_number + sum(self.list_of_numbers) * another_number
@@ -77,6 +77,8 @@ After *declaring* your attributes ``attrs`` gives you:
 - and much more,
 
 *without* writing dull boilerplate code again and again and *without* runtime performance penalties.
+
+On Python 3.6 and later, you can often even drop the calls to ``attr.ib()`` by using `type annotations <http://www.attrs.org/en/latest/types.html>`_.
 
 This gives you the power to use actual classes with actual types in your code instead of confusing ``tuple``\ s or `confusingly behaving <http://www.attrs.org/en/stable/why.html#namedtuples>`_ ``namedtuple``\ s.
 Which in turn encourages you to write *small classes* that do `one thing well <https://www.destroyallsoftware.com/talks/boundaries>`_.
