@@ -68,26 +68,6 @@ Sentinel to indicate the lack of a value when ``None`` is ambiguous.
 """
 
 
-# @attrs(slots=True, init=False, hash=True)
-class Converter(object):
-    __slots__ = ["converter", "takes_self"]
-    # converter = attrib()
-    # takes_self = attrib()
-
-    def __init__(self, converter, takes_self=False):
-        self.converter = converter
-        self.takes_self = takes_self
-
-    def __call__(self, pass_through_self, *args, **kwargs):
-        if self.takes_self:
-            args = (pass_through_self,) + args
-
-        return self.converter(*args, **kwargs)
-
-    def hash(self):
-        return hash((self.converter, self.takes_self))
-
-
 def attrib(
     default=NOTHING,
     validator=None,
@@ -1801,6 +1781,22 @@ class Factory(object):
         """
         self.factory = factory
         self.takes_self = takes_self
+
+
+@attrs(slots=True, init=False, hash=True)
+class Converter(object):
+    converter = attrib()
+    takes_self = attrib()
+
+    def __init__(self, converter, takes_self=False):
+        self.converter = converter
+        self.takes_self = takes_self
+
+    def __call__(self, pass_through_self, *args, **kwargs):
+        if self.takes_self:
+            args = (pass_through_self,) + args
+
+        return self.converter(*args, **kwargs)
 
 
 def make_class(name, attrs, bases=(object,), **attributes_arguments):
