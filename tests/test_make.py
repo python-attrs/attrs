@@ -138,6 +138,28 @@ class TestCountingAttr(object):
 
         assert Factory(f, True) == a._default
 
+    def test_converter_decorator(self):
+        """
+        If _CountingAttr.converter is used as a decorator and there is no
+        decorator set, the decorated method is used as the converter.
+        """
+        a = attr.ib()
+
+        @a.converter
+        def v(self, value):
+            pass
+
+        assert v == a._converter.converter
+
+    def test_converter_decorator_already_set(self):
+        a = attr.ib(converter=list)
+
+        with pytest.raises(attr.exceptions.ConverterAlreadySetError):
+
+            @a.converter
+            def v(self, value):
+                pass
+
 
 class TestAttribute(object):
     """
@@ -207,78 +229,6 @@ class TestAttribute(object):
             "Can't pass both `convert` and `converter`.  "
             "Please use `converter` only.",
         ) == ei.value.args
-
-    def test_converter_decorator(self):
-        """
-        If _CountingAttr.converter is used as a decorator and there is no
-        decorator set, the decorated method is used as the converter.
-        """
-        a = attr.ib()
-
-        @a.converter
-        def v(self, value):
-            pass
-
-        assert v == a._converter.converter
-
-    def test_converter_decorator_already_set(self):
-        a = attr.ib(converter=list)
-
-        with pytest.raises(attr.exceptions.ConverterAlreadySetError):
-
-            @a.converter
-            def v(self, value):
-                pass
-
-    @pytest.mark.parametrize("frozen", (False, True))
-    @pytest.mark.parametrize("slots", (False, True))
-    def test_converter_decorator_gets_self(self, frozen, slots):
-        @attr.s(frozen=frozen, slots=slots)
-        class C(object):
-            a = attr.ib(default=42)
-
-            @a.converter
-            def _(self, value):
-                return self
-
-        c = C()
-
-        assert c is c.a
-
-    def test_converter_decorator_can_access_previous(self):
-        a = 42
-        b = 37
-
-        @attr.s
-        class C(object):
-            a = attr.ib()
-            b = attr.ib()
-
-            @b.converter
-            def _(self, value):
-                return self.a + value
-
-        c = C(a=a, b=b)
-
-        assert c.b == a + b
-
-    def test_converter_takes_self(self):
-        """
-        If takes_self on converter is True, self is passed.
-        """
-
-        C = make_class(
-            "C",
-            {
-                "x": attr.ib(
-                    converter=Converter(lambda self, x: x + 1, takes_self=True)
-                )
-            },
-        )
-
-        i = C(x=1)
-
-        assert i.x == 2
 
 
 def make_tc():
@@ -1005,6 +955,56 @@ class TestConverter(object):
             "Can't pass both `convert` and `converter`.  "
             "Please use `converter` only.",
         ) == ei.value.args
+
+    @pytest.mark.parametrize("frozen", (False, True))
+    @pytest.mark.parametrize("slots", (False, True))
+    def test_converter_decorator_gets_self(self, frozen, slots):
+        @attr.s(frozen=frozen, slots=slots)
+        class C(object):
+            a = attr.ib(default=42)
+
+            @a.converter
+            def _(self, value):
+                return self
+
+        c = C()
+
+        assert c is c.a
+
+    def test_converter_decorator_can_access_previous(self):
+        a = 42
+        b = 37
+
+        @attr.s
+        class C(object):
+            a = attr.ib()
+            b = attr.ib()
+
+            @b.converter
+            def _(self, value):
+                return self.a + value
+
+        c = C(a=a, b=b)
+
+        assert c.b == a + b
+
+    def test_converter_takes_self(self):
+        """
+        If takes_self on converter is True, self is passed.
+        """
+
+        C = make_class(
+            "C",
+            {
+                "x": attr.ib(
+                    converter=Converter(lambda self, x: x + 1, takes_self=True)
+                )
+            },
+        )
+
+        i = C(x=1)
+
+        assert i.x == 2
 
 
 class TestValidate(object):
