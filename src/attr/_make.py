@@ -204,9 +204,6 @@ def attrib(
         )
         converter = convert
 
-    if converter is not None and not isinstance(converter, Converter):
-        converter = Converter(converter=converter, takes_self=False)
-
     if factory is not None:
         if default is not NOTHING:
             raise ValueError(
@@ -1347,10 +1344,14 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
             maybe_self = "self"
         else:
             maybe_self = ""
+        if a.converter is None or isinstance(a.converter, Converter):
+            converter = a.converter
+        else:
+            converter = Converter(converter=a.converter)
         if a.init is False:
             if has_factory:
                 init_factory_name = _init_factory_pat.format(a.name)
-                if a.converter is not None:
+                if converter is not None:
                     lines.append(
                         fmt_setter_with_converter(
                             attr_name,
@@ -1358,7 +1359,7 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
                         )
                     )
                     conv_name = _init_converter_pat.format(a.name)
-                    names_for_globals[conv_name] = a.converter
+                    names_for_globals[conv_name] = converter
                 else:
                     lines.append(
                         fmt_setter(
@@ -1368,7 +1369,7 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
                     )
                 names_for_globals[init_factory_name] = a.default.factory
             else:
-                if a.converter is not None:
+                if converter is not None:
                     lines.append(
                         fmt_setter_with_converter(
                             attr_name,
@@ -1378,7 +1379,7 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
                         )
                     )
                     conv_name = _init_converter_pat.format(a.name)
-                    names_for_globals[conv_name] = a.converter
+                    names_for_globals[conv_name] = converter
                 else:
                     lines.append(
                         fmt_setter(
@@ -1394,11 +1395,11 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
                     arg_name=arg_name, attr_name=attr_name
                 )
             )
-            if a.converter is not None:
+            if converter is not None:
                 lines.append(fmt_setter_with_converter(attr_name, arg_name))
                 names_for_globals[
                     _init_converter_pat.format(a.name)
-                ] = a.converter
+                ] = converter
             else:
                 lines.append(fmt_setter(attr_name, arg_name))
         elif has_factory:
@@ -1407,7 +1408,7 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
                 "if {arg_name} is not NOTHING:".format(arg_name=arg_name)
             )
             init_factory_name = _init_factory_pat.format(a.name)
-            if a.converter is not None:
+            if converter is not None:
                 lines.append(
                     "    " + fmt_setter_with_converter(attr_name, arg_name)
                 )
@@ -1421,7 +1422,7 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
                 )
                 names_for_globals[
                     _init_converter_pat.format(a.name)
-                ] = a.converter
+                ] = converter
             else:
                 lines.append("    " + fmt_setter(attr_name, arg_name))
                 lines.append("else:")
@@ -1435,15 +1436,15 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
             names_for_globals[init_factory_name] = a.default.factory
         else:
             args.append(arg_name)
-            if a.converter is not None:
+            if converter is not None:
                 lines.append(fmt_setter_with_converter(attr_name, arg_name))
                 names_for_globals[
                     _init_converter_pat.format(a.name)
-                ] = a.converter
+                ] = converter
             else:
                 lines.append(fmt_setter(attr_name, arg_name))
 
-        if a.init is True and a.converter is None and a.type is not None:
+        if a.init is True and converter is None and a.type is not None:
             annotations[arg_name] = a.type
 
     if attrs_to_validate:  # we can skip this if there are no validators.
