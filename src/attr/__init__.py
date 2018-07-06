@@ -8,6 +8,7 @@ from ._funcs import asdict, assoc, astuple, evolve, has
 from ._make import (
     NOTHING,
     Attribute,
+    Converter,
     Factory,
     attrib,
     attrs,
@@ -39,6 +40,7 @@ dataclass = partial(attrs, auto_attribs=True)  # happy Easter ;)
 
 __all__ = [
     "Attribute",
+    "Converter",
     "Factory",
     "NOTHING",
     "asdict",

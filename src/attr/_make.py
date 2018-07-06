@@ -68,6 +68,26 @@ Sentinel to indicate the lack of a value when ``None`` is ambiguous.
 """
 
 
+# @attrs(slots=True, init=False, hash=True)
+class Converter(object):
+    __slots__ = ["converter", "takes_self"]
+    # converter = attrib()
+    # takes_self = attrib()
+
+    def __init__(self, converter, takes_self=False):
+        self.converter = converter
+        self.takes_self = takes_self
+
+    def __call__(self, pass_through_self, *args, **kwargs):
+        if self.takes_self:
+            args = (pass_through_self,) + args
+
+        return self.converter(*args, **kwargs)
+
+    def hash(self):
+        return hash((self.converter, self.takes_self))
+
+
 def attrib(
     default=NOTHING,
     validator=None,
@@ -183,6 +203,9 @@ def attrib(
             stacklevel=2,
         )
         converter = convert
+
+    if converter is not None and not isinstance(converter, Converter):
+        converter = Converter(converter=converter, takes_self=False)
 
     if factory is not None:
         if default is not NOTHING:
@@ -1237,16 +1260,16 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
                     "value_var": value_var,
                 }
 
-            def fmt_setter_with_converter(attr_name, value_var, conv_self):
+            def fmt_setter_with_converter(attr_name, value_var):
                 conv_name = _init_converter_pat.format(attr_name)
-                args = value_var
-                if conv_self:
-                    args = "self, " + args
-                return "_setattr('%(attr_name)s', %(conv)s(%(args)s))" % {
-                    "attr_name": attr_name,
-                    "args": args,
-                    "conv": conv_name,
-                }
+                return (
+                    "_setattr('%(attr_name)s', %(conv)s(self, %(value_var)s))"
+                    % {
+                        "attr_name": attr_name,
+                        "value_var": value_var,
+                        "conv": conv_name,
+                    }
+                )
 
         else:
             # Dict frozen classes assign directly to __dict__.
@@ -1273,18 +1296,20 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
                     }
                 return res
 
-            def fmt_setter_with_converter(attr_name, value_var, conv_self):
+            def fmt_setter_with_converter(attr_name, value_var):
                 conv_name = _init_converter_pat.format(attr_name)
-                args = value_var
-                if conv_self:
-                    args = "self, " + args
                 if _is_slot_attr(attr_name, super_attr_map):
-                    tmpl = "_setattr('%(attr_name)s', %(c)s(%(args)s))"
+                    tmpl = (
+                        "_setattr('%(attr_name)s', %(c)s(self, %(value_var)s))"
+                    )
                 else:
-                    tmpl = "_inst_dict['%(attr_name)s'] = %(c)s(%(args)s)"
+                    tmpl = (
+                        "_inst_dict['%(attr_name)s'] "
+                        "= %(c)s(self, %(value_var)s)"
+                    )
                 return tmpl % {
                     "attr_name": attr_name,
-                    "args": args,
+                    "value_var": value_var,
                     "c": conv_name,
                 }
 
@@ -1296,14 +1321,11 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
                 "value": value,
             }
 
-        def fmt_setter_with_converter(attr_name, value_var, conv_self):
+        def fmt_setter_with_converter(attr_name, value_var):
             conv_name = _init_converter_pat.format(attr_name)
-            args = value_var
-            if conv_self:
-                args = "self, " + args
-            return "self.%(attr_name)s = %(conv)s(%(args)s)" % {
+            return "self.%(attr_name)s = %(conv)s(self, %(value_var)s)" % {
                 "attr_name": attr_name,
-                "args": args,
+                "value_var": value_var,
                 "conv": conv_name,
             }
 
@@ -1325,9 +1347,6 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
             maybe_self = "self"
         else:
             maybe_self = ""
-        converter_self = (
-            isinstance(a.converter, Converter) and a.converter.takes_self
-        )
         if a.init is False:
             if has_factory:
                 init_factory_name = _init_factory_pat.format(a.name)
@@ -1336,7 +1355,6 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
                         fmt_setter_with_converter(
                             attr_name,
                             init_factory_name + "({0})".format(maybe_self),
-                            converter_self,
                         )
                     )
                     conv_name = _init_converter_pat.format(a.name)
@@ -1357,7 +1375,6 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
                             "attr_dict['{attr_name}'].default".format(
                                 attr_name=attr_name
                             ),
-                            converter_self,
                         )
                     )
                     conv_name = _init_converter_pat.format(a.name)
@@ -1378,11 +1395,7 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
                 )
             )
             if a.converter is not None:
-                lines.append(
-                    fmt_setter_with_converter(
-                        attr_name, arg_name, converter_self
-                    )
-                )
+                lines.append(fmt_setter_with_converter(attr_name, arg_name))
                 names_for_globals[
                     _init_converter_pat.format(a.name)
                 ] = a.converter
@@ -1396,10 +1409,7 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
             init_factory_name = _init_factory_pat.format(a.name)
             if a.converter is not None:
                 lines.append(
-                    "    "
-                    + fmt_setter_with_converter(
-                        attr_name, arg_name, converter_self
-                    )
+                    "    " + fmt_setter_with_converter(attr_name, arg_name)
                 )
                 lines.append("else:")
                 lines.append(
@@ -1407,7 +1417,6 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
                     + fmt_setter_with_converter(
                         attr_name,
                         init_factory_name + "({0})".format(maybe_self),
-                        converter_self,
                     )
                 )
                 names_for_globals[
@@ -1427,11 +1436,7 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
         else:
             args.append(arg_name)
             if a.converter is not None:
-                lines.append(
-                    fmt_setter_with_converter(
-                        attr_name, arg_name, converter_self
-                    )
-                )
+                lines.append(fmt_setter_with_converter(attr_name, arg_name))
                 names_for_globals[
                     _init_converter_pat.format(a.name)
                 ] = a.converter
@@ -1795,19 +1800,6 @@ class Factory(object):
         """
         self.factory = factory
         self.takes_self = takes_self
-
-
-@attrs(slots=True, init=False, hash=True)
-class Converter(object):
-    converter = attrib()
-    takes_self = attrib()
-
-    def __init__(self, converter, takes_self=False):
-        self.converter = converter
-        self.takes_self = takes_self
-
-    def __call__(self, *args, **kwargs):
-        return self.converter(*args, **kwargs)
 
 
 def make_class(name, attrs, bases=(object,), **attributes_arguments):
