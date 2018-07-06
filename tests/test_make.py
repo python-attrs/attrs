@@ -141,23 +141,27 @@ class TestCountingAttr(object):
     def test_converter_decorator(self):
         """
         If _CountingAttr.converter is used as a decorator and there is no
-        decorator set, the decorated method is used as the converter.
+        converter set, the decorated method is used as the converter.
         """
         a = attr.ib()
 
         @a.converter
-        def v(self, value):
+        def c(self, value):
             pass
 
-        assert v == a._converter.converter
+        assert Converter(c, True) == a._converter
 
     def test_converter_decorator_already_set(self):
+        """
+        Raise ConverterAlreadySetError if the decorator is used after a
+        default has been set.
+        """
         a = attr.ib(converter=list)
 
         with pytest.raises(attr.exceptions.ConverterAlreadySetError):
 
             @a.converter
-            def v(self, value):
+            def c(self, value):
                 pass
 
 
@@ -959,6 +963,9 @@ class TestConverter(object):
     @pytest.mark.parametrize("frozen", (False, True))
     @pytest.mark.parametrize("slots", (False, True))
     def test_converter_decorator_gets_self(self, frozen, slots):
+        """
+        If takes_self on Converter is True, self is passed.
+        """
         @attr.s(frozen=frozen, slots=slots)
         class C(object):
             a = attr.ib(default=42)
@@ -972,6 +979,10 @@ class TestConverter(object):
         assert c is c.a
 
     def test_converter_decorator_can_access_previous(self):
+        """
+        Converter with takes_self has access to already initialized
+        attributes.
+        """
         a = 42
         b = 37
 
