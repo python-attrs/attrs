@@ -966,6 +966,7 @@ class TestConverter(object):
         """
         If takes_self on Converter is True, self is passed.
         """
+
         @attr.s(frozen=frozen, slots=slots)
         class C(object):
             a = attr.ib(default=42)
@@ -1001,9 +1002,8 @@ class TestConverter(object):
 
     def test_converter_takes_self(self):
         """
-        If takes_self on converter is True, self is passed.
+        If takes_self on Converter is True, self is passed.
         """
-
         C = make_class(
             "C",
             {
