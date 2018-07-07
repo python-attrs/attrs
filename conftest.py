@@ -4,6 +4,16 @@ import sys
 
 import pytest
 
+from hypothesis import HealthCheck, settings
+
+
+def pytest_configure(config):
+    # HealthCheck.too_slow causes more trouble than good -- especially in CIs.
+    settings.register_profile(
+        "patience", settings(suppress_health_check=[HealthCheck.too_slow])
+    )
+    settings.load_profile("patience")
+
 
 @pytest.fixture(scope="session")
 def C():
@@ -23,9 +33,8 @@ def C():
 collect_ignore = []
 
 if sys.version_info[:2] < (3, 6):
-    collect_ignore.extend([
-        "tests/test_annotations.py",
-        "tests/test_init_subclass.py",
-    ])
+    collect_ignore.extend(
+        ["tests/test_annotations.py", "tests/test_init_subclass.py"]
+    )
 
 collect_ignore.append("tests/test_stubs.py")
