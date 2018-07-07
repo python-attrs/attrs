@@ -1,3 +1,3 @@
 Allow converters to be specified via a decorator including getting access
-to the partially initialized instance.  ``self` is also available via
-``Converter()`` which can be passed when calling ``attr.ib(converter=...)`.
+to the partially initialized instance.  ``self`` is also available via
+``Converter()`` which can be passed when calling ``attr.ib(converter=...)``.
