@@ -1017,6 +1017,20 @@ class TestConverter(object):
 
         assert i.x == 2
 
+    def test_fields_converter_is_passed_converter(self):
+        """
+        attr.fields(C).a.converter is same object as passed converter
+        """
+
+        def f(value):
+            return value
+
+        @attr.s
+        class C(object):
+            a = attr.ib(converter=f)
+
+        assert attr.fields(C).a.converter is f
+
 
 class TestValidate(object):
     """
