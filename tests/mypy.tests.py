@@ -286,7 +286,7 @@ class C:
     bb =  attr.ib(type=int, validator=(in_([1, 2, 3]), instance_of(int)))
     bbb = attr.ib(type=int, validator=and_(in_([1, 2, 3]), instance_of(int)))
 
-    e = attr.ib(type=int, validator=1)  # E: No overload variant of "ib" matches argument types [Overload(def (x: Union[builtins.str, builtins.bytes, typing.SupportsInt] =) -> builtins.int, def (x: Union[builtins.str, builtins.bytes], base: builtins.int) -> builtins.int), builtins.int]
+    e = attr.ib(type=int, validator=1)  # E: No overload variant matches argument types "Type[int]", "int"
 
     # mypy does not know how to get the contained type from an enum:
     f = attr.ib(type=State, validator=in_(State))
@@ -328,7 +328,7 @@ class C:
     b = attr.ib(type=int, validator=[validate_int])
     reveal_type(b)  # E: Revealed type is 'builtins.int'
 
-    c = attr.ib(type=int, validator=validate_str)  # E: Argument "validator" to "ib" has incompatible type "Callable[[Any, Any, str], Any]"; expected "Union[Callable[[Any, Attribute[Any], int], Any], Sequence[Callable[[Any, Attribute[Any], int], Any]]]"
+    c = attr.ib(type=int, validator=validate_str)  # E: Argument "validator" has incompatible type "Callable[[Any, Any, str], Any]"; expected "Union[Callable[[Any, Attribute[Any], int], Any], Sequence[Callable[[Any, Attribute[Any], int], Any]], None]"
 
 
 # [case test_custom_validators_type_annotations]

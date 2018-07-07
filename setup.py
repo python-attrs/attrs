@@ -35,7 +35,7 @@ CLASSIFIERS = [
 # mypy plugins are not yet externally distributable, so we must lock tests
 # against a particular version of mypy. additionally, output formatting
 # of mypy can vary by version.
-MYPY_VERSION = "mypy==0.580"
+MYPY_VERSION = "mypy==0.610"
 INSTALL_REQUIRES = []
 EXTRAS_REQUIRE = {
     "docs": [
