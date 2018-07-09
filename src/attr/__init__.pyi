@@ -61,8 +61,6 @@ class Attribute(Generic[_T]):
 # We chose option #1 until either PyCharm adds support for attrs, or python 2
 # reaches EOL.
 
-# NOTE: If you update these, update `ib` and `attr` below.
-
 # `attr` lies about its return type to make the following possible:
 #     attr()    -> Any
 #     attr(8)   -> int
@@ -128,7 +126,6 @@ def attrib(default: Optional[_T] = ...,
            ) -> Any: ...
 
 
-# NOTE: If you update these, update `s` and `attributes` below.
 @overload
 def attrs(maybe_cls: _C,
           these: Optional[Dict[str, Any]] = ...,
