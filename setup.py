@@ -125,7 +125,7 @@ if __name__ == "__main__":
         long_description=LONG,
         packages=PACKAGES,
         package_dir={"": "src"},
-        package_data={'attr': ['*.pyi']},
+        package_data={'attr': ['*.pyi', "py.typed"]},
         zip_safe=False,
         classifiers=CLASSIFIERS,
         install_requires=INSTALL_REQUIRES,

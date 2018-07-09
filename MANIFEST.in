@@ -4,6 +4,7 @@ include LICENSE *.rst *.toml .readthedocs.yml .pre-commit-config.yaml
 exclude .github/*.md .travis.yml codecov.yml
 
 # Stubs
+include src/py.typed
 recursive-include src *.pyi
 recursive-include tests *.test
 
