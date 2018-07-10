@@ -40,13 +40,13 @@ def find_version(*file_paths):
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'doctest2',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.todo',
+    "sphinx.ext.autodoc",
+    "doctest2",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.todo",
 ]
 
-doctest_path = [os.path.join(HERE, '..', 'src')]
+doctest_path = [os.path.join(HERE, "..", "src")]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]

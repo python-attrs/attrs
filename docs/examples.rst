@@ -343,7 +343,7 @@ You can use a decorator:
 
 ...or both at once:
 
-.. doctest:: validators1
+.. doctest:: validators2
 
    >>> @attr.s
    ... class C(object):
@@ -428,7 +428,7 @@ Types
 ``attrs`` also allows you to associate a type with an attribute using either the *type* argument to :func:`attr.ib` or -- as of Python 3.6 -- using `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_-annotations:
 
 
-.. doctest::
+.. doctest:: types1
 
    >>> @attr.s
    ... class C:

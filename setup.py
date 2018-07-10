@@ -40,11 +40,7 @@ CLASSIFIERS = [
 MYPY_VERSION = "mypy==0.610"
 INSTALL_REQUIRES = []
 EXTRAS_REQUIRE = {
-    "docs": [
-        "sphinx",
-        "zope.interface",
-        MYPY_VERSION,
-    ],
+    "docs": ["sphinx", "zope.interface", MYPY_VERSION],
     "tests": [
         "coverage",
         "hypothesis",
@@ -53,9 +49,7 @@ EXTRAS_REQUIRE = {
         "six",
         "zope.interface",
     ],
-    "test-stubs": [
-        MYPY_VERSION
-    ],
+    "test-stubs": [MYPY_VERSION],
 }
 EXTRAS_REQUIRE["dev"] = (
     EXTRAS_REQUIRE["tests"] + EXTRAS_REQUIRE["docs"] + ["pre-commit"]
@@ -122,7 +116,7 @@ if __name__ == "__main__":
         long_description=LONG,
         packages=PACKAGES,
         package_dir={"": "src"},
-        package_data={'attr': ['*.pyi', "py.typed"]},
+        package_data={"attr": ["*.pyi", "py.typed"]},
         zip_safe=False,
         classifiers=CLASSIFIERS,
         install_requires=INSTALL_REQUIRES,

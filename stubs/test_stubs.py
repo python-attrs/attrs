@@ -5,12 +5,12 @@ import re
 import subprocess
 import sys
 
-from tests.mypy_pytest_plugin import (
+from mypy_pytest_plugin import (
     DataSuite, assert_string_arrays_equal, normalize_error_messages
 )
 
 
-pytest_plugins = ['tests.mypy_pytest_plugin']
+pytest_plugins = ['mypy_pytest_plugin']
 
 # Path to Python 3 interpreter
 python3_path = sys.executable

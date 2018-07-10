@@ -1,6 +1,10 @@
 Glossary
 ========
 
+.. testsetup:: *
+
+    import attr
+
 .. glossary::
 
    dict classes
@@ -19,7 +23,7 @@ Glossary
 
       - Slotted classes don't allow for any other attribute to be set except for those defined in one of the class' hierarchies ``__slots__``:
 
-        .. doctest::
+        .. doctest:: glossary1
 
           >>> import attr
           >>> @attr.s(slots=True)
@@ -46,7 +50,7 @@ Glossary
       - As always with slotted classes, you must specify a ``__weakref__`` slot if you wish for the class to be weak-referenceable.
         Here's how it looks using ``attrs``:
 
-        .. doctest::
+        .. doctest:: glossary2
 
           >>> import weakref
           >>> @attr.s(slots=True)
