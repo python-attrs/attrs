@@ -3,12 +3,6 @@
 import codecs
 import os
 import re
-import sys
-
-
-HERE = os.path.abspath(os.path.dirname(__file__))
-# to find the doctest2 extension:
-sys.path.append(HERE)
 
 
 def read(*parts):
@@ -16,7 +10,8 @@ def read(*parts):
     Build an absolute path from *parts* and and return the contents of the
     resulting file.  Assume UTF-8 encoding.
     """
-    with codecs.open(os.path.join(HERE, *parts), "rb", "utf-8") as f:
+    here = os.path.abspath(os.path.dirname(__file__))
+    with codecs.open(os.path.join(here, *parts), "rb", "utf-8") as f:
         return f.read()
 
 
@@ -41,12 +36,11 @@ def find_version(*file_paths):
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
-    "doctest2",
+    "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
     "sphinx.ext.todo",
 ]
 
-doctest_path = [os.path.join(HERE, "..", "src")]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]

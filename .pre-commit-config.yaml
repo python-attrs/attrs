@@ -16,5 +16,3 @@ repos:
     hooks:
       - id: isort
         language_version: python3.6
-
-exclude: stubs/.*

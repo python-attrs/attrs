@@ -13,9 +13,7 @@ API Reference
 
 What follows is the API explanation, if you'd like a more hands-on introduction, have a look at :doc:`examples`.
 
-.. testsetup:: *
 
-    import attr
 
 Core
 ----
@@ -28,7 +26,7 @@ Core
 
    For example:
 
-   .. doctest::  core
+   .. doctest::
 
       >>> import attr
       >>> @attr.s
@@ -36,10 +34,6 @@ Core
       ...     _private = attr.ib()
       >>> C(private=42)
       C(_private=42)
-
-   .. doctest::  core
-      :options: +MYPY_SKIP
-
       >>> class D(object):
       ...     def __init__(self, x):
       ...         self.x = x
@@ -58,7 +52,7 @@ Core
 
    The object returned by :func:`attr.ib` also allows for setting the default and the validator using decorators:
 
-   .. doctest::  attrib
+   .. doctest::
 
       >>> @attr.s
       ... class C(object):
@@ -89,7 +83,7 @@ Core
 
        You should never instantiate this class yourself!
 
-   .. doctest::  Attribute
+   .. doctest::
 
       >>> import attr
       >>> @attr.s
@@ -105,7 +99,7 @@ Core
 
    For example:
 
-   .. doctest:: make_class
+   .. doctest::
 
       >>> C1 = attr.make_class("C1", ["x", "y"])
       >>> C1(1, 2)
@@ -120,7 +114,7 @@ Core
 
    For example:
 
-   .. doctest:: Factory
+   .. doctest::
 
       >>> @attr.s
       ... class C(object):
@@ -160,7 +154,7 @@ Helpers
 
    For example:
 
-   .. doctest:: fields
+   .. doctest::
 
       >>> @attr.s
       ... class C(object):
@@ -195,7 +189,7 @@ Helpers
 
    For example:
 
-   .. doctest:: has
+   .. doctest::
 
       >>> @attr.s
       ... class C(object):
@@ -210,7 +204,7 @@ Helpers
 
    For example:
 
-   .. doctest:: asdict
+   .. doctest::
 
       >>> @attr.s
       ... class C(object):
@@ -224,7 +218,7 @@ Helpers
 
    For example:
 
-   .. doctest:: astuple
+   .. doctest::
 
       >>> @attr.s
       ... class C(object):
@@ -245,7 +239,7 @@ See :ref:`asdict` for examples.
 
    For example:
 
-   .. doctest:: evolve
+   .. doctest::
 
       >>> @attr.s
       ... class C(object):
@@ -271,13 +265,13 @@ See :ref:`asdict` for examples.
 
    For example:
 
-   .. doctest:: validate
+   .. doctest::
 
       >>> @attr.s
       ... class C(object):
       ...     x = attr.ib(validator=attr.validators.instance_of(int))
       >>> i = C(1)
-      >>> i.x = "1"  # mypy error: Incompatible types in assignment (expression has type "str", variable has type "int")
+      >>> i.x = "1"
       >>> attr.validate(i)
       Traceback (most recent call last):
          ...
@@ -304,7 +298,7 @@ Validators
 
    For example:
 
-   .. doctest:: validators.instance_of
+   .. doctest::
 
       >>> @attr.s
       ... class C(object):
@@ -324,7 +318,7 @@ Validators
 
    For example:
 
-   .. doctest:: validators.in_
+   .. doctest::
 
        >>> import enum
        >>> class State(enum.Enum):
@@ -332,7 +326,7 @@ Validators
        ...     OFF = "off"
        >>> @attr.s
        ... class C(object):
-       ...     state = attr.ib(validator=attr.validators.in_(State))  # type: ignore
+       ...     state = attr.ib(validator=attr.validators.in_(State))
        ...     val = attr.ib(validator=attr.validators.in_([1, 2, 3]))
        >>> C(State.ON, 1)
        C(state=<State.ON: 'on'>, val=1)
@@ -360,7 +354,7 @@ Validators
 
    For example:
 
-   .. doctest:: validators.optional
+   .. doctest::
 
       >>> @attr.s
       ... class C(object):
@@ -382,7 +376,7 @@ Converters
 
    For example:
 
-   .. doctest:: converters.optional
+   .. doctest::
 
       >>> @attr.s
       ... class C(object):

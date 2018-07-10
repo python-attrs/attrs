@@ -6,7 +6,6 @@ exclude .github/*.md .travis.yml codecov.yml
 # Stubs
 include src/py.typed
 recursive-include src *.pyi
-recursive-include tests *.test
 
 # Tests
 include tox.ini .coveragerc conftest.py

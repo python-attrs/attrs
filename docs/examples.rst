@@ -4,10 +4,6 @@
 ====================
 
 
-.. testsetup:: *
-
-    import attr
-
 Basics
 ------
 
@@ -68,7 +64,7 @@ If playful naming turns you off, ``attrs`` comes with serious business aliases:
 
 For private attributes, ``attrs`` will strip the leading underscores for keyword arguments:
 
-.. doctest:: private
+.. doctest::
 
    >>> @attr.s
    ... class C(object):
@@ -78,14 +74,14 @@ For private attributes, ``attrs`` will strip the leading underscores for keyword
 
 If you want to initialize your private attributes yourself, you can do that too:
 
-.. doctest:: private_init
+.. doctest::
 
    >>> @attr.s
    ... class C(object):
    ...     _x = attr.ib(init=False, default=42)
    >>> C()
    C(_x=42)
-   >>> C(23)  # mypy error: Too many arguments for "C"
+   >>> C(23)
    Traceback (most recent call last):
       ...
    TypeError: __init__() takes exactly 1 argument (2 given)
@@ -93,8 +89,7 @@ If you want to initialize your private attributes yourself, you can do that too:
 An additional way of defining attributes is supported too.
 This is useful in times when you want to enhance classes that are not yours (nice ``__repr__`` for Django models anyone?):
 
-.. doctest:: enhance
-   :options: +MYPY_SKIP
+.. doctest::
 
    >>> class SomethingFromSomeoneElse(object):
    ...     def __init__(self, x):
@@ -109,7 +104,7 @@ This is useful in times when you want to enhance classes that are not yours (nic
 
 `Subclassing is bad for you <https://www.youtube.com/watch?v=3MNVP9-hglc>`_, but ``attrs`` will still do what you'd hope for:
 
-.. doctest:: subclassing
+.. doctest::
 
    >>> @attr.s
    ... class A(object):
@@ -136,7 +131,7 @@ In Python 3, classes defined within other classes are `detected <https://www.pyt
 In Python 2 though, it's impossible.
 Therefore ``@attr.s`` comes with the ``repr_ns`` option to set it manually:
 
-.. doctest:: repr_ns
+.. doctest::
 
    >>> @attr.s
    ... class C(object):
@@ -165,7 +160,7 @@ When you have a class with data, it often is very convenient to transform that c
 Some fields cannot or should not be transformed.
 For that, :func:`attr.asdict` offers a callback that decides whether an attribute should be included:
 
-.. doctest:: asdict_filtered
+.. doctest::
 
    >>> @attr.s
    ... class UserList(object):
@@ -181,7 +176,7 @@ For that, :func:`attr.asdict` offers a callback that decides whether an attribut
 
 For the common case where you want to :func:`include <attr.filters.include>` or :func:`exclude <attr.filters.exclude>` certain types or attributes, ``attrs`` ships with a few helpers:
 
-.. doctest:: asdict_include_exclude
+.. doctest::
 
    >>> @attr.s
    ... class User(object):
@@ -203,7 +198,7 @@ For the common case where you want to :func:`include <attr.filters.include>` or 
 
 Other times, all you want is a tuple and ``attrs`` won't let you down:
 
-.. doctest:: astuple
+.. doctest::
 
    >>> import sqlite3
    >>> import attr
@@ -230,7 +225,7 @@ Sometimes you want to have default values for your initializer.
 And sometimes you even want mutable objects as default values (ever used accidentally ``def f(arg=[])``?).
 ``attrs`` has you covered in both cases:
 
-.. doctest:: defaults
+.. doctest::
 
    >>> import collections
    >>> @attr.s
@@ -272,7 +267,7 @@ More information on why class methods for constructing objects are awesome can b
 Default factories can also be set using a decorator.
 The method receives the partially initialized instance which enables you to base a default value on other attributes:
 
-.. doctest:: default_decorator
+.. doctest::
 
    >>> @attr.s
    ... class C(object):
@@ -306,7 +301,7 @@ Although your initializers should do as little as possible (ideally: just initia
 
 You can use a decorator:
 
-.. doctest:: validator_decorator
+.. doctest::
 
    >>> @attr.s
    ... class C(object):
@@ -324,7 +319,7 @@ You can use a decorator:
 
  ...or a callable...
 
-.. doctest:: validators1
+.. doctest::
 
    >>> def x_smaller_than_y(instance, attribute, value):
    ...     if value >= instance.y:
@@ -343,7 +338,7 @@ You can use a decorator:
 
 ...or both at once:
 
-.. doctest:: validators2
+.. doctest::
 
    >>> @attr.s
    ... class C(object):
@@ -366,7 +361,7 @@ You can use a decorator:
 
 ``attrs`` ships with a bunch of validators, make sure to :ref:`check them out <api_validators>` before writing your own:
 
-.. doctest:: validators3
+.. doctest::
 
    >>> @attr.s
    ... class C(object):
@@ -387,7 +382,7 @@ Conversion
 Attributes can have a ``converter`` function specified, which will be called with the attribute's passed-in value to get a new value to use.
 This can be useful for doing type-conversions on values that you don't want to force your callers to do.
 
-.. doctest:: converters1
+.. doctest::
 
     >>> @attr.s
     ... class C(object):
@@ -406,7 +401,7 @@ Metadata
 
 All ``attrs`` attributes may include arbitrary metadata in the form of a read-only dictionary.
 
-.. doctest:: metadata
+.. doctest::
 
     >>> @attr.s
     ... class C(object):
@@ -428,7 +423,7 @@ Types
 ``attrs`` also allows you to associate a type with an attribute using either the *type* argument to :func:`attr.ib` or -- as of Python 3.6 -- using `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_-annotations:
 
 
-.. doctest:: types1
+.. doctest::
 
    >>> @attr.s
    ... class C:
@@ -437,8 +432,6 @@ Types
    >>> attr.fields(C).x.type
    <class 'int'>
    >>> attr.fields(C).y.type
-   <class 'int'>
-   >>> attr.fields(C)[1].type
    <class 'int'>
 
 If you don't mind annotating *all* attributes, you can even drop the :func:`attr.ib` and assign default values instead:
@@ -484,7 +477,7 @@ Slots
 :term:`Slotted classes` have a bunch of advantages on CPython.
 Defining ``__slots__`` by hand is tedious, in ``attrs`` it's just a matter of passing ``slots=True``:
 
-.. doctest:: slots1
+.. doctest::
 
    >>> @attr.s(slots=True)
    ... class Coordinates(object):
@@ -499,13 +492,13 @@ Sometimes you have instances that shouldn't be changed after instantiation.
 Immutability is especially popular in functional programming and is generally a very good thing.
 If you'd like to enforce it, ``attrs`` will try to help:
 
-.. doctest:: frozen1
+.. doctest::
 
    >>> @attr.s(frozen=True)
    ... class C(object):
    ...     x = attr.ib()
    >>> i = C(1)
-   >>> i.x = 2  # mypy error: Property "x" defined in "C" is read-only
+   >>> i.x = 2
    Traceback (most recent call last):
       ...
    attr.exceptions.FrozenInstanceError: can't set attribute
@@ -518,7 +511,7 @@ By themselves, immutable classes are useful for long-lived objects that should n
 In order to use them in regular program flow, you'll need a way to easily create new instances with changed attributes.
 In Clojure that function is called `assoc <https://clojuredocs.org/clojure.core/assoc>`_ and ``attrs`` shamelessly imitates it: :func:`attr.evolve`:
 
-.. doctest:: frozen2
+.. doctest::
 
    >>> @attr.s(frozen=True)
    ... class C(object):
@@ -540,7 +533,7 @@ Other Goodies
 Sometimes you may want to create a class programmatically.
 ``attrs`` won't let you down and gives you :func:`attr.make_class` :
 
-.. doctest:: make_class
+.. doctest::
 
    >>> @attr.s
    ... class C1(object):
@@ -552,7 +545,7 @@ Sometimes you may want to create a class programmatically.
 
 You can still have power over the attributes if you pass a dictionary of name: ``attr.ib`` mappings and can pass arguments to ``@attr.s``:
 
-.. doctest:: make_class
+.. doctest::
 
    >>> C = attr.make_class("C", {"x": attr.ib(default=42),
    ...                           "y": attr.ib(default=attr.Factory(list))},
@@ -567,7 +560,7 @@ You can still have power over the attributes if you pass a dictionary of name: `
 
 If you need to dynamically make a class with :func:`attr.make_class` and it needs to be a subclass of something else than ``object``, use the ``bases`` argument:
 
-.. doctest:: make_subclass
+.. doctest::
 
   >>> class D(object):
   ...    def __eq__(self, other):
@@ -582,7 +575,7 @@ using ``@attr.s``.
 To do this, just define a ``__attrs_post_init__`` method in your class.
 It will get called at the end of the generated ``__init__`` method.
 
-.. doctest:: post_init
+.. doctest::
 
    >>> @attr.s
    ... class C(object):
@@ -598,7 +591,7 @@ It will get called at the end of the generated ``__init__`` method.
 
 Finally, you can exclude single attributes from certain methods:
 
-.. doctest:: exclude
+.. doctest::
 
    >>> @attr.s
    ... class C(object):

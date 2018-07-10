@@ -3,10 +3,6 @@
 Why not…
 ========
 
-.. testsetup:: *
-
-    import attr
-
 
 If you'd like third party's account why ``attrs`` is great, have a look at Glyph's `The One Python Library Everyone Needs <https://glyph.twistedmatrix.com/2016/08/attrs.html>`_!
 
@@ -254,7 +250,7 @@ And who will guarantee you, that you don't accidentally flip the ``<`` in your t
 It also should be noted that ``attrs`` is not an all-or-nothing solution.
 You can freely choose which features you want and disable those that you want more control over:
 
-.. doctest:: opt-in
+.. doctest::
 
    >>> @attr.s(repr=False)
    ... class SmartClass(object):

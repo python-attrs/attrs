@@ -34,13 +34,9 @@ CLASSIFIERS = [
     "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-# mypy plugins are not yet externally distributable, so we must lock tests
-# against a particular version of mypy. additionally, output formatting
-# of mypy can vary by version.
-MYPY_VERSION = "mypy==0.610"
 INSTALL_REQUIRES = []
 EXTRAS_REQUIRE = {
-    "docs": ["sphinx", "zope.interface", MYPY_VERSION],
+    "docs": ["sphinx", "zope.interface"],
     "tests": [
         "coverage",
         "hypothesis",
@@ -49,7 +45,6 @@ EXTRAS_REQUIRE = {
         "six",
         "zope.interface",
     ],
-    "test-stubs": [MYPY_VERSION],
 }
 EXTRAS_REQUIRE["dev"] = (
     EXTRAS_REQUIRE["tests"] + EXTRAS_REQUIRE["docs"] + ["pre-commit"]
@@ -116,7 +111,6 @@ if __name__ == "__main__":
         long_description=LONG,
         packages=PACKAGES,
         package_dir={"": "src"},
-        package_data={"attr": ["*.pyi", "py.typed"]},
         zip_safe=False,
         classifiers=CLASSIFIERS,
         install_requires=INSTALL_REQUIRES,

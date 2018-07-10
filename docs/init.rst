@@ -1,11 +1,6 @@
 Initialization
 ==============
 
-.. testsetup:: *
-
-    import attr
-
-
 In Python, instance intialization happens in the ``__init__`` method.
 Generally speaking, you should keep as little logic as possible in it, and you should think about what the class needs and not how it is going to be instantiated.
 
@@ -54,7 +49,7 @@ Private Attributes
 One thing people tend to find confusing is the treatment of private attributes that start with an underscore.
 ``attrs`` follows the doctrine that `there is no such thing as a private argument`_ and strips the underscores from the name when writing the ``__init__`` method signature:
 
-.. doctest:: private1
+.. doctest::
 
    >>> import inspect, attr
    >>> @attr.s
@@ -66,7 +61,7 @@ One thing people tend to find confusing is the treatment of private attributes t
 There really isn't a right or wrong, it's a matter of taste.
 But it's important to be aware of it because it can lead to surprising syntax errors:
 
-.. doctest:: private2
+.. doctest::
 
    >>> @attr.s
    ... class C(object):
@@ -86,7 +81,7 @@ And sometimes, certain attributes aren't even intended to be passed but you want
 
 This is when default values come into play:
 
-.. doctest:: defaults1
+.. doctest::
 
    >>> import attr
    >>> @attr.s
@@ -106,7 +101,7 @@ It's important that the decorated method -- or any other method or property! -- 
 
 Please note that as with function and method signatures, ``default=[]`` will *not* do what you may think it might do:
 
-.. doctest:: defaults2
+.. doctest::
 
    >>> @attr.s
    ... class C(object):
@@ -178,7 +173,7 @@ It takes either a callable or a list of callables (usually functions) and treats
 
 Since the validators runs *after* the instance is initialized, you can refer to other attributes while validating:
 
-.. doctest:: callables1
+.. doctest::
 
    >>> def x_smaller_than_y(instance, attribute, value):
    ...     if value >= instance.y:
@@ -199,7 +194,7 @@ This example also shows of some syntactic sugar for using the :func:`attr.valida
 
 ``attrs`` won't intercept your changes to those attributes but you can always call :func:`attr.validate` on any instance to verify that it's still valid:
 
-.. doctest:: callables1
+.. doctest::
 
    >>> i = C(4, 5)
    >>> i.x = 5  # works, no magic here
@@ -210,7 +205,7 @@ This example also shows of some syntactic sugar for using the :func:`attr.valida
 
 ``attrs`` ships with a bunch of validators, make sure to :ref:`check them out <api_validators>` before writing your own:
 
-.. doctest:: callables2
+.. doctest::
 
    >>> @attr.s
    ... class C(object):
@@ -225,7 +220,7 @@ This example also shows of some syntactic sugar for using the :func:`attr.valida
 Of course you can mix and match the two approaches at your convenience.
 If you define validators both ways for an attribute, they are both ran:
 
-.. doctest:: callables3
+.. doctest::
 
    >>> @attr.s
    ... class C(object):
@@ -268,7 +263,7 @@ For that ``attrs`` comes with converters.
 Attributes can have a ``converter`` function specified, which will be called with the attribute's passed-in value to get a new value to use.
 This can be useful for doing type-conversions on values that you don't want to force your callers to do.
 
-.. doctest:: converters1
+.. doctest::
 
     >>> @attr.s
     ... class C(object):
@@ -279,7 +274,7 @@ This can be useful for doing type-conversions on values that you don't want to f
 
 Converters are run *before* validators, so you can use validators to check the final form of the value.
 
-.. doctest:: converters2
+.. doctest::
 
     >>> def validate_x(instance, attribute, value):
     ...     if value < 0:
@@ -298,7 +293,7 @@ Converters are run *before* validators, so you can use validators to check the f
 
 Arguably, you can abuse converters as one-argument validators:
 
-.. doctest:: converters2
+.. doctest::
 
    >>> C("x")
    Traceback (most recent call last):
@@ -314,7 +309,7 @@ Generally speaking, the moment you think that you need finer control over how yo
 However, sometimes you need to do that one quick thing after your class is initialized.
 And for that ``attrs`` offers the ``__attrs_post_init__`` hook that is automatically detected and run after ``attrs`` is done initializing your instance:
 
-.. doctest:: post_init1
+.. doctest::
 
    >>> @attr.s
    ... class C(object):
@@ -327,7 +322,7 @@ And for that ``attrs`` offers the ``__attrs_post_init__`` hook that is automatic
 
 Please note that you can't directly set attributes on frozen classes:
 
-.. doctest:: post_init2
+.. doctest::
 
    >>> @attr.s(frozen=True)
    ... class FrozenBroken(object):
@@ -342,7 +337,7 @@ Please note that you can't directly set attributes on frozen classes:
 
 If you need to set attributes on a frozen class, you'll have to resort to the :ref:`same trick <how-frozen>` as ``attrs`` and use :meth:`object.__setattr__`:
 
-.. doctest:: post_init3
+.. doctest::
 
    >>> @attr.s(frozen=True)
    ... class Frozen(object):
