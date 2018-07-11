@@ -3,7 +3,7 @@ from typing import Any, List
 import attr
 
 
-# Type argument
+# Typing via "type" Argument ---
 
 
 @attr.s
@@ -30,7 +30,7 @@ class F:
     z = attr.ib(type=Any)
 
 
-# Annotations
+# Typing via Annotations ---
 
 
 @attr.s
@@ -57,7 +57,7 @@ class FF:
     z: Any = attr.ib()
 
 
-# Inheritence
+# Inheritance --
 
 
 @attr.s
@@ -74,16 +74,6 @@ class HH(DD, EE):
 
 
 HH(x=[1], y=[], z=1.1)
-
-
-@attr.s
-class A:
-    x: int = attr.ib()
-
-
-@attr.s
-class B(A):
-    y: str = attr.ib()
 
 
 # same class
