@@ -4,6 +4,9 @@ repos:
     hooks:
       - id: black
         language_version: python3.6
+        # override until resolved: https://github.com/ambv/black/issues/402
+        files: \.pyi?$
+        types: []
 
   - repo: https://github.com/asottile/seed-isort-config
     rev: v1.0.1

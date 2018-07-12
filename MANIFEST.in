@@ -3,6 +3,10 @@ include LICENSE *.rst *.toml .readthedocs.yml .pre-commit-config.yaml
 # Don't package GitHub-specific files.
 exclude .github/*.md .travis.yml codecov.yml
 
+# Stubs
+include src/attr/py.typed
+recursive-include src *.pyi
+
 # Tests
 include tox.ini .coveragerc conftest.py
 recursive-include tests *.py

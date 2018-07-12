@@ -46,6 +46,8 @@ matrix:
       env: TOXENV=readme
     - python: "3.6"
       env: TOXENV=changelog
+    - python: "3.6"
+      env: TOXENV=typing
 
   allow_failures:
     - python: "3.6-dev"
