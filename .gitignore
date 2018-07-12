@@ -3,6 +3,7 @@
 .cache
 .coverage*
 .hypothesis
+.mypy_cache
 .pytest_cache
 .tox
 build
