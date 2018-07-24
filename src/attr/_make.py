@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
+import copy
 import hashlib
 import linecache
 import sys
@@ -291,7 +292,7 @@ def _counter_getter(e):
     return e[1].counter
 
 
-def _transform_attrs(cls, these, auto_attribs):
+def _transform_attrs(cls, these, auto_attribs, kw_only):
     """
     Transform all `_CountingAttr`s on a class into `Attribute`s.
 
@@ -374,15 +375,11 @@ def _transform_attrs(cls, these, auto_attribs):
 
     AttrsClass = _make_attr_tuple_class(cls.__name__, attr_names)
 
-    attrs = AttrsClass(
-        super_attrs
-        + [
-            Attribute.from_counting_attr(
-                name=attr_name, ca=ca, type=anns.get(attr_name)
-            )
-            for attr_name, ca in ca_list
-        ]
-    )
+    if kw_only:
+        own_attrs = [a._evolve(kw_only=True) for a in own_attrs]
+        super_attrs = [a._evolve(kw_only=True) for a in super_attrs]
+
+    attrs = AttrsClass(super_attrs + own_attrs)
 
     had_default = False
     was_kw_only = False
@@ -453,9 +450,9 @@ class _ClassBuilder(object):
         "_super_attr_map",
     )
 
-    def __init__(self, cls, these, slots, frozen, auto_attribs):
+    def __init__(self, cls, these, slots, frozen, auto_attribs, kw_only):
         attrs, super_attrs, super_map = _transform_attrs(
-            cls, these, auto_attribs
+            cls, these, auto_attribs, kw_only
         )
 
         self._cls = cls
@@ -665,6 +662,7 @@ def attrs(
     frozen=False,
     str=False,
     auto_attribs=False,
+    kw_only=False,
 ):
     r"""
     A class decorator that adds `dunder
@@ -762,6 +760,10 @@ def attrs(
         Attributes annotated as :data:`typing.ClassVar` are **ignored**.
 
         .. _`PEP 526`: https://www.python.org/dev/peps/pep-0526/
+    :param bool kw_only: Make all attributes keyword-only (Python 3+)
+        in the generated ``__init__`` (if ``init`` is ``False``, this
+        parameter is simply ignored).
+
 
     .. versionadded:: 16.0.0 *slots*
     .. versionadded:: 16.1.0 *frozen*
@@ -778,13 +780,16 @@ def attrs(
        :class:`DeprecationWarning` if the classes compared are subclasses of
        each other. ``__eq`` and ``__ne__`` never tried to compared subclasses
        to each other.
+    .. versionadded:: 18.2.0 *kw_only*
     """
 
     def wrap(cls):
         if getattr(cls, "__class__", None) is None:
             raise TypeError("attrs only works with new-style classes.")
 
-        builder = _ClassBuilder(cls, these, slots, frozen, auto_attribs)
+        builder = _ClassBuilder(
+            cls, these, slots, frozen, auto_attribs, kw_only
+        )
 
         if repr is True:
             builder.add_repr(repr_ns)
@@ -1602,6 +1607,17 @@ class Attribute(object):
             **inst_dict
         )
 
+    # Don't use attr.evolve since fields(Attribute) doesn't work
+    def _evolve(self, **changes):
+        """
+        Create a new instance, based on *self* with *changes* applied.
+        """
+        new = copy.copy(self)
+
+        new._setattrs(changes.items())
+
+        return new
+
     # Don't use _add_pickle since fields(Attribute) doesn't work
     def __getstate__(self):
         """
@@ -1616,8 +1632,11 @@ class Attribute(object):
         """
         Play nice with pickle.
         """
+        self._setattrs(zip(self.__slots__, state))
+
+    def _setattrs(self, name_values_pairs):
         bound_setattr = _obj_setattr.__get__(self, Attribute)
-        for name, value in zip(self.__slots__, state):
+        for name, value in name_values_pairs:
             if name != "metadata":
                 bound_setattr(name, value)
             else:

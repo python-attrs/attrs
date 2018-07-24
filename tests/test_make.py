@@ -228,7 +228,7 @@ class TestTransformAttrs(object):
         Doesn't attach __attrs_attrs__ to the class anymore.
         """
         C = make_tc()
-        _transform_attrs(C, None, False)
+        _transform_attrs(C, None, False, False)
 
         assert None is getattr(C, "__attrs_attrs__", None)
 
@@ -237,7 +237,7 @@ class TestTransformAttrs(object):
         Transforms every `_CountingAttr` and leaves others (a) be.
         """
         C = make_tc()
-        attrs, _, _ = _transform_attrs(C, None, False)
+        attrs, _, _ = _transform_attrs(C, None, False, False)
 
         assert ["z", "y", "x"] == [a.name for a in attrs]
 
@@ -250,14 +250,16 @@ class TestTransformAttrs(object):
         class C(object):
             pass
 
-        assert _Attributes(((), [], {})) == _transform_attrs(C, None, False)
+        assert _Attributes(((), [], {})) == _transform_attrs(
+            C, None, False, False
+        )
 
     def test_transforms_to_attribute(self):
         """
         All `_CountingAttr`s are transformed into `Attribute`s.
         """
         C = make_tc()
-        attrs, super_attrs, _ = _transform_attrs(C, None, False)
+        attrs, super_attrs, _ = _transform_attrs(C, None, False, False)
 
         assert [] == super_attrs
         assert 3 == len(attrs)
@@ -274,7 +276,7 @@ class TestTransformAttrs(object):
             y = attr.ib()
 
         with pytest.raises(ValueError) as e:
-            _transform_attrs(C, None, False)
+            _transform_attrs(C, None, False, False)
         assert (
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
@@ -282,6 +284,36 @@ class TestTransformAttrs(object):
             "cmp=True, hash=None, init=True, metadata=mappingproxy({}), "
             "type=None, converter=None, kw_only=False)",
         ) == e.value.args
+
+    def test_kw_only(self):
+        """
+        Converts all attributes, including superclass attributes, if `kw_only`
+        is provided. Therefor, `kw_only` allows attributes with defaults to
+        preceed mandatory attributes.
+
+        Updates in the subclass *don't* affect the superclass attributes.
+        """
+
+        @attr.s
+        class B(object):
+            b = attr.ib()
+
+        for b_a in B.__attrs_attrs__:
+            assert b_a.kw_only is False
+
+        class C(B):
+            x = attr.ib(default=None)
+            y = attr.ib()
+
+        attrs, super_attrs, _ = _transform_attrs(C, None, False, True)
+        assert len(attrs) == 3
+        assert len(super_attrs) == 1
+
+        for a in attrs:
+            assert a.kw_only is True
+
+        for b_a in B.__attrs_attrs__:
+            assert b_a.kw_only is False
 
     def test_these(self):
         """
@@ -294,7 +326,9 @@ class TestTransformAttrs(object):
         class C(Base):
             y = attr.ib()
 
-        attrs, super_attrs, _ = _transform_attrs(C, {"x": attr.ib()}, False)
+        attrs, super_attrs, _ = _transform_attrs(
+            C, {"x": attr.ib()}, False, False
+        )
 
         assert [] == super_attrs
         assert (simple_attr("x"),) == attrs
@@ -660,13 +694,13 @@ class TestKeywordOnlyAttributes(object):
             y = attr.ib()
 
         with pytest.raises(ValueError) as e:
-            _transform_attrs(C, None, False)
+            _transform_attrs(C, None, False, False)
         assert (
             "Non keyword-only attributes are not allowed after a "
             "keyword-only attribute.  Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, repr=True, "
-            "cmp=True, hash=None, init=True, "
-            "metadata=mappingproxy({}), type=None, converter=None, kw_only=False)",
+            "cmp=True, hash=None, init=True, metadata=mappingproxy({}), "
+            "type=None, converter=None, kw_only=False)",
         ) == e.value.args
 
     def test_keyword_only_attributes_allow_subclassing(self):
@@ -685,6 +719,45 @@ class TestKeywordOnlyAttributes(object):
 
         c = C(y=1)
 
+        assert c.x == 0
+        assert c.y == 1
+
+    def test_keyword_only_class_level(self):
+        """
+        `kw_only` can be provided at the attr.s level, converting all
+        attributes to `kw_only.`
+        """
+
+        @attr.s(kw_only=True)
+        class C:
+            x = attr.ib()
+            y = attr.ib(kw_only=True)
+
+        with pytest.raises(TypeError):
+            C(0, y=1)
+
+        c = C(x=0, y=1)
+        assert c.x == 0
+        assert c.y == 1
+
+    def test_keyword_only_class_level_subclassing(self):
+        """
+        Subclass `kw_only` propagates to attrs inherited from the base,
+        allowing non-default following default.
+        """
+
+        @attr.s
+        class Base(object):
+            x = attr.ib(default=0)
+
+        @attr.s(kw_only=True)
+        class C(Base):
+            y = attr.ib()
+
+        with pytest.raises(TypeError):
+            C(1)
+
+        c = C(x=0, y=1)
         assert c.x == 0
         assert c.y == 1
 
@@ -1248,7 +1321,7 @@ class TestClassBuilder(object):
         class C(object):
             pass
 
-        b = _ClassBuilder(C, None, True, True, False)
+        b = _ClassBuilder(C, None, True, True, False, False)
 
         assert "<_ClassBuilder(cls=C)>" == repr(b)
 
@@ -1260,7 +1333,7 @@ class TestClassBuilder(object):
         class C(object):
             x = attr.ib()
 
-        b = _ClassBuilder(C, None, True, True, False)
+        b = _ClassBuilder(C, None, True, True, False, False)
 
         cls = (
             b.add_cmp()
@@ -1317,7 +1390,12 @@ class TestClassBuilder(object):
             pass
 
         b = _ClassBuilder(
-            C, these=None, slots=False, frozen=False, auto_attribs=False
+            C,
+            these=None,
+            slots=False,
+            frozen=False,
+            auto_attribs=False,
+            kw_only=False,
         )
         b._cls = {}  # no __module__; no __qualname__
 

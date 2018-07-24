@@ -161,6 +161,23 @@ When using ``attrs`` on Python 3, you can also add `keyword-only <https://docs.p
     >>> A(a=1)
     A(a=1)
 
+`kw_only` may also be specified at via ``attr.s``, and will apply to all attributes:
+
+.. doctest::
+
+    >>> @attr.s(kw_only=True)
+    ... class A:
+    ...     a = attr.ib()
+    ...     b = attr.ib()
+    >>> A(1, 2)
+    Traceback (most recent call last):
+      ...
+    TypeError: __init__() takes 1 positional argument but 3 were given
+    >>> A(a=1, b=2)
+    A(a=1, b=2)
+
+
+
 If you create an attribute with ``init=False``, ``kw_only`` argument is simply ignored.
 
 Keyword-only attributes allow subclasses to add attributes without default values, even if the base class defines attributes with default values:
