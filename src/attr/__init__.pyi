@@ -56,6 +56,7 @@ class Attribute(Generic[_T]):
     converter: Optional[_ConverterType[_T]]
     metadata: Dict[Any, Any]
     type: Optional[Type[_T]]
+    kw_only: bool
     def __lt__(self, x: Attribute) -> bool: ...
     def __le__(self, x: Attribute) -> bool: ...
     def __gt__(self, x: Attribute) -> bool: ...
@@ -99,6 +100,7 @@ def attrib(
     type: None = ...,
     converter: None = ...,
     factory: None = ...,
+    kw_only: bool = ...,
 ) -> Any: ...
 
 # This form catches an explicit None or no default and infers the type from the other arguments.
@@ -115,6 +117,7 @@ def attrib(
     type: Optional[Type[_T]] = ...,
     converter: Optional[_ConverterType[_T]] = ...,
     factory: Optional[Callable[[], _T]] = ...,
+    kw_only: bool = ...,
 ) -> _T: ...
 
 # This form catches an explicit default argument.
@@ -131,6 +134,7 @@ def attrib(
     type: Optional[Type[_T]] = ...,
     converter: Optional[_ConverterType[_T]] = ...,
     factory: Optional[Callable[[], _T]] = ...,
+    kw_only: bool = ...,
 ) -> _T: ...
 
 # This form covers type=non-Type: e.g. forward references (str), Any
@@ -147,6 +151,7 @@ def attrib(
     type: object = ...,
     converter: Optional[_ConverterType[_T]] = ...,
     factory: Optional[Callable[[], _T]] = ...,
+    kw_only: bool = ...,
 ) -> Any: ...
 @overload
 def attrs(
@@ -161,6 +166,7 @@ def attrs(
     frozen: bool = ...,
     str: bool = ...,
     auto_attribs: bool = ...,
+    kw_only: bool = ...,
 ) -> _C: ...
 @overload
 def attrs(
@@ -175,6 +181,7 @@ def attrs(
     frozen: bool = ...,
     str: bool = ...,
     auto_attribs: bool = ...,
+    kw_only: bool = ...,
 ) -> Callable[[_C], _C]: ...
 
 # TODO: add support for returning NamedTuple from the mypy plugin
@@ -200,6 +207,7 @@ def make_class(
     frozen: bool = ...,
     str: bool = ...,
     auto_attribs: bool = ...,
+    kw_only: bool = ...,
 ) -> type: ...
 
 # _funcs --
