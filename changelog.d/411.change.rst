@@ -1,0 +1,2 @@
+Added ``kw_only`` arguments to ``attr.ib`` and ``attr.s```, and a corresponding ``kw_only`` attribute to ``attr.Attribute``.
+This change makes it possible to have a generated ``__init__`` with keyword-only arguments on Python 3, relaxing the required ordering of default and non-default valued attributes.
