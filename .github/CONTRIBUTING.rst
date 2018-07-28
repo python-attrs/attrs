@@ -159,14 +159,20 @@ Next, get an up to date checkout of the ``attrs`` repository:
 
 .. code-block:: bash
 
-    $ git checkout git@github.com:python-attrs/attrs.git
+    $ git clone git@github.com:python-attrs/attrs.git
+
+or if you want to use git via ``https``:
+
+.. code-block:: bash
+
+    $ git clone https://github.com/python-attrs/attrs.git
 
 Change into the newly created directory and **after activating your virtual environment** install an editable version of ``attrs`` along with its tests and docs requirements:
 
 .. code-block:: bash
 
     $ cd attrs
-    $ pip install -e .[dev]
+    $ pip install -e '.[dev]'
 
 At this point,
 
@@ -196,7 +202,7 @@ You can also run them anytime (as our tox does) using:
    $ pre-commit run --all-files
 
 
-.. [#f1] pre-commit should have been installed into your virtualenv automatically when you ran ``pip install -e .[dev]`` above. If pre-commit is missing, it may be that you need to re-run ``pip install -e .[dev]``.
+.. [#f1] pre-commit should have been installed into your virtualenv automatically when you ran ``pip install -e '.[dev]'`` above. If pre-commit is missing, it may be that you need to re-run ``pip install -e '.[dev]'``.
 
 
 Governance
