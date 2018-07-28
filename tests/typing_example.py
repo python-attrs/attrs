@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Optional
 
 import attr
 
@@ -78,3 +78,22 @@ HH(x=[1], y=[], z=1.1)
 
 # same class
 c == cc
+
+
+# Converters
+@attr.s
+class ConvCOptional:
+    x: Optional[int] = attr.ib(converter=attr.converters.optional(int))
+
+
+ConvCOptional(1)
+ConvCOptional(None)
+
+
+@attr.s
+class ConvCDefaultIfNone:
+    x: int = attr.ib(converter=attr.converters.default_if_none(42))
+
+
+ConvCDefaultIfNone(1)
+ConvCDefaultIfNone(None)
