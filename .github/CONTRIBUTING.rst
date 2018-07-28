@@ -23,6 +23,8 @@ Workflow
 - No contribution is too small!
   Please submit as many fixes for typos and grammar bloopers as you can!
 - Try to limit each pull request to *one* change only.
+- Since we squash on merge, it's up to you how you handle updates to the master branch.
+  Whether you prefer to rebase on master or merge master into your branch, do whatever is more comfortable for you.
 - *Always* add tests and docs for your code.
   This is a hard rule; patches with missing tests or documentation can't be merged.
 - Make sure your changes pass our CI_.
@@ -159,14 +161,20 @@ Next, get an up to date checkout of the ``attrs`` repository:
 
 .. code-block:: bash
 
-    $ git checkout git@github.com:python-attrs/attrs.git
+    $ git clone git@github.com:python-attrs/attrs.git
+
+or if you want to use git via ``https``:
+
+.. code-block:: bash
+
+    $ git clone https://github.com/python-attrs/attrs.git
 
 Change into the newly created directory and **after activating your virtual environment** install an editable version of ``attrs`` along with its tests and docs requirements:
 
 .. code-block:: bash
 
     $ cd attrs
-    $ pip install -e .[dev]
+    $ pip install -e '.[dev]'
 
 At this point,
 
@@ -196,7 +204,7 @@ You can also run them anytime (as our tox does) using:
    $ pre-commit run --all-files
 
 
-.. [#f1] pre-commit should have been installed into your virtualenv automatically when you ran ``pip install -e .[dev]`` above. If pre-commit is missing, it may be that you need to re-run ``pip install -e .[dev]``.
+.. [#f1] pre-commit should have been installed into your virtualenv automatically when you ran ``pip install -e '.[dev]'`` above. If pre-commit is missing, it may be that you need to re-run ``pip install -e '.[dev]'``.
 
 
 Governance
