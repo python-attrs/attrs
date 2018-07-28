@@ -247,5 +247,6 @@ class TestAnnotations:
             C(x=0)
 
         c = C(x=0, y=1)
+
         assert c.x == 0
         assert c.y == 1

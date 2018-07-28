@@ -289,7 +289,7 @@ class TestTransformAttrs(object):
     def test_kw_only(self):
         """
         Converts all attributes, including superclass attributes, if `kw_only`
-        is provided. Therefor, `kw_only` allows attributes with defaults to
+        is provided. Therefore, `kw_only` allows attributes with defaults to
         preceed mandatory attributes.
 
         Updates in the subclass *don't* affect the superclass attributes.
@@ -307,6 +307,7 @@ class TestTransformAttrs(object):
             y = attr.ib()
 
         attrs, super_attrs, _ = _transform_attrs(C, None, False, True)
+
         assert len(attrs) == 3
         assert len(super_attrs) == 1
 
@@ -628,7 +629,7 @@ class TestAttributes(object):
                 x = attr.ib(factory=Factory(list))
 
 
-@pytest.mark.skipif(PY2, reason="keyword-only arguments is PY3-only.")
+@pytest.mark.skipif(PY2, reason="keyword-only arguments are PY3-only.")
 class TestKeywordOnlyAttributes(object):
     """
     Tests for keyword-only attributes.
@@ -664,6 +665,7 @@ class TestKeywordOnlyAttributes(object):
             y = attr.ib()
 
         c = C(1)
+
         assert c.x == 0
         assert c.y == 1
 
@@ -696,6 +698,7 @@ class TestKeywordOnlyAttributes(object):
 
         with pytest.raises(ValueError) as e:
             _transform_attrs(C, None, False, False)
+
         assert (
             "Non keyword-only attributes are not allowed after a "
             "keyword-only attribute.  Attribute in question: Attribute"
@@ -738,6 +741,7 @@ class TestKeywordOnlyAttributes(object):
             C(0, y=1)
 
         c = C(x=0, y=1)
+
         assert c.x == 0
         assert c.y == 1
 
@@ -759,6 +763,7 @@ class TestKeywordOnlyAttributes(object):
             C(1)
 
         c = C(x=0, y=1)
+
         assert c.x == 0
         assert c.y == 1
 

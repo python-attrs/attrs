@@ -155,7 +155,7 @@ def attrib(
         ``Attribute.type``.
     :param kw_only: Make this attribute keyword-only (Python 3+)
         in the generated ``__init__`` (if ``init`` is ``False``, this
-        parameter is simply ignored).
+        parameter is ignored).
 
     .. versionadded:: 15.2.0 *convert*
     .. versionadded:: 16.3.0 *metadata*
@@ -168,7 +168,7 @@ def attrib(
        *convert* to achieve consistency with other noun-based arguments.
     .. versionadded:: 18.1.0
        ``factory=f`` is syntactic sugar for ``default=attr.Factory(f)``.
-    ..  versionadded:: 18.2.0 *kw_only*
+    .. versionadded:: 18.2.0 *kw_only*
     """
     if hash is not None and hash is not True and hash is not False:
         raise TypeError(
@@ -762,7 +762,7 @@ def attrs(
         .. _`PEP 526`: https://www.python.org/dev/peps/pep-0526/
     :param bool kw_only: Make all attributes keyword-only (Python 3+)
         in the generated ``__init__`` (if ``init`` is ``False``, this
-        parameter is simply ignored).
+        parameter is ignored).
 
 
     .. versionadded:: 16.0.0 *slots*
