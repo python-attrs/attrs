@@ -387,6 +387,21 @@ Converters
       C(x=42)
 
 
+.. autofunction:: attr.converters.default_if_none
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib(
+      ...         converter=attr.converters.default_if_none("")
+      ...     )
+      >>> C(None)
+      C(x='')
+
+
 Deprecated APIs
 ---------------
 
