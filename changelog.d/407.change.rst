@@ -1,0 +1,1 @@
+Fixed a reference leak where the original class would remain live after being replaced when ``slots=True`` is set.
