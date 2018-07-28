@@ -144,6 +144,7 @@ Therefore ``@attr.s`` comes with the ``repr_ns`` option to set it manually:
 ``repr_ns`` works on both Python 2 and 3.
 On Python 3 it overrides the implicit detection.
 
+
 Keyword-only Attributes
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -161,7 +162,7 @@ When using ``attrs`` on Python 3, you can also add `keyword-only <https://docs.p
     >>> A(a=1)
     A(a=1)
 
-`kw_only` may also be specified at via ``attr.s``, and will apply to all attributes:
+``kw_only`` may also be specified at via ``attr.s``, and will apply to all attributes:
 
 .. doctest::
 
@@ -178,7 +179,7 @@ When using ``attrs`` on Python 3, you can also add `keyword-only <https://docs.p
 
 
 
-If you create an attribute with ``init=False``, ``kw_only`` argument is simply ignored.
+If you create an attribute with ``init=False``, the ``kw_only`` argument is ignored.
 
 Keyword-only attributes allow subclasses to add attributes without default values, even if the base class defines attributes with default values:
 
@@ -197,7 +198,7 @@ Keyword-only attributes allow subclasses to add attributes without default value
       ...
     TypeError: B() missing 1 required keyword-only argument: 'b'
 
-If you omit ``kw_only`` or specify ``kw_only=False``, then you'll get an error:
+If you don't set ``kw_only=True``, then there's is no valid attribute ordering and you'll get an error:
 
 .. doctest::
 
