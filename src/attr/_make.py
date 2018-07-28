@@ -493,7 +493,7 @@ class _ClassBuilder(object):
         cd = {
             k: v
             for k, v in iteritems(self._cls_dict)
-            if k not in tuple(self._attr_names) + ("__dict__",)
+            if k not in tuple(self._attr_names) + ("__dict__", "__weakref__")
         }
 
         # We only add the names of attributes that aren't inherited.
