@@ -23,6 +23,8 @@ Workflow
 - No contribution is too small!
   Please submit as many fixes for typos and grammar bloopers as you can!
 - Try to limit each pull request to *one* change only.
+- Since we squash on merge, it's up to you how you handle updates to the master branch.
+  Whether you prefer to rebase on master or merge master into your branch, do whatever is more comfortable for you.
 - *Always* add tests and docs for your code.
   This is a hard rule; patches with missing tests or documentation can't be merged.
 - Make sure your changes pass our CI_.
