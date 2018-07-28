@@ -768,6 +768,43 @@ class TestKeywordOnlyAttributes(object):
         assert c.y == 1
 
 
+@pytest.mark.skipif(not PY2, reason="PY2-specific keyword-only error behavior")
+class TestKeywordOnlyAttributesOnPy2(object):
+    """
+    Tests for keyword-only attribute behavior on py2.
+    """
+
+    def test_syntax_error(self):
+        """
+        Keyword-only attributes raise Syntax error on ``__init__`` generation.
+        """
+
+        with pytest.raises(SyntaxError):
+
+            @attr.s(kw_only=True)
+            class ClassLevel(object):
+                a = attr.ib()
+
+        with pytest.raises(SyntaxError):
+
+            @attr.s()
+            class AttrLevel(object):
+                a = attr.ib(kw_only=True)
+
+    def test_no_init(self):
+        """
+        Keyworld-only is a no-op, not any error, if ``init=false``.
+        """
+
+        @attr.s(kw_only=True, init=False)
+        class ClassLevel(object):
+            a = attr.ib()
+
+        @attr.s(init=False)
+        class AttrLevel(object):
+            a = attr.ib(kw_only=True)
+
+
 @attr.s
 class GC(object):
     @attr.s
