@@ -555,22 +555,30 @@ class _ClassBuilder(object):
         return cls
 
     def add_repr(self, ns):
-        self._cls_dict["__repr__"] = self._add_method_dunders(
-            _make_repr(self._attrs, ns=ns)
-        )
+        if "__repr__" in self._cls.__dict__:
+            meth = getattr(self._cls, "__repr__")
+        else:
+            meth = self._add_method_dunders(_make_repr(self._attrs, ns=ns))
+
+        self._cls_dict["__repr__"] = meth
         return self
 
     def add_str(self):
-        repr = self._cls_dict.get("__repr__")
-        if repr is None:
-            raise ValueError(
-                "__str__ can only be generated if a __repr__ exists."
-            )
+        if "__str__" in self._cls.__dict__:
+            meth = getattr(self._cls, "__str__")
+        else:
+            repr = self._cls_dict.get("__repr__")
+            if repr is None:
+                raise ValueError(
+                    "__str__ can only be generated if a __repr__ exists."
+                )
 
-        def __str__(self):
-            return self.__repr__()
+            def __str__(self):
+                return self.__repr__()
 
-        self._cls_dict["__str__"] = self._add_method_dunders(__str__)
+            meth = self._add_method_dunders(__str__)
+
+        self._cls_dict["__str__"] = meth
         return self
 
     def make_unhashable(self):
@@ -578,33 +586,43 @@ class _ClassBuilder(object):
         return self
 
     def add_hash(self):
-        self._cls_dict["__hash__"] = self._add_method_dunders(
-            _make_hash(self._attrs)
-        )
+        if "__hash__" in self._cls.__dict__:
+            meth = getattr(self._cls, "__hash__")
+        else:
+            meth = self._add_method_dunders(_make_hash(self._attrs))
 
+        self._cls_dict["__hash__"] = meth
         return self
 
     def add_init(self):
-        self._cls_dict["__init__"] = self._add_method_dunders(
-            _make_init(
-                self._attrs,
-                self._has_post_init,
-                self._frozen,
-                self._slots,
-                self._super_attr_map,
+        if "__init__" in self._cls.__dict__:
+            meth = getattr(self._cls, "__init__")
+        else:
+            meth = self._add_method_dunders(
+                _make_init(
+                    self._attrs,
+                    self._has_post_init,
+                    self._frozen,
+                    self._slots,
+                    self._super_attr_map,
+                )
             )
-        )
 
+        self._cls_dict["__init__"] = meth
         return self
 
     def add_cmp(self):
         cd = self._cls_dict
 
-        cd["__eq__"], cd["__ne__"], cd["__lt__"], cd["__le__"], cd[
-            "__gt__"
-        ], cd["__ge__"] = (
-            self._add_method_dunders(meth) for meth in _make_cmp(self._attrs)
-        )
+        for meth in _make_cmp(self._attrs):
+            method_name = meth.__name__
+
+            if method_name in self._cls.__dict__:
+                meth = getattr(self._cls, method_name)
+            else:
+                meth = self._add_method_dunders(meth)
+
+            cd[method_name] = meth
 
         return self
 

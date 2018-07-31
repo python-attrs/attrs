@@ -1,0 +1,1 @@
+``attr.s`` now auto-detects user-written methods and does not overwrite them. # is missing the __hash__ == None if it shouldn't be hashable
