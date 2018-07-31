@@ -35,7 +35,11 @@ from attr._make import (
     make_class,
     validate,
 )
-from attr.exceptions import DefaultAlreadySetError, NotAnAttrsClassError
+from attr.exceptions import (
+    DefaultAlreadySetError,
+    NotAnAttrsClassError,
+    PythonTooOldError,
+)
 
 from .strategies import (
     gen_attr_names,
@@ -779,13 +783,13 @@ class TestKeywordOnlyAttributesOnPy2(object):
         Keyword-only attributes raise Syntax error on ``__init__`` generation.
         """
 
-        with pytest.raises(SyntaxError):
+        with pytest.raises(PythonTooOldError):
 
             @attr.s(kw_only=True)
             class ClassLevel(object):
                 a = attr.ib()
 
-        with pytest.raises(SyntaxError):
+        with pytest.raises(PythonTooOldError):
 
             @attr.s()
             class AttrLevel(object):

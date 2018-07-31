@@ -22,6 +22,7 @@ from .exceptions import (
     DefaultAlreadySetError,
     FrozenInstanceError,
     NotAnAttrsClassError,
+    PythonTooOldError,
     UnannotatedAttributeError,
 )
 
@@ -1471,6 +1472,11 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
 
     args = ", ".join(args)
     if kw_only_args:
+        if PY2:
+            raise PythonTooOldError(
+                "Keyword-only arguments only work on Python 3 and later."
+            )
+
         args += "{leading_comma}*, {kw_only_args}".format(
             leading_comma=", " if args else "",
             kw_only_args=", ".join(kw_only_args),
