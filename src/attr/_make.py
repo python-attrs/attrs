@@ -377,8 +377,8 @@ def _transform_attrs(cls, these, auto_attribs, kw_only):
     AttrsClass = _make_attr_tuple_class(cls.__name__, attr_names)
 
     if kw_only:
-        own_attrs = [a._evolve(kw_only=True) for a in own_attrs]
-        super_attrs = [a._evolve(kw_only=True) for a in super_attrs]
+        own_attrs = [a._assoc(kw_only=True) for a in own_attrs]
+        super_attrs = [a._assoc(kw_only=True) for a in super_attrs]
 
     attrs = AttrsClass(super_attrs + own_attrs)
 
@@ -1613,10 +1613,10 @@ class Attribute(object):
             **inst_dict
         )
 
-    # Don't use attr.evolve since fields(Attribute) doesn't work
-    def _evolve(self, **changes):
+    # Don't use attr.assoc since fields(Attribute) doesn't work
+    def _assoc(self, **changes):
         """
-        Create a new instance, based on *self* with *changes* applied.
+        Copy *self* and apply *changes*.
         """
         new = copy.copy(self)
 
