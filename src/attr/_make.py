@@ -422,12 +422,13 @@ class _ClassBuilder(object):
         "_attr_names",
         "_slots",
         "_frozen",
+        "_weakref",
         "_has_post_init",
         "_delete_attribs",
         "_super_attr_map",
     )
 
-    def __init__(self, cls, these, slots, frozen, auto_attribs):
+    def __init__(self, cls, these, slots, frozen, weakref, auto_attribs):
         attrs, super_attrs, super_map = _transform_attrs(
             cls, these, auto_attribs
         )
@@ -440,6 +441,7 @@ class _ClassBuilder(object):
         self._attr_names = tuple(a.name for a in attrs)
         self._slots = slots
         self._frozen = frozen or _has_frozen_superclass(cls)
+        self._weakref = weakref
         self._has_post_init = bool(getattr(cls, "__attrs_post_init__", False))
         self._delete_attribs = not bool(these)
 
@@ -496,10 +498,14 @@ class _ClassBuilder(object):
             if k not in tuple(self._attr_names) + ("__dict__", "__weakref__")
         }
 
+        names = self._attr_names
+        if self._weakref and "__weakref__" not in cd:
+            names += ("__weakref__",)
+
         # We only add the names of attributes that aren't inherited.
         # Settings __slots__ to inherited attributes wastes memory.
         cd["__slots__"] = tuple(
-            name for name in self._attr_names if name not in super_names
+            name for name in names if name not in super_names
         )
 
         qualname = getattr(self._cls, "__qualname__", None)
@@ -637,6 +643,7 @@ def attrs(
     init=True,
     slots=False,
     frozen=False,
+    weakref=False,
     str=False,
     auto_attribs=False,
 ):
@@ -719,6 +726,8 @@ def attrs(
                ``object.__setattr__(self, "attribute_name", value)``.
 
         ..  _slots: https://docs.python.org/3/reference/datamodel.html#slots
+    :param bool weakref: Make instancess weak-referenceable.  This has no
+        effect unless ``slots`` is also enabled.
     :param bool auto_attribs: If True, collect `PEP 526`_-annotated attributes
         (Python 3.6 and later only) from the class body.
 
@@ -747,6 +756,7 @@ def attrs(
     .. versionchanged:: 18.1.0
        If *these* is passed, no attributes are deleted from the class body.
     .. versionchanged:: 18.1.0 If *these* is ordered, the order is retained.
+    .. versionadded:: 18.2.0 *weakref*
     .. deprecated:: 18.2.0
        ``__lt__``, ``__le__``, ``__gt__``, and ``__ge__`` now raise a
        :class:`DeprecationWarning` if the classes compared are subclasses of
@@ -758,7 +768,9 @@ def attrs(
         if getattr(cls, "__class__", None) is None:
             raise TypeError("attrs only works with new-style classes.")
 
-        builder = _ClassBuilder(cls, these, slots, frozen, auto_attribs)
+        builder = _ClassBuilder(
+            cls, these, slots, frozen, weakref, auto_attribs
+        )
 
         if repr is True:
             builder.add_repr(repr_ns)

@@ -159,6 +159,7 @@ def attrs(
     init: bool = ...,
     slots: bool = ...,
     frozen: bool = ...,
+    weakref: bool = ...,
     str: bool = ...,
     auto_attribs: bool = ...,
 ) -> _C: ...
@@ -173,6 +174,7 @@ def attrs(
     init: bool = ...,
     slots: bool = ...,
     frozen: bool = ...,
+    weakref: bool = ...,
     str: bool = ...,
     auto_attribs: bool = ...,
 ) -> Callable[[_C], _C]: ...
@@ -198,6 +200,7 @@ def make_class(
     init: bool = ...,
     slots: bool = ...,
     frozen: bool = ...,
+    weakref: bool = ...,
     str: bool = ...,
     auto_attribs: bool = ...,
 ) -> type: ...

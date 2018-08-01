@@ -2,6 +2,8 @@
 Unit tests for slot-related functionality.
 """
 
+import weakref
+
 import pytest
 
 import attr
@@ -430,3 +432,40 @@ class TestClosureCellRewriting(object):
         ) == w.message.args
 
         assert just_warn is func
+
+
+@pytest.mark.skipif(PYPY, reason="__slots__ only block weakref on CPython")
+def test_not_weakrefable():
+    @attr.s(slots=True)
+    class C(object):
+        pass
+
+    c = C()
+
+    with pytest.raises(TypeError):
+        weakref.ref(c)
+
+
+@pytest.mark.skipif(
+    not PYPY, reason="slots without weakref should only work on PyPy"
+)
+def test_implicitly_weakrefable():
+    @attr.s(slots=True)
+    class C(object):
+        pass
+
+    c = C()
+    w = weakref.ref(c)
+
+    assert c is w()
+
+
+def test_weakrefable():
+    @attr.s(slots=True, weakref=True)
+    class C(object):
+        pass
+
+    c = C()
+    w = weakref.ref(c)
+
+    assert c is w()
