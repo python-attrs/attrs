@@ -1307,7 +1307,7 @@ class TestClassBuilder(object):
         # doesn't work
         sentinel = getattr(C, method_name)
 
-        C = attr.s(C, hash=True, str=True)
+        C = attr.s(C, hash=True, str=(method_name == "__str__"))
 
         assert sentinel == getattr(C, method_name)
 
