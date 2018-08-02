@@ -20,7 +20,7 @@ It will write dunder methods to work on *all* of those attributes which also has
 Once ``attrs`` knows what attributes it has to work on, it writes the requested dunder methods and -- depending on whether you wish to have a :term:`dict <dict classes>` or :term:`slotted <slotted classes>` class -- creates a new class for you (``slots=True``) or attaches them to the original class (``slots=False``).
 While creating new classes is more elegant, we've run into several edge cases surrounding metaclasses that make it impossible to go this route unconditionally.
 
-To be very clear: if you define a class with a single attribute  without a default value, the generated ``__init__`` will look *exactly* how you'd expect:
+To be very clear: if you define a class with a single attribute without a default value, the generated ``__init__`` will look *exactly* how you'd expect:
 
 .. doctest::
 
@@ -53,7 +53,7 @@ Immutability
 
 In order to give you immutability, ``attrs`` will attach a ``__setattr__`` method to your class that raises a :exc:`attr.exceptions.FrozenInstanceError` whenever anyone tries to set an attribute.
 
-Depending on whether of not a class is a dict class or a slots class, ``attrs`` uses a different technique to circumvent that limitation in the ``__init__`` method.
+Depending on whether a class is a dict class or a slots class, ``attrs`` uses a different technique to circumvent that limitation in the ``__init__`` method.
 
 Once constructed, frozen instances don't differ in any way from regular ones except that you cannot change its attributes.
 
