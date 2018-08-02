@@ -436,6 +436,10 @@ class TestClosureCellRewriting(object):
 
 @pytest.mark.skipif(PYPY, reason="__slots__ only block weakref on CPython")
 def test_not_weakrefable():
+    """
+    Instance is not weak-referenceabl when `weakref=False` in CPython.
+    """
+
     @attr.s(slots=True)
     class C(object):
         pass
@@ -450,6 +454,10 @@ def test_not_weakrefable():
     not PYPY, reason="slots without weakref should only work on PyPy"
 )
 def test_implicitly_weakrefable():
+    """
+    Instance is weak-referenceabl even when `weakref=False` in PyPy.
+    """
+
     @attr.s(slots=True)
     class C(object):
         pass
@@ -459,8 +467,11 @@ def test_implicitly_weakrefable():
 
     assert c is w()
 
-
 def test_weakrefable():
+    """
+    Instance is weak-referenceable when `weakref=True`.
+    """
+
     @attr.s(slots=True, weakref=True)
     class C(object):
         pass
@@ -472,8 +483,12 @@ def test_weakrefable():
 
 
 def test_weakref_does_not_add_a_field():
+    """
+    `weakref=True` does not add a field to the class.
+    """
+
     @attr.s(slots=True, weakref=True)
     class C(object):
         field = attr.ib()
 
-    assert [f.name for f in attr.fields(C)] == ['field']
+    assert [f.name for f in attr.fields(C)] == ["field"]
