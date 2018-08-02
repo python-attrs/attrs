@@ -469,3 +469,11 @@ def test_weakrefable():
     w = weakref.ref(c)
 
     assert c is w()
+
+
+def test_weakref_does_not_add_a_field():
+    @attr.s(slots=True, weakref=True)
+    class C(object):
+        field = attr.ib()
+
+    assert [f.name for f in attr.fields(C)] == ['field']
