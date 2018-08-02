@@ -467,6 +467,7 @@ def test_implicitly_weakrefable():
 
     assert c is w()
 
+
 def test_weakrefable():
     """
     Instance is weak-referenceable when `weakref=True`.
