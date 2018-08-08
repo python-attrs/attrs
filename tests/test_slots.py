@@ -493,3 +493,38 @@ def test_weakref_does_not_add_a_field():
         field = attr.ib()
 
     assert [f.name for f in attr.fields(C)] == ["field"]
+
+
+def tests_weakref_does_not_add_when_inheriting_with_weakref():
+    """
+    `weakref=True` does not add a new __weakref__ slot when inheriting one.
+    """
+
+    @attr.s(slots=True, weakref=True)
+    class C(object):
+        pass
+
+    @attr.s(slots=True, weakref=True)
+    class D(C):
+        pass
+
+    d = D()
+    w = weakref.ref(d)
+
+    assert d is w()
+
+
+def tests_weakref_does_not_add_with_weakref_attribute():
+    """
+    `weakref=True` does not add a new __weakref__ slot when an attribute of
+    that name exists.
+    """
+
+    @attr.s(slots=True, weakref=True)
+    class C(object):
+        __weakref__ = attr.ib(init=False, hash=False, repr=False, cmp=False)
+
+    c = C()
+    w = weakref.ref(c)
+
+    assert c is w()

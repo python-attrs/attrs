@@ -499,7 +499,11 @@ class _ClassBuilder(object):
         }
 
         names = self._attr_names
-        if self._weakref and "__weakref__" not in cd:
+        if (
+            self._weakref
+            and "__weakref__" not in getattr(self._cls, "__slots__", ())
+            and "__weakref__" not in names
+        ):
             names += ("__weakref__",)
 
         # We only add the names of attributes that aren't inherited.
