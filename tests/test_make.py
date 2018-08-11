@@ -461,21 +461,21 @@ class TestAttributes(object):
         If no further arguments are supplied, all add_XXX functions except
         add_hash are applied.  __hash__ is set to None.
         """
-        # Set the method name to a sentinel and check whether it has been
-        # overwritten afterwards.
-        sentinel = object()
 
         class C(object):
             x = attr.ib()
 
-        setattr(C, method_name, sentinel)
+        # Assert that the method does not exist yet.
+        assert method_name not in C.__dict__
 
         C = attr.s(C)
-        meth = getattr(C, method_name)
 
-        assert sentinel != meth
+        method = getattr(C, method_name)
+
         if method_name == "__hash__":
-            assert meth is None
+            assert method is None
+        else:
+            assert method is not None
 
     @pytest.mark.parametrize(
         "arg_name, method_name",
@@ -1489,6 +1489,65 @@ class TestClassBuilder(object):
         gc.collect()
 
         assert [C2] == C.__subclasses__()
+
+    @pytest.mark.parametrize(
+        "method_name",
+        [
+            "__init__",
+            "__hash__",
+            "__repr__",
+            "__str__",
+            "__eq__",
+            "__ne__",
+            "__lt__",
+            "__le__",
+            "__gt__",
+            "__ge__",
+        ],
+    )
+    def test_respect_user_defined_methods(self, method_name):
+        """
+          Does not replace methods provided by the original class.
+        """
+
+        # Set the method name to a sentinel and check that it has not been
+        # overwritten afterwards.
+        def sentinel():
+            pass
+
+        # add_cmp relies on __name__.
+        sentinel.__name__ = method_name
+
+        class C(object):
+            x = attr.ib()
+
+        setattr(C, method_name, sentinel)
+
+        # set sentinel to unbound method of C otherwise assertion for py27
+        # doesn't work
+        sentinel = getattr(C, method_name)
+
+        C = attr.s(C, hash=True, str=(method_name == "__str__"))
+
+        assert sentinel == getattr(C, method_name)
+
+    def test_ignores_user_defined_hash_method(self):
+        """
+          if it should be unhashable, the '__hash__' method is replaced.
+        """
+
+        # Set the method name to a sentinel and check that it has not been
+        # overwritten afterwards.
+        sentinel = object()
+
+        class C(object):
+            x = attr.ib()
+
+        setattr(C, "__hash__", sentinel)
+
+        C = attr.s(C)
+
+        assert getattr(C, "__hash__") is None
 
 
 class TestMakeCmp:

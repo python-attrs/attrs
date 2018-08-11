@@ -579,12 +579,18 @@ class _ClassBuilder(object):
         return cls
 
     def add_repr(self, ns):
+        if "__repr__" in self._cls.__dict__:
+            return self
+
         self._cls_dict["__repr__"] = self._add_method_dunders(
             _make_repr(self._attrs, ns=ns)
         )
         return self
 
     def add_str(self):
+        if "__str__" in self._cls.__dict__:
+            return self
+
         repr = self._cls_dict.get("__repr__")
         if repr is None:
             raise ValueError(
@@ -602,13 +608,18 @@ class _ClassBuilder(object):
         return self
 
     def add_hash(self):
+        if "__hash__" in self._cls.__dict__:
+            return self
+
         self._cls_dict["__hash__"] = self._add_method_dunders(
             _make_hash(self._attrs)
         )
-
         return self
 
     def add_init(self):
+        if "__init__" in self._cls.__dict__:
+            return self
+
         self._cls_dict["__init__"] = self._add_method_dunders(
             _make_init(
                 self._attrs,
@@ -624,11 +635,13 @@ class _ClassBuilder(object):
     def add_cmp(self):
         cd = self._cls_dict
 
-        cd["__eq__"], cd["__ne__"], cd["__lt__"], cd["__le__"], cd[
-            "__gt__"
-        ], cd["__ge__"] = (
-            self._add_method_dunders(meth) for meth in _make_cmp(self._attrs)
-        )
+        for meth in _make_cmp(self._attrs):
+            method_name = meth.__name__
+
+            if method_name in self._cls.__dict__:
+                continue
+
+            cd[method_name] = self._add_method_dunders(meth)
 
         return self
 
