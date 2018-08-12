@@ -437,7 +437,7 @@ class TestClosureCellRewriting(object):
 @pytest.mark.skipif(PYPY, reason="__slots__ only block weakref on CPython")
 def test_not_weakrefable():
     """
-    Instance is not weak-referenceabl when `weakref=False` in CPython.
+    Instance is not weak-referenceable when `weakref=False` in CPython.
     """
 
     @attr.s(slots=True)
@@ -455,7 +455,7 @@ def test_not_weakrefable():
 )
 def test_implicitly_weakrefable():
     """
-    Instance is weak-referenceabl even when `weakref=False` in PyPy.
+    Instance is weak-referenceable even when `weakref=False` in PyPy.
     """
 
     @attr.s(slots=True)

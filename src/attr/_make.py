@@ -730,7 +730,7 @@ def attrs(
                ``object.__setattr__(self, "attribute_name", value)``.
 
         ..  _slots: https://docs.python.org/3/reference/datamodel.html#slots
-    :param bool weakref: Make instancess weak-referenceable.  This has no
+    :param bool weakref: Make instances weak-referenceable.  This has no
         effect unless ``slots`` is also enabled.
     :param bool auto_attribs: If True, collect `PEP 526`_-annotated attributes
         (Python 3.6 and later only) from the class body.
