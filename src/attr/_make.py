@@ -422,13 +422,13 @@ class _ClassBuilder(object):
         "_attr_names",
         "_slots",
         "_frozen",
-        "_weakref",
+        "_weakref_slot",
         "_has_post_init",
         "_delete_attribs",
         "_super_attr_map",
     )
 
-    def __init__(self, cls, these, slots, frozen, weakref, auto_attribs):
+    def __init__(self, cls, these, slots, frozen, weakref_slot, auto_attribs):
         attrs, super_attrs, super_map = _transform_attrs(
             cls, these, auto_attribs
         )
@@ -441,7 +441,7 @@ class _ClassBuilder(object):
         self._attr_names = tuple(a.name for a in attrs)
         self._slots = slots
         self._frozen = frozen or _has_frozen_superclass(cls)
-        self._weakref = weakref
+        self._weakref_slot = weakref_slot
         self._has_post_init = bool(getattr(cls, "__attrs_post_init__", False))
         self._delete_attribs = not bool(these)
 
@@ -500,7 +500,7 @@ class _ClassBuilder(object):
 
         names = self._attr_names
         if (
-            self._weakref
+            self._weakref_slot
             and "__weakref__" not in getattr(self._cls, "__slots__", ())
             and "__weakref__" not in names
         ):
@@ -647,7 +647,7 @@ def attrs(
     init=True,
     slots=False,
     frozen=False,
-    weakref=False,
+    weakref_slot=False,
     str=False,
     auto_attribs=False,
 ):
@@ -773,7 +773,7 @@ def attrs(
             raise TypeError("attrs only works with new-style classes.")
 
         builder = _ClassBuilder(
-            cls, these, slots, frozen, weakref, auto_attribs
+            cls, these, slots, frozen, weakref_slot, auto_attribs
         )
 
         if repr is True:

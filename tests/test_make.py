@@ -1226,7 +1226,7 @@ class TestClassBuilder(object):
             these=None,
             slots=False,
             frozen=False,
-            weakref=False,
+            weakref_slot=False,
             auto_attribs=False,
         )
         b._cls = {}  # no __module__; no __qualname__

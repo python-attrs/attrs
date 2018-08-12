@@ -437,7 +437,7 @@ class TestClosureCellRewriting(object):
 @pytest.mark.skipif(PYPY, reason="__slots__ only block weakref on CPython")
 def test_not_weakrefable():
     """
-    Instance is not weak-referenceable when `weakref=False` in CPython.
+    Instance is not weak-referenceable when `weakref_slot=False` in CPython.
     """
 
     @attr.s(slots=True)
@@ -455,7 +455,7 @@ def test_not_weakrefable():
 )
 def test_implicitly_weakrefable():
     """
-    Instance is weak-referenceable even when `weakref=False` in PyPy.
+    Instance is weak-referenceable even when `weakref_slot=False` in PyPy.
     """
 
     @attr.s(slots=True)
@@ -470,10 +470,10 @@ def test_implicitly_weakrefable():
 
 def test_weakrefable():
     """
-    Instance is weak-referenceable when `weakref=True`.
+    Instance is weak-referenceable when `weakref_slot=True`.
     """
 
-    @attr.s(slots=True, weakref=True)
+    @attr.s(slots=True, weakref_slot=True)
     class C(object):
         pass
 
@@ -485,10 +485,10 @@ def test_weakrefable():
 
 def test_weakref_does_not_add_a_field():
     """
-    `weakref=True` does not add a field to the class.
+    `weakref_slot=True` does not add a field to the class.
     """
 
-    @attr.s(slots=True, weakref=True)
+    @attr.s(slots=True, weakref_slot=True)
     class C(object):
         field = attr.ib()
 
@@ -497,14 +497,15 @@ def test_weakref_does_not_add_a_field():
 
 def tests_weakref_does_not_add_when_inheriting_with_weakref():
     """
-    `weakref=True` does not add a new __weakref__ slot when inheriting one.
+    `weakref_slot=True` does not add a new __weakref__ slot when inheriting
+    one.
     """
 
-    @attr.s(slots=True, weakref=True)
+    @attr.s(slots=True, weakref_slot=True)
     class C(object):
         pass
 
-    @attr.s(slots=True, weakref=True)
+    @attr.s(slots=True, weakref_slot=True)
     class D(C):
         pass
 
@@ -516,11 +517,11 @@ def tests_weakref_does_not_add_when_inheriting_with_weakref():
 
 def tests_weakref_does_not_add_with_weakref_attribute():
     """
-    `weakref=True` does not add a new __weakref__ slot when an attribute of
-    that name exists.
+    `weakref_slot=True` does not add a new __weakref__ slot when an attribute
+    of that name exists.
     """
 
-    @attr.s(slots=True, weakref=True)
+    @attr.s(slots=True, weakref_slot=True)
     class C(object):
         __weakref__ = attr.ib(init=False, hash=False, repr=False, cmp=False)
 

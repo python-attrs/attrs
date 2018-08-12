@@ -148,14 +148,14 @@ list_of_attrs = st.lists(simple_attrs, max_size=9)
 
 @st.composite
 def simple_classes(
-    draw, slots=None, frozen=None, weakref=None, private_attrs=None
+    draw, slots=None, frozen=None, weakref_slot=None, private_attrs=None
 ):
     """
     A strategy that generates classes with default non-attr attributes.
 
     For example, this strategy might generate a class such as:
 
-    @attr.s(slots=True, frozen=True, weakref=True)
+    @attr.s(slots=True, frozen=True, weakref_slot=True)
     class HypClass:
         a = attr.ib(default=1)
         _b = attr.ib(default=None)
@@ -175,7 +175,9 @@ def simple_classes(
     attrs = draw(list_of_attrs)
     frozen_flag = draw(st.booleans()) if frozen is None else frozen
     slots_flag = draw(st.booleans()) if slots is None else slots
-    weakref_flag = draw(st.booleans()) if weakref is None else weakref
+    weakref_slot_flag = (
+        draw(st.booleans()) if weakref_slot is None else weakref_slot
+    )
 
     if private_attrs is None:
         attr_names = maybe_underscore_prefix(gen_attr_names())
@@ -198,7 +200,7 @@ def simple_classes(
         cls_dict,
         slots=slots_flag,
         frozen=frozen_flag,
-        weakref=weakref_flag,
+        weakref_slot=weakref_slot_flag,
     )
 
 
