@@ -168,3 +168,75 @@ def in_(options):
     .. versionadded:: 17.1.0
     """
     return _InValidator(options)
+
+
+@attrs(repr=False, slots=True, hash=True)
+class _DeepIterable(object):
+    member_validator = attrib()
+    iterable_validator = attrib(default=None)
+
+    def __call__(self, inst, attr, value):
+        """
+        We use a callable class to be able to change the ``__repr__``.
+        """
+        if self.iterable_validator is not None:
+            self.iterable_validator(inst, attr, value)
+
+        for member in value:
+            self.member_validator(inst, attr, member)
+
+    def __repr__(self):
+        return (
+            "<deep_iterable validator for {iterable!r} iterables of {member!r}>"
+            .format(
+                iterable=self.iterable_validator,
+                member=self.member_validator
+            )
+        )
+
+
+def deep_iterable(member_validator, iterable_validator=None):
+    """
+    A validator that performs deep validation of an iterable.
+
+    :param iterable_validator: Validator to apply to iterable itself (optional)
+    :param member_validator: Validator to apply to iterable members
+
+    :raises TypeError: if any sub-validators fail
+    """
+    return _DeepIterable(member_validator, iterable_validator)
+
+
+@attrs(repr=False, slots=True, hash=True)
+class _DeepDictionary(object):
+    key_validator = attrib()
+    value_validator = attrib()
+
+    def __call__(self, inst, attr, value):
+        """
+        We use a callable class to be able to change the ``__repr__``.
+        """
+        for key, val in value.items():
+            self.key_validator(inst, attr, key)
+            self.value_validator(inst, attr, val)
+
+    def __repr__(self):
+        return (
+            "<deep_dictionary validator for dictionaries mapping {key!r} to {value!r}>"
+            .format(
+                key=self.key_validator,
+                value=self.value_validator
+            )
+        )
+
+
+def deep_dictionary(key_validator, value_validator):
+    """
+    A validator that performs deep validation of a dictionary.
+
+    :param key_validator: Validator to apply to dictionary keys
+    :param value_validator: Validator to apply to dictionary values
+
+    :raises TypeError: if any sub-validators fail
+    """
+    return _DeepDictionary(key_validator, value_validator)
