@@ -12,7 +12,16 @@ import attr
 from attr import has
 from attr import validators as validator_module
 from attr._compat import TYPE
-from attr.validators import and_, in_, instance_of, optional, provides, deep_iterable, deep_dictionary, is_callable
+from attr.validators import (
+    and_,
+    deep_dictionary,
+    deep_iterable,
+    in_,
+    instance_of,
+    is_callable,
+    optional,
+    provides,
+)
 
 from .utils import simple_attr
 
@@ -328,9 +337,13 @@ class TestDeepIterable(object):
         Returned validator has a useful `__repr__` when only member validator is set.
         """
         member_validator = instance_of(int)
-        member_repr = "<instance_of validator for type <{type} 'int'>>".format(type=TYPE)
+        member_repr = "<instance_of validator for type <{type} 'int'>>".format(
+            type=TYPE
+        )
         v = deep_iterable(member_validator)
-        expected_repr = "<deep_iterable validator for iterables of {member_repr}>".format(member_repr=member_repr)
+        expected_repr = "<deep_iterable validator for iterables of {member_repr}>".format(
+            member_repr=member_repr
+        )
         assert ((expected_repr)) == repr(v)
 
     def test_repr_member_and_iterable(self):
@@ -338,13 +351,16 @@ class TestDeepIterable(object):
         Returned validator has a useful `__repr__` when both member and iterable validators are set.
         """
         member_validator = instance_of(int)
-        member_repr = "<instance_of validator for type <{type} 'int'>>".format(type=TYPE)
+        member_repr = "<instance_of validator for type <{type} 'int'>>".format(
+            type=TYPE
+        )
         iterable_validator = instance_of(list)
-        iterable_repr = "<instance_of validator for type <{type} 'list'>>".format(type=TYPE)
+        iterable_repr = "<instance_of validator for type <{type} 'list'>>".format(
+            type=TYPE
+        )
         v = deep_iterable(member_validator, iterable_validator)
         expected_repr = "<deep_iterable validator for {iterable_repr} iterables of {member_repr}>".format(
-            iterable_repr=iterable_repr,
-            member_repr=member_repr,
+            iterable_repr=iterable_repr, member_repr=member_repr
         )
         assert expected_repr == repr(v)
 
@@ -402,13 +418,16 @@ class TestDeepDictionary(object):
         Returned validator has a useful `__repr__`.
         """
         key_validator = instance_of(str)
-        key_repr = "<instance_of validator for type <{type} 'str'>>".format(type=TYPE)
+        key_repr = "<instance_of validator for type <{type} 'str'>>".format(
+            type=TYPE
+        )
         value_validator = instance_of(int)
-        value_repr = "<instance_of validator for type <{type} 'int'>>".format(type=TYPE)
+        value_repr = "<instance_of validator for type <{type} 'int'>>".format(
+            type=TYPE
+        )
         v = deep_dictionary(key_validator, value_validator)
         expected_repr = "<deep_dictionary validator for dictionaries mapping {key_repr} to {value_repr}>".format(
-            key_repr=key_repr,
-            value_repr=value_repr
+            key_repr=key_repr, value_repr=value_repr
         )
         assert expected_repr == repr(v)
 

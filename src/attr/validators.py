@@ -186,15 +186,14 @@ class _DeepIterable(object):
             self.member_validator(inst, attr, member)
 
     def __repr__(self):
-        iterable_identifier = '' if self.iterable_validator is None else " {iterable!r}".format(
-            iterable=self.iterable_validator
+        iterable_identifier = (
+            ""
+            if self.iterable_validator is None
+            else " {iterable!r}".format(iterable=self.iterable_validator)
         )
-        return (
-            "<deep_iterable validator for{iterable_identifier} iterables of {member!r}>"
-            .format(
-                iterable_identifier=iterable_identifier,
-                member=self.member_validator
-            )
+        return "<deep_iterable validator for{iterable_identifier} iterables of {member!r}>".format(
+            iterable_identifier=iterable_identifier,
+            member=self.member_validator,
         )
 
 
@@ -229,12 +228,8 @@ class _DeepDictionary(object):
             self.value_validator(inst, attr, val)
 
     def __repr__(self):
-        return (
-            "<deep_dictionary validator for dictionaries mapping {key!r} to {value!r}>"
-            .format(
-                key=self.key_validator,
-                value=self.value_validator
-            )
+        return "<deep_dictionary validator for dictionaries mapping {key!r} to {value!r}>".format(
+            key=self.key_validator, value=self.value_validator
         )
 
 
@@ -254,7 +249,6 @@ def deep_dictionary(key_validator, value_validator):
 
 @attrs(repr=False, slots=False, hash=True)
 class _IsCallableValidator(object):
-
     def __call__(self, inst, attr, value):
         """
         We use a callable class to be able to change the ``__repr__``.
