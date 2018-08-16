@@ -265,6 +265,8 @@ def is_callable():
     A validator that raises a :class:`TypeError` if the initializer is called
     with a value for this particular attribute that is not callable.
 
+    .. versionadded:: 18.2.0
+
     :raises TypeError: With a human readable error message containing the attribute
         (of type :class:`attr.Attribute`) name.
     """
