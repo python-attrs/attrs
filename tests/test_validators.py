@@ -12,7 +12,7 @@ import attr
 from attr import has
 from attr import validators as validator_module
 from attr._compat import TYPE
-from attr.validators import and_, in_, instance_of, optional, provides
+from attr.validators import and_, in_, instance_of, optional, provides, is_callable
 
 from .utils import simple_attr
 
@@ -265,6 +265,38 @@ class TestIn_(object):
         """
         v = in_([3, 4, 5])
         assert (("<in_ validator with options [3, 4, 5]>")) == repr(v)
+
+
+class TestIsCallable(object):
+    """
+    Tests for `is_callable`.
+    """
+
+    def test_success(self):
+        """
+        If the value is callable, nothing happens.
+        """
+        v = is_callable()
+        a = simple_attr("test")
+        v(None, a, isinstance)
+
+    def test_fail(self):
+        """
+        Raise TypeError if the value is not callable.
+        """
+        v = is_callable()
+        a = simple_attr("test")
+        with pytest.raises(TypeError) as e:
+            v(None, a, None)
+
+        assert ("'test' must be callable",) == e.value.args
+
+    def test_repr(self):
+        """
+        Returned validator has a useful `__repr__`.
+        """
+        v = is_callable()
+        assert "<is_callable validator>" == repr(v)
 
 
 def test_hashability():
