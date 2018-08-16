@@ -170,6 +170,32 @@ def in_(options):
     return _InValidator(options)
 
 
+@attrs(repr=False, slots=False, hash=True)
+class _IsCallableValidator(object):
+    def __call__(self, inst, attr, value):
+        """
+        We use a callable class to be able to change the ``__repr__``.
+        """
+        if not callable(value):
+            raise TypeError("'{name}' must be callable".format(name=attr.name))
+
+    def __repr__(self):
+        return "<is_callable validator>"
+
+
+def is_callable():
+    """
+    A validator that raises a :class:`TypeError` if the initializer is called
+    with a value for this particular attribute that is not callable.
+
+    .. versionadded:: 18.2.0
+
+    :raises TypeError: With a human readable error message containing the attribute
+        (of type :class:`attr.Attribute`) name.
+    """
+    return _IsCallableValidator()
+
+
 @attrs(repr=False, slots=True, hash=True)
 class _DeepIterable(object):
     member_validator = attrib()
@@ -247,29 +273,3 @@ def deep_mapping(key_validator, value_validator, mapping_validator=None):
     :raises TypeError: if any sub-validators fail
     """
     return _DeepMapping(key_validator, value_validator, mapping_validator)
-
-
-@attrs(repr=False, slots=False, hash=True)
-class _IsCallableValidator(object):
-    def __call__(self, inst, attr, value):
-        """
-        We use a callable class to be able to change the ``__repr__``.
-        """
-        if not callable(value):
-            raise TypeError("'{name}' must be callable".format(name=attr.name))
-
-    def __repr__(self):
-        return "<is_callable validator>"
-
-
-def is_callable():
-    """
-    A validator that raises a :class:`TypeError` if the initializer is called
-    with a value for this particular attribute that is not callable.
-
-    .. versionadded:: 18.2.0
-
-    :raises TypeError: With a human readable error message containing the attribute
-        (of type :class:`attr.Attribute`) name.
-    """
-    return _IsCallableValidator()
