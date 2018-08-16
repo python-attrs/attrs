@@ -214,6 +214,7 @@ def deep_iterable(member_validator, iterable_validator=None):
 
 @attrs(repr=False, slots=True, hash=True)
 class _DeepDictionary(object):
+    _initial_validator = instance_of(dict)
     key_validator = attrib()
     value_validator = attrib()
 
@@ -221,6 +222,8 @@ class _DeepDictionary(object):
         """
         We use a callable class to be able to change the ``__repr__``.
         """
+        self._initial_validator(inst, attr, value)
+
         for key, val in value.items():
             self.key_validator(inst, attr, key)
             self.value_validator(inst, attr, val)
