@@ -14,7 +14,7 @@ from attr import validators as validator_module
 from attr._compat import TYPE
 from attr.validators import (
     and_,
-    deep_dictionary,
+    deep_mapping,
     deep_iterable,
     in_,
     instance_of,
@@ -367,7 +367,7 @@ class TestDeepIterable(object):
 
 class TestDeepDictionary(object):
     """
-    Tests for `deep_dictionary`.
+    Tests for `deep_mapping`.
     """
 
     def test_success(self):
@@ -376,17 +376,18 @@ class TestDeepDictionary(object):
         """
         key_validator = instance_of(str)
         value_validator = instance_of(int)
-        v = deep_dictionary(key_validator, value_validator)
+        v = deep_mapping(key_validator, value_validator)
         a = simple_attr("test")
         v(None, a, {"a": 6, "b": 7})
 
-    def test_fail_is_not_dictionary(self):
+    def test_fail_invalid_mapping(self):
         """
         Raise :class:`TypeError` if value is not a dictionary.
         """
         key_validator = instance_of(str)
         value_validator = instance_of(int)
-        v = deep_dictionary(key_validator, value_validator)
+        mapping_validator = instance_of(dict)
+        v = deep_mapping(key_validator, value_validator, mapping_validator)
         a = simple_attr("test")
         with pytest.raises(TypeError) as e:
             v(None, a, None)
@@ -397,7 +398,7 @@ class TestDeepDictionary(object):
         """
         key_validator = instance_of(str)
         value_validator = instance_of(int)
-        v = deep_dictionary(key_validator, value_validator)
+        v = deep_mapping(key_validator, value_validator)
         a = simple_attr("test")
         with pytest.raises(TypeError) as e:
             v(None, a, {"a": 6, 42: 7})
@@ -408,7 +409,7 @@ class TestDeepDictionary(object):
         """
         key_validator = instance_of(str)
         value_validator = instance_of(int)
-        v = deep_dictionary(key_validator, value_validator)
+        v = deep_mapping(key_validator, value_validator)
         a = simple_attr("test")
         with pytest.raises(TypeError) as e:
             v(None, a, {"a": "6", "b": 7})
@@ -425,8 +426,8 @@ class TestDeepDictionary(object):
         value_repr = "<instance_of validator for type <{type} 'int'>>".format(
             type=TYPE
         )
-        v = deep_dictionary(key_validator, value_validator)
-        expected_repr = "<deep_dictionary validator for dictionaries mapping {key_repr} to {value_repr}>".format(
+        v = deep_mapping(key_validator, value_validator)
+        expected_repr = "<deep_mapping validator for dictionaries mapping {key_repr} to {value_repr}>".format(
             key_repr=key_repr, value_repr=value_repr
         )
         assert expected_repr == repr(v)

@@ -201,8 +201,8 @@ def deep_iterable(member_validator, iterable_validator=None):
     """
     A validator that performs deep validation of an iterable.
 
-    :param iterable_validator: Validator to apply to iterable itself (optional)
     :param member_validator: Validator to apply to iterable members
+    :param iterable_validator: Validator to apply to iterable itself (optional)
 
     .. versionadded:: 18.2.0
 
@@ -212,39 +212,41 @@ def deep_iterable(member_validator, iterable_validator=None):
 
 
 @attrs(repr=False, slots=True, hash=True)
-class _DeepDictionary(object):
-    _initial_validator = instance_of(dict)
+class _DeepMapping(object):
     key_validator = attrib()
     value_validator = attrib()
+    mapping_validator = attrib(default=None)
 
     def __call__(self, inst, attr, value):
         """
         We use a callable class to be able to change the ``__repr__``.
         """
-        self._initial_validator(inst, attr, value)
+        if self.mapping_validator is not None:
+            self.mapping_validator(inst, attr, value)
 
-        for key, val in value.items():
+        for key in value:
             self.key_validator(inst, attr, key)
-            self.value_validator(inst, attr, val)
+            self.value_validator(inst, attr, value[key])
 
     def __repr__(self):
-        return "<deep_dictionary validator for dictionaries mapping {key!r} to {value!r}>".format(
+        return "<deep_mapping validator for dictionaries mapping {key!r} to {value!r}>".format(
             key=self.key_validator, value=self.value_validator
         )
 
 
-def deep_dictionary(key_validator, value_validator):
+def deep_mapping(key_validator, value_validator, mapping_validator=None):
     """
     A validator that performs deep validation of a dictionary.
 
     :param key_validator: Validator to apply to dictionary keys
     :param value_validator: Validator to apply to dictionary values
+    :param mapping_validator: Validator to apply to top-level mapping attribute (optional)
 
     .. versionadded:: 18.2.0
 
     :raises TypeError: if any sub-validators fail
     """
-    return _DeepDictionary(key_validator, value_validator)
+    return _DeepMapping(key_validator, value_validator, mapping_validator)
 
 
 @attrs(repr=False, slots=False, hash=True)
