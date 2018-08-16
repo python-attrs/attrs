@@ -186,10 +186,13 @@ class _DeepIterable(object):
             self.member_validator(inst, attr, member)
 
     def __repr__(self):
+        iterable_identifier = '' if self.iterable_validator is None else " {iterable!r}".format(
+            iterable=self.iterable_validator
+        )
         return (
-            "<deep_iterable validator for {iterable!r} iterables of {member!r}>"
+            "<deep_iterable validator for{iterable_identifier} iterables of {member!r}>"
             .format(
-                iterable=self.iterable_validator,
+                iterable_identifier=iterable_identifier,
                 member=self.member_validator
             )
         )
