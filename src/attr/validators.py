@@ -202,6 +202,8 @@ def deep_iterable(member_validator, iterable_validator=None):
     :param iterable_validator: Validator to apply to iterable itself (optional)
     :param member_validator: Validator to apply to iterable members
 
+    .. versionadded:: 18.2.0
+
     :raises TypeError: if any sub-validators fail
     """
     return _DeepIterable(member_validator, iterable_validator)
@@ -236,6 +238,8 @@ def deep_dictionary(key_validator, value_validator):
 
     :param key_validator: Validator to apply to dictionary keys
     :param value_validator: Validator to apply to dictionary values
+
+    .. versionadded:: 18.2.0
 
     :raises TypeError: if any sub-validators fail
     """
