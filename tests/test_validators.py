@@ -12,7 +12,7 @@ import attr
 from attr import has
 from attr import validators as validator_module
 from attr._compat import TYPE
-from attr.validators import and_, in_, instance_of, optional, provides, deep_iterable, is_callable
+from attr.validators import and_, in_, instance_of, optional, provides, deep_iterable, deep_dictionary, is_callable
 
 from .utils import simple_attr
 
@@ -345,6 +345,70 @@ class TestDeepIterable(object):
         expected_repr = "<deep_iterable validator for {iterable_repr} iterables of {member_repr}>".format(
             iterable_repr=iterable_repr,
             member_repr=member_repr,
+        )
+        assert expected_repr == repr(v)
+
+
+class TestDeepDictionary(object):
+    """
+    Tests for `deep_dictionary`.
+    """
+
+    def test_success(self):
+        """
+        If both the key and value validators succeed, nothing happens.
+        """
+        key_validator = instance_of(str)
+        value_validator = instance_of(int)
+        v = deep_dictionary(key_validator, value_validator)
+        a = simple_attr("test")
+        v(None, a, {"a": 6, "b": 7})
+
+    def test_fail_is_not_dictionary(self):
+        """
+        Raise :class:`TypeError` if value is not a dictionary.
+        """
+        key_validator = instance_of(str)
+        value_validator = instance_of(int)
+        v = deep_dictionary(key_validator, value_validator)
+        a = simple_attr("test")
+        with pytest.raises(TypeError) as e:
+            v(None, a, None)
+
+    def test_fail_invalid_key(self):
+        """
+        Raise key validator error if an invalid key is found.
+        """
+        key_validator = instance_of(str)
+        value_validator = instance_of(int)
+        v = deep_dictionary(key_validator, value_validator)
+        a = simple_attr("test")
+        with pytest.raises(TypeError) as e:
+            v(None, a, {"a": 6, 42: 7})
+
+    def test_fail_invalid_member(self):
+        """
+        Raise key validator error if an invalid member value is found.
+        """
+        key_validator = instance_of(str)
+        value_validator = instance_of(int)
+        v = deep_dictionary(key_validator, value_validator)
+        a = simple_attr("test")
+        with pytest.raises(TypeError) as e:
+            v(None, a, {"a": "6", "b": 7})
+
+    def test_repr(self):
+        """
+        Returned validator has a useful `__repr__`.
+        """
+        key_validator = instance_of(str)
+        key_repr = "<instance_of validator for type <{type} 'str'>>".format(type=TYPE)
+        value_validator = instance_of(int)
+        value_repr = "<instance_of validator for type <{type} 'int'>>".format(type=TYPE)
+        v = deep_dictionary(key_validator, value_validator)
+        expected_repr = "<deep_dictionary validator for dictionaries mapping {key_repr} to {value_repr}>".format(
+            key_repr=key_repr,
+            value_repr=value_repr
         )
         assert expected_repr == repr(v)
 
