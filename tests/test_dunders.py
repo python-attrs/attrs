@@ -288,6 +288,16 @@ class TestAddHash(object):
 
         assert exc_args == e.value.args
 
+    def test_enforce_no_cache_hash_without_hash(self):
+        exc_args = (
+            "Invalid value for cache_hash.  To use hash caching,"
+            " hashing must be either explicitly or implicitly "
+            "enabled",
+        )
+        with pytest.raises(TypeError) as e:
+            make_class("C", {}, hash=False, cache_hash=True)
+        assert exc_args == e.value.args
+
     @given(booleans(), booleans())
     def test_hash_attribute(self, slots, cache_hash):
         """
@@ -364,6 +374,47 @@ class TestAddHash(object):
             "'C' objects are unhashable",  # PyPy
             "unhashable type: 'C'",  # CPython
         )
+
+    def test_cache_hashing(self):
+        """
+        Ensure that hash computation if cached if and only if requested
+        """
+
+        class HashCounter:
+            """
+            A class for testing which counts how many times its hash has been requested
+            """
+
+            def __init__(self):
+                self.times_hash_called = 0
+
+            def __hash__(self):
+                self.times_hash_called += 1
+                return 12345
+
+        Uncached = make_class(
+            "Uncached",
+            {"hash_counter": attr.ib(factory=HashCounter)},
+            hash=True,
+            cache_hash=False,
+        )
+        Cached = make_class(
+            "Cached",
+            {"hash_counter": attr.ib(factory=HashCounter)},
+            hash=True,
+            cache_hash=True,
+        )
+
+        uncached_instance = Uncached()
+        cached_instance = Cached()
+
+        hash(uncached_instance)
+        hash(uncached_instance)
+        hash(cached_instance)
+        hash(cached_instance)
+
+        assert 2 == uncached_instance.hash_counter.times_hash_called
+        assert 1 == cached_instance.hash_counter.times_hash_called
 
 
 class TestAddInit(object):

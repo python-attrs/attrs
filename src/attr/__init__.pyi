@@ -167,6 +167,7 @@ def attrs(
     str: bool = ...,
     auto_attribs: bool = ...,
     kw_only: bool = ...,
+    cache_hash: bool = ...,
 ) -> _C: ...
 @overload
 def attrs(
@@ -182,6 +183,7 @@ def attrs(
     str: bool = ...,
     auto_attribs: bool = ...,
     kw_only: bool = ...,
+    cache_hash: bool = ...,
 ) -> Callable[[_C], _C]: ...
 
 # TODO: add support for returning NamedTuple from the mypy plugin
@@ -208,6 +210,7 @@ def make_class(
     str: bool = ...,
     auto_attribs: bool = ...,
     kw_only: bool = ...,
+    cache_hash: bool = ...,
 ) -> type: ...
 
 # _funcs --
