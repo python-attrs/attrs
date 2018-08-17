@@ -1368,7 +1368,7 @@ class TestClassBuilder(object):
         class C(object):
             pass
 
-        b = _ClassBuilder(C, None, True, True, False, False)
+        b = _ClassBuilder(C, None, True, True, False, False, False)
 
         assert "<_ClassBuilder(cls=C)>" == repr(b)
 
@@ -1380,7 +1380,7 @@ class TestClassBuilder(object):
         class C(object):
             x = attr.ib()
 
-        b = _ClassBuilder(C, None, True, True, False, False)
+        b = _ClassBuilder(C, None, True, True, False, False, False)
 
         cls = (
             b.add_cmp()
@@ -1443,6 +1443,7 @@ class TestClassBuilder(object):
             frozen=False,
             auto_attribs=False,
             kw_only=False,
+            cache_hash=False,
         )
         b._cls = {}  # no __module__; no __qualname__
 

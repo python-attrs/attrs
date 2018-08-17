@@ -446,12 +446,15 @@ class _ClassBuilder(object):
         "_attr_names",
         "_slots",
         "_frozen",
+        "_cache_hash",
         "_has_post_init",
         "_delete_attribs",
         "_super_attr_map",
     )
 
-    def __init__(self, cls, these, slots, frozen, auto_attribs, kw_only):
+    def __init__(
+        self, cls, these, slots, frozen, auto_attribs, kw_only, cache_hash
+    ):
         attrs, super_attrs, super_map = _transform_attrs(
             cls, these, auto_attribs, kw_only
         )
@@ -464,6 +467,7 @@ class _ClassBuilder(object):
         self._attr_names = tuple(a.name for a in attrs)
         self._slots = slots
         self._frozen = frozen or _has_frozen_superclass(cls)
+        self._cache_hash = cache_hash
         self._has_post_init = bool(getattr(cls, "__attrs_post_init__", False))
         self._delete_attribs = not bool(these)
 
@@ -522,9 +526,12 @@ class _ClassBuilder(object):
 
         # We only add the names of attributes that aren't inherited.
         # Settings __slots__ to inherited attributes wastes memory.
-        cd["__slots__"] = tuple(
+        slot_names = [
             name for name in self._attr_names if name not in super_names
-        )
+        ]
+        if self._cache_hash:
+            slot_names.append("__attrs_cached_hash")
+        cd["__slots__"] = tuple(slot_names)
 
         qualname = getattr(self._cls, "__qualname__", None)
         if qualname is not None:
@@ -603,7 +610,7 @@ class _ClassBuilder(object):
 
     def add_hash(self):
         self._cls_dict["__hash__"] = self._add_method_dunders(
-            _make_hash(self._attrs)
+            _make_hash(self._attrs, self._cache_hash)
         )
 
         return self
@@ -615,6 +622,7 @@ class _ClassBuilder(object):
                 self._has_post_init,
                 self._frozen,
                 self._slots,
+                self._cache_hash,
                 self._super_attr_map,
             )
         )
@@ -664,6 +672,7 @@ def attrs(
     str=False,
     auto_attribs=False,
     kw_only=False,
+    cache_hash=False,
 ):
     r"""
     A class decorator that adds `dunder
@@ -764,6 +773,11 @@ def attrs(
     :param bool kw_only: Make all attributes keyword-only (Python 3+)
         in the generated ``__init__`` (if ``init`` is ``False``, this
         parameter is ignored).
+    :param bool cache_hash: Ensure that the object's hash code is computed
+    only once and stored on the object.  If this is set to ``True``, hashing
+    must be either explicitly or implicitly enabled for this class.  If the
+    hash code is cached, then no attributes of this class which participate
+    in hash code computation may be mutated after object creation.
 
 
     .. versionadded:: 16.0.0 *slots*
@@ -782,6 +796,7 @@ def attrs(
        each other. ``__eq`` and ``__ne__`` never tried to compared subclasses
        to each other.
     .. versionadded:: 18.2.0 *kw_only*
+    .. versionadded:: 18.2.0 *cache_hash*
     """
 
     def wrap(cls):
@@ -789,7 +804,7 @@ def attrs(
             raise TypeError("attrs only works with new-style classes.")
 
         builder = _ClassBuilder(
-            cls, these, slots, frozen, auto_attribs, kw_only
+            cls, these, slots, frozen, auto_attribs, kw_only, cache_hash
         )
 
         if repr is True:
@@ -805,10 +820,22 @@ def attrs(
                 "Invalid value for hash.  Must be True, False, or None."
             )
         elif hash is False or (hash is None and cmp is False):
+            if cache_hash:
+                raise TypeError(
+                    "Invalid value for cache_hash.  To use hash caching,"
+                    " hashing must be either explicitly or implicitly "
+                    "enabled"
+                )
             pass
         elif hash is True or (hash is None and cmp is True and frozen is True):
             builder.add_hash()
         else:
+            if cache_hash:
+                raise TypeError(
+                    "Invalid value for cache_hash.  To use hash caching,"
+                    " hashing must be either explicitly or implicitly "
+                    "enabled"
+                )
             builder.make_unhashable()
 
         if init is True:
@@ -862,29 +889,46 @@ def _attrs_to_tuple(obj, attrs):
     return tuple(getattr(obj, a.name) for a in attrs)
 
 
-def _make_hash(attrs):
+def _make_hash(attrs, cache_hash=False):
     attrs = tuple(
         a
         for a in attrs
         if a.hash is True or (a.hash is None and a.cmp is True)
     )
 
+    tab = "        "
+
     # We cache the generated hash methods for the same kinds of attributes.
     sha1 = hashlib.sha1()
     sha1.update(repr(attrs).encode("utf-8"))
     unique_filename = "<attrs generated hash %s>" % (sha1.hexdigest(),)
     type_hash = hash(unique_filename)
-    lines = [
-        "def __hash__(self):",
-        "    return hash((",
-        "        %d," % (type_hash,),
-    ]
-    for a in attrs:
-        lines.append("        self.%s," % (a.name))
 
-    lines.append("    ))")
+    method_lines = ["def __hash__(self):"]
 
-    script = "\n".join(lines)
+    def append_hash_computation_lines(prefix, indent):
+        """
+        Generate the code for actually computing the hash code.
+        Below this will either be returned directly or used to compute
+        a value which is then cached, depending on the value of cache_hash
+        """
+        method_lines.extend(
+            [indent + prefix + "hash((", indent + "        %d," % (type_hash,)]
+        )
+
+        for a in attrs:
+            method_lines.append(indent + "        self.%s," % a.name)
+
+        method_lines.append(indent + "    ))")
+
+    if cache_hash:
+        method_lines.append(tab + "if self.__attrs_cached_hash is None:")
+        append_hash_computation_lines("self.__attrs_cached_hash = ", tab * 2)
+        method_lines.append(tab + "return self.__attrs_cached_hash")
+    else:
+        append_hash_computation_lines("return ", tab)
+
+    script = "\n".join(method_lines)
     globs = {}
     locs = {}
     bytecode = compile(script, unique_filename, "exec")
@@ -1108,7 +1152,7 @@ def _add_repr(cls, ns=None, attrs=None):
     return cls
 
 
-def _make_init(attrs, post_init, frozen, slots, super_attr_map):
+def _make_init(attrs, post_init, frozen, slots, cache_hash, super_attr_map):
     attrs = [a for a in attrs if a.init or a.default is not NOTHING]
 
     # We cache the generated init methods for the same kinds of attributes.
@@ -1117,7 +1161,7 @@ def _make_init(attrs, post_init, frozen, slots, super_attr_map):
     unique_filename = "<attrs generated init {0}>".format(sha1.hexdigest())
 
     script, globs, annotations = _attrs_to_init_script(
-        attrs, frozen, slots, post_init, super_attr_map
+        attrs, frozen, slots, post_init, cache_hash, super_attr_map
     )
     locs = {}
     bytecode = compile(script, unique_filename, "exec")
@@ -1152,7 +1196,8 @@ def _add_init(cls, frozen):
         getattr(cls, "__attrs_post_init__", False),
         frozen,
         _is_slot_cls(cls),
-        {},
+        cache_hash=False,
+        super_attr_map={},
     )
     return cls
 
@@ -1241,7 +1286,9 @@ def _is_slot_attr(a_name, super_attr_map):
     return a_name in super_attr_map and _is_slot_cls(super_attr_map[a_name])
 
 
-def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
+def _attrs_to_init_script(
+    attrs, frozen, slots, post_init, cache_hash, super_attr_map
+):
     """
     Return a script of an initializer for *attrs* and a dict of globals.
 
@@ -1259,6 +1306,7 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
             lines.append(
                 # Circumvent the __setattr__ descriptor to save one lookup per
                 # assignment.
+                # Note _setattr will be used again below if cache_hash is True
                 "_setattr = _cached_setattr.__get__(self, self.__class__)"
             )
 
@@ -1280,6 +1328,7 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
             # Dict frozen classes assign directly to __dict__.
             # But only if the attribute doesn't come from an ancestor slot
             # class.
+            # Note _inst_dict will be used again below if cache_hash is True
             lines.append("_inst_dict = self.__dict__")
             if any_slot_ancestors:
                 lines.append(
@@ -1469,6 +1518,22 @@ def _attrs_to_init_script(attrs, frozen, slots, post_init, super_attr_map):
             names_for_globals[attr_name] = a
     if post_init:
         lines.append("self.__attrs_post_init__()")
+
+    # because this is set only after __attrs_post_init is called, a crash will result if
+    # post-init tries to access the hash code.  This seemed preferable to setting this
+    # beforehand, in which case alteration to field values during post-init combined with
+    # post-init accessing the hash code would result in silent bugs.
+    if cache_hash:
+        if frozen:
+            if slots:
+                # if frozen and slots, then _setattr defined above
+                init_hash_cache = "_setattr('%s', %s)"
+            else:
+                # if frozen and not slots, then _inst_dict defined above
+                init_hash_cache = "_inst_dict['%s'] = %s"
+        else:
+            init_hash_cache = "self.%s = %s"
+        lines.append(init_hash_cache % ("__attrs_cached_hash", "None"))
 
     args = ", ".join(args)
     if kw_only_args:
