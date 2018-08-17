@@ -33,9 +33,14 @@ ReprC = simple_class(repr=True)
 ReprCSlots = simple_class(repr=True, slots=True)
 
 # HashC is hashable by explicit definition while HashCSlots is hashable
-# implicitly.
+# implicitly.  The "Cached" versions are the same, except with hash code
+# caching enabled
 HashC = simple_class(hash=True)
 HashCSlots = simple_class(hash=None, cmp=True, frozen=True, slots=True)
+HashCCached = simple_class(hash=True, cache_hash=True)
+HashCSlotsCached = simple_class(
+    hash=None, cmp=True, frozen=True, slots=True, cache_hash=True
+)
 
 
 class InitC(object):
@@ -283,8 +288,8 @@ class TestAddHash(object):
 
         assert exc_args == e.value.args
 
-    @given(booleans())
-    def test_hash_attribute(self, slots):
+    @given(booleans(), booleans())
+    def test_hash_attribute(self, slots, cache_hash):
         """
         If `hash` is False on an attribute, ignore that attribute.
         """
@@ -293,6 +298,7 @@ class TestAddHash(object):
             {"a": attr.ib(hash=False), "b": attr.ib()},
             slots=slots,
             hash=True,
+            cache_hash=cache_hash,
         )
 
         assert hash(C(1, 2)) == hash(C(2, 2))
@@ -331,12 +337,19 @@ class TestAddHash(object):
             assert C(1) != C(1)
             assert hash(C(1)) != hash(C(1))
 
-    @pytest.mark.parametrize("cls", [HashC, HashCSlots])
+    @pytest.mark.parametrize(
+        "cls", [HashC, HashCSlots, HashCCached, HashCSlotsCached]
+    )
     def test_hash_works(self, cls):
         """
         __hash__ returns different hashes for different values.
         """
-        assert hash(cls(1, 2)) != hash(cls(1, 1))
+        a = cls(1, 2)
+        b = cls(1, 1)
+        assert hash(a) != hash(b)
+        # perform the test again to test the pre-cached path through
+        # __hash__ for the cached-hash versions
+        assert hash(a) != hash(b)
 
     def test_hash_default(self):
         """

@@ -33,6 +33,10 @@ _init_converter_pat = "__attr_converter_{}"
 _init_factory_pat = "__attr_factory_{}"
 _tuple_property_pat = "    {attr_name} = property(itemgetter({index}))"
 _classvar_prefixes = ("typing.ClassVar", "t.ClassVar", "ClassVar")
+# we don't use a double-underscore prefix because that triggers
+# name mangling when trying to create a slot for the field
+# (when slots=True)
+_hash_cache_field = "_attrs_cached_hash"
 
 _empty_metadata_singleton = metadata_proxy({})
 
@@ -530,7 +534,7 @@ class _ClassBuilder(object):
             name for name in self._attr_names if name not in super_names
         ]
         if self._cache_hash:
-            slot_names.append("__attrs_cached_hash")
+            slot_names.append(_hash_cache_field)
         cd["__slots__"] = tuple(slot_names)
 
         qualname = getattr(self._cls, "__qualname__", None)
@@ -922,9 +926,14 @@ def _make_hash(attrs, cache_hash=False):
         method_lines.append(indent + "    ))")
 
     if cache_hash:
-        method_lines.append(tab + "if self.__attrs_cached_hash is None:")
-        append_hash_computation_lines("self.__attrs_cached_hash = ", tab * 2)
-        method_lines.append(tab + "return self.__attrs_cached_hash")
+        method_lines.append(tab + "if self.%s is None:" % _hash_cache_field)
+        # we use __setattr__ all the time so we don't need to special-case for
+        # frozen.
+        append_hash_computation_lines(
+            "object.__setattr__(self, '%s', " % _hash_cache_field, tab * 2
+        )
+        method_lines.append(tab * 2 + ")")  # close __setattr__
+        method_lines.append(tab + "return self.%s" % _hash_cache_field)
     else:
         append_hash_computation_lines("return ", tab)
 
@@ -1533,7 +1542,7 @@ def _attrs_to_init_script(
                 init_hash_cache = "_inst_dict['%s'] = %s"
         else:
             init_hash_cache = "self.%s = %s"
-        lines.append(init_hash_cache % ("__attrs_cached_hash", "None"))
+        lines.append(init_hash_cache % (_hash_cache_field, "None"))
 
     args = ", ".join(args)
     if kw_only_args:
