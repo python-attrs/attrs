@@ -843,12 +843,13 @@ def attrs(
             builder.make_unhashable()
 
         if init is True:
+            builder.add_init()
+        else:
             if cache_hash:
                 raise TypeError(
                     "Invalid value for cache_hash.  To use hash caching,"
                     " init must be True"
                 )
-            builder.add_init()
 
         return builder.build_class()
 

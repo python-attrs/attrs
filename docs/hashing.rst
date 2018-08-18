@@ -52,6 +52,7 @@ Because according to the definition_ from the official Python docs, the returned
 
 For a more thorough explanation of this topic, please refer to this blog post: `Python Hashes and Equality`_.
 
+
 Hash Code Caching
 -----------------
 
