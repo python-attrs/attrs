@@ -301,7 +301,7 @@ class TestAddHash(object):
         exc_args = (
             "Invalid value for cache_hash.  To use hash caching,"
             " hashing must be either explicitly or implicitly "
-            "enabled",
+            "enabled.",
         )
         with pytest.raises(TypeError) as e:
             make_class("C", {}, hash=False, cache_hash=True)
@@ -321,7 +321,7 @@ class TestAddHash(object):
         """
         exc_args = (
             "Invalid value for cache_hash.  To use hash caching,"
-            " init must be True",
+            " init must be True.",
         )
         with pytest.raises(TypeError) as e:
             make_class("C", {}, init=False, hash=True, cache_hash=True)
