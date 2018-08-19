@@ -298,6 +298,15 @@ class TestAddHash(object):
             make_class("C", {}, hash=False, cache_hash=True)
         assert exc_args == e.value.args
 
+    def test_enforce_no_cached_hash_without_init(self):
+        exc_args = (
+            "Invalid value for cache_hash.  To use hash caching,"
+            " init must be True",
+        )
+        with pytest.raises(TypeError) as e:
+            make_class("C", {}, init=False, hash=True, cache_hash=True)
+        assert exc_args == e.value.args
+
     @given(booleans(), booleans())
     def test_hash_attribute(self, slots, cache_hash):
         """
