@@ -41,6 +41,11 @@ HashCCached = simple_class(hash=True, cache_hash=True)
 HashCSlotsCached = simple_class(
     hash=None, cmp=True, frozen=True, slots=True, cache_hash=True
 )
+# the cached hash code is stored slightly differently in this case
+# so it needs to be tested separately
+HashCFrozenNotSlotsCached = simple_class(
+    frozen=True, slots=False, hash=True, cache_hash=True
+)
 
 
 class InitC(object):
@@ -298,6 +303,13 @@ class TestAddHash(object):
             make_class("C", {}, hash=False, cache_hash=True)
         assert exc_args == e.value.args
 
+        # unhashable case
+        with pytest.raises(TypeError) as e:
+            make_class(
+                "C", {}, hash=None, cmp=True, frozen=False, cache_hash=True
+            )
+        assert exc_args == e.value.args
+
     def test_enforce_no_cached_hash_without_init(self):
         exc_args = (
             "Invalid value for cache_hash.  To use hash caching,"
@@ -357,7 +369,14 @@ class TestAddHash(object):
             assert hash(C(1)) != hash(C(1))
 
     @pytest.mark.parametrize(
-        "cls", [HashC, HashCSlots, HashCCached, HashCSlotsCached]
+        "cls",
+        [
+            HashC,
+            HashCSlots,
+            HashCCached,
+            HashCSlotsCached,
+            HashCFrozenNotSlotsCached,
+        ],
     )
     def test_hash_works(self, cls):
         """
