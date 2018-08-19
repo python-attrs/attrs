@@ -53,6 +53,12 @@ Because according to the definition_ from the official Python docs, the returned
 For a more thorough explanation of this topic, please refer to this blog post: `Python Hashes and Equality`_.
 
 
+Hashing and Mutability
+----------------------
+Changing any field involved in hash code computation after the first call to `__hash__` (typically this would be after its insertion into a hash-based collection) can result in silent bugs.
+Therefore, it is strongly recommended that hashable classes be ``frozen``.
+
+
 Hash Code Caching
 -----------------
 
@@ -60,8 +66,6 @@ Some objects have hash codes which are expensive to compute.
 If such objects are to be stored in hash-based collections, it can be useful to compute the hash codes only once and then store the result on the object to make future hash code requests fast.
 To enable caching of hash codes, pass ``cache_hash=True`` to ``@attrs``.
 This may only be done if ``attrs`` is already generating a hash function for the object.
-If the hash code is cached, no field involved in hash code computation may be mutated after construction.
-Therefore, it is strongly recommended that classes with cached hashcodes be ``frozen``.
 
 .. [#fn1] The hash is computed by hashing a tuple that consists of an unique id for the class plus all attribute values.
 

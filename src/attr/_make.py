@@ -614,7 +614,9 @@ class _ClassBuilder(object):
 
     def add_hash(self):
         self._cls_dict["__hash__"] = self._add_method_dunders(
-            _make_hash(self._attrs, self._cache_hash)
+            _make_hash(
+                self._attrs, frozen=self._frozen, cache_hash=self._cache_hash
+            )
         )
 
         return self
@@ -899,7 +901,7 @@ def _attrs_to_tuple(obj, attrs):
     return tuple(getattr(obj, a.name) for a in attrs)
 
 
-def _make_hash(attrs, cache_hash=False):
+def _make_hash(attrs, frozen, cache_hash):
     attrs = tuple(
         a
         for a in attrs
@@ -933,12 +935,15 @@ def _make_hash(attrs, cache_hash=False):
 
     if cache_hash:
         method_lines.append(tab + "if self.%s is None:" % _hash_cache_field)
-        # we use __setattr__ all the time so we don't need to special-case for
-        # frozen.
-        append_hash_computation_lines(
-            "object.__setattr__(self, '%s', " % _hash_cache_field, tab * 2
-        )
-        method_lines.append(tab * 2 + ")")  # close __setattr__
+        if frozen:
+            append_hash_computation_lines(
+                "object.__setattr__(self, '%s', " % _hash_cache_field, tab * 2
+            )
+            method_lines.append(tab * 2 + ")")  # close __setattr__
+        else:
+            append_hash_computation_lines(
+                "self.%s = " % _hash_cache_field, tab * 2
+            )
         method_lines.append(tab + "return self.%s" % _hash_cache_field)
     else:
         append_hash_computation_lines("return ", tab)
@@ -965,7 +970,7 @@ def _add_hash(cls, attrs):
     """
     Add a hash method to *cls*.
     """
-    cls.__hash__ = _make_hash(attrs)
+    cls.__hash__ = _make_hash(attrs, frozen=False, cache_hash=False)
     return cls
 
 
