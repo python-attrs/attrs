@@ -831,7 +831,6 @@ def attrs(
                     " hashing must be either explicitly or implicitly "
                     "enabled"
                 )
-            pass
         elif hash is True or (hash is None and cmp is True and frozen is True):
             builder.add_hash()
         else:
