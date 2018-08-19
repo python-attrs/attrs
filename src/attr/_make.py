@@ -778,10 +778,11 @@ def attrs(
         in the generated ``__init__`` (if ``init`` is ``False``, this
         parameter is ignored).
     :param bool cache_hash: Ensure that the object's hash code is computed
-    only once and stored on the object.  If this is set to ``True``, hashing
-    must be either explicitly or implicitly enabled for this class.  If the
-    hash code is cached, then no attributes of this class which participate
-    in hash code computation may be mutated after object creation.
+        only once and stored on the object.  If this is set to ``True``,
+        hashing must be either explicitly or implicitly enabled for this
+        class.  If the hash code is cached, then no attributes of this
+        class which participate in hash code computation may be mutated
+        after object creation.
 
 
     .. versionadded:: 16.0.0 *slots*
