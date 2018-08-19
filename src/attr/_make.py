@@ -1534,10 +1534,11 @@ def _attrs_to_init_script(
     if post_init:
         lines.append("self.__attrs_post_init__()")
 
-    # because this is set only after __attrs_post_init is called, a crash will result if
-    # post-init tries to access the hash code.  This seemed preferable to setting this
-    # beforehand, in which case alteration to field values during post-init combined with
-    # post-init accessing the hash code would result in silent bugs.
+    # because this is set only after __attrs_post_init is called, a crash
+    # will result if post-init tries to access the hash code.  This seemed
+    # preferable to setting this beforehand, in which case alteration to
+    # field values during post-init combined with post-init accessing the
+    # hash code would result in silent bugs.
     if cache_hash:
         if frozen:
             if slots:

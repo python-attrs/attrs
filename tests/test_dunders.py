@@ -382,7 +382,8 @@ class TestAddHash(object):
 
         class HashCounter:
             """
-            A class for testing which counts how many times its hash has been requested
+            A class for testing which counts how many times its hash
+            has been requested
             """
 
             def __init__(self):
