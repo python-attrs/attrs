@@ -294,6 +294,10 @@ class TestAddHash(object):
         assert exc_args == e.value.args
 
     def test_enforce_no_cache_hash_without_hash(self):
+        """
+        Ensure exception is thrown if caching the hash code is requested
+        but attrs is not requested to generate `__hash__`.
+        """
         exc_args = (
             "Invalid value for cache_hash.  To use hash caching,"
             " hashing must be either explicitly or implicitly "
@@ -311,6 +315,10 @@ class TestAddHash(object):
         assert exc_args == e.value.args
 
     def test_enforce_no_cached_hash_without_init(self):
+        """
+        Ensure exception is thrown if caching the hash code is requested
+        but attrs is not requested to generate `__init__`.
+        """
         exc_args = (
             "Invalid value for cache_hash.  To use hash caching,"
             " init must be True",
