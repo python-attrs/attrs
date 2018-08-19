@@ -829,7 +829,7 @@ def attrs(
                 raise TypeError(
                     "Invalid value for cache_hash.  To use hash caching,"
                     " hashing must be either explicitly or implicitly "
-                    "enabled"
+                    "enabled."
                 )
         elif hash is True or (hash is None and cmp is True and frozen is True):
             builder.add_hash()
@@ -838,7 +838,7 @@ def attrs(
                 raise TypeError(
                     "Invalid value for cache_hash.  To use hash caching,"
                     " hashing must be either explicitly or implicitly "
-                    "enabled"
+                    "enabled."
                 )
             builder.make_unhashable()
 
@@ -848,7 +848,7 @@ def attrs(
             if cache_hash:
                 raise TypeError(
                     "Invalid value for cache_hash.  To use hash caching,"
-                    " init must be True"
+                    " init must be True."
                 )
 
         return builder.build_class()
