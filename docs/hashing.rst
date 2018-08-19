@@ -58,10 +58,10 @@ Hash Code Caching
 
 Some objects have hash codes which are expensive to compute.
 If such objects are to be stored in hash-based collections, it can be useful to compute the hash codes only once and then store the result on the object to make future hash code requests fast.
-To enable caching of hash codes, specify ``cache_hash=True``.
+To enable caching of hash codes, pass ``cache_hash=True`` to ``@attrs``.
 This may only be done if ``attrs`` is already generating a hash function for the object.
 If the hash code is cached, no field involved in hash code computation may be mutated after construction.
-It is strongly recommended that classes with cached hashcodes be ``frozen``
+Therefore, it is strongly recommended that classes with cached hashcodes be ``frozen``.
 
 .. [#fn1] The hash is computed by hashing a tuple that consists of an unique id for the class plus all attribute values.
 
