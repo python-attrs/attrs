@@ -233,7 +233,7 @@ Thank you for considering contributing to ``attrs``!
 .. _`good test docstrings`: https://jml.io/pages/test-docstrings.html
 .. _`Code of Conduct`: https://github.com/python-attrs/attrs/blob/master/.github/CODE_OF_CONDUCT.rst
 .. _changelog: https://github.com/python-attrs/attrs/blob/master/CHANGELOG.rst
-.. _`backward compatibility`: http://www.attrs.org/en/latest/backward-compatibility.html
+.. _`backward compatibility`: https://www.attrs.org/en/latest/backward-compatibility.html
 .. _tox: https://tox.readthedocs.io/
 .. _pyenv: https://github.com/pyenv/pyenv
 .. _reStructuredText: http://www.sphinx-doc.org/en/stable/rest.html

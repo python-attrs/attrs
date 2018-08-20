@@ -1,7 +1,7 @@
 Changelog
 =========
 
-Versions follow `CalVer <http://calver.org>`_ with a strict backwards compatibility policy.
+Versions follow `CalVer <https://calver.org>`_ with a strict backwards compatibility policy.
 The third digit is only for regressions.
 
 Changes for the upcoming release can be found in the `"changelog.d" directory <https://github.com/python-attrs/attrs/tree/master/changelog.d>`_ in our repository.
@@ -11,7 +11,7 @@ Changes for the upcoming release can be found in the `"changelog.d" directory <h
 
    This changelog is managed by towncrier and is compiled at release time.
 
-   See http://www.attrs.org/en/latest/contributing.html#changelog for details.
+   See https://www.attrs.org/en/latest/contributing.html#changelog for details.
 
 .. towncrier release notes start
 
@@ -64,9 +64,9 @@ Changes
 
   `#363 <https://github.com/python-attrs/attrs/issues/363>`_
 - We have restructured the documentation a bit to account for ``attrs``' growth in scope.
-  Instead of putting everything into the `examples <http://www.attrs.org/en/stable/examples.html>`_ page, we have started to extract narrative chapters.
+  Instead of putting everything into the `examples <https://www.attrs.org/en/stable/examples.html>`_ page, we have started to extract narrative chapters.
 
-  So far, we've added chapters on `initialization <http://www.attrs.org/en/stable/init.html>`_ and `hashing <http://www.attrs.org/en/stable/hashing.html>`_.
+  So far, we've added chapters on `initialization <https://www.attrs.org/en/stable/init.html>`_ and `hashing <https://www.attrs.org/en/stable/hashing.html>`_.
 
   Expect more to come!
 
@@ -236,7 +236,7 @@ To encourage more participation, the project has also been moved into a `dedicat
 
 ``attrs`` also has a logo now!
 
-.. image:: http://www.attrs.org/en/latest/_static/attrs_logo.png
+.. image:: https://www.attrs.org/en/latest/_static/attrs_logo.png
    :alt: attrs logo
 
 
@@ -292,7 +292,7 @@ Changes:
 - Accordingly, ``attr.validators.optional()`` now can take a ``list`` of validators too.
   `#161 <https://github.com/python-attrs/attrs/issues/161>`_
 - Validators can now be defined conveniently inline by using the attribute as a decorator.
-  Check out the `validator examples <http://www.attrs.org/en/stable/examples.html#validators>`_ to see it in action!
+  Check out the `validator examples <https://www.attrs.org/en/stable/examples.html#validators>`_ to see it in action!
   `#143 <https://github.com/python-attrs/attrs/issues/143>`_
 - ``attr.Factory()`` now has a ``takes_self`` argument that makes the initializer to pass the partially initialized instance into the factory.
   In other words you can define attribute defaults based on other attributes.
