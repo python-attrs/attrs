@@ -85,7 +85,7 @@ def test_slots_being_used():
     assert "__dict__" in dir(non_slot_instance)
     assert "__slots__" not in dir(non_slot_instance)
 
-    assert set(["x", "y"]) == set(slot_instance.__slots__)
+    assert set(["__weakref__", "x", "y"]) == set(slot_instance.__slots__)
 
     if has_pympler:
         assert asizeof(slot_instance) < asizeof(non_slot_instance)
@@ -208,7 +208,7 @@ def test_nonslots_these():
     assert "clsmethod" == c2.classmethod()
     assert "staticmethod" == c2.staticmethod()
 
-    assert set(["x", "y", "z"]) == set(C2Slots.__slots__)
+    assert set(["__weakref__", "x", "y", "z"]) == set(C2Slots.__slots__)
 
     c3 = C2Slots(x=1, y=3, z="test")
     assert c3 > c2
@@ -440,7 +440,7 @@ def test_not_weakrefable():
     Instance is not weak-referenceable when `weakref_slot=False` in CPython.
     """
 
-    @attr.s(slots=True)
+    @attr.s(slots=True, weakref_slot=False)
     class C(object):
         pass
 
@@ -458,7 +458,7 @@ def test_implicitly_weakrefable():
     Instance is weak-referenceable even when `weakref_slot=False` in PyPy.
     """
 
-    @attr.s(slots=True)
+    @attr.s(slots=True, weakref_slot=False)
     class C(object):
         pass
 

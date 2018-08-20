@@ -656,7 +656,7 @@ def attrs(
     init=True,
     slots=False,
     frozen=False,
-    weakref_slot=False,
+    weakref_slot=True,
     str=False,
     auto_attribs=False,
 ):
