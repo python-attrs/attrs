@@ -498,11 +498,20 @@ class _ClassBuilder(object):
             if k not in tuple(self._attr_names) + ("__dict__", "__weakref__")
         }
 
+        weakref_inherited = False
+
+        # Traverse the MRO and collect attributes.
+        for super_cls in self._cls.__mro__[1:-1]:
+            if "__weakref__" in getattr(super_cls, "__dict__", ()):
+                weakref_inherited = True
+                break
+
         names = self._attr_names
         if (
             self._weakref_slot
             and "__weakref__" not in getattr(self._cls, "__slots__", ())
             and "__weakref__" not in names
+            and not weakref_inherited
         ):
             names += ("__weakref__",)
 
