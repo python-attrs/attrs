@@ -229,3 +229,24 @@ class TestAnnotations:
             "foo": "typing.Any",
             "return": None,
         }
+
+    def test_keyword_only_auto_attribs(self):
+        """
+        `kw_only` propagates to attributes defined via `auto_attribs`.
+        """
+
+        @attr.s(auto_attribs=True, kw_only=True)
+        class C:
+            x: int
+            y: int
+
+        with pytest.raises(TypeError):
+            C(0, 1)
+
+        with pytest.raises(TypeError):
+            C(x=0)
+
+        c = C(x=0, y=1)
+
+        assert c.x == 0
+        assert c.y == 1

@@ -1,6 +1,9 @@
 Hashing
 =======
 
+Hash Method Generation
+----------------------
+
 .. warning::
 
    The overarching theme is to never set the ``@attr.s(hash=X)`` parameter yourself.
@@ -18,7 +21,7 @@ The *hash* of an object is an integer that represents the contents of an object.
 It can be obtained by calling :func:`hash` on an object and is implemented by writing a ``__hash__`` method for your class.
 
 ``attrs`` will happily write a ``__hash__`` method you [#fn1]_, however it will *not* do so by default.
-Because according to the definition_ from the official Python docs, the returned hash has to fullfil certain constraints:
+Because according to the definition_ from the official Python docs, the returned hash has to fulfill certain constraints:
 
 #. Two objects that are equal, **must** have the same hash.
    This means that if ``x == y``, it *must* follow that ``hash(x) == hash(y)``.
@@ -49,6 +52,20 @@ Because according to the definition_ from the official Python docs, the returned
 
 For a more thorough explanation of this topic, please refer to this blog post: `Python Hashes and Equality`_.
 
+
+Hashing and Mutability
+----------------------
+Changing any field involved in hash code computation after the first call to `__hash__` (typically this would be after its insertion into a hash-based collection) can result in silent bugs.
+Therefore, it is strongly recommended that hashable classes be ``frozen``.
+
+
+Hash Code Caching
+-----------------
+
+Some objects have hash codes which are expensive to compute.
+If such objects are to be stored in hash-based collections, it can be useful to compute the hash codes only once and then store the result on the object to make future hash code requests fast.
+To enable caching of hash codes, pass ``cache_hash=True`` to ``@attrs``.
+This may only be done if ``attrs`` is already generating a hash function for the object.
 
 .. [#fn1] The hash is computed by hashing a tuple that consists of an unique id for the class plus all attribute values.
 

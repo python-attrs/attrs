@@ -47,3 +47,11 @@ class UnannotatedAttributeError(RuntimeError):
 
     .. versionadded:: 17.3.0
     """
+
+
+class PythonTooOldError(RuntimeError):
+    """
+    An ``attrs`` feature requiring a more recent python version has been used.
+
+    .. versionadded:: 18.2.0
+    """

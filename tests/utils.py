@@ -9,7 +9,13 @@ from attr._make import NOTHING, make_class
 
 
 def simple_class(
-    cmp=False, repr=False, hash=False, str=False, slots=False, frozen=False
+    cmp=False,
+    repr=False,
+    hash=False,
+    str=False,
+    slots=False,
+    frozen=False,
+    cache_hash=False,
 ):
     """
     Return a new simple class.
@@ -24,6 +30,7 @@ def simple_class(
         slots=slots,
         str=str,
         frozen=frozen,
+        cache_hash=cache_hash,
     )
 
 
@@ -36,6 +43,7 @@ def simple_attr(
     hash=None,
     init=True,
     converter=None,
+    kw_only=False,
 ):
     """
     Return an attribute with a name and no other bells and whistles.
@@ -49,6 +57,7 @@ def simple_attr(
         hash=hash,
         init=init,
         converter=converter,
+        kw_only=False,
     )
 
 
