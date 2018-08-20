@@ -16,7 +16,9 @@ def deep_iterable(
     member_validator: _ValidatorType[_T],
     iterable_validator: Optional[_ValidatorType[_T]],
 ) -> _ValidatorType[_T]: ...
-def deep_dictionary(
-    key_validator: _ValidatorType[_T], value_validator: _ValidatorType[_T]
+def deep_mapping(
+    key_validator: _ValidatorType[_T],
+    value_validator: _ValidatorType[_T],
+    mapping_validator: Optional[_ValidatorType[_T]],
 ) -> _ValidatorType[_T]: ...
 def is_callable() -> _ValidatorType[_T]: ...

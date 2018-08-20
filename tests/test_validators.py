@@ -14,8 +14,8 @@ from attr import validators as validator_module
 from attr._compat import TYPE
 from attr.validators import (
     and_,
-    deep_mapping,
     deep_iterable,
+    deep_mapping,
     in_,
     instance_of,
     is_callable,
@@ -365,7 +365,7 @@ class TestDeepIterable(object):
         assert expected_repr == repr(v)
 
 
-class TestDeepDictionary(object):
+class TestDeepMapping(object):
     """
     Tests for `deep_mapping`.
     """
@@ -380,9 +380,28 @@ class TestDeepDictionary(object):
         a = simple_attr("test")
         v(None, a, {"a": 6, "b": 7})
 
+    @pytest.mark.parametrize(
+        "key_validator, value_validator, mapping_validator",
+        (
+            (42, instance_of(int), None),
+            (instance_of(str), 42, None),
+            (instance_of(str), instance_of(int), 42),
+            (42, 42, None),
+            (42, 42, 42),
+        ),
+    )
+    def test_invalid_validators(
+        self, key_validator, value_validator, mapping_validator
+    ):
+        """
+        Raise :class:`TypeError` if any validators are not callable.
+        """
+        with pytest.raises(TypeError) as e:
+            deep_mapping(key_validator, value_validator, mapping_validator)
+
     def test_fail_invalid_mapping(self):
         """
-        Raise :class:`TypeError` if value is not a dictionary.
+        Raise :class:`TypeError` if mapping validator fails.
         """
         key_validator = instance_of(str)
         value_validator = instance_of(int)
@@ -427,7 +446,7 @@ class TestDeepDictionary(object):
             type=TYPE
         )
         v = deep_mapping(key_validator, value_validator)
-        expected_repr = "<deep_mapping validator for dictionaries mapping {key_repr} to {value_repr}>".format(
+        expected_repr = "<deep_mapping validator for objects mapping {key_repr} to {value_repr}>".format(
             key_repr=key_repr, value_repr=value_repr
         )
         assert expected_repr == repr(v)

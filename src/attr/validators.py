@@ -198,8 +198,10 @@ def is_callable():
 
 @attrs(repr=False, slots=True, hash=True)
 class _DeepIterable(object):
-    member_validator = attrib()
-    iterable_validator = attrib(default=None)
+    member_validator = attrib(validator=is_callable())
+    iterable_validator = attrib(
+        default=None, validator=optional(is_callable())
+    )
 
     def __call__(self, inst, attr, value):
         """
@@ -239,9 +241,9 @@ def deep_iterable(member_validator, iterable_validator=None):
 
 @attrs(repr=False, slots=True, hash=True)
 class _DeepMapping(object):
-    key_validator = attrib()
-    value_validator = attrib()
-    mapping_validator = attrib(default=None)
+    key_validator = attrib(validator=is_callable())
+    value_validator = attrib(validator=is_callable())
+    mapping_validator = attrib(default=None, validator=optional(is_callable()))
 
     def __call__(self, inst, attr, value):
         """
@@ -255,7 +257,7 @@ class _DeepMapping(object):
             self.value_validator(inst, attr, value[key])
 
     def __repr__(self):
-        return "<deep_mapping validator for dictionaries mapping {key!r} to {value!r}>".format(
+        return "<deep_mapping validator for objects mapping {key!r} to {value!r}>".format(
             key=self.key_validator, value=self.value_validator
         )
 
