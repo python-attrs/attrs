@@ -500,7 +500,7 @@ class _ClassBuilder(object):
 
         weakref_inherited = False
 
-        # Traverse the MRO and collect attributes.
+        # Traverse the MRO to check for an existing __weakref__.
         for super_cls in self._cls.__mro__[1:-1]:
             if "__weakref__" in getattr(super_cls, "__dict__", ()):
                 weakref_inherited = True
