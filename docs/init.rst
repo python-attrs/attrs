@@ -348,6 +348,7 @@ If you need to set attributes on a frozen class, you'll have to resort to the :r
    >>> Frozen(1)
    Frozen(x=1, y=2)
 
+Note that you *must not* access the hash code of the object in ``__attrs_post__init__`` if ``cache_hash=True``.
 
 .. _`Wiki page`: https://github.com/python-attrs/attrs/wiki/Extensions-to-attrs
 .. _`get confused`: https://github.com/python-attrs/attrs/issues/289

@@ -33,9 +33,19 @@ ReprC = simple_class(repr=True)
 ReprCSlots = simple_class(repr=True, slots=True)
 
 # HashC is hashable by explicit definition while HashCSlots is hashable
-# implicitly.
+# implicitly.  The "Cached" versions are the same, except with hash code
+# caching enabled
 HashC = simple_class(hash=True)
 HashCSlots = simple_class(hash=None, cmp=True, frozen=True, slots=True)
+HashCCached = simple_class(hash=True, cache_hash=True)
+HashCSlotsCached = simple_class(
+    hash=None, cmp=True, frozen=True, slots=True, cache_hash=True
+)
+# the cached hash code is stored slightly differently in this case
+# so it needs to be tested separately
+HashCFrozenNotSlotsCached = simple_class(
+    frozen=True, slots=False, hash=True, cache_hash=True
+)
 
 
 class InitC(object):
@@ -283,8 +293,42 @@ class TestAddHash(object):
 
         assert exc_args == e.value.args
 
-    @given(booleans())
-    def test_hash_attribute(self, slots):
+    def test_enforce_no_cache_hash_without_hash(self):
+        """
+        Ensure exception is thrown if caching the hash code is requested
+        but attrs is not requested to generate `__hash__`.
+        """
+        exc_args = (
+            "Invalid value for cache_hash.  To use hash caching,"
+            " hashing must be either explicitly or implicitly "
+            "enabled.",
+        )
+        with pytest.raises(TypeError) as e:
+            make_class("C", {}, hash=False, cache_hash=True)
+        assert exc_args == e.value.args
+
+        # unhashable case
+        with pytest.raises(TypeError) as e:
+            make_class(
+                "C", {}, hash=None, cmp=True, frozen=False, cache_hash=True
+            )
+        assert exc_args == e.value.args
+
+    def test_enforce_no_cached_hash_without_init(self):
+        """
+        Ensure exception is thrown if caching the hash code is requested
+        but attrs is not requested to generate `__init__`.
+        """
+        exc_args = (
+            "Invalid value for cache_hash.  To use hash caching,"
+            " init must be True.",
+        )
+        with pytest.raises(TypeError) as e:
+            make_class("C", {}, init=False, hash=True, cache_hash=True)
+        assert exc_args == e.value.args
+
+    @given(booleans(), booleans())
+    def test_hash_attribute(self, slots, cache_hash):
         """
         If `hash` is False on an attribute, ignore that attribute.
         """
@@ -293,6 +337,7 @@ class TestAddHash(object):
             {"a": attr.ib(hash=False), "b": attr.ib()},
             slots=slots,
             hash=True,
+            cache_hash=cache_hash,
         )
 
         assert hash(C(1, 2)) == hash(C(2, 2))
@@ -331,12 +376,26 @@ class TestAddHash(object):
             assert C(1) != C(1)
             assert hash(C(1)) != hash(C(1))
 
-    @pytest.mark.parametrize("cls", [HashC, HashCSlots])
+    @pytest.mark.parametrize(
+        "cls",
+        [
+            HashC,
+            HashCSlots,
+            HashCCached,
+            HashCSlotsCached,
+            HashCFrozenNotSlotsCached,
+        ],
+    )
     def test_hash_works(self, cls):
         """
         __hash__ returns different hashes for different values.
         """
-        assert hash(cls(1, 2)) != hash(cls(1, 1))
+        a = cls(1, 2)
+        b = cls(1, 1)
+        assert hash(a) != hash(b)
+        # perform the test again to test the pre-cached path through
+        # __hash__ for the cached-hash versions
+        assert hash(a) != hash(b)
 
     def test_hash_default(self):
         """
@@ -351,6 +410,48 @@ class TestAddHash(object):
             "'C' objects are unhashable",  # PyPy
             "unhashable type: 'C'",  # CPython
         )
+
+    def test_cache_hashing(self):
+        """
+        Ensure that hash computation if cached if and only if requested
+        """
+
+        class HashCounter:
+            """
+            A class for testing which counts how many times its hash
+            has been requested
+            """
+
+            def __init__(self):
+                self.times_hash_called = 0
+
+            def __hash__(self):
+                self.times_hash_called += 1
+                return 12345
+
+        Uncached = make_class(
+            "Uncached",
+            {"hash_counter": attr.ib(factory=HashCounter)},
+            hash=True,
+            cache_hash=False,
+        )
+        Cached = make_class(
+            "Cached",
+            {"hash_counter": attr.ib(factory=HashCounter)},
+            hash=True,
+            cache_hash=True,
+        )
+
+        uncached_instance = Uncached()
+        cached_instance = Cached()
+
+        hash(uncached_instance)
+        hash(uncached_instance)
+        hash(cached_instance)
+        hash(cached_instance)
+
+        assert 2 == uncached_instance.hash_counter.times_hash_called
+        assert 1 == cached_instance.hash_counter.times_hash_called
 
 
 class TestAddInit(object):
