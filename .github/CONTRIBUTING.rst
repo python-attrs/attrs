@@ -155,7 +155,7 @@ However, you’ll probably want a more traditional environment as well.
 We highly recommend to develop using the latest Python 3 release because ``attrs`` tries to take advantage of modern features whenever possible.
 
 First create a `virtual environment <https://virtualenv.pypa.io/>`_.
-It’s out of scope for this document to list all the ways to manage virtual environments in Python, but if you don’t already have a pet way, take some time to look at tools like `pew <https://github.com/berdario/pew>`_, `virtualfish <http://virtualfish.readthedocs.io/>`_, and `virtualenvwrapper <http://virtualenvwrapper.readthedocs.io/>`_.
+It’s out of scope for this document to list all the ways to manage virtual environments in Python, but if you don’t already have a pet way, take some time to look at tools like `pew <https://github.com/berdario/pew>`_, `virtualfish <https://virtualfish.readthedocs.io/>`_, and `virtualenvwrapper <https://virtualenvwrapper.readthedocs.io/>`_.
 
 Next, get an up to date checkout of the ``attrs`` repository:
 

@@ -95,7 +95,7 @@ Testimonials
   Writing a fully-functional class using attrs takes me less time than writing this testimonial.
 
 
-**Glyph Lefkowitz**, creator of `Twisted <https://twistedmatrix.com/>`_, `Automat <https://pypi.python.org/pypi/Automat>`_, and other open source software, in `The One Python Library Everyone Needs <https://glyph.twistedmatrix.com/2016/08/attrs.html>`_:
+**Glyph Lefkowitz**, creator of `Twisted <https://twistedmatrix.com/>`_, `Automat <https://pypi.org/project/Automat/>`_, and other open source software, in `The One Python Library Everyone Needs <https://glyph.twistedmatrix.com/2016/08/attrs.html>`_:
 
   I’m looking forward to is being able to program in Python-with-attrs everywhere.
   It exerts a subtle, but positive, design influence in all the codebases I’ve see it used in.
