@@ -250,3 +250,18 @@ class TestAnnotations:
 
         assert c.x == 0
         assert c.y == 1
+
+    def test_super_class_variable(self):
+        """
+        Super class class variables can be overridden with an attribute
+        without resorting to using an explicit `attr.ib()`.
+        """
+
+        class Base:
+            x: int = 42
+
+        @attr.s(auto_attribs=True)
+        class C(Base):
+            x: int
+
+        assert 1 == C(1).x
