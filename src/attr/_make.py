@@ -785,7 +785,7 @@ def attrs(
                ``object.__setattr__(self, "attribute_name", value)``.
 
         ..  _slots: https://docs.python.org/3/reference/datamodel.html#slots
-    :param bool weakref: Make instances weak-referenceable.  This has no
+    :param bool weakref_slot: Make instances weak-referenceable.  This has no
         effect unless ``slots`` is also enabled.
     :param bool auto_attribs: If True, collect `PEP 526`_-annotated attributes
         (Python 3.6 and later only) from the class body.
@@ -825,7 +825,7 @@ def attrs(
     .. versionchanged:: 18.1.0
        If *these* is passed, no attributes are deleted from the class body.
     .. versionchanged:: 18.1.0 If *these* is ordered, the order is retained.
-    .. versionadded:: 18.2.0 *weakref*
+    .. versionadded:: 18.2.0 *weakref_slot*
     .. deprecated:: 18.2.0
        ``__lt__``, ``__le__``, ``__gt__``, and ``__ge__`` now raise a
        :class:`DeprecationWarning` if the classes compared are subclasses of

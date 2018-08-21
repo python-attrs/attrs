@@ -451,7 +451,7 @@ def test_not_weakrefable():
 
 
 @pytest.mark.skipif(
-    not PYPY, reason="slots without weakref should only work on PyPy"
+    not PYPY, reason="slots without weakref_slot should only work on PyPy"
 )
 def test_implicitly_weakrefable():
     """

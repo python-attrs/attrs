@@ -163,10 +163,10 @@ def simple_classes(
         _d = attr.ib(default=1.0)
         c = attr.ib(default={'t': 1})
 
-    By default, all combinations of slots, frozen, and weakref classes will be
-    generated. If `slots=True` is passed in, only slots classes will be
+    By default, all combinations of slots, frozen, and weakref_slot classes
+    will be generated. If `slots=True` is passed in, only slots classes will be
     generated, and if `slots=False` is passed in, no slot classes will be
-    generated. The same applies to `frozen` and `weakref`.
+    generated. The same applies to `frozen` and `weakref_slot`.
 
     By default, some attributes will be private (i.e. prefixed with an
     underscore). If `private_attrs=True` is passed in, all attributes will be
