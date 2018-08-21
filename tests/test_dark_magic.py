@@ -482,3 +482,18 @@ class TestDarkMagic(object):
 
             with pytest.raises(FrozenInstanceError):
                 i.b = "3"
+
+    def test_tuple_class_aliasing(self):
+        """
+        itemgetter and property are legal attribute names.
+        """
+
+        @attr.s
+        class C(object):
+            property = attr.ib()
+            itemgetter = attr.ib()
+            x = attr.ib()
+
+        assert "property" == attr.fields(C).property.name
+        assert "itemgetter" == attr.fields(C).itemgetter.name
+        assert "x" == attr.fields(C).x.name
