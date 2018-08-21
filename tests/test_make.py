@@ -323,7 +323,7 @@ class TestTransformAttrs(object):
 
     def test_these(self):
         """
-        If these is passed, use it and ignore body and super classes.
+        If these is passed, use it and ignore body and superclasses.
         """
 
         class Base(object):

@@ -165,7 +165,7 @@ class TestAnnotations:
     @pytest.mark.parametrize("slots", [True, False])
     def test_auto_attribs_subclassing(self, slots):
         """
-        Attributes from super classes are inherited, it doesn't matter if the
+        Attributes from superclasses are inherited, it doesn't matter if the
         subclass has annotations or not.
 
         Ref #291
@@ -253,7 +253,7 @@ class TestAnnotations:
 
     def test_super_class_variable(self):
         """
-        Super class class variables can be overridden with an attribute
+        Superclass class variables can be overridden with an attribute
         without resorting to using an explicit `attr.ib()`.
         """
 

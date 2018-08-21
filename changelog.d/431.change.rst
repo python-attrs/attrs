@@ -1,0 +1,1 @@
+It is now possible to override a superclass' class variable using only class annotations.

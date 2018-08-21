@@ -515,7 +515,7 @@ class _ClassBuilder(object):
                     try:
                         delattr(cls, name)
                     except AttributeError:
-                        # This can happen if a super class defines a class
+                        # This can happen if a superclass defines a class
                         # variable and we want to set an attribute with the
                         # same name by using only a type annotation.
                         pass
