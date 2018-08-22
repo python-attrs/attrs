@@ -364,7 +364,7 @@ Validators
 
 Although your initializers should do as little as possible (ideally: just initialize your instance according to the arguments!), it can come in handy to do some kind of validation on the arguments.
 
-``attrs`` offers two ways to define validators for each attribute and it's up to you to choose which one suites better your style and project.
+``attrs`` offers two ways to define validators for each attribute and it's up to you to choose which one suits your style and project better.
 
 You can use a decorator:
 
