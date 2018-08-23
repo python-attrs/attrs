@@ -632,6 +632,23 @@ class TestAttributes(object):
             class C(object):
                 x = attr.ib(factory=Factory(list))
 
+    def test_singleton(self):
+        """
+        Ensure that classes can be made singletons
+        """
+        @attr.s(singleton=True)
+        class C(object):
+            x = attr.ib(default=3)
+
+        a = C()
+        b = C()
+        c = C(5)
+        assert a is b
+        assert a is not c
+        b.x = 4
+        assert 4 == a.x
+        assert 4 != c.x
+
 
 @pytest.mark.skipif(PY2, reason="keyword-only arguments are PY3-only.")
 class TestKeywordOnlyAttributes(object):
@@ -1368,7 +1385,7 @@ class TestClassBuilder(object):
         class C(object):
             pass
 
-        b = _ClassBuilder(C, None, True, True, False, False, False)
+        b = _ClassBuilder(C, None, True, True, False, False, False, False)
 
         assert "<_ClassBuilder(cls=C)>" == repr(b)
 
@@ -1380,7 +1397,7 @@ class TestClassBuilder(object):
         class C(object):
             x = attr.ib()
 
-        b = _ClassBuilder(C, None, True, True, False, False, False)
+        b = _ClassBuilder(C, None, True, True, False, False, False, False)
 
         cls = (
             b.add_cmp()
@@ -1444,6 +1461,7 @@ class TestClassBuilder(object):
             auto_attribs=False,
             kw_only=False,
             cache_hash=False,
+            singleton=False,
         )
         b._cls = {}  # no __module__; no __qualname__
 

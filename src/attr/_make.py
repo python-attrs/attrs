@@ -460,7 +460,7 @@ class _ClassBuilder(object):
     )
 
     def __init__(
-        self, cls, these, slots, frozen, auto_attribs, kw_only, cache_hash
+        self, cls, these, slots, frozen, auto_attribs, kw_only, cache_hash, singleton
     ):
         attrs, super_attrs, super_map = _transform_attrs(
             cls, these, auto_attribs, kw_only
@@ -479,6 +479,9 @@ class _ClassBuilder(object):
         self._delete_attribs = not bool(these)
 
         self._cls_dict["__attrs_attrs__"] = self._attrs
+
+        if singleton:
+            self._cls_dict["_singletons"] = {}
 
         if frozen:
             self._cls_dict["__setattr__"] = _frozen_setattrs
@@ -592,6 +595,28 @@ class _ClassBuilder(object):
 
         return cls
 
+    def add_new(self):
+        def __new__(cls, *args, **kwargs):
+            arg_len = len(args)
+
+            def get_attr(attr, idx):
+                if attr.name in kwargs:
+                    return kwargs[attr.name]
+                elif idx < arg_len:
+                    return args[idx]
+                elif attr.default != NOTHING:
+                    return attr.default
+                else:
+                    raise ValueError("attribute not initialized")
+
+            _attrs = [get_attr(a, i) for i, a in enumerate(fields(cls)) if a.init]
+            key = tuple(_attrs + [cls])
+            if key not in cls._singletons:
+                cls._singletons[key] = super(cls, cls).__new__(cls)
+            return cls._singletons[key]
+
+        self._cls_dict["__new__"] = self._add_method_dunders(__new__)
+
     def add_repr(self, ns):
         self._cls_dict["__repr__"] = self._add_method_dunders(
             _make_repr(self._attrs, ns=ns)
@@ -682,6 +707,7 @@ def attrs(
     auto_attribs=False,
     kw_only=False,
     cache_hash=False,
+    singleton=False,
 ):
     r"""
     A class decorator that adds `dunder
@@ -789,6 +815,12 @@ def attrs(
         class which participate in hash code computation may be mutated
         after object creation.
 
+    :param bool singleton: Ensure that any object generated with unique
+        arguments gets only once instance made. If this is set to ``True``, then
+        ``Example(3) is Example(3)`` should always return ``True``. Note that
+        ``Example(3) is Example(4)`` should be ``False``. Currently works only
+        in Python 3.
+
 
     .. versionadded:: 16.0.0 *slots*
     .. versionadded:: 16.1.0 *frozen*
@@ -807,6 +839,7 @@ def attrs(
        to each other.
     .. versionadded:: 18.2.0 *kw_only*
     .. versionadded:: 18.2.0 *cache_hash*
+    .. versionadded:: 18.2.1 *singleton*
     """
 
     def wrap(cls):
@@ -814,7 +847,7 @@ def attrs(
             raise TypeError("attrs only works with new-style classes.")
 
         builder = _ClassBuilder(
-            cls, these, slots, frozen, auto_attribs, kw_only, cache_hash
+            cls, these, slots, frozen, auto_attribs, kw_only, cache_hash, singleton
         )
 
         if repr is True:
@@ -823,6 +856,8 @@ def attrs(
             builder.add_str()
         if cmp is True:
             builder.add_cmp()
+        if singleton is True:
+            builder.add_new()
 
         if hash is not True and hash is not False and hash is not None:
             # Can't use `hash in` because 1 == True for example.
