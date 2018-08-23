@@ -856,7 +856,10 @@ def attrs(
             builder.add_str()
         if cmp is True:
             builder.add_cmp()
-        if singleton is True:
+
+        if singleton is True and frozen is False:
+            raise TypeError("Cannot have a non-frozen singleton")
+        elif singleton is True:
             builder.add_new()
 
         if hash is not True and hash is not False and hash is not None:

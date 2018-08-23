@@ -632,11 +632,20 @@ class TestAttributes(object):
             class C(object):
                 x = attr.ib(factory=Factory(list))
 
+    def test_unfrozen_singleton(self):
+        """
+        Test that attr.s raises a TypeError if an unfrozen singleton is made
+        """
+        with pytest.raises(TypeError):
+            @attr.s(singleton=True)
+            class C(object):
+                x = attr.ib(default=3)
+
     def test_singleton(self):
         """
         Ensure that classes can be made singletons
         """
-        @attr.s(singleton=True)
+        @attr.s(singleton=True, frozen=True)
         class C(object):
             x = attr.ib(default=3)
 
@@ -645,9 +654,8 @@ class TestAttributes(object):
         c = C(5)
         assert a is b
         assert a is not c
-        b.x = 4
-        assert 4 == a.x
-        assert 4 != c.x
+        assert a.x is b.x
+        assert a.x != c.x
 
 
 @pytest.mark.skipif(PY2, reason="keyword-only arguments are PY3-only.")
