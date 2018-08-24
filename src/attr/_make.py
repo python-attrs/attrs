@@ -611,6 +611,7 @@ class _ClassBuilder(object):
         @staticmethod
         def __new__(cls, *args, **kwargs):
             arg_len = len(args)
+            print(args, kwargs)
 
             def get_attr(attr, idx):
                 if attr.name in kwargs:
@@ -881,7 +882,7 @@ def attrs(
 
         if singleton is True and frozen is False:
             raise TypeError("Cannot have a non-frozen singleton")
-        elif singleton is True:
+        elif singleton:
             builder.add_new()
 
         if hash is not True and hash is not False and hash is not None:
@@ -1387,7 +1388,7 @@ def _attrs_to_init_script(
     any_slot_ancestors = any(
         _is_slot_attr(a.name, super_attr_map) for a in attrs
     )
-    if singleton is True:
+    if singleton:
         lines.append('if getattr(self, "_skip_init", False): return')
     if frozen is True:
         if slots is True:
@@ -1637,14 +1638,11 @@ def _attrs_to_init_script(
         )
 
     # because some instances will already be initialized, we should mark that
-    if singleton is True:
-        if frozen:
-            if slots:
-                lines.append("_setattr('_skip_init', True)")
-            else:
-                lines.append("_inst_dict['_skip_init'] = True")
-        else:  # shoud never occur, but left in case of future change
-            lines.append("self._skip_init = True")
+    if singleton:
+        if slots:
+            lines.append("_setattr('_skip_init', True)")
+        else:
+            lines.append("_inst_dict['_skip_init'] = True")
     return (
         """\
 def __init__(self, {args}):

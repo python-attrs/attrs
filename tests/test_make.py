@@ -642,6 +642,19 @@ class TestAttributes(object):
             class C(object):
                 x = attr.ib(default=3)
 
+    def test_uninitialized_singleton(self):
+        """
+        Test that attr.s raises a ValueError if non-defaulted attr is left blank
+        """
+
+        @attr.s(frozen=True, singleton=True)
+        class C(object):
+            x = attr.ib()
+
+        with pytest.raises(ValueError):
+            C()
+
+
     def test_singleton_init_only_once(self):
         """
         Test that a singleton's __init__ only runs *once*
@@ -668,9 +681,9 @@ class TestAttributes(object):
         class C(object):
             x = attr.ib(default=3)
 
-        a = C()
-        b = C()
-        c = C(5)
+        a = C(4)
+        b = C(x=4)
+        c = C()
         assert a is b
         assert a is not c
         assert a.x is b.x
@@ -685,9 +698,9 @@ class TestAttributes(object):
         class C(object):
             x = attr.ib(default=3)
 
-        a = C()
-        b = C()
-        c = C(5)
+        a = C(4)
+        b = C(x=4)
+        c = C()
         assert a is b
         assert a is not c
         assert a.x is b.x
