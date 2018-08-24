@@ -676,6 +676,23 @@ class TestAttributes(object):
         assert a.x is b.x
         assert a.x != c.x
 
+    def test_slotted_singleton(self):
+        """
+        Ensure that classes can be made singletons
+        """
+
+        @attr.s(singleton=True, frozen=True, slots=True)
+        class C(object):
+            x = attr.ib(default=3)
+
+        a = C()
+        b = C()
+        c = C(5)
+        assert a is b
+        assert a is not c
+        assert a.x is b.x
+        assert a.x != c.x
+
 
 @pytest.mark.skipif(PY2, reason="keyword-only arguments are PY3-only.")
 class TestKeywordOnlyAttributes(object):
