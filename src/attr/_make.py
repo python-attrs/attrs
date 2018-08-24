@@ -47,7 +47,7 @@ class _Nothing(object):
     """
     Sentinel class to indicate the lack of a value when ``None`` is ambiguous.
 
-    `_Nothing` is a singleton. There is only ever one of it.
+    ``_Nothing`` is a singleton. There is only ever one of it.
     """
 
     _singleton = None
