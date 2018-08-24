@@ -637,6 +637,7 @@ class TestAttributes(object):
         Test that attr.s raises a TypeError if an unfrozen singleton is made
         """
         with pytest.raises(TypeError):
+
             @attr.s(singleton=True)
             class C(object):
                 x = attr.ib(default=3)
@@ -645,6 +646,7 @@ class TestAttributes(object):
         """
         Test that a singleton's __init__ only runs *once*
         """
+
         @attr.s(singleton=True, frozen=True)
         class C(object):
             x = attr.ib(default=3)
@@ -661,6 +663,7 @@ class TestAttributes(object):
         """
         Ensure that classes can be made singletons
         """
+
         @attr.s(singleton=True, frozen=True)
         class C(object):
             x = attr.ib(default=3)

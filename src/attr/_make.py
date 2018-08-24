@@ -457,11 +457,19 @@ class _ClassBuilder(object):
         "_has_post_init",
         "_delete_attribs",
         "_super_attr_map",
-        "_singleton"
+        "_singleton",
     )
 
     def __init__(
-        self, cls, these, slots, frozen, auto_attribs, kw_only, cache_hash, singleton
+        self,
+        cls,
+        these,
+        slots,
+        frozen,
+        auto_attribs,
+        kw_only,
+        cache_hash,
+        singleton,
     ):
         attrs, super_attrs, super_map = _transform_attrs(
             cls, these, auto_attribs, kw_only
@@ -542,7 +550,7 @@ class _ClassBuilder(object):
             name for name in self._attr_names if name not in super_names
         ]
         if self._singleton:
-            slot_names.append('_skip_init')
+            slot_names.append("_skip_init")
         if self._cache_hash:
             slot_names.append(_hash_cache_field)
         cd["__slots__"] = tuple(slot_names)
@@ -614,7 +622,9 @@ class _ClassBuilder(object):
                 else:
                     raise ValueError("attribute not initialized")
 
-            _attrs = [get_attr(a, i) for i, a in enumerate(fields(cls)) if a.init]
+            _attrs = [
+                get_attr(a, i) for i, a in enumerate(fields(cls)) if a.init
+            ]
             key = tuple(_attrs + [cls])
             if key not in cls._singletons:
                 cls._singletons[key] = super(cls, cls).__new__(cls)
@@ -822,10 +832,9 @@ def attrs(
         after object creation.
 
     :param bool singleton: Ensure that any object generated with unique
-        arguments gets only once instance made. If this is set to ``True``, then
-        ``Example(3) is Example(3)`` should always return ``True``. Note that
-        ``Example(3) is Example(4)`` should be ``False``. Currently works only
-        in Python 3.
+        arguments gets only once instance made. If this is set to ``True``,
+        then ``Example(3) is Example(3)`` should always return ``True``. Note
+        that ``Example(3) is Example(4)`` should be ``False``.
 
 
     .. versionadded:: 16.0.0 *slots*
@@ -853,7 +862,14 @@ def attrs(
             raise TypeError("attrs only works with new-style classes.")
 
         builder = _ClassBuilder(
-            cls, these, slots, frozen, auto_attribs, kw_only, cache_hash, singleton
+            cls,
+            these,
+            slots,
+            frozen,
+            auto_attribs,
+            kw_only,
+            cache_hash,
+            singleton,
         )
 
         if repr is True:
@@ -1219,7 +1235,9 @@ def _add_repr(cls, ns=None, attrs=None):
     return cls
 
 
-def _make_init(attrs, post_init, frozen, slots, cache_hash, super_attr_map, singleton):
+def _make_init(
+    attrs, post_init, frozen, slots, cache_hash, super_attr_map, singleton
+):
     attrs = [a for a in attrs if a.init or a.default is not NOTHING]
 
     # We cache the generated init methods for the same kinds of attributes.
@@ -1265,7 +1283,7 @@ def _add_init(cls, frozen, singleton=False):
         _is_slot_cls(cls),
         cache_hash=False,
         super_attr_map={},
-        singleton=singleton
+        singleton=singleton,
     )
     return cls
 
@@ -1626,7 +1644,7 @@ def _attrs_to_init_script(
             else:
                 lines.append("_inst_dict['_skip_init'] = True")
         else:  # shoud never occur, but left in case of future change
-            lines.append('self._skip_init = True')
+            lines.append("self._skip_init = True")
     return (
         """\
 def __init__(self, {args}):
