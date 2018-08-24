@@ -49,6 +49,7 @@ class _Nothing(object):
 
     `_Nothing` is a singleton. There is only ever one of it.
     """
+
     _singleton = None
 
     def __new__(cls):
