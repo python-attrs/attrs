@@ -600,6 +600,7 @@ class _ClassBuilder(object):
         return cls
 
     def add_new(self):
+        @staticmethod
         def __new__(cls, *args, **kwargs):
             arg_len = len(args)
 
