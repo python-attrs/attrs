@@ -641,6 +641,22 @@ class TestAttributes(object):
             class C(object):
                 x = attr.ib(default=3)
 
+    def test_singleton_init_only_once(self):
+        """
+        Test that a singleton's __init__ only runs *once*
+        """
+        @attr.s(singleton=True, frozen=True)
+        class C(object):
+            x = attr.ib(default=3)
+            ran = 0
+
+            def __attrs_post_init__(self, *args, **kwargs):
+                C.ran += 1
+
+        C()
+        C()
+        assert 1 == C.ran
+
     def test_singleton(self):
         """
         Ensure that classes can be made singletons

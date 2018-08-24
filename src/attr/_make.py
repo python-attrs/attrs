@@ -457,6 +457,7 @@ class _ClassBuilder(object):
         "_has_post_init",
         "_delete_attribs",
         "_super_attr_map",
+        "_singleton"
     )
 
     def __init__(
@@ -477,6 +478,7 @@ class _ClassBuilder(object):
         self._cache_hash = cache_hash
         self._has_post_init = bool(getattr(cls, "__attrs_post_init__", False))
         self._delete_attribs = not bool(these)
+        self._singleton = singleton
 
         self._cls_dict["__attrs_attrs__"] = self._attrs
 
@@ -539,6 +541,8 @@ class _ClassBuilder(object):
         slot_names = [
             name for name in self._attr_names if name not in super_names
         ]
+        if self._singleton:
+            slot_names.append('_skip_init')
         if self._cache_hash:
             slot_names.append(_hash_cache_field)
         cd["__slots__"] = tuple(slot_names)
@@ -658,6 +662,7 @@ class _ClassBuilder(object):
                 self._slots,
                 self._cache_hash,
                 self._super_attr_map,
+                self._singleton,
             )
         )
 
@@ -1213,7 +1218,7 @@ def _add_repr(cls, ns=None, attrs=None):
     return cls
 
 
-def _make_init(attrs, post_init, frozen, slots, cache_hash, super_attr_map):
+def _make_init(attrs, post_init, frozen, slots, cache_hash, super_attr_map, singleton):
     attrs = [a for a in attrs if a.init or a.default is not NOTHING]
 
     # We cache the generated init methods for the same kinds of attributes.
@@ -1222,7 +1227,7 @@ def _make_init(attrs, post_init, frozen, slots, cache_hash, super_attr_map):
     unique_filename = "<attrs generated init {0}>".format(sha1.hexdigest())
 
     script, globs, annotations = _attrs_to_init_script(
-        attrs, frozen, slots, post_init, cache_hash, super_attr_map
+        attrs, frozen, slots, post_init, cache_hash, super_attr_map, singleton
     )
     locs = {}
     bytecode = compile(script, unique_filename, "exec")
@@ -1248,7 +1253,7 @@ def _make_init(attrs, post_init, frozen, slots, cache_hash, super_attr_map):
     return __init__
 
 
-def _add_init(cls, frozen):
+def _add_init(cls, frozen, singleton=False):
     """
     Add a __init__ method to *cls*.  If *frozen* is True, make it immutable.
     """
@@ -1259,6 +1264,7 @@ def _add_init(cls, frozen):
         _is_slot_cls(cls),
         cache_hash=False,
         super_attr_map={},
+        singleton=singleton
     )
     return cls
 
@@ -1348,7 +1354,7 @@ def _is_slot_attr(a_name, super_attr_map):
 
 
 def _attrs_to_init_script(
-    attrs, frozen, slots, post_init, cache_hash, super_attr_map
+    attrs, frozen, slots, post_init, cache_hash, super_attr_map, singleton
 ):
     """
     Return a script of an initializer for *attrs* and a dict of globals.
@@ -1362,6 +1368,8 @@ def _attrs_to_init_script(
     any_slot_ancestors = any(
         _is_slot_attr(a.name, super_attr_map) for a in attrs
     )
+    if singleton is True:
+        lines.append('if getattr(self, "_skip_init", False): return')
     if frozen is True:
         if slots is True:
             lines.append(
@@ -1608,6 +1616,16 @@ def _attrs_to_init_script(
             leading_comma=", " if args else "",
             kw_only_args=", ".join(kw_only_args),
         )
+
+    # because some instances will already be initialized, we should mark that
+    if singleton is True:
+        if frozen:
+            if slots:
+                lines.append("_setattr('_skip_init', True)")
+            else:
+                lines.append("_inst_dict['_skip_init'] = True")
+        else:  # shoud never occur, but left in case of future change
+            lines.append('self._skip_init = True')
     return (
         """\
 def __init__(self, {args}):
