@@ -644,7 +644,7 @@ class TestAttributes(object):
 
     def test_uninitialized_singleton(self):
         """
-        Test that attr.s raises a ValueError if non-defaulted attr is left blank
+        Test that attr.s raises a ValueError if non-defaulted attr is undefined
         """
 
         @attr.s(frozen=True, singleton=True)
@@ -653,7 +653,6 @@ class TestAttributes(object):
 
         with pytest.raises(ValueError):
             C()
-
 
     def test_singleton_init_only_once(self):
         """
