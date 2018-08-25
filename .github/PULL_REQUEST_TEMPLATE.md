@@ -5,9 +5,11 @@ This is just a reminder about the most common mistakes.  Please make sure that y
 - [ ] Added **tests** for changed code.
 - [ ] New features have been added to our [Hypothesis testing strategy](https://github.com/python-attrs/attrs/blob/master/tests/strategies.py).
 - [ ] Changes or additions to public APIs are reflected in our type stubs (files ending in ``.pyi``).
+    - [ ] ...and used in the stub test file `tests/typing_example.py`.
 - [ ] Updated **documentation** for changed code.
+    - [ ] New functions/classes have to be added to `docs/api.rst` by hand.
+    - [ ] Changed/added classes/methods/functions have appropriate `versionadded`, `versionchanged`, or `deprecated` [directives](http://www.sphinx-doc.org/en/stable/markup/para.html#directive-versionadded).
 - [ ] Documentation in `.rst` files is written using [semantic newlines](http://rhodesmill.org/brandon/2012/one-sentence-per-line/).
-- [ ] Changed/added classes/methods/functions have appropriate `versionadded`, `versionchanged`, or `deprecated` [directives](http://www.sphinx-doc.org/en/stable/markup/para.html#directive-versionadded).
 - [ ] Changes (and possible deprecations) have news fragments in [`changelog.d`](https://github.com/python-attrs/attrs/blob/master/changelog.d).
 
 If you have *any* questions to *any* of the points above, just **submit and ask**!  This checklist is here to *help* you, not to deter you from contributing!
