@@ -31,7 +31,9 @@ from .exceptions import (
 _obj_setattr = object.__setattr__
 _init_converter_pat = "__attr_converter_{}"
 _init_factory_pat = "__attr_factory_{}"
-_tuple_property_pat = "    {attr_name} = property(itemgetter({index}))"
+_tuple_property_pat = (
+    "    {attr_name} = _attrs_property(_attrs_itemgetter({index}))"
+)
 _classvar_prefixes = ("typing.ClassVar", "t.ClassVar", "ClassVar")
 # we don't use a double-underscore prefix because that triggers
 # name mangling when trying to create a slot for the field
@@ -243,8 +245,9 @@ def _make_attr_tuple_class(cls_name, attr_names):
             )
     else:
         attr_class_template.append("    pass")
-    globs = {"itemgetter": itemgetter}
+    globs = {"_attrs_itemgetter": itemgetter, "_attrs_property": property}
     eval(compile("\n".join(attr_class_template), "", "exec"), globs)
+
     return globs[attr_class_name]
 
 
