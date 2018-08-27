@@ -522,7 +522,13 @@ class _ClassBuilder(object):
                     name not in super_names
                     and getattr(cls, name, None) is not None
                 ):
-                    delattr(cls, name)
+                    try:
+                        delattr(cls, name)
+                    except AttributeError:
+                        # This can happen if a superclass defines a class
+                        # variable and we want to set an attribute with the
+                        # same name by using only a type annotation.
+                        pass
 
         # Attach our dunder methods.
         for name, value in self._cls_dict.items():
