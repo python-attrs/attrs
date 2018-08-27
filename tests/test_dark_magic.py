@@ -339,12 +339,13 @@ class TestDarkMagic(object):
 
     @pytest.mark.parametrize("slots", [True, False])
     @pytest.mark.parametrize("frozen", [True, False])
-    def test_attrib_overwrite(self, slots, frozen):
+    @pytest.mark.parametrize("weakref_slot", [True, False])
+    def test_attrib_overwrite(self, slots, frozen, weakref_slot):
         """
         Subclasses can overwrite attributes of their superclass.
         """
 
-        @attr.s(slots=slots, frozen=frozen)
+        @attr.s(slots=slots, frozen=frozen, weakref_slot=weakref_slot)
         class SubOverwrite(Super):
             x = attr.ib(default=attr.Factory(list))
 
@@ -447,6 +448,8 @@ class TestDarkMagic(object):
     @pytest.mark.parametrize("sub_slots", [True, False])
     @pytest.mark.parametrize("base_frozen", [True, False])
     @pytest.mark.parametrize("sub_frozen", [True, False])
+    @pytest.mark.parametrize("base_weakref_slot", [True, False])
+    @pytest.mark.parametrize("sub_weakref_slot", [True, False])
     @pytest.mark.parametrize("base_converter", [True, False])
     @pytest.mark.parametrize("sub_converter", [True, False])
     def test_frozen_slots_combo(
@@ -455,6 +458,8 @@ class TestDarkMagic(object):
         sub_slots,
         base_frozen,
         sub_frozen,
+        base_weakref_slot,
+        sub_weakref_slot,
         base_converter,
         sub_converter,
     ):
@@ -463,11 +468,17 @@ class TestDarkMagic(object):
         with a single attribute.
         """
 
-        @attr.s(frozen=base_frozen, slots=base_slots)
+        @attr.s(
+            frozen=base_frozen,
+            slots=base_slots,
+            weakref_slot=base_weakref_slot,
+        )
         class Base(object):
             a = attr.ib(converter=int if base_converter else None)
 
-        @attr.s(frozen=sub_frozen, slots=sub_slots)
+        @attr.s(
+            frozen=sub_frozen, slots=sub_slots, weakref_slot=sub_weakref_slot
+        )
         class Sub(Base):
             b = attr.ib(converter=int if sub_converter else None)
 
