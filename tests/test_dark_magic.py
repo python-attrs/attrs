@@ -421,7 +421,7 @@ class TestDarkMagic(object):
 
     def test_overwrite_super(self):
         """
-        Super classes can overwrite each other and the attributes are added
+        Superclasses can overwrite each other and the attributes are added
         in the order they are defined.
         """
 
