@@ -14,6 +14,7 @@ from ._make import (
     fields,
     fields_dict,
     make_class,
+    singleton,
     validate,
 )
 
@@ -60,6 +61,7 @@ __all__ = [
     "make_class",
     "s",
     "set_run_validators",
+    "singleton",
     "validate",
     "validators",
 ]

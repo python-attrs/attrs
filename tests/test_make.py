@@ -632,6 +632,84 @@ class TestAttributes(object):
             class C(object):
                 x = attr.ib(factory=Factory(list))
 
+    def test_unfrozen_singleton(self):
+        """
+        Test that singleton raises a TypeError if an unfrozen singleton is made
+        """
+        with pytest.raises(TypeError):
+
+            @attr.singleton
+            @attr.s()
+            class C(object):
+                x = attr.ib(default=3)
+
+    def test_uninitialized_singleton(self):
+        """
+        Test that singleton raises ValueError if non-defaulted attr not defined
+        """
+
+        @attr.singleton
+        @attr.s(frozen=True)
+        class C(object):
+            x = attr.ib()
+
+        with pytest.raises(ValueError):
+            C()
+
+    def test_singleton_init_only_once(self):
+        """
+        Test that a singleton's __init__ only runs *once*
+        """
+
+        @attr.singleton
+        @attr.s(frozen=True)
+        class C(object):
+            x = attr.ib(default=3)
+            ran = 0
+
+            def __attrs_post_init__(self, *args, **kwargs):
+                C.ran += 1
+
+        C()
+        C()
+        assert 1 == C.ran
+
+    def test_singleton(self):
+        """
+        Ensure that classes can be made singletons
+        """
+
+        @attr.singleton
+        @attr.s(frozen=True)
+        class C(object):
+            x = attr.ib(default=3)
+
+        a = C(4)
+        b = C(x=4)
+        c = C()
+        assert a is b
+        assert a is not c
+        assert a.x is b.x
+        assert a.x != c.x
+
+    def test_slotted_singleton(self):
+        """
+        Ensure that classes can be made singletons
+        """
+
+        @attr.singleton
+        @attr.s(frozen=True, slots=True)
+        class C(object):
+            x = attr.ib(default=3)
+
+        a = C(4)
+        b = C(x=4)
+        c = C()
+        assert a is b
+        assert a is not c
+        assert a.x is b.x
+        assert a.x != c.x
+
 
 @pytest.mark.skipif(PY2, reason="keyword-only arguments are PY3-only.")
 class TestKeywordOnlyAttributes(object):

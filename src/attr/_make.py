@@ -7,6 +7,7 @@ import sys
 import threading
 import warnings
 
+from collections import defaultdict
 from operator import itemgetter
 
 from . import _config
@@ -864,6 +865,62 @@ def attrs(
         return wrap
     else:
         return wrap(maybe_cls)
+
+
+singletons = defaultdict(dict)
+initialized = set()
+
+
+def _s_getattr(arg_len, args, kwargs, attr, idx):
+    if attr.name in kwargs:
+        return kwargs[attr.name]
+    elif idx < arg_len:
+        return args[idx]
+    elif attr.default != NOTHING:
+        return attr.default
+    else:
+        raise ValueError("attribute not initialized")
+
+
+def singleton(maybe_cls):
+    """
+    Decorator which transforms an attrs class or namedtuple into a singleton.
+    This means that any time you instantiate that class with the same
+    arguments, you are garaunteed to get the same object.
+    """
+
+    def wrap(_cls):
+        if not (_has_frozen_superclass(_cls) or isinstance(tuple)):
+            raise TypeError("Must be run on frozen attrs class or namedtuple")
+
+        def __init__(self, *args, **kwargs):
+            try:
+                if self in initialized:
+                    return
+            except AttributeError:
+                prev_init(self, *args, **kwargs)
+                initialized.add(self)
+
+        @staticmethod
+        def __new__(cls, *arg, **kwarg):
+            arglen = len(arg)
+            iter = enumerate(fields(cls))
+            key = tuple(
+                _s_getattr(arglen, arg, kwarg, a, i) for i, a in iter if a.init
+            )
+            class_listings = singletons[cls]
+            if key not in class_listings:
+                class_listings[key] = super(cls, cls).__new__(cls)
+            return class_listings[key]
+
+        prev_init = _cls.__init__
+        _cls.__new__ = __new__
+        _cls.__init__ = __init__
+        return _cls
+
+    if maybe_cls is None:
+        return wrap
+    return wrap(maybe_cls)
 
 
 _attrs = attrs
