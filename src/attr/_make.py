@@ -47,26 +47,18 @@ class _Nothing(object):
     """
     Sentinel class to indicate the lack of a value when ``None`` is ambiguous.
 
-    All instances of `_Nothing` are equal.
+    ``_Nothing`` is a singleton. There is only ever one of it.
     """
 
-    def __copy__(self):
-        return self
+    _singleton = None
 
-    def __deepcopy__(self, _):
-        return self
-
-    def __eq__(self, other):
-        return other.__class__ == _Nothing
-
-    def __ne__(self, other):
-        return not self == other
+    def __new__(cls):
+        if _Nothing._singleton is None:
+            _Nothing._singleton = super(_Nothing, cls).__new__(cls)
+        return _Nothing._singleton
 
     def __repr__(self):
         return "NOTHING"
-
-    def __hash__(self):
-        return 0xc0ffee
 
 
 NOTHING = _Nothing()
