@@ -110,6 +110,14 @@ Core
       C2(x=42, y=[])
 
 
+.. autoclass:: attr.singleton
+
+    This is a decorator to build singleton classes.
+
+    It will usually not be accessed directly, but it also has support for
+    transforming a :class:`~collections.namedtuple` into a singleton.
+
+
 .. autoclass:: attr.Factory
 
    For example:
