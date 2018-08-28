@@ -926,6 +926,10 @@ def _s_get(arg_len, args, kwargs, attr, idx):
         raise ValueError("attribute not initialized")
 
 
+def _empty(*args, **kwargs):
+    pass
+
+
 def singleton(maybe_cls):
     """
     Decorator which transforms an attrs class or namedtuple into a singleton.
@@ -982,13 +986,10 @@ def singleton(maybe_cls):
                 prev_init(self, *args, **kwargs)
                 initialized.add(self)
 
-        if _cls.__init__ != object.__init__:
-            prev_init = _cls.__init__
+        if _cls.__init__ == object.__init__:
+            prev_init = _empty
         else:
-
-            def prev_init(*args, **kwargs):
-                pass
-
+            prev_init = _cls.__init__
         _cls.__new__ = __new__
         _cls.__init__ = __init__
         return _cls
