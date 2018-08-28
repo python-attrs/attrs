@@ -118,13 +118,14 @@ You don't need to install ``towncrier`` yourself, you just have to abide by a fe
   For example, ``changelog.d/42.change.rst`` for a non-breaking change that is proposed in pull request #42.
 - As with other docs, please use `semantic newlines`_ within news fragments.
 - Wrap symbols like modules, functions, or classes into double backticks so they are rendered in a monospace font.
+- Wrap arguments into asterisks like in autodocs: *these* or *attributes*.
 - If you mention functions or other callables, add parentheses at the end of their names: ``attr.func()`` or ``attr.Class.method()``.
   This makes the changelog a lot more readable.
 - Prefer simple past tense or constructions with "now".
   For example:
 
   + Added ``attr.validators.func()``.
-  + ``attr.func()`` now doesn't crash the Large Hadron Collider anymore.
+  + ``attr.func()`` now doesn't crash the Large Hadron Collider anymore when passed the *foobar* argument.
 - If you want to reference multiple issues, copy the news fragment to another filename.
   ``towncrier`` will merge all news fragments with identical contents into one entry with multiple links to the respective pull requests.
 
@@ -139,7 +140,7 @@ or:
 
   .. code-block:: rst
 
-     ``attr.func()`` now doesn't crash the Large Hadron Collider anymore.
+     ``attr.func()`` now doesn't crash the Large Hadron Collider anymore when passed the *foobar* argument.
      The bug really *was* nasty.
 
 ----
