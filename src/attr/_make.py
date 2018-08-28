@@ -464,9 +464,6 @@ class _ClassBuilder(object):
         kw_only,
         cache_hash,
         singleton,
-        auto_attribs,
-        kw_only,
-        cache_hash,
     ):
         attrs, super_attrs, super_map = _transform_attrs(
             cls, these, auto_attribs, kw_only
@@ -895,9 +892,6 @@ def attrs(
             kw_only,
             cache_hash,
             singleton,
-            auto_attribs,
-            kw_only,
-            cache_hash,
         )
 
         if repr is True:
