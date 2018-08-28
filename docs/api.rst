@@ -110,7 +110,7 @@ Core
       C2(x=42, y=[])
 
 
-.. autoclass:: attr.singleton
+.. autofunction:: attr.singleton
 
     This is a decorator to build singleton classes.
 
