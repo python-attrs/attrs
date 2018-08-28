@@ -10,6 +10,7 @@ import inspect
 import itertools
 import sys
 
+from collections import namedtuple
 from operator import attrgetter
 
 import pytest
@@ -691,6 +692,44 @@ class TestAttributes(object):
         assert a is not c
         assert a.x is b.x
         assert a.x != c.x
+
+    def test_singleton_collection_namedtuple(self):
+        """
+        Ensure that namedtuple can be made singletons
+        """
+
+        @attr.singleton
+        class C(namedtuple('_C', ['x'])):
+            pass
+
+        a = C(4)
+        b = C(x=4)
+        c = C(3)
+        assert a is b
+        assert a is not c
+        assert a.x is b.x
+        assert a.x != c.x
+
+    @pytest.mark.skipif(PY2, reason="Typing is not a dependency in python2")
+    def test_singleton_typing_namedtuple(self):
+        """
+        Ensure that namedtuple can be made singletons
+        """
+        from typing import NamedTuple
+
+        exec(
+        "@attr.singleton\n"
+        "class C(NamedTuple):\n"
+        "    x: int = 3\n\n"
+        "a = C(4)\n"
+        "b = C(x=4)\n"
+        "c = C()\n"
+        "assert a is b\n"
+        "assert a is not c\n"
+        "assert a.x is b.x\n"
+        "assert a.x != c.x"
+        )  # avoid python2 syntax error
+
 
     def test_slotted_singleton(self):
         """

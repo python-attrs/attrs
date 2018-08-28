@@ -890,7 +890,40 @@ def singleton(maybe_cls):
     """
 
     def wrap(_cls):
-        if not (_has_frozen_superclass(_cls) or isinstance(tuple)):
+        if _has_frozen_superclass(_cls):
+            @staticmethod
+            def __new__(cls, *arg, **kwarg):
+                """
+                attrs-generated __new__ for a singleton, frozen attrs class
+                """
+                arglen = len(arg)
+                iter = enumerate(fields(cls))
+                key = tuple(
+                    _s_getattr(arglen, arg, kwarg, a, i) for i, a in iter if a.init
+                )
+                class_listings = singletons[cls]
+                if key not in class_listings:
+                    class_listings[key] = super(cls, cls).__new__(cls)
+                return class_listings[key]
+
+        elif issubclass(_cls, tuple):
+            @staticmethod
+            def __new__(cls, *args, **kwargs):
+                """
+                attrs-generated __new__ for a namedtuple-based singleton class
+                """
+                mapping = {}
+                mapping.update(getattr(cls, '_field_defaults', {}))
+                mapping.update(kwargs)
+                for key, val in zip(cls._fields, args):
+                    mapping[key] = val
+                t_key = tuple(mapping[key] for key in cls._fields)
+                class_listings = singletons[cls]
+                if t_key not in class_listings:
+                    class_listings[t_key] = super(cls, cls).__new__(cls, t_key)
+                return class_listings[t_key]
+
+        else:
             raise TypeError("Must be run on frozen attrs class or namedtuple")
 
         def __init__(self, *args, **kwargs):
@@ -900,18 +933,6 @@ def singleton(maybe_cls):
             except AttributeError:
                 prev_init(self, *args, **kwargs)
                 initialized.add(self)
-
-        @staticmethod
-        def __new__(cls, *arg, **kwarg):
-            arglen = len(arg)
-            iter = enumerate(fields(cls))
-            key = tuple(
-                _s_getattr(arglen, arg, kwarg, a, i) for i, a in iter if a.init
-            )
-            class_listings = singletons[cls]
-            if key not in class_listings:
-                class_listings[key] = super(cls, cls).__new__(cls)
-            return class_listings[key]
 
         prev_init = _cls.__init__
         _cls.__new__ = __new__
