@@ -32,7 +32,7 @@ Changes
 
   `#290 <https://github.com/python-attrs/attrs/issues/290>`_,
   `#349 <https://github.com/python-attrs/attrs/issues/349>`_
-- The order of attributes that are passed into ``attr.make_class()`` or the ``these`` argument of ``@attr.s()`` is now retained if the dictionary is ordered (i.e. ``dict`` on Python 3.6 and later, ``collections.OrderedDict`` otherwise).
+- The order of attributes that are passed into ``attr.make_class()`` or the *these* argument of ``@attr.s()`` is now retained if the dictionary is ordered (i.e. ``dict`` on Python 3.6 and later, ``collections.OrderedDict`` otherwise).
 
   Before, the order was always determined by the order in which the attributes have been defined which may not be desirable when creating classes programatically.
 
@@ -94,18 +94,11 @@ Backward-incompatible Changes
   `#298 <https://github.com/python-attrs/attrs/issues/298>`_,
   `#299 <https://github.com/python-attrs/attrs/issues/299>`_,
   `#304 <https://github.com/python-attrs/attrs/issues/304>`_
-- The ``__repr__`` set by ``attrs``
-  no longer produces an ``AttributeError``
-  when the instance is missing some of the specified attributes
-  (either through deleting
-  or after using ``init=False`` on some attributes).
+- The ``__repr__`` set by ``attrs`` no longer produces an ``AttributeError`` when the instance is missing some of the specified attributes (either through deleting or after using ``init=False`` on some attributes).
 
-  This can break code
-  that relied on ``repr(attr_cls_instance)`` raising ``AttributeError``
-  to check if any attr-specified members were unset.
+  This can break code that relied on ``repr(attr_cls_instance)`` raising ``AttributeError`` to check if any ``attrs``-specified members were unset.
 
-  If you were using this,
-  you can implement a custom method for checking this::
+  If you were using this, you can implement a custom method for checking this::
 
       def has_unset_members(self):
           for field in attr.fields(type(self)):
@@ -141,7 +134,7 @@ Changes
   `#261 <https://github.com/python-attrs/attrs/issues/261>`_,
   `#295 <https://github.com/python-attrs/attrs/issues/295>`_,
   `#296 <https://github.com/python-attrs/attrs/issues/296>`_
-- ``attr.ib``\ ’s ``metadata`` argument now defaults to a unique empty ``dict`` instance instead of sharing a common empty ``dict`` for all.
+- ``attr.ib``\ ’s *metadata* argument now defaults to a unique empty ``dict`` instance instead of sharing a common empty ``dict`` for all.
   The singleton empty ``dict`` is still enforced.
 
   `#280 <https://github.com/python-attrs/attrs/issues/280>`_
@@ -189,20 +182,21 @@ Changes
 
 - ``super()`` and ``__class__`` now work with slotted classes on Python 3.
   (`#102 <https://github.com/python-attrs/attrs/issues/102>`_, `#226 <https://github.com/python-attrs/attrs/issues/226>`_, `#269 <https://github.com/python-attrs/attrs/issues/269>`_, `#270 <https://github.com/python-attrs/attrs/issues/270>`_, `#272 <https://github.com/python-attrs/attrs/issues/272>`_)
-- Added ``type`` argument to ``attr.ib()`` and corresponding ``type`` attribute to ``attr.Attribute``.
+- Added *type* argument to ``attr.ib()`` and corresponding ``type`` attribute to ``attr.Attribute``.
 
   This change paves the way for automatic type checking and serialization (though as of this release ``attrs`` does not make use of it).
   In Python 3.6 or higher, the value of ``attr.Attribute.type`` can alternately be set using variable type annotations
-  (see `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_). (`#151 <https://github.com/python-attrs/attrs/issues/151>`_, `#214 <https://github.com/python-attrs/attrs/issues/214>`_, `#215 <https://github.com/python-attrs/attrs/issues/215>`_, `#239 <https://github.com/python-attrs/attrs/issues/239>`_)
+  (see `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_).
+  (`#151 <https://github.com/python-attrs/attrs/issues/151>`_, `#214 <https://github.com/python-attrs/attrs/issues/214>`_, `#215 <https://github.com/python-attrs/attrs/issues/215>`_, `#239 <https://github.com/python-attrs/attrs/issues/239>`_)
 - The combination of ``str=True`` and ``slots=True`` now works on Python 2.
   (`#198 <https://github.com/python-attrs/attrs/issues/198>`_)
-- ``attr.Factory`` is hashable again. (`#204
-  <https://github.com/python-attrs/attrs/issues/204>`_)
+- ``attr.Factory`` is hashable again.
+  (`#204 <https://github.com/python-attrs/attrs/issues/204>`_)
 - Subclasses now can overwrite attribute definitions of their superclass.
 
   That means that you can -- for example -- change the default value for an attribute by redefining it.
   (`#221 <https://github.com/python-attrs/attrs/issues/221>`_, `#229 <https://github.com/python-attrs/attrs/issues/229>`_)
-- Added new option ``auto_attribs`` to ``@attr.s`` that allows to collect annotated fields without setting them to ``attr.ib()``.
+- Added new option *auto_attribs* to ``@attr.s`` that allows to collect annotated fields without setting them to ``attr.ib()``.
 
   Setting a field to an ``attr.ib()`` is still possible to supply options like validators.
   Setting it to any other value is treated like it was passed as ``attr.ib(default=value)`` -- passing an instance of ``attr.Factory`` also works as expected.
@@ -254,7 +248,7 @@ Backward-incompatible Changes:
     Please *do not* upgrade blindly and *do* test your software!
     *Especially* if you use instances as dict keys or put them into sets!
 
-- Correspondingly, ``attr.ib``'s ``hash`` argument is ``None`` by default too and mirrors the ``cmp`` argument as it should.
+- Correspondingly, ``attr.ib``'s *hash* argument is ``None`` by default too and mirrors the *cmp* argument as it should.
 
 
 Deprecations:
@@ -287,14 +281,14 @@ Changes:
   `#181 <https://github.com/python-attrs/attrs/pull/181>`_
 - Added ``attr.validators.and_()`` that composes multiple validators into one.
   `#161 <https://github.com/python-attrs/attrs/issues/161>`_
-- For convenience, the ``validator`` argument of ``@attr.s`` now can take a ``list`` of validators that are wrapped using ``and_()``.
+- For convenience, the *validator* argument of ``@attr.s`` now can take a list of validators that are wrapped using ``and_()``.
   `#138 <https://github.com/python-attrs/attrs/issues/138>`_
-- Accordingly, ``attr.validators.optional()`` now can take a ``list`` of validators too.
+- Accordingly, ``attr.validators.optional()`` now can take a list of validators too.
   `#161 <https://github.com/python-attrs/attrs/issues/161>`_
 - Validators can now be defined conveniently inline by using the attribute as a decorator.
-  Check out the `validator examples <https://www.attrs.org/en/stable/examples.html#validators>`_ to see it in action!
+  Check out the `validator examples <http://www.attrs.org/en/stable/init.html#decorator>`_ to see it in action!
   `#143 <https://github.com/python-attrs/attrs/issues/143>`_
-- ``attr.Factory()`` now has a ``takes_self`` argument that makes the initializer to pass the partially initialized instance into the factory.
+- ``attr.Factory()`` now has a *takes_self* argument that makes the initializer to pass the partially initialized instance into the factory.
   In other words you can define attribute defaults based on other attributes.
   `#165`_
   `#189 <https://github.com/python-attrs/attrs/issues/189>`_
@@ -346,7 +340,7 @@ Changes:
 
 - Added ``attr.astuple()`` that -- similarly to ``attr.asdict()`` -- returns the instance as a tuple.
   `#77 <https://github.com/python-attrs/attrs/issues/77>`_
-- Converts now work with frozen classes.
+- Converters now work with frozen classes.
   `#76 <https://github.com/python-attrs/attrs/issues/76>`_
 - Instantiation of ``attrs`` classes with converters is now significantly faster.
   `#80 <https://github.com/python-attrs/attrs/pull/80>`_
@@ -397,7 +391,7 @@ Changes:
   `#48 <https://github.com/python-attrs/attrs/issues/48>`_
   `#51 <https://github.com/python-attrs/attrs/issues/51>`_
 - Add ``attr.attrs`` and ``attr.attrib`` as a more consistent aliases for ``attr.s`` and ``attr.ib``.
-- Add ``frozen`` option to ``attr.s`` that will make instances best-effort immutable.
+- Add *frozen* option to ``attr.s`` that will make instances best-effort immutable.
   `#60 <https://github.com/python-attrs/attrs/issues/60>`_
 - ``attr.asdict()`` now takes ``retain_collection_types`` as an argument.
   If ``True``, it does not convert attributes of type ``tuple`` or ``set`` to ``list``.
