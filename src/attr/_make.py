@@ -965,8 +965,7 @@ def singleton(maybe_cls=None):
                 mapping = {}
                 mapping.update(getattr(cls, "_field_defaults", {}))
                 mapping.update(kwargs)
-                for key, val in zip(cls._fields, args):
-                    mapping[key] = val
+                mapping.update(zip(cls._fields, args))
                 t_key = tuple(mapping[key] for key in cls._fields)
                 class_listings = singletons[cls]
                 if t_key not in class_listings:
