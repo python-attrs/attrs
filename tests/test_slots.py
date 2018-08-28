@@ -2,6 +2,8 @@
 Unit tests for slot-related functionality.
 """
 
+import weakref
+
 import pytest
 
 import attr
@@ -83,7 +85,7 @@ def test_slots_being_used():
     assert "__dict__" in dir(non_slot_instance)
     assert "__slots__" not in dir(non_slot_instance)
 
-    assert set(["x", "y"]) == set(slot_instance.__slots__)
+    assert set(["__weakref__", "x", "y"]) == set(slot_instance.__slots__)
 
     if has_pympler:
         assert asizeof(slot_instance) < asizeof(non_slot_instance)
@@ -206,7 +208,7 @@ def test_nonslots_these():
     assert "clsmethod" == c2.classmethod()
     assert "staticmethod" == c2.staticmethod()
 
-    assert set(["x", "y", "z"]) == set(C2Slots.__slots__)
+    assert set(["__weakref__", "x", "y", "z"]) == set(C2Slots.__slots__)
 
     c3 = C2Slots(x=1, y=3, z="test")
     assert c3 > c2
@@ -430,3 +432,100 @@ class TestClosureCellRewriting(object):
         ) == w.message.args
 
         assert just_warn is func
+
+
+@pytest.mark.skipif(PYPY, reason="__slots__ only block weakref on CPython")
+def test_not_weakrefable():
+    """
+    Instance is not weak-referenceable when `weakref_slot=False` in CPython.
+    """
+
+    @attr.s(slots=True, weakref_slot=False)
+    class C(object):
+        pass
+
+    c = C()
+
+    with pytest.raises(TypeError):
+        weakref.ref(c)
+
+
+@pytest.mark.skipif(
+    not PYPY, reason="slots without weakref_slot should only work on PyPy"
+)
+def test_implicitly_weakrefable():
+    """
+    Instance is weak-referenceable even when `weakref_slot=False` in PyPy.
+    """
+
+    @attr.s(slots=True, weakref_slot=False)
+    class C(object):
+        pass
+
+    c = C()
+    w = weakref.ref(c)
+
+    assert c is w()
+
+
+def test_weakrefable():
+    """
+    Instance is weak-referenceable when `weakref_slot=True`.
+    """
+
+    @attr.s(slots=True, weakref_slot=True)
+    class C(object):
+        pass
+
+    c = C()
+    w = weakref.ref(c)
+
+    assert c is w()
+
+
+def test_weakref_does_not_add_a_field():
+    """
+    `weakref_slot=True` does not add a field to the class.
+    """
+
+    @attr.s(slots=True, weakref_slot=True)
+    class C(object):
+        field = attr.ib()
+
+    assert [f.name for f in attr.fields(C)] == ["field"]
+
+
+def tests_weakref_does_not_add_when_inheriting_with_weakref():
+    """
+    `weakref_slot=True` does not add a new __weakref__ slot when inheriting
+    one.
+    """
+
+    @attr.s(slots=True, weakref_slot=True)
+    class C(object):
+        pass
+
+    @attr.s(slots=True, weakref_slot=True)
+    class D(C):
+        pass
+
+    d = D()
+    w = weakref.ref(d)
+
+    assert d is w()
+
+
+def tests_weakref_does_not_add_with_weakref_attribute():
+    """
+    `weakref_slot=True` does not add a new __weakref__ slot when an attribute
+    of that name exists.
+    """
+
+    @attr.s(slots=True, weakref_slot=True)
+    class C(object):
+        __weakref__ = attr.ib(init=False, hash=False, repr=False, cmp=False)
+
+    c = C()
+    w = weakref.ref(c)
+
+    assert c is w()

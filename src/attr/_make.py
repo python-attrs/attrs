@@ -48,26 +48,18 @@ class _Nothing(object):
     """
     Sentinel class to indicate the lack of a value when ``None`` is ambiguous.
 
-    All instances of `_Nothing` are equal.
+    ``_Nothing`` is a singleton. There is only ever one of it.
     """
 
-    def __copy__(self):
-        return self
+    _singleton = None
 
-    def __deepcopy__(self, _):
-        return self
-
-    def __eq__(self, other):
-        return other.__class__ == _Nothing
-
-    def __ne__(self, other):
-        return not self == other
+    def __new__(cls):
+        if _Nothing._singleton is None:
+            _Nothing._singleton = super(_Nothing, cls).__new__(cls)
+        return _Nothing._singleton
 
     def __repr__(self):
         return "NOTHING"
-
-    def __hash__(self):
-        return 0xc0ffee
 
 
 NOTHING = _Nothing()
@@ -454,6 +446,7 @@ class _ClassBuilder(object):
         "_attr_names",
         "_slots",
         "_frozen",
+        "_weakref_slot",
         "_cache_hash",
         "_has_post_init",
         "_delete_attribs",
@@ -461,7 +454,15 @@ class _ClassBuilder(object):
     )
 
     def __init__(
-        self, cls, these, slots, frozen, auto_attribs, kw_only, cache_hash
+        self,
+        cls,
+        these,
+        slots,
+        frozen,
+        weakref_slot,
+        auto_attribs,
+        kw_only,
+        cache_hash,
     ):
         attrs, super_attrs, super_map = _transform_attrs(
             cls, these, auto_attribs, kw_only
@@ -475,6 +476,7 @@ class _ClassBuilder(object):
         self._attr_names = tuple(a.name for a in attrs)
         self._slots = slots
         self._frozen = frozen or _has_frozen_superclass(cls)
+        self._weakref_slot = weakref_slot
         self._cache_hash = cache_hash
         self._has_post_init = bool(getattr(cls, "__attrs_post_init__", False))
         self._delete_attribs = not bool(these)
@@ -513,7 +515,13 @@ class _ClassBuilder(object):
                     name not in super_names
                     and getattr(cls, name, None) is not None
                 ):
-                    delattr(cls, name)
+                    try:
+                        delattr(cls, name)
+                    except AttributeError:
+                        # This can happen if a superclass defines a class
+                        # variable and we want to set an attribute with the
+                        # same name by using only a type annotation.
+                        pass
 
         # Attach our dunder methods.
         for name, value in self._cls_dict.items():
@@ -532,11 +540,26 @@ class _ClassBuilder(object):
             if k not in tuple(self._attr_names) + ("__dict__", "__weakref__")
         }
 
+        weakref_inherited = False
+
+        # Traverse the MRO to check for an existing __weakref__.
+        for super_cls in self._cls.__mro__[1:-1]:
+            if "__weakref__" in getattr(super_cls, "__dict__", ()):
+                weakref_inherited = True
+                break
+
+        names = self._attr_names
+        if (
+            self._weakref_slot
+            and "__weakref__" not in getattr(self._cls, "__slots__", ())
+            and "__weakref__" not in names
+            and not weakref_inherited
+        ):
+            names += ("__weakref__",)
+
         # We only add the names of attributes that aren't inherited.
         # Settings __slots__ to inherited attributes wastes memory.
-        slot_names = [
-            name for name in self._attr_names if name not in super_names
-        ]
+        slot_names = [name for name in names if name not in super_names]
         if self._cache_hash:
             slot_names.append(_hash_cache_field)
         cd["__slots__"] = tuple(slot_names)
@@ -679,6 +702,7 @@ def attrs(
     init=True,
     slots=None,
     frozen=None,
+    weakref_slot=True,
     str=False,
     auto_attribs=False,
     kw_only=False,
@@ -764,6 +788,8 @@ def attrs(
                ``object.__setattr__(self, "attribute_name", value)``.
 
         ..  _slots: https://docs.python.org/3/reference/datamodel.html#slots
+    :param bool weakref_slot: Make instances weak-referenceable.  This has no
+        effect unless ``slots`` is also enabled.
     :param bool auto_attribs: If True, collect `PEP 526`_-annotated attributes
         (Python 3.6 and later only) from the class body.
 
@@ -802,6 +828,7 @@ def attrs(
     .. versionchanged:: 18.1.0
        If *these* is passed, no attributes are deleted from the class body.
     .. versionchanged:: 18.1.0 If *these* is ordered, the order is retained.
+    .. versionadded:: 18.2.0 *weakref_slot*
     .. deprecated:: 18.2.0
        ``__lt__``, ``__le__``, ``__gt__``, and ``__ge__`` now raise a
        :class:`DeprecationWarning` if the classes compared are subclasses of
@@ -822,7 +849,14 @@ def attrs(
             raise TypeError("attrs only works with new-style classes.")
 
         builder = _ClassBuilder(
-            cls, these, slots, frozen, auto_attribs, kw_only, cache_hash
+            cls,
+            these,
+            slots,
+            frozen,
+            weakref_slot,
+            auto_attribs,
+            kw_only,
+            cache_hash,
         )
 
         if repr is True:
