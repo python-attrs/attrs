@@ -881,7 +881,7 @@ singletons = defaultdict(dict)
 initialized = set()
 
 
-def _s_getattr(arg_len, args, kwargs, attr, idx):
+def _s_get(arg_len, args, kwargs, attr, idx):
     if attr.name in kwargs:
         return kwargs[attr.name]
     elif idx < arg_len:
@@ -901,6 +901,7 @@ def singleton(maybe_cls):
 
     def wrap(_cls):
         if _has_frozen_superclass(_cls):
+
             @staticmethod
             def __new__(cls, *arg, **kwarg):
                 """
@@ -909,7 +910,7 @@ def singleton(maybe_cls):
                 arglen = len(arg)
                 iter = enumerate(fields(cls))
                 key = tuple(
-                    _s_getattr(arglen, arg, kwarg, a, i) for i, a in iter if a.init
+                    _s_get(arglen, arg, kwarg, a, i) for i, a in iter if a.init
                 )
                 class_listings = singletons[cls]
                 if key not in class_listings:
@@ -917,13 +918,14 @@ def singleton(maybe_cls):
                 return class_listings[key]
 
         elif issubclass(_cls, tuple):
+
             @staticmethod
             def __new__(cls, *args, **kwargs):
                 """
                 attrs-generated __new__ for a namedtuple-based singleton class
                 """
                 mapping = {}
-                mapping.update(getattr(cls, '_field_defaults', {}))
+                mapping.update(getattr(cls, "_field_defaults", {}))
                 mapping.update(kwargs)
                 for key, val in zip(cls._fields, args):
                     mapping[key] = val

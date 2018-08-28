@@ -716,7 +716,7 @@ class TestAttributes(object):
         """
 
         @attr.singleton
-        class C(namedtuple('_C', ['x'])):
+        class C(namedtuple("_C", ["x"])):
             pass
 
         a = C(4)
@@ -732,21 +732,19 @@ class TestAttributes(object):
         """
         Ensure that namedtuple can be made singletons
         """
-        from typing import NamedTuple
-
         exec(
-        "@attr.singleton\n"
-        "class C(NamedTuple):\n"
-        "    x: int = 3\n\n"
-        "a = C(4)\n"
-        "b = C(x=4)\n"
-        "c = C()\n"
-        "assert a is b\n"
-        "assert a is not c\n"
-        "assert a.x is b.x\n"
-        "assert a.x != c.x"
+            "from typing import NamedTuple\n"
+            "@attr.singleton\n"
+            "class C(NamedTuple):\n"
+            "    x: int = 3\n\n"
+            "a = C(4)\n"
+            "b = C(x=4)\n"
+            "c = C()\n"
+            "assert a is b\n"
+            "assert a is not c\n"
+            "assert a.x is b.x\n"
+            "assert a.x != c.x"
         )  # avoid python2 syntax error
-
 
     def test_slotted_singleton(self):
         """
