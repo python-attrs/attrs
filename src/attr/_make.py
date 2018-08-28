@@ -976,13 +976,19 @@ def singleton(maybe_cls):
             try:
                 if self in initialized:
                     return
-                self._prev_init(*args, **kwargs)
+                prev_init(self, *args, **kwargs)
                 initialized.add(self)
             except AttributeError:
-                self._prev_init(*args, **kwargs)
+                prev_init(self, *args, **kwargs)
                 initialized.add(self)
 
-        _cls._prev_init = _cls.__init__
+        if _cls.__init__ != object.__init__:
+            prev_init = _cls.__init__
+        else:
+
+            def prev_init(*args, **kwargs):
+                pass
+
         _cls.__new__ = __new__
         _cls.__init__ = __init__
         return _cls
