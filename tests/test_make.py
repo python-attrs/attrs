@@ -21,7 +21,7 @@ from hypothesis.strategies import booleans, integers, lists, sampled_from, text
 import attr
 
 from attr import _config
-from attr._compat import PY2, ordered_dict
+from attr._compat import PY2, PY_GE_36, ordered_dict
 from attr._make import (
     Attribute,
     Factory,
@@ -729,6 +729,25 @@ class TestAttributes(object):
 
     @pytest.mark.skipif(PY2, reason="Typing is not a dependency in python2")
     def test_singleton_typing_namedtuple(self):
+        """
+        Ensure that namedtuple can be made singletons
+        """
+        from typing import NamedTuple
+
+        @attr.singleton
+        class C(NamedTuple("_C", [("x", int)])):
+            pass
+
+        a = C(4)
+        b = C(x=4)
+        c = C(3)
+        assert a is b
+        assert a is not c
+        assert a.x is b.x
+        assert a.x != c.x
+
+    @pytest.mark.skipif(not PY_GE_36, reason="Pretty NamedTuple is only >=3.6")
+    def test_singleton_typing_namedtuple_36(self):
         """
         Ensure that namedtuple can be made singletons
         """

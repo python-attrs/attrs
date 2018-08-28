@@ -7,6 +7,7 @@ import warnings
 
 
 PY2 = sys.version_info[0] == 2
+PY_GE_36 = sys.version_info[0] >= 3 and sys.version_info[1] >= 6
 PYPY = platform.python_implementation() == "PyPy"
 
 
