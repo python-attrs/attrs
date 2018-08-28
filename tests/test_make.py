@@ -13,12 +13,6 @@ import sys
 from collections import namedtuple
 from operator import attrgetter
 
-try:
-    from typing import NamedTuple
-    no_typing = False
-except ImportError:
-    no_typing = True
-
 import pytest
 
 from hypothesis import given
@@ -57,6 +51,14 @@ from .strategies import (
     simple_classes,
 )
 from .utils import simple_attr
+
+
+try:
+    from typing import NamedTuple
+
+    no_typing = False
+except ImportError:
+    no_typing = True
 
 
 attrs_st = simple_attrs.map(lambda c: Attribute.from_counting_attr("name", c))
