@@ -13,6 +13,12 @@ import sys
 from collections import namedtuple
 from operator import attrgetter
 
+try:
+    from typing import NamedTuple
+    no_typing = False
+except ImportError:
+    no_typing = True
+
 import pytest
 
 from hypothesis import given
@@ -727,12 +733,11 @@ class TestAttributes(object):
         assert a.x is b.x
         assert a.x != c.x
 
-    @pytest.mark.skipif(PY2, reason="Typing is not a dependency in python2")
+    @pytest.mark.skipif(no_typing, reason="Typing is not installed to test")
     def test_singleton_typing_namedtuple(self):
         """
         Ensure that namedtuple can be made singletons
         """
-        from typing import NamedTuple
 
         @attr.singleton
         class C(NamedTuple("_C", [("x", int)])):
@@ -752,7 +757,6 @@ class TestAttributes(object):
         Ensure that namedtuple can be made singletons
         """
         exec(
-            "from typing import NamedTuple\n"
             "@attr.singleton\n"
             "class C(NamedTuple):\n"
             "    x: int = 3\n\n"
