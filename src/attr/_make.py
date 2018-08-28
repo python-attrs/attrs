@@ -677,12 +677,13 @@ def attrs(
     cmp=True,
     hash=None,
     init=True,
-    slots=False,
-    frozen=False,
+    slots=None,
+    frozen=None,
     str=False,
     auto_attribs=False,
     kw_only=False,
     cache_hash=False,
+    singleton=False,
 ):
     r"""
     A class decorator that adds `dunder
@@ -810,6 +811,12 @@ def attrs(
     .. versionadded:: 18.2.0 *cache_hash*
     """
 
+    # set default values
+    if slots is None:
+        slots = singleton
+    if frozen is None:
+        frozen = singleton
+
     def wrap(cls):
         if getattr(cls, "__class__", None) is None:
             raise TypeError("attrs only works with new-style classes.")
@@ -857,7 +864,10 @@ def attrs(
                     " init must be True."
                 )
 
-        return builder.build_class()
+        cls = builder.build_class()
+        if singleton:
+            return _singleton(cls)
+        return cls
 
     # maybe_cls's type depends on the usage of the decorator.  It's a class
     # if it's used as `@attrs` but ``None`` if used as `@attrs()`.
@@ -948,6 +958,12 @@ _attrs = attrs
 """
 Internal alias so we can use it in functions that take an argument called
 *attrs*.
+"""
+
+_singleton = singleton
+"""
+Internal alias so we can use it in functions that take an argument called
+*singleton*.
 """
 
 

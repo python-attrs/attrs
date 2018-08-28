@@ -162,12 +162,13 @@ def attrs(
     cmp: bool = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
-    slots: bool = ...,
-    frozen: bool = ...,
+    slots: Optional[bool] = ...,
+    frozen: Optional[bool] = ...,
     str: bool = ...,
     auto_attribs: bool = ...,
     kw_only: bool = ...,
     cache_hash: bool = ...,
+    singleton: bool = ...,
 ) -> _C: ...
 @overload
 def attrs(
@@ -178,12 +179,13 @@ def attrs(
     cmp: bool = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
-    slots: bool = ...,
-    frozen: bool = ...,
+    slots: Optional[bool] = ...,
+    frozen: Optional[bool] = ...,
     str: bool = ...,
     auto_attribs: bool = ...,
     kw_only: bool = ...,
     cache_hash: bool = ...,
+    singleton: bool = ...,
 ) -> Callable[[_C], _C]: ...
 @overload
 def singleton(maybe_cls: _C) -> _C: ...

@@ -693,6 +693,23 @@ class TestAttributes(object):
         assert a.x is b.x
         assert a.x != c.x
 
+    def test_singleton_from_attrs(self):
+        """
+        Ensure that classes can be made singletons from the attrs decorator
+        """
+
+        @attr.s(singleton=True)
+        class C(object):
+            x = attr.ib(default=3)
+
+        a = C(4)
+        b = C(x=4)
+        c = C()
+        assert a is b
+        assert a is not c
+        assert a.x is b.x
+        assert a.x != c.x
+
     def test_singleton_collection_namedtuple(self):
         """
         Ensure that namedtuple can be made singletons
