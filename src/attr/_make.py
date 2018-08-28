@@ -930,7 +930,7 @@ def _empty(*args, **kwargs):
     pass
 
 
-def singleton(maybe_cls):
+def singleton(maybe_cls=None):
     """
     Decorator which transforms an attrs class or namedtuple into a singleton.
     This means that any time you instantiate that class with the same

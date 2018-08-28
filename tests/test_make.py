@@ -647,8 +647,8 @@ class TestAttributes(object):
         """
         with pytest.raises(TypeError):
 
-            @attr.singleton()
-            @attr.s()
+            @attr.singleton
+            @attr.s
             class C(object):
                 x = attr.ib(default=3)
 
@@ -657,7 +657,7 @@ class TestAttributes(object):
         Test that singleton raises ValueError if non-defaulted attr not defined
         """
 
-        @attr.singleton
+        @attr.singleton()
         @attr.s(frozen=True)
         class C(object):
             x = attr.ib()
