@@ -647,7 +647,7 @@ class TestAttributes(object):
         """
         with pytest.raises(TypeError):
 
-            @attr.singleton
+            @attr.singleton()
             @attr.s()
             class C(object):
                 x = attr.ib(default=3)
