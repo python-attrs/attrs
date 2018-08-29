@@ -64,20 +64,18 @@ class Attribute(Generic[_T]):
 
 # NOTE: We had several choices for the annotation to use for type arg:
 # 1) Type[_T]
-#   - Pros: works in PyCharm without plugin support
-#   - Cons: produces less informative error in the case of conflicting TypeVars
-#     e.g. `attr.ib(default='bad', type=int)`
+#   - Pros: Handles simple cases correctly
+#   - Cons: Might produce less informative errors in the case of conflicting TypeVars
+#   e.g. `attr.ib(default='bad', type=int)`
 # 2) Callable[..., _T]
-#   - Pros: more informative errors than #1
-#   - Cons: validator tests results in confusing error.
-#     e.g. `attr.ib(type=int, validator=validate_str)`
+#   - Pros: Better error messages than #1 for conflicting TypeVars
+#   - Cons: Terrible error messages for validator checks.
+#   e.g. attr.ib(type=int, validator=validate_str)
+#        -> error: Cannot infer function type argument
 # 3) type (and do all of the work in the mypy plugin)
-#   - Pros: in mypy, the behavior of type argument is exactly the same as with
-#     annotations.
-#   - Cons: completely disables type inspections in PyCharm when using the
-#     type arg.
-# We chose option #1 until either PyCharm adds support for attrs, or python 2
-# reaches EOL.
+#   - Pros: Simple here, and we could customize the plugin with our own errors.
+#   - Cons: Would need to write mypy plugin code to handle all the cases.
+# We chose option #1.
 
 # `attr` lies about its return type to make the following possible:
 #     attr()    -> Any
