@@ -264,9 +264,9 @@ class TestTransformAttrs(object):
         All `_CountingAttr`s are transformed into `Attribute`s.
         """
         C = make_tc()
-        attrs, super_attrs, _ = _transform_attrs(C, None, False, False)
+        attrs, base_attrs, _ = _transform_attrs(C, None, False, False)
 
-        assert [] == super_attrs
+        assert [] == base_attrs
         assert 3 == len(attrs)
         assert all(isinstance(a, Attribute) for a in attrs)
 
@@ -292,11 +292,11 @@ class TestTransformAttrs(object):
 
     def test_kw_only(self):
         """
-        Converts all attributes, including superclass attributes, if `kw_only`
+        Converts all attributes, including base class' attributes, if `kw_only`
         is provided. Therefore, `kw_only` allows attributes with defaults to
         preceed mandatory attributes.
 
-        Updates in the subclass *don't* affect the superclass attributes.
+        Updates in the subclass *don't* affect the base class attributes.
         """
 
         @attr.s
@@ -310,10 +310,10 @@ class TestTransformAttrs(object):
             x = attr.ib(default=None)
             y = attr.ib()
 
-        attrs, super_attrs, _ = _transform_attrs(C, None, False, True)
+        attrs, base_attrs, _ = _transform_attrs(C, None, False, True)
 
         assert len(attrs) == 3
-        assert len(super_attrs) == 1
+        assert len(base_attrs) == 1
 
         for a in attrs:
             assert a.kw_only is True
@@ -323,7 +323,7 @@ class TestTransformAttrs(object):
 
     def test_these(self):
         """
-        If these is passed, use it and ignore body and superclasses.
+        If these is passed, use it and ignore body and base classes.
         """
 
         class Base(object):
@@ -332,11 +332,11 @@ class TestTransformAttrs(object):
         class C(Base):
             y = attr.ib()
 
-        attrs, super_attrs, _ = _transform_attrs(
+        attrs, base_attrs, _ = _transform_attrs(
             C, {"x": attr.ib()}, False, False
         )
 
-        assert [] == super_attrs
+        assert [] == base_attrs
         assert (simple_attr("x"),) == attrs
 
     def test_these_leave_body(self):

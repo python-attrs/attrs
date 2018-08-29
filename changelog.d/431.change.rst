@@ -1,1 +1,1 @@
-It is now possible to override a superclass' class variable using only class annotations.
+It is now possible to override a base class' class variable using only class annotations.

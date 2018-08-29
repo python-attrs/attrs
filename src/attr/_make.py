@@ -244,16 +244,16 @@ def _make_attr_tuple_class(cls_name, attr_names):
 
 
 # Tuple class for extracted attributes from a class definition.
-# `super_attrs` is a subset of `attrs`.
+# `base_attrs` is a subset of `attrs`.
 _Attributes = _make_attr_tuple_class(
     "_Attributes",
     [
         # all attributes to build dunder methods for
         "attrs",
         # attributes that have been inherited
-        "super_attrs",
+        "base_attrs",
         # map inherited attributes to their originating classes
-        "super_attrs_map",
+        "base_attrs_map",
     ],
 )
 
@@ -278,8 +278,8 @@ def _get_annotations(cls):
         return {}
 
     # Verify that the annotations aren't merely inherited.
-    for super_cls in cls.__mro__[1:]:
-        if anns is getattr(super_cls, "__annotations__", None):
+    for base_cls in cls.__mro__[1:]:
+        if anns is getattr(base_cls, "__annotations__", None):
             return {}
 
     return anns
@@ -354,32 +354,32 @@ def _transform_attrs(cls, these, auto_attribs, kw_only):
         for attr_name, ca in ca_list
     ]
 
-    super_attrs = []
-    super_attr_map = {}  # A dictionary of superattrs to their classes.
+    base_attrs = []
+    base_attr_map = {}  # A dictionary of base attrs to their classes.
     taken_attr_names = {a.name: a for a in own_attrs}
 
     # Traverse the MRO and collect attributes.
-    for super_cls in cls.__mro__[1:-1]:
-        sub_attrs = getattr(super_cls, "__attrs_attrs__", None)
+    for base_cls in cls.__mro__[1:-1]:
+        sub_attrs = getattr(base_cls, "__attrs_attrs__", None)
         if sub_attrs is not None:
             for a in sub_attrs:
                 prev_a = taken_attr_names.get(a.name)
                 # Only add an attribute if it hasn't been defined before.  This
                 # allows for overwriting attribute definitions by subclassing.
                 if prev_a is None:
-                    super_attrs.append(a)
+                    base_attrs.append(a)
                     taken_attr_names[a.name] = a
-                    super_attr_map[a.name] = super_cls
+                    base_attr_map[a.name] = base_cls
 
-    attr_names = [a.name for a in super_attrs + own_attrs]
+    attr_names = [a.name for a in base_attrs + own_attrs]
 
     AttrsClass = _make_attr_tuple_class(cls.__name__, attr_names)
 
     if kw_only:
         own_attrs = [a._assoc(kw_only=True) for a in own_attrs]
-        super_attrs = [a._assoc(kw_only=True) for a in super_attrs]
+        base_attrs = [a._assoc(kw_only=True) for a in base_attrs]
 
-    attrs = AttrsClass(super_attrs + own_attrs)
+    attrs = AttrsClass(base_attrs + own_attrs)
 
     had_default = False
     was_kw_only = False
@@ -415,7 +415,7 @@ def _transform_attrs(cls, these, auto_attribs, kw_only):
         if was_kw_only is False and a.init is True and a.kw_only is True:
             was_kw_only = True
 
-    return _Attributes((attrs, super_attrs, super_attr_map))
+    return _Attributes((attrs, base_attrs, base_attr_map))
 
 
 def _frozen_setattrs(self, name, value):
@@ -441,7 +441,7 @@ class _ClassBuilder(object):
         "_cls",
         "_cls_dict",
         "_attrs",
-        "_super_names",
+        "_base_names",
         "_attr_names",
         "_slots",
         "_frozen",
@@ -449,7 +449,7 @@ class _ClassBuilder(object):
         "_cache_hash",
         "_has_post_init",
         "_delete_attribs",
-        "_super_attr_map",
+        "_base_attr_map",
     )
 
     def __init__(
@@ -463,18 +463,18 @@ class _ClassBuilder(object):
         kw_only,
         cache_hash,
     ):
-        attrs, super_attrs, super_map = _transform_attrs(
+        attrs, base_attrs, base_map = _transform_attrs(
             cls, these, auto_attribs, kw_only
         )
 
         self._cls = cls
         self._cls_dict = dict(cls.__dict__) if slots else {}
         self._attrs = attrs
-        self._super_names = set(a.name for a in super_attrs)
-        self._super_attr_map = super_map
+        self._base_names = set(a.name for a in base_attrs)
+        self._base_attr_map = base_map
         self._attr_names = tuple(a.name for a in attrs)
         self._slots = slots
-        self._frozen = frozen or _has_frozen_superclass(cls)
+        self._frozen = frozen or _has_frozen_base_class(cls)
         self._weakref_slot = weakref_slot
         self._cache_hash = cache_hash
         self._has_post_init = bool(getattr(cls, "__attrs_post_init__", False))
@@ -505,19 +505,19 @@ class _ClassBuilder(object):
         Apply accumulated methods and return the class.
         """
         cls = self._cls
-        super_names = self._super_names
+        base_names = self._base_names
 
         # Clean class of attribute definitions (`attr.ib()`s).
         if self._delete_attribs:
             for name in self._attr_names:
                 if (
-                    name not in super_names
+                    name not in base_names
                     and getattr(cls, name, None) is not None
                 ):
                     try:
                         delattr(cls, name)
                     except AttributeError:
-                        # This can happen if a superclass defines a class
+                        # This can happen if a base class defines a class
                         # variable and we want to set an attribute with the
                         # same name by using only a type annotation.
                         pass
@@ -532,7 +532,7 @@ class _ClassBuilder(object):
         """
         Build and return a new class with a `__slots__` attribute.
         """
-        super_names = self._super_names
+        base_names = self._base_names
         cd = {
             k: v
             for k, v in iteritems(self._cls_dict)
@@ -542,8 +542,8 @@ class _ClassBuilder(object):
         weakref_inherited = False
 
         # Traverse the MRO to check for an existing __weakref__.
-        for super_cls in self._cls.__mro__[1:-1]:
-            if "__weakref__" in getattr(super_cls, "__dict__", ()):
+        for base_cls in self._cls.__mro__[1:-1]:
+            if "__weakref__" in getattr(base_cls, "__dict__", ()):
                 weakref_inherited = True
                 break
 
@@ -558,7 +558,7 @@ class _ClassBuilder(object):
 
         # We only add the names of attributes that aren't inherited.
         # Settings __slots__ to inherited attributes wastes memory.
-        slot_names = [name for name in names if name not in super_names]
+        slot_names = [name for name in names if name not in base_names]
         if self._cache_hash:
             slot_names.append(_hash_cache_field)
         cd["__slots__"] = tuple(slot_names)
@@ -655,7 +655,7 @@ class _ClassBuilder(object):
                 self._frozen,
                 self._slots,
                 self._cache_hash,
-                self._super_attr_map,
+                self._base_attr_map,
             )
         )
 
@@ -746,7 +746,7 @@ def attrs(
         2. If *cmp* is True and *frozen* is False, ``__hash__`` will be set to
            None, marking it unhashable (which it is).
         3. If *cmp* is False, ``__hash__`` will be left untouched meaning the
-           ``__hash__`` method of the superclass will be used (if superclass is
+           ``__hash__`` method of the base class will be used (if base class is
            ``object``, this means it will fall back to id-based hashing.).
 
         Although not recommended, you can decide for yourself and force
@@ -909,7 +909,7 @@ Internal alias so we can use it in functions that take an argument called
 
 if PY2:
 
-    def _has_frozen_superclass(cls):
+    def _has_frozen_base_class(cls):
         """
         Check whether *cls* has a frozen ancestor by looking at its
         __setattr__.
@@ -923,7 +923,7 @@ if PY2:
 
 else:
 
-    def _has_frozen_superclass(cls):
+    def _has_frozen_base_class(cls):
         """
         Check whether *cls* has a frozen ancestor by looking at its
         __setattr__.
@@ -1209,7 +1209,7 @@ def _add_repr(cls, ns=None, attrs=None):
     return cls
 
 
-def _make_init(attrs, post_init, frozen, slots, cache_hash, super_attr_map):
+def _make_init(attrs, post_init, frozen, slots, cache_hash, base_attr_map):
     attrs = [a for a in attrs if a.init or a.default is not NOTHING]
 
     # We cache the generated init methods for the same kinds of attributes.
@@ -1218,7 +1218,7 @@ def _make_init(attrs, post_init, frozen, slots, cache_hash, super_attr_map):
     unique_filename = "<attrs generated init {0}>".format(sha1.hexdigest())
 
     script, globs, annotations = _attrs_to_init_script(
-        attrs, frozen, slots, post_init, cache_hash, super_attr_map
+        attrs, frozen, slots, post_init, cache_hash, base_attr_map
     )
     locs = {}
     bytecode = compile(script, unique_filename, "exec")
@@ -1254,7 +1254,7 @@ def _add_init(cls, frozen):
         frozen,
         _is_slot_cls(cls),
         cache_hash=False,
-        super_attr_map={},
+        base_attr_map={},
     )
     return cls
 
@@ -1336,15 +1336,15 @@ def _is_slot_cls(cls):
     return "__slots__" in cls.__dict__
 
 
-def _is_slot_attr(a_name, super_attr_map):
+def _is_slot_attr(a_name, base_attr_map):
     """
     Check if the attribute name comes from a slot class.
     """
-    return a_name in super_attr_map and _is_slot_cls(super_attr_map[a_name])
+    return a_name in base_attr_map and _is_slot_cls(base_attr_map[a_name])
 
 
 def _attrs_to_init_script(
-    attrs, frozen, slots, post_init, cache_hash, super_attr_map
+    attrs, frozen, slots, post_init, cache_hash, base_attr_map
 ):
     """
     Return a script of an initializer for *attrs* and a dict of globals.
@@ -1356,7 +1356,7 @@ def _attrs_to_init_script(
     """
     lines = []
     any_slot_ancestors = any(
-        _is_slot_attr(a.name, super_attr_map) for a in attrs
+        _is_slot_attr(a.name, base_attr_map) for a in attrs
     )
     if frozen is True:
         if slots is True:
@@ -1395,7 +1395,7 @@ def _attrs_to_init_script(
                 )
 
             def fmt_setter(attr_name, value_var):
-                if _is_slot_attr(attr_name, super_attr_map):
+                if _is_slot_attr(attr_name, base_attr_map):
                     res = "_setattr('%(attr_name)s', %(value_var)s)" % {
                         "attr_name": attr_name,
                         "value_var": value_var,
@@ -1409,7 +1409,7 @@ def _attrs_to_init_script(
 
             def fmt_setter_with_converter(attr_name, value_var):
                 conv_name = _init_converter_pat.format(attr_name)
-                if _is_slot_attr(attr_name, super_attr_map):
+                if _is_slot_attr(attr_name, base_attr_map):
                     tmpl = "_setattr('%(attr_name)s', %(c)s(%(value_var)s))"
                 else:
                     tmpl = "_inst_dict['%(attr_name)s'] = %(c)s(%(value_var)s)"
