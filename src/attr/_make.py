@@ -152,6 +152,10 @@ def attrib(
         This argument is provided for backward compatibility.
         Regardless of the approach used, the type will be stored on
         ``Attribute.type``.
+
+        Please note that ``attrs`` doesn't do anything with this metadata by
+        itself. You can use it as part of your own code or for
+        :doc:`static type checking <types>`.
     :param kw_only: Make this attribute keyword-only (Python 3+)
         in the generated ``__init__`` (if ``init`` is ``False``, this
         parameter is ignored).
