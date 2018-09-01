@@ -1,1 +1,1 @@
-Add *weakref_slot* parameter to ``attr.s()`` allowing for weak referenceable slotted classes.
+Slotted classes can now be made weakly referenceable by passing ``@attr.s(weakref_slot=True)``.
