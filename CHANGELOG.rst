@@ -50,7 +50,7 @@ Changes
 
   `#321 <https://github.com/python-attrs/attrs/issues/321>`_,
   `#334 <https://github.com/python-attrs/attrs/issues/334>`_
-- If ``attr.s`` is passed a *these* argument, it will not attempt to remove attributes with the same name from the class body anymore.
+- If ``attr.s`` is passed a *these* argument, it will no longer attempt to remove attributes with the same name from the class body.
 
   `#322 <https://github.com/python-attrs/attrs/issues/322>`_,
   `#323 <https://github.com/python-attrs/attrs/issues/323>`_
@@ -169,9 +169,9 @@ Changes
 Backward-incompatible Changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- Attributes are not defined on the class body anymore.
+- Attributes are no longer defined on the class body.
 
-  This means that if you define a class ``C`` with an attribute ``x``, the class will *not* have an attribute ``x`` for introspection anymore.
+  This means that if you define a class ``C`` with an attribute ``x``, the class will *not* have an attribute ``x`` for introspection.
   Instead of ``C.x``, use ``attr.fields(C).x`` or look at ``C.__attrs_attrs__``.
   The old behavior has been deprecated since version 16.1.
   (`#253 <https://github.com/python-attrs/attrs/issues/253>`_)
@@ -325,7 +325,7 @@ Changes:
   Default Python class behavior is to use ``__repr__()`` as ``__str__()`` anyways.
 
   If you tried using ``attrs`` with ``Exception``\ s and were puzzled by the tracebacks: this option is for you.
-- ``__name__`` is not overwritten with ``__qualname__`` for ``attr.s(slots=True)`` classes anymore.
+- ``__name__`` is no longer overwritten with ``__qualname__`` for ``attr.s(slots=True)`` classes.
   `#99 <https://github.com/python-attrs/attrs/issues/99>`_
 
 
@@ -407,10 +407,10 @@ Changes:
 Backward-incompatible Changes:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- Python 3.3 and 2.6 aren't supported anymore.
+- Python 3.3 and 2.6 are no longer supported.
   They may work by chance but any effort to keep them working has ceased.
 
-  The last Python 2.6 release was on October 29, 2013 and isn't supported by the CPython core team anymore.
+  The last Python 2.6 release was on October 29, 2013 and is no longer supported by the CPython core team.
   Major Python packages like Django and Twisted dropped Python 2.6 a while ago already.
 
   Python 3.3 never had a significant user base and wasn't part of any distribution's LTS release.

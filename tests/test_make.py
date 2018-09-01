@@ -230,7 +230,7 @@ class TestTransformAttrs(object):
 
     def test_no_modifications(self):
         """
-        Doesn't attach __attrs_attrs__ to the class anymore.
+        Does not attach __attrs_attrs__ to the class.
         """
         C = make_tc()
         _transform_attrs(C, None, False, False)

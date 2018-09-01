@@ -493,7 +493,7 @@ class _ClassBuilder(object):
         """
         Finalize class based on the accumulated configuration.
 
-        Builder cannot be used anymore after calling this method.
+        Builder cannot be used after calling this method.
         """
         if self._slots is True:
             return self._create_slots_class()
