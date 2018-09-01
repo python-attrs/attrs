@@ -1,1 +1,0 @@
-``attr.asdict()`` now properly handles deeply nested lists and dictionaries.

@@ -1,2 +1,0 @@
-Added ``attr.converters.default_if_none()`` that allows to replace ``None`` values in attributes.
-For example ``attr.ib(converter=default_if_none(""))`` replaces ``None`` by empty strings.

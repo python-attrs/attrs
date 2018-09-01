@@ -1,1 +1,0 @@
-Added *cache_hash* option to ``@attr.s`` which causes the hash code to be computed once and stored on the object.

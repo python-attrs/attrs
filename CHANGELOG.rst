@@ -4,16 +4,58 @@ Changelog
 Versions follow `CalVer <https://calver.org>`_ with a strict backwards compatibility policy.
 The third digit is only for regressions.
 
-Changes for the upcoming release can be found in the `"changelog.d" directory <https://github.com/python-attrs/attrs/tree/master/changelog.d>`_ in our repository.
-
-..
-   Do *NOT* add changelog entries here!
-
-   This changelog is managed by towncrier and is compiled at release time.
-
-   See https://www.attrs.org/en/latest/contributing.html#changelog for details.
-
 .. towncrier release notes start
+
+18.2.0 (2018-09-01)
+-------------------
+
+Deprecations
+^^^^^^^^^^^^
+
+- Comparing subclasses using ``<``, ``>``, ``<=``, and ``>=`` is now deprecated.
+  The docs always claimed that instances are only compared if the types are identical, so this is a first step to conform to the docs.
+
+  Equality operators (``==`` and ``!=``) were always strict in this regard.
+  `#394 <https://github.com/python-attrs/attrs/issues/394>`_
+
+
+Changes
+^^^^^^^
+
+- ``attrs`` now ships its own `PEP 484 <https://www.python.org/dev/peps/pep-0484/>`_ type hints.
+  Together with `mypy <http://mypy-lang.org>`_'s ``attrs`` plugin, you've got all you need for writing statically typed code in both Python 2 and 3!
+
+  At that occasion, we've also added `narrative docs <https://www.attrs.org/en/stable/types.html>`_ about type annotations in ``attrs``.
+  `#238 <https://github.com/python-attrs/attrs/issues/238>`_
+- Added *kw_only* arguments to ``attr.ib`` and ``attr.s``, and a corresponding *kw_only* attribute to ``attr.Attribute``.
+  This change makes it possible to have a generated ``__init__`` with keyword-only arguments on Python 3, relaxing the required ordering of default and non-default valued attributes.
+  `#281 <https://github.com/python-attrs/attrs/issues/281>`_,
+  `#411 <https://github.com/python-attrs/attrs/issues/411>`_
+- The test suite now runs with ``hypothesis.HealthCheck.too_slow`` disabled to prevent CI breakage on slower computers.
+  `#364 <https://github.com/python-attrs/attrs/issues/364>`_,
+  `#396 <https://github.com/python-attrs/attrs/issues/396>`_
+- ``attr.validators.in_()`` now raises a ``ValueError`` with a useful message even if the options are a string and the value is not a string.
+  `#383 <https://github.com/python-attrs/attrs/issues/383>`_
+- ``attr.asdict()`` now properly handles deeply nested lists and dictionaries.
+  `#395 <https://github.com/python-attrs/attrs/issues/395>`_
+- Added ``attr.converters.default_if_none()`` that allows to replace ``None`` values in attributes.
+  For example ``attr.ib(converter=default_if_none(""))`` replaces ``None`` by empty strings.
+  `#400 <https://github.com/python-attrs/attrs/issues/400>`_,
+  `#414 <https://github.com/python-attrs/attrs/issues/414>`_
+- Fixed a reference leak where the original class would remain live after being replaced when ``slots=True`` is set.
+  `#407 <https://github.com/python-attrs/attrs/issues/407>`_
+- Slotted classes can now be made weakly referenceable by passing ``@attr.s(weakref_slot=True)``.
+  `#420 <https://github.com/python-attrs/attrs/issues/420>`_
+- Added *cache_hash* option to ``@attr.s`` which causes the hash code to be computed once and stored on the object.
+  `#425 <https://github.com/python-attrs/attrs/issues/425>`_
+- Attributes can be named ``property`` and ``itemgetter`` now.
+  `#430 <https://github.com/python-attrs/attrs/issues/430>`_
+- It is now possible to override a base class' class variable using only class annotations.
+  `#431 <https://github.com/python-attrs/attrs/issues/431>`_
+
+
+----
+
 
 18.1.0 (2018-05-03)
 -------------------

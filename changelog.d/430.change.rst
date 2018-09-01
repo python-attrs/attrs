@@ -1,1 +1,0 @@
-Attributes can be named ``property`` and ``itemgetter`` now.

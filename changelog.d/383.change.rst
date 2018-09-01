@@ -1,1 +1,0 @@
-``attr.validators.in_()`` now raises a ``ValueError`` with a useful message even if the options are a string and the value is not a string.

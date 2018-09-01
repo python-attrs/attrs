@@ -1,1 +1,0 @@
-Slotted classes can now be made weakly referenceable by passing ``@attr.s(weakref_slot=True)``.

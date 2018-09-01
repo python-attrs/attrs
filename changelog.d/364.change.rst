@@ -1,1 +1,0 @@
-The test suite now runs with ``hypothesis.HealthCheck.too_slow`` disabled to prevent CI breakage on slower computers.
