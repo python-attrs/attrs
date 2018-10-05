@@ -13,6 +13,7 @@ So it is fairly simple to build your own decorators on top of ``attrs``:
    >>> import attr
    >>> def print_attrs(cls):
    ...     print(cls.__attrs_attrs__)
+   ...     return cls
    >>> @print_attrs
    ... @attr.s
    ... class C(object):
