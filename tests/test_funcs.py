@@ -4,7 +4,7 @@ Tests for `attr._funcs`.
 
 from __future__ import absolute_import, division, print_function
 
-from collections import Mapping, OrderedDict, Sequence
+from collections import OrderedDict
 
 import pytest
 
@@ -14,7 +14,7 @@ from hypothesis import strategies as st
 import attr
 
 from attr import asdict, assoc, astuple, evolve, fields, has
-from attr._compat import TYPE
+from attr._compat import TYPE, Mapping, Sequence, ordered_dict
 from attr.exceptions import AttrsAttributeNotFoundError
 from attr.validators import instance_of
 
@@ -163,10 +163,10 @@ class TestAsDict(object):
     @given(simple_classes())
     def test_asdict_preserve_order(self, cls):
         """
-        Field order should be preserved when dumping to OrderedDicts.
+        Field order should be preserved when dumping to an ordered_dict.
         """
         instance = cls()
-        dict_instance = asdict(instance, dict_factory=OrderedDict)
+        dict_instance = asdict(instance, dict_factory=ordered_dict)
 
         assert [a.name for a in fields(cls)] == list(dict_instance.keys())
 

@@ -41,7 +41,7 @@ EXTRAS_REQUIRE = {
         "coverage",
         "hypothesis",
         "pympler",
-        "pytest",
+        "pytest<3.9",
         "six",
         "zope.interface",
     ],
