@@ -1,0 +1,1 @@
+Adds ``attr.ib(..., repr=attr.SHOW_IF_NONDEFAULT)`` to hide attributes from the repr() when they are uninteresting.
