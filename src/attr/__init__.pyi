@@ -49,7 +49,7 @@ class Attribute(Generic[_T]):
     name: str
     default: Optional[_T]
     validator: Optional[_ValidatorType[_T]]
-    repr: bool
+    repr: int
     cmp: bool
     hash: Optional[bool]
     init: bool
@@ -89,7 +89,7 @@ class Attribute(Generic[_T]):
 def attrib(
     default: None = ...,
     validator: None = ...,
-    repr: bool = ...,
+    repr: int = ...,
     cmp: bool = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
@@ -106,7 +106,7 @@ def attrib(
 def attrib(
     default: None = ...,
     validator: Optional[_ValidatorArgType[_T]] = ...,
-    repr: bool = ...,
+    repr: int = ...,
     cmp: bool = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
@@ -123,7 +123,7 @@ def attrib(
 def attrib(
     default: _T,
     validator: Optional[_ValidatorArgType[_T]] = ...,
-    repr: bool = ...,
+    repr: int = ...,
     cmp: bool = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
@@ -140,7 +140,7 @@ def attrib(
 def attrib(
     default: Optional[_T] = ...,
     validator: Optional[_ValidatorArgType[_T]] = ...,
-    repr: bool = ...,
+    repr: int = ...,
     cmp: bool = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,

@@ -66,6 +66,12 @@ NOTHING = _Nothing()
 Sentinel to indicate the lack of a value when ``None`` is ambiguous.
 """
 
+SHOW_IF_NONDEFAULT = 2
+"""
+Value for attr.ib's repr argument that tells it not to show a repr if the value
+is the default.
+"""
+
 
 def attrib(
     default=NOTHING,
@@ -126,8 +132,10 @@ def attrib(
 
     :type validator: ``callable`` or a ``list`` of ``callable``\\ s.
 
-    :param bool repr: Include this attribute in the generated ``__repr__``
-        method.
+    :param int repr: Include this attribute in the generated ``__repr__``
+        method. If SHOW_IF_NONDEFAULT, then it will only be included if it has
+        a non-default value. (It will always be included if the default is a
+        Factory.)
     :param bool cmp: Include this attribute in the generated comparison methods
         (``__eq__`` et al).
     :param hash: Include this attribute in the generated ``__hash__``
@@ -1157,7 +1165,7 @@ def _make_repr(attrs, ns):
     """
     Make a repr method for *attr_names* adding *ns* to the full name.
     """
-    attr_names = tuple(a.name for a in attrs if a.repr)
+    attrs = tuple(a for a in attrs if a.repr)
 
     def __repr__(self):
         """
@@ -1189,12 +1197,15 @@ def _make_repr(attrs, ns):
         try:
             result = [class_name, "("]
             first = True
-            for name in attr_names:
+            for a in attrs:
+                value = getattr(self, a.name, NOTHING)
+                if (value is a.default and a.repr == SHOW_IF_NONDEFAULT and not isinstance(a.default, Factory)):
+                  continue
                 if first:
                     first = False
                 else:
                     result.append(", ")
-                result.extend((name, "=", repr(getattr(self, name, NOTHING))))
+                result.extend((a.name, "=", repr(value)))
             return "".join(result) + ")"
         finally:
             working_set.remove(id(self))

@@ -536,6 +536,36 @@ class TestAttributes(object):
 
         assert "C.D()" == repr(C.D())
 
+    @given(slots=booleans())
+    def test_repr_default(self, slots):
+      """
+      If an attr.ib is set to SHOW_IF_NONDEFAULT, it will only be present in
+      the repr() of the object if it is not the default value.
+      """
+      nan = float('nan')  # To prove that identity is used, not equality.
+      @attr.s(slots=slots)
+      class C(object):
+        x = attr.ib(default=nan, repr=attr.SHOW_IF_NONDEFAULT)
+
+      assert 'C()' == repr(C())
+      assert 'C()' == repr(C(x=nan))
+      assert 'C(x=0)' == repr(C(x=0))
+
+    @given(slots=booleans())
+    def test_repr_default_factory(self, slots):
+      """
+      If an attr.ib is set to SHOW_IF_NONDEFAULT, but the default is a Factory,
+      it will always be shown.
+      """
+      default = attr.Factory(lambda: 0)
+      @attr.s(slots=slots)
+      class C(object):
+        x = attr.ib(default=default, repr=attr.SHOW_IF_NONDEFAULT)
+
+      assert 'C(x=0)' == repr(C())
+      # Perverse edge case:
+      assert 'C()' != repr(C(x=default))
+
     @pytest.mark.skipif(PY2, reason="__qualname__ is PY3-only.")
     @given(slots_outer=booleans(), slots_inner=booleans())
     def test_name_not_overridden(self, slots_outer, slots_inner):
