@@ -136,7 +136,7 @@ class _InValidator(object):
     def __call__(self, inst, attr, value):
         try:
             in_options = value in self.options
-        except TypeError as e:  # e.g. `1 in "abc"`
+        except TypeError:  # e.g. `1 in "abc"`
             in_options = False
 
         if not in_options:
