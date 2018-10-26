@@ -192,7 +192,7 @@ should work and pass, as should:
 
 The built documentation can then be found in ``docs/_build/html/``.
 
-To avoid committing code that violates our style guide, we strongly advice you to install pre-commit_ [#f1]_ hooks:
+To avoid committing code that violates our style guide, we strongly advise you to install pre-commit_ [#f1]_ hooks:
 
 .. code-block:: bash
 
