@@ -20,7 +20,7 @@ For example if you want to put them into a :class:`set` or if you want to use th
 The *hash* of an object is an integer that represents the contents of an object.
 It can be obtained by calling :func:`hash` on an object and is implemented by writing a ``__hash__`` method for your class.
 
-``attrs`` will happily write a ``__hash__`` method you [#fn1]_, however it will *not* do so by default.
+``attrs`` will happily write a ``__hash__`` method for you [#fn1]_, however it will *not* do so by default.
 Because according to the definition_ from the official Python docs, the returned hash has to fulfill certain constraints:
 
 #. Two objects that are equal, **must** have the same hash.
