@@ -771,6 +771,52 @@ class TestKeywordOnlyAttributes(object):
         assert c.x == 0
         assert c.y == 1
 
+    def test_init_false_attribute_after_keyword_attribute(self):
+        """
+        A positional attribute cannot follow a `kw_only` attribute, but an `init=False`
+        attribute can because it won't appear in `__init__`
+        """
+
+        @attr.s
+        class KwArgBeforeInitFalse:
+            kwarg = attr.ib(kw_only=True)
+            to_init = attr.ib(init=False)
+
+            @to_init.default
+            def _init_to_init(self) -> str:
+                return self.kwarg + "b"
+
+        c = KwArgBeforeInitFalse(kwarg="a")
+
+        assert c.kwarg == "a"
+        assert c.to_init == "ab"
+
+    def test_init_false_attribute_after_keyword_attribute_with_inheritance(
+        self
+    ):
+        """
+        A positional attribute cannot follow a `kw_only` attribute, but an `init=False`
+        attribute can because it won't appear in `__init__`. This test checks that we allow this
+        even when the `kw_only` attribute appears in a parent class
+        """
+
+        @attr.s
+        class KwArgBeforeInitFalseParent:
+            kwarg = attr.ib(kw_only=True)
+
+        @attr.s
+        class KwArgBeforeInitFalseChild(KwArgBeforeInitFalseParent):
+            to_init = attr.ib(init=False)
+
+            @to_init.default
+            def _init_to_init(self) -> str:
+                return self.kwarg + "b"
+
+        c = KwArgBeforeInitFalseChild(kwarg="a")
+
+        assert c.kwarg == "a"
+        assert c.to_init == "ab"
+
 
 @pytest.mark.skipif(not PY2, reason="PY2-specific keyword-only error behavior")
 class TestKeywordOnlyAttributesOnPy2(object):
