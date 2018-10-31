@@ -1,1 +1,1 @@
-Allow `init=False` argument after `kw_only` arguments.
+Allow `init=False` arguments after `kw_only` arguments.
