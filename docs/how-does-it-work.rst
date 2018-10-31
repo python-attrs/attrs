@@ -13,7 +13,7 @@ But its **declarative** approach combined with **no runtime overhead** lets it s
 Once you apply the ``@attr.s`` decorator to a class, ``attrs`` searches the class object for instances of ``attr.ib``\ s.
 Internally they're a representation of the data passed into ``attr.ib`` along with a counter to preserve the order of the attributes.
 
-In order to ensure that sub-classing works as you'd expect it to work, ``attrs`` also walks the class hierarchy and collects the attributes of all super-classes.
+In order to ensure that subclassing works as you'd expect it to work, ``attrs`` also walks the class hierarchy and collects the attributes of all base classes.
 Please note that ``attrs`` does *not* call ``super()`` *ever*.
 It will write dunder methods to work on *all* of those attributes which also has performance benefits due to fewer function calls.
 

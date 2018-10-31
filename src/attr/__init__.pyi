@@ -23,9 +23,9 @@ from . import validators as validators
 _T = TypeVar("_T")
 _C = TypeVar("_C", bound=type)
 
-_ValidatorType = Callable[[Any, Attribute, _T], Any]
+_ValidatorType = Callable[[Any, Attribute[_T], _T], Any]
 _ConverterType = Callable[[Any], _T]
-_FilterType = Callable[[Attribute, Any], bool]
+_FilterType = Callable[[Attribute[_T], _T], bool]
 # FIXME: in reality, if multiple validators are passed they must be in a list or tuple,
 # but those are invariant and so would prevent subtypes of _ValidatorType from working
 # when passed in a list or tuple.
@@ -57,27 +57,25 @@ class Attribute(Generic[_T]):
     metadata: Dict[Any, Any]
     type: Optional[Type[_T]]
     kw_only: bool
-    def __lt__(self, x: Attribute) -> bool: ...
-    def __le__(self, x: Attribute) -> bool: ...
-    def __gt__(self, x: Attribute) -> bool: ...
-    def __ge__(self, x: Attribute) -> bool: ...
+    def __lt__(self, x: Attribute[_T]) -> bool: ...
+    def __le__(self, x: Attribute[_T]) -> bool: ...
+    def __gt__(self, x: Attribute[_T]) -> bool: ...
+    def __ge__(self, x: Attribute[_T]) -> bool: ...
 
 # NOTE: We had several choices for the annotation to use for type arg:
 # 1) Type[_T]
-#   - Pros: works in PyCharm without plugin support
-#   - Cons: produces less informative error in the case of conflicting TypeVars
-#     e.g. `attr.ib(default='bad', type=int)`
+#   - Pros: Handles simple cases correctly
+#   - Cons: Might produce less informative errors in the case of conflicting TypeVars
+#   e.g. `attr.ib(default='bad', type=int)`
 # 2) Callable[..., _T]
-#   - Pros: more informative errors than #1
-#   - Cons: validator tests results in confusing error.
-#     e.g. `attr.ib(type=int, validator=validate_str)`
+#   - Pros: Better error messages than #1 for conflicting TypeVars
+#   - Cons: Terrible error messages for validator checks.
+#   e.g. attr.ib(type=int, validator=validate_str)
+#        -> error: Cannot infer function type argument
 # 3) type (and do all of the work in the mypy plugin)
-#   - Pros: in mypy, the behavior of type argument is exactly the same as with
-#     annotations.
-#   - Cons: completely disables type inspections in PyCharm when using the
-#     type arg.
-# We chose option #1 until either PyCharm adds support for attrs, or python 2
-# reaches EOL.
+#   - Pros: Simple here, and we could customize the plugin with our own errors.
+#   - Cons: Would need to write mypy plugin code to handle all the cases.
+# We chose option #1.
 
 # `attr` lies about its return type to make the following possible:
 #     attr()    -> Any
@@ -164,9 +162,11 @@ def attrs(
     init: bool = ...,
     slots: bool = ...,
     frozen: bool = ...,
+    weakref_slot: bool = ...,
     str: bool = ...,
     auto_attribs: bool = ...,
     kw_only: bool = ...,
+    cache_hash: bool = ...,
 ) -> _C: ...
 @overload
 def attrs(
@@ -179,17 +179,19 @@ def attrs(
     init: bool = ...,
     slots: bool = ...,
     frozen: bool = ...,
+    weakref_slot: bool = ...,
     str: bool = ...,
     auto_attribs: bool = ...,
     kw_only: bool = ...,
+    cache_hash: bool = ...,
 ) -> Callable[[_C], _C]: ...
 
 # TODO: add support for returning NamedTuple from the mypy plugin
-class _Fields(Tuple[Attribute, ...]):
-    def __getattr__(self, name: str) -> Attribute: ...
+class _Fields(Tuple[Attribute[Any], ...]):
+    def __getattr__(self, name: str) -> Attribute[Any]: ...
 
 def fields(cls: type) -> _Fields: ...
-def fields_dict(cls: type) -> Dict[str, Attribute]: ...
+def fields_dict(cls: type) -> Dict[str, Attribute[Any]]: ...
 def validate(inst: Any) -> None: ...
 
 # TODO: add support for returning a proper attrs class from the mypy plugin
@@ -205,9 +207,11 @@ def make_class(
     init: bool = ...,
     slots: bool = ...,
     frozen: bool = ...,
+    weakref_slot: bool = ...,
     str: bool = ...,
     auto_attribs: bool = ...,
     kw_only: bool = ...,
+    cache_hash: bool = ...,
 ) -> type: ...
 
 # _funcs --
@@ -219,7 +223,7 @@ def make_class(
 def asdict(
     inst: Any,
     recurse: bool = ...,
-    filter: Optional[_FilterType] = ...,
+    filter: Optional[_FilterType[Any]] = ...,
     dict_factory: Type[Mapping[Any, Any]] = ...,
     retain_collection_types: bool = ...,
 ) -> Dict[str, Any]: ...
@@ -228,8 +232,8 @@ def asdict(
 def astuple(
     inst: Any,
     recurse: bool = ...,
-    filter: Optional[_FilterType] = ...,
-    tuple_factory: Type[Sequence] = ...,
+    filter: Optional[_FilterType[Any]] = ...,
+    tuple_factory: Type[Sequence[Any]] = ...,
     retain_collection_types: bool = ...,
 ) -> Tuple[Any, ...]: ...
 def has(cls: type) -> bool: ...

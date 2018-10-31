@@ -18,11 +18,11 @@ from ._make import (
 )
 
 
-__version__ = "18.2.0.dev0"
+__version__ = "18.3.0.dev0"
 
 __title__ = "attrs"
 __description__ = "Classes Without Boilerplate"
-__url__ = "http://www.attrs.org/"
+__url__ = "https://www.attrs.org/"
 __uri__ = __url__
 __doc__ = __description__ + " <" + __uri__ + ">"
 

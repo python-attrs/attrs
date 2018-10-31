@@ -47,7 +47,7 @@ class C2Slots(object):
 
 
 @attr.s
-class Super(object):
+class Base(object):
     x = attr.ib()
 
     def meth(self):
@@ -55,7 +55,7 @@ class Super(object):
 
 
 @attr.s(slots=True)
-class SuperSlots(object):
+class BaseSlots(object):
     x = attr.ib()
 
     def meth(self):
@@ -63,12 +63,12 @@ class SuperSlots(object):
 
 
 @attr.s
-class Sub(Super):
+class Sub(Base):
     y = attr.ib()
 
 
 @attr.s(slots=True)
-class SubSlots(SuperSlots):
+class SubSlots(BaseSlots):
     y = attr.ib()
 
 
@@ -203,7 +203,7 @@ class TestDarkMagic(object):
     @pytest.mark.parametrize("cls", [Sub, SubSlots])
     def test_subclassing_with_extra_attrs(self, cls):
         """
-        Sub-classing (where the subclass has extra attrs) does what you'd hope
+        Subclassing (where the subclass has extra attrs) does what you'd hope
         for.
         """
         obj = object()
@@ -215,10 +215,10 @@ class TestDarkMagic(object):
         else:
             assert "SubSlots(x={obj}, y=2)".format(obj=obj) == repr(i)
 
-    @pytest.mark.parametrize("base", [Super, SuperSlots])
+    @pytest.mark.parametrize("base", [Base, BaseSlots])
     def test_subclass_without_extra_attrs(self, base):
         """
-        Sub-classing (where the subclass does not have extra attrs) still
+        Subclassing (where the subclass does not have extra attrs) still
         behaves the same as a subclass with extra attrs.
         """
 
@@ -259,8 +259,8 @@ class TestDarkMagic(object):
             C1Slots,
             C2,
             C2Slots,
-            Super,
-            SuperSlots,
+            Base,
+            BaseSlots,
             Sub,
             SubSlots,
             Frozen,
@@ -283,8 +283,8 @@ class TestDarkMagic(object):
             C1Slots,
             C2,
             C2Slots,
-            Super,
-            SuperSlots,
+            Base,
+            BaseSlots,
             Sub,
             SubSlots,
             Frozen,
@@ -339,13 +339,14 @@ class TestDarkMagic(object):
 
     @pytest.mark.parametrize("slots", [True, False])
     @pytest.mark.parametrize("frozen", [True, False])
-    def test_attrib_overwrite(self, slots, frozen):
+    @pytest.mark.parametrize("weakref_slot", [True, False])
+    def test_attrib_overwrite(self, slots, frozen, weakref_slot):
         """
-        Subclasses can overwrite attributes of their superclass.
+        Subclasses can overwrite attributes of their base class.
         """
 
-        @attr.s(slots=slots, frozen=frozen)
-        class SubOverwrite(Super):
+        @attr.s(slots=slots, frozen=frozen, weakref_slot=weakref_slot)
+        class SubOverwrite(Base):
             x = attr.ib(default=attr.Factory(list))
 
         assert SubOverwrite([]) == SubOverwrite()
@@ -418,9 +419,9 @@ class TestDarkMagic(object):
 
         assert hash(C()) != hash(C())
 
-    def test_overwrite_super(self):
+    def test_overwrite_base(self):
         """
-        Super classes can overwrite each other and the attributes are added
+        Base classes can overwrite each other and the attributes are added
         in the order they are defined.
         """
 
@@ -447,6 +448,8 @@ class TestDarkMagic(object):
     @pytest.mark.parametrize("sub_slots", [True, False])
     @pytest.mark.parametrize("base_frozen", [True, False])
     @pytest.mark.parametrize("sub_frozen", [True, False])
+    @pytest.mark.parametrize("base_weakref_slot", [True, False])
+    @pytest.mark.parametrize("sub_weakref_slot", [True, False])
     @pytest.mark.parametrize("base_converter", [True, False])
     @pytest.mark.parametrize("sub_converter", [True, False])
     def test_frozen_slots_combo(
@@ -455,6 +458,8 @@ class TestDarkMagic(object):
         sub_slots,
         base_frozen,
         sub_frozen,
+        base_weakref_slot,
+        sub_weakref_slot,
         base_converter,
         sub_converter,
     ):
@@ -463,11 +468,17 @@ class TestDarkMagic(object):
         with a single attribute.
         """
 
-        @attr.s(frozen=base_frozen, slots=base_slots)
+        @attr.s(
+            frozen=base_frozen,
+            slots=base_slots,
+            weakref_slot=base_weakref_slot,
+        )
         class Base(object):
             a = attr.ib(converter=int if base_converter else None)
 
-        @attr.s(frozen=sub_frozen, slots=sub_slots)
+        @attr.s(
+            frozen=sub_frozen, slots=sub_slots, weakref_slot=sub_weakref_slot
+        )
         class Sub(Base):
             b = attr.ib(converter=int if sub_converter else None)
 
@@ -482,3 +493,18 @@ class TestDarkMagic(object):
 
             with pytest.raises(FrozenInstanceError):
                 i.b = "3"
+
+    def test_tuple_class_aliasing(self):
+        """
+        itemgetter and property are legal attribute names.
+        """
+
+        @attr.s
+        class C(object):
+            property = attr.ib()
+            itemgetter = attr.ib()
+            x = attr.ib()
+
+        assert "property" == attr.fields(C).property.name
+        assert "itemgetter" == attr.fields(C).itemgetter.name
+        assert "x" == attr.fields(C).x.name

@@ -12,7 +12,7 @@ PACKAGES = find_packages(where="src")
 META_PATH = os.path.join("src", "attr", "__init__.py")
 KEYWORDS = ["class", "attribute", "boilerplate"]
 PROJECT_URLS = {
-    "Documentation": "http://www.attrs.org/",
+    "Documentation": "https://www.attrs.org/",
     "Bug Tracker": "https://github.com/python-attrs/attrs/issues",
     "Source Code": "https://github.com/python-attrs/attrs",
 }
@@ -87,7 +87,9 @@ LONG = (
     + "Release Information\n"
     + "===================\n\n"
     + re.search(
-        "(\d+.\d.\d \(.*?\)\n.*?)\n\n\n----\n\n\n", read("CHANGELOG.rst"), re.S
+        r"(\d+.\d.\d \(.*?\)\n.*?)\n\n\n----\n\n\n",
+        read("CHANGELOG.rst"),
+        re.S,
     ).group(1)
     + "\n\n`Full changelog "
     + "<{url}en/stable/changelog.html>`_.\n\n".format(url=URL)
@@ -111,6 +113,7 @@ if __name__ == "__main__":
         long_description=LONG,
         packages=PACKAGES,
         package_dir={"": "src"},
+        python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
         zip_safe=False,
         classifiers=CLASSIFIERS,
         install_requires=INSTALL_REQUIRES,

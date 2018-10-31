@@ -118,13 +118,14 @@ You don't need to install ``towncrier`` yourself, you just have to abide by a fe
   For example, ``changelog.d/42.change.rst`` for a non-breaking change that is proposed in pull request #42.
 - As with other docs, please use `semantic newlines`_ within news fragments.
 - Wrap symbols like modules, functions, or classes into double backticks so they are rendered in a monospace font.
+- Wrap arguments into asterisks like in autodocs: *these* or *attributes*.
 - If you mention functions or other callables, add parentheses at the end of their names: ``attr.func()`` or ``attr.Class.method()``.
   This makes the changelog a lot more readable.
 - Prefer simple past tense or constructions with "now".
   For example:
 
   + Added ``attr.validators.func()``.
-  + ``attr.func()`` now doesn't crash the Large Hadron Collider anymore.
+  + ``attr.func()`` now doesn't crash the Large Hadron Collider anymore when passed the *foobar* argument.
 - If you want to reference multiple issues, copy the news fragment to another filename.
   ``towncrier`` will merge all news fragments with identical contents into one entry with multiple links to the respective pull requests.
 
@@ -139,7 +140,7 @@ or:
 
   .. code-block:: rst
 
-     ``attr.func()`` now doesn't crash the Large Hadron Collider anymore.
+     ``attr.func()`` now doesn't crash the Large Hadron Collider anymore when passed the *foobar* argument.
      The bug really *was* nasty.
 
 ----
@@ -155,7 +156,7 @@ However, you’ll probably want a more traditional environment as well.
 We highly recommend to develop using the latest Python 3 release because ``attrs`` tries to take advantage of modern features whenever possible.
 
 First create a `virtual environment <https://virtualenv.pypa.io/>`_.
-It’s out of scope for this document to list all the ways to manage virtual environments in Python, but if you don’t already have a pet way, take some time to look at tools like `pew <https://github.com/berdario/pew>`_, `virtualfish <http://virtualfish.readthedocs.io/>`_, and `virtualenvwrapper <http://virtualenvwrapper.readthedocs.io/>`_.
+It’s out of scope for this document to list all the ways to manage virtual environments in Python, but if you don’t already have a pet way, take some time to look at tools like `pew <https://github.com/berdario/pew>`_, `virtualfish <https://virtualfish.readthedocs.io/>`_, and `virtualenvwrapper <https://virtualenvwrapper.readthedocs.io/>`_.
 
 Next, get an up to date checkout of the ``attrs`` repository:
 
@@ -191,7 +192,7 @@ should work and pass, as should:
 
 The built documentation can then be found in ``docs/_build/html/``.
 
-To avoid committing code that violates our style guide, we strongly advice you to install pre-commit_ [#f1]_ hooks:
+To avoid committing code that violates our style guide, we strongly advise you to install pre-commit_ [#f1]_ hooks:
 
 .. code-block:: bash
 
@@ -233,7 +234,7 @@ Thank you for considering contributing to ``attrs``!
 .. _`good test docstrings`: https://jml.io/pages/test-docstrings.html
 .. _`Code of Conduct`: https://github.com/python-attrs/attrs/blob/master/.github/CODE_OF_CONDUCT.rst
 .. _changelog: https://github.com/python-attrs/attrs/blob/master/CHANGELOG.rst
-.. _`backward compatibility`: http://www.attrs.org/en/latest/backward-compatibility.html
+.. _`backward compatibility`: https://www.attrs.org/en/latest/backward-compatibility.html
 .. _tox: https://tox.readthedocs.io/
 .. _pyenv: https://github.com/pyenv/pyenv
 .. _reStructuredText: http://www.sphinx-doc.org/en/stable/rest.html
