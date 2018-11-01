@@ -705,7 +705,8 @@ class TestKeywordOnlyAttributes(object):
 
         assert (
             "Non keyword-only attributes are not allowed after a "
-            "keyword-only attribute.  Attribute in question: Attribute"
+            "keyword-only attribute (unless they are init=False).  "
+            "Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, repr=True, "
             "cmp=True, hash=None, init=True, metadata=mappingproxy({}), "
             "type=None, converter=None, kw_only=False)",
