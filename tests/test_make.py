@@ -774,8 +774,9 @@ class TestKeywordOnlyAttributes(object):
 
     def test_init_false_attribute_after_keyword_attribute(self):
         """
-        A positional attribute cannot follow a `kw_only` attribute, but an `init=False`
-        attribute can because it won't appear in `__init__`
+        A positional attribute cannot follow a `kw_only` attribute,
+        but an `init=False` attribute can because it won't appear
+        in `__init__`
         """
 
         @attr.s
@@ -796,8 +797,9 @@ class TestKeywordOnlyAttributes(object):
         self
     ):
         """
-        A positional attribute cannot follow a `kw_only` attribute, but an `init=False`
-        attribute can because it won't appear in `__init__`. This test checks that we allow this
+        A positional attribute cannot follow a `kw_only` attribute,
+        but an `init=False` attribute can because it won't appear
+        in `__init__`. This test checks that we allow this
         even when the `kw_only` attribute appears in a parent class
         """
 
