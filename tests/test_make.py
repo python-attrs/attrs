@@ -784,7 +784,7 @@ class TestKeywordOnlyAttributes(object):
             to_init = attr.ib(init=False)
 
             @to_init.default
-            def _init_to_init(self) -> str:
+            def _init_to_init(self):
                 return self.kwarg + "b"
 
         c = KwArgBeforeInitFalse(kwarg="a")
@@ -810,7 +810,7 @@ class TestKeywordOnlyAttributes(object):
             to_init = attr.ib(init=False)
 
             @to_init.default
-            def _init_to_init(self) -> str:
+            def _init_to_init(self):
                 return self.kwarg + "b"
 
         c = KwArgBeforeInitFalseChild(kwarg="a")
