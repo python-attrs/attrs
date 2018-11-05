@@ -782,16 +782,20 @@ class TestKeywordOnlyAttributes(object):
         @attr.s
         class KwArgBeforeInitFalse:
             kwarg = attr.ib(kw_only=True)
-            to_init = attr.ib(init=False)
+            non_init_function_default = attr.ib(init=False)
+            non_init_keyword_default = attr.ib(
+                init=False, default="default-by-keyword"
+            )
 
-            @to_init.default
+            @non_init_function_default.default
             def _init_to_init(self):
                 return self.kwarg + "b"
 
         c = KwArgBeforeInitFalse(kwarg="a")
 
         assert c.kwarg == "a"
-        assert c.to_init == "ab"
+        assert c.non_init_function_default == "ab"
+        assert c.non_init_keyword_default == "default-by-keyword"
 
     def test_init_false_attribute_after_keyword_attribute_with_inheritance(
         self
@@ -809,16 +813,20 @@ class TestKeywordOnlyAttributes(object):
 
         @attr.s
         class KwArgBeforeInitFalseChild(KwArgBeforeInitFalseParent):
-            to_init = attr.ib(init=False)
+            non_init_function_default = attr.ib(init=False)
+            non_init_keyword_default = attr.ib(
+                init=False, default="default-by-keyword"
+            )
 
-            @to_init.default
+            @non_init_function_default.default
             def _init_to_init(self):
                 return self.kwarg + "b"
 
         c = KwArgBeforeInitFalseChild(kwarg="a")
 
         assert c.kwarg == "a"
-        assert c.to_init == "ab"
+        assert c.non_init_function_default == "ab"
+        assert c.non_init_keyword_default == "default-by-keyword"
 
 
 @pytest.mark.skipif(not PY2, reason="PY2-specific keyword-only error behavior")
