@@ -366,9 +366,7 @@ class TestDeepIterable(object):
         v = deep_iterable(member_validator)
         expected_repr = (
             "<deep_iterable validator for iterables of {member_repr}>"
-        ).format(
-            member_repr=member_repr
-        )
+        ).format(member_repr=member_repr)
         assert ((expected_repr)) == repr(v)
 
     def test_repr_member_and_iterable(self):
@@ -383,16 +381,12 @@ class TestDeepIterable(object):
         iterable_validator = instance_of(list)
         iterable_repr = (
             "<instance_of validator for type <{type} 'list'>>"
-        ).format(
-            type=TYPE
-        )
+        ).format(type=TYPE)
         v = deep_iterable(member_validator, iterable_validator)
         expected_repr = (
-            "<deep_iterable validator for {iterable_repr} "
-            "iterables of {member_repr}>"
-        ).format(
-            iterable_repr=iterable_repr, member_repr=member_repr
-        )
+            "<deep_iterable validator for"
+            " {iterable_repr} iterables of {member_repr}>"
+        ).format(iterable_repr=iterable_repr, member_repr=member_repr)
         assert expected_repr == repr(v)
 
 
@@ -482,9 +476,7 @@ class TestDeepMapping(object):
         expected_repr = (
             "<deep_mapping validator for objects mapping "
             "{key_repr} to {value_repr}>"
-        ).format(
-            key_repr=key_repr, value_repr=value_repr
-        )
+        ).format(key_repr=key_repr, value_repr=value_repr)
         assert expected_repr == repr(v)
 
 

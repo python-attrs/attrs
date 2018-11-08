@@ -220,7 +220,7 @@ class _DeepIterable(object):
             else " {iterable!r}".format(iterable=self.iterable_validator)
         )
         return (
-            "<deep_iterable validator for {iterable_identifier}"
+            "<deep_iterable validator for{iterable_identifier}"
             " iterables of {member!r}>"
         ).format(
             iterable_identifier=iterable_identifier,
@@ -262,11 +262,8 @@ class _DeepMapping(object):
 
     def __repr__(self):
         return (
-            "<deep_mapping validator for objects mapping {key!r}"
-            " to {value!r}>"
-        ).format(
-            key=self.key_validator, value=self.value_validator
-        )
+            "<deep_mapping validator for objects mapping {key!r} to {value!r}>"
+        ).format(key=self.key_validator, value=self.value_validator)
 
 
 def deep_mapping(key_validator, value_validator, mapping_validator=None):
