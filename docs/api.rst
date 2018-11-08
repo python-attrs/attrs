@@ -369,6 +369,76 @@ Validators
       C(x=None)
 
 
+.. autofunction:: attr.validators.is_callable
+
+    For example:
+
+    .. doctest::
+
+        >>> @attr.s
+        ... class C(object):
+        ...     x = attr.ib(validator=attr.validators.is_callable())
+        >>> C(isinstance)
+        C(x=<built-in function isinstance>)
+        >>> C("not a callable")
+        Traceback (most recent call last):
+            ...
+        TypeError: 'x' must be callable
+
+
+.. autofunction:: attr.validators.deep_iterable
+
+    For example:
+
+    .. doctest::
+
+        >>> @attr.s
+        ... class C(object):
+        ...     x = attr.ib(validator=attr.validators.deep_iterable(
+        ...     member_validator=attr.validators.instance_of(int),
+        ...     iterable_validator=attr.validators.instance_of(list)
+        ...     ))
+        >>> C(x=[1, 2, 3])
+        C(x=[1, 2, 3])
+        >>> C(x=set([1, 2, 3]))
+        Traceback (most recent call last):
+            ...
+        TypeError: ("'x' must be <class 'list'> (got {1, 2, 3} that is a <class 'set'>).", Attribute(name='x', default=NOTHING, validator=<deep_iterable validator for <instance_of validator for type <class 'list'>> iterables of <instance_of validator for type <class 'int'>>>, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False), <class 'list'>, {1, 2, 3})
+        >>> C(x=[1, 2, "3"])
+        Traceback (most recent call last):
+            ...
+        TypeError: ("'x' must be <class 'int'> (got '3' that is a <class 'str'>).", Attribute(name='x', default=NOTHING, validator=<deep_iterable validator for <instance_of validator for type <class 'list'>> iterables of <instance_of validator for type <class 'int'>>>, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False), <class 'int'>, '3')
+
+
+.. autofunction:: attr.validators.deep_mapping
+
+    For example:
+
+    .. doctest::
+
+        >>> @attr.s
+        ... class C(object):
+        ...     x = attr.ib(validator=attr.validators.deep_mapping(
+        ...         key_validator=attr.validators.instance_of(str),
+        ...         value_validator=attr.validators.instance_of(int),
+        ...         mapping_validator=attr.validators.instance_of(dict)
+        ...     ))
+        >>> C(x={"a": 1, "b": 2})
+        C(x={'a': 1, 'b': 2})
+        >>> C(x=None)
+        Traceback (most recent call last):
+            ...
+        TypeError: ("'x' must be <class 'dict'> (got None that is a <class 'NoneType'>).", Attribute(name='x', default=NOTHING, validator=<deep_mapping validator for objects mapping <instance_of validator for type <class 'str'>> to <instance_of validator for type <class 'int'>>>, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False), <class 'dict'>, None)
+        >>> C(x={"a": 1.0, "b": 2})
+        Traceback (most recent call last):
+            ...
+        TypeError: ("'x' must be <class 'int'> (got 1.0 that is a <class 'float'>).", Attribute(name='x', default=NOTHING, validator=<deep_mapping validator for objects mapping <instance_of validator for type <class 'str'>> to <instance_of validator for type <class 'int'>>>, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False), <class 'int'>, 1.0)
+        >>> C(x={"a": 1, 7: 2})
+        Traceback (most recent call last):
+            ...
+        TypeError: ("'x' must be <class 'str'> (got 7 that is a <class 'int'>).", Attribute(name='x', default=NOTHING, validator=<deep_mapping validator for objects mapping <instance_of validator for type <class 'str'>> to <instance_of validator for type <class 'int'>>>, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False), <class 'str'>, 7)
+
+
 Converters
 ----------
 
