@@ -190,8 +190,8 @@ def is_callable():
 
     .. versionadded:: 18.3.0
 
-    :raises TypeError: With a human readable error message containing the attribute
-        (of type :class:`attr.Attribute`) name.
+    :raises TypeError: With a human readable error message containing the
+        attribute (of type :class:`attr.Attribute`) name.
     """
     return _IsCallableValidator()
 
@@ -219,7 +219,10 @@ class _DeepIterable(object):
             if self.iterable_validator is None
             else " {iterable!r}".format(iterable=self.iterable_validator)
         )
-        return "<deep_iterable validator for{iterable_identifier} iterables of {member!r}>".format(
+        return (
+            "<deep_iterable validator for {iterable_identifier}"
+            " iterables of {member!r}>"
+        ).format(
             iterable_identifier=iterable_identifier,
             member=self.member_validator,
         )
@@ -230,7 +233,8 @@ def deep_iterable(member_validator, iterable_validator=None):
     A validator that performs deep validation of an iterable.
 
     :param member_validator: Validator to apply to iterable members
-    :param iterable_validator: Validator to apply to iterable itself (optional)
+    :param iterable_validator: Validator to apply to iterable itself
+        (optional)
 
     .. versionadded:: 18.3.0
 
@@ -257,7 +261,10 @@ class _DeepMapping(object):
             self.value_validator(inst, attr, value[key])
 
     def __repr__(self):
-        return "<deep_mapping validator for objects mapping {key!r} to {value!r}>".format(
+        return (
+            "<deep_mapping validator for objects mapping {key!r}"
+            " to {value!r}>"
+        ).format(
             key=self.key_validator, value=self.value_validator
         )
 
@@ -268,7 +275,8 @@ def deep_mapping(key_validator, value_validator, mapping_validator=None):
 
     :param key_validator: Validator to apply to dictionary keys
     :param value_validator: Validator to apply to dictionary values
-    :param mapping_validator: Validator to apply to top-level mapping attribute (optional)
+    :param mapping_validator: Validator to apply to top-level mapping
+        attribute (optional)
 
     .. versionadded:: 18.3.0
 
