@@ -296,7 +296,48 @@ def _counter_getter(e):
     return e[1].counter
 
 
-def _transform_attrs(cls, these, auto_attribs, kw_only):
+def _get_class_type(annotation_type):
+    if annotation_type.__dict__.get('__module__') == 'typing':
+        return annotation_type.__dict__['__extra__']
+
+    return annotation_type
+
+
+def _is_iterable_class(class_type):
+    return class_type is not str and '__getitem__' in class_type.__dict__
+
+
+def _build_converter(annotation_type):
+    class_type = _get_class_type(annotation_type)
+
+    if _is_iterable_class(class_type):
+        return _build_iterable_converter(annotation_type)
+
+    if class_type is not object:
+        return lambda x: class_type(x)
+
+    return lambda x: x
+
+
+def _build_iterable_converter(annotation_type):
+    annotation_type_args = annotation_type.__dict__['__args__']
+
+    if annotation_type_args:
+        arg_converter = _build_converter(annotation_type_args[0])
+    else:
+        arg_converter = lambda x: x
+
+    def converter(iterable):
+        if iterable:
+            for index, value in enumerate(iterable):
+                iterable[index] = arg_converter(value)
+
+        return iterable
+
+    return converter
+
+
+def _transform_attrs(cls, these, auto_attribs, kw_only, auto_converters):
     """
     Transform all `_CountingAttr`s on a class into `Attribute`s.
 
@@ -326,10 +367,16 @@ def _transform_attrs(cls, these, auto_attribs, kw_only):
             annot_names.add(attr_name)
             a = cd.get(attr_name, NOTHING)
             if not isinstance(a, _CountingAttr):
-                if a is NOTHING:
-                    a = attrib()
-                else:
-                    a = attrib(default=a)
+                parameters = {}
+
+                if a is not NOTHING:
+                    parameters['default'] = a
+
+                if auto_converters is True:
+                    parameters['converter'] = _build_converter(type)
+
+                a = attrib(**parameters)
+
             ca_list.append((attr_name, a))
 
         unannotated = ca_names - annot_names
@@ -466,9 +513,10 @@ class _ClassBuilder(object):
         auto_attribs,
         kw_only,
         cache_hash,
+        auto_converters,
     ):
         attrs, base_attrs, base_map = _transform_attrs(
-            cls, these, auto_attribs, kw_only
+            cls, these, auto_attribs, kw_only, auto_converters
         )
 
         self._cls = cls
@@ -710,6 +758,7 @@ def attrs(
     auto_attribs=False,
     kw_only=False,
     cache_hash=False,
+    auto_converters=False,
 ):
     r"""
     A class decorator that adds `dunder
@@ -853,6 +902,7 @@ def attrs(
             auto_attribs,
             kw_only,
             cache_hash,
+            auto_converters,
         )
 
         if repr is True:
