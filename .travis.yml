@@ -27,7 +27,6 @@ matrix:
     - python: "3.7"
       env: TOXENV=py37
       dist: xenial
-      sudo: true
 
     # Prevent breakage by a new releases
     - python: "3.6-dev"
