@@ -1,1 +1,1 @@
-Allow `init=False` arguments after `kw_only` arguments.
+Attributes with ``init=False`` now can follow after ``kw_only=True`` attributes.
