@@ -1,0 +1,9 @@
+Add ``is_callable``, ``deep_iterable``, and ``deep_mapping`` validators.
+
+* ``is_callable``: validates that a value is callable
+* ``deep_iterable``: Allows recursion down into an iterable,
+  applying another validator to every member in the iterable
+  as well as applying an optional validator to the iterable itself.
+* ``deep_mapping``: Allows recursion down into the items in a mapping object,
+  applying a key validator and a value validator to the key and value in every item.
+  Also applies an optional validator to the mapping object itself.
