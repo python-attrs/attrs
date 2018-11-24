@@ -1,4 +1,4 @@
-dist: trusty
+dist: xenial
 group: travis_latest
 sudo: false
 cache:
@@ -12,7 +12,18 @@ matrix:
   fast_finish: true
 
   include:
+    # lint
+    - python: "3.7"
+      stage: lint
+      env: TOXENV=lint
+    - python: "3.7"
+      env: TOXENV=manifest
+    - python: "3.7"
+      env: TOXENV=typing
+
+    # test
     - python: "2.7"
+      stage: test
       env: TOXENV=py27
     - python: "3.4"
       env: TOXENV=py34
@@ -22,31 +33,27 @@ matrix:
       env: TOXENV=py36
     - python: "pypy"
       env: TOXENV=pypy
+      dist: trusty
     - python: "pypy3"
       env: TOXENV=pypy3
+      dist: trusty
     - python: "3.7"
       env: TOXENV=py37
-      dist: xenial
 
-    # Prevent breakage by a new releases
+    # Prevent breakage by new releases
     - python: "3.6-dev"
       env: TOXENV=py36
     - python: "3.7-dev"
       env: TOXENV=py37
 
-    # Meta
-    - python: "3.6"
-      env: TOXENV=lint
-    - python: "3.6"
-      env: TOXENV=manifest
-    - python: "3.6"
+    # Docs
+    - python: "3.7"
+      stage: docs
       env: TOXENV=docs
-    - python: "3.6"
+    - python: "3.7"
       env: TOXENV=readme
-    - python: "3.6"
+    - python: "3.7"
       env: TOXENV=changelog
-    - python: "3.6"
-      env: TOXENV=typing
 
   allow_failures:
     - python: "3.6-dev"
