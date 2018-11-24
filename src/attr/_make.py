@@ -409,12 +409,11 @@ def _transform_attrs(cls, these, auto_attribs, kw_only):
             a.kw_only is False
         ):
             had_default = True
-        if was_kw_only is True and a.kw_only is False:
+        if was_kw_only is True and a.kw_only is False and a.init is True:
             raise ValueError(
                 "Non keyword-only attributes are not allowed after a "
-                "keyword-only attribute.  Attribute in question: {a!r}".format(
-                    a=a
-                )
+                "keyword-only attribute (unless they are init=False).  "
+                "Attribute in question: {a!r}".format(a=a)
             )
         if was_kw_only is False and a.init is True and a.kw_only is True:
             was_kw_only = True

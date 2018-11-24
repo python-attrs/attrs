@@ -705,7 +705,8 @@ class TestKeywordOnlyAttributes(object):
 
         assert (
             "Non keyword-only attributes are not allowed after a "
-            "keyword-only attribute.  Attribute in question: Attribute"
+            "keyword-only attribute (unless they are init=False).  "
+            "Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, repr=True, "
             "cmp=True, hash=None, init=True, metadata=mappingproxy({}), "
             "type=None, converter=None, kw_only=False)",
@@ -770,6 +771,62 @@ class TestKeywordOnlyAttributes(object):
 
         assert c.x == 0
         assert c.y == 1
+
+    def test_init_false_attribute_after_keyword_attribute(self):
+        """
+        A positional attribute cannot follow a `kw_only` attribute,
+        but an `init=False` attribute can because it won't appear
+        in `__init__`
+        """
+
+        @attr.s
+        class KwArgBeforeInitFalse:
+            kwarg = attr.ib(kw_only=True)
+            non_init_function_default = attr.ib(init=False)
+            non_init_keyword_default = attr.ib(
+                init=False, default="default-by-keyword"
+            )
+
+            @non_init_function_default.default
+            def _init_to_init(self):
+                return self.kwarg + "b"
+
+        c = KwArgBeforeInitFalse(kwarg="a")
+
+        assert c.kwarg == "a"
+        assert c.non_init_function_default == "ab"
+        assert c.non_init_keyword_default == "default-by-keyword"
+
+    def test_init_false_attribute_after_keyword_attribute_with_inheritance(
+        self
+    ):
+        """
+        A positional attribute cannot follow a `kw_only` attribute,
+        but an `init=False` attribute can because it won't appear
+        in `__init__`. This test checks that we allow this
+        even when the `kw_only` attribute appears in a parent class
+        """
+
+        @attr.s
+        class KwArgBeforeInitFalseParent:
+            kwarg = attr.ib(kw_only=True)
+
+        @attr.s
+        class KwArgBeforeInitFalseChild(KwArgBeforeInitFalseParent):
+            non_init_function_default = attr.ib(init=False)
+            non_init_keyword_default = attr.ib(
+                init=False, default="default-by-keyword"
+            )
+
+            @non_init_function_default.default
+            def _init_to_init(self):
+                return self.kwarg + "b"
+
+        c = KwArgBeforeInitFalseChild(kwarg="a")
+
+        assert c.kwarg == "a"
+        assert c.non_init_function_default == "ab"
+        assert c.non_init_keyword_default == "default-by-keyword"
 
 
 @pytest.mark.skipif(not PY2, reason="PY2-specific keyword-only error behavior")
