@@ -51,7 +51,7 @@ matrix:
       stage: docs
       env: TOXENV=docs
     - python: "3.7"
-      env: TOXENV=readme
+      env: TOXENV=pypi-description
     - python: "3.7"
       env: TOXENV=changelog
 
