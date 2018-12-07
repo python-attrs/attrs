@@ -48,7 +48,7 @@ By default, all features are added, so you immediately have a fully functional d
 
 As shown, the generated ``__init__`` method allows for both positional and keyword arguments.
 
-If playful naming turns you off, ``attrs`` comes with serious business aliases:
+If playful naming turns you off, ``attrs`` comes with serious-business aliases:
 
 .. doctest::
 
