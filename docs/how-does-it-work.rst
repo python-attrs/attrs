@@ -95,6 +95,6 @@ Pick what's more important to you.
 Summary
 +++++++
 
-You should avoid to instantiate lots of frozen slotted classes (i.e. ``@attr.s(slots=True, frozen=True)``) in performance-critical code.
+You should avoid instantiating lots of frozen slotted classes (i.e. ``@attr.s(slots=True, frozen=True)``) in performance-critical code.
 
 Frozen dict classes have barely a performance impact, unfrozen slotted classes are even *faster* than unfrozen dict classes (i.e. regular classes).
