@@ -188,7 +188,7 @@ def is_callable():
     A validator that raises a :class:`TypeError` if the initializer is called
     with a value for this particular attribute that is not callable.
 
-    .. versionadded:: 18.3.0
+    .. versionadded:: 19.1.0
 
     :raises TypeError: With a human readable error message containing the
         attribute (of type :class:`attr.Attribute`) name.
@@ -236,7 +236,7 @@ def deep_iterable(member_validator, iterable_validator=None):
     :param iterable_validator: Validator to apply to iterable itself
         (optional)
 
-    .. versionadded:: 18.3.0
+    .. versionadded:: 19.1.0
 
     :raises TypeError: if any sub-validators fail
     """
@@ -275,7 +275,7 @@ def deep_mapping(key_validator, value_validator, mapping_validator=None):
     :param mapping_validator: Validator to apply to top-level mapping
         attribute (optional)
 
-    .. versionadded:: 18.3.0
+    .. versionadded:: 19.1.0
 
     :raises TypeError: if any sub-validators fail
     """
