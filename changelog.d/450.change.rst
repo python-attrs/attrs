@@ -1,0 +1,1 @@
+Attributes with ``init=False`` now can follow after ``kw_only=True`` attributes.
