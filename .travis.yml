@@ -1,6 +1,5 @@
 dist: xenial
 group: travis_latest
-sudo: false
 cache:
   directories:
     - $HOME/.cache/pip
