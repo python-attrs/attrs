@@ -533,7 +533,7 @@ class _ClassBuilder(object):
         # cache on deserialization. See issue
         # https://github.com/python-attrs/attrs/issues/482 .
         # Note that this code only handles setstate for non-slots classes.
-        # For slots classes, see similar code in _create_slots_class
+        # For slots classes, see similar code in _create_slots_class .
         if self._cache_hash:
             if hasattr(cls, "__setstate__"):
                 raise NotImplementedError(
@@ -612,7 +612,7 @@ class _ClassBuilder(object):
             # because hash codes can change from run to run. See issue
             # https://github.com/python-attrs/attrs/issues/482 .
             # Note that this code only handles setstate for slots classes.
-            # For slots classes, see similar code in _patch_original_class
+            # For slots classes, see similar code in _patch_original_class .
             if hash_caching_enabled:
                 __bound_setattr(_hash_cache_field, None)
 

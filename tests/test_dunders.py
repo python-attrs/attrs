@@ -457,7 +457,7 @@ class TestAddHash(object):
     def test_cache_hash_serialization(self):
         """
         Tests that the hash cache is cleared on deserialization to fix
-        https://github.com/python-attrs/attrs/issues/482
+        https://github.com/python-attrs/attrs/issues/482 .
         """
 
         # first, check that our fix didn't break serialization without
