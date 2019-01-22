@@ -502,7 +502,7 @@ class TestAddHash(object):
         # to make both work, but it requires some thought about how to go
         # about it, so it has not yet been implemented.
         with pytest.raises(
-            ValueError,
+            NotImplementedError,
             message="Currently you cannot use hash caching if you "
             "specify your own __setstate__ method.",
         ):

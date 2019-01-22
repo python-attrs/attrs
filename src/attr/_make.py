@@ -536,7 +536,7 @@ class _ClassBuilder(object):
         # For slots classes, see similar code in _create_slots_class
         if self._cache_hash:
             if hasattr(cls, "__setstate__"):
-                raise ValueError(
+                raise NotImplementedError(
                     "Currently you cannot use hash caching if "
                     "you specify your own __setstate__ method."
                 )
