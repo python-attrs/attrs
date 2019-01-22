@@ -508,7 +508,7 @@ class TestAddHash(object):
         ):
 
             @attr.attrs(hash=True, cache_hash=True)
-            class NoCacheHashAndCustomSetState:
+            class NoCacheHashAndCustomSetState(object):
                 def __setstate__(self, state):
                     pass
 
