@@ -356,7 +356,7 @@ Order of Execution
 
 If present, the hooks are executed in the following order:
 
-1. For each attribute, in the order it has been declared:
+1. For each attribute, in the order it was declared:
 
    a. default factory
    b. converter
