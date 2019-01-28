@@ -517,27 +517,19 @@ class TestAddHash(object):
 
 # these are for use in TestAddHash.test_cache_hash_serialization
 # they need to be out here so they can be un-pickled
-HashCacheSerializationTestUncached = make_class(
-    "HashCacheSerializationTestUncached",
-    {"foo_string": attr.ib(default="foo")},
-    hash=True,
-    cache_hash=False,
-)
+@attr.attrs(hash=True, cache_hash=False)
+class HashCacheSerializationTestUncached:
+    foo_string = attr.ib(default="foo")
 
-HashCacheSerializationTestCached = make_class(
-    "HashCacheSerializationTestCached",
-    {"foo_string": attr.ib(default="foo")},
-    hash=True,
-    cache_hash=True,
-)
 
-HashCacheSerializationTestCachedSlots = make_class(
-    "HashCacheSerializationTestCachedSlots",
-    {"foo_string": attr.ib(default="foo")},
-    hash=True,
-    cache_hash=True,
-    slots=True,
-)
+@attr.attrs(hash=True, cache_hash=True)
+class HashCacheSerializationTestCached:
+    foo_string = attr.ib(default="foo")
+
+
+@attr.attrs(slots=True, hash=True, cache_hash=True)
+class HashCacheSerializationTestCachedSlots:
+    foo_string = attr.ib(default="foo")
 
 
 class TestAddInit(object):
