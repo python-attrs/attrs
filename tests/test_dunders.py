@@ -460,14 +460,14 @@ class TestAddHash(object):
         https://github.com/python-attrs/attrs/issues/482 .
         """
 
-        # first, check that our fix didn't break serialization without
+        # First, check that our fix didn't break serialization without
         # hash caching.
-        # we don't care about the result of this; we just want to make sure we
-        # can do it without exceptions
+        # We don't care about the result of this; we just want to make sure we
+        # can do it without exceptions.
         hash(pickle.loads(pickle.dumps(HashCacheSerializationTestUncached)))
 
         def assert_hash_code_not_cached_across_serialization(original):
-            # now check our fix for #482 for when hash caching is enabled
+            # Now check our fix for #482 for when hash caching is enabled.
             original_hash = hash(original)
             round_tripped = pickle.loads(pickle.dumps(original))
             # What we want to guard against is having a stale hash code
@@ -487,8 +487,8 @@ class TestAddHash(object):
             round_tripped.foo_string = "something different"
             assert original_hash != hash(round_tripped)
 
-        # slots and non-slots classes implement __setstate__ differently,
-        # so we need to test both cases
+        # Slots and non-slots classes implement __setstate__ differently,
+        # so we need to test both cases.
         assert_hash_code_not_cached_across_serialization(
             HashCacheSerializationTestCached()
         )
@@ -496,7 +496,8 @@ class TestAddHash(object):
             HashCacheSerializationTestCachedSlots()
         )
 
-        # test custom __setstate__ disallowed on a cache_hash=True object.
+        # Test that a custom __setstate__ is disallowed on a
+        # cache_hash=True object.
         # This is needed because we handle clearing the cache after
         # deserialization with a custom __setstate__. It is possible
         # to make both work, but it requires some thought about how to go
@@ -504,7 +505,8 @@ class TestAddHash(object):
         with pytest.raises(
             NotImplementedError,
             message="Currently you cannot use hash caching if you "
-            "specify your own __setstate__ method.",
+            "specify your own __setstate__ method.  This is tracked"
+            "by https://github.com/python-attrs/attrs/issues/494",
         ):
 
             @attr.attrs(hash=True, cache_hash=True)
