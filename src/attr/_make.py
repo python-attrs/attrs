@@ -535,7 +535,8 @@ class _ClassBuilder(object):
         # Note that this code only handles setstate for dict classes.
         # For slotted classes, see similar code in _create_slots_class .
         if self._cache_hash:
-            if hasattr(cls, "__setstate__"):
+            existing_set_state_method = getattr(cls, "__setstate__", None)
+            if existing_set_state_method:
                 raise NotImplementedError(
                     "Currently you cannot use hash caching if "
                     "you specify your own __setstate__ method."
