@@ -540,6 +540,7 @@ class _ClassBuilder(object):
                 raise NotImplementedError(
                     "Currently you cannot use hash caching if "
                     "you specify your own __setstate__ method."
+                    "See https://github.com/python-attrs/attrs/issues/494 ."
                 )
 
             def cache_hash_set_state(chss_self, _):
