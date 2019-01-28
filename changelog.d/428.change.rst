@@ -1,2 +1,0 @@
-Fixes a bug where deserialized objects with ``cache_hash=True`` could
-have incorrect hash code values.
