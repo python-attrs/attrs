@@ -518,17 +518,17 @@ class TestAddHash(object):
 # these are for use in TestAddHash.test_cache_hash_serialization
 # they need to be out here so they can be un-pickled
 @attr.attrs(hash=True, cache_hash=False)
-class HashCacheSerializationTestUncached:
+class HashCacheSerializationTestUncached(object):
     foo_string = attr.ib(default="foo")
 
 
 @attr.attrs(hash=True, cache_hash=True)
-class HashCacheSerializationTestCached:
+class HashCacheSerializationTestCached(object):
     foo_string = attr.ib(default="foo")
 
 
 @attr.attrs(slots=True, hash=True, cache_hash=True)
-class HashCacheSerializationTestCachedSlots:
+class HashCacheSerializationTestCachedSlots(object):
     foo_string = attr.ib(default="foo")
 
 
