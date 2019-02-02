@@ -1,4 +1,4 @@
 Fixed a bug where deserialized objects with ``cache_hash=True`` could have incorrect hash code values.
 This change breaks classes with ``cache_hash=True`` when a custom ``__setstate__`` is present.
 An exception will be thrown when applying the ``attrs`` annotation to such a class.
-This limitation is tracked in issue https://github.com/python-attrs/attrs/issues/494 .
+This limitation is tracked in issue `#494 <https://github.com/python-attrs/attrs/issues/494>`_.
