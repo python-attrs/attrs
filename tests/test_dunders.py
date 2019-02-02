@@ -496,17 +496,20 @@ class TestAddHash(object):
             HashCacheSerializationTestCachedSlots()
         )
 
-        # Test that a custom __setstate__ is disallowed on a
-        # cache_hash=True object.
-        # This is needed because we handle clearing the cache after
-        # deserialization with a custom __setstate__. It is possible
-        # to make both work, but it requires some thought about how to go
-        # about it, so it has not yet been implemented.
+    def test_caching_and_custom_setstate(self):
+        """
+        The combination of a custom __setstate__ and cache_hash=True is caught
+        with a helpful message.
+
+        This is needed because we handle clearing the cache after
+        deserialization with a custom __setstate__. It is possible to make both
+        work, but it requires some thought about how to go about it, so it has
+        not yet been implemented.
+        """
         with pytest.raises(
             NotImplementedError,
-            message="Currently you cannot use hash caching if you "
-            "specify your own __setstate__ method.  This is tracked"
-            "by https://github.com/python-attrs/attrs/issues/494",
+            match="Currently you cannot use hash caching if you "
+            "specify your own __setstate__ method.",
         ):
 
             @attr.attrs(hash=True, cache_hash=True)
