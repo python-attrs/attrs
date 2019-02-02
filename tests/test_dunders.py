@@ -5,6 +5,7 @@ Tests for dunder methods from `attrib._make`.
 from __future__ import absolute_import, division, print_function
 
 import copy
+import pickle
 
 import pytest
 
@@ -452,6 +453,83 @@ class TestAddHash(object):
 
         assert 2 == uncached_instance.hash_counter.times_hash_called
         assert 1 == cached_instance.hash_counter.times_hash_called
+
+    def test_cache_hash_serialization(self):
+        """
+        Tests that the hash cache is cleared on deserialization to fix
+        https://github.com/python-attrs/attrs/issues/482 .
+        """
+
+        # First, check that our fix didn't break serialization without
+        # hash caching.
+        # We don't care about the result of this; we just want to make sure we
+        # can do it without exceptions.
+        hash(pickle.loads(pickle.dumps(HashCacheSerializationTestUncached)))
+
+        def assert_hash_code_not_cached_across_serialization(original):
+            # Now check our fix for #482 for when hash caching is enabled.
+            original_hash = hash(original)
+            round_tripped = pickle.loads(pickle.dumps(original))
+            # What we want to guard against is having a stale hash code
+            # when a field's hash code differs in a new interpreter after
+            # deserialization.  This is tricky to test because we are,
+            # of course, still running in the same interpreter.  So
+            # after deserialization we reach in and change the value of
+            # a field to simulate the field changing its hash code. We then
+            # check that the object's hash code changes, indicating that we
+            # don't have a stale hash code.
+            # This could fail in two ways: (1) pickle.loads could get the hash
+            # code of the deserialized value (triggering it to cache) before
+            # we alter the field value.  This doesn't happen in our tested
+            # Python versions.  (2) "foo" and "something different" could
+            # have a hash collision on this interpreter run.   But this is
+            # extremely improbable and would just result in one buggy test run.
+            round_tripped.foo_string = "something different"
+            assert original_hash != hash(round_tripped)
+
+        # Slots and non-slots classes implement __setstate__ differently,
+        # so we need to test both cases.
+        assert_hash_code_not_cached_across_serialization(
+            HashCacheSerializationTestCached()
+        )
+        assert_hash_code_not_cached_across_serialization(
+            HashCacheSerializationTestCachedSlots()
+        )
+
+        # Test that a custom __setstate__ is disallowed on a
+        # cache_hash=True object.
+        # This is needed because we handle clearing the cache after
+        # deserialization with a custom __setstate__. It is possible
+        # to make both work, but it requires some thought about how to go
+        # about it, so it has not yet been implemented.
+        with pytest.raises(
+            NotImplementedError,
+            message="Currently you cannot use hash caching if you "
+            "specify your own __setstate__ method.  This is tracked"
+            "by https://github.com/python-attrs/attrs/issues/494",
+        ):
+
+            @attr.attrs(hash=True, cache_hash=True)
+            class NoCacheHashAndCustomSetState(object):
+                def __setstate__(self, state):
+                    pass
+
+
+# these are for use in TestAddHash.test_cache_hash_serialization
+# they need to be out here so they can be un-pickled
+@attr.attrs(hash=True, cache_hash=False)
+class HashCacheSerializationTestUncached(object):
+    foo_string = attr.ib(default="foo")
+
+
+@attr.attrs(hash=True, cache_hash=True)
+class HashCacheSerializationTestCached(object):
+    foo_string = attr.ib(default="foo")
+
+
+@attr.attrs(slots=True, hash=True, cache_hash=True)
+class HashCacheSerializationTestCachedSlots(object):
+    foo_string = attr.ib(default="foo")
 
 
 class TestAddInit(object):
