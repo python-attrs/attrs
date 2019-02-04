@@ -529,6 +529,26 @@ class _ClassBuilder(object):
         for name, value in self._cls_dict.items():
             setattr(cls, name, value)
 
+        # Attach __setstate__. This is necessary to clear the hash code
+        # cache on deserialization. See issue
+        # https://github.com/python-attrs/attrs/issues/482 .
+        # Note that this code only handles setstate for dict classes.
+        # For slotted classes, see similar code in _create_slots_class .
+        if self._cache_hash:
+            existing_set_state_method = getattr(cls, "__setstate__", None)
+            if existing_set_state_method:
+                raise NotImplementedError(
+                    "Currently you cannot use hash caching if "
+                    "you specify your own __setstate__ method."
+                    "See https://github.com/python-attrs/attrs/issues/494 ."
+                )
+
+            def cache_hash_set_state(chss_self, _):
+                # clear hash code cache
+                setattr(chss_self, _hash_cache_field, None)
+
+            setattr(cls, "__setstate__", cache_hash_set_state)
+
         return cls
 
     def _create_slots_class(self):
@@ -581,6 +601,8 @@ class _ClassBuilder(object):
             """
             return tuple(getattr(self, name) for name in state_attr_names)
 
+        hash_caching_enabled = self._cache_hash
+
         def slots_setstate(self, state):
             """
             Automatically created by attrs.
@@ -588,6 +610,13 @@ class _ClassBuilder(object):
             __bound_setattr = _obj_setattr.__get__(self, Attribute)
             for name, value in zip(state_attr_names, state):
                 __bound_setattr(name, value)
+            # Clearing the hash code cache on deserialization is needed
+            # because hash codes can change from run to run. See issue
+            # https://github.com/python-attrs/attrs/issues/482 .
+            # Note that this code only handles setstate for slotted classes.
+            # For dict classes, see similar code in _patch_original_class .
+            if hash_caching_enabled:
+                __bound_setattr(_hash_cache_field, None)
 
         # slots and frozen require __getstate__/__setstate__ to work
         cd["__getstate__"] = slots_getstate
