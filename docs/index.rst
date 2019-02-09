@@ -60,6 +60,7 @@ Day-to-Day Usage
 
    license
    backward-compatibility
+   python-2
    contributing
    changelog
 
