@@ -350,6 +350,23 @@ If you need to set attributes on a frozen class, you'll have to resort to the :r
 
 Note that you *must not* access the hash code of the object in ``__attrs_post__init__`` if ``cache_hash=True``.
 
+
+Order of Execution
+------------------
+
+If present, the hooks are executed in the following order:
+
+1. For each attribute, in the order it was declared:
+
+   a. default factory
+   b. converter
+
+2. *all* validators
+3. ``__attrs_post_init__``
+
+Notably this means, that you can access all attributes from within your validators, but your converters have to deal with invalid values and have to return a valid value.
+
+
 .. _`Wiki page`: https://github.com/python-attrs/attrs/wiki/Extensions-to-attrs
 .. _`get confused`: https://github.com/python-attrs/attrs/issues/289
 .. _`there is no such thing as a private argument`: https://github.com/hynek/characteristic/issues/6
