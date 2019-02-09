@@ -37,6 +37,16 @@ Because according to the definition_ from the official Python docs, the returned
    The *correct way* to achieve hashing by id is to set ``@attr.s(cmp=False)``.
    Setting ``@attr.s(hash=False)`` (that implies ``cmp=True``) is almost certainly a *bug*.
 
+   .. warning::
+
+      Be careful when subclassing!
+      Setting ``cmp=False`` on class whose base class has a non-default ``__hash__`` method, will *not* make ``attrs`` remove that ``__hash__`` for you.
+
+      It is part of ``attrs``'s philosophy to only *add* to classes so you have the freedom to customize your classes as you wish.
+      So if you want to *get rid* of methods, you'll have to do it by hand.
+
+      The easiest way to reset ``__hash__`` on a class is adding ``__hash__ = object.__hash__`` in the class body.
+
 #. If two object are not equal, their hash **should** be different.
 
    While this isn't a requirement from a standpoint of correctness, sets and dicts become less effective if there are a lot of identical hashes.
