@@ -60,7 +60,7 @@ matrix:
 
 
 install:
-  - pip install --upgrade tox pip setuptools virtualenv
+  - pip install --upgrade tox
 
 
 script:
