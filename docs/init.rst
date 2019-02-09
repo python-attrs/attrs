@@ -97,6 +97,7 @@ This is when default values come into play:
    C(a=42, b=[], c=[], d={})
 
 It's important that the decorated method -- or any other method or property! -- doesn't have the same name as the attribute, otherwise it would overwrite the attribute definition.
+You also cannot use type annotations to elide the :func:`attr.ib` call for ``d`` as explained in :doc:`types`.
 
 
 Please note that as with function and method signatures, ``default=[]`` will *not* do what you may think it might do:
@@ -161,7 +162,7 @@ If the value does not pass the validator's standards, it just raises an appropri
       ...
    ValueError: x must be smaller or equal to 42
 
-Again, it's important that the decorated method doesn't have the same name as the attribute.
+Again, it's important that the decorated method doesn't have the same name as the attribute and that you can't elide the call to :func:`attr.ib`.
 
 
 Callables
