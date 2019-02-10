@@ -6,6 +6,8 @@ from __future__ import absolute_import, division, print_function
 
 import pickle
 
+from copy import deepcopy
+
 import pytest
 import six
 
@@ -550,12 +552,14 @@ class TestDarkMagic(object):
 
             assert e is e
             assert e == e
-            assert "(1, 42, 'foo')" == str(e)
-            # N.B. the default value 42 is preserved by setting args ourselves.
-            assert (1, 42, "foo") == e.args
+            assert "(1, 'foo')" == str(e)
+            assert (1, "foo") == e.args
 
             with pytest.raises(TypeError):
                 hash(e)
+
+            if not frozen:
+                deepcopy(e)
 
     @pytest.mark.parametrize("slots", [True, False])
     @pytest.mark.parametrize("frozen", [True, False])

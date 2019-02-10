@@ -1667,18 +1667,12 @@ def _attrs_to_init_script(
             init_hash_cache = "self.%s = %s"
         lines.append(init_hash_cache % (_hash_cache_field, "None"))
 
-    # On Python 2, it's necessary to set self.args for exceptions. We do it on
-    # *all* versions to keep around defaults.
+    # For exceptions we rely on BaseException.__init__ for proper
+    # initialization.
     if is_exc:
-        vals = "".join(("(self.", ", self.".join(a.name for a in attrs), ",)"))
+        vals = ",".join("self." + a.name for a in attrs if a.init)
 
-        if frozen:
-            if slots:
-                lines.append("_setattr('args', %s)" % (vals,))
-            else:
-                lines.append("object.__setattr__(self, 'args', %s)" % (vals,))
-        else:
-            lines.append("self.args = " + vals)
+        lines.append("BaseException.__init__(self, %s)" % (vals,))
 
     args = ", ".join(args)
     if kw_only_args:
