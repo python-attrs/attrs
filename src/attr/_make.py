@@ -1670,7 +1670,7 @@ def _attrs_to_init_script(
     # On Python 2, it's necessary to set self.args for exceptions. We do it on
     # *all* versions to keep around defaults.
     if is_exc:
-        vals = "".join(("(self.", ", self.".join(a.name for a in attrs), ")"))
+        vals = "".join(("(self.", ", self.".join(a.name for a in attrs), ",)"))
 
         if frozen:
             if slots:

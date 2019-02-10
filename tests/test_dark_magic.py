@@ -556,3 +556,18 @@ class TestDarkMagic(object):
 
             with pytest.raises(TypeError):
                 hash(e)
+
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("frozen", [True, False])
+    def test_auto_exc_one_attrib(self, slots, frozen):
+        """
+        Having one attribute works with auto_exc=True.
+
+        Easy to get wrong with tuple literals.
+        """
+
+        @attr.s(auto_exc=True, slots=slots, frozen=frozen)
+        class FooError(Exception):
+            x = attr.ib()
+
+        FooError(1)
