@@ -843,10 +843,10 @@ def attrs(
     :param bool cache_hash: Ensure that the object's hash code is computed
         only once and stored on the object.  If this is set to ``True``,
         hashing must be either explicitly or implicitly enabled for this
-        class.  If the hash code is cached, then no attributes of this
-        class which participate in hash code computation may be mutated
-        after object creation.
-
+        class.  If the hash code is cached, avoid any reassignments of
+        fields involved in hash code computation or mutations of the objects
+        those fields point to after object creation.  If such changes occur,
+        the behavior of the object's hash code is undefined.
 
     .. versionadded:: 16.0.0 *slots*
     .. versionadded:: 16.1.0 *frozen*
