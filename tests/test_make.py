@@ -143,76 +143,6 @@ class TestCountingAttr(object):
         assert Factory(f, True) == a._default
 
 
-class TestAttribute(object):
-    """
-    Tests for `attr.Attribute`.
-    """
-
-    def test_deprecated_convert_argument(self):
-        """
-        Using *convert* raises a DeprecationWarning and sets the converter
-        field.
-        """
-
-        def conv(v):
-            return v
-
-        with pytest.warns(DeprecationWarning) as wi:
-            a = Attribute(
-                "a", True, True, True, True, True, True, convert=conv
-            )
-        w = wi.pop()
-
-        assert conv == a.converter
-        assert (
-            "The `convert` argument is deprecated in favor of `converter`.  "
-            "It will be removed after 2019/01.",
-        ) == w.message.args
-        assert __file__ == w.filename
-
-    def test_deprecated_convert_attribute(self):
-        """
-        If Attribute.convert is accessed, a DeprecationWarning is raised.
-        """
-
-        def conv(v):
-            return v
-
-        a = simple_attr("a", converter=conv)
-        with pytest.warns(DeprecationWarning) as wi:
-            convert = a.convert
-        w = wi.pop()
-
-        assert conv is convert is a.converter
-        assert (
-            "The `convert` attribute is deprecated in favor of `converter`.  "
-            "It will be removed after 2019/01.",
-        ) == w.message.args
-        assert __file__ == w.filename
-
-    def test_convert_converter(self):
-        """
-        A TypeError is raised if both *convert* and *converter* are passed.
-        """
-        with pytest.raises(RuntimeError) as ei:
-            Attribute(
-                "a",
-                True,
-                True,
-                True,
-                True,
-                True,
-                True,
-                convert=lambda v: v,
-                converter=lambda v: v,
-            )
-
-        assert (
-            "Can't pass both `convert` and `converter`.  "
-            "Please use `converter` only.",
-        ) == ei.value.args
-
-
 def make_tc():
     class TransformC(object):
         z = attr.ib()
@@ -1072,7 +1002,7 @@ class TestConverter(object):
     @given(integers(), booleans())
     def test_convert_property(self, val, init):
         """
-        Property tests for attributes with convert.
+        Property tests for attributes using converter.
         """
         C = make_class(
             "C",
@@ -1089,9 +1019,9 @@ class TestConverter(object):
         assert c.y == 2
 
     @given(integers(), booleans())
-    def test_convert_factory_property(self, val, init):
+    def test_converter_factory_property(self, val, init):
         """
-        Property tests for attributes with convert, and a factory default.
+        Property tests for attributes with converter, and a factory default.
         """
         C = make_class(
             "C",
@@ -1163,48 +1093,6 @@ class TestConverter(object):
             "C", {"x": attr.ib(converter=lambda v: int(v))}, frozen=True
         )
         C("1")
-
-    def test_deprecated_convert(self):
-        """
-        Using *convert* raises a DeprecationWarning and sets the converter
-        field.
-        """
-
-        def conv(v):
-            return v
-
-        with pytest.warns(DeprecationWarning) as wi:
-
-            @attr.s
-            class C(object):
-                x = attr.ib(convert=conv)
-
-            convert = fields(C).x.convert
-
-        assert 2 == len(wi.list)
-        w = wi.pop()
-
-        assert conv == fields(C).x.converter == convert
-        assert (
-            "The `convert` argument is deprecated in favor of `converter`.  "
-            "It will be removed after 2019/01.",
-        ) == w.message.args
-        assert __file__ == w.filename
-
-    def test_convert_converter(self):
-        """
-        A TypeError is raised if both *convert* and *converter* are passed.
-        """
-        with pytest.raises(RuntimeError) as ei:
-
-            @attr.s
-            class C(object):
-                x = attr.ib(convert=lambda v: v, converter=lambda v: v)
-
-        assert (
-            "Can't pass both `convert` and `converter`.  "
-            "Please use `converter` only.",
-        ) == ei.value.args
 
 
 class TestValidate(object):
