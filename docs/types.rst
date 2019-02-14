@@ -23,9 +23,19 @@ That means that on modern Python versions, the declaration part of the example f
    >>> attr.fields(SomeClass).a_number.type
    <class 'int'>
 
-You can still use :func:`attr.ib` for advanced features, but you don't have to.
+You will still need :func:`attr.ib` for advanced features, but not for the common cases.
 
-Please note that these types are *only metadata* that can be queried from the class and they aren't used for anything out of the box!
+One of those features are the decorator-based features like defaults.
+It's important to remember that ``attrs`` doesn't do any magic behind your back.
+All the decorators are implemented using an object that is returned by the call to :func:`attr.ib`.
+
+Attributes that only carry a class annotation do not have that object so trying to call a method on it will inevitably fail.
+
+*****
+
+Please note that types -- however added -- are *only metadata* that can be queried from the class and they aren't used for anything out of the box!
+
+In practice, their biggest usefulness shows in combination with mypy.
 
 
 mypy

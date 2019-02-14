@@ -60,7 +60,7 @@ matrix:
 
 
 install:
-  - pip install tox
+  - pip install --upgrade tox
 
 
 script:
