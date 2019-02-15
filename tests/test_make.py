@@ -1630,3 +1630,12 @@ class TestDetermineEqOrder(object):
             "2021-06-01.  Please use `eq` and `order` instead."
             == w.message.args[0]
         )
+
+
+class TestDocs:
+    def test_init_docs(self):
+        @attr.s
+        class A:
+            pass
+
+        assert A.__qualname__ in A.__init__.__doc__
