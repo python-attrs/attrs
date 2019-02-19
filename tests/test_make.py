@@ -1635,7 +1635,8 @@ class TestDetermineEqOrder(object):
 class TestDocs:
     def test_init_docs(self):
         @attr.s
-        class A:
+        class A(object):
             pass
 
-        assert A.__qualname__ in A.__init__.__doc__
+        if hasattr(A, "__qualname__"):
+            assert A.__qualname__ in A.__init__.__doc__
