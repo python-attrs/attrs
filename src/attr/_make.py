@@ -663,15 +663,8 @@ class _ClassBuilder(object):
                 "__str__ can only be generated if a __repr__ exists."
             )
 
-        if self._is_exc:
-
-            def __str__(self):
-                return BaseException.__str__(self)
-
-        else:
-
-            def __str__(self):
-                return self.__repr__()
+        def __str__(self):
+            return self.__repr__()
 
         self._cls_dict["__str__"] = self._add_method_dunders(__str__)
         return self
@@ -871,9 +864,7 @@ def attrs(
         - all attributes that are either passed into ``__init__`` or have a
           default value are additionally available as a tuple in the ``args``
           attribute,
-        - the value of *str* is ignored and a ``__str__`` method is added that
-          returns a str of the ``args`` tuple (this differs from passing
-          ``str=True`` which returns the same string as ``repr()``).
+        - the value of *str* is ignored leaving ``__str__`` to base classes.
 
     .. versionadded:: 16.0.0 *slots*
     .. versionadded:: 16.1.0 *frozen*
@@ -917,7 +908,7 @@ def attrs(
 
         if repr is True:
             builder.add_repr(repr_ns)
-        if str is True or is_exc:
+        if str is True:
             builder.add_str()
         if cmp is True and not is_exc:
             builder.add_cmp()
