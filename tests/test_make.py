@@ -1519,7 +1519,7 @@ class TestClassBuilder(object):
     def test_weakref_setstate(self):
         """
         __weakref__ is not set on in setstate because it's not writable in
-        slots classes.
+        slotted classes.
         """
 
         @attr.s(slots=True)
@@ -1532,7 +1532,7 @@ class TestClassBuilder(object):
 
     def test_no_references_to_original(self):
         """
-        When subclassing a slots class, there are no stray references to the
+        When subclassing a slotted class, there are no stray references to the
         original class.
         """
 

@@ -487,7 +487,7 @@ class TestAddHash(object):
             round_tripped.foo_string = "something different"
             assert original_hash != hash(round_tripped)
 
-        # Slots and non-slots classes implement __setstate__ differently,
+        # Slotted and dict classes implement __setstate__ differently,
         # so we need to test both cases.
         assert_hash_code_not_cached_across_serialization(
             HashCacheSerializationTestCached()

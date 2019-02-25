@@ -127,8 +127,8 @@ def test_inheritance_from_nonslots():
     """
     Inheritance from a non-slot class works.
 
-    Note that a slots class inheriting from an ordinary class loses most of the
-    benefits of slots classes, but it should still work.
+    Note that a slotted class inheriting from an ordinary class loses most of
+    the benefits of slotted classes, but it should still work.
     """
 
     @attr.s(slots=True, hash=True)
@@ -168,7 +168,7 @@ def test_inheritance_from_nonslots():
 
 def test_nonslots_these():
     """
-    Enhancing a non-slots class using 'these' works.
+    Enhancing a dict class using 'these' works.
 
     This will actually *replace* the class with another one, using slots.
     """
@@ -428,7 +428,7 @@ class TestClosureCellRewriting(object):
         assert __file__ == w.filename
         assert (
             "Missing ctypes.  Some features like bare super() or accessing "
-            "__class__ will not work with slots classes.",
+            "__class__ will not work with slotted classes.",
         ) == w.message.args
 
         assert just_warn is func
