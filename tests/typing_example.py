@@ -80,6 +80,20 @@ HH(x=[1], y=[], z=1.1)
 c == cc
 
 
+# Exceptions
+@attr.s(auto_exc=True)
+class Error(Exception):
+    x = attr.ib()
+
+
+try:
+    raise Error(1)
+except Error as e:
+    e.x
+    e.args
+    str(e)
+
+
 # Converters
 # XXX: Currently converters can only be functions so none of this works
 # although the stubs should be correct.

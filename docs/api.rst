@@ -18,7 +18,7 @@ What follows is the API explanation, if you'd like a more hands-on introduction,
 Core
 ----
 
-.. autofunction:: attr.s(these=None, repr_ns=None, repr=True, cmp=True, hash=None, init=True, slots=False, frozen=False, weakref_slot=True, str=False, auto_attribs=False, kw_only=False, cache_hash=False)
+.. autofunction:: attr.s(these=None, repr_ns=None, repr=True, cmp=True, hash=None, init=True, slots=False, frozen=False, weakref_slot=True, str=False, auto_attribs=False, kw_only=False, cache_hash=False, auto_exc=False)
 
    .. note::
 
@@ -42,6 +42,20 @@ Core
       >>> D = attr.s(these={"x": attr.ib()}, init=False)(D)
       >>> D(1)
       D(x=1)
+      >>> @attr.s(auto_exc=True)
+      ... class Error(Exception):
+      ...     x = attr.ib()
+      ...     y = attr.ib(default=42, init=False)
+      >>> Error("foo")
+      Error(x='foo', y=42)
+      >>> raise Error("foo")
+      Traceback (most recent call last):
+         ...
+      Error: ('foo', 42)
+      >>> raise ValueError("foo", 42)   # for comparison
+      Traceback (most recent call last):
+         ...
+      ValueError: ('foo', 42)
 
 
 .. autofunction:: attr.ib

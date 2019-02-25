@@ -6,6 +6,8 @@ from __future__ import absolute_import, division, print_function
 
 import pickle
 
+from copy import deepcopy
+
 import pytest
 import six
 
@@ -508,3 +510,68 @@ class TestDarkMagic(object):
         assert "property" == attr.fields(C).property.name
         assert "itemgetter" == attr.fields(C).itemgetter.name
         assert "x" == attr.fields(C).x.name
+
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("frozen", [True, False])
+    def test_auto_exc(self, slots, frozen):
+        """
+        Classes with auto_exc=True have a Exception-style __str__, are neither
+        comparable nor hashable, and store the fields additionally in
+        self.args.
+        """
+
+        @attr.s(auto_exc=True, slots=slots, frozen=frozen)
+        class FooError(Exception):
+            x = attr.ib()
+            y = attr.ib(init=False, default=42)
+            z = attr.ib(init=False)
+            a = attr.ib()
+
+        FooErrorMade = attr.make_class(
+            "FooErrorMade",
+            bases=(Exception,),
+            attrs={
+                "x": attr.ib(),
+                "y": attr.ib(init=False, default=42),
+                "z": attr.ib(init=False),
+                "a": attr.ib(),
+            },
+            auto_exc=True,
+            slots=slots,
+            frozen=frozen,
+        )
+
+        assert FooError(1, "foo") != FooError(1, "foo")
+        assert FooErrorMade(1, "foo") != FooErrorMade(1, "foo")
+
+        for cls in (FooError, FooErrorMade):
+            with pytest.raises(cls) as ei:
+                raise cls(1, "foo")
+
+            e = ei.value
+
+            assert e is e
+            assert e == e
+            assert "(1, 'foo')" == str(e)
+            assert (1, "foo") == e.args
+
+            with pytest.raises(TypeError):
+                hash(e)
+
+            if not frozen:
+                deepcopy(e)
+
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("frozen", [True, False])
+    def test_auto_exc_one_attrib(self, slots, frozen):
+        """
+        Having one attribute works with auto_exc=True.
+
+        Easy to get wrong with tuple literals.
+        """
+
+        @attr.s(auto_exc=True, slots=slots, frozen=frozen)
+        class FooError(Exception):
+            x = attr.ib()
+
+        FooError(1)
