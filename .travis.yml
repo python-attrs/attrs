@@ -44,7 +44,7 @@ matrix:
       env: TOXENV=py37
 
     # Docs
-    - python: "3.5"
+    - python: "3.7"
       stage: docs
       env: TOXENV=docs
     - python: "3.7"
