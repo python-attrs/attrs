@@ -1308,22 +1308,6 @@ def _make_init(
     return __init__
 
 
-def _add_init(cls, frozen):
-    """
-    Add a __init__ method to *cls*.  If *frozen* is True, make it immutable.
-    """
-    cls.__init__ = _make_init(
-        cls.__attrs_attrs__,
-        getattr(cls, "__attrs_post_init__", False),
-        frozen,
-        _is_slot_cls(cls),
-        cache_hash=False,
-        base_attr_map={},
-        is_exc=False,
-    )
-    return cls
-
-
 def fields(cls):
     """
     Return the tuple of ``attrs`` attributes for a class.

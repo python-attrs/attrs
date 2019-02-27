@@ -17,8 +17,9 @@ import attr
 from attr._make import (
     NOTHING,
     Factory,
-    _add_init,
     _add_repr,
+    _is_slot_cls,
+    _make_init,
     _Nothing,
     fields,
     make_class,
@@ -47,6 +48,25 @@ HashCSlotsCached = simple_class(
 HashCFrozenNotSlotsCached = simple_class(
     frozen=True, slots=False, hash=True, cache_hash=True
 )
+
+
+def _add_init(cls, frozen):
+    """
+    Add a __init__ method to *cls*.  If *frozen* is True, make it immutable.
+
+    This function used to be part of _make.  It wasn't used anymore however
+    the tests for it are still useful to test the behavior of _make_init.
+    """
+    cls.__init__ = _make_init(
+        cls.__attrs_attrs__,
+        getattr(cls, "__attrs_post_init__", False),
+        frozen,
+        _is_slot_cls(cls),
+        cache_hash=False,
+        base_attr_map={},
+        is_exc=False,
+    )
+    return cls
 
 
 class InitC(object):
