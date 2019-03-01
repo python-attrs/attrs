@@ -1,11 +1,6 @@
 trigger:
 - master
 
-parameters:
-  toxenvs: []
-  os: linux
-  coverage: true
-
 jobs:
   - job: 'Test'
     pool:
