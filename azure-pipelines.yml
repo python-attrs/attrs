@@ -7,12 +7,38 @@ jobs:
       vmImage: 'Ubuntu-16.04'
     strategy:
       matrix:
-        Python27:
+        Typing:
+          python.version: '3.7'
+          TOXENV: typing
+        Lint:
+          python.version: '3.7'
+          TOXENV: lint
+
+        py27:
           python.version: '2.7'
           TOXENV: py27
-        Python37:
+        py34:
+          python.version: '3.4'
+          TOXENV: py34
+        py35:
+          python.version: '3.5'
+          TOXENV: py35
+        py36:
+          python.version: '3.6'
+          TOXENV: py36
+        py37:
           python.version: '3.7'
           TOXENV: py37
+          
+        Docs:
+          python.version: '3.7'
+          TOXENV: docs
+        'PyPI Description':
+          python.version: '3.7'
+          TOXENV: pypi-description
+        'Changelog':
+          python.version: '3.7'
+          TOXENV: changelog
 
     steps:
       - task: UsePythonVersion@0
@@ -25,7 +51,7 @@ jobs:
       - script: tox
         displayName: run tox
 
-  - job: 'Publish'
+  - job: 'Build Packages'
     dependsOn: 'Test'
     pool:
       vmImage: 'Ubuntu-16.04'
