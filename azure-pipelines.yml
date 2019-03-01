@@ -52,7 +52,7 @@ jobs:
         displayName: run tox
       - script: |
           tox -e coverage-report
-          codecov
+          codecov -t $(CODECOV_TOKEN)
         displayName: Report Coverage
 
   - job: Build_Packages
