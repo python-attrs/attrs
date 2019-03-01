@@ -51,7 +51,7 @@ jobs:
       - script: tox
         displayName: run tox
 
-  - job: 'Build Packages'
+  - job: Build_Packages
     dependsOn: 'Test'
     pool:
       vmImage: 'Ubuntu-16.04'
