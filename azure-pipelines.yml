@@ -7,7 +7,7 @@ jobs:
       vmImage: 'Ubuntu-16.04'
     strategy:
       matrix:
-        ${{ each env in parameters.toxenvs }}:
+        ${{ each env in ["p27", "py34", "py35", "py36", "py37", "pypy", "pypy3"] }}:
           ${{ env }}:
             TOXENV: ${{ env }}
             ${{ if or(eq(env, 'py27'), startsWith(env, 'py27-')) }}:
