@@ -1,0 +1,58 @@
+trigger:
+- master
+
+parameters:
+  toxenvs: []
+  os: linux
+  coverage: true
+
+jobs:
+  - job: 'Test'
+    pool:
+      vmImage: 'Ubuntu-16.04'
+    strategy:
+      matrix:
+        ${{ each env in parameters.toxenvs }}:
+          ${{ env }}:
+            TOXENV: ${{ env }}
+            ${{ if or(eq(env, 'py27'), startsWith(env, 'py27-')) }}:
+              py: '2.7'
+            ${{ if or(eq(env, 'py34'), startsWith(env, 'py34-')) }}:
+              py: '3.4'
+            ${{ if or(eq(env, 'py35'), startsWith(env, 'py35-')) }}:
+              py: '3.5'
+            ${{ if or(eq(env, 'py36'), startsWith(env, 'py36-')) }}:
+              py: '3.6'
+            ${{ if or(eq(env, 'py37'), startsWith(env, 'py37-')) }}:
+              py: '3.7'
+            # pypy is already installed, we just use this to run tox
+            ${{ if or(eq(env, 'pypy'), startsWith(env, 'pypy-')) }}:
+              py: '3.7'
+            ${{ if or(eq(env, 'pypy3'), startsWith(env, 'pypy3-')) }}:
+              py: '3.7'
+      maxParallel: 4
+
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '$(python.version)'
+          architecture: 'x64'
+
+      - script: python -m pip install --upgrade tox
+        displayName: install tox
+      - script: tox
+        displayName: run tox
+
+  - job: 'Publish'
+    dependsOn: 'Test'
+    pool:
+      vmImage: 'Ubuntu-16.04'
+
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '3.x'
+          architecture: 'x64'
+
+      - script: python setup.py sdist bdist_wheel
+        displayName: 'Build sdist & wheel'
