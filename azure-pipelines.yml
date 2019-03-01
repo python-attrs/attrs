@@ -33,10 +33,10 @@ jobs:
         Docs:
           python.version: '3.7'
           TOXENV: docs
-        'PyPI Description':
+        PyPI-Description:
           python.version: '3.7'
           TOXENV: pypi-description
-        'Changelog':
+        Changelog:
           python.version: '3.7'
           TOXENV: changelog
 
