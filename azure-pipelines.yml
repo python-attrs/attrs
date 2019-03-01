@@ -46,14 +46,14 @@ jobs:
           versionSpec: '$(python.version)'
           architecture: 'x64'
 
-      - displayName: install tox
-        script: python -m pip install --upgrade tox codecov
-      - displayName: run tox
-        script: tox
-      - displayName: Report Coverage
-        script: |
+      - script: python -m pip install --upgrade tox codecov
+        displayName: install tox
+      - script: tox
+        displayName: run tox
+      - script: |
           coverage combine
           codecov -t $(CODECOV_TOKEN)
+        displayName: Report Coverage
 
   - job: Build_Packages
     dependsOn: 'Test'
