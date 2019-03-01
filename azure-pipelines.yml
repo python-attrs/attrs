@@ -7,24 +7,9 @@ jobs:
       vmImage: 'Ubuntu-16.04'
     strategy:
       matrix:
-        ${{ each env in ["p27", "py34", "py35", "py36", "py37", "pypy", "pypy3"] }}:
-          ${{ env }}:
-            TOXENV: ${{ env }}
-            ${{ if or(eq(env, 'py27'), startsWith(env, 'py27-')) }}:
-              py: '2.7'
-            ${{ if or(eq(env, 'py34'), startsWith(env, 'py34-')) }}:
-              py: '3.4'
-            ${{ if or(eq(env, 'py35'), startsWith(env, 'py35-')) }}:
-              py: '3.5'
-            ${{ if or(eq(env, 'py36'), startsWith(env, 'py36-')) }}:
-              py: '3.6'
-            ${{ if or(eq(env, 'py37'), startsWith(env, 'py37-')) }}:
-              py: '3.7'
-            # pypy is already installed, we just use this to run tox
-            ${{ if or(eq(env, 'pypy'), startsWith(env, 'pypy-')) }}:
-              py: '3.7'
-            ${{ if or(eq(env, 'pypy3'), startsWith(env, 'pypy3-')) }}:
-              py: '3.7'
+        py27:
+          TOXENV: py27
+          py: '2.7'
       maxParallel: 4
 
     steps:
