@@ -7,9 +7,10 @@ jobs:
       vmImage: 'Ubuntu-16.04'
     strategy:
       matrix:
-        py27:
+        Python27:
+          python.version: '2.7'
+          python.architecture: x64
           TOXENV: py27
-          py: '2.7'
       maxParallel: 4
 
     steps:
