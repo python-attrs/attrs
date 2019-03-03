@@ -36,8 +36,10 @@ jobs:
       
       - script: |
           coverage combine
-          codecov -t $(CODECOV_TOKEN)
+          codecov
         displayName: Report Coverage
+        env:
+          CODECOV_TOKEN: 'CODECOV TOKEN?'
   - job: 'Checks'
     pool:
       vmImage: 'Ubuntu-16.04'
