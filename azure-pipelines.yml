@@ -19,7 +19,7 @@ jobs:
         displayName: install tox
 
       - script: tox -e py27,py34,py35,py36,py37
-        displayName: run tox for Python runtimes
+        displayName: run tox for Python Runtimes
       
       - script: tox -e typing
         displayName: run tox for typing
