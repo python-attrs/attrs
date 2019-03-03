@@ -54,6 +54,7 @@ jobs:
           coverage combine
           codecov -t $(CODECOV_TOKEN)
         displayName: Report Coverage
+
       - task: PublishTestResults@2
         inputs:
           testResultsFiles: 'report.xml'
