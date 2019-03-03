@@ -48,12 +48,17 @@ jobs:
 
       - script: python -m pip install --upgrade tox codecov
         displayName: install tox
-      - script: tox
+      - script: tox -- --junitxml=report.xml
         displayName: run tox
       - script: |
           coverage combine
           codecov -t $(CODECOV_TOKEN)
         displayName: Report Coverage
+      - task: PublishTestResults@2
+          inputs:
+            testResultsFiles: 'report.xml'
+            testRunTitle: '$(Agent.OS) - $(Build.DefinitionName) - Python $(python.version)'
+          condition: succeededOrFailed()
 
   - job: Build_Packages
     dependsOn: 'Test'
