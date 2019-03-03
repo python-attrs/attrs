@@ -22,7 +22,6 @@ jobs:
         Python37:
           python.version: '3.7'
           tox.target: 'py37'
-      maxParallel: 2
     steps:
       - task: UsePythonVersion@0
         inputs:
