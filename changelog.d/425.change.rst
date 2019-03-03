@@ -7,3 +7,5 @@ Add ``is_callable``, ``deep_iterable``, and ``deep_mapping`` validators.
 * ``deep_mapping``: Allows recursion down into the items in a mapping object,
   applying a key validator and a value validator to the key and value in every item.
   Also applies an optional validator to the mapping object itself.
+
+You can find them in the ``attr.validators`` package.
