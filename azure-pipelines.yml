@@ -32,7 +32,7 @@ jobs:
 
       - script: tox -e $(tox.target)
         displayName: run tox for Python Runtimes
-      
+
       - script: |
           coverage combine
           codecov
@@ -56,10 +56,10 @@ jobs:
 
       - script: tox -e typing
         displayName: run tox for typing
-   
+
       - script: tox -e lint,docs
         displayName: run tox for documentation and code linting
-      
+
       - script: tox -e pypi-description,changelog
         displayName: run tox for metadata
 
