@@ -12,7 +12,7 @@ If an item doesn't apply to your pull request, **check it anyway** to make it ap
     - [ ] New functions/classes have to be added to `docs/api.rst` by hand.
     - [ ] Changes to the signature of `@attr.s()` have to be added by hand too.
     - [ ] Changed/added classes/methods/functions have appropriate `versionadded`, `versionchanged`, or `deprecated` [directives](http://www.sphinx-doc.org/en/stable/markup/para.html#directive-versionadded).
-- [ ] Documentation in `.rst` files is written using [semantic newlines](http://rhodesmill.org/brandon/2012/one-sentence-per-line/).
+- [ ] Documentation in `.rst` files is written using [semantic newlines](https://rhodesmill.org/brandon/2012/one-sentence-per-line/).
 - [ ] Changes (and possible deprecations) have news fragments in [`changelog.d`](https://github.com/python-attrs/attrs/blob/master/changelog.d).
 
 If you have *any* questions to *any* of the points above, just **submit and ask**!  This checklist is here to *help* you, not to deter you from contributing!
