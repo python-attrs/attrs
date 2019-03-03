@@ -5,7 +5,15 @@ jobs:
   - job: 'Test'
     pool:
       vmImage: 'Ubuntu-16.04'
+    matrix:
+      Python37:
+        python.version: '3.7'
+      maxParallel: 2
     steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '$(python.version)'
+          architecture: 'x64'
       - script: python -m pip install --upgrade tox codecov
         displayName: install tox
 
@@ -13,7 +21,7 @@ jobs:
         displayName: run tox for Python runtimes
       
       - script: tox -e typing
-        displayName: run tox for typinh
+        displayName: run tox for typing
    
       - script: tox -e lint,docs
         displayName: run tox for documentation and code linting
