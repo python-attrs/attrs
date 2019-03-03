@@ -1,1 +1,0 @@
-Fixed stub files to prevent errors raised by mypy's ``disallow_any_generics = True`` option.

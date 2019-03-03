@@ -1,3 +1,0 @@
-``attrs`` now has first class support for defining exception classes.
-
-If you define a class using ``@attr.s(auto_exc=True)`` and subclass an exception, the class will behave like a well-behaved exception class including an appropriate ``__str__`` method, and all attributes additionally available in an ``args`` attribute.

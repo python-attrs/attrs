@@ -4,16 +4,50 @@ Changelog
 Versions follow `CalVer <https://calver.org>`_ with a strict backwards compatibility policy.
 The third digit is only for regressions.
 
-Changes for the upcoming release can be found in the `"changelog.d" directory <https://github.com/python-attrs/attrs/tree/master/changelog.d>`_ in our repository.
-
-..
-   Do *NOT* add changelog entries here!
-
-   This changelog is managed by towncrier and is compiled at release time.
-
-   See https://www.attrs.org/en/latest/contributing.html#changelog for details.
-
 .. towncrier release notes start
+
+19.1.0 (2019-03-03)
+-------------------
+
+Backward-incompatible Changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Fixed a bug where deserialized objects with ``cache_hash=True`` could have incorrect hash code values.
+  This change breaks classes with ``cache_hash=True`` when a custom ``__setstate__`` is present.
+  An exception will be thrown when applying the ``attrs`` annotation to such a class.
+  This limitation is tracked in issue `#494 <https://github.com/python-attrs/attrs/issues/494>`_.
+  `#482 <https://github.com/python-attrs/attrs/issues/482>`_
+
+
+Changes
+^^^^^^^
+
+- Add ``is_callable``, ``deep_iterable``, and ``deep_mapping`` validators.
+
+  * ``is_callable``: validates that a value is callable
+  * ``deep_iterable``: Allows recursion down into an iterable,
+    applying another validator to every member in the iterable
+    as well as applying an optional validator to the iterable itself.
+  * ``deep_mapping``: Allows recursion down into the items in a mapping object,
+    applying a key validator and a value validator to the key and value in every item.
+    Also applies an optional validator to the mapping object itself.
+
+  You can find them in the ``attr.validators`` package.
+  `#425 <https://github.com/python-attrs/attrs/issues/425>`_
+- Fixed stub files to prevent errors raised by mypy's ``disallow_any_generics = True`` option.
+  `#443 <https://github.com/python-attrs/attrs/issues/443>`_
+- Attributes with ``init=False`` now can follow after ``kw_only=True`` attributes.
+  `#450 <https://github.com/python-attrs/attrs/issues/450>`_
+- ``attrs`` now has first class support for defining exception classes.
+
+  If you define a class using ``@attr.s(auto_exc=True)`` and subclass an exception, the class will behave like a well-behaved exception class including an appropriate ``__str__`` method, and all attributes additionally available in an ``args`` attribute.
+  `#500 <https://github.com/python-attrs/attrs/issues/500>`_
+- Clarified documentation for hashing to warn that hashable objects should be deeply immutable (in their usage, even if this is not enforced).
+  `#503 <https://github.com/python-attrs/attrs/issues/503>`_
+
+
+----
+
 
 18.2.0 (2018-09-01)
 -------------------
