@@ -5,36 +5,22 @@ jobs:
   - job: 'Test'
     pool:
       vmImage: 'Ubuntu-16.04'
-    strategy:
-      matrix:
-        Typing:
-          python.version: '3.7'
-          TOXENV: typing
-        Lint:
-          python.version: '3.7'
-          TOXENV: lint
-        tox:
-          TOXENV: py27 py34 py35 py36 py37
-        Docs:
-          python.version: '3.7'
-          TOXENV: docs
-        PyPI-Description:
-          python.version: '3.7'
-          TOXENV: pypi-description
-        Changelog:
-          python.version: '3.7'
-          TOXENV: changelog
-
     steps:
-      - task: UsePythonVersion@0
-        inputs:
-          versionSpec: '$(python.version)'
-          architecture: 'x64'
-
       - script: python -m pip install --upgrade tox codecov
         displayName: install tox
-      - script: tox -- --junitxml=report.xml
-        displayName: run tox
+
+      - script: tox -e py27,py34,py35,py36,py37 --junitxml=report.xml
+        displayName: run tox for Python runtimes
+      
+      - script: tox -e typing
+        displayName: run tox for typinh
+   
+      - script: tox -e lint,docs
+        displayName: run tox for documentation and code linting
+      
+      - script: tox -e pypi-description,changelog
+        displayName: run tox for metadata
+
       - script: |
           coverage combine
           codecov -t $(CODECOV_TOKEN)
