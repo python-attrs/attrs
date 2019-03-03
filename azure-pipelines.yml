@@ -18,7 +18,7 @@ jobs:
       - script: python -m pip install --upgrade tox codecov
         displayName: install tox
 
-      - script: tox -e py27,py34,py35,py36,py37 --junitxml=report.xml
+      - script: tox -e py27,py34,py35,py36,py37
         displayName: run tox for Python runtimes
       
       - script: tox -e typing
@@ -34,12 +34,6 @@ jobs:
           coverage combine
           codecov -t $(CODECOV_TOKEN)
         displayName: Report Coverage
-
-      - task: PublishTestResults@2
-        inputs:
-          testResultsFiles: 'report.xml'
-          testRunTitle: '$(Agent.OS) - $(Build.DefinitionName) - Python $(python.version)'
-        condition: succeededOrFailed()
 
   - job: Build_Packages
     dependsOn: 'Test'
