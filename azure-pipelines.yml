@@ -55,10 +55,10 @@ jobs:
           codecov -t $(CODECOV_TOKEN)
         displayName: Report Coverage
       - task: PublishTestResults@2
-          inputs:
-            testResultsFiles: 'report.xml'
-            testRunTitle: '$(Agent.OS) - $(Build.DefinitionName) - Python $(python.version)'
-          condition: succeededOrFailed()
+        inputs:
+          testResultsFiles: 'report.xml'
+          testRunTitle: '$(Agent.OS) - $(Build.DefinitionName) - Python $(python.version)'
+        condition: succeededOrFailed()
 
   - job: Build_Packages
     dependsOn: 'Test'
