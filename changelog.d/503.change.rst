@@ -1,1 +1,0 @@
-Clarified documentation for hashing to warn that hashable objects should be deeply immutable (in their usage, even if this is not enforced).

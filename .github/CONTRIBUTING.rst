@@ -238,7 +238,7 @@ Thank you for considering contributing to ``attrs``!
 .. _tox: https://tox.readthedocs.io/
 .. _pyenv: https://github.com/pyenv/pyenv
 .. _reStructuredText: https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
-.. _semantic newlines: http://rhodesmill.org/brandon/2012/one-sentence-per-line/
+.. _semantic newlines: https://rhodesmill.org/brandon/2012/one-sentence-per-line/
 .. _examples page: https://github.com/python-attrs/attrs/blob/master/docs/examples.rst
 .. _Hypothesis: https://hypothesis.readthedocs.io/
 .. _CI: https://travis-ci.org/python-attrs/attrs/
