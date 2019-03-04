@@ -622,8 +622,18 @@ class _ClassBuilder(object):
                 __bound_setattr(_hash_cache_field, None)
 
         # slots and frozen require __getstate__/__setstate__ to work
-        cd["__getstate__"] = slots_getstate
-        cd["__setstate__"] = slots_setstate
+        if "__getstate__" in cd:
+            if "__setstate__" not in cd:
+                raise ValueError(
+                    "__setstate__ must be implemented when __getstate__ is."
+                )
+        else:
+            if "__setstate__" in cd:
+                raise ValueError(
+                    "__getstate__ must be implemented when __setstate__ is."
+                )
+            cd["__getstate__"] = slots_getstate
+            cd["__setstate__"] = slots_setstate
 
         # Create new class based on old class and our methods.
         cls = type(self._cls)(self._cls.__name__, self._cls.__bases__, cd)

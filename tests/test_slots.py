@@ -1,7 +1,7 @@
 """
 Unit tests for slot-related functionality.
 """
-
+import pickle
 import weakref
 
 import pytest
@@ -529,3 +529,55 @@ def tests_weakref_does_not_add_with_weakref_attribute():
     w = weakref.ref(c)
 
     assert c is w()
+
+
+@attr.s(slots=True)
+class CustomGetSetState(object):
+    a = attr.ib()
+    b = attr.ib()
+
+    def __getstate__(self):
+        """Modify value for `b` just to test that this method is called."""
+        return self.a, self.b + "_placeholder"
+
+    def __setstate__(self, state):
+        """Modify value for `b` just to test that this method is called."""
+        self.a, self.b = state
+        self.b += "_reconstructed"
+
+
+def test_custom_getstate_setstate_effective():
+    """
+    Custom __getstate__ and __setstate__ are used when implemented.
+    """
+    c = CustomGetSetState("a", "b")
+    assert ("a", "b_placeholder") == c.__getstate__()
+
+    c.__setstate__(("other_a", "b"))
+    assert CustomGetSetState("other_a", "b_reconstructed") == c
+
+    c_new = pickle.loads(pickle.dumps(CustomGetSetState("a", "b")))
+    assert CustomGetSetState("a", "b_placeholder_reconstructed") == c_new
+
+
+def test_raise_on_only_one_of_getstate_setstate_implemented():
+    """
+    ValueError raised if only one of __getstate__, __setstate__ implemented.
+    """
+    with pytest.raises(ValueError):
+
+        @attr.s(slots=True)
+        class CustomGetStateOnly(object):
+            a = attr.ib()
+
+            def __getstate__(self):
+                return self.a
+
+    with pytest.raises(ValueError):
+
+        @attr.s(slots=True)
+        class CustomSetStateOnly(object):
+            a = attr.ib()
+
+            def __setstate__(self, state):
+                self.a = state
