@@ -53,7 +53,7 @@ Immutability
 
 In order to give you immutability, ``attrs`` will attach a ``__setattr__`` method to your class that raises a :exc:`attr.exceptions.FrozenInstanceError` whenever anyone tries to set an attribute.
 
-Depending on whether a class is a dict class or a slots class, ``attrs`` uses a different technique to circumvent that limitation in the ``__init__`` method.
+Depending on whether a class is a dict class or a slotted class, ``attrs`` uses a different technique to circumvent that limitation in the ``__init__`` method.
 
 Once constructed, frozen instances don't differ in any way from regular ones except that you cannot change its attributes.
 
@@ -66,10 +66,10 @@ Dict classes -- i.e. regular classes -- simply assign the value directly into th
 The performance impact is negligible.
 
 
-Slots Classes
-+++++++++++++
+Slotted Classes
++++++++++++++++
 
-Slots classes are more complicated.
+Slotted classes are more complicated.
 Here it uses (an aggressively cached) :meth:`object.__setattr__` to set your attributes.
 This is (still) slower than a plain assignment:
 

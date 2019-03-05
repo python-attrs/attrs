@@ -107,7 +107,7 @@ else:  # Python 3 and later.
         """
         warnings.warn(
             "Missing ctypes.  Some features like bare super() or accessing "
-            "__class__ will not work with slots classes.",
+            "__class__ will not work with slotted classes.",
             RuntimeWarning,
             stacklevel=2,
         )
