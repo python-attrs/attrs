@@ -593,16 +593,19 @@ class _ClassBuilder(object):
         if qualname is not None:
             cd["__qualname__"] = qualname
 
-        # __weakref__ is not writable.
-        state_attr_names = tuple(
-            an for an in self._attr_names if an != "__weakref__"
-        )
+        def get_state_attr_names(self):
+            # __weakref__ is not writable.
+            return (
+                a.name for a in self.__attrs_attrs__ if a.name != "__weakref__"
+            )
 
         def slots_getstate(self):
             """
             Automatically created by attrs.
             """
-            return tuple(getattr(self, name) for name in state_attr_names)
+            return tuple(
+                getattr(self, name) for name in get_state_attr_names(self)
+            )
 
         hash_caching_enabled = self._cache_hash
 
@@ -611,7 +614,7 @@ class _ClassBuilder(object):
             Automatically created by attrs.
             """
             __bound_setattr = _obj_setattr.__get__(self, Attribute)
-            for name, value in zip(state_attr_names, state):
+            for name, value in zip(get_state_attr_names(self), state):
                 __bound_setattr(name, value)
             # Clearing the hash code cache on deserialization is needed
             # because hash codes can change from run to run. See issue
@@ -622,16 +625,18 @@ class _ClassBuilder(object):
                 __bound_setattr(_hash_cache_field, None)
 
         # slots and frozen require __getstate__/__setstate__ to work
-        if "__getstate__" in cd:
-            if "__setstate__" not in cd:
+        if hasattr(self._cls, "__getstate__"):
+            if not hasattr(self._cls, "__setstate__"):
                 raise ValueError(
                     "__setstate__ must be implemented when __getstate__ is."
                 )
         else:
-            if "__setstate__" in cd:
-                raise ValueError(
-                    "__getstate__ must be implemented when __setstate__ is."
-                )
+            # TODO look closer! Some classes (like Exception) implements
+            # __setstate__ only together with custom __reduce__
+            # if hasattr(self._cls, "__setstate__"):
+            #     raise ValueError(
+            #         "__getstate__ must be implemented when __setstate__ is."
+            #     )
             cd["__getstate__"] = slots_getstate
             cd["__setstate__"] = slots_setstate
 
