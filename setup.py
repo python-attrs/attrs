@@ -41,7 +41,7 @@ EXTRAS_REQUIRE = {
         "coverage",
         "hypothesis",
         "pympler",
-        "pytest",
+        "pytest>=4.3.0",  # 4.3.0 dropped last use of `convert`
         "six",
         "zope.interface",
     ],
