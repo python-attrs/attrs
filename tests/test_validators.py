@@ -92,7 +92,6 @@ def always_fail(_, __, ___):
 
 
 class TestAnd(object):
-
     def test_in_all(self):
         """
         Verify that this validator is in ``__all__``.
