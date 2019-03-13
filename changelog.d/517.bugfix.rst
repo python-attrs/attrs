@@ -1,0 +1,1 @@
+Updated ``attr.validators.__all__`` to include new validators added in `#425 <https://github.com/python-attrs/attrs/pull/425>`_.

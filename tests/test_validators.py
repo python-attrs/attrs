@@ -31,6 +31,12 @@ class TestInstanceOf(object):
     Tests for `instance_of`.
     """
 
+    def test_in_all(self):
+        """
+        Verify that this validator is in ``__all__``.
+        """
+        assert instance_of.__name__ in validator_module.__all__
+
     def test_success(self):
         """
         Nothing happens if types match.
@@ -86,6 +92,12 @@ def always_fail(_, __, ___):
 
 
 class TestAnd(object):
+    def test_in_all(self):
+        """
+        Verify that this validator is in ``__all__``.
+        """
+        assert and_.__name__ in validator_module.__all__
+
     def test_success(self):
         """
         Succeeds if all wrapped validators succeed.
@@ -131,6 +143,12 @@ class TestProvides(object):
     """
     Tests for `provides`.
     """
+
+    def test_in_all(self):
+        """
+        Verify that this validator is in ``__all__``.
+        """
+        assert provides.__name__ in validator_module.__all__
 
     def test_success(self):
         """
@@ -183,6 +201,12 @@ class TestOptional(object):
     """
     Tests for `optional`.
     """
+
+    def test_in_all(self, validator):
+        """
+        Verify that this validator is in ``__all__``.
+        """
+        assert optional.__name__ in validator_module.__all__
 
     def test_success(self, validator):
         """
@@ -239,6 +263,12 @@ class TestIn_(object):
     Tests for `in_`.
     """
 
+    def test_in_all(self):
+        """
+        Verify that this validator is in ``__all__``.
+        """
+        assert in_.__name__ in validator_module.__all__
+
     def test_success_with_value(self):
         """
         If the value is in our options, nothing happens.
@@ -280,6 +310,12 @@ class TestDeepIterable(object):
     """
     Tests for `deep_iterable`.
     """
+
+    def test_in_all(self):
+        """
+        Verify that this validator is in ``__all__``.
+        """
+        assert deep_iterable.__name__ in validator_module.__all__
 
     def test_success_member_only(self):
         """
@@ -395,6 +431,12 @@ class TestDeepMapping(object):
     Tests for `deep_mapping`.
     """
 
+    def test_in_all(self):
+        """
+        Verify that this validator is in ``__all__``.
+        """
+        assert deep_mapping.__name__ in validator_module.__all__
+
     def test_success(self):
         """
         If both the key and value validators succeed, nothing happens.
@@ -484,6 +526,12 @@ class TestIsCallable(object):
     """
     Tests for `is_callable`.
     """
+
+    def test_in_all(self):
+        """
+        Verify that this validator is in ``__all__``.
+        """
+        assert is_callable.__name__ in validator_module.__all__
 
     def test_success(self):
         """
