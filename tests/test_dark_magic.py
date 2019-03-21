@@ -154,7 +154,7 @@ class TestDarkMagic(object):
         with pytest.raises(TypeError) as e:
             cls("1", 2)
 
-        # Using C1 explicitly, since slot classes don't support this.
+        # Using C1 explicitly, since slotted classes don't support this.
         assert (
             "'x' must be <{type} 'int'> (got '1' that is a <{type} "
             "'str'>).".format(type=TYPE),

@@ -1,5 +1,5 @@
 """
-Unit tests for slot-related functionality.
+Unit tests for slots-related functionality.
 """
 
 import weakref
@@ -125,7 +125,7 @@ def test_basic_attr_funcs():
 
 def test_inheritance_from_nonslots():
     """
-    Inheritance from a non-slot class works.
+    Inheritance from a non-slotted class works.
 
     Note that a slotted class inheriting from an ordinary class loses most of
     the benefits of slotted classes, but it should still work.
@@ -224,7 +224,7 @@ def test_nonslots_these():
 
 def test_inheritance_from_slots():
     """
-    Inheriting from an attr slot class works.
+    Inheriting from an attrs slotted class works.
     """
 
     @attr.s(slots=True, hash=True)
@@ -267,7 +267,7 @@ def test_inheritance_from_slots():
 
 def test_bare_inheritance_from_slots():
     """
-    Inheriting from a bare attr slot class works.
+    Inheriting from a bare attrs slotted class works.
     """
 
     @attr.s(init=False, cmp=False, hash=False, repr=False, slots=True)
@@ -342,7 +342,7 @@ def test_bare_inheritance_from_slots():
 class TestClosureCellRewriting(object):
     def test_closure_cell_rewriting(self):
         """
-        Slot classes support proper closure cell rewriting.
+        Slotted classes support proper closure cell rewriting.
 
         This affects features like `__class__` and the no-arg super().
         """
@@ -358,7 +358,7 @@ class TestClosureCellRewriting(object):
 
     def test_inheritance(self):
         """
-        Slot classes support proper closure cell rewriting when inheriting.
+        Slotted classes support proper closure cell rewriting when inheriting.
 
         This affects features like `__class__` and the no-arg super().
         """
@@ -389,7 +389,7 @@ class TestClosureCellRewriting(object):
     @pytest.mark.parametrize("slots", [True, False])
     def test_cls_static(self, slots):
         """
-        Slot classes support proper closure cell rewriting for class- and
+        Slotted classes support proper closure cell rewriting for class- and
         static methods.
         """
         # Python can reuse closure cells, so we create new classes just for
