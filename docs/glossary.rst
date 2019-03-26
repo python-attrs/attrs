@@ -37,7 +37,7 @@ Glossary
         If you must inherit from other classes, try to inherit only from other slot classes.
 
       - Slotted classes must implement :meth:`__getstate__ <object.__getstate__>` and :meth:`__setstate__ <object.__setstate__>` to be serializable with :mod:`pickle` protocol 0 and 1.
-        Therefore, ``attrs`` create these methods automatically for ``slots=True`` classes (Python 2 uses protocol 0 by default).
+        Therefore, ``attrs`` creates these methods automatically for ``slots=True`` classes (Python 2 uses protocol 0 by default).
 
         .. note::
 
