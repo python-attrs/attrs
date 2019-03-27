@@ -412,6 +412,7 @@ class TestClosureCellRewriting(object):
 
         assert D.statmethod() is D
 
+    @pytest.mark.skipif(PYPY, reason="set_closure_cell always works on PyPy")
     def test_code_hack_failure(self, monkeypatch):
         """
         Keeps working if function/code object introspection doesn't work
