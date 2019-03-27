@@ -148,7 +148,7 @@ def make_set_closure_cell():
         # This function will be eliminated as dead code, but
         # not before its reference to `x` forces `x` to be
         # represented as a closure cell rather than a local.
-        def force_x_to_be_a_cell():
+        def force_x_to_be_a_cell():  # pragma: no cover
             return x
 
     try:
@@ -159,7 +159,7 @@ def make_set_closure_cell():
         else:
             co = set_first_cellvar_to.__code__
         if co.co_cellvars != ("x",) or co.co_freevars != ():
-            raise AssertionError
+            raise AssertionError  # pragma: no cover
 
         # Convert this code object to a code object that sets the
         # function's first _freevar_ (not cellvar) to the argument.
@@ -201,7 +201,7 @@ def make_set_closure_cell():
             x = None
 
             def func():
-                return x
+                return x  # pragma: no cover
 
             return func
 
@@ -211,7 +211,7 @@ def make_set_closure_cell():
             cell = make_func_with_cell().__closure__[0]
         set_closure_cell(cell, 100)
         if cell.cell_contents != 100:
-            raise AssertionError
+            raise AssertionError  # pragma: no cover
 
     except Exception:
         return just_warn
