@@ -165,7 +165,7 @@ def simple_classes(
 
     By default, all combinations of slots, frozen, and weakref_slot classes
     will be generated.  If `slots=True` is passed in, only slotted classes will
-    be generated, and if `slots=False` is passed in, no slot classes will be
+    be generated, and if `slots=False` is passed in, no slotted classes will be
     generated. The same applies to `frozen` and `weakref_slot`.
 
     By default, some attributes will be private (i.e. prefixed with an

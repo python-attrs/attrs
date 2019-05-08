@@ -34,7 +34,7 @@ Glossary
           AttributeError: 'Coordinates' object has no attribute 'z'
 
       - Slotted classes can inherit from other classes just like non-slotted classes, but some of the benefits of slotted classes are lost if you do that.
-        If you must inherit from other classes, try to inherit only from other slot classes.
+        If you must inherit from other classes, try to inherit only from other slotted classes.
 
       - Slotted classes must implement :meth:`__getstate__ <object.__getstate__>` and :meth:`__setstate__ <object.__setstate__>` to be serializable with :mod:`pickle` protocol 0 and 1.
         Therefore, ``attrs`` creates these methods automatically for ``slots=True`` classes (Python 2 uses protocol 0 by default).

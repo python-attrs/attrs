@@ -101,10 +101,10 @@ Here are some tips for effective use of metadata:
 
     >>> MY_TYPE_METADATA = '__my_type_metadata'
     >>>
-    >>> def typed(cls, default=attr.NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata={}):
+    >>> def typed(cls, default=attr.NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, metadata={}, type=None, converter=None):
     ...     metadata = dict() if not metadata else metadata
     ...     metadata[MY_TYPE_METADATA] = cls
-    ...     return attr.ib(default, validator, repr, cmp, hash, init, convert, metadata)
+    ...     return attr.ib(default, validator, repr, cmp, hash, init, metadata, type, converter)
     >>>
     >>> @attr.s
     ... class C(object):

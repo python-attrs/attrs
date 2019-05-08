@@ -219,7 +219,7 @@ def has(cls):
     :param type cls: Class to introspect.
     :raise TypeError: If *cls* is not a class.
 
-    :rtype: :class:`bool`
+    :rtype: bool
     """
     return getattr(cls, "__attrs_attrs__", None) is not None
 
