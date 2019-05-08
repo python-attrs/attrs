@@ -9,8 +9,8 @@
    :target: https://www.attrs.org/en/stable/?badge=stable
    :alt: Documentation Status
 
-.. image:: https://travis-ci.org/python-attrs/attrs.svg?branch=master
-   :target: https://travis-ci.org/python-attrs/attrs
+.. image:: https://attrs.visualstudio.com/attrs/_apis/build/status/python-attrs.attrs?branchName=master
+   :target: https://attrs.visualstudio.com/attrs/_build/latest?definitionId=1&branchName=master
    :alt: CI Status
 
 .. image:: https://codecov.io/github/python-attrs/attrs/branch/master/graph/badge.svg
