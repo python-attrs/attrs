@@ -2,6 +2,7 @@
 Unit tests for slots-related functionality.
 """
 
+import types
 import weakref
 
 import pytest
@@ -411,14 +412,17 @@ class TestClosureCellRewriting(object):
 
         assert D.statmethod() is D
 
-    @pytest.mark.skipif(PYPY, reason="ctypes are used only on CPython")
-    def test_missing_ctypes(self, monkeypatch):
+    @pytest.mark.skipif(PYPY, reason="set_closure_cell always works on PyPy")
+    def test_code_hack_failure(self, monkeypatch):
         """
-        Keeps working if ctypes is missing.
+        Keeps working if function/code object introspection doesn't work
+        on this (nonstandard) interpeter.
 
         A warning is emitted that points to the actual code.
         """
-        monkeypatch.setattr(attr._compat, "import_ctypes", lambda: None)
+        # This is a pretty good approximation of the behavior of
+        # the actual types.CodeType on Brython.
+        monkeypatch.setattr(types, "CodeType", lambda: None)
         func = make_set_closure_cell()
 
         with pytest.warns(RuntimeWarning) as wr:
@@ -427,7 +431,8 @@ class TestClosureCellRewriting(object):
         w = wr.pop()
         assert __file__ == w.filename
         assert (
-            "Missing ctypes.  Some features like bare super() or accessing "
+            "Running interpreter doesn't sufficiently support code object "
+            "introspection.  Some features like bare super() or accessing "
             "__class__ will not work with slotted classes.",
         ) == w.message.args
 
