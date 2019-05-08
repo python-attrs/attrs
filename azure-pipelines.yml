@@ -34,6 +34,14 @@ jobs:
           python.version: '3.7'
           TOXENV: py37
 
+        pypy2:
+          python.version: 'pypy2'
+          TOXENV: pypy
+        pypy3:
+          python.version: 'pypy3'
+          TOXENV: pypy3
+
+
         Docs:
           python.version: '3.7'
           TOXENV: docs
