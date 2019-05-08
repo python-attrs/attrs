@@ -47,18 +47,13 @@ jobs:
 
       - script: python -m pip install --upgrade tox codecov
         displayName: install tox
-      - script: env ATTRS_TEST_EXTRAS=azure-pipelines tox -- --junitxml=report.xml
+      - script: env ATTRS_TEST_EXTRAS=azure-pipelines tox
         displayName: run tox
       - script: |
           coverage combine
           codecov -t $(CODECOV_TOKEN)
         displayName: Report Coverage
         condition: succeeded()
-      - task: PublishTestResults@2
-        inputs:
-          testResultsFiles: 'report.xml'
-          testRunTitle: '$(Agent.OS) - $(Build.DefinitionName) - Python $(python.version)'
-        condition: succeededOrFailed()
 
   - job: Build_Packages
     dependsOn: 'Test'
