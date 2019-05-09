@@ -40,7 +40,7 @@ class C1(object):
     if not PY2:
 
         def my_class(self):
-            return __class__  # NOQA: F821
+            return __class__
 
         def my_super(self):
             """Just to test out the no-arg super."""
@@ -66,7 +66,7 @@ class C1Slots(object):
     if not PY2:
 
         def my_class(self):
-            return __class__  # NOQA: F821
+            return __class__
 
         def my_super(self):
             """Just to test out the no-arg super."""
@@ -367,12 +367,12 @@ class TestClosureCellRewriting(object):
         @attr.s
         class C2(C1):
             def my_subclass(self):
-                return __class__  # NOQA: F821
+                return __class__
 
         @attr.s
         class C2Slots(C1Slots):
             def my_subclass(self):
-                return __class__  # NOQA: F821
+                return __class__
 
         non_slot_instance = C2(x=1, y="test")
         slot_instance = C2Slots(x=1, y="test")
@@ -400,7 +400,7 @@ class TestClosureCellRewriting(object):
         class C:
             @classmethod
             def clsmethod(cls):
-                return __class__  # noqa: F821
+                return __class__
 
         assert C.clsmethod() is C
 
@@ -408,7 +408,7 @@ class TestClosureCellRewriting(object):
         class D:
             @staticmethod
             def statmethod():
-                return __class__  # noqa: F821
+                return __class__
 
         assert D.statmethod() is D
 
