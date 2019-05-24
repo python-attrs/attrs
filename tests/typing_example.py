@@ -1,4 +1,4 @@
-from typing import Any, List, Dict, Tuple
+from typing import Any, Dict, List, Tuple
 
 import attr
 
