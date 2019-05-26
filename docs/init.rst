@@ -1,7 +1,7 @@
 Initialization
 ==============
 
-In Python, instance intialization happens in the ``__init__`` method.
+In Python, instance initialization happens in the ``__init__`` method.
 Generally speaking, you should keep as little logic as possible in it, and you should think about what the class needs and not how it is going to be instantiated.
 
 Passing complex objects into ``__init__`` and then using them to derive data for the class unnecessarily couples your new class with the old class which makes it harder to test and also will cause problems later.
