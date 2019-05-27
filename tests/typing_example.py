@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, Dict, List, Tuple
 
 import attr
 
@@ -114,3 +114,40 @@ except Error as e:
 
 # ConvCDefaultIfNone(1)
 # ConvCDefaultIfNone(None)
+
+
+# Validators
+@attr.s
+class Validated:
+    a = attr.ib(
+        type=List[C],
+        validator=attr.validators.deep_iterable(
+            attr.validators.instance_of(C), attr.validators.instance_of(list)
+        ),
+    )
+    a = attr.ib(
+        type=Tuple[C],
+        validator=attr.validators.deep_iterable(
+            attr.validators.instance_of(C), attr.validators.instance_of(tuple)
+        ),
+    )
+    b = attr.ib(
+        type=List[C],
+        validator=attr.validators.deep_iterable(
+            attr.validators.instance_of(C)
+        ),
+    )
+    c = attr.ib(
+        type=Dict[C, D],
+        validator=attr.validators.deep_mapping(
+            attr.validators.instance_of(C),
+            attr.validators.instance_of(D),
+            attr.validators.instance_of(dict),
+        ),
+    )
+    d = attr.ib(
+        type=Dict[C, D],
+        validator=attr.validators.deep_mapping(
+            attr.validators.instance_of(C), attr.validators.instance_of(D)
+        ),
+    )
