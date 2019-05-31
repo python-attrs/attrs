@@ -8,7 +8,7 @@ trigger:
 jobs:
   - job: 'Test'
     pool:
-      vmImage: 'Ubuntu-16.04'
+      vmImage: 'ubuntu-latest'
     strategy:
       matrix:
         Typing:
@@ -59,11 +59,13 @@ jobs:
           architecture: 'x64'
 
       - script: python -m pip install --upgrade tox codecov
-        displayName: install tox
+        displayName: install tox & codecov
       - script: env ATTRS_TEST_EXTRAS=azure-pipelines tox
         displayName: run tox
       - script: |
           coverage combine
-          codecov -t $(CODECOV_TOKEN)
+          codecov
+        env:
+          CODECOV_TOKEN: $(CODECOV_TOKEN)
         displayName: Report Coverage
         condition: succeeded()
