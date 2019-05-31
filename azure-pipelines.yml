@@ -68,6 +68,6 @@ jobs:
           coverage combine
           codecov
         env:
-          CODECOV_TOKEN: $(CODECOV_TOKEN)
+          CODECOV_TOKEN: $(codecov.token)
         displayName: Report Coverage
         condition: succeeded()
