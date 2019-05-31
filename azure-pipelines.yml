@@ -61,7 +61,7 @@ jobs:
         name: pyTools
 
       - script: $(pyTools.pythonLocation)/bin/pip install --upgrade tox codecov
-        displayName: Install Python-based utilities.
+        displayName: Install Python-based tools.
 
       - task: UsePythonVersion@0
         inputs:
