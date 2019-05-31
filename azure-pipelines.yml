@@ -64,7 +64,7 @@ jobs:
       - script: tox -e $(tox.env)
         env:
           TOX_AP_TEST_EXTRAS: azure-pipelines
-        displayName: run tox
+        displayName: run tox -e $(tox.env)
 
       - script: |
           coverage combine
