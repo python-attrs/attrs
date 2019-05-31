@@ -1,9 +1,6 @@
 ---
-
-# Don't have two build jobs for each pull request.
 trigger:
   - master
-
 
 jobs:
   - job: 'Test'
