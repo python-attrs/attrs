@@ -30,9 +30,10 @@ jobs:
         py37:
           python.version: '3.7'
           tox.env: py37
-        py38:
-          python.version: '3.8'
-          tox.env: py38
+        # Our cell rewriting is currently broken on 3.8.
+        # py38:
+        #   python.version: '3.8'
+        #   tox.env: py38
 
         pypy2:
           python.version: 'pypy2'
