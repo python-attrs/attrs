@@ -54,21 +54,29 @@ jobs:
 
     steps:
       - task: UsePythonVersion@0
+        displayName: Get Python for Python tools.
+        inputs:
+          versionSpec: '3.7'
+          addToPath: false
+        name: pyTools
+
+      - script: $(pyTools.pythonLocation)/bin/pip install --upgrade tox codecov
+        displayName: Install Python-based utilities.
+
+      - task: UsePythonVersion@0
         inputs:
           versionSpec: '$(python.version)'
           architecture: 'x64'
+        displayName: Get Python for tests.
 
-      - script: python -m pip install --upgrade tox codecov
-        displayName: install tox & codecov
-
-      - script: tox -e $(tox.env)
+      - script: $(pyTools.pythonLocation)/bin/tox -e $(tox.env)
         env:
           TOX_AP_TEST_EXTRAS: azure-pipelines
         displayName: run tox -e $(tox.env)
 
       - script: |
-          coverage combine
-          codecov
+          $(pyTools.pythonLocation)/bin/coverage combine
+          $(pyTools.pythonLocation)/bin/codecov
         env:
           CODECOV_TOKEN: $(codecov.token)
         displayName: Report Coverage
