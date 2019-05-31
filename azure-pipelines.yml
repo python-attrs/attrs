@@ -60,10 +60,12 @@ jobs:
 
       - script: python -m pip install --upgrade tox codecov
         displayName: install tox & codecov
+
       - script: tox -e $(tox.env)
         env:
           TOX_AP_TEST_EXTRAS: azure-pipelines
         displayName: run tox
+
       - script: |
           coverage combine
           codecov
