@@ -13,44 +13,44 @@ jobs:
       matrix:
         Typing:
           python.version: '3.7'
-          TOXENV: typing
+          tox.env: typing
         Lint:
           python.version: '3.7'
-          TOXENV: lint
+          tox.env: lint
 
         py27:
           python.version: '2.7'
-          TOXENV: py27
+          tox.env: py27
         py34:
           python.version: '3.4'
-          TOXENV: py34
+          tox.env: py34
         py35:
           python.version: '3.5'
-          TOXENV: py35
+          tox.env: py35
         py36:
           python.version: '3.6'
-          TOXENV: py36
+          tox.env: py36
         py37:
           python.version: '3.7'
-          TOXENV: py37
+          tox.env: py37
 
         pypy2:
           python.version: 'pypy2'
-          TOXENV: pypy
+          tox.env: pypy
         pypy3:
           python.version: 'pypy3'
-          TOXENV: pypy3
+          tox.env: pypy3
 
 
         Docs:
           python.version: '3.7'
-          TOXENV: docs
+          tox.env: docs
         PyPI-Description:
           python.version: '3.7'
-          TOXENV: pypi-description
+          tox.env: pypi-description
         Changelog:
           python.version: '3.7'
-          TOXENV: changelog
+          tox.env: changelog
 
     steps:
       - task: UsePythonVersion@0
@@ -60,7 +60,10 @@ jobs:
 
       - script: python -m pip install --upgrade tox codecov
         displayName: install tox & codecov
-      - script: env ATTRS_TEST_EXTRAS=azure-pipelines tox
+      - script: tox -e $(tox.env)
+        displayName: run tox
+        env:
+          TOX_AP_TEST_EXTRAS=azure-pipelines
         displayName: run tox
       - script: |
           coverage combine
