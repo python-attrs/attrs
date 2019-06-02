@@ -84,7 +84,8 @@ jobs:
         displayName: run tox -e $(tox.env)
 
       - script: |
-          $(pyTools.pythonLocation)/bin/coverage combine
+          python -m pip install coverage
+          coverage combine
           $(pyTools.pythonLocation)/bin/codecov
         env:
           CODECOV_TOKEN: $(codecov.token)
