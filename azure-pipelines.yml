@@ -86,8 +86,6 @@ jobs:
           PY=python$(python.version)
           which $PY
           $PY -m pip install coverage
-          $PY -m pip list -v
-          which coverage
           $PY -m coverage combine
           $(pyTools.pythonLocation)/bin/codecov
         env:
