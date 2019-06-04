@@ -86,7 +86,7 @@ jobs:
           which python
           python -m pip install -U pip setuptools
           python -m pip install coverage
-          pip list -v
+          python -m pip list -v
           which coverage
           python -m coverage combine
           $(pyTools.pythonLocation)/bin/codecov
