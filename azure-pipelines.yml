@@ -83,14 +83,13 @@ jobs:
         displayName: run tox -e $(tox.env)
 
       - script: |
-          python3 -V
-          which python3
-          which python3.8
-          python3 -m pip install -U pip setuptools
-          python3 -m pip install coverage
-          python3 -m pip list -v
+          PY=python${python.version}
+          which $PY
+          $PY -m pip install -U pip setuptools
+          $PY -m pip install coverage
+          $PY -m pip list -v
           which coverage
-          python3 -m coverage combine
+          $PY -m coverage combine
           $(pyTools.pythonLocation)/bin/codecov
         env:
           CODECOV_TOKEN: $(codecov.token)
