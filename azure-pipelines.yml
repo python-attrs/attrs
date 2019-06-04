@@ -84,6 +84,7 @@ jobs:
 
       - script: |
           python -m pip install coverage
+          which coverage
           python -m coverage combine
           $(pyTools.pythonLocation)/bin/codecov
         env:
