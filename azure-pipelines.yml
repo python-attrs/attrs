@@ -83,7 +83,7 @@ jobs:
         displayName: run tox -e $(tox.env)
 
       - script: |
-          PY=python${python.version}
+          PY=python$(python.version)
           which $PY
           $PY -m pip install -U pip setuptools
           $PY -m pip install coverage
