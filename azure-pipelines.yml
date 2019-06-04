@@ -85,7 +85,6 @@ jobs:
       - script: |
           PY=python$(python.version)
           which $PY
-          $PY -m pip install -U pip setuptools
           $PY -m pip install coverage
           $PY -m pip list -v
           which coverage
