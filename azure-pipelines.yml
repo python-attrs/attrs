@@ -83,7 +83,9 @@ jobs:
         displayName: run tox -e $(tox.env)
 
       - script: |
+          python -V
           which python
+          which python3.8
           python -m pip install -U pip setuptools
           python -m pip install coverage
           python -m pip list -v
