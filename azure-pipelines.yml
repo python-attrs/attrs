@@ -83,6 +83,10 @@ jobs:
         displayName: run tox -e $(tox.env)
 
       - script: |
+          # codecov shells out to "coverage", avoiding 'sudo pip' allows for
+          # package caching.
+          PATH=$HOME/.local/bin:$PATH
+
           case "$(python.version)" in
           "pypy2") PY=pypy ;;
           "pypy3") PY=pypy3 ;;
@@ -90,14 +94,11 @@ jobs:
             # 3.8 needs an up-to-date pip to work at all.
             curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
             PY=python3.8
-            sudo $PY get-pip.py
+            $PY get-pip.py --user
           ;;
           *) PY=python$(python.version) ;;
           esac
 
-          # codecov shells out to "coverage".
-          # --user allows for caching of the coverage package.
-          PATH=$HOME/.local/bin:$PATH
           $PY -m pip install --user coverage
 
           coverage combine
