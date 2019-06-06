@@ -93,6 +93,7 @@ jobs:
         
       - script: |
           which python$(python.version)
+          python$(python.version) -m pip install -U pip setuptools
           python$(python.version) -m pip install coverage
           python$(python.version) -m pip list -v
           python$(python.version) -m coverage combine
@@ -101,4 +102,3 @@ jobs:
           CODECOV_TOKEN: $(codecov.token)
         displayName: Report Coverage (deadsnakes Python)
         condition: and(succeeded(), in(variables['python.version'], '3.7', '3.8'))
-
