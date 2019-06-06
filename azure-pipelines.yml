@@ -90,7 +90,7 @@ jobs:
           CODECOV_TOKEN: $(codecov.token)
         displayName: Report Coverage
         condition: and(succeeded(), not(in(variables['python.version'], '3.7', '3.8')))
-        
+
       - script: |
           python$(python.version) -m pip install --user coverage
           PATH=$HOME/.local/bin:$PATH
