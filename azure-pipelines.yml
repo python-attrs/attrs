@@ -90,7 +90,7 @@ jobs:
             # 3.8 needs an up-to-date pip to work at all.
             curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
             PY=python3.8
-            $PY get-pip.py
+            sudo $PY get-pip.py
           ;;
           *) PY=python$(python.version) ;;
           esac
