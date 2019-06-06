@@ -83,7 +83,7 @@ jobs:
         displayName: run tox -e $(tox.env)
 
       - script: |
-          # codecov shells out to "coverage", avoiding 'sudo pip' allows for
+          # codecov shells out to "coverage" and avoiding 'sudo pip' allows for
           # package caching.
           PATH=$HOME/.local/bin:$PATH
 
