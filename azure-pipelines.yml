@@ -89,4 +89,14 @@ jobs:
         env:
           CODECOV_TOKEN: $(codecov.token)
         displayName: Report Coverage
-        condition: succeeded()
+        condition: succeeded() and not(in(variables['python.version'], '3.7', '3.8'))
+        
+      - script: |
+          python$(python.version) -m pip install coverage
+          python$(python.version) -m coverage combine
+          $(pyTools.pythonLocation)/bin/codecov
+        env:
+          CODECOV_TOKEN: $(codecov.token)
+        displayName: Report Coverage (deadsnakes Python)
+        condition: succeeded() and in(variables['python.version'], '3.7', '3.8')
+
