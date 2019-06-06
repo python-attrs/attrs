@@ -83,6 +83,11 @@ jobs:
         displayName: run tox -e $(tox.env)
 
       - script: |
+          if [ ! -f .coverage.* ]; then
+            echo No coverage data found.
+            exit 0
+          fi
+
           # codecov shells out to "coverage" and avoiding 'sudo pip' allows for
           # package caching.
           PATH=$HOME/.local/bin:$PATH
