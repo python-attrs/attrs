@@ -83,20 +83,20 @@ jobs:
         displayName: run tox -e $(tox.env)
 
       - script: |
-          python -m pip install coverage
-          python -m coverage combine
-          $(pyTools.pythonLocation)/bin/codecov
-        env:
-          CODECOV_TOKEN: $(codecov.token)
-        displayName: Report Coverage
-        condition: and(succeeded(), not(in(variables['python.version'], '3.7', '3.8')))
-
-      - script: |
-          python$(python.version) -m pip install --user coverage
+          if [ $(python.version) == pypy2 ]; then
+            which pypy2
+            PY=pypy
+          else if [ $(python.version) == pypy3 ]; then
+            PY=pypy3
+          else
+            PY=python$(python.version)
+          fi
+          $PY -m pip install --user coverage
+          # codecov shells out to "coverage".
           PATH=$HOME/.local/bin:$PATH
           coverage combine
           $(pyTools.pythonLocation)/bin/codecov
         env:
           CODECOV_TOKEN: $(codecov.token)
         displayName: Report Coverage (deadsnakes Python)
-        condition: and(succeeded(), in(variables['python.version'], '3.7', '3.8'))
+        condition: succeeded()
