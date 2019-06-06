@@ -94,7 +94,7 @@ jobs:
           esac
 
           # Python 3.8 needs an up-to-date pip.
-          if [ "$(python.version)" = "3.8"]; then
+          if [ "$(python.version)" = "3.8" ]; then
             curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
             $PY get-pip.py --user
           fi
