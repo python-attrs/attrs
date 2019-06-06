@@ -90,14 +90,14 @@ jobs:
           case "$(python.version)" in
           "pypy2") PY=pypy ;;
           "pypy3") PY=pypy3 ;;
-          "3.8")
-            # 3.8 needs an up-to-date pip to work at all.
-            curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-            PY=python3.8
-            $PY get-pip.py --user
-          ;;
           *) PY=python$(python.version) ;;
           esac
+
+          # Python 3.8 needs an up-to-date pip.
+          if [ "$(python.version)" = "3.8"]; then
+            curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+            $PY get-pip.py --user
+          fi
 
           $PY -m pip install --user coverage
 
