@@ -60,7 +60,7 @@ jobs:
           addToPath: false
         name: pyTools
 
-      - script: $(pyTools.pythonLocation)/bin/pip install --upgrade tox codecov
+      - script: $(pyTools.pythonLocation)/bin/pip install --upgrade tox
         displayName: Install Python-based tools.
 
       - task: UsePythonVersion@0
@@ -68,14 +68,14 @@ jobs:
           versionSpec: '$(python.version)'
           architecture: 'x64'
         condition: not(in(variables['python.version'], '3.7', '3.8'))
-        displayName: Get Python for tests.
+        displayName: Use cached Python $(python.version) for tests.
 
       - script: |
           sudo add-apt-repository ppa:deadsnakes
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends python$(python.version)-dev python$(python.version)-distutils
         condition: in(variables['python.version'], '3.7', '3.8')
-        displayName: Install Python $(python.version) from the deadsnakes PPA.
+        displayName: Install Python $(python.version) from the deadsnakes PPA for tests.
 
       - script: $(pyTools.pythonLocation)/bin/tox -e $(tox.env)
         env:
@@ -83,9 +83,26 @@ jobs:
         displayName: run tox -e $(tox.env)
 
       - script: |
-          python -m pip install coverage
-          python -m coverage combine
-          $(pyTools.pythonLocation)/bin/codecov
+          # codecov shells out to "coverage" and avoiding 'sudo pip' allows for
+          # package caching.
+          PATH=$HOME/.local/bin:$PATH
+
+          case "$(python.version)" in
+          "pypy2") PY=pypy ;;
+          "pypy3") PY=pypy3 ;;
+          *) PY=python$(python.version) ;;
+          esac
+
+          # Python 3.8 needs an up-to-date pip.
+          if [ "$(python.version)" = "3.8" ]; then
+            curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+            $PY get-pip.py --user
+          fi
+
+          $PY -m pip install --user coverage codecov
+
+          coverage combine
+          codecov
         env:
           CODECOV_TOKEN: $(codecov.token)
         displayName: Report Coverage
