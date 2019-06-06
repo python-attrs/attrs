@@ -88,8 +88,9 @@ jobs:
           "pypy3") PY=pypy3 ;;
           "3.8")
             # 3.8 needs an up-to-date pip to work at all.
-            python3.8 -m ensurepip --upgrade
+            curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
             PY=python3.8
+            $PY get-pip.py
           ;;
           *) PY=python$(python.version) ;;
           esac
