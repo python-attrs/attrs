@@ -84,24 +84,18 @@ jobs:
 
       - script: |
           case "$(python.version)" in
-          "pypy2")
-            which pypy2
-            PY=pypy
-          ;;
-          "pypy3")
-            PY=pypy3
-          ;;
-          *)
-            PY=python$(python.version)
-          ;;
+          "pypy2") PY=pypy ;;
+          "pypy3") PY=pypy3 ;;
+          *) PY=python$(python.version) ;;
           esac
-          
-          $PY -m pip install --user coverage
+
           # codecov shells out to "coverage".
           PATH=$HOME/.local/bin:$PATH
+          $PY -m pip install --user coverage
+
           coverage combine
           $(pyTools.pythonLocation)/bin/codecov
         env:
           CODECOV_TOKEN: $(codecov.token)
-        displayName: Report Coverage (deadsnakes Python)
+        displayName: Report Coverage
         condition: succeeded()
