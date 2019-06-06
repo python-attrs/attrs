@@ -94,7 +94,7 @@ jobs:
       - script: |
           which python$(python.version)
           python$(python.version) -m pip install -U pip setuptools
-          python$(python.version) -m pip install coverage
+          python$(python.version) -m pip install --user coverage
           python$(python.version) -m pip list -v
           python$(python.version) -m coverage combine
           $(pyTools.pythonLocation)/bin/codecov
