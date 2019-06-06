@@ -83,14 +83,19 @@ jobs:
         displayName: run tox -e $(tox.env)
 
       - script: |
-          if [ $(python.version) == pypy2 ]; then
+          case "$(python.version)" in
+          "pypy2")
             which pypy2
             PY=pypy
-          else if [ $(python.version) == pypy3 ]; then
+          ;;
+          "pypy3")
             PY=pypy3
-          else
+          ;;
+          *)
             PY=python$(python.version)
-          fi
+          ;;
+          esac
+          
           $PY -m pip install --user coverage
           # codecov shells out to "coverage".
           PATH=$HOME/.local/bin:$PATH
