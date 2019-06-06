@@ -86,6 +86,9 @@ jobs:
           case "$(python.version)" in
           "pypy2") PY=pypy ;;
           "pypy3") PY=pypy3 ;;
+          "3.8")
+            python3.8 -m ensurepip --upgrade
+            PY=python3.8
           *) PY=python$(python.version) ;;
           esac
 
