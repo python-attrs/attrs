@@ -60,7 +60,7 @@ jobs:
           addToPath: false
         name: pyTools
 
-      - script: $(pyTools.pythonLocation)/bin/pip install --upgrade tox codecov
+      - script: $(pyTools.pythonLocation)/bin/pip install --upgrade tox
         displayName: Install Python-based tools.
 
       - task: UsePythonVersion@0
@@ -99,10 +99,10 @@ jobs:
             $PY get-pip.py --user
           fi
 
-          $PY -m pip install --user coverage
+          $PY -m pip install --user coverage codecocv
 
           coverage combine
-          $(pyTools.pythonLocation)/bin/codecov
+          codecov
         env:
           CODECOV_TOKEN: $(codecov.token)
         displayName: Report Coverage
