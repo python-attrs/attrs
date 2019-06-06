@@ -87,8 +87,10 @@ jobs:
           "pypy2") PY=pypy ;;
           "pypy3") PY=pypy3 ;;
           "3.8")
+            # 3.8 needs an up-to-date pip to work at all.
             python3.8 -m ensurepip --upgrade
             PY=python3.8
+          ;;
           *) PY=python$(python.version) ;;
           esac
 
