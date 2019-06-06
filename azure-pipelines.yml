@@ -92,7 +92,9 @@ jobs:
         condition: and(succeeded(), not(in(variables['python.version'], '3.7', '3.8')))
         
       - script: |
+          which python$(python.version)
           python$(python.version) -m pip install coverage
+          python$(python.version) -m pip list -v
           python$(python.version) -m coverage combine
           $(pyTools.pythonLocation)/bin/codecov
         env:
