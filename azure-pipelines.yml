@@ -96,6 +96,7 @@ jobs:
           esac
 
           # codecov shells out to "coverage".
+          # --user allows for caching of the coverage package.
           PATH=$HOME/.local/bin:$PATH
           $PY -m pip install --user coverage
 
