@@ -164,6 +164,8 @@ def make_set_closure_cell():
         # Convert this code object to a code object that sets the
         # function's first _freevar_ (not cellvar) to the argument.
         args = [co.co_argcount]
+        if sys.version_info >= (3, 8):
+            args.append(co.co_posonlyargcount)
         if not PY2:
             args.append(co.co_kwonlyargcount)
         args.extend(
