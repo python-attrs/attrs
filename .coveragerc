@@ -5,9 +5,8 @@ source =
 
 [paths]
 source =
-   src/attr
-   .tox/*/lib/python*/site-packages/attr
-   .tox/pypy/site-packages/attr
+   src
+   .tox/*/site-packages
 
 [report]
 show_missing = True

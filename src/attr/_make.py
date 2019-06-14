@@ -74,7 +74,6 @@ def attrib(
     cmp=True,
     hash=None,
     init=True,
-    convert=None,
     metadata=None,
     type=None,
     converter=None,
@@ -172,25 +171,12 @@ def attrib(
     .. versionadded:: 18.1.0
        ``factory=f`` is syntactic sugar for ``default=attr.Factory(f)``.
     .. versionadded:: 18.2.0 *kw_only*
+    .. versionchanged:: 19.2.0 *convert* keyword argument removed
     """
     if hash is not None and hash is not True and hash is not False:
         raise TypeError(
             "Invalid value for hash.  Must be True, False, or None."
         )
-
-    if convert is not None:
-        if converter is not None:
-            raise RuntimeError(
-                "Can't pass both `convert` and `converter`.  "
-                "Please use `converter` only."
-            )
-        warnings.warn(
-            "The `convert` argument is deprecated in favor of `converter`.  "
-            "It will be removed after 2019/01.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        converter = convert
 
     if factory is not None:
         if default is not NOTHING:
@@ -453,6 +439,7 @@ class _ClassBuilder(object):
         "_has_post_init",
         "_delete_attribs",
         "_base_attr_map",
+        "_is_exc",
     )
 
     def __init__(
@@ -465,6 +452,7 @@ class _ClassBuilder(object):
         auto_attribs,
         kw_only,
         cache_hash,
+        is_exc,
     ):
         attrs, base_attrs, base_map = _transform_attrs(
             cls, these, auto_attribs, kw_only
@@ -482,6 +470,7 @@ class _ClassBuilder(object):
         self._cache_hash = cache_hash
         self._has_post_init = bool(getattr(cls, "__attrs_post_init__", False))
         self._delete_attribs = not bool(these)
+        self._is_exc = is_exc
 
         self._cls_dict["__attrs_attrs__"] = self._attrs
 
@@ -688,6 +677,7 @@ class _ClassBuilder(object):
                 self._slots,
                 self._cache_hash,
                 self._base_attr_map,
+                self._is_exc,
             )
         )
 
@@ -738,6 +728,7 @@ def attrs(
     auto_attribs=False,
     kw_only=False,
     cache_hash=False,
+    auto_exc=False,
 ):
     r"""
     A class decorator that adds `dunder
@@ -843,10 +834,23 @@ def attrs(
     :param bool cache_hash: Ensure that the object's hash code is computed
         only once and stored on the object.  If this is set to ``True``,
         hashing must be either explicitly or implicitly enabled for this
-        class.  If the hash code is cached, then no attributes of this
-        class which participate in hash code computation may be mutated
-        after object creation.
+        class.  If the hash code is cached, avoid any reassignments of
+        fields involved in hash code computation or mutations of the objects
+        those fields point to after object creation.  If such changes occur,
+        the behavior of the object's hash code is undefined.
+    :param bool auto_exc: If the class subclasses :class:`BaseException`
+        (which implicitly includes any subclass of any exception), the
+        following happens to behave like a well-behaved Python exceptions
+        class:
 
+        - the values for *cmp* and *hash* are ignored and the instances compare
+          and hash by the instance's ids (N.B. ``attrs`` will *not* remove
+          existing implementations of ``__hash__`` or the equality methods. It
+          just won't add own ones.),
+        - all attributes that are either passed into ``__init__`` or have a
+          default value are additionally available as a tuple in the ``args``
+          attribute,
+        - the value of *str* is ignored leaving ``__str__`` to base classes.
 
     .. versionadded:: 16.0.0 *slots*
     .. versionadded:: 16.1.0 *frozen*
@@ -866,11 +870,15 @@ def attrs(
        to each other.
     .. versionadded:: 18.2.0 *kw_only*
     .. versionadded:: 18.2.0 *cache_hash*
+    .. versionadded:: 19.1.0 *auto_exc*
     """
 
     def wrap(cls):
+
         if getattr(cls, "__class__", None) is None:
             raise TypeError("attrs only works with new-style classes.")
+
+        is_exc = auto_exc is True and issubclass(cls, BaseException)
 
         builder = _ClassBuilder(
             cls,
@@ -881,13 +889,14 @@ def attrs(
             auto_attribs,
             kw_only,
             cache_hash,
+            is_exc,
         )
 
         if repr is True:
             builder.add_repr(repr_ns)
         if str is True:
             builder.add_str()
-        if cmp is True:
+        if cmp is True and not is_exc:
             builder.add_cmp()
 
         if hash is not True and hash is not False and hash is not None:
@@ -902,7 +911,11 @@ def attrs(
                     " hashing must be either explicitly or implicitly "
                     "enabled."
                 )
-        elif hash is True or (hash is None and cmp is True and frozen is True):
+        elif (
+            hash is True
+            or (hash is None and cmp is True and frozen is True)
+            and is_exc is False
+        ):
             builder.add_hash()
         else:
             if cache_hash:
@@ -1241,7 +1254,9 @@ def _add_repr(cls, ns=None, attrs=None):
     return cls
 
 
-def _make_init(attrs, post_init, frozen, slots, cache_hash, base_attr_map):
+def _make_init(
+    attrs, post_init, frozen, slots, cache_hash, base_attr_map, is_exc
+):
     attrs = [a for a in attrs if a.init or a.default is not NOTHING]
 
     # We cache the generated init methods for the same kinds of attributes.
@@ -1250,16 +1265,18 @@ def _make_init(attrs, post_init, frozen, slots, cache_hash, base_attr_map):
     unique_filename = "<attrs generated init {0}>".format(sha1.hexdigest())
 
     script, globs, annotations = _attrs_to_init_script(
-        attrs, frozen, slots, post_init, cache_hash, base_attr_map
+        attrs, frozen, slots, post_init, cache_hash, base_attr_map, is_exc
     )
     locs = {}
     bytecode = compile(script, unique_filename, "exec")
     attr_dict = dict((a.name, a) for a in attrs)
     globs.update({"NOTHING": NOTHING, "attr_dict": attr_dict})
+
     if frozen is True:
         # Save the lookup overhead in __init__ if we need to circumvent
         # immutability.
         globs["_cached_setattr"] = _obj_setattr
+
     eval(bytecode, globs, locs)
 
     # In order of debuggers like PDB being able to step through the code,
@@ -1273,22 +1290,8 @@ def _make_init(attrs, post_init, frozen, slots, cache_hash, base_attr_map):
 
     __init__ = locs["__init__"]
     __init__.__annotations__ = annotations
+
     return __init__
-
-
-def _add_init(cls, frozen):
-    """
-    Add a __init__ method to *cls*.  If *frozen* is True, make it immutable.
-    """
-    cls.__init__ = _make_init(
-        cls.__attrs_attrs__,
-        getattr(cls, "__attrs_post_init__", False),
-        frozen,
-        _is_slot_cls(cls),
-        cache_hash=False,
-        base_attr_map={},
-    )
-    return cls
 
 
 def fields(cls):
@@ -1376,7 +1379,7 @@ def _is_slot_attr(a_name, base_attr_map):
 
 
 def _attrs_to_init_script(
-    attrs, frozen, slots, post_init, cache_hash, base_attr_map
+    attrs, frozen, slots, post_init, cache_hash, base_attr_map, is_exc
 ):
     """
     Return a script of an initializer for *attrs* and a dict of globals.
@@ -1625,6 +1628,13 @@ def _attrs_to_init_script(
             init_hash_cache = "self.%s = %s"
         lines.append(init_hash_cache % (_hash_cache_field, "None"))
 
+    # For exceptions we rely on BaseException.__init__ for proper
+    # initialization.
+    if is_exc:
+        vals = ",".join("self." + a.name for a in attrs if a.init)
+
+        lines.append("BaseException.__init__(self, %s)" % (vals,))
+
     args = ", ".join(args)
     if kw_only_args:
         if PY2:
@@ -1682,7 +1692,6 @@ class Attribute(object):
         cmp,
         hash,
         init,
-        convert=None,
         metadata=None,
         type=None,
         converter=None,
@@ -1693,20 +1702,6 @@ class Attribute(object):
 
         # Despite the big red warning, people *do* instantiate `Attribute`
         # themselves.
-        if convert is not None:
-            if converter is not None:
-                raise RuntimeError(
-                    "Can't pass both `convert` and `converter`.  "
-                    "Please use `converter` only."
-                )
-            warnings.warn(
-                "The `convert` argument is deprecated in favor of `converter`."
-                "  It will be removed after 2019/01.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            converter = convert
-
         bound_setattr("name", name)
         bound_setattr("default", default)
         bound_setattr("validator", validator)
@@ -1729,16 +1724,6 @@ class Attribute(object):
     def __setattr__(self, name, value):
         raise FrozenInstanceError()
 
-    @property
-    def convert(self):
-        warnings.warn(
-            "The `convert` attribute is deprecated in favor of `converter`.  "
-            "It will be removed after 2019/01.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.converter
-
     @classmethod
     def from_counting_attr(cls, name, ca, type=None):
         # type holds the annotated value. deal with conflicts:
@@ -1757,7 +1742,6 @@ class Attribute(object):
                 "validator",
                 "default",
                 "type",
-                "convert",
             )  # exclude methods and deprecated alias
         }
         return cls(
@@ -1820,7 +1804,6 @@ _a = [
         init=True,
     )
     for name in Attribute.__slots__
-    if name != "convert"  # XXX: remove once `convert` is gone
 ]
 
 Attribute = _add_hash(

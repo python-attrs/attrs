@@ -93,7 +93,6 @@ def attrib(
     cmp: bool = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
-    convert: None = ...,
     metadata: Optional[Mapping[Any, Any]] = ...,
     type: None = ...,
     converter: None = ...,
@@ -110,7 +109,6 @@ def attrib(
     cmp: bool = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
-    convert: Optional[_ConverterType[_T]] = ...,
     metadata: Optional[Mapping[Any, Any]] = ...,
     type: Optional[Type[_T]] = ...,
     converter: Optional[_ConverterType[_T]] = ...,
@@ -127,7 +125,6 @@ def attrib(
     cmp: bool = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
-    convert: Optional[_ConverterType[_T]] = ...,
     metadata: Optional[Mapping[Any, Any]] = ...,
     type: Optional[Type[_T]] = ...,
     converter: Optional[_ConverterType[_T]] = ...,
@@ -144,7 +141,6 @@ def attrib(
     cmp: bool = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
-    convert: Optional[_ConverterType[_T]] = ...,
     metadata: Optional[Mapping[Any, Any]] = ...,
     type: object = ...,
     converter: Optional[_ConverterType[_T]] = ...,
@@ -167,6 +163,7 @@ def attrs(
     auto_attribs: bool = ...,
     kw_only: bool = ...,
     cache_hash: bool = ...,
+    auto_exc: bool = ...,
 ) -> _C: ...
 @overload
 def attrs(
@@ -184,6 +181,7 @@ def attrs(
     auto_attribs: bool = ...,
     kw_only: bool = ...,
     cache_hash: bool = ...,
+    auto_exc: bool = ...,
 ) -> Callable[[_C], _C]: ...
 
 # TODO: add support for returning NamedTuple from the mypy plugin
@@ -212,6 +210,7 @@ def make_class(
     auto_attribs: bool = ...,
     kw_only: bool = ...,
     cache_hash: bool = ...,
+    auto_exc: bool = ...,
 ) -> type: ...
 
 # _funcs --

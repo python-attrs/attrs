@@ -1,5 +1,5 @@
-*.pyc
 *.egg-info
+*.pyc
 .cache
 .coverage*
 .hypothesis
@@ -10,3 +10,4 @@ build
 dist
 docs/_build/
 htmlcov
+pip-wheel-metadata

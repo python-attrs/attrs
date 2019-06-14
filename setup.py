@@ -41,7 +41,7 @@ EXTRAS_REQUIRE = {
         "coverage",
         "hypothesis",
         "pympler",
-        "pytest",
+        "pytest>=4.3.0",  # 4.3.0 dropped last use of `convert`
         "six",
         "zope.interface",
     ],
@@ -49,6 +49,9 @@ EXTRAS_REQUIRE = {
 EXTRAS_REQUIRE["dev"] = (
     EXTRAS_REQUIRE["tests"] + EXTRAS_REQUIRE["docs"] + ["pre-commit"]
 )
+EXTRAS_REQUIRE["azure-pipelines"] = EXTRAS_REQUIRE["tests"] + [
+    "pytest-azurepipelines"
+]
 
 ###############################################################################
 
@@ -111,6 +114,7 @@ if __name__ == "__main__":
         maintainer_email=find_meta("email"),
         keywords=KEYWORDS,
         long_description=LONG,
+        long_description_content_type="text/x-rst",
         packages=PACKAGES,
         package_dir={"": "src"},
         python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",

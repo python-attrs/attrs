@@ -7,7 +7,16 @@ from __future__ import absolute_import, division, print_function
 from ._make import _AndValidator, and_, attrib, attrs
 
 
-__all__ = ["and_", "in_", "instance_of", "optional", "provides"]
+__all__ = [
+    "and_",
+    "deep_iterable",
+    "deep_mapping",
+    "in_",
+    "instance_of",
+    "is_callable",
+    "optional",
+    "provides",
+]
 
 
 @attrs(repr=False, slots=True, hash=True)

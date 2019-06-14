@@ -233,14 +233,14 @@ class TestAsTuple(object):
                 elif isinstance(field_val, (list, tuple)):
                     # This field holds a sequence of something.
                     expected_type = type(obj_tuple[index])
-                    assert type(field_val) is expected_type  # noqa: E721
+                    assert type(field_val) is expected_type
                     for obj_e, obj_tuple_e in zip(field_val, obj_tuple[index]):
                         if has(obj_e.__class__):
                             assert_proper_col_class(obj_e, obj_tuple_e)
                 elif isinstance(field_val, dict):
                     orig = field_val
                     tupled = obj_tuple[index]
-                    assert type(orig) is type(tupled)  # noqa: E721
+                    assert type(orig) is type(tupled)
                     for obj_e, obj_tuple_e in zip(
                         orig.items(), tupled.items()
                     ):

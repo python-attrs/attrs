@@ -210,7 +210,7 @@ If you don't set ``kw_only=True``, then there's is no valid attribute ordering a
     ...     b = attr.ib()
     Traceback (most recent call last):
       ...
-    ValueError: No mandatory attributes allowed after an attribute with a default value or factory.  Attribute in question: Attribute(name='b', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({}), type=None, kw_only=False)
+    ValueError: No mandatory attributes allowed after an attribute with a default value or factory.  Attribute in question: Attribute(name='b', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, converter=None, metadata=mappingproxy({}), type=None, kw_only=False)
 
 .. _asdict:
 

@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, Dict, List, Tuple
 
 import attr
 
@@ -80,6 +80,20 @@ HH(x=[1], y=[], z=1.1)
 c == cc
 
 
+# Exceptions
+@attr.s(auto_exc=True)
+class Error(Exception):
+    x = attr.ib()
+
+
+try:
+    raise Error(1)
+except Error as e:
+    e.x
+    e.args
+    str(e)
+
+
 # Converters
 # XXX: Currently converters can only be functions so none of this works
 # although the stubs should be correct.
@@ -100,3 +114,40 @@ c == cc
 
 # ConvCDefaultIfNone(1)
 # ConvCDefaultIfNone(None)
+
+
+# Validators
+@attr.s
+class Validated:
+    a = attr.ib(
+        type=List[C],
+        validator=attr.validators.deep_iterable(
+            attr.validators.instance_of(C), attr.validators.instance_of(list)
+        ),
+    )
+    a = attr.ib(
+        type=Tuple[C],
+        validator=attr.validators.deep_iterable(
+            attr.validators.instance_of(C), attr.validators.instance_of(tuple)
+        ),
+    )
+    b = attr.ib(
+        type=List[C],
+        validator=attr.validators.deep_iterable(
+            attr.validators.instance_of(C)
+        ),
+    )
+    c = attr.ib(
+        type=Dict[C, D],
+        validator=attr.validators.deep_mapping(
+            attr.validators.instance_of(C),
+            attr.validators.instance_of(D),
+            attr.validators.instance_of(dict),
+        ),
+    )
+    d = attr.ib(
+        type=Dict[C, D],
+        validator=attr.validators.deep_mapping(
+            attr.validators.instance_of(C), attr.validators.instance_of(D)
+        ),
+    )

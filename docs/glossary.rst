@@ -34,7 +34,7 @@ Glossary
           AttributeError: 'Coordinates' object has no attribute 'z'
 
       - Slotted classes can inherit from other classes just like non-slotted classes, but some of the benefits of slotted classes are lost if you do that.
-        If you must inherit from other classes, try to inherit only from other slot classes.
+        If you must inherit from other classes, try to inherit only from other slotted classes.
 
       - Using :mod:`pickle` with slotted classes requires pickle protocol 2 or greater.
         Python 2 uses protocol 0 by default so the protocol needs to be specified.
