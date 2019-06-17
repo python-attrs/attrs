@@ -73,11 +73,11 @@ Core
       ...     x = attr.ib()
       ...     y = attr.ib()
       ...     @x.validator
-      ...     def name_can_be_anything(self, attribute, value):
+      ...     def _any_name_except_a_name_of_an_attribute(self, attribute, value):
       ...         if value < 0:
       ...             raise ValueError("x must be positive")
       ...     @y.default
-      ...     def name_does_not_matter(self):
+      ...     def _any_name_except_a_name_of_an_attribute(self):
       ...         return self.x + 1
       >>> C(1)
       C(x=1, y=2)
