@@ -354,8 +354,15 @@ class TestDeepIterable(object):
         """
         with pytest.raises(TypeError) as e:
             deep_iterable(member_validator, iterable_validator)
+        value = 42
+        message = "must be callable (got {value} that is a {type_}).".format(
+            value=value, type_=value.__class__
+        )
 
-        e.match(r"\w* must be callable")
+        assert message in e.value.args[0]
+        assert value == e.value.args[1]
+        assert message in e.value.msg
+        assert value == e.value.value
 
     def test_fail_invalid_member(self):
         """
@@ -466,7 +473,15 @@ class TestDeepMapping(object):
         with pytest.raises(TypeError) as e:
             deep_mapping(key_validator, value_validator, mapping_validator)
 
-        e.match(r"\w* must be callable")
+        value = 42
+        message = "must be callable (got {value} that is a {type_}).".format(
+            value=value, type_=value.__class__
+        )
+
+        assert message in e.value.args[0]
+        assert value == e.value.args[1]
+        assert message in e.value.msg
+        assert value == e.value.value
 
     def test_fail_invalid_mapping(self):
         """
@@ -550,7 +565,14 @@ class TestIsCallable(object):
         with pytest.raises(TypeError) as e:
             v(None, a, None)
 
-        e.match("'test' must be callable")
+        value = None
+        message = "'test' must be callable (got {value} that is a {type_})."
+        expected_message = message.format(value=value, type_=value.__class__)
+
+        assert expected_message == e.value.args[0]
+        assert value == e.value.args[1]
+        assert expected_message == e.value.msg
+        assert value == e.value.value
 
     def test_repr(self):
         """
@@ -558,6 +580,15 @@ class TestIsCallable(object):
         """
         v = is_callable()
         assert "<is_callable validator>" == repr(v)
+
+    def test_exception_repr(self):
+        """
+        Verify that NotCallableError exception has a useful `__str__`.
+        """
+        from attr.exceptions import NotCallableError
+
+        instance = NotCallableError(msg="Some Message", value=42)
+        assert "Some Message" == str(instance)
 
 
 def test_hashability():
