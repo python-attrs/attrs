@@ -68,7 +68,7 @@ Tests
      assert "foo" == x._a_private_attribute
 
 - To run the test suite, all you need is a recent tox_.
-  It will ensure the test suite runs with all dependencies against all Python versions just as it will on Travis CI.
+  It will ensure the test suite runs with all dependencies against all Python versions just as it will in our CI.
   If you lack some Python versions, you can can always limit the environments like ``tox -e py27,py35`` (in that case you may want to look into pyenv_, which makes it very easy to install many different Python versions in parallel).
 - Write `good test docstrings`_.
 - To ensure new features work well with the rest of the system, they should be also added to our `Hypothesis`_ testing strategy, which is found in ``tests/strategies.py``.
@@ -241,7 +241,7 @@ Thank you for considering contributing to ``attrs``!
 .. _semantic newlines: https://rhodesmill.org/brandon/2012/one-sentence-per-line/
 .. _examples page: https://github.com/python-attrs/attrs/blob/master/docs/examples.rst
 .. _Hypothesis: https://hypothesis.readthedocs.io/
-.. _CI: https://travis-ci.org/python-attrs/attrs/
+.. _CI: https://attrs.visualstudio.com/attrs/_build/latest?definitionId=1&branchName=master
 .. _`team of volunteers`: https://github.com/python-attrs
 .. _BDFL: https://en.wikipedia.org/wiki/Benevolent_dictator_for_life
 .. _towncrier: https://pypi.org/project/towncrier
