@@ -1,7 +1,7 @@
 .. _api:
 
-API
-===
+API Reference
+=============
 
 .. currentmodule:: attr
 
@@ -18,7 +18,7 @@ What follows is the API explanation, if you'd like a more hands-on introduction,
 Core
 ----
 
-.. autofunction:: attr.s(these=None, repr_ns=None, repr=True, cmp=True, hash=None, init=True, slots=False, frozen=False, str=False)
+.. autofunction:: attr.s(these=None, repr_ns=None, repr=True, cmp=True, hash=None, init=True, slots=False, frozen=False, weakref_slot=True, str=False, auto_attribs=False, kw_only=False, cache_hash=False, auto_exc=False)
 
    .. note::
 
@@ -42,6 +42,20 @@ Core
       >>> D = attr.s(these={"x": attr.ib()}, init=False)(D)
       >>> D(1)
       D(x=1)
+      >>> @attr.s(auto_exc=True)
+      ... class Error(Exception):
+      ...     x = attr.ib()
+      ...     y = attr.ib(default=42, init=False)
+      >>> Error("foo")
+      Error(x='foo', y=42)
+      >>> raise Error("foo")
+      Traceback (most recent call last):
+         ...
+      Error: ('foo', 42)
+      >>> raise ValueError("foo", 42)   # for comparison
+      Traceback (most recent call last):
+         ...
+      ValueError: ('foo', 42)
 
 
 .. autofunction:: attr.ib
@@ -50,8 +64,27 @@ Core
 
       ``attrs`` also comes with a serious business alias ``attr.attrib``.
 
-   The object returned by :func:`attr.ib` also has a method called ``validator`` that can be used as a decorator *within the class body* to define inline validators (see :ref:`examples_validators`).
+   The object returned by :func:`attr.ib` also allows for setting the default and the validator using decorators:
 
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib()
+      ...     y = attr.ib()
+      ...     @x.validator
+      ...     def _any_name_except_a_name_of_an_attribute(self, attribute, value):
+      ...         if value < 0:
+      ...             raise ValueError("x must be positive")
+      ...     @y.default
+      ...     def _any_name_except_a_name_of_an_attribute(self):
+      ...         return self.x + 1
+      >>> C(1)
+      C(x=1, y=2)
+      >>> C(-1)
+      Traceback (most recent call last):
+          ...
+      ValueError: x must be positive
 
 .. autoclass:: attr.Attribute
 
@@ -70,8 +103,8 @@ Core
       >>> @attr.s
       ... class C(object):
       ...     x = attr.ib()
-      >>> C.x
-      Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({}))
+      >>> attr.fields(C).x
+      Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False)
 
 
 .. autofunction:: attr.make_class
@@ -100,13 +133,28 @@ Core
       >>> @attr.s
       ... class C(object):
       ...     x = attr.ib(default=attr.Factory(list))
+      ...     y = attr.ib(default=attr.Factory(
+      ...         lambda self: set(self.x),
+      ...         takes_self=True)
+      ...     )
       >>> C()
-      C(x=[])
+      C(x=[], y=set())
+      >>> C([1, 2, 3])
+      C(x=[1, 2, 3], y={1, 2, 3})
 
 
 .. autoexception:: attr.exceptions.FrozenInstanceError
 .. autoexception:: attr.exceptions.AttrsAttributeNotFoundError
 .. autoexception:: attr.exceptions.NotAnAttrsClassError
+.. autoexception:: attr.exceptions.DefaultAlreadySetError
+.. autoexception:: attr.exceptions.UnannotatedAttributeError
+
+   For example::
+
+       @attr.s(auto_attribs=True)
+       class C:
+           x: int
+           y = attr.ib()  # <- ERROR!
 
 
 .. _helpers:
@@ -127,10 +175,27 @@ Helpers
       ...     x = attr.ib()
       ...     y = attr.ib()
       >>> attr.fields(C)
-      (Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({})), Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({})))
+      (Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False), Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False))
       >>> attr.fields(C)[1]
-      Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata=mappingproxy({}))
+      Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False)
       >>> attr.fields(C).y is attr.fields(C)[1]
+      True
+
+.. autofunction:: attr.fields_dict
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib()
+      ...     y = attr.ib()
+      >>> attr.fields_dict(C)
+      {'x': Attribute(name='x', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False), 'y': Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False)}
+      >>> attr.fields_dict(C)['y']
+      Attribute(name='y', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False)
+      >>> attr.fields_dict(C)['y'] is attr.fields(C).y
       True
 
 
@@ -203,6 +268,13 @@ See :ref:`asdict` for examples.
       >>> i1 == i2
       False
 
+   ``evolve`` creates a new instance using ``__init__``.
+   This fact has several implications:
+
+   * private attributes should be specified without the leading underscore, just like in ``__init__``.
+   * attributes with ``init=False`` can't be set with ``evolve``.
+   * the usual ``__init__`` validators will validate the new values.
+
 .. autofunction:: validate
 
    For example:
@@ -217,7 +289,7 @@ See :ref:`asdict` for examples.
       >>> attr.validate(i)
       Traceback (most recent call last):
          ...
-      TypeError: ("'x' must be <type 'int'> (got '1' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>, repr=True, cmp=True, hash=None, init=True), <type 'int'>, '1')
+      TypeError: ("'x' must be <type 'int'> (got '1' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>, repr=True, cmp=True, hash=None, init=True, type=None, kw_only=False), <type 'int'>, '1')
 
 
 Validators can be globally disabled if you want to run them only in development and tests but not in production because you fear their performance impact:
@@ -250,14 +322,47 @@ Validators
       >>> C("42")
       Traceback (most recent call last):
          ...
-      TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>), <type 'int'>, '42')
+      TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>, type=None, kw_only=False), <type 'int'>, '42')
       >>> C(None)
       Traceback (most recent call last):
          ...
-      TypeError: ("'x' must be <type 'int'> (got None that is a <type 'NoneType'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>, repr=True, cmp=True, hash=None, init=True), <type 'int'>, None)
+      TypeError: ("'x' must be <type 'int'> (got None that is a <type 'NoneType'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>, repr=True, cmp=True, hash=None, init=True, type=None, kw_only=False), <type 'int'>, None)
 
+.. autofunction:: attr.validators.in_
+
+   For example:
+
+   .. doctest::
+
+       >>> import enum
+       >>> class State(enum.Enum):
+       ...     ON = "on"
+       ...     OFF = "off"
+       >>> @attr.s
+       ... class C(object):
+       ...     state = attr.ib(validator=attr.validators.in_(State))
+       ...     val = attr.ib(validator=attr.validators.in_([1, 2, 3]))
+       >>> C(State.ON, 1)
+       C(state=<State.ON: 'on'>, val=1)
+       >>> C("on", 1)
+       Traceback (most recent call last):
+          ...
+       ValueError: 'state' must be in <enum 'State'> (got 'on')
+       >>> C(State.ON, 4)
+       Traceback (most recent call last):
+          ...
+       ValueError: 'val' must be in [1, 2, 3] (got 4)
 
 .. autofunction:: attr.validators.provides
+
+.. autofunction:: attr.validators.and_
+
+   For convenience, it's also possible to pass a list to :func:`attr.ib`'s validator argument.
+
+   Thus the following two statements are equivalent::
+
+      x = attr.ib(validator=attr.validators.and_(v1, v2, v3))
+      x = attr.ib(validator=[v1, v2, v3])
 
 .. autofunction:: attr.validators.optional
 
@@ -273,9 +378,112 @@ Validators
       >>> C("42")
       Traceback (most recent call last):
          ...
-      TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>), <type 'int'>, '42')
+      TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, validator=<instance_of validator for type <type 'int'>>, type=None, kw_only=False), <type 'int'>, '42')
       >>> C(None)
       C(x=None)
+
+
+.. autofunction:: attr.validators.is_callable
+
+    For example:
+
+    .. doctest::
+
+        >>> @attr.s
+        ... class C(object):
+        ...     x = attr.ib(validator=attr.validators.is_callable())
+        >>> C(isinstance)
+        C(x=<built-in function isinstance>)
+        >>> C("not a callable")
+        Traceback (most recent call last):
+            ...
+        TypeError: 'x' must be callable
+
+
+.. autofunction:: attr.validators.deep_iterable
+
+    For example:
+
+    .. doctest::
+
+        >>> @attr.s
+        ... class C(object):
+        ...     x = attr.ib(validator=attr.validators.deep_iterable(
+        ...     member_validator=attr.validators.instance_of(int),
+        ...     iterable_validator=attr.validators.instance_of(list)
+        ...     ))
+        >>> C(x=[1, 2, 3])
+        C(x=[1, 2, 3])
+        >>> C(x=set([1, 2, 3]))
+        Traceback (most recent call last):
+            ...
+        TypeError: ("'x' must be <class 'list'> (got {1, 2, 3} that is a <class 'set'>).", Attribute(name='x', default=NOTHING, validator=<deep_iterable validator for <instance_of validator for type <class 'list'>> iterables of <instance_of validator for type <class 'int'>>>, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False), <class 'list'>, {1, 2, 3})
+        >>> C(x=[1, 2, "3"])
+        Traceback (most recent call last):
+            ...
+        TypeError: ("'x' must be <class 'int'> (got '3' that is a <class 'str'>).", Attribute(name='x', default=NOTHING, validator=<deep_iterable validator for <instance_of validator for type <class 'list'>> iterables of <instance_of validator for type <class 'int'>>>, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False), <class 'int'>, '3')
+
+
+.. autofunction:: attr.validators.deep_mapping
+
+    For example:
+
+    .. doctest::
+
+        >>> @attr.s
+        ... class C(object):
+        ...     x = attr.ib(validator=attr.validators.deep_mapping(
+        ...         key_validator=attr.validators.instance_of(str),
+        ...         value_validator=attr.validators.instance_of(int),
+        ...         mapping_validator=attr.validators.instance_of(dict)
+        ...     ))
+        >>> C(x={"a": 1, "b": 2})
+        C(x={'a': 1, 'b': 2})
+        >>> C(x=None)
+        Traceback (most recent call last):
+            ...
+        TypeError: ("'x' must be <class 'dict'> (got None that is a <class 'NoneType'>).", Attribute(name='x', default=NOTHING, validator=<deep_mapping validator for objects mapping <instance_of validator for type <class 'str'>> to <instance_of validator for type <class 'int'>>>, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False), <class 'dict'>, None)
+        >>> C(x={"a": 1.0, "b": 2})
+        Traceback (most recent call last):
+            ...
+        TypeError: ("'x' must be <class 'int'> (got 1.0 that is a <class 'float'>).", Attribute(name='x', default=NOTHING, validator=<deep_mapping validator for objects mapping <instance_of validator for type <class 'str'>> to <instance_of validator for type <class 'int'>>>, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False), <class 'int'>, 1.0)
+        >>> C(x={"a": 1, 7: 2})
+        Traceback (most recent call last):
+            ...
+        TypeError: ("'x' must be <class 'str'> (got 7 that is a <class 'int'>).", Attribute(name='x', default=NOTHING, validator=<deep_mapping validator for objects mapping <instance_of validator for type <class 'str'>> to <instance_of validator for type <class 'int'>>>, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False), <class 'str'>, 7)
+
+
+Converters
+----------
+
+.. autofunction:: attr.converters.optional
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib(converter=attr.converters.optional(int))
+      >>> C(None)
+      C(x=None)
+      >>> C(42)
+      C(x=42)
+
+
+.. autofunction:: attr.converters.default_if_none
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib(
+      ...         converter=attr.converters.default_if_none("")
+      ...     )
+      >>> C(None)
+      C(x='')
 
 
 Deprecated APIs

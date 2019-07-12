@@ -1,0 +1,1 @@
+Slotted classes now use a pure Python mechanism to rewrite the ``__class__`` cell when rebuilding the class, so ``super()`` works even on environments where ``ctypes`` is not installed.
