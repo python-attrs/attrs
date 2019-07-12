@@ -4,6 +4,8 @@ Commonly useful validators.
 
 from __future__ import absolute_import, division, print_function
 
+import re
+
 from ._make import _AndValidator, and_, attrib, attrs
 
 
@@ -14,6 +16,7 @@ __all__ = [
     "in_",
     "instance_of",
     "is_callable",
+    "matches_re",
     "optional",
     "provides",
 ]
@@ -61,6 +64,42 @@ def instance_of(type):
         got.
     """
     return _InstanceOfValidator(type)
+
+@attrs(repr=False, slots=True, hash=True)
+class _MatchesReValidator(object):
+    regex = attrib(
+        validator=instance_of((str, type(re.compile('.')))),
+        # re.compile is safe even if regex is already compiled
+        converter=re.compile)
+
+    def __call__(self, inst, attr, value):
+        """
+        We use a callable class to be able to change the ``__repr__``.
+        """
+        if not self.regex.match(value):
+            raise ValueError(
+                "'{name}' must match regex {regex!r}"
+                " ({value!r} doesn't)".format(
+                    name=attr.name, regex=self.regex.pattern, value=value),
+                attr,
+                self.regex,
+                value,
+            )
+
+    def __repr__(self):
+        return "<matches_re validator for pattern {regex!r}>".format(
+            regex=self.regex)
+
+
+def matches_re(regex):
+    """
+    A validator that raises :exc:`ValueError` if the initializer is called
+    with a string that doesn't match the given regex, and :exc:`TypeError`
+    if the initializer is called with a non-string.
+
+    :param regex: a regex string or compiled regex to match against
+    """
+    return _MatchesReValidator(regex)
 
 
 @attrs(repr=False, slots=True, hash=True)

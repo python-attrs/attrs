@@ -4,6 +4,8 @@ Tests for `attr.validators`.
 
 from __future__ import absolute_import, division, print_function
 
+import re
+
 import pytest
 import zope.interface
 
@@ -19,6 +21,7 @@ from attr.validators import (
     in_,
     instance_of,
     is_callable,
+    matches_re,
     optional,
     provides,
 )
@@ -76,6 +79,29 @@ class TestInstanceOf(object):
         assert (
             "<instance_of validator for type <{type} 'int'>>".format(type=TYPE)
         ) == repr(v)
+
+
+class TestMatchesRe(object):
+    """
+    Tests for `matches_re`.
+    """
+
+    def test_in_all(self):
+        """
+        Verify that this validator is in ``__all__``.
+        """
+        assert matches_re.__name__ in validator_module.__all__
+
+    def test(self):
+        @attr.s
+        class ReTester(object):
+            str_match = attr.ib(validator=matches_re('a'))
+            compiled_match = attr.ib(validator=matches_re(re.compile('b')))
+        ReTester('a', 'b')  # shouldn't raise exceptions
+        with pytest.raises(TypeError):
+            ReTester('a', 1)
+        with pytest.raises(ValueError):
+            ReTester('a', '1')
 
 
 def always_pass(_, __, ___):
