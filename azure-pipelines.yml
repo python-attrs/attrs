@@ -18,9 +18,6 @@ jobs:
         py27:
           python.version: '2.7'
           tox.env: py27
-        py34:
-          python.version: '3.4'
-          tox.env: py34
         py35:
           python.version: '3.5'
           tox.env: py35
