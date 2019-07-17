@@ -11,8 +11,8 @@ repos:
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.7.8
     hooks:
-    - id: flake8
-      language_version: python3.7
+      - id: flake8
+        language_version: python3.7
 
   - repo: https://github.com/asottile/seed-isort-config
     rev: v1.9.1
