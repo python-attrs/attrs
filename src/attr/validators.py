@@ -65,18 +65,24 @@ def instance_of(type):
     """
     return _InstanceOfValidator(type)
 
-@attrs(repr=False, slots=True, hash=True)
+
+@attrs(repr=False, frozen=True)
 class _MatchesReValidator(object):
-    regex = attrib(
-        validator=instance_of((str, type(re.compile('.')))),
-        # re.compile is safe even if regex is already compiled
-        converter=re.compile)
+    regex = attrib()
+    flags = attrib()
+    func = attrib()
 
     def __call__(self, inst, attr, value):
         """
         We use a callable class to be able to change the ``__repr__``.
         """
-        if not self.regex.match(value):
+        if self.func is re.match:
+            match = self.regex.match(value)
+        elif self.func is re.search:
+            match = self.regex.search(value)
+        elif self.func is re.fullmatch:
+            match = self.regex.fullmatch(value)
+        if not match:
             raise ValueError(
                 "'{name}' must match regex {regex!r}"
                 " ({value!r} doesn't)".format(
@@ -91,15 +97,30 @@ class _MatchesReValidator(object):
             regex=self.regex)
 
 
-def matches_re(regex):
+# python 2 vs python 3 check if fullmatch is implemented natively
+_native_fullmatch = getattr(re, "fullmatch", None)
+
+
+def matches_re(regex, flags=0, func=_native_fullmatch):
     """
     A validator that raises :exc:`ValueError` if the initializer is called
     with a string that doesn't match the given regex, and :exc:`TypeError`
     if the initializer is called with a non-string.
 
     :param regex: a regex string or compiled regex to match against
+    :param flags: flags that will be passed to the underlying re function (default 0)
+    :param func: which underlying re function to call (options are `re.fullmatch()`, `re.search()`, `re.match()`)
     """
-    return _MatchesReValidator(regex)
+    regex_attr, flags_attr, func_attr = _MatchesReValidator.__attrs_attrs__
+    instance_of(str)(None, regex_attr, regex)
+    in_((_native_fullmatch, re.search, re.match))(None, func_attr, func)
+    if func is None:
+        # python 2 fullmatch emulation
+        regex = r"(?:{})\Z".format(regex)
+    regex = re.compile(regex, flags)
+    if func is None:
+        func = re.match
+    return _MatchesReValidator(regex, flags, func)
 
 
 @attrs(repr=False, slots=True, hash=True)

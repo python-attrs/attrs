@@ -96,12 +96,21 @@ class TestMatchesRe(object):
         @attr.s
         class ReTester(object):
             str_match = attr.ib(validator=matches_re('a'))
-            compiled_match = attr.ib(validator=matches_re(re.compile('b')))
-        ReTester('a', 'b')  # shouldn't raise exceptions
+        ReTester('a')  # shouldn't raise exceptions
         with pytest.raises(TypeError):
-            ReTester('a', 1)
+            ReTester(1)
         with pytest.raises(ValueError):
-            ReTester('a', '1')
+            ReTester('1')
+        with pytest.raises(ValueError):
+            ReTester('a1')
+        @attr.s
+        class MatchTester(object):
+            val = attr.ib(validator=matches_re('a', re.IGNORECASE, re.match))
+        MatchTester('A1')  # test flags and using re.match
+        @attr.s
+        class SearchTester(object):
+            val = attr.ib(validator=matches_re('a', 0, re.search))
+        SearchTester('bab')
 
 
 def always_pass(_, __, ___):
