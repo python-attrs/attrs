@@ -42,6 +42,9 @@ _hash_cache_field = "_attrs_cached_hash"
 
 _empty_metadata_singleton = metadata_proxy({})
 
+# Unique object for unequivocal getattr() defaults.
+_sentinel = object()
+
 
 class _Nothing(object):
     """
@@ -504,7 +507,7 @@ class _ClassBuilder(object):
             for name in self._attr_names:
                 if (
                     name not in base_names
-                    and getattr(cls, name, None) is not None
+                    and getattr(cls, name, _sentinel) != _sentinel
                 ):
                     try:
                         delattr(cls, name)

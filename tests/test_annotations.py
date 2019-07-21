@@ -265,3 +265,20 @@ class TestAnnotations:
             x: int
 
         assert 1 == C(1).x
+
+    def test_removes_none_too(self):
+        """
+        Regression test for #523: make sure defaults that are set to None are
+        removed too.
+        """
+
+        @attr.s(auto_attribs=True)
+        class C:
+            x: int = 42
+            y: typing.Any = None
+
+        with pytest.raises(AttributeError):
+            C.x
+
+        with pytest.raises(AttributeError):
+            C.y
