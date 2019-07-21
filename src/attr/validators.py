@@ -5,6 +5,7 @@ Commonly useful validators.
 from __future__ import absolute_import, division, print_function
 
 from ._make import _AndValidator, and_, attrib, attrs
+from .exceptions import NotCallableError
 
 
 __all__ = [
@@ -186,7 +187,16 @@ class _IsCallableValidator(object):
         We use a callable class to be able to change the ``__repr__``.
         """
         if not callable(value):
-            raise TypeError("'{name}' must be callable".format(name=attr.name))
+            message = (
+                "'{name}' must be callable "
+                "(got {value!r} that is a {actual!r})."
+            )
+            raise NotCallableError(
+                msg=message.format(
+                    name=attr.name, value=value, actual=value.__class__
+                ),
+                value=value,
+            )
 
     def __repr__(self):
         return "<is_callable validator>"
@@ -194,13 +204,15 @@ class _IsCallableValidator(object):
 
 def is_callable():
     """
-    A validator that raises a :class:`TypeError` if the initializer is called
-    with a value for this particular attribute that is not callable.
+    A validator that raises a :class:`attr.exceptions.NotCallableError`
+    if the initializer is called with a value for this particular attribute
+    that is not callable.
 
     .. versionadded:: 19.1.0
 
-    :raises TypeError: With a human readable error message containing the
-        attribute (of type :class:`attr.Attribute`) name.
+    :raises `attr.exceptions.NotCallableError`: With a human readable error
+        message containing the attribute (:class:`attr.Attribute`) name,
+        and the value it got.
     """
     return _IsCallableValidator()
 
