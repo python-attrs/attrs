@@ -101,12 +101,12 @@ Testimonials
   It exerts a subtle, but positive, design influence in all the codebases I’ve see it used in.
 
 
-**Kenneth Reitz**, author of `Requests <https://2.python-requests.org/en/master/>`_ (`on paper no less <https://twitter.com/hynek/status/866817877650751488>`_!):
+**Kenneth Reitz**, creator of `Requests <https://github.com/psf/requests>`_ (`on paper no less <https://twitter.com/hynek/status/866817877650751488>`_!):
 
   attrs—classes for humans.  I like it.
 
 
-**Łukasz Langa**, prolific CPython core developer and Production Engineer at Facebook:
+**Łukasz Langa**, creator of `Black <https://github.com/psf/black>`_, prolific Python core developer, and release manager for Python 3.8 and 3.9:
 
   I'm increasingly digging your attr.ocity. Good job!
 
