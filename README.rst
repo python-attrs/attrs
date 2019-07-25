@@ -101,7 +101,7 @@ Testimonials
   It exerts a subtle, but positive, design influence in all the codebases I’ve see it used in.
 
 
-**Kenneth Reitz**, author of `Requests <http://www.python-requests.org/>`_ (`on paper no less <https://twitter.com/hynek/status/866817877650751488>`_!):
+**Kenneth Reitz**, author of `Requests <https://2.python-requests.org/en/master/>`_ (`on paper no less <https://twitter.com/hynek/status/866817877650751488>`_!):
 
   attrs—classes for humans.  I like it.
 
