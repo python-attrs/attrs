@@ -163,7 +163,7 @@ class TestTransformAttrs(object):
         Does not attach __attrs_attrs__ to the class.
         """
         C = make_tc()
-        _transform_attrs(C, None, False, False)
+        _transform_attrs(C, None, False, False, True)
 
         assert None is getattr(C, "__attrs_attrs__", None)
 
@@ -172,7 +172,7 @@ class TestTransformAttrs(object):
         Transforms every `_CountingAttr` and leaves others (a) be.
         """
         C = make_tc()
-        attrs, _, _ = _transform_attrs(C, None, False, False)
+        attrs, _, _ = _transform_attrs(C, None, False, False, True)
 
         assert ["z", "y", "x"] == [a.name for a in attrs]
 
@@ -186,7 +186,7 @@ class TestTransformAttrs(object):
             pass
 
         assert _Attributes(((), [], {})) == _transform_attrs(
-            C, None, False, False
+            C, None, False, False, True
         )
 
     def test_transforms_to_attribute(self):
@@ -194,7 +194,7 @@ class TestTransformAttrs(object):
         All `_CountingAttr`s are transformed into `Attribute`s.
         """
         C = make_tc()
-        attrs, base_attrs, _ = _transform_attrs(C, None, False, False)
+        attrs, base_attrs, _ = _transform_attrs(C, None, False, False, True)
 
         assert [] == base_attrs
         assert 3 == len(attrs)
@@ -211,7 +211,7 @@ class TestTransformAttrs(object):
             y = attr.ib()
 
         with pytest.raises(ValueError) as e:
-            _transform_attrs(C, None, False, False)
+            _transform_attrs(C, None, False, False, True)
         assert (
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
@@ -240,7 +240,7 @@ class TestTransformAttrs(object):
             x = attr.ib(default=None)
             y = attr.ib()
 
-        attrs, base_attrs, _ = _transform_attrs(C, None, False, True)
+        attrs, base_attrs, _ = _transform_attrs(C, None, False, True, True)
 
         assert len(attrs) == 3
         assert len(base_attrs) == 1
@@ -263,7 +263,7 @@ class TestTransformAttrs(object):
             y = attr.ib()
 
         attrs, base_attrs, _ = _transform_attrs(
-            C, {"x": attr.ib()}, False, False
+            C, {"x": attr.ib()}, False, False, True
         )
 
         assert [] == base_attrs
@@ -631,7 +631,7 @@ class TestKeywordOnlyAttributes(object):
             y = attr.ib()
 
         with pytest.raises(ValueError) as e:
-            _transform_attrs(C, None, False, False)
+            _transform_attrs(C, None, False, False, True)
 
         assert (
             "Non keyword-only attributes are not allowed after a "
@@ -641,6 +641,22 @@ class TestKeywordOnlyAttributes(object):
             "cmp=True, hash=None, init=True, metadata=mappingproxy({}), "
             "type=None, converter=None, kw_only=False)",
         ) == e.value.args
+
+    def test_keyword_only_ordering_check_can_be_disabled(self):
+        """
+        Raises `ValueError` if keyword-only attributes are followed by
+        regular (non keyword-only) attributes.
+        """
+
+        @attr.s(kw_only_order_check=False)
+        class C(object):
+            y = attr.ib(kw_only=True)
+            x = attr.ib()
+
+        c = C(1, y=2)
+
+        assert c.x == 1
+        assert c.y == 2
 
     def test_keyword_only_attributes_allow_subclassing(self):
         """
@@ -1314,7 +1330,7 @@ class TestClassBuilder(object):
             pass
 
         b = _ClassBuilder(
-            C, None, True, True, False, False, False, False, False
+            C, None, True, True, False, False, False, False, False, True
         )
 
         assert "<_ClassBuilder(cls=C)>" == repr(b)
@@ -1328,7 +1344,7 @@ class TestClassBuilder(object):
             x = attr.ib()
 
         b = _ClassBuilder(
-            C, None, True, True, False, False, False, False, False
+            C, None, True, True, False, False, False, False, False, True
         )
 
         cls = (
@@ -1395,6 +1411,7 @@ class TestClassBuilder(object):
             is_exc=False,
             kw_only=False,
             cache_hash=False,
+            kw_only_order_check=True,
         )
         b._cls = {}  # no __module__; no __qualname__
 
