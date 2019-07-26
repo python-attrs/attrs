@@ -861,9 +861,11 @@ def attrs(
           default value are additionally available as a tuple in the ``args``
           attribute,
         - the value of *str* is ignored leaving ``__str__`` to base classes.
-    :param bool kw_only_order_check: Enable or disable the ordering check for keyword-only
-        attributes with respect to non keyword-only attributes.
-        - when True (Default): don't allow non keyword-only attrs after keyword-only attrs.
+    :param bool kw_only_order_check: Enable or disable the ordering check for
+        keyword-only attributes with respect to non keyword-only attributes.
+
+        - when True (Default): don't allow non keyword-only attrs after
+          keyword-only attrs.
         - when False: allow keyword-only attrs anywhere.
 
     .. versionadded:: 16.0.0 *slots*
