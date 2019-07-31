@@ -763,27 +763,45 @@ class TestNothing(object):
 
 
 @attr.s(hash=True, cmp=True)
-class Foo:
+class C(object):
     pass
 
 
 # Store this class so that we recreate it.
-OriginalFoo = Foo
+OriginalC = C
 
 
 @attr.s(hash=True, cmp=True)
-class Foo:
+class C(object):
     pass
 
 
 class TestFilenames(object):
     def test_filenames(self):
         """
-        The created __init__ method has a consistent filename
+        The created dunder methods have a "consistent" filename.
         """
-        assert OriginalFoo.__init__.__code__.co_filename == "<attrs generated init tests.test_dunders.Foo>"
-        assert OriginalFoo.__eq__.__code__.co_filename == "<attrs generated eq tests.test_dunders.Foo>"
-        assert OriginalFoo.__hash__.__code__.co_filename == "<attrs generated hash tests.test_dunders.Foo>"
-        assert Foo.__init__.__code__.co_filename == "<attrs generated init tests.test_dunders.Foo-2>"
-        assert Foo.__eq__.__code__.co_filename == "<attrs generated eq tests.test_dunders.Foo-2>"
-        assert Foo.__hash__.__code__.co_filename == "<attrs generated hash tests.test_dunders.Foo-2>"
+        assert (
+            OriginalC.__init__.__code__.co_filename
+            == "<attrs generated init tests.test_dunders.C>"
+        )
+        assert (
+            OriginalC.__eq__.__code__.co_filename
+            == "<attrs generated eq tests.test_dunders.C>"
+        )
+        assert (
+            OriginalC.__hash__.__code__.co_filename
+            == "<attrs generated hash tests.test_dunders.C>"
+        )
+        assert (
+            C.__init__.__code__.co_filename
+            == "<attrs generated init tests.test_dunders.C-2>"
+        )
+        assert (
+            C.__eq__.__code__.co_filename
+            == "<attrs generated eq tests.test_dunders.C-2>"
+        )
+        assert (
+            C.__hash__.__code__.co_filename
+            == "<attrs generated hash tests.test_dunders.C-2>"
+        )

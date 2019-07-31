@@ -1,0 +1,2 @@
+The fake filename for generated methods is now more stable.
+It won't change when you restart the process.
