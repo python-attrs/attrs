@@ -760,3 +760,30 @@ class TestNothing(object):
         assert _Nothing() == _Nothing() == NOTHING
         assert not (_Nothing() != _Nothing())
         assert 1 != _Nothing()
+
+
+@attr.s(hash=True, cmp=True)
+class Foo:
+    pass
+
+
+# Store this class so that we recreate it.
+OriginalFoo = Foo
+
+
+@attr.s(hash=True, cmp=True)
+class Foo:
+    pass
+
+
+class TestFilenames(object):
+    def test_filenames(self):
+        """
+        The created __init__ method has a consistent filename
+        """
+        assert OriginalFoo.__init__.__code__.co_filename == "<attrs generated init tests.test_dunders.Foo>"
+        assert OriginalFoo.__eq__.__code__.co_filename == "<attrs generated eq tests.test_dunders.Foo>"
+        assert OriginalFoo.__hash__.__code__.co_filename == "<attrs generated hash tests.test_dunders.Foo>"
+        assert Foo.__init__.__code__.co_filename == "<attrs generated init tests.test_dunders.Foo-2>"
+        assert Foo.__eq__.__code__.co_filename == "<attrs generated eq tests.test_dunders.Foo-2>"
+        assert Foo.__hash__.__code__.co_filename == "<attrs generated hash tests.test_dunders.Foo-2>"
