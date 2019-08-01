@@ -1,10 +1,10 @@
 from __future__ import absolute_import, division, print_function
 
 import copy
-import hashlib
 import linecache
 import sys
 import threading
+import uuid
 import warnings
 
 from operator import itemgetter
@@ -665,7 +665,10 @@ class _ClassBuilder(object):
     def add_hash(self):
         self._cls_dict["__hash__"] = self._add_method_dunders(
             _make_hash(
-                self._attrs, frozen=self._frozen, cache_hash=self._cache_hash
+                self._cls,
+                self._attrs,
+                frozen=self._frozen,
+                cache_hash=self._cache_hash,
             )
         )
 
@@ -674,6 +677,7 @@ class _ClassBuilder(object):
     def add_init(self):
         self._cls_dict["__init__"] = self._add_method_dunders(
             _make_init(
+                self._cls,
                 self._attrs,
                 self._has_post_init,
                 self._frozen,
@@ -692,7 +696,8 @@ class _ClassBuilder(object):
         cd["__eq__"], cd["__ne__"], cd["__lt__"], cd["__le__"], cd[
             "__gt__"
         ], cd["__ge__"] = (
-            self._add_method_dunders(meth) for meth in _make_cmp(self._attrs)
+            self._add_method_dunders(meth)
+            for meth in _make_cmp(self._cls, self._attrs)
         )
 
         return self
@@ -986,7 +991,37 @@ def _attrs_to_tuple(obj, attrs):
     return tuple(getattr(obj, a.name) for a in attrs)
 
 
-def _make_hash(attrs, frozen, cache_hash):
+def _generate_unique_filename(cls, func_name):
+    """
+    Create a "filename" suitable for a function being generated.
+    """
+    unique_id = uuid.uuid4()
+    extra = ""
+    count = 1
+
+    while True:
+        unique_filename = "<attrs generated {0} {1}.{2}{3}>".format(
+            func_name,
+            cls.__module__,
+            getattr(cls, "__qualname__", cls.__name__),
+            extra,
+        )
+        # To handle concurrency we essentially "reserve" our spot in
+        # the linecache with a dummy line.  The caller can then
+        # set this value correctly.
+        cache_line = (1, None, (str(unique_id),), unique_filename)
+        if (
+            linecache.cache.setdefault(unique_filename, cache_line)
+            == cache_line
+        ):
+            return unique_filename
+
+        # Looks like this spot is taken. Try again.
+        count += 1
+        extra = "-{0}".format(count)
+
+
+def _make_hash(cls, attrs, frozen, cache_hash):
     attrs = tuple(
         a
         for a in attrs
@@ -995,10 +1030,7 @@ def _make_hash(attrs, frozen, cache_hash):
 
     tab = "        "
 
-    # We cache the generated hash methods for the same kinds of attributes.
-    sha1 = hashlib.sha1()
-    sha1.update(repr(attrs).encode("utf-8"))
-    unique_filename = "<attrs generated hash %s>" % (sha1.hexdigest(),)
+    unique_filename = _generate_unique_filename(cls, "hash")
     type_hash = hash(unique_filename)
 
     method_lines = ["def __hash__(self):"]
@@ -1055,7 +1087,7 @@ def _add_hash(cls, attrs):
     """
     Add a hash method to *cls*.
     """
-    cls.__hash__ = _make_hash(attrs, frozen=False, cache_hash=False)
+    cls.__hash__ = _make_hash(cls, attrs, frozen=False, cache_hash=False)
     return cls
 
 
@@ -1077,13 +1109,10 @@ WARNING_CMP_ISINSTANCE = (
 )
 
 
-def _make_cmp(attrs):
+def _make_cmp(cls, attrs):
     attrs = [a for a in attrs if a.cmp]
 
-    # We cache the generated eq methods for the same kinds of attributes.
-    sha1 = hashlib.sha1()
-    sha1.update(repr(attrs).encode("utf-8"))
-    unique_filename = "<attrs generated eq %s>" % (sha1.hexdigest(),)
+    unique_filename = _generate_unique_filename(cls, "eq")
     lines = [
         "def __eq__(self, other):",
         "    if other.__class__ is not self.__class__:",
@@ -1188,7 +1217,7 @@ def _add_cmp(cls, attrs=None):
         attrs = cls.__attrs_attrs__
 
     cls.__eq__, cls.__ne__, cls.__lt__, cls.__le__, cls.__gt__, cls.__ge__ = _make_cmp(  # noqa
-        attrs
+        cls, attrs
     )
 
     return cls
@@ -1258,14 +1287,11 @@ def _add_repr(cls, ns=None, attrs=None):
 
 
 def _make_init(
-    attrs, post_init, frozen, slots, cache_hash, base_attr_map, is_exc
+    cls, attrs, post_init, frozen, slots, cache_hash, base_attr_map, is_exc
 ):
     attrs = [a for a in attrs if a.init or a.default is not NOTHING]
 
-    # We cache the generated init methods for the same kinds of attributes.
-    sha1 = hashlib.sha1()
-    sha1.update(repr(attrs).encode("utf-8"))
-    unique_filename = "<attrs generated init {0}>".format(sha1.hexdigest())
+    unique_filename = _generate_unique_filename(cls, "init")
 
     script, globs, annotations = _attrs_to_init_script(
         attrs, frozen, slots, post_init, cache_hash, base_attr_map, is_exc

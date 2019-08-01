@@ -58,6 +58,7 @@ def _add_init(cls, frozen):
     the tests for it are still useful to test the behavior of _make_init.
     """
     cls.__init__ = _make_init(
+        cls,
         cls.__attrs_attrs__,
         getattr(cls, "__attrs_post_init__", False),
         frozen,
@@ -759,3 +760,48 @@ class TestNothing(object):
         assert _Nothing() == _Nothing() == NOTHING
         assert not (_Nothing() != _Nothing())
         assert 1 != _Nothing()
+
+
+@attr.s(hash=True, cmp=True)
+class C(object):
+    pass
+
+
+# Store this class so that we recreate it.
+OriginalC = C
+
+
+@attr.s(hash=True, cmp=True)
+class C(object):
+    pass
+
+
+class TestFilenames(object):
+    def test_filenames(self):
+        """
+        The created dunder methods have a "consistent" filename.
+        """
+        assert (
+            OriginalC.__init__.__code__.co_filename
+            == "<attrs generated init tests.test_dunders.C>"
+        )
+        assert (
+            OriginalC.__eq__.__code__.co_filename
+            == "<attrs generated eq tests.test_dunders.C>"
+        )
+        assert (
+            OriginalC.__hash__.__code__.co_filename
+            == "<attrs generated hash tests.test_dunders.C>"
+        )
+        assert (
+            C.__init__.__code__.co_filename
+            == "<attrs generated init tests.test_dunders.C-2>"
+        )
+        assert (
+            C.__eq__.__code__.co_filename
+            == "<attrs generated eq tests.test_dunders.C-2>"
+        )
+        assert (
+            C.__hash__.__code__.co_filename
+            == "<attrs generated hash tests.test_dunders.C-2>"
+        )
