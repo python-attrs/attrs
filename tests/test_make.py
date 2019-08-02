@@ -644,8 +644,9 @@ class TestKeywordOnlyAttributes(object):
 
     def test_keyword_only_ordering_check_can_be_disabled(self):
         """
-        Raises `ValueError` if keyword-only attributes are followed by
-        regular (non keyword-only) attributes.
+        When this check is enable, a `ValueError` is raised if keyword-only
+        attributes are followed by regular (non keyword-only) attributes.
+        Setting the check flag to False, disables that check.
         """
 
         @attr.s(kw_only_order_check=False)
