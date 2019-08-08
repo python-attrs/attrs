@@ -163,30 +163,36 @@ def make_set_closure_cell():
 
         # Convert this code object to a code object that sets the
         # function's first _freevar_ (not cellvar) to the argument.
-        args = [co.co_argcount]
         if sys.version_info >= (3, 8):
-            args.append(co.co_posonlyargcount)
-        if not PY2:
-            args.append(co.co_kwonlyargcount)
-        args.extend(
-            [
-                co.co_nlocals,
-                co.co_stacksize,
-                co.co_flags,
-                co.co_code,
-                co.co_consts,
-                co.co_names,
-                co.co_varnames,
-                co.co_filename,
-                co.co_name,
-                co.co_firstlineno,
-                co.co_lnotab,
-                # These two arguments are reversed:
-                co.co_cellvars,
-                co.co_freevars,
-            ]
-        )
-        set_first_freevar_code = types.CodeType(*args)
+            # CPython 3.8+ has an incompatible CodeType signature
+            # (added a posonlyargcount argument) but also added
+            # CodeType.replace() to do this without counting parameters.
+            set_first_freevar_code = co.replace(
+                co_cellvars=co.co_freevars, co_freevars=co.co_cellvars
+            )
+        else:
+            args = [co.co_argcount]
+            if not PY2:
+                args.append(co.co_kwonlyargcount)
+            args.extend(
+                [
+                    co.co_nlocals,
+                    co.co_stacksize,
+                    co.co_flags,
+                    co.co_code,
+                    co.co_consts,
+                    co.co_names,
+                    co.co_varnames,
+                    co.co_filename,
+                    co.co_name,
+                    co.co_firstlineno,
+                    co.co_lnotab,
+                    # These two arguments are reversed:
+                    co.co_cellvars,
+                    co.co_freevars,
+                ]
+            )
+            set_first_freevar_code = types.CodeType(*args)
 
         def set_closure_cell(cell, value):
             # Create a function using the set_first_freevar_code,
