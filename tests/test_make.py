@@ -163,7 +163,7 @@ class TestTransformAttrs(object):
         Does not attach __attrs_attrs__ to the class.
         """
         C = make_tc()
-        _transform_attrs(C, None, False, False, True)
+        _transform_attrs(C, None, False, False, False)
 
         assert None is getattr(C, "__attrs_attrs__", None)
 
@@ -172,7 +172,7 @@ class TestTransformAttrs(object):
         Transforms every `_CountingAttr` and leaves others (a) be.
         """
         C = make_tc()
-        attrs, _, _ = _transform_attrs(C, None, False, False, True)
+        attrs, _, _ = _transform_attrs(C, None, False, False, False)
 
         assert ["z", "y", "x"] == [a.name for a in attrs]
 
@@ -186,7 +186,7 @@ class TestTransformAttrs(object):
             pass
 
         assert _Attributes(((), [], {})) == _transform_attrs(
-            C, None, False, False, True
+            C, None, False, False, False
         )
 
     def test_transforms_to_attribute(self):
@@ -194,7 +194,7 @@ class TestTransformAttrs(object):
         All `_CountingAttr`s are transformed into `Attribute`s.
         """
         C = make_tc()
-        attrs, base_attrs, _ = _transform_attrs(C, None, False, False, True)
+        attrs, base_attrs, _ = _transform_attrs(C, None, False, False, False)
 
         assert [] == base_attrs
         assert 3 == len(attrs)
@@ -211,7 +211,7 @@ class TestTransformAttrs(object):
             y = attr.ib()
 
         with pytest.raises(ValueError) as e:
-            _transform_attrs(C, None, False, False, True)
+            _transform_attrs(C, None, False, False, False)
         assert (
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
@@ -240,7 +240,7 @@ class TestTransformAttrs(object):
             x = attr.ib(default=None)
             y = attr.ib()
 
-        attrs, base_attrs, _ = _transform_attrs(C, None, False, True, True)
+        attrs, base_attrs, _ = _transform_attrs(C, None, False, True, False)
 
         assert len(attrs) == 3
         assert len(base_attrs) == 1
@@ -263,7 +263,7 @@ class TestTransformAttrs(object):
             y = attr.ib()
 
         attrs, base_attrs, _ = _transform_attrs(
-            C, {"x": attr.ib()}, False, False, True
+            C, {"x": attr.ib()}, False, False, False
         )
 
         assert [] == base_attrs
@@ -631,7 +631,7 @@ class TestKeywordOnlyAttributes(object):
             y = attr.ib()
 
         with pytest.raises(ValueError) as e:
-            _transform_attrs(C, None, False, False, True)
+            _transform_attrs(C, None, False, False, False)
 
         assert (
             "Non keyword-only attributes are not allowed after a "
@@ -649,7 +649,7 @@ class TestKeywordOnlyAttributes(object):
         Setting the check flag to False, disables that check.
         """
 
-        @attr.s(kw_only_order_check=False)
+        @attr.s(kw_only_anywhere=True)
         class C(object):
             y = attr.ib(kw_only=True)
             x = attr.ib()
@@ -1412,7 +1412,7 @@ class TestClassBuilder(object):
             is_exc=False,
             kw_only=False,
             cache_hash=False,
-            kw_only_order_check=True,
+            kw_only_anywhere=False,
         )
         b._cls = {}  # no __module__; no __qualname__
 
