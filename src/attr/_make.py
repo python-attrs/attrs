@@ -285,7 +285,7 @@ def _counter_getter(e):
     return e[1].counter
 
 
-def _transform_attrs(cls, these, auto_attribs, kw_only, kw_only_order_check):
+def _transform_attrs(cls, these, auto_attribs, kw_only, kw_only_anywhere):
     """
     Transform all `_CountingAttr`s on a class into `Attribute`s.
 
@@ -399,7 +399,7 @@ def _transform_attrs(cls, these, auto_attribs, kw_only, kw_only_order_check):
         ):
             had_default = True
         if (
-            kw_only_order_check is True
+            kw_only_anywhere is False
             and was_kw_only is True
             and a.kw_only is False
             and a.init is True
@@ -461,10 +461,10 @@ class _ClassBuilder(object):
         kw_only,
         cache_hash,
         is_exc,
-        kw_only_order_check,
+        kw_only_anywhere,
     ):
         attrs, base_attrs, base_map = _transform_attrs(
-            cls, these, auto_attribs, kw_only, kw_only_order_check
+            cls, these, auto_attribs, kw_only, kw_only_anywhere
         )
 
         self._cls = cls
@@ -738,7 +738,7 @@ def attrs(
     kw_only=False,
     cache_hash=False,
     auto_exc=False,
-    kw_only_order_check=True,
+    kw_only_anywhere=False,
 ):
     r"""
     A class decorator that adds `dunder
@@ -861,12 +861,12 @@ def attrs(
           default value are additionally available as a tuple in the ``args``
           attribute,
         - the value of *str* is ignored leaving ``__str__`` to base classes.
-    :param bool kw_only_order_check: Enable or disable the ordering check for
-        keyword-only attributes with respect to non keyword-only attributes.
+    :param bool kw_only_anywhere: Allow or disallow the definition of
+        keyword-only attributes attributes after non keyword-only attributes.
 
-        - when True (Default): don't allow non keyword-only attrs after
+        - when False (Default): don't allow non keyword-only attrs after
           keyword-only attrs.
-        - when False: allow keyword-only attrs anywhere.
+        - when True: allow keyword-only attrs anywhere.
 
     .. versionadded:: 16.0.0 *slots*
     .. versionadded:: 16.1.0 *frozen*
@@ -887,7 +887,7 @@ def attrs(
     .. versionadded:: 18.2.0 *kw_only*
     .. versionadded:: 18.2.0 *cache_hash*
     .. versionadded:: 19.1.0 *auto_exc*
-    .. versionadded:: 19.2.0 *kw_only_order_check*
+    .. versionadded:: 19.2.0 *kw_only_anywhere*
     """
 
     def wrap(cls):
@@ -907,7 +907,7 @@ def attrs(
             kw_only,
             cache_hash,
             is_exc,
-            kw_only_order_check,
+            kw_only_anywhere,
         )
 
         if repr is True:
