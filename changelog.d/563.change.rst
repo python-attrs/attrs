@@ -1,0 +1,1 @@
+``@attr.s(auto_exc=True)`` now generates classes that are hashable by ID, as the documentation always claimed it would.

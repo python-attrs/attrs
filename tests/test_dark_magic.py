@@ -515,9 +515,8 @@ class TestDarkMagic(object):
     @pytest.mark.parametrize("frozen", [True, False])
     def test_auto_exc(self, slots, frozen):
         """
-        Classes with auto_exc=True have a Exception-style __str__, are neither
-        comparable nor hashable, and store the fields additionally in
-        self.args.
+        Classes with auto_exc=True have a Exception-style __str__, compare and
+        hash by id, and store the fields additionally in self.args.
         """
 
         @attr.s(auto_exc=True, slots=slots, frozen=frozen)
@@ -545,21 +544,28 @@ class TestDarkMagic(object):
         assert FooErrorMade(1, "foo") != FooErrorMade(1, "foo")
 
         for cls in (FooError, FooErrorMade):
-            with pytest.raises(cls) as ei:
+            with pytest.raises(cls) as ei1:
                 raise cls(1, "foo")
 
-            e = ei.value
+            with pytest.raises(cls) as ei2:
+                raise cls(1, "foo")
 
-            assert e is e
-            assert e == e
-            assert "(1, 'foo')" == str(e)
-            assert (1, "foo") == e.args
+            e1 = ei1.value
+            e2 = ei2.value
 
-            with pytest.raises(TypeError):
-                hash(e)
+            assert e1 is e1
+            assert e1 == e1
+            assert e2 == e2
+            assert e1 != e2
+            assert "(1, 'foo')" == str(e1) == str(e2)
+            assert (1, "foo") == e1.args == e2.args
+
+            hash(e1) == hash(e1)
+            hash(e2) == hash(e2)
 
             if not frozen:
-                deepcopy(e)
+                deepcopy(e1)
+                deepcopy(e2)
 
     @pytest.mark.parametrize("slots", [True, False])
     @pytest.mark.parametrize("frozen", [True, False])

@@ -912,20 +912,20 @@ def attrs(
             raise TypeError(
                 "Invalid value for hash.  Must be True, False, or None."
             )
-        elif hash is False or (hash is None and cmp is False):
+        elif hash is False or (hash is None and cmp is False) or is_exc:
+            # Don't do anything. Should fall back to __object__'s __hash__
+            # which is by id.
             if cache_hash:
                 raise TypeError(
                     "Invalid value for cache_hash.  To use hash caching,"
                     " hashing must be either explicitly or implicitly "
                     "enabled."
                 )
-        elif (
-            hash is True
-            or (hash is None and cmp is True and frozen is True)
-            and is_exc is False
-        ):
+        elif hash is True or (hash is None and cmp is True and frozen is True):
+            # Build a __hash__ if told so, or if it's safe.
             builder.add_hash()
         else:
+            # Raise TypeError on attempts to hash.
             if cache_hash:
                 raise TypeError(
                     "Invalid value for cache_hash.  To use hash caching,"
