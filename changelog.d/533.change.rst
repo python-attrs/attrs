@@ -1,2 +1,1 @@
-Fixed ``attr.validators.deep_iterable()``
-and ``attr.validators.deep_mapping()`` type stubs.
+Fixed ``attr.validators.deep_iterable()`` and ``attr.validators.deep_mapping()`` type stubs.
