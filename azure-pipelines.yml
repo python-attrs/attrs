@@ -113,7 +113,7 @@ jobs:
         displayName: Report Coverage
         condition: succeeded()
 
-  # Mwke sure contributors can use Windows.
+  # Make sure contributors can use Windows.
   - job: 'Windows'
     pool:
       vmImage: 'windows-latest'
@@ -131,8 +131,8 @@ jobs:
           architecture: 'x64'
         displayName: Use cached Python $(python.version) for tests.
 
-      - script: pyton -m pip install -e .[dev]
-        displayName: run tox -e $(tox.env)
+      - script: python -m pip install -e .[dev]
+        displayName: Install package in dev mode.
 
       - script: python -m pytest
-        displayName: run tests
+        displayName: Run tests.
