@@ -397,7 +397,7 @@ Validators
         >>> C("not a callable")
         Traceback (most recent call last):
             ...
-        TypeError: 'x' must be callable
+        attr.exceptions.NotCallableError: 'x' must be callable (got 'not a callable' that is a <class 'str'>).
 
 
 .. autofunction:: attr.validators.deep_iterable

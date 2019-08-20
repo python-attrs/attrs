@@ -2,6 +2,7 @@
 Unit tests for slots-related functionality.
 """
 
+import sys
 import types
 import weakref
 
@@ -413,6 +414,10 @@ class TestClosureCellRewriting(object):
         assert D.statmethod() is D
 
     @pytest.mark.skipif(PYPY, reason="set_closure_cell always works on PyPy")
+    @pytest.mark.skipif(
+        sys.version_info >= (3, 8),
+        reason="can't break CodeType.replace() via monkeypatch",
+    )
     def test_code_hack_failure(self, monkeypatch):
         """
         Keeps working if function/code object introspection doesn't work
