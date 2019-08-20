@@ -112,3 +112,27 @@ jobs:
           CODECOV_TOKEN: $(codecov.token)
         displayName: Report Coverage
         condition: succeeded()
+
+  # Make sure contributors can use Windows.
+  - job: 'Windows'
+    pool:
+      vmImage: 'windows-latest'
+    strategy:
+      matrix:
+        py27:
+          python.version: '2.7'
+        py37:
+          python.version: '3.7'
+
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '$(python.version)'
+          architecture: 'x64'
+        displayName: Use cached Python $(python.version) for tests.
+
+      - script: python -m pip install -e .[dev]
+        displayName: Install package in dev mode.
+
+      - script: python -m pytest
+        displayName: Run tests.
