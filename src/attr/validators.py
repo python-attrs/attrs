@@ -104,7 +104,7 @@ def matches_re(regex, flags=0, func=None):
     """
     regex_attr, flags_attr, func_attr = _MatchesReValidator.__attrs_attrs__
     instance_of(str)(None, regex_attr, regex)
-    in_((_native_fullmatch, re.search, re.match))(None, func_attr, func)
+    in_((getattr(re, "fullmatch", None), None, re.search, re.match))(None, func_attr, func)
     if func is None:
         if hasattr(re, "fullmatch"):
             func = re.fullmatch
