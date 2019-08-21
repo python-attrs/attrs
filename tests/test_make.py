@@ -575,7 +575,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             a = attr.ib()
             b = attr.ib(default=2, kw_only=True)
             c = attr.ib(kw_only=True)
@@ -594,7 +594,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             x = attr.ib(init=False, default=0, kw_only=True)
             y = attr.ib()
 
@@ -610,7 +610,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             x = attr.ib(kw_only=True)
 
         with pytest.raises(TypeError) as e:
@@ -629,7 +629,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             a = attr.ib(kw_only=True)
             b = attr.ib(kw_only=True, default="b")
             c = attr.ib(kw_only=True)
@@ -638,6 +638,7 @@ class TestKeywordOnlyAttributes(object):
             f = attr.ib(kw_only=True)
             g = attr.ib(kw_only=True, default="g")
             h = attr.ib(kw_only=True)
+            i = attr.ib(init=False)
 
         c = C("d", a="a", c="c", f="f", h="h")
 
@@ -657,7 +658,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class Base(object):
+        class Base:
             x = attr.ib(default=0)
 
         @attr.s
@@ -695,7 +696,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class Base(object):
+        class Base:
             x = attr.ib(default=0)
 
         @attr.s(kw_only=True)

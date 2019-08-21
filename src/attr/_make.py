@@ -374,16 +374,12 @@ def _transform_attrs(cls, these, auto_attribs, kw_only):
 
     attrs = AttrsClass(base_attrs + own_attrs)
 
-    # mandatory vs non-mandatory attr order only matters when they are part of
+    # Mandatory vs non-mandatory attr order only matters when they are part of
     # the __init__ signature and when they aren't kw_only (which are moved to
     # the end and can be mandatory or non-mandatory in any order, as they will
     # be specified as keyword args anyway). Check the order of those attrs:
-    attrs_to_check = [
-        a for a in attrs if a.init is not False and a.kw_only is False
-    ]
-
     had_default = False
-    for a in attrs_to_check:
+    for a in (a for a in attrs if a.init is not False and a.kw_only is False):
         if had_default is True and a.default is NOTHING:
             raise ValueError(
                 "No mandatory attributes allowed after an attribute with a "
