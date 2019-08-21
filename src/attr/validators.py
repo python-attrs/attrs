@@ -99,8 +99,12 @@ def matches_re(regex, flags=0, func=None):
     if the initializer is called with a non-string.
 
     :param regex: a regex string to match against
-    :param flags: flags that will be passed to the underlying re function (default 0)
-    :param func: which underlying re function to call (options are `re.fullmatch()`, `re.search()`, `re.match()`)
+    :param flags: flags that will be passed to the underlying re function
+        (default 0)
+    :param func: which underlying re function to call (options are
+        `re.fullmatch()`, `re.search()`, `re.match()`, default `re.fullmatch`)
+
+    .. versionadded:: 19.1.0
     """
     regex_attr, flags_attr, func_attr = _MatchesReValidator.__attrs_attrs__
     instance_of(str)(None, regex_attr, regex)
