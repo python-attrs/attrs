@@ -374,38 +374,24 @@ def _transform_attrs(cls, these, auto_attribs, kw_only):
 
     attrs = AttrsClass(base_attrs + own_attrs)
 
+    # mandatory vs non-mandatory attr order only matters when they are part of
+    # the __init__ signature and when they aren't kw_only (which are moved to
+    # the end and can be mandatory or non-mandatory in any order, as they will
+    # be specified as keyword args anyway). Check the order of those attrs:
+    attrs_to_check = [
+        a for a in attrs if a.init is not False and a.kw_only is False
+    ]
+
     had_default = False
-    was_kw_only = False
-    for a in attrs:
-        if (
-            was_kw_only is False
-            and had_default is True
-            and a.default is NOTHING
-            and a.init is True
-            and a.kw_only is False
-        ):
+    for a in attrs_to_check:
+        if had_default is True and a.default is NOTHING:
             raise ValueError(
                 "No mandatory attributes allowed after an attribute with a "
                 "default value or factory.  Attribute in question: %r" % (a,)
             )
-        elif (
-            had_default is False
-            and a.default is not NOTHING
-            and a.init is not False
-            and
-            # Keyword-only attributes without defaults can be specified
-            # after keyword-only attributes with defaults.
-            a.kw_only is False
-        ):
+
+        if had_default is False and a.default is not NOTHING:
             had_default = True
-        if was_kw_only is True and a.kw_only is False and a.init is True:
-            raise ValueError(
-                "Non keyword-only attributes are not allowed after a "
-                "keyword-only attribute (unless they are init=False).  "
-                "Attribute in question: {a!r}".format(a=a)
-            )
-        if was_kw_only is False and a.init is True and a.kw_only is True:
-            was_kw_only = True
 
     return _Attributes((attrs, base_attrs, base_attr_map))
 

@@ -620,27 +620,35 @@ class TestKeywordOnlyAttributes(object):
             "missing 1 required keyword-only argument: 'x'"
         ) in e.value.args[0]
 
-    def test_conflicting_keyword_only_attributes(self):
+    def test_keyword_only_attributes_can_come_in_any_order(self):
         """
-        Raises `ValueError` if keyword-only attributes are followed by
-        regular (non keyword-only) attributes.
+        Mandatory vs non-mandatory attr order only matters when they are part
+        of the __init__ signature and when they aren't kw_only (which are
+        moved to the end and can be mandatory or non-mandatory in any order,
+        as they will be specified as keyword args anyway).
         """
 
+        @attr.s
         class C(object):
-            x = attr.ib(kw_only=True)
-            y = attr.ib()
+            a = attr.ib(kw_only=True)
+            b = attr.ib(kw_only=True, default="b")
+            c = attr.ib(kw_only=True)
+            d = attr.ib()
+            e = attr.ib(default="e")
+            f = attr.ib(kw_only=True)
+            g = attr.ib(kw_only=True, default="g")
+            h = attr.ib(kw_only=True)
 
-        with pytest.raises(ValueError) as e:
-            _transform_attrs(C, None, False, False)
+        c = C("d", a="a", c="c", f="f", h="h")
 
-        assert (
-            "Non keyword-only attributes are not allowed after a "
-            "keyword-only attribute (unless they are init=False).  "
-            "Attribute in question: Attribute"
-            "(name='y', default=NOTHING, validator=None, repr=True, "
-            "cmp=True, hash=None, init=True, metadata=mappingproxy({}), "
-            "type=None, converter=None, kw_only=False)",
-        ) == e.value.args
+        assert c.a == "a"
+        assert c.b == "b"
+        assert c.c == "c"
+        assert c.d == "d"
+        assert c.e == "e"
+        assert c.f == "f"
+        assert c.g == "g"
+        assert c.h == "h"
 
     def test_keyword_only_attributes_allow_subclassing(self):
         """
