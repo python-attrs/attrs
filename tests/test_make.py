@@ -163,7 +163,7 @@ class TestTransformAttrs(object):
         Does not attach __attrs_attrs__ to the class.
         """
         C = make_tc()
-        _transform_attrs(C, None, False, False, False)
+        _transform_attrs(C, None, False, False)
 
         assert None is getattr(C, "__attrs_attrs__", None)
 
@@ -172,7 +172,7 @@ class TestTransformAttrs(object):
         Transforms every `_CountingAttr` and leaves others (a) be.
         """
         C = make_tc()
-        attrs, _, _ = _transform_attrs(C, None, False, False, False)
+        attrs, _, _ = _transform_attrs(C, None, False, False)
 
         assert ["z", "y", "x"] == [a.name for a in attrs]
 
@@ -186,7 +186,7 @@ class TestTransformAttrs(object):
             pass
 
         assert _Attributes(((), [], {})) == _transform_attrs(
-            C, None, False, False, False
+            C, None, False, False
         )
 
     def test_transforms_to_attribute(self):
@@ -194,7 +194,7 @@ class TestTransformAttrs(object):
         All `_CountingAttr`s are transformed into `Attribute`s.
         """
         C = make_tc()
-        attrs, base_attrs, _ = _transform_attrs(C, None, False, False, False)
+        attrs, base_attrs, _ = _transform_attrs(C, None, False, False)
 
         assert [] == base_attrs
         assert 3 == len(attrs)
@@ -211,7 +211,7 @@ class TestTransformAttrs(object):
             y = attr.ib()
 
         with pytest.raises(ValueError) as e:
-            _transform_attrs(C, None, False, False, False)
+            _transform_attrs(C, None, False, False)
         assert (
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
@@ -240,7 +240,7 @@ class TestTransformAttrs(object):
             x = attr.ib(default=None)
             y = attr.ib()
 
-        attrs, base_attrs, _ = _transform_attrs(C, None, False, True, False)
+        attrs, base_attrs, _ = _transform_attrs(C, None, False, True)
 
         assert len(attrs) == 3
         assert len(base_attrs) == 1
@@ -263,7 +263,7 @@ class TestTransformAttrs(object):
             y = attr.ib()
 
         attrs, base_attrs, _ = _transform_attrs(
-            C, {"x": attr.ib()}, False, False, False
+            C, {"x": attr.ib()}, False, False
         )
 
         assert [] == base_attrs
@@ -620,44 +620,35 @@ class TestKeywordOnlyAttributes(object):
             "missing 1 required keyword-only argument: 'x'"
         ) in e.value.args[0]
 
-    def test_conflicting_keyword_only_attributes(self):
+    def test_keyword_only_attributes_can_come_in_any_order(self):
         """
-        Raises `ValueError` if keyword-only attributes are followed by
-        regular (non keyword-only) attributes.
+        Mandatory vs non-mandatory attr order only matters when they are part
+        of the __init__ signature and when they aren't kw_only (which are
+        moved to the end and can be mandatory or non-mandatory in any order,
+        as they will be specified as keyword args anyway).
         """
 
+        @attr.s
         class C(object):
-            x = attr.ib(kw_only=True)
-            y = attr.ib()
+            a = attr.ib(kw_only=True)
+            b = attr.ib(kw_only=True, default="b")
+            c = attr.ib(kw_only=True)
+            d = attr.ib()
+            e = attr.ib(default="e")
+            f = attr.ib(kw_only=True)
+            g = attr.ib(kw_only=True, default="g")
+            h = attr.ib(kw_only=True)
 
-        with pytest.raises(ValueError) as e:
-            _transform_attrs(C, None, False, False, False)
+        c = C("d", a="a", c="c", f="f", h="h")
 
-        assert (
-            "Non keyword-only attributes are not allowed after a "
-            "keyword-only attribute (unless they are init=False).  "
-            "Attribute in question: Attribute"
-            "(name='y', default=NOTHING, validator=None, repr=True, "
-            "cmp=True, hash=None, init=True, metadata=mappingproxy({}), "
-            "type=None, converter=None, kw_only=False)",
-        ) == e.value.args
-
-    def test_keyword_only_ordering_check_can_be_disabled(self):
-        """
-        When this check is enable, a `ValueError` is raised if keyword-only
-        attributes are followed by regular (non keyword-only) attributes.
-        Setting the check flag to False, disables that check.
-        """
-
-        @attr.s(kw_only_anywhere=True)
-        class C(object):
-            y = attr.ib(kw_only=True)
-            x = attr.ib()
-
-        c = C(1, y=2)
-
-        assert c.x == 1
-        assert c.y == 2
+        assert c.a == "a"
+        assert c.b == "b"
+        assert c.c == "c"
+        assert c.d == "d"
+        assert c.e == "e"
+        assert c.f == "f"
+        assert c.g == "g"
+        assert c.h == "h"
 
     def test_keyword_only_attributes_allow_subclassing(self):
         """
@@ -1331,7 +1322,7 @@ class TestClassBuilder(object):
             pass
 
         b = _ClassBuilder(
-            C, None, True, True, False, False, False, False, False, True
+            C, None, True, True, False, False, False, False, False
         )
 
         assert "<_ClassBuilder(cls=C)>" == repr(b)
@@ -1345,7 +1336,7 @@ class TestClassBuilder(object):
             x = attr.ib()
 
         b = _ClassBuilder(
-            C, None, True, True, False, False, False, False, False, True
+            C, None, True, True, False, False, False, False, False
         )
 
         cls = (
@@ -1412,7 +1403,6 @@ class TestClassBuilder(object):
             is_exc=False,
             kw_only=False,
             cache_hash=False,
-            kw_only_anywhere=False,
         )
         b._cls = {}  # no __module__; no __qualname__
 
