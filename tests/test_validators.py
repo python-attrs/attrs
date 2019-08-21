@@ -88,11 +88,14 @@ class TestMatchesRe(object):
 
     def test_in_all(self):
         """
-        Verify that this validator is in ``__all__``.
+        validator is in ``__all__``.
         """
         assert matches_re.__name__ in validator_module.__all__
 
-    def test(self):
+    def test_match(self):
+        """
+        default re.match behavior
+        """
         @attr.s
         class ReTester(object):
             str_match = attr.ib(validator=matches_re('a'))
@@ -103,6 +106,11 @@ class TestMatchesRe(object):
             ReTester('1')
         with pytest.raises(ValueError):
             ReTester('a1')
+
+    def test_extra_args(self):
+        """
+        flags and non-default match function behavior
+        """
         @attr.s
         class MatchTester(object):
             val = attr.ib(validator=matches_re('a', re.IGNORECASE, re.match))
