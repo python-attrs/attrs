@@ -92,17 +92,13 @@ class _MatchesReValidator(object):
             regex=self.regex)
 
 
-# python 2 vs python 3 check if fullmatch is implemented natively
-_native_fullmatch = getattr(re, "fullmatch", None)
-
-
-def matches_re(regex, flags=0, func=_native_fullmatch):
+def matches_re(regex, flags=0, func=None):
     """
     A validator that raises :exc:`ValueError` if the initializer is called
     with a string that doesn't match the given regex, and :exc:`TypeError`
     if the initializer is called with a non-string.
 
-    :param regex: a regex string or compiled regex to match against
+    :param regex: a regex string to match against
     :param flags: flags that will be passed to the underlying re function (default 0)
     :param func: which underlying re function to call (options are `re.fullmatch()`, `re.search()`, `re.match()`)
     """
@@ -110,11 +106,13 @@ def matches_re(regex, flags=0, func=_native_fullmatch):
     instance_of(str)(None, regex_attr, regex)
     in_((_native_fullmatch, re.search, re.match))(None, func_attr, func)
     if func is None:
-        # python 2 fullmatch emulation
-        regex = r"(?:{})\Z".format(regex)
+        if hasattr(re, "fullmatch"):
+            func = re.fullmatch
+        else:
+            # python 2 fullmatch emulation
+            regex = r"(?:{})\Z".format(regex)
+            func = re.match
     regex = re.compile(regex, flags)
-    if func is None:
-        func = re.match
     if func is re.match:
         match_func = regex.match
     elif func is re.search:
