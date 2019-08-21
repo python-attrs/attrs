@@ -71,19 +71,13 @@ def instance_of(type):
 class _MatchesReValidator(object):
     regex = attrib()
     flags = attrib()
-    func = attrib()
+    match_func = attrib()
 
     def __call__(self, inst, attr, value):
         """
         We use a callable class to be able to change the ``__repr__``.
         """
-        if self.func is re.match:
-            match = self.regex.match(value)
-        elif self.func is re.search:
-            match = self.regex.search(value)
-        elif self.func is re.fullmatch:
-            match = self.regex.fullmatch(value)
-        if not match:
+        if not self.match_func(value):
             raise ValueError(
                 "'{name}' must match regex {regex!r}"
                 " ({value!r} doesn't)".format(
@@ -121,7 +115,13 @@ def matches_re(regex, flags=0, func=_native_fullmatch):
     regex = re.compile(regex, flags)
     if func is None:
         func = re.match
-    return _MatchesReValidator(regex, flags, func)
+    if func is re.match:
+        match_func = regex.match
+    elif func is re.search:
+        match_func = regex.search
+    elif func is re.fullmatch:
+        match_func = regex.fullmatch
+    return _MatchesReValidator(regex, flags, match_func)
 
 
 @attrs(repr=False, slots=True, hash=True)
