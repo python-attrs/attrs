@@ -1210,9 +1210,9 @@ _already_repring = threading.local()
 
 def _make_repr(attrs, ns):
     """
-    Make a repr method for *attr_names* adding *ns* to the full name.
+    Make a repr method that includes relevant *attrs*, adding *ns* to the full
+    name.
     """
-    attr_names = tuple(a.name for a in attrs if a.repr)
 
     def __repr__(self):
         """
@@ -1244,12 +1244,18 @@ def _make_repr(attrs, ns):
         try:
             result = [class_name, "("]
             first = True
-            for name in attr_names:
+            for attr in attrs:
+                if not attr.repr:
+                    continue
                 if first:
                     first = False
                 else:
                     result.append(", ")
-                result.extend((name, "=", repr(getattr(self, name, NOTHING))))
+                name = attr.name
+                attr_repr = repr if attr.repr is True else attr.repr
+                result.extend(
+                    (name, "=", attr_repr(getattr(self, name, NOTHING)))
+                )
             return "".join(result) + ")"
         finally:
             working_set.remove(id(self))
