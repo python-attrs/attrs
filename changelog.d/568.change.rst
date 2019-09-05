@@ -1,0 +1,1 @@
+The value passed to ``@attr.ib(repr=…)`` can now be either a boolean (as before) or a custom callable, which makes it possible to influence how the attribute value is formatted by the generated ``__repr__()_`` method.
