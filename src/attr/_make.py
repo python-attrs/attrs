@@ -128,8 +128,12 @@ def attrib(
 
     :type validator: ``callable`` or a ``list`` of ``callable``\\ s.
 
-    :param bool repr: Include this attribute in the generated ``__repr__``
-        method.
+    :param repr: Include this attribute in the generated ``__repr__``
+        method. If ``True``, include the attribute; if ``False``, omit it. By
+        default, the built-in ``repr()`` function is used. To override how the
+        attribute value is formatted in the, pass a custom ``callable``, which
+        should take a single value, and return a string.
+    :type repr: a ``bool`` or a ``callable`` to use a custom function.
     :param bool cmp: Include this attribute in the generated comparison methods
         (``__eq__`` et al).
     :param hash: Include this attribute in the generated ``__hash__``
