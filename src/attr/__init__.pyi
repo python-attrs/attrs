@@ -26,6 +26,8 @@ _C = TypeVar("_C", bound=type)
 _ValidatorType = Callable[[Any, Attribute[_T], _T], Any]
 _ConverterType = Callable[[Any], _T]
 _FilterType = Callable[[Attribute[_T], _T], bool]
+_ReprType = Callable[[Any], str]
+_ReprArgType = Union[bool, _ReprType]
 # FIXME: in reality, if multiple validators are passed they must be in a list or tuple,
 # but those are invariant and so would prevent subtypes of _ValidatorType from working
 # when passed in a list or tuple.
@@ -49,7 +51,7 @@ class Attribute(Generic[_T]):
     name: str
     default: Optional[_T]
     validator: Optional[_ValidatorType[_T]]
-    repr: bool
+    repr: _ReprArgType
     cmp: bool
     hash: Optional[bool]
     init: bool
@@ -89,7 +91,7 @@ class Attribute(Generic[_T]):
 def attrib(
     default: None = ...,
     validator: None = ...,
-    repr: bool = ...,
+    repr: _ReprArgType = ...,
     cmp: bool = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
@@ -105,7 +107,7 @@ def attrib(
 def attrib(
     default: None = ...,
     validator: Optional[_ValidatorArgType[_T]] = ...,
-    repr: bool = ...,
+    repr: _ReprArgType = ...,
     cmp: bool = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
@@ -121,7 +123,7 @@ def attrib(
 def attrib(
     default: _T,
     validator: Optional[_ValidatorArgType[_T]] = ...,
-    repr: bool = ...,
+    repr: _ReprArgType = ...,
     cmp: bool = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
@@ -137,7 +139,7 @@ def attrib(
 def attrib(
     default: Optional[_T] = ...,
     validator: Optional[_ValidatorArgType[_T]] = ...,
-    repr: bool = ...,
+    repr: _ReprArgType = ...,
     cmp: bool = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
