@@ -1221,9 +1221,8 @@ def _make_repr(attrs, ns):
     name.
     """
 
-    # Figure out which attributes should be included in the class's repr(),
-    # and which function should be used to format those attributes.
-    # The a.repr attribute can be either a bool or a custom callable.
+    # Figure out which attributes to include, and which function to use to
+    # format them. The a.repr value can be either bool or a custom callable.
     attr_names_with_reprs = tuple(
         (a.name, repr if a.repr is True else a.repr)
         for a in attrs
