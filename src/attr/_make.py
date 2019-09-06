@@ -1220,6 +1220,15 @@ def _make_repr(attrs, ns):
     name.
     """
 
+    # Figure out which attributes should be included in the class's repr(),
+    # and which function should be used to format those attributes.
+    # The a.repr attribute can be either a bool or a custom callable.
+    attr_names_with_reprs = tuple(
+        (a.name, repr if a.repr is True else a.repr)
+        for a in attrs
+        if a.repr is not False
+    )
+
     def __repr__(self):
         """
         Automatically created by attrs.
@@ -1250,15 +1259,11 @@ def _make_repr(attrs, ns):
         try:
             result = [class_name, "("]
             first = True
-            for attr in attrs:
-                if not attr.repr:
-                    continue
+            for name, attr_repr in attr_names_with_reprs:
                 if first:
                     first = False
                 else:
                     result.append(", ")
-                name = attr.name
-                attr_repr = repr if attr.repr is True else attr.repr
                 result.extend(
                     (name, "=", attr_repr(getattr(self, name, NOTHING)))
                 )
