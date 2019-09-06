@@ -181,6 +181,7 @@ def attrib(
        ``factory=f`` is syntactic sugar for ``default=attr.Factory(f)``.
     .. versionadded:: 18.2.0 *kw_only*
     .. versionchanged:: 19.2.0 *convert* keyword argument removed
+    .. versionchanged:: 19.2.0 *repr* also accepts a custom callable.
     """
     if hash is not None and hash is not True and hash is not False:
         raise TypeError(
