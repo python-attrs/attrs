@@ -665,7 +665,7 @@ You can exclude single attributes from certain methods:
    ...     user = attr.ib()
    ...     password = attr.ib(repr=False)
    >>> C("me", "s3kr3t")
-   C(user='me', password=***)
+   C(user='me')
 
 Alternatively, to influence how the generated ``__repr__()`` method formats a specific attribute, specify custom callable to be used instead of the `repr()` built-in function:
 
