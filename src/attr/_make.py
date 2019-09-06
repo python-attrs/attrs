@@ -131,8 +131,10 @@ def attrib(
     :param repr: Include this attribute in the generated ``__repr__``
         method. If ``True``, include the attribute; if ``False``, omit it. By
         default, the built-in ``repr()`` function is used. To override how the
-        attribute value is formatted in the, pass a custom ``callable``, which
-        should take a single value, and return a string.
+        attribute value is formatted, pass a ``callable`` that takes a single
+        value and returns a string. Note that the resulting string is used
+        as-is, i.e. it will be used directly *instead* of calling ``repr()``
+        (the default).
     :type repr: a ``bool`` or a ``callable`` to use a custom function.
     :param bool cmp: Include this attribute in the generated comparison methods
         (``__eq__`` et al).
