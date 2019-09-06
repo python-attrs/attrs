@@ -667,7 +667,7 @@ You can exclude single attributes from certain methods:
    >>> C("me", "s3kr3t")
    C(user='me')
 
-Alternatively, to influence how the generated ``__repr__()`` method formats a specific attribute, specify a custom callable to be used instead of the `repr()` built-in function:
+Alternatively, to influence how the generated ``__repr__()`` method formats a specific attribute, specify a custom callable to be used instead of the ``repr()`` built-in function:
 
 .. doctest::
 
