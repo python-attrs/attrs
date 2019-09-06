@@ -128,8 +128,14 @@ def attrib(
 
     :type validator: ``callable`` or a ``list`` of ``callable``\\ s.
 
-    :param bool repr: Include this attribute in the generated ``__repr__``
-        method.
+    :param repr: Include this attribute in the generated ``__repr__``
+        method. If ``True``, include the attribute; if ``False``, omit it. By
+        default, the built-in ``repr()`` function is used. To override how the
+        attribute value is formatted, pass a ``callable`` that takes a single
+        value and returns a string. Note that the resulting string is used
+        as-is, i.e. it will be used directly *instead* of calling ``repr()``
+        (the default).
+    :type repr: a ``bool`` or a ``callable`` to use a custom function.
     :param bool cmp: Include this attribute in the generated comparison methods
         (``__eq__`` et al).
     :param hash: Include this attribute in the generated ``__hash__``
@@ -175,6 +181,7 @@ def attrib(
        ``factory=f`` is syntactic sugar for ``default=attr.Factory(f)``.
     .. versionadded:: 18.2.0 *kw_only*
     .. versionchanged:: 19.2.0 *convert* keyword argument removed
+    .. versionchanged:: 19.2.0 *repr* also accepts a custom callable.
     """
     if hash is not None and hash is not True and hash is not False:
         raise TypeError(
@@ -1210,9 +1217,17 @@ _already_repring = threading.local()
 
 def _make_repr(attrs, ns):
     """
-    Make a repr method for *attr_names* adding *ns* to the full name.
+    Make a repr method that includes relevant *attrs*, adding *ns* to the full
+    name.
     """
-    attr_names = tuple(a.name for a in attrs if a.repr)
+
+    # Figure out which attributes to include, and which function to use to
+    # format them. The a.repr value can be either bool or a custom callable.
+    attr_names_with_reprs = tuple(
+        (a.name, repr if a.repr is True else a.repr)
+        for a in attrs
+        if a.repr is not False
+    )
 
     def __repr__(self):
         """
@@ -1244,12 +1259,14 @@ def _make_repr(attrs, ns):
         try:
             result = [class_name, "("]
             first = True
-            for name in attr_names:
+            for name, attr_repr in attr_names_with_reprs:
                 if first:
                     first = False
                 else:
                     result.append(", ")
-                result.extend((name, "=", repr(getattr(self, name, NOTHING))))
+                result.extend(
+                    (name, "=", attr_repr(getattr(self, name, NOTHING)))
+                )
             return "".join(result) + ")"
         finally:
             working_set.remove(id(self))
