@@ -866,7 +866,7 @@ def attrs(
        to each other.
     .. versionchanged:: 19.2.0
        ``__lt__``, ``__le__``, ``__gt__``, and ``__ge__`` now do not consider
-       consider subclasses comparable anymore.
+       subclasses comparable anymore.
     .. versionadded:: 18.2.0 *kw_only*
     .. versionadded:: 18.2.0 *cache_hash*
     .. versionadded:: 19.1.0 *auto_exc*
