@@ -400,6 +400,8 @@ Validators
         attr.exceptions.NotCallableError: 'x' must be callable (got 'not a callable' that is a <class 'str'>).
 
 
+.. autofunction:: attr.validators.matches_re
+
 .. autofunction:: attr.validators.deep_iterable
 
     For example:

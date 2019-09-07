@@ -106,10 +106,11 @@ def matches_re(regex, flags=0, func=None):
 
     .. versionadded:: 19.1.0
     """
-    regex_attr, flags_attr, func_attr = _MatchesReValidator.__attrs_attrs__
-    instance_of(str)(None, regex_attr, regex)
     fullmatch = getattr(re, "fullmatch", None)
-    in_((fullmatch, None, re.search, re.match))(None, func_attr, func)
+    if func not in (fullmatch, None, re.search, re.match):
+        raise ValueError("'func' must be one of {}".format(
+            ", ".join(set((fullmatch, None, re.search, re.match)))))
+    # non-int flags gives an okay error message in re, so rely on that
     if func is None:
         if fullmatch:
             func = fullmatch
