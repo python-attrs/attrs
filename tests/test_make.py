@@ -575,7 +575,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             a = attr.ib()
             b = attr.ib(default=2, kw_only=True)
             c = attr.ib(kw_only=True)
@@ -594,7 +594,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             x = attr.ib(init=False, default=0, kw_only=True)
             y = attr.ib()
 
@@ -610,7 +610,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             x = attr.ib(kw_only=True)
 
         with pytest.raises(TypeError) as e:
@@ -620,27 +620,36 @@ class TestKeywordOnlyAttributes(object):
             "missing 1 required keyword-only argument: 'x'"
         ) in e.value.args[0]
 
-    def test_conflicting_keyword_only_attributes(self):
+    def test_keyword_only_attributes_can_come_in_any_order(self):
         """
-        Raises `ValueError` if keyword-only attributes are followed by
-        regular (non keyword-only) attributes.
+        Mandatory vs non-mandatory attr order only matters when they are part
+        of the __init__ signature and when they aren't kw_only (which are
+        moved to the end and can be mandatory or non-mandatory in any order,
+        as they will be specified as keyword args anyway).
         """
 
-        class C(object):
-            x = attr.ib(kw_only=True)
-            y = attr.ib()
+        @attr.s
+        class C:
+            a = attr.ib(kw_only=True)
+            b = attr.ib(kw_only=True, default="b")
+            c = attr.ib(kw_only=True)
+            d = attr.ib()
+            e = attr.ib(default="e")
+            f = attr.ib(kw_only=True)
+            g = attr.ib(kw_only=True, default="g")
+            h = attr.ib(kw_only=True)
+            i = attr.ib(init=False)
 
-        with pytest.raises(ValueError) as e:
-            _transform_attrs(C, None, False, False)
+        c = C("d", a="a", c="c", f="f", h="h")
 
-        assert (
-            "Non keyword-only attributes are not allowed after a "
-            "keyword-only attribute (unless they are init=False).  "
-            "Attribute in question: Attribute"
-            "(name='y', default=NOTHING, validator=None, repr=True, "
-            "cmp=True, hash=None, init=True, metadata=mappingproxy({}), "
-            "type=None, converter=None, kw_only=False)",
-        ) == e.value.args
+        assert c.a == "a"
+        assert c.b == "b"
+        assert c.c == "c"
+        assert c.d == "d"
+        assert c.e == "e"
+        assert c.f == "f"
+        assert c.g == "g"
+        assert c.h == "h"
 
     def test_keyword_only_attributes_allow_subclassing(self):
         """
@@ -649,7 +658,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class Base(object):
+        class Base:
             x = attr.ib(default=0)
 
         @attr.s
@@ -687,7 +696,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class Base(object):
+        class Base:
             x = attr.ib(default=0)
 
         @attr.s(kw_only=True)
@@ -1448,13 +1457,11 @@ class TestMakeCmp:
     Tests for _make_cmp().
     """
 
-    @pytest.mark.parametrize(
-        "op", ["__%s__" % (op,) for op in ("lt", "le", "gt", "ge")]
-    )
-    def test_subclasses_deprecated(self, recwarn, op):
+    def test_subclasses_cannot_be_compared(self):
         """
-        Calling comparison methods on subclasses raises a deprecation warning;
-        calling them on identical classes does not..
+        Calling comparison methods on subclasses raises a TypeError.
+
+        We use the actual operation so we get an error raised on Python 3.
         """
 
         @attr.s
@@ -1465,18 +1472,31 @@ class TestMakeCmp:
         class B(A):
             pass
 
-        getattr(A(42), op)(A(42))
-        getattr(B(42), op)(B(42))
+        a = A(42)
+        b = B(42)
 
-        assert [] == recwarn.list
+        assert a <= a
+        assert a >= a
+        assert not a < a
+        assert not a > a
 
-        getattr(A(42), op)(B(42))
-
-        w = recwarn.pop()
-
-        assert [] == recwarn.list
-        assert isinstance(w.message, DeprecationWarning)
         assert (
-            "Comparision of subclasses using %s is deprecated and will be "
-            "removed in 2019." % (op,)
-        ) == w.message.args[0]
+            NotImplemented
+            == a.__lt__(b)
+            == a.__le__(b)
+            == a.__gt__(b)
+            == a.__ge__(b)
+        )
+
+        if not PY2:
+            with pytest.raises(TypeError):
+                a <= b
+
+            with pytest.raises(TypeError):
+                a >= b
+
+            with pytest.raises(TypeError):
+                a < b
+
+            with pytest.raises(TypeError):
+                a > b

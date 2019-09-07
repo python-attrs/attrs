@@ -5,7 +5,6 @@ import linecache
 import sys
 import threading
 import uuid
-import warnings
 
 from operator import itemgetter
 
@@ -128,8 +127,14 @@ def attrib(
 
     :type validator: ``callable`` or a ``list`` of ``callable``\\ s.
 
-    :param bool repr: Include this attribute in the generated ``__repr__``
-        method.
+    :param repr: Include this attribute in the generated ``__repr__``
+        method. If ``True``, include the attribute; if ``False``, omit it. By
+        default, the built-in ``repr()`` function is used. To override how the
+        attribute value is formatted, pass a ``callable`` that takes a single
+        value and returns a string. Note that the resulting string is used
+        as-is, i.e. it will be used directly *instead* of calling ``repr()``
+        (the default).
+    :type repr: a ``bool`` or a ``callable`` to use a custom function.
     :param bool cmp: Include this attribute in the generated comparison methods
         (``__eq__`` et al).
     :param hash: Include this attribute in the generated ``__hash__``
@@ -175,6 +180,7 @@ def attrib(
        ``factory=f`` is syntactic sugar for ``default=attr.Factory(f)``.
     .. versionadded:: 18.2.0 *kw_only*
     .. versionchanged:: 19.2.0 *convert* keyword argument removed
+    .. versionchanged:: 19.2.0 *repr* also accepts a custom callable.
     """
     if hash is not None and hash is not True and hash is not False:
         raise TypeError(
@@ -374,38 +380,20 @@ def _transform_attrs(cls, these, auto_attribs, kw_only):
 
     attrs = AttrsClass(base_attrs + own_attrs)
 
+    # Mandatory vs non-mandatory attr order only matters when they are part of
+    # the __init__ signature and when they aren't kw_only (which are moved to
+    # the end and can be mandatory or non-mandatory in any order, as they will
+    # be specified as keyword args anyway). Check the order of those attrs:
     had_default = False
-    was_kw_only = False
-    for a in attrs:
-        if (
-            was_kw_only is False
-            and had_default is True
-            and a.default is NOTHING
-            and a.init is True
-            and a.kw_only is False
-        ):
+    for a in (a for a in attrs if a.init is not False and a.kw_only is False):
+        if had_default is True and a.default is NOTHING:
             raise ValueError(
                 "No mandatory attributes allowed after an attribute with a "
                 "default value or factory.  Attribute in question: %r" % (a,)
             )
-        elif (
-            had_default is False
-            and a.default is not NOTHING
-            and a.init is not False
-            and
-            # Keyword-only attributes without defaults can be specified
-            # after keyword-only attributes with defaults.
-            a.kw_only is False
-        ):
+
+        if had_default is False and a.default is not NOTHING:
             had_default = True
-        if was_kw_only is True and a.kw_only is False and a.init is True:
-            raise ValueError(
-                "Non keyword-only attributes are not allowed after a "
-                "keyword-only attribute (unless they are init=False).  "
-                "Attribute in question: {a!r}".format(a=a)
-            )
-        if was_kw_only is False and a.init is True and a.kw_only is True:
-            was_kw_only = True
 
     return _Attributes((attrs, base_attrs, base_attr_map))
 
@@ -876,6 +864,9 @@ def attrs(
        :class:`DeprecationWarning` if the classes compared are subclasses of
        each other. ``__eq`` and ``__ne__`` never tried to compared subclasses
        to each other.
+    .. versionchanged:: 19.2.0
+       ``__lt__``, ``__le__``, ``__gt__``, and ``__ge__`` now do not consider
+       subclasses comparable anymore.
     .. versionadded:: 18.2.0 *kw_only*
     .. versionadded:: 18.2.0 *cache_hash*
     .. versionadded:: 19.1.0 *auto_exc*
@@ -1103,12 +1094,6 @@ def __ne__(self, other):
     return not result
 
 
-WARNING_CMP_ISINSTANCE = (
-    "Comparision of subclasses using __%s__ is deprecated and will be removed "
-    "in 2019."
-)
-
-
 def _make_cmp(cls, attrs):
     attrs = [a for a in attrs if a.cmp]
 
@@ -1158,53 +1143,37 @@ def _make_cmp(cls, attrs):
         """
         Automatically created by attrs.
         """
-        if isinstance(other, self.__class__):
-            if other.__class__ is not self.__class__:
-                warnings.warn(
-                    WARNING_CMP_ISINSTANCE % ("lt",), DeprecationWarning
-                )
+        if other.__class__ is self.__class__:
             return attrs_to_tuple(self) < attrs_to_tuple(other)
-        else:
-            return NotImplemented
+
+        return NotImplemented
 
     def __le__(self, other):
         """
         Automatically created by attrs.
         """
-        if isinstance(other, self.__class__):
-            if other.__class__ is not self.__class__:
-                warnings.warn(
-                    WARNING_CMP_ISINSTANCE % ("le",), DeprecationWarning
-                )
+        if other.__class__ is self.__class__:
             return attrs_to_tuple(self) <= attrs_to_tuple(other)
-        else:
-            return NotImplemented
+
+        return NotImplemented
 
     def __gt__(self, other):
         """
         Automatically created by attrs.
         """
-        if isinstance(other, self.__class__):
-            if other.__class__ is not self.__class__:
-                warnings.warn(
-                    WARNING_CMP_ISINSTANCE % ("gt",), DeprecationWarning
-                )
+        if other.__class__ is self.__class__:
             return attrs_to_tuple(self) > attrs_to_tuple(other)
-        else:
-            return NotImplemented
+
+        return NotImplemented
 
     def __ge__(self, other):
         """
         Automatically created by attrs.
         """
-        if isinstance(other, self.__class__):
-            if other.__class__ is not self.__class__:
-                warnings.warn(
-                    WARNING_CMP_ISINSTANCE % ("ge",), DeprecationWarning
-                )
+        if other.__class__ is self.__class__:
             return attrs_to_tuple(self) >= attrs_to_tuple(other)
-        else:
-            return NotImplemented
+
+        return NotImplemented
 
     return eq, ne, __lt__, __le__, __gt__, __ge__
 
@@ -1228,9 +1197,17 @@ _already_repring = threading.local()
 
 def _make_repr(attrs, ns):
     """
-    Make a repr method for *attr_names* adding *ns* to the full name.
+    Make a repr method that includes relevant *attrs*, adding *ns* to the full
+    name.
     """
-    attr_names = tuple(a.name for a in attrs if a.repr)
+
+    # Figure out which attributes to include, and which function to use to
+    # format them. The a.repr value can be either bool or a custom callable.
+    attr_names_with_reprs = tuple(
+        (a.name, repr if a.repr is True else a.repr)
+        for a in attrs
+        if a.repr is not False
+    )
 
     def __repr__(self):
         """
@@ -1262,12 +1239,14 @@ def _make_repr(attrs, ns):
         try:
             result = [class_name, "("]
             first = True
-            for name in attr_names:
+            for name, attr_repr in attr_names_with_reprs:
                 if first:
                     first = False
                 else:
                     result.append(", ")
-                result.extend((name, "=", repr(getattr(self, name, NOTHING))))
+                result.extend(
+                    (name, "=", attr_repr(getattr(self, name, NOTHING)))
+                )
             return "".join(result) + ")"
         finally:
             working_set.remove(id(self))

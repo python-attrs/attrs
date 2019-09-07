@@ -151,3 +151,12 @@ class Validated:
             attr.validators.instance_of(C), attr.validators.instance_of(D)
         ),
     )
+
+
+# Custom repr()
+@attr.s
+class WithCustomRepr:
+    a = attr.ib(repr=True)
+    b = attr.ib(repr=False)
+    c = attr.ib(repr=lambda value: "c is for cookie")
+    d = attr.ib(repr=str)

@@ -656,7 +656,7 @@ It will get called at the end of the generated ``__init__`` method.
    >>> obj
    C(x=1, y=2, z=3)
 
-Finally, you can exclude single attributes from certain methods:
+You can exclude single attributes from certain methods:
 
 .. doctest::
 
@@ -666,3 +666,14 @@ Finally, you can exclude single attributes from certain methods:
    ...     password = attr.ib(repr=False)
    >>> C("me", "s3kr3t")
    C(user='me')
+
+Alternatively, to influence how the generated ``__repr__()`` method formats a specific attribute, specify a custom callable to be used instead of the ``repr()`` built-in function:
+
+.. doctest::
+
+   >>> @attr.s
+   ... class C(object):
+   ...     user = attr.ib()
+   ...     password = attr.ib(repr=lambda value: '***')
+   >>> C("me", "s3kr3t")
+   C(user='me', password=***)

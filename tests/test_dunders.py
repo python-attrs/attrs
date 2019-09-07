@@ -227,6 +227,21 @@ class TestAddRepr(object):
         """
         assert "C(a=1, b=2)" == repr(cls(1, 2))
 
+    def test_custom_repr_works(self):
+        """
+        repr returns a sensible value for attributes with a custom repr
+        callable.
+        """
+
+        def custom_repr(value):
+            return "foo:" + str(value)
+
+        @attr.s
+        class C(object):
+            a = attr.ib(repr=custom_repr)
+
+        assert "C(a=foo:1)" == repr(C(1))
+
     def test_infinite_recursion(self):
         """
         In the presence of a cyclic graph, repr will emit an ellipsis and not
