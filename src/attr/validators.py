@@ -81,7 +81,8 @@ class _MatchesReValidator(object):
             raise ValueError(
                 "'{name}' must match regex {regex!r}"
                 " ({value!r} doesn't)".format(
-                    name=attr.name, regex=self.regex.pattern, value=value),
+                    name=attr.name, regex=self.regex.pattern, value=value
+                ),
                 attr,
                 self.regex,
                 value,
@@ -89,7 +90,8 @@ class _MatchesReValidator(object):
 
     def __repr__(self):
         return "<matches_re validator for pattern {regex!r}>".format(
-            regex=self.regex)
+            regex=self.regex
+        )
 
 
 def matches_re(regex, flags=0, func=None):
@@ -108,8 +110,11 @@ def matches_re(regex, flags=0, func=None):
     """
     fullmatch = getattr(re, "fullmatch", None)
     if func not in (fullmatch, None, re.search, re.match):
-        raise ValueError("'func' must be one of {}".format(
-            ", ".join(set((fullmatch, None, re.search, re.match)))))
+        raise ValueError(
+            "'func' must be one of {}".format(
+                ", ".join(set((fullmatch, None, re.search, re.match)))
+            )
+        )
     # non-int flags gives an okay error message in re, so rely on that
     if func is None:
         if fullmatch:
