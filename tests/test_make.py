@@ -1457,13 +1457,11 @@ class TestMakeCmp:
     Tests for _make_cmp().
     """
 
-    @pytest.mark.parametrize(
-        "op", ["__%s__" % (op,) for op in ("lt", "le", "gt", "ge")]
-    )
-    def test_subclasses_deprecated(self, recwarn, op):
+    def test_subclasses_cannot_be_compared(self):
         """
-        Calling comparison methods on subclasses raises a deprecation warning;
-        calling them on identical classes does not..
+        Calling comparison methods on subclasses raises a TypeError.
+
+        We use the actual operation so we get an error raised on Python 3.
         """
 
         @attr.s
@@ -1474,18 +1472,31 @@ class TestMakeCmp:
         class B(A):
             pass
 
-        getattr(A(42), op)(A(42))
-        getattr(B(42), op)(B(42))
+        a = A(42)
+        b = B(42)
 
-        assert [] == recwarn.list
+        assert a <= a
+        assert a >= a
+        assert not a < a
+        assert not a > a
 
-        getattr(A(42), op)(B(42))
-
-        w = recwarn.pop()
-
-        assert [] == recwarn.list
-        assert isinstance(w.message, DeprecationWarning)
         assert (
-            "Comparision of subclasses using %s is deprecated and will be "
-            "removed in 2019." % (op,)
-        ) == w.message.args[0]
+            NotImplemented
+            == a.__lt__(b)
+            == a.__le__(b)
+            == a.__gt__(b)
+            == a.__ge__(b)
+        )
+
+        if not PY2:
+            with pytest.raises(TypeError):
+                a <= b
+
+            with pytest.raises(TypeError):
+                a >= b
+
+            with pytest.raises(TypeError):
+                a < b
+
+            with pytest.raises(TypeError):
+                a > b
