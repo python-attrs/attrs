@@ -5,7 +5,6 @@ import linecache
 import sys
 import threading
 import uuid
-import warnings
 
 from operator import itemgetter
 
@@ -865,6 +864,9 @@ def attrs(
        :class:`DeprecationWarning` if the classes compared are subclasses of
        each other. ``__eq`` and ``__ne__`` never tried to compared subclasses
        to each other.
+    .. versionchanged:: 19.2.0
+       ``__lt__``, ``__le__``, ``__gt__``, and ``__ge__`` now do not consider
+       subclasses comparable anymore.
     .. versionadded:: 18.2.0 *kw_only*
     .. versionadded:: 18.2.0 *cache_hash*
     .. versionadded:: 19.1.0 *auto_exc*
@@ -1092,12 +1094,6 @@ def __ne__(self, other):
     return not result
 
 
-WARNING_CMP_ISINSTANCE = (
-    "Comparision of subclasses using __%s__ is deprecated and will be removed "
-    "in 2019."
-)
-
-
 def _make_cmp(cls, attrs):
     attrs = [a for a in attrs if a.cmp]
 
@@ -1147,53 +1143,37 @@ def _make_cmp(cls, attrs):
         """
         Automatically created by attrs.
         """
-        if isinstance(other, self.__class__):
-            if other.__class__ is not self.__class__:
-                warnings.warn(
-                    WARNING_CMP_ISINSTANCE % ("lt",), DeprecationWarning
-                )
+        if other.__class__ is self.__class__:
             return attrs_to_tuple(self) < attrs_to_tuple(other)
-        else:
-            return NotImplemented
+
+        return NotImplemented
 
     def __le__(self, other):
         """
         Automatically created by attrs.
         """
-        if isinstance(other, self.__class__):
-            if other.__class__ is not self.__class__:
-                warnings.warn(
-                    WARNING_CMP_ISINSTANCE % ("le",), DeprecationWarning
-                )
+        if other.__class__ is self.__class__:
             return attrs_to_tuple(self) <= attrs_to_tuple(other)
-        else:
-            return NotImplemented
+
+        return NotImplemented
 
     def __gt__(self, other):
         """
         Automatically created by attrs.
         """
-        if isinstance(other, self.__class__):
-            if other.__class__ is not self.__class__:
-                warnings.warn(
-                    WARNING_CMP_ISINSTANCE % ("gt",), DeprecationWarning
-                )
+        if other.__class__ is self.__class__:
             return attrs_to_tuple(self) > attrs_to_tuple(other)
-        else:
-            return NotImplemented
+
+        return NotImplemented
 
     def __ge__(self, other):
         """
         Automatically created by attrs.
         """
-        if isinstance(other, self.__class__):
-            if other.__class__ is not self.__class__:
-                warnings.warn(
-                    WARNING_CMP_ISINSTANCE % ("ge",), DeprecationWarning
-                )
+        if other.__class__ is self.__class__:
             return attrs_to_tuple(self) >= attrs_to_tuple(other)
-        else:
-            return NotImplemented
+
+        return NotImplemented
 
     return eq, ne, __lt__, __le__, __gt__, __ge__
 
