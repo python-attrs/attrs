@@ -53,16 +53,14 @@ class Attribute(Generic[_T]):
     validator: Optional[_ValidatorType[_T]]
     repr: _ReprArgType
     cmp: bool
+    eq: bool
+    order: bool
     hash: Optional[bool]
     init: bool
     converter: Optional[_ConverterType[_T]]
     metadata: Dict[Any, Any]
     type: Optional[Type[_T]]
     kw_only: bool
-    def __lt__(self, x: Attribute[_T]) -> bool: ...
-    def __le__(self, x: Attribute[_T]) -> bool: ...
-    def __gt__(self, x: Attribute[_T]) -> bool: ...
-    def __ge__(self, x: Attribute[_T]) -> bool: ...
 
 # NOTE: We had several choices for the annotation to use for type arg:
 # 1) Type[_T]
@@ -92,7 +90,7 @@ def attrib(
     default: None = ...,
     validator: None = ...,
     repr: _ReprArgType = ...,
-    cmp: bool = ...,
+    cmp: Optional[bool] = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
     metadata: Optional[Mapping[Any, Any]] = ...,
@@ -100,6 +98,8 @@ def attrib(
     converter: None = ...,
     factory: None = ...,
     kw_only: bool = ...,
+    eq: Optional[bool] = ...,
+    order: Optional[bool] = ...,
 ) -> Any: ...
 
 # This form catches an explicit None or no default and infers the type from the other arguments.
@@ -108,7 +108,7 @@ def attrib(
     default: None = ...,
     validator: Optional[_ValidatorArgType[_T]] = ...,
     repr: _ReprArgType = ...,
-    cmp: bool = ...,
+    cmp: Optional[bool] = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
     metadata: Optional[Mapping[Any, Any]] = ...,
@@ -116,6 +116,8 @@ def attrib(
     converter: Optional[_ConverterType[_T]] = ...,
     factory: Optional[Callable[[], _T]] = ...,
     kw_only: bool = ...,
+    eq: Optional[bool] = ...,
+    order: Optional[bool] = ...,
 ) -> _T: ...
 
 # This form catches an explicit default argument.
@@ -124,7 +126,7 @@ def attrib(
     default: _T,
     validator: Optional[_ValidatorArgType[_T]] = ...,
     repr: _ReprArgType = ...,
-    cmp: bool = ...,
+    cmp: Optional[bool] = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
     metadata: Optional[Mapping[Any, Any]] = ...,
@@ -132,6 +134,8 @@ def attrib(
     converter: Optional[_ConverterType[_T]] = ...,
     factory: Optional[Callable[[], _T]] = ...,
     kw_only: bool = ...,
+    eq: Optional[bool] = ...,
+    order: Optional[bool] = ...,
 ) -> _T: ...
 
 # This form covers type=non-Type: e.g. forward references (str), Any
@@ -140,7 +144,7 @@ def attrib(
     default: Optional[_T] = ...,
     validator: Optional[_ValidatorArgType[_T]] = ...,
     repr: _ReprArgType = ...,
-    cmp: bool = ...,
+    cmp: Optional[bool] = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
     metadata: Optional[Mapping[Any, Any]] = ...,
@@ -148,6 +152,8 @@ def attrib(
     converter: Optional[_ConverterType[_T]] = ...,
     factory: Optional[Callable[[], _T]] = ...,
     kw_only: bool = ...,
+    eq: Optional[bool] = ...,
+    order: Optional[bool] = ...,
 ) -> Any: ...
 @overload
 def attrs(
@@ -155,7 +161,7 @@ def attrs(
     these: Optional[Dict[str, Any]] = ...,
     repr_ns: Optional[str] = ...,
     repr: bool = ...,
-    cmp: bool = ...,
+    cmp: Optional[bool] = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
     slots: bool = ...,
@@ -166,6 +172,8 @@ def attrs(
     kw_only: bool = ...,
     cache_hash: bool = ...,
     auto_exc: bool = ...,
+    eq: Optional[bool] = ...,
+    order: Optional[bool] = ...,
 ) -> _C: ...
 @overload
 def attrs(
@@ -173,7 +181,7 @@ def attrs(
     these: Optional[Dict[str, Any]] = ...,
     repr_ns: Optional[str] = ...,
     repr: bool = ...,
-    cmp: bool = ...,
+    cmp: Optional[bool] = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
     slots: bool = ...,
@@ -184,6 +192,8 @@ def attrs(
     kw_only: bool = ...,
     cache_hash: bool = ...,
     auto_exc: bool = ...,
+    eq: Optional[bool] = ...,
+    order: Optional[bool] = ...,
 ) -> Callable[[_C], _C]: ...
 
 # TODO: add support for returning NamedTuple from the mypy plugin
@@ -202,7 +212,7 @@ def make_class(
     bases: Tuple[type, ...] = ...,
     repr_ns: Optional[str] = ...,
     repr: bool = ...,
-    cmp: bool = ...,
+    cmp: Optional[bool] = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
     slots: bool = ...,
@@ -213,6 +223,8 @@ def make_class(
     kw_only: bool = ...,
     cache_hash: bool = ...,
     auto_exc: bool = ...,
+    eq: Optional[bool] = ...,
+    order: Optional[bool] = ...,
 ) -> type: ...
 
 # _funcs --

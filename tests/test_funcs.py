@@ -25,6 +25,21 @@ MAPPING_TYPES = (dict, OrderedDict)
 SEQUENCE_TYPES = (list, tuple)
 
 
+@pytest.fixture(scope="session", name="C")
+def fixture_C():
+    """
+    Return a simple but fully featured attrs class with an x and a y attribute.
+    """
+    import attr
+
+    @attr.s
+    class C(object):
+        x = attr.ib()
+        y = attr.ib()
+
+    return C
+
+
 class TestAsDict(object):
     """
     Tests for `asdict`.

@@ -166,3 +166,10 @@ class WithCustomRepr:
     b = attr.ib(repr=False)
     c = attr.ib(repr=lambda value: "c is for cookie")
     d = attr.ib(repr=str)
+
+
+# Check some of our own types
+@attr.s(eq=True, order=False)
+class OrderFlags:
+    a = attr.ib(eq=False, order=False)
+    b = attr.ib(eq=True, order=True)

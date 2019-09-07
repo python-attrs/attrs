@@ -5,6 +5,7 @@ End-to-end tests.
 from __future__ import absolute_import, division, print_function
 
 import pickle
+import sys
 
 from copy import deepcopy
 
@@ -16,7 +17,7 @@ from hypothesis.strategies import booleans
 
 import attr
 
-from attr._compat import TYPE
+from attr._compat import PY2, TYPE
 from attr._make import NOTHING, Attribute
 from attr.exceptions import FrozenInstanceError
 
@@ -124,7 +125,9 @@ class TestDarkMagic(object):
                 default=foo,
                 validator=None,
                 repr=True,
-                cmp=True,
+                cmp=None,
+                eq=True,
+                order=True,
                 hash=None,
                 init=True,
             ),
@@ -133,7 +136,9 @@ class TestDarkMagic(object):
                 default=attr.Factory(list),
                 validator=None,
                 repr=True,
-                cmp=True,
+                cmp=None,
+                eq=True,
+                order=True,
                 hash=None,
                 init=True,
             ),
@@ -181,13 +186,16 @@ class TestDarkMagic(object):
         `attr.make_class` works.
         """
         PC = attr.make_class("PC", ["a", "b"], slots=slots, frozen=frozen)
+
         assert (
             Attribute(
                 name="a",
                 default=NOTHING,
                 validator=None,
                 repr=True,
-                cmp=True,
+                cmp=None,
+                eq=True,
+                order=True,
                 hash=None,
                 init=True,
             ),
@@ -196,7 +204,9 @@ class TestDarkMagic(object):
                 default=NOTHING,
                 validator=None,
                 repr=True,
-                cmp=True,
+                cmp=None,
+                eq=True,
+                order=True,
                 hash=None,
                 init=True,
             ),
@@ -380,7 +390,7 @@ class TestDarkMagic(object):
             HashByIDBackwardCompat(1)
         )
 
-        @attr.s(hash=False, cmp=False)
+        @attr.s(hash=False, eq=False)
         class HashByID(object):
             x = attr.ib()
 
@@ -412,10 +422,10 @@ class TestDarkMagic(object):
     @pytest.mark.parametrize("slots", [True, False])
     def test_hash_false_cmp_false(self, slots):
         """
-        hash=False and cmp=False make a class hashable by ID.
+        hash=False and eq=False make a class hashable by ID.
         """
 
-        @attr.s(hash=False, cmp=False, slots=slots)
+        @attr.s(hash=False, eq=False, slots=slots)
         class C(object):
             pass
 
@@ -581,3 +591,45 @@ class TestDarkMagic(object):
             x = attr.ib()
 
         FooError(1)
+
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("frozen", [True, False])
+    def test_eq_only(self, slots, frozen):
+        """
+        Classes with order=False cannot be ordered.
+
+        Python 3 throws a TypeError, in Python2 we have to check for the
+        absence.
+        """
+
+        @attr.s(eq=True, order=False, slots=slots, frozen=frozen)
+        class C(object):
+            x = attr.ib()
+
+        if not PY2:
+            if sys.version_info < (3, 6):
+                error = r"unorderable types: C\(\) < C\(\)"
+            else:
+                error = "'<' not supported between instances of 'C' and 'C'"
+
+            with pytest.raises(TypeError, match=error):
+                C(5) < C(6)
+        else:
+            i = C(42)
+            for m in ("lt", "le", "gt", "ge"):
+                assert None is getattr(i, m, None)
+
+    def test_cmp_deprecated_attribute(self):
+        """
+        Accessing Attribute.cmp raises a deprecation warning.
+        """
+        with pytest.deprecated_call() as dc:
+            attr.fields(C1).x.cmp
+
+        w, = dc.list
+
+        assert (
+            "The usage of `cmp` is deprecated and will be removed on or after "
+            "2021-06-01.  Please use `eq` and `order` instead."
+            == w.message.args[0]
+        )

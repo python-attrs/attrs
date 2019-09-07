@@ -72,7 +72,7 @@ After *declaring* your attributes ``attrs`` gives you:
 
 - a concise and explicit overview of the class's attributes,
 - a nice human-readable ``__repr__``,
-- a complete set of comparison methods,
+- a complete set of comparison methods (equality and ordering),
 - an initializer,
 - and much more,
 

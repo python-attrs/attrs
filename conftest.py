@@ -2,8 +2,6 @@ from __future__ import absolute_import, division, print_function
 
 import sys
 
-import pytest
-
 from hypothesis import HealthCheck, settings
 
 
@@ -13,21 +11,6 @@ def pytest_configure(config):
         "patience", settings(suppress_health_check=[HealthCheck.too_slow])
     )
     settings.load_profile("patience")
-
-
-@pytest.fixture(scope="session")
-def C():
-    """
-    Return a simple but fully featured attrs class with an x and a y attribute.
-    """
-    import attr
-
-    @attr.s
-    class C(object):
-        x = attr.ib()
-        y = attr.ib()
-
-    return C
 
 
 collect_ignore = []
