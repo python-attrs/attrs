@@ -109,10 +109,11 @@ def matches_re(regex, flags=0, func=None):
     .. versionadded:: 19.1.0
     """
     fullmatch = getattr(re, "fullmatch", None)
-    if func not in (fullmatch, None, re.search, re.match):
+    valid_funcs = (fullmatch, None, re.search, re.match)
+    if func not in valid_funcs:
         raise ValueError(
             "'func' must be one of {}".format(
-                ", ".join(set((fullmatch, None, re.search, re.match)))
+                ", ".join([repr(e) for e in set(valid_funcs)])
             )
         )
     # non-int flags gives an okay error message in re, so rely on that

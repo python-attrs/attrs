@@ -124,7 +124,19 @@ class TestMatchesRe(object):
         class SearchTester(object):
             val = attr.ib(validator=matches_re("a", 0, re.search))
 
-        SearchTester("bab")
+        SearchTester("bab")  # re.search will match
+
+    def test_bad_args_and_repr(self):
+        """
+        miscellaneous behaviors: repr and
+        """
+        with pytest.raises(TypeError):
+            matches_re(0)
+        with pytest.raises(TypeError):
+            matches_re("a", "a")
+        with pytest.raises(ValueError):
+            matches_re("a", 0, lambda: None)
+        repr(matches_re("a"))
 
 
 def always_pass(_, __, ___):
