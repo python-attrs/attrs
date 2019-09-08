@@ -217,7 +217,7 @@ If you don't set ``kw_only=True``, then there's is no valid attribute ordering a
 Converting to Collections Types
 -------------------------------
 
-When you have a class with data, it often is very convenient to transform that class into a :class:`dict` (for example if you want to serialize it to JSON):
+When you have a class with data, it often is very convenient to transform that class into a `dict` (for example if you want to serialize it to JSON):
 
 .. doctest::
 

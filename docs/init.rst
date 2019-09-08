@@ -15,7 +15,7 @@ So assuming you use an ORM and want to extract 2D points from a row object, do n
 
     pt = Point(row)
 
-Instead, write a :func:`classmethod` that will extract it for you::
+Instead, write a `classmethod` that will extract it for you::
 
    @attr.s
    class Point(object):

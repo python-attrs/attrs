@@ -99,7 +99,7 @@ def attrib(
         or dicts).
 
         If a default is not set (or set manually to ``attr.NOTHING``), a value
-        *must* be supplied when instantiating; otherwise a :exc:`TypeError`
+        *must* be supplied when instantiating; otherwise a `TypeError`
         will be raised.
 
         The default can also be set using decorator notation as shown below.
@@ -739,12 +739,12 @@ def attrs(
         If *these* is not ``None``, ``attrs`` will *not* search the class body
         for attributes and will *not* remove any attributes from it.
 
-        If *these* is an ordered dict (:class:`dict` on Python 3.6+,
-        :class:`collections.OrderedDict` otherwise), the order is deduced from
+        If *these* is an ordered dict (`dict` on Python 3.6+,
+        `collections.OrderedDict` otherwise), the order is deduced from
         the order of the attributes inside *these*.  Otherwise the order
         of the definition of the attributes is used.
 
-    :type these: :class:`dict` of :class:`str` to :func:`attr.ib`
+    :type these: `dict` of `str` to :func:`attr.ib`
 
     :param str repr_ns: When using nested classes, there's no way in Python 2
         to automatically detect that.  Therefore it's possible to set the
@@ -753,7 +753,7 @@ def attrs(
         representation of ``attrs`` attributes..
     :param bool str: Create a ``__str__`` method that is identical to
         ``__repr__``.  This is usually not necessary except for
-        :class:`Exception`\ s.
+        `Exception`\ s.
     :param bool cmp: Create ``__eq__``, ``__ne__``, ``__lt__``, ``__le__``,
         ``__gt__``, and ``__ge__`` methods that compare the class as if it were
         a tuple of its ``attrs`` attributes.  But the attributes are *only*
@@ -834,7 +834,7 @@ def attrs(
         fields involved in hash code computation or mutations of the objects
         those fields point to after object creation.  If such changes occur,
         the behavior of the object's hash code is undefined.
-    :param bool auto_exc: If the class subclasses :class:`BaseException`
+    :param bool auto_exc: If the class subclasses `BaseException`
         (which implicitly includes any subclass of any exception), the
         following happens to behave like a well-behaved Python exceptions
         class:
@@ -861,7 +861,7 @@ def attrs(
     .. versionadded:: 18.2.0 *weakref_slot*
     .. deprecated:: 18.2.0
        ``__lt__``, ``__le__``, ``__gt__``, and ``__ge__`` now raise a
-       :class:`DeprecationWarning` if the classes compared are subclasses of
+       `DeprecationWarning` if the classes compared are subclasses of
        each other. ``__eq`` and ``__ne__`` never tried to compared subclasses
        to each other.
     .. versionchanged:: 19.2.0
@@ -1342,7 +1342,7 @@ def fields_dict(cls):
         class.
 
     :rtype: an ordered dict where keys are attribute names and values are
-        :class:`attr.Attribute`\\ s. This will be a :class:`dict` if it's
+        :class:`attr.Attribute`\\ s. This will be a `dict` if it's
         naturally ordered like on Python 3.6+ or an
         :class:`~collections.OrderedDict` otherwise.
 
@@ -1972,11 +1972,11 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
     :param attrs: A list of names or a dictionary of mappings of names to
         attributes.
 
-        If *attrs* is a list or an ordered dict (:class:`dict` on Python 3.6+,
-        :class:`collections.OrderedDict` otherwise), the order is deduced from
+        If *attrs* is a list or an ordered dict (`dict` on Python 3.6+,
+        `collections.OrderedDict` otherwise), the order is deduced from
         the order of the names or attributes inside *attrs*.  Otherwise the
         order of the definition of the attributes is used.
-    :type attrs: :class:`list` or :class:`dict`
+    :type attrs: `list` or `dict`
 
     :param tuple bases: Classes that the new class will subclass.
 

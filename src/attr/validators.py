@@ -50,9 +50,9 @@ class _InstanceOfValidator(object):
 
 def instance_of(type):
     """
-    A validator that raises a :exc:`TypeError` if the initializer is called
+    A validator that raises a `TypeError` if the initializer is called
     with a wrong type for this particular attribute (checks are performed using
-    :func:`isinstance` therefore it's also valid to pass a tuple of types).
+    `isinstance` therefore it's also valid to pass a tuple of types).
 
     :param type: The type to check for.
     :type type: type or tuple of types
@@ -91,7 +91,7 @@ class _ProvidesValidator(object):
 
 def provides(interface):
     """
-    A validator that raises a :exc:`TypeError` if the initializer is called
+    A validator that raises a `TypeError` if the initializer is called
     with an object that does not provide the requested *interface* (checks are
     performed using ``interface.providedBy(value)`` (see `zope.interface
     <https://zopeinterface.readthedocs.io/en/latest/>`_).
@@ -129,7 +129,7 @@ def optional(validator):
 
     :param validator: A validator (or a list of validators) that is used for
         non-``None`` values.
-    :type validator: callable or :class:`list` of callables.
+    :type validator: callable or `list` of callables.
 
     .. versionadded:: 15.1.0
     .. versionchanged:: 17.1.0 *validator* can be a list of validators.
@@ -164,12 +164,12 @@ class _InValidator(object):
 
 def in_(options):
     """
-    A validator that raises a :exc:`ValueError` if the initializer is called
+    A validator that raises a `ValueError` if the initializer is called
     with a value that does not belong in the options provided.  The check is
     performed using ``value in options``.
 
     :param options: Allowed options.
-    :type options: list, tuple, :class:`enum.Enum`, ...
+    :type options: list, tuple, `enum.Enum`, ...
 
     :raises ValueError: With a human readable error message, the attribute (of
        type :class:`attr.Attribute`), the expected options, and the value it

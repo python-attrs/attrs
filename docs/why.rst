@@ -57,7 +57,7 @@ Adding an attribute to a class concerns only those who actually care about that 
 …namedtuples?
 -------------
 
-:func:`collections.namedtuple`\ s are tuples with names, not classes. [#history]_
+`collections.namedtuple`\ s are tuples with names, not classes. [#history]_
 Since writing classes is tiresome in Python, every now and then someone discovers all the typing they could save and gets really excited.
 However that convenience comes at a price.
 
