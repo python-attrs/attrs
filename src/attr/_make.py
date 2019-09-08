@@ -1672,8 +1672,8 @@ class Attribute(object):
 
     :attribute name: The name of the attribute.
 
-    Plus *all* arguments of :func:`attr.ib` (except for `factory` which is only
-    syntactic sugar for ``default=Factory(...)``.
+    Plus *all* arguments of :func:`attr.ib` (except for ``factory``
+    which is only syntactic sugar for ``default=Factory(...)``.
 
     For the version history of the fields, see :func:`attr.ib`.
     """

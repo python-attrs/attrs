@@ -65,7 +65,7 @@ For a more thorough explanation of this topic, please refer to this blog post: `
 
 Hashing and Mutability
 ----------------------
-Changing any field involved in hash code computation after the first call to `__hash__` (typically this would be after its insertion into a hash-based collection) can result in silent bugs.
+Changing any field involved in hash code computation after the first call to ``__hash__`` (typically this would be after its insertion into a hash-based collection) can result in silent bugs.
 Therefore, it is strongly recommended that hashable classes be ``frozen.``
 Beware, however, that this is not a complete guarantee of safety:
 if a field points to an object and that object is mutated, the hash code may change, but ``frozen`` will not protect you.

@@ -68,6 +68,9 @@ version = release.rsplit(u".", 1)[0]
 # directories to ignore when looking for source files.
 exclude_patterns = ["_build"]
 
+# The reST default role (used for this markup: `text`) to use for all documents.
+default_role = "any"
+
 # If true, '()' will be appended to :func: etc. cross-reference text.
 add_function_parentheses = True
 
