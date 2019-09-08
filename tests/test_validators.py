@@ -96,29 +96,35 @@ class TestMatchesRe(object):
         """
         default re.match behavior
         """
+
         @attr.s
         class ReTester(object):
-            str_match = attr.ib(validator=matches_re('a'))
-        ReTester('a')  # shouldn't raise exceptions
+            str_match = attr.ib(validator=matches_re("a"))
+
+        ReTester("a")  # shouldn't raise exceptions
         with pytest.raises(TypeError):
             ReTester(1)
         with pytest.raises(ValueError):
-            ReTester('1')
+            ReTester("1")
         with pytest.raises(ValueError):
-            ReTester('a1')
+            ReTester("a1")
 
     def test_extra_args(self):
         """
         flags and non-default match function behavior
         """
+
         @attr.s
         class MatchTester(object):
-            val = attr.ib(validator=matches_re('a', re.IGNORECASE, re.match))
-        MatchTester('A1')  # test flags and using re.match
+            val = attr.ib(validator=matches_re("a", re.IGNORECASE, re.match))
+
+        MatchTester("A1")  # test flags and using re.match
+
         @attr.s
         class SearchTester(object):
-            val = attr.ib(validator=matches_re('a', 0, re.search))
-        SearchTester('bab')
+            val = attr.ib(validator=matches_re("a", 0, re.search))
+
+        SearchTester("bab")
 
 
 def always_pass(_, __, ___):
