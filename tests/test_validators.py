@@ -136,6 +136,8 @@ class TestMatchesRe(object):
             matches_re("a", "a")
         with pytest.raises(ValueError):
             matches_re("a", 0, lambda: None)
+        for m in (None, getattr(re, "fullmatch", None), re.match, re.search):
+            matches_re("a", 0, m)
         repr(matches_re("a"))
 
 
