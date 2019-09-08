@@ -132,7 +132,7 @@ def matches_re(regex, flags=0, func=None):
         match_func = regex.match
     elif func is re.search:
         match_func = regex.search
-    elif func is re.fullmatch:
+    elif func is re.fullmatch:  # pragma: no branch
         match_func = regex.fullmatch
     return _MatchesReValidator(regex, flags, match_func)
 
