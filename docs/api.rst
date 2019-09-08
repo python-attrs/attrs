@@ -411,7 +411,7 @@ Validators
         ...     email = attr.ib(validator=attr.validators.matches_re(
         ...         "(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"))
         >>> User(email="user@example.com")
-        User(email="user@example.com")
+        User(email='user@example.com')
         >>> User(email="user@example.com@test.com")
         Traceback (most recent call last):
             ...

@@ -122,7 +122,10 @@ def matches_re(regex, flags=0, func=None):
             func = fullmatch
         else:
             # python 2 fullmatch emulation
-            regex = r"(?:{})\Z".format(regex)
+            if isinstance(regex, (type(u""), type(b""))):
+                # pylint flags references to basestring or unicode builtins
+                # avoid swallowing TypeError if regex is not basestring
+                regex = r"(?:{})\Z".format(regex)
             func = re.match
     regex = re.compile(regex, flags)
     if func is re.match:
