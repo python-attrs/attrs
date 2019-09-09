@@ -1,5 +1,3 @@
-.. _examples:
-
 ``attrs`` by Example
 ====================
 

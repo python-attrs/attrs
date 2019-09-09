@@ -1,5 +1,3 @@
-.. _extending:
-
 Extending
 =========
 

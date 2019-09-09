@@ -6,7 +6,7 @@ Backward Compatibility
 ``attrs`` has a very strong backward compatibility policy that is inspired by the policy of the `Twisted framework <https://twistedmatrix.com/trac/wiki/CompatibilityPolicy>`_.
 
 Put simply, you shouldn't ever be afraid to upgrade ``attrs`` if you're only using its public APIs.
-If there will ever be a need to break compatibility, it will be announced in the :doc:`changelog` and raise a ``DeprecationWarning`` for a year (if possible) before it's finally really broken.
+If there will ever be a need to break compatibility, it will be announced in the `changelog` and raise a ``DeprecationWarning`` for a year (if possible) before it's finally really broken.
 
 
 .. _exemption:

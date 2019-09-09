@@ -1,5 +1,3 @@
-.. _api:
-
 API Reference
 =============
 
@@ -11,7 +9,7 @@ API Reference
 
    When this documentation speaks about "``attrs`` attributes" it means those attributes that are defined using `attr.ib` in the class body.
 
-What follows is the API explanation, if you'd like a more hands-on introduction, have a look at :doc:`examples`.
+What follows is the API explanation, if you'd like a more hands-on introduction, have a look at `examples`.
 
 
 

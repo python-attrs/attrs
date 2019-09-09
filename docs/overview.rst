@@ -39,7 +39,7 @@ Philosophy
    It doesn't try to guess what you mean because explicit is better than implicit.
    It doesn't try to be clever because software shouldn't be clever.
 
-Check out :doc:`how-does-it-work` if you'd like to know how it achieves all of the above.
+Check out `how-does-it-work` if you'd like to know how it achieves all of the above.
 
 
 What ``attrs`` Is Not

@@ -97,7 +97,7 @@ This is when default values come into play:
    C(a=42, b=[], c=[], d={})
 
 It's important that the decorated method -- or any other method or property! -- doesn't have the same name as the attribute, otherwise it would overwrite the attribute definition.
-You also cannot use type annotations to elide the `attr.ib` call for ``d`` as explained in :doc:`types`.
+You also cannot use type annotations to elide the `attr.ib` call for ``d`` as explained in `types`.
 
 
 Please note that as with function and method signatures, ``default=[]`` will *not* do what you may think it might do:
