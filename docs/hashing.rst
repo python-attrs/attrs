@@ -15,10 +15,10 @@ Hash Method Generation
    Setting ``hash`` yourself can have unexpected consequences so we recommend to tinker with it only if you know exactly what you're doing.
 
 Under certain circumstances, it's necessary for objects to be *hashable*.
-For example if you want to put them into a :class:`set` or if you want to use them as keys in a :class:`dict`.
+For example if you want to put them into a `set` or if you want to use them as keys in a `dict`.
 
 The *hash* of an object is an integer that represents the contents of an object.
-It can be obtained by calling :func:`hash` on an object and is implemented by writing a ``__hash__`` method for your class.
+It can be obtained by calling `hash` on an object and is implemented by writing a ``__hash__`` method for your class.
 
 ``attrs`` will happily write a ``__hash__`` method for you [#fn1]_, however it will *not* do so by default.
 Because according to the definition_ from the official Python docs, the returned hash has to fulfill certain constraints:
@@ -26,7 +26,7 @@ Because according to the definition_ from the official Python docs, the returned
 #. Two objects that are equal, **must** have the same hash.
    This means that if ``x == y``, it *must* follow that ``hash(x) == hash(y)``.
 
-   By default, Python classes are compared *and* hashed by their :func:`id`.
+   By default, Python classes are compared *and* hashed by their `id`.
    That means that every instance of a class has a different hash, no matter what attributes it carries.
 
    It follows that the moment you (or ``attrs``) change the way equality is handled by implementing ``__eq__`` which is based on attribute values, this constraint is broken.
@@ -65,7 +65,7 @@ For a more thorough explanation of this topic, please refer to this blog post: `
 
 Hashing and Mutability
 ----------------------
-Changing any field involved in hash code computation after the first call to `__hash__` (typically this would be after its insertion into a hash-based collection) can result in silent bugs.
+Changing any field involved in hash code computation after the first call to ``__hash__`` (typically this would be after its insertion into a hash-based collection) can result in silent bugs.
 Therefore, it is strongly recommended that hashable classes be ``frozen.``
 Beware, however, that this is not a complete guarantee of safety:
 if a field points to an object and that object is mutated, the hash code may change, but ``frozen`` will not protect you.

@@ -88,30 +88,30 @@ def attrib(
     ..  warning::
 
         Does *not* do anything unless the class is also decorated with
-        :func:`attr.s`!
+        `attr.s`!
 
     :param default: A value that is used if an ``attrs``-generated ``__init__``
         is used and no value is passed while instantiating or the attribute is
         excluded using ``init=False``.
 
-        If the value is an instance of :class:`Factory`, its callable will be
+        If the value is an instance of `Factory`, its callable will be
         used to construct a new value (useful for mutable data types like lists
         or dicts).
 
         If a default is not set (or set manually to ``attr.NOTHING``), a value
-        *must* be supplied when instantiating; otherwise a :exc:`TypeError`
+        *must* be supplied when instantiating; otherwise a `TypeError`
         will be raised.
 
         The default can also be set using decorator notation as shown below.
 
-    :type default: Any value.
+    :type default: Any value
 
     :param callable factory: Syntactic sugar for
         ``default=attr.Factory(callable)``.
 
-    :param validator: :func:`callable` that is called by ``attrs``-generated
+    :param validator: `callable` that is called by ``attrs``-generated
         ``__init__`` methods after the instance has been initialized.  They
-        receive the initialized instance, the :class:`Attribute`, and the
+        receive the initialized instance, the `Attribute`, and the
         passed value.
 
         The return value is *not* inspected so the validator has to throw an
@@ -121,7 +121,7 @@ def attrib(
         all pass.
 
         Validators can be globally disabled and re-enabled using
-        :func:`get_run_validators`.
+        `get_run_validators`.
 
         The validator can also be set using decorator notation as shown below.
 
@@ -146,13 +146,13 @@ def attrib(
         method.  It is possible to set this to ``False`` and set a default
         value.  In that case this attributed is unconditionally initialized
         with the specified default value or factory.
-    :param callable converter: :func:`callable` that is called by
+    :param callable converter: `callable` that is called by
         ``attrs``-generated ``__init__`` methods to converter attribute's value
         to the desired format.  It is given the passed-in value, and the
         returned value will be used as the new value of the attribute.  The
         value is converted before being passed to the validator, if any.
     :param metadata: An arbitrary mapping, to be used by third-party
-        components.  See :ref:`extending_metadata`.
+        components.  See `extending_metadata`.
     :param type: The type of the attribute.  In Python 3.6 or greater, the
         preferred method to specify the type is using a variable annotation
         (see `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_).
@@ -162,7 +162,7 @@ def attrib(
 
         Please note that ``attrs`` doesn't do anything with this metadata by
         itself. You can use it as part of your own code or for
-        :doc:`static type checking <types>`.
+        `static type checking <types>`.
     :param kw_only: Make this attribute keyword-only (Python 3+)
         in the generated ``__init__`` (if ``init`` is ``False``, this
         parameter is ignored).
@@ -729,9 +729,9 @@ def attrs(
     r"""
     A class decorator that adds `dunder
     <https://wiki.python.org/moin/DunderAlias>`_\ -methods according to the
-    specified attributes using :func:`attr.ib` or the *these* argument.
+    specified attributes using `attr.ib` or the *these* argument.
 
-    :param these: A dictionary of name to :func:`attr.ib` mappings.  This is
+    :param these: A dictionary of name to `attr.ib` mappings.  This is
         useful to avoid the definition of your attributes within the class body
         because you can't (e.g. if you want to add ``__repr__`` methods to
         Django models) or don't want to.
@@ -739,12 +739,12 @@ def attrs(
         If *these* is not ``None``, ``attrs`` will *not* search the class body
         for attributes and will *not* remove any attributes from it.
 
-        If *these* is an ordered dict (:class:`dict` on Python 3.6+,
-        :class:`collections.OrderedDict` otherwise), the order is deduced from
+        If *these* is an ordered dict (`dict` on Python 3.6+,
+        `collections.OrderedDict` otherwise), the order is deduced from
         the order of the attributes inside *these*.  Otherwise the order
         of the definition of the attributes is used.
 
-    :type these: :class:`dict` of :class:`str` to :func:`attr.ib`
+    :type these: `dict` of `str` to `attr.ib`
 
     :param str repr_ns: When using nested classes, there's no way in Python 2
         to automatically detect that.  Therefore it's possible to set the
@@ -753,7 +753,7 @@ def attrs(
         representation of ``attrs`` attributes..
     :param bool str: Create a ``__str__`` method that is identical to
         ``__repr__``.  This is usually not necessary except for
-        :class:`Exception`\ s.
+        `Exception`\ s.
     :param bool cmp: Create ``__eq__``, ``__ne__``, ``__lt__``, ``__le__``,
         ``__gt__``, and ``__ge__`` methods that compare the class as if it were
         a tuple of its ``attrs`` attributes.  But the attributes are *only*
@@ -783,10 +783,10 @@ def attrs(
         argument name.  If a ``__attrs_post_init__`` method exists on the
         class, it will be called after the class is fully initialized.
     :param bool slots: Create a slots_-style class that's more
-        memory-efficient.  See :ref:`slots` for further ramifications.
+        memory-efficient.  See `slots` for further ramifications.
     :param bool frozen: Make instances immutable after initialization.  If
         someone attempts to modify a frozen instance,
-        :exc:`attr.exceptions.FrozenInstanceError` is raised.
+        `attr.exceptions.FrozenInstanceError` is raised.
 
         Please note:
 
@@ -795,7 +795,7 @@ def attrs(
 
             2. True immutability is impossible in Python.
 
-            3. This *does* have a minor a runtime performance :ref:`impact
+            3. This *does* have a minor a runtime performance `impact
                <how-frozen>` when initializing new instances.  In other words:
                ``__init__`` is slightly slower with ``frozen=True``.
 
@@ -811,17 +811,17 @@ def attrs(
         (Python 3.6 and later only) from the class body.
 
         In this case, you **must** annotate every field.  If ``attrs``
-        encounters a field that is set to an :func:`attr.ib` but lacks a type
-        annotation, an :exc:`attr.exceptions.UnannotatedAttributeError` is
+        encounters a field that is set to an `attr.ib` but lacks a type
+        annotation, an `attr.exceptions.UnannotatedAttributeError` is
         raised.  Use ``field_name: typing.Any = attr.ib(...)`` if you don't
         want to set a type.
 
         If you assign a value to those attributes (e.g. ``x: int = 42``), that
         value becomes the default value like if it were passed using
-        ``attr.ib(default=42)``.  Passing an instance of :class:`Factory` also
+        ``attr.ib(default=42)``.  Passing an instance of `Factory` also
         works as expected.
 
-        Attributes annotated as :data:`typing.ClassVar` are **ignored**.
+        Attributes annotated as `typing.ClassVar` are **ignored**.
 
         .. _`PEP 526`: https://www.python.org/dev/peps/pep-0526/
     :param bool kw_only: Make all attributes keyword-only (Python 3+)
@@ -834,7 +834,7 @@ def attrs(
         fields involved in hash code computation or mutations of the objects
         those fields point to after object creation.  If such changes occur,
         the behavior of the object's hash code is undefined.
-    :param bool auto_exc: If the class subclasses :class:`BaseException`
+    :param bool auto_exc: If the class subclasses `BaseException`
         (which implicitly includes any subclass of any exception), the
         following happens to behave like a well-behaved Python exceptions
         class:
@@ -861,7 +861,7 @@ def attrs(
     .. versionadded:: 18.2.0 *weakref_slot*
     .. deprecated:: 18.2.0
        ``__lt__``, ``__le__``, ``__gt__``, and ``__ge__`` now raise a
-       :class:`DeprecationWarning` if the classes compared are subclasses of
+       `DeprecationWarning` if the classes compared are subclasses of
        each other. ``__eq`` and ``__ne__`` never tried to compared subclasses
        to each other.
     .. versionchanged:: 19.2.0
@@ -1315,7 +1315,7 @@ def fields(cls):
     :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
         class.
 
-    :rtype: tuple (with name accessors) of :class:`attr.Attribute`
+    :rtype: tuple (with name accessors) of `attr.Attribute`
 
     ..  versionchanged:: 16.2.0 Returned tuple allows accessing the fields
         by name.
@@ -1342,7 +1342,7 @@ def fields_dict(cls):
         class.
 
     :rtype: an ordered dict where keys are attribute names and values are
-        :class:`attr.Attribute`\\ s. This will be a :class:`dict` if it's
+        `attr.Attribute`\\ s. This will be a `dict` if it's
         naturally ordered like on Python 3.6+ or an
         :class:`~collections.OrderedDict` otherwise.
 
@@ -1672,10 +1672,10 @@ class Attribute(object):
 
     :attribute name: The name of the attribute.
 
-    Plus *all* arguments of :func:`attr.ib` (except for `factory` which is only
-    syntactic sugar for ``default=Factory(...)``.
+    Plus *all* arguments of `attr.ib` (except for ``factory``
+    which is only syntactic sugar for ``default=Factory(...)``.
 
-    For the version history of the fields, see :func:`attr.ib`.
+    For the version history of the fields, see `attr.ib`.
     """
 
     __slots__ = (
@@ -1939,7 +1939,7 @@ class Factory(object):
     """
     Stores a factory callable.
 
-    If passed as the default value to :func:`attr.ib`, the factory is used to
+    If passed as the default value to `attr.ib`, the factory is used to
     generate a new value.
 
     :param callable factory: A callable that takes either none or exactly one
@@ -1972,15 +1972,15 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
     :param attrs: A list of names or a dictionary of mappings of names to
         attributes.
 
-        If *attrs* is a list or an ordered dict (:class:`dict` on Python 3.6+,
-        :class:`collections.OrderedDict` otherwise), the order is deduced from
+        If *attrs* is a list or an ordered dict (`dict` on Python 3.6+,
+        `collections.OrderedDict` otherwise), the order is deduced from
         the order of the names or attributes inside *attrs*.  Otherwise the
         order of the definition of the attributes is used.
-    :type attrs: :class:`list` or :class:`dict`
+    :type attrs: `list` or `dict`
 
     :param tuple bases: Classes that the new class will subclass.
 
-    :param attributes_arguments: Passed unmodified to :func:`attr.s`.
+    :param attributes_arguments: Passed unmodified to `attr.s`.
 
     :return: A new class with *attrs*.
     :rtype: type

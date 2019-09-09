@@ -31,6 +31,15 @@ def find_version(*file_paths):
 
 # -- General configuration ------------------------------------------------
 
+# In nitpick mode (-n), still ignore any of the following "broken" references
+# to non-types.
+nitpick_ignore = [
+    ("py:class", "Any value"),
+    ("py:class", "callable"),
+    ("py:class", "callables"),
+    ("py:class", "tuple of types"),
+]
+
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
@@ -67,6 +76,10 @@ version = release.rsplit(u".", 1)[0]
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 exclude_patterns = ["_build"]
+
+# The reST default role (used for this markup: `text`) to use for all
+# documents.
+default_role = "any"
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
 add_function_parentheses = True
@@ -154,7 +167,10 @@ texinfo_documents = [
     )
 ]
 
-intersphinx_mapping = {"https://docs.python.org/3": None}
+intersphinx_mapping = {
+    "https://docs.python.org/3": None,
+    "https://zopeinterface.readthedocs.io/en/latest/": None,
+}
 
 # Allow non-local URIs so we can have images in CHANGELOG etc.
 suppress_warnings = ["image.nonlocal_uri"]

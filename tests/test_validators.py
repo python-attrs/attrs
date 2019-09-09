@@ -439,7 +439,7 @@ class TestDeepIterable(object):
         self, member_validator, iterable_validator
     ):
         """
-        Raise :class:`TypeError` if any validators are not callable.
+        Raise `TypeError` if any validators are not callable.
         """
         with pytest.raises(TypeError) as e:
             deep_iterable(member_validator, iterable_validator)
@@ -557,7 +557,7 @@ class TestDeepMapping(object):
         self, key_validator, value_validator, mapping_validator
     ):
         """
-        Raise :class:`TypeError` if any validators are not callable.
+        Raise `TypeError` if any validators are not callable.
         """
         with pytest.raises(TypeError) as e:
             deep_mapping(key_validator, value_validator, mapping_validator)
@@ -574,7 +574,7 @@ class TestDeepMapping(object):
 
     def test_fail_invalid_mapping(self):
         """
-        Raise :class:`TypeError` if mapping validator fails.
+        Raise `TypeError` if mapping validator fails.
         """
         key_validator = instance_of(str)
         value_validator = instance_of(int)

@@ -1,5 +1,3 @@
-.. _examples:
-
 ``attrs`` by Example
 ====================
 
@@ -217,7 +215,7 @@ If you don't set ``kw_only=True``, then there's is no valid attribute ordering a
 Converting to Collections Types
 -------------------------------
 
-When you have a class with data, it often is very convenient to transform that class into a :class:`dict` (for example if you want to serialize it to JSON):
+When you have a class with data, it often is very convenient to transform that class into a `dict` (for example if you want to serialize it to JSON):
 
 .. doctest::
 
@@ -225,7 +223,7 @@ When you have a class with data, it often is very convenient to transform that c
    {'x': 1, 'y': 2}
 
 Some fields cannot or should not be transformed.
-For that, :func:`attr.asdict` offers a callback that decides whether an attribute should be included:
+For that, `attr.asdict` offers a callback that decides whether an attribute should be included:
 
 .. doctest::
 
@@ -241,7 +239,7 @@ For that, :func:`attr.asdict` offers a callback that decides whether an attribut
    ...             filter=lambda attr, value: attr.name != "password")
    {'users': [{'email': 'jane@doe.invalid'}, {'email': 'joe@doe.invalid'}]}
 
-For the common case where you want to :func:`include <attr.filters.include>` or :func:`exclude <attr.filters.exclude>` certain types or attributes, ``attrs`` ships with a few helpers:
+For the common case where you want to `include <attr.filters.include>` or `exclude <attr.filters.exclude>` certain types or attributes, ``attrs`` ships with a few helpers:
 
 .. doctest::
 
@@ -426,7 +424,7 @@ You can use a decorator:
    ValueError: value out of bounds
 
 
-``attrs`` ships with a bunch of validators, make sure to :ref:`check them out <api_validators>` before writing your own:
+``attrs`` ships with a bunch of validators, make sure to `check them out <api_validators>` before writing your own:
 
 .. doctest::
 
@@ -440,7 +438,7 @@ You can use a decorator:
       ...
    TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, factory=NOTHING, validator=<instance_of validator for type <type 'int'>>, type=None, kw_only=False), <type 'int'>, '42')
 
-Check out :ref:`validators` for more details.
+Check out `validators` for more details.
 
 
 Conversion
@@ -458,7 +456,7 @@ This can be useful for doing type-conversions on values that you don't want to f
     >>> o.x
     1
 
-Check out :ref:`converters` for more details.
+Check out `converters` for more details.
 
 
 .. _metadata:
@@ -481,13 +479,13 @@ All ``attrs`` attributes may include arbitrary metadata in the form of a read-on
 Metadata is not used by ``attrs``, and is meant to enable rich functionality in third-party libraries.
 The metadata dictionary follows the normal dictionary rules: keys need to be hashable, and both keys and values are recommended to be immutable.
 
-If you're the author of a third-party library with ``attrs`` integration, please see :ref:`Extending Metadata <extending_metadata>`.
+If you're the author of a third-party library with ``attrs`` integration, please see `Extending Metadata <extending_metadata>`.
 
 
 Types
 -----
 
-``attrs`` also allows you to associate a type with an attribute using either the *type* argument to :func:`attr.ib` or -- as of Python 3.6 -- using `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_-annotations:
+``attrs`` also allows you to associate a type with an attribute using either the *type* argument to `attr.ib` or -- as of Python 3.6 -- using `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_-annotations:
 
 
 .. doctest::
@@ -501,7 +499,7 @@ Types
    >>> attr.fields(C).y.type
    <class 'int'>
 
-If you don't mind annotating *all* attributes, you can even drop the :func:`attr.ib` and assign default values instead:
+If you don't mind annotating *all* attributes, you can even drop the `attr.ib` and assign default values instead:
 
 .. doctest::
 
@@ -572,11 +570,11 @@ If you'd like to enforce it, ``attrs`` will try to help:
    >>> i.x
    1
 
-Please note that true immutability is impossible in Python but it will :ref:`get <how-frozen>` you 99% there.
+Please note that true immutability is impossible in Python but it will `get <how-frozen>` you 99% there.
 By themselves, immutable classes are useful for long-lived objects that should never change; like configurations for example.
 
 In order to use them in regular program flow, you'll need a way to easily create new instances with changed attributes.
-In Clojure that function is called `assoc <https://clojuredocs.org/clojure.core/assoc>`_ and ``attrs`` shamelessly imitates it: :func:`attr.evolve`:
+In Clojure that function is called `assoc <https://clojuredocs.org/clojure.core/assoc>`_ and ``attrs`` shamelessly imitates it: `attr.evolve`:
 
 .. doctest::
 
@@ -598,7 +596,7 @@ Other Goodies
 -------------
 
 Sometimes you may want to create a class programmatically.
-``attrs`` won't let you down and gives you :func:`attr.make_class` :
+``attrs`` won't let you down and gives you `attr.make_class` :
 
 .. doctest::
 
@@ -625,7 +623,7 @@ You can still have power over the attributes if you pass a dictionary of name: `
    >>> i.y
    []
 
-If you need to dynamically make a class with :func:`attr.make_class` and it needs to be a subclass of something else than ``object``, use the ``bases`` argument:
+If you need to dynamically make a class with `attr.make_class` and it needs to be a subclass of something else than ``object``, use the ``bases`` argument:
 
 .. doctest::
 

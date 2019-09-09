@@ -1,10 +1,8 @@
-.. _extending:
-
 Extending
 =========
 
 Each ``attrs``-decorated class has a ``__attrs_attrs__`` class attribute.
-It is a tuple of :class:`attr.Attribute` carrying meta-data about each attribute.
+It is a tuple of `attr.Attribute` carrying meta-data about each attribute.
 
 So it is fairly simple to build your own decorators on top of ``attrs``:
 
@@ -23,7 +21,7 @@ So it is fairly simple to build your own decorators on top of ``attrs``:
 
 .. warning::
 
-   The :func:`attr.s` decorator **must** be applied first because it puts ``__attrs_attrs__`` in place!
+   The `attr.s` decorator **must** be applied first because it puts ``__attrs_attrs__`` in place!
    That means that is has to come *after* your decorator because::
 
       @a
@@ -53,7 +51,7 @@ Types
 ``attrs`` offers two ways of attaching type information to attributes:
 
 - `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_ annotations on Python 3.6 and later,
-- and the *type* argument to :func:`attr.ib`.
+- and the *type* argument to `attr.ib`.
 
 This information is available to you:
 

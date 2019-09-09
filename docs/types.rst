@@ -3,7 +3,7 @@ Type Annotations
 
 ``attrs`` comes with first class support for type annotations for both Python 3.6 (:pep:`526`) and legacy syntax.
 
-On Python 3.6 and later, you can even drop the :func:`attr.ib`\ s if you're willing to annotate *all* attributes.
+On Python 3.6 and later, you can even drop the `attr.ib`\ s if you're willing to annotate *all* attributes.
 That means that on modern Python versions, the declaration part of the example from the README can be simplified to:
 
 
@@ -23,11 +23,11 @@ That means that on modern Python versions, the declaration part of the example f
    >>> attr.fields(SomeClass).a_number.type
    <class 'int'>
 
-You will still need :func:`attr.ib` for advanced features, but not for the common cases.
+You will still need `attr.ib` for advanced features, but not for the common cases.
 
 One of those features are the decorator-based features like defaults.
 It's important to remember that ``attrs`` doesn't do any magic behind your back.
-All the decorators are implemented using an object that is returned by the call to :func:`attr.ib`.
+All the decorators are implemented using an object that is returned by the call to `attr.ib`.
 
 Attributes that only carry a class annotation do not have that object so trying to call a method on it will inevitably fail.
 

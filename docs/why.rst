@@ -1,5 +1,3 @@
-.. _why:
-
 Why not…
 ========
 
@@ -57,7 +55,7 @@ Adding an attribute to a class concerns only those who actually care about that 
 …namedtuples?
 -------------
 
-:func:`collections.namedtuple`\ s are tuples with names, not classes. [#history]_
+`collections.namedtuple`\ s are tuples with names, not classes. [#history]_
 Since writing classes is tiresome in Python, every now and then someone discovers all the typing they could save and gets really excited.
 However that convenience comes at a price.
 
@@ -127,7 +125,7 @@ With ``attrs`` your users won't notice a difference because it creates regular, 
 .. [#pollution] ``attrs`` only adds a single attribute: ``__attrs_attrs__`` for introspection.
                 All helpers are functions in the ``attr`` package.
                 Since they take the instance as first argument, you can easily attach them to your classes under a name of your own choice.
-.. [#iter] :func:`attr.astuple` can be used to get that behavior in ``attrs`` on *explicit demand*.
+.. [#iter] `attr.astuple` can be used to get that behavior in ``attrs`` on *explicit demand*.
 .. [#immutable] ``attrs`` offers *optional* immutability through the ``frozen`` keyword.
 .. [#perf] Although ``attrs`` would serve you just as well!
            Since both employ the same method of writing and compiling Python code for you, the performance penalty is negligible at worst and in some cases ``attrs`` is even faster if you use ``slots=True`` (which is generally a good idea anyway).

@@ -53,15 +53,15 @@ class _InstanceOfValidator(object):
 
 def instance_of(type):
     """
-    A validator that raises a :exc:`TypeError` if the initializer is called
+    A validator that raises a `TypeError` if the initializer is called
     with a wrong type for this particular attribute (checks are performed using
-    :func:`isinstance` therefore it's also valid to pass a tuple of types).
+    `isinstance` therefore it's also valid to pass a tuple of types).
 
     :param type: The type to check for.
     :type type: type or tuple of types
 
     :raises TypeError: With a human readable error message, the attribute
-        (of type :class:`attr.Attribute`), the expected type, and the value it
+        (of type `attr.Attribute`), the expected type, and the value it
         got.
     """
     return _InstanceOfValidator(type)
@@ -96,17 +96,17 @@ class _MatchesReValidator(object):
 
 def matches_re(regex, flags=0, func=None):
     r"""
-    A validator that raises :exc:`ValueError` if the initializer is called
+    A validator that raises `ValueError` if the initializer is called
     with a string that doesn't match *regex*.
 
     :param str regex: a regex string to match against
     :param int flags: flags that will be passed to the underlying re function
         (default 0)
-    :param callable func: which underlying :mod:`re` function to call (options
-        are :func:`re.fullmatch`, :func:`re.search`, :func:`re.match`, default
-        is ``None`` which means either :func:`re.fullmatch` or an emulation of
+    :param callable func: which underlying `re` function to call (options
+        are `re.fullmatch`, `re.search`, `re.match`, default
+        is ``None`` which means either `re.fullmatch` or an emulation of
         it on Python 2). For performance reasons, they won't be used directly
-        but on a pre-:func:`re.compile`\ ed pattern.
+        but on a pre-`re.compile`\ ed pattern.
 
     .. versionadded:: 19.2.0
     """
@@ -166,7 +166,7 @@ class _ProvidesValidator(object):
 
 def provides(interface):
     """
-    A validator that raises a :exc:`TypeError` if the initializer is called
+    A validator that raises a `TypeError` if the initializer is called
     with an object that does not provide the requested *interface* (checks are
     performed using ``interface.providedBy(value)`` (see `zope.interface
     <https://zopeinterface.readthedocs.io/en/latest/>`_).
@@ -174,7 +174,7 @@ def provides(interface):
     :param zope.interface.Interface interface: The interface to check for.
 
     :raises TypeError: With a human readable error message, the attribute
-        (of type :class:`attr.Attribute`), the expected interface, and the
+        (of type `attr.Attribute`), the expected interface, and the
         value it got.
     """
     return _ProvidesValidator(interface)
@@ -204,7 +204,7 @@ def optional(validator):
 
     :param validator: A validator (or a list of validators) that is used for
         non-``None`` values.
-    :type validator: callable or :class:`list` of callables.
+    :type validator: callable or `list` of callables.
 
     .. versionadded:: 15.1.0
     .. versionchanged:: 17.1.0 *validator* can be a list of validators.
@@ -239,15 +239,15 @@ class _InValidator(object):
 
 def in_(options):
     """
-    A validator that raises a :exc:`ValueError` if the initializer is called
+    A validator that raises a `ValueError` if the initializer is called
     with a value that does not belong in the options provided.  The check is
     performed using ``value in options``.
 
     :param options: Allowed options.
-    :type options: list, tuple, :class:`enum.Enum`, ...
+    :type options: list, tuple, `enum.Enum`, ...
 
     :raises ValueError: With a human readable error message, the attribute (of
-       type :class:`attr.Attribute`), the expected options, and the value it
+       type `attr.Attribute`), the expected options, and the value it
        got.
 
     .. versionadded:: 17.1.0
@@ -279,14 +279,14 @@ class _IsCallableValidator(object):
 
 def is_callable():
     """
-    A validator that raises a :class:`attr.exceptions.NotCallableError`
-    if the initializer is called with a value for this particular attribute
+    A validator that raises a `attr.exceptions.NotCallableError` if the
+    initializer is called with a value for this particular attribute
     that is not callable.
 
     .. versionadded:: 19.1.0
 
     :raises `attr.exceptions.NotCallableError`: With a human readable error
-        message containing the attribute (:class:`attr.Attribute`) name,
+        message containing the attribute (`attr.Attribute`) name,
         and the value it got.
     """
     return _IsCallableValidator()
