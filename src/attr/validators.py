@@ -104,8 +104,9 @@ def matches_re(regex, flags=0, func=None):
         (default 0)
     :param callable func: which underlying :mod:`re` function to call (options
         are :func:`re.fullmatch`, :func:`re.search`, :func:`re.match`, default
-        :func:`re.fullmatch`). They won't be used directly but on a
-        pre-:func:`re.compile`\ ed pattern.
+        is ``None`` which means either :func:`re.fullmatch` or an emulation of
+        it on Python 2). For performance reasons, they won't be used directly
+        but on a pre-:func:`re.compile`\ ed pattern.
 
     .. versionadded:: 19.2.0
     """
