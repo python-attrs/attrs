@@ -116,26 +116,20 @@ def matches_re(regex, flags=0, func=None):
                 ", ".join([repr(e) for e in set(valid_funcs)])
             )
         )
-    if func is None:
-        if fullmatch:
-            func = fullmatch
-        else:
-            # python 2 fullmatch emulation
-            if isinstance(regex, (type(u""), type(b""))):
-                # pylint flags references to basestring or unicode builtins
-                # avoid swallowing TypeError if regex is not basestring
-                regex = r"(?:{})\Z".format(regex)
-            func = re.match
 
-    # non-int flags gives an okay error message in re, so rely on that
-    regex = re.compile(regex, flags)
+    pattern = re.compile(regex, flags)
     if func is re.match:
-        match_func = regex.match
+        match_func = pattern.match
     elif func is re.search:
-        match_func = regex.search
-    elif func is re.fullmatch:  # pragma: no branch
-        match_func = regex.fullmatch
-    return _MatchesReValidator(regex, flags, match_func)
+        match_func = pattern.search
+    else:
+        if fullmatch:
+            match_func = pattern.fullmatch
+        else:
+            pattern = re.compile(r"(?:{})\Z".format(regex), flags)
+            match_func = pattern.match
+
+    return _MatchesReValidator(pattern, flags, match_func)
 
 
 @attrs(repr=False, slots=True, hash=True)

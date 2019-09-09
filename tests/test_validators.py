@@ -94,7 +94,7 @@ class TestMatchesRe(object):
 
     def test_match(self):
         """
-        default re.match behavior
+        Silent on matches, raises ValueError on mismatches.
         """
 
         @attr.s
@@ -109,9 +109,9 @@ class TestMatchesRe(object):
         with pytest.raises(ValueError):
             ReTester("a1")
 
-    def test_extra_args(self):
+    def test_flags(self):
         """
-        flags and non-default match function behavior
+        Flags are propagated to the match function.
         """
 
         @attr.s
@@ -119,6 +119,11 @@ class TestMatchesRe(object):
             val = attr.ib(validator=matches_re("a", re.IGNORECASE, re.match))
 
         MatchTester("A1")  # test flags and using re.match
+
+    def test_different_func(self):
+        """
+        Changing the match functions works.
+        """
 
         @attr.s
         class SearchTester(object):
@@ -138,7 +143,14 @@ class TestMatchesRe(object):
             matches_re("a", 0, lambda: None)
         for m in (None, getattr(re, "fullmatch", None), re.match, re.search):
             matches_re("a", 0, m)
-        repr(matches_re("a"))
+
+    def test_repr(self):
+        """
+        __repr__ is meaningful.
+        """
+        assert repr(matches_re("a")).startswith(
+            "<matches_re validator for pattern"
+        )
 
 
 def always_pass(_, __, ___):
