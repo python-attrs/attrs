@@ -97,16 +97,16 @@ class _MatchesReValidator(object):
 def matches_re(regex, flags=0, func=None):
     """
     A validator that raises :exc:`ValueError` if the initializer is called
-    with a string that doesn't match the given regex, and :exc:`TypeError`
-    if the initializer is called with a non-string.
+    with a string that doesn't match *regex*.
 
-    :param regex: a regex string to match against
-    :param flags: flags that will be passed to the underlying re function
+    :param str regex: a regex string to match against
+    :param int flags: flags that will be passed to the underlying re function
         (default 0)
-    :param func: which underlying re function to call (options are
-        `re.fullmatch()`, `re.search()`, `re.match()`, default `re.fullmatch`)
+    :param callable func: which underlying re function to call (options are
+        :func:`re.fullmatch`, :func:`re.search`, :func:`re.match`, default
+        :func:`re.fullmatch`)
 
-    .. versionadded:: 19.1.0
+    .. versionadded:: 19.2.0
     """
     fullmatch = getattr(re, "fullmatch", None)
     valid_funcs = (fullmatch, None, re.search, re.match)
@@ -116,7 +116,6 @@ def matches_re(regex, flags=0, func=None):
                 ", ".join([repr(e) for e in set(valid_funcs)])
             )
         )
-    # non-int flags gives an okay error message in re, so rely on that
     if func is None:
         if fullmatch:
             func = fullmatch
@@ -127,6 +126,8 @@ def matches_re(regex, flags=0, func=None):
                 # avoid swallowing TypeError if regex is not basestring
                 regex = r"(?:{})\Z".format(regex)
             func = re.match
+
+    # non-int flags gives an okay error message in re, so rely on that
     regex = re.compile(regex, flags)
     if func is re.match:
         match_func = regex.match
