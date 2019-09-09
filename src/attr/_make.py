@@ -94,7 +94,7 @@ def attrib(
         is used and no value is passed while instantiating or the attribute is
         excluded using ``init=False``.
 
-        If the value is an instance of :class:`Factory`, its callable will be
+        If the value is an instance of `Factory`, its callable will be
         used to construct a new value (useful for mutable data types like lists
         or dicts).
 
@@ -111,7 +111,7 @@ def attrib(
 
     :param validator: `callable` that is called by ``attrs``-generated
         ``__init__`` methods after the instance has been initialized.  They
-        receive the initialized instance, the :class:`Attribute`, and the
+        receive the initialized instance, the `Attribute`, and the
         passed value.
 
         The return value is *not* inspected so the validator has to throw an
@@ -818,7 +818,7 @@ def attrs(
 
         If you assign a value to those attributes (e.g. ``x: int = 42``), that
         value becomes the default value like if it were passed using
-        ``attr.ib(default=42)``.  Passing an instance of :class:`Factory` also
+        ``attr.ib(default=42)``.  Passing an instance of `Factory` also
         works as expected.
 
         Attributes annotated as :data:`typing.ClassVar` are **ignored**.
@@ -1315,7 +1315,7 @@ def fields(cls):
     :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
         class.
 
-    :rtype: tuple (with name accessors) of :class:`attr.Attribute`
+    :rtype: tuple (with name accessors) of `attr.Attribute`
 
     ..  versionchanged:: 16.2.0 Returned tuple allows accessing the fields
         by name.
@@ -1342,7 +1342,7 @@ def fields_dict(cls):
         class.
 
     :rtype: an ordered dict where keys are attribute names and values are
-        :class:`attr.Attribute`\\ s. This will be a `dict` if it's
+        `attr.Attribute`\\ s. This will be a `dict` if it's
         naturally ordered like on Python 3.6+ or an
         :class:`~collections.OrderedDict` otherwise.
 

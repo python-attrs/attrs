@@ -58,7 +58,7 @@ def instance_of(type):
     :type type: type or tuple of types
 
     :raises TypeError: With a human readable error message, the attribute
-        (of type :class:`attr.Attribute`), the expected type, and the value it
+        (of type `attr.Attribute`), the expected type, and the value it
         got.
     """
     return _InstanceOfValidator(type)
@@ -99,7 +99,7 @@ def provides(interface):
     :param zope.interface.Interface interface: The interface to check for.
 
     :raises TypeError: With a human readable error message, the attribute
-        (of type :class:`attr.Attribute`), the expected interface, and the
+        (of type `attr.Attribute`), the expected interface, and the
         value it got.
     """
     return _ProvidesValidator(interface)
@@ -172,7 +172,7 @@ def in_(options):
     :type options: list, tuple, `enum.Enum`, ...
 
     :raises ValueError: With a human readable error message, the attribute (of
-       type :class:`attr.Attribute`), the expected options, and the value it
+       type `attr.Attribute`), the expected options, and the value it
        got.
 
     .. versionadded:: 17.1.0
@@ -204,14 +204,14 @@ class _IsCallableValidator(object):
 
 def is_callable():
     """
-    A validator that raises a :class:`attr.exceptions.NotCallableError`
-    if the initializer is called with a value for this particular attribute
+    A validator that raises a `attr.exceptions.NotCallableError` if the
+    initializer is called with a value for this particular attribute
     that is not callable.
 
     .. versionadded:: 19.1.0
 
     :raises `attr.exceptions.NotCallableError`: With a human readable error
-        message containing the attribute (:class:`attr.Attribute`) name,
+        message containing the attribute (`attr.Attribute`) name,
         and the value it got.
     """
     return _IsCallableValidator()

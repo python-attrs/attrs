@@ -4,7 +4,7 @@ Extending
 =========
 
 Each ``attrs``-decorated class has a ``__attrs_attrs__`` class attribute.
-It is a tuple of :class:`attr.Attribute` carrying meta-data about each attribute.
+It is a tuple of `attr.Attribute` carrying meta-data about each attribute.
 
 So it is fairly simple to build your own decorators on top of ``attrs``:
 

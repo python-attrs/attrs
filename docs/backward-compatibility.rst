@@ -13,7 +13,7 @@ If there will ever be a need to break compatibility, it will be announced in the
 
 .. warning::
 
-   The structure of the :class:`attr.Attribute` class is exempt from this rule.
+   The structure of the `attr.Attribute` class is exempt from this rule.
    It *will* change in the future, but since it should be considered read-only, that shouldn't matter.
 
    However if you intend to build extensions on top of ``attrs`` you have to anticipate that.
