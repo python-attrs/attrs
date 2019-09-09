@@ -13,7 +13,7 @@ import attr
 
 from attr import has
 from attr import validators as validator_module
-from attr._compat import TYPE
+from attr._compat import PY2, TYPE
 from attr.validators import (
     and_,
     deep_iterable,
@@ -138,10 +138,16 @@ class TestMatchesRe(object):
         with pytest.raises(ValueError) as ei:
             matches_re("a", 0, lambda: None)
 
-        assert (
-            "'func' must be one of None, fullmatch, match, search"
-            == ei.value.args[0]
-        )
+        if not PY2:
+            assert (
+                "'func' must be one of None, fullmatch, match, search."
+                == ei.value.args[0]
+            )
+        else:
+            assert (
+                "'func' must be one of None, match, search."
+                == ei.value.args[0]
+            )
 
     @pytest.mark.parametrize(
         "func", [None, getattr(re, "fullmatch", None), re.match, re.search]
