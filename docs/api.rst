@@ -148,6 +148,7 @@ Core
 .. autoexception:: attr.exceptions.NotAnAttrsClassError
 .. autoexception:: attr.exceptions.DefaultAlreadySetError
 .. autoexception:: attr.exceptions.UnannotatedAttributeError
+.. autoexception:: attr.exceptions.NotCallableError
 
    For example::
 

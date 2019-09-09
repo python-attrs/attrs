@@ -104,7 +104,7 @@ def attrib(
 
         The default can also be set using decorator notation as shown below.
 
-    :type default: Any value.
+    :type default: Any value
 
     :param callable factory: Syntactic sugar for
         ``default=attr.Factory(callable)``.

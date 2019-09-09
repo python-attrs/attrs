@@ -31,6 +31,15 @@ def find_version(*file_paths):
 
 # -- General configuration ------------------------------------------------
 
+# In nitpick mode (-n), still ignore any of the following "broken" references
+# to non-types.
+nitpick_ignore = [
+    ("py:class", "Any value"),
+    ("py:class", "callable"),
+    ("py:class", "callables"),
+    ("py:class", "tuple of types"),
+]
+
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
