@@ -4,6 +4,8 @@ Commonly useful validators.
 
 from __future__ import absolute_import, division, print_function
 
+import re
+
 from ._make import _AndValidator, and_, attrib, attrs
 from .exceptions import NotCallableError
 
@@ -15,6 +17,7 @@ __all__ = [
     "in_",
     "instance_of",
     "is_callable",
+    "matches_re",
     "optional",
     "provides",
 ]
@@ -62,6 +65,76 @@ def instance_of(type):
         got.
     """
     return _InstanceOfValidator(type)
+
+
+@attrs(repr=False, frozen=True)
+class _MatchesReValidator(object):
+    regex = attrib()
+    flags = attrib()
+    match_func = attrib()
+
+    def __call__(self, inst, attr, value):
+        """
+        We use a callable class to be able to change the ``__repr__``.
+        """
+        if not self.match_func(value):
+            raise ValueError(
+                "'{name}' must match regex {regex!r}"
+                " ({value!r} doesn't)".format(
+                    name=attr.name, regex=self.regex.pattern, value=value
+                ),
+                attr,
+                self.regex,
+                value,
+            )
+
+    def __repr__(self):
+        return "<matches_re validator for pattern {regex!r}>".format(
+            regex=self.regex
+        )
+
+
+def matches_re(regex, flags=0, func=None):
+    """
+    A validator that raises :exc:`ValueError` if the initializer is called
+    with a string that doesn't match the given regex, and :exc:`TypeError`
+    if the initializer is called with a non-string.
+
+    :param regex: a regex string to match against
+    :param flags: flags that will be passed to the underlying re function
+        (default 0)
+    :param func: which underlying re function to call (options are
+        `re.fullmatch()`, `re.search()`, `re.match()`, default `re.fullmatch`)
+
+    .. versionadded:: 19.1.0
+    """
+    fullmatch = getattr(re, "fullmatch", None)
+    valid_funcs = (fullmatch, None, re.search, re.match)
+    if func not in valid_funcs:
+        raise ValueError(
+            "'func' must be one of {}".format(
+                ", ".join([repr(e) for e in set(valid_funcs)])
+            )
+        )
+    # non-int flags gives an okay error message in re, so rely on that
+    if func is None:
+        if fullmatch:
+            func = fullmatch
+        else:
+            # python 2 fullmatch emulation
+            if isinstance(regex, (type(u""), type(b""))):
+                # pylint flags references to basestring or unicode builtins
+                # avoid swallowing TypeError if regex is not basestring
+                regex = r"(?:{})\Z".format(regex)
+            func = re.match
+    regex = re.compile(regex, flags)
+    if func is re.match:
+        match_func = regex.match
+    elif func is re.search:
+        match_func = regex.search
+    elif func is re.fullmatch:  # pragma: no branch
+        match_func = regex.fullmatch
+    return _MatchesReValidator(regex, flags, match_func)
 
 
 @attrs(repr=False, slots=True, hash=True)

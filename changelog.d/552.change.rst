@@ -1,0 +1,1 @@
+Added ``attr.validators.matches_re``

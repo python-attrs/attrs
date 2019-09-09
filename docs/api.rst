@@ -400,6 +400,24 @@ Validators
         attr.exceptions.NotCallableError: 'x' must be callable (got 'not a callable' that is a <class 'str'>).
 
 
+.. autofunction:: attr.validators.matches_re
+
+    For example:
+
+    .. doctest::
+
+        >>> @attr.s
+        ... class User(object):
+        ...     email = attr.ib(validator=attr.validators.matches_re(
+        ...         "(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"))
+        >>> User(email="user@example.com")
+        User(email='user@example.com')
+        >>> User(email="user@example.com@test.com")
+        Traceback (most recent call last):
+            ...
+        ValueError: ("'email' must match regex '(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\\\.[a-zA-Z0-9-.]+$)' ('user@example.com@test.com' doesn't)", Attribute(name='email', default=NOTHING, validator=<matches_re validator for pattern re.compile('(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$)')>, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False), re.compile('(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$)'), 'user@example.com@test.com')
+
+
 .. autofunction:: attr.validators.deep_iterable
 
     For example:

@@ -4,6 +4,8 @@ Tests for `attr.validators`.
 
 from __future__ import absolute_import, division, print_function
 
+import re
+
 import pytest
 import zope.interface
 
@@ -19,6 +21,7 @@ from attr.validators import (
     in_,
     instance_of,
     is_callable,
+    matches_re,
     optional,
     provides,
 )
@@ -76,6 +79,66 @@ class TestInstanceOf(object):
         assert (
             "<instance_of validator for type <{type} 'int'>>".format(type=TYPE)
         ) == repr(v)
+
+
+class TestMatchesRe(object):
+    """
+    Tests for `matches_re`.
+    """
+
+    def test_in_all(self):
+        """
+        validator is in ``__all__``.
+        """
+        assert matches_re.__name__ in validator_module.__all__
+
+    def test_match(self):
+        """
+        default re.match behavior
+        """
+
+        @attr.s
+        class ReTester(object):
+            str_match = attr.ib(validator=matches_re("a"))
+
+        ReTester("a")  # shouldn't raise exceptions
+        with pytest.raises(TypeError):
+            ReTester(1)
+        with pytest.raises(ValueError):
+            ReTester("1")
+        with pytest.raises(ValueError):
+            ReTester("a1")
+
+    def test_extra_args(self):
+        """
+        flags and non-default match function behavior
+        """
+
+        @attr.s
+        class MatchTester(object):
+            val = attr.ib(validator=matches_re("a", re.IGNORECASE, re.match))
+
+        MatchTester("A1")  # test flags and using re.match
+
+        @attr.s
+        class SearchTester(object):
+            val = attr.ib(validator=matches_re("a", 0, re.search))
+
+        SearchTester("bab")  # re.search will match
+
+    def test_bad_args_and_repr(self):
+        """
+        miscellaneous behaviors: repr and
+        """
+        with pytest.raises(TypeError):
+            matches_re(0)
+        with pytest.raises(TypeError):
+            matches_re("a", "a")
+        with pytest.raises(ValueError):
+            matches_re("a", 0, lambda: None)
+        for m in (None, getattr(re, "fullmatch", None), re.match, re.search):
+            matches_re("a", 0, m)
+        repr(matches_re("a"))
 
 
 def always_pass(_, __, ___):
