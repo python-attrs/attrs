@@ -131,18 +131,26 @@ class TestMatchesRe(object):
 
         SearchTester("bab")  # re.search will match
 
-    def test_bad_args_and_repr(self):
+    def test_catches_invalid_func(self):
         """
-        miscellaneous behaviors: repr and
+        Invalid match functions are caught.
         """
-        with pytest.raises(TypeError):
-            matches_re(0)
-        with pytest.raises(TypeError):
-            matches_re("a", "a")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as ei:
             matches_re("a", 0, lambda: None)
-        for m in (None, getattr(re, "fullmatch", None), re.match, re.search):
-            matches_re("a", 0, m)
+
+        assert (
+            "'func' must be one of None, fullmatch, match, search"
+            == ei.value.args[0]
+        )
+
+    @pytest.mark.parametrize(
+        "func", [None, getattr(re, "fullmatch", None), re.match, re.search]
+    )
+    def test_accepts_all_valid_func(self, func):
+        """
+        Every valid match function is accepted.
+        """
+        matches_re("a", func=func)
 
     def test_repr(self):
         """
