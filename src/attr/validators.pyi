@@ -29,7 +29,9 @@ def optional(
 def in_(options: Container[_T]) -> _ValidatorType[_T]: ...
 def and_(*validators: _ValidatorType[_T]) -> _ValidatorType[_T]: ...
 def matches_re(
-    regex: str, flags: int, func: Union[None, Callable[[str, str, int], ...]]
+    regex: str,
+    flags: int = ...,
+    func: Optional[Callable[[str, str, int], ...]] = ...,
 ): ...
 def deep_iterable(
     member_validator: _ValidatorType[_T],

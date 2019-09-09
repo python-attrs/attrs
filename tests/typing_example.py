@@ -1,3 +1,5 @@
+import re
+
 from typing import Any, Dict, List, Tuple
 
 import attr
@@ -150,6 +152,10 @@ class Validated:
         validator=attr.validators.deep_mapping(
             attr.validators.instance_of(C), attr.validators.instance_of(D)
         ),
+    )
+    e = attr.ib(validator=attr.validators.matches_re(r"foo"))
+    f = attr.ib(
+        validator=attr.validators.matches_re(r"foo", flags=42, func=re.search)
     )
 
 
