@@ -4,6 +4,8 @@ Commonly useful validators.
 
 from __future__ import absolute_import, division, print_function
 
+import re
+
 from ._make import _AndValidator, and_, attrib, attrs
 from .exceptions import NotCallableError
 
@@ -15,6 +17,7 @@ __all__ = [
     "in_",
     "instance_of",
     "is_callable",
+    "matches_re",
     "optional",
     "provides",
 ]
@@ -62,6 +65,78 @@ def instance_of(type):
         got.
     """
     return _InstanceOfValidator(type)
+
+
+@attrs(repr=False, frozen=True)
+class _MatchesReValidator(object):
+    regex = attrib()
+    flags = attrib()
+    match_func = attrib()
+
+    def __call__(self, inst, attr, value):
+        """
+        We use a callable class to be able to change the ``__repr__``.
+        """
+        if not self.match_func(value):
+            raise ValueError(
+                "'{name}' must match regex {regex!r}"
+                " ({value!r} doesn't)".format(
+                    name=attr.name, regex=self.regex.pattern, value=value
+                ),
+                attr,
+                self.regex,
+                value,
+            )
+
+    def __repr__(self):
+        return "<matches_re validator for pattern {regex!r}>".format(
+            regex=self.regex
+        )
+
+
+def matches_re(regex, flags=0, func=None):
+    r"""
+    A validator that raises :exc:`ValueError` if the initializer is called
+    with a string that doesn't match *regex*.
+
+    :param str regex: a regex string to match against
+    :param int flags: flags that will be passed to the underlying re function
+        (default 0)
+    :param callable func: which underlying :mod:`re` function to call (options
+        are :func:`re.fullmatch`, :func:`re.search`, :func:`re.match`, default
+        is ``None`` which means either :func:`re.fullmatch` or an emulation of
+        it on Python 2). For performance reasons, they won't be used directly
+        but on a pre-:func:`re.compile`\ ed pattern.
+
+    .. versionadded:: 19.2.0
+    """
+    fullmatch = getattr(re, "fullmatch", None)
+    valid_funcs = (fullmatch, None, re.search, re.match)
+    if func not in valid_funcs:
+        raise ValueError(
+            "'func' must be one of %s."
+            % (
+                ", ".join(
+                    sorted(
+                        e and e.__name__ or "None" for e in set(valid_funcs)
+                    )
+                ),
+            )
+        )
+
+    pattern = re.compile(regex, flags)
+    if func is re.match:
+        match_func = pattern.match
+    elif func is re.search:
+        match_func = pattern.search
+    else:
+        if fullmatch:
+            match_func = pattern.fullmatch
+        else:
+            pattern = re.compile(r"(?:{})\Z".format(regex), flags)
+            match_func = pattern.match
+
+    return _MatchesReValidator(pattern, flags, match_func)
 
 
 @attrs(repr=False, slots=True, hash=True)
