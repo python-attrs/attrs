@@ -96,17 +96,17 @@ class _MatchesReValidator(object):
 
 def matches_re(regex, flags=0, func=None):
     r"""
-    A validator that raises :exc:`ValueError` if the initializer is called
+    A validator that raises `ValueError` if the initializer is called
     with a string that doesn't match *regex*.
 
     :param str regex: a regex string to match against
     :param int flags: flags that will be passed to the underlying re function
         (default 0)
-    :param callable func: which underlying :mod:`re` function to call (options
-        are :func:`re.fullmatch`, :func:`re.search`, :func:`re.match`, default
-        is ``None`` which means either :func:`re.fullmatch` or an emulation of
+    :param callable func: which underlying `re` function to call (options
+        are `re.fullmatch`, `re.search`, `re.match`, default
+        is ``None`` which means either `re.fullmatch` or an emulation of
         it on Python 2). For performance reasons, they won't be used directly
-        but on a pre-:func:`re.compile`\ ed pattern.
+        but on a pre-`re.compile`\ ed pattern.
 
     .. versionadded:: 19.2.0
     """
