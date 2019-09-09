@@ -51,7 +51,7 @@ This **static** approach was very much a design goal of ``attrs`` and what I str
 Immutability
 ------------
 
-In order to give you immutability, ``attrs`` will attach a ``__setattr__`` method to your class that raises a :exc:`attr.exceptions.FrozenInstanceError` whenever anyone tries to set an attribute.
+In order to give you immutability, ``attrs`` will attach a ``__setattr__`` method to your class that raises a `attr.exceptions.FrozenInstanceError` whenever anyone tries to set an attribute.
 
 Depending on whether a class is a dict class or a slotted class, ``attrs`` uses a different technique to circumvent that limitation in the ``__init__`` method.
 

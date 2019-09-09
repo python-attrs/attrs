@@ -786,7 +786,7 @@ def attrs(
         memory-efficient.  See `slots` for further ramifications.
     :param bool frozen: Make instances immutable after initialization.  If
         someone attempts to modify a frozen instance,
-        :exc:`attr.exceptions.FrozenInstanceError` is raised.
+        `attr.exceptions.FrozenInstanceError` is raised.
 
         Please note:
 
@@ -812,7 +812,7 @@ def attrs(
 
         In this case, you **must** annotate every field.  If ``attrs``
         encounters a field that is set to an `attr.ib` but lacks a type
-        annotation, an :exc:`attr.exceptions.UnannotatedAttributeError` is
+        annotation, an `attr.exceptions.UnannotatedAttributeError` is
         raised.  Use ``field_name: typing.Any = attr.ib(...)`` if you don't
         want to set a type.
 
@@ -821,7 +821,7 @@ def attrs(
         ``attr.ib(default=42)``.  Passing an instance of `Factory` also
         works as expected.
 
-        Attributes annotated as :data:`typing.ClassVar` are **ignored**.
+        Attributes annotated as `typing.ClassVar` are **ignored**.
 
         .. _`PEP 526`: https://www.python.org/dev/peps/pep-0526/
     :param bool kw_only: Make all attributes keyword-only (Python 3+)
