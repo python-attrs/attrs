@@ -246,7 +246,7 @@ Helpers
 
 .. autofunction:: attr.filters.exclude
 
-See :ref:`asdict` for examples.
+See :func:`asdict` for examples.
 
 .. autofunction:: attr.evolve
 

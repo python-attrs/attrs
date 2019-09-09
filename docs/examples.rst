@@ -424,7 +424,7 @@ You can use a decorator:
    ValueError: value out of bounds
 
 
-``attrs`` ships with a bunch of validators, make sure to :ref:`check them out <api_validators>` before writing your own:
+``attrs`` ships with a bunch of validators, make sure to `check them out <api_validators>` before writing your own:
 
 .. doctest::
 
@@ -438,7 +438,7 @@ You can use a decorator:
       ...
    TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, factory=NOTHING, validator=<instance_of validator for type <type 'int'>>, type=None, kw_only=False), <type 'int'>, '42')
 
-Check out :ref:`validators` for more details.
+Check out `validators` for more details.
 
 
 Conversion
@@ -456,7 +456,7 @@ This can be useful for doing type-conversions on values that you don't want to f
     >>> o.x
     1
 
-Check out :ref:`converters` for more details.
+Check out `converters` for more details.
 
 
 .. _metadata:
@@ -479,7 +479,7 @@ All ``attrs`` attributes may include arbitrary metadata in the form of a read-on
 Metadata is not used by ``attrs``, and is meant to enable rich functionality in third-party libraries.
 The metadata dictionary follows the normal dictionary rules: keys need to be hashable, and both keys and values are recommended to be immutable.
 
-If you're the author of a third-party library with ``attrs`` integration, please see :ref:`Extending Metadata <extending_metadata>`.
+If you're the author of a third-party library with ``attrs`` integration, please see `Extending Metadata <extending_metadata>`.
 
 
 Types
@@ -570,7 +570,7 @@ If you'd like to enforce it, ``attrs`` will try to help:
    >>> i.x
    1
 
-Please note that true immutability is impossible in Python but it will :ref:`get <how-frozen>` you 99% there.
+Please note that true immutability is impossible in Python but it will `get <how-frozen>` you 99% there.
 By themselves, immutable classes are useful for long-lived objects that should never change; like configurations for example.
 
 In order to use them in regular program flow, you'll need a way to easily create new instances with changed attributes.

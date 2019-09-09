@@ -204,7 +204,7 @@ This example also shows of some syntactic sugar for using the `attr.validators.a
       ...
    ValueError: 'x' has to be smaller than 'y'!
 
-``attrs`` ships with a bunch of validators, make sure to :ref:`check them out <api_validators>` before writing your own:
+``attrs`` ships with a bunch of validators, make sure to `check them out <api_validators>` before writing your own:
 
 .. doctest::
 
@@ -336,7 +336,7 @@ Please note that you can't directly set attributes on frozen classes:
       ...
    attr.exceptions.FrozenInstanceError: can't set attribute
 
-If you need to set attributes on a frozen class, you'll have to resort to the :ref:`same trick <how-frozen>` as ``attrs`` and use :meth:`object.__setattr__`:
+If you need to set attributes on a frozen class, you'll have to resort to the `same trick <how-frozen>` as ``attrs`` and use :meth:`object.__setattr__`:
 
 .. doctest::
 

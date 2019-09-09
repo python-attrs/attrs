@@ -27,7 +27,7 @@ Philosophy
 
 **Be light on API impact.**
    As convenient as it seems at first, ``attrs`` will *not* tack on any methods to your classes save the dunder ones.
-   Hence all the useful :ref:`tools <helpers>` that come with ``attrs`` live in functions that operate on top of instances.
+   Hence all the useful `tools <helpers>` that come with ``attrs`` live in functions that operate on top of instances.
    Since they take an ``attrs`` instance as their first argument, you can attach them to your classes with one line of code.
 
 **Performance matters.**

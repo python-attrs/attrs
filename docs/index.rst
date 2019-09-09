@@ -89,5 +89,5 @@ Full Table of Contents
 Indices and tables
 ==================
 
-* :ref:`genindex`
-* :ref:`search`
+* `genindex`
+* `search`
