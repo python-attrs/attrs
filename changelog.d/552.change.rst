@@ -1,1 +1,1 @@
-Added ``attr.validators.matches_re``
+Added ``attr.validators.matches_re()`` that checks string attributes whether they match a regular expression.
