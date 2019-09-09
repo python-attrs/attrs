@@ -88,7 +88,7 @@ def attrib(
     ..  warning::
 
         Does *not* do anything unless the class is also decorated with
-        :func:`attr.s`!
+        `attr.s`!
 
     :param default: A value that is used if an ``attrs``-generated ``__init__``
         is used and no value is passed while instantiating or the attribute is
@@ -109,7 +109,7 @@ def attrib(
     :param callable factory: Syntactic sugar for
         ``default=attr.Factory(callable)``.
 
-    :param validator: :func:`callable` that is called by ``attrs``-generated
+    :param validator: `callable` that is called by ``attrs``-generated
         ``__init__`` methods after the instance has been initialized.  They
         receive the initialized instance, the :class:`Attribute`, and the
         passed value.
@@ -121,7 +121,7 @@ def attrib(
         all pass.
 
         Validators can be globally disabled and re-enabled using
-        :func:`get_run_validators`.
+        `get_run_validators`.
 
         The validator can also be set using decorator notation as shown below.
 
@@ -146,7 +146,7 @@ def attrib(
         method.  It is possible to set this to ``False`` and set a default
         value.  In that case this attributed is unconditionally initialized
         with the specified default value or factory.
-    :param callable converter: :func:`callable` that is called by
+    :param callable converter: `callable` that is called by
         ``attrs``-generated ``__init__`` methods to converter attribute's value
         to the desired format.  It is given the passed-in value, and the
         returned value will be used as the new value of the attribute.  The
@@ -729,9 +729,9 @@ def attrs(
     r"""
     A class decorator that adds `dunder
     <https://wiki.python.org/moin/DunderAlias>`_\ -methods according to the
-    specified attributes using :func:`attr.ib` or the *these* argument.
+    specified attributes using `attr.ib` or the *these* argument.
 
-    :param these: A dictionary of name to :func:`attr.ib` mappings.  This is
+    :param these: A dictionary of name to `attr.ib` mappings.  This is
         useful to avoid the definition of your attributes within the class body
         because you can't (e.g. if you want to add ``__repr__`` methods to
         Django models) or don't want to.
@@ -744,7 +744,7 @@ def attrs(
         the order of the attributes inside *these*.  Otherwise the order
         of the definition of the attributes is used.
 
-    :type these: `dict` of `str` to :func:`attr.ib`
+    :type these: `dict` of `str` to `attr.ib`
 
     :param str repr_ns: When using nested classes, there's no way in Python 2
         to automatically detect that.  Therefore it's possible to set the
@@ -811,7 +811,7 @@ def attrs(
         (Python 3.6 and later only) from the class body.
 
         In this case, you **must** annotate every field.  If ``attrs``
-        encounters a field that is set to an :func:`attr.ib` but lacks a type
+        encounters a field that is set to an `attr.ib` but lacks a type
         annotation, an :exc:`attr.exceptions.UnannotatedAttributeError` is
         raised.  Use ``field_name: typing.Any = attr.ib(...)`` if you don't
         want to set a type.
@@ -1672,10 +1672,10 @@ class Attribute(object):
 
     :attribute name: The name of the attribute.
 
-    Plus *all* arguments of :func:`attr.ib` (except for ``factory``
+    Plus *all* arguments of `attr.ib` (except for ``factory``
     which is only syntactic sugar for ``default=Factory(...)``.
 
-    For the version history of the fields, see :func:`attr.ib`.
+    For the version history of the fields, see `attr.ib`.
     """
 
     __slots__ = (
@@ -1939,7 +1939,7 @@ class Factory(object):
     """
     Stores a factory callable.
 
-    If passed as the default value to :func:`attr.ib`, the factory is used to
+    If passed as the default value to `attr.ib`, the factory is used to
     generate a new value.
 
     :param callable factory: A callable that takes either none or exactly one
@@ -1980,7 +1980,7 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
 
     :param tuple bases: Classes that the new class will subclass.
 
-    :param attributes_arguments: Passed unmodified to :func:`attr.s`.
+    :param attributes_arguments: Passed unmodified to `attr.s`.
 
     :return: A new class with *attrs*.
     :rtype: type

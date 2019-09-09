@@ -97,7 +97,7 @@ This is when default values come into play:
    C(a=42, b=[], c=[], d={})
 
 It's important that the decorated method -- or any other method or property! -- doesn't have the same name as the attribute, otherwise it would overwrite the attribute definition.
-You also cannot use type annotations to elide the :func:`attr.ib` call for ``d`` as explained in :doc:`types`.
+You also cannot use type annotations to elide the `attr.ib` call for ``d`` as explained in :doc:`types`.
 
 
 Please note that as with function and method signatures, ``default=[]`` will *not* do what you may think it might do:
@@ -162,13 +162,13 @@ If the value does not pass the validator's standards, it just raises an appropri
       ...
    ValueError: x must be smaller or equal to 42
 
-Again, it's important that the decorated method doesn't have the same name as the attribute and that you can't elide the call to :func:`attr.ib`.
+Again, it's important that the decorated method doesn't have the same name as the attribute and that you can't elide the call to `attr.ib`.
 
 
 Callables
 ~~~~~~~~~
 
-If you want to re-use your validators, you should have a look at the ``validator`` argument to :func:`attr.ib()`.
+If you want to re-use your validators, you should have a look at the ``validator`` argument to `attr.ib`.
 
 It takes either a callable or a list of callables (usually functions) and treats them as validators that receive the same arguments as with the decorator approach.
 
@@ -191,9 +191,9 @@ Since the validators runs *after* the instance is initialized, you can refer to 
       ...
    ValueError: 'x' has to be smaller than 'y'!
 
-This example also shows of some syntactic sugar for using the :func:`attr.validators.and_` validator: if you pass a list, all validators have to pass.
+This example also shows of some syntactic sugar for using the `attr.validators.and_` validator: if you pass a list, all validators have to pass.
 
-``attrs`` won't intercept your changes to those attributes but you can always call :func:`attr.validate` on any instance to verify that it's still valid:
+``attrs`` won't intercept your changes to those attributes but you can always call `attr.validate` on any instance to verify that it's still valid:
 
 .. doctest::
 

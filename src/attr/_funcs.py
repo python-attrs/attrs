@@ -239,7 +239,7 @@ def assoc(inst, **changes):
         class.
 
     ..  deprecated:: 17.1.0
-        Use :func:`evolve` instead.
+        Use `evolve` instead.
     """
     import warnings
 

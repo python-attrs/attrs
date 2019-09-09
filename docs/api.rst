@@ -5,11 +5,11 @@ API Reference
 
 .. currentmodule:: attr
 
-``attrs`` works by decorating a class using :func:`attr.s` and then optionally defining attributes on the class using :func:`attr.ib`.
+``attrs`` works by decorating a class using `attr.s` and then optionally defining attributes on the class using `attr.ib`.
 
 .. note::
 
-   When this documentation speaks about "``attrs`` attributes" it means those attributes that are defined using :func:`attr.ib` in the class body.
+   When this documentation speaks about "``attrs`` attributes" it means those attributes that are defined using `attr.ib` in the class body.
 
 What follows is the API explanation, if you'd like a more hands-on introduction, have a look at :doc:`examples`.
 
@@ -64,7 +64,7 @@ Core
 
       ``attrs`` also comes with a serious business alias ``attr.attrib``.
 
-   The object returned by :func:`attr.ib` also allows for setting the default and the validator using decorators:
+   The object returned by `attr.ib` also allows for setting the default and the validator using decorators:
 
    .. doctest::
 
@@ -90,7 +90,7 @@ Core
 
    Instances of this class are frequently used for introspection purposes like:
 
-   - :func:`fields` returns a tuple of them.
+   - `fields` returns a tuple of them.
    - Validators get them passed as the first argument.
 
    .. warning::
@@ -358,7 +358,7 @@ Validators
 
 .. autofunction:: attr.validators.and_
 
-   For convenience, it's also possible to pass a list to :func:`attr.ib`'s validator argument.
+   For convenience, it's also possible to pass a list to `attr.ib`'s validator argument.
 
    Thus the following two statements are equivalent::
 

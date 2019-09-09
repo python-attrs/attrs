@@ -225,7 +225,7 @@ When you have a class with data, it often is very convenient to transform that c
    {'x': 1, 'y': 2}
 
 Some fields cannot or should not be transformed.
-For that, :func:`attr.asdict` offers a callback that decides whether an attribute should be included:
+For that, `attr.asdict` offers a callback that decides whether an attribute should be included:
 
 .. doctest::
 
@@ -241,7 +241,7 @@ For that, :func:`attr.asdict` offers a callback that decides whether an attribut
    ...             filter=lambda attr, value: attr.name != "password")
    {'users': [{'email': 'jane@doe.invalid'}, {'email': 'joe@doe.invalid'}]}
 
-For the common case where you want to :func:`include <attr.filters.include>` or :func:`exclude <attr.filters.exclude>` certain types or attributes, ``attrs`` ships with a few helpers:
+For the common case where you want to `include <attr.filters.include>` or `exclude <attr.filters.exclude>` certain types or attributes, ``attrs`` ships with a few helpers:
 
 .. doctest::
 
@@ -487,7 +487,7 @@ If you're the author of a third-party library with ``attrs`` integration, please
 Types
 -----
 
-``attrs`` also allows you to associate a type with an attribute using either the *type* argument to :func:`attr.ib` or -- as of Python 3.6 -- using `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_-annotations:
+``attrs`` also allows you to associate a type with an attribute using either the *type* argument to `attr.ib` or -- as of Python 3.6 -- using `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_-annotations:
 
 
 .. doctest::
@@ -501,7 +501,7 @@ Types
    >>> attr.fields(C).y.type
    <class 'int'>
 
-If you don't mind annotating *all* attributes, you can even drop the :func:`attr.ib` and assign default values instead:
+If you don't mind annotating *all* attributes, you can even drop the `attr.ib` and assign default values instead:
 
 .. doctest::
 
@@ -576,7 +576,7 @@ Please note that true immutability is impossible in Python but it will :ref:`get
 By themselves, immutable classes are useful for long-lived objects that should never change; like configurations for example.
 
 In order to use them in regular program flow, you'll need a way to easily create new instances with changed attributes.
-In Clojure that function is called `assoc <https://clojuredocs.org/clojure.core/assoc>`_ and ``attrs`` shamelessly imitates it: :func:`attr.evolve`:
+In Clojure that function is called `assoc <https://clojuredocs.org/clojure.core/assoc>`_ and ``attrs`` shamelessly imitates it: `attr.evolve`:
 
 .. doctest::
 
@@ -598,7 +598,7 @@ Other Goodies
 -------------
 
 Sometimes you may want to create a class programmatically.
-``attrs`` won't let you down and gives you :func:`attr.make_class` :
+``attrs`` won't let you down and gives you `attr.make_class` :
 
 .. doctest::
 
@@ -625,7 +625,7 @@ You can still have power over the attributes if you pass a dictionary of name: `
    >>> i.y
    []
 
-If you need to dynamically make a class with :func:`attr.make_class` and it needs to be a subclass of something else than ``object``, use the ``bases`` argument:
+If you need to dynamically make a class with `attr.make_class` and it needs to be a subclass of something else than ``object``, use the ``bases`` argument:
 
 .. doctest::
 

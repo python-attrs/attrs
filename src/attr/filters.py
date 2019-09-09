@@ -1,5 +1,5 @@
 """
-Commonly useful filters for :func:`attr.asdict`.
+Commonly useful filters for `attr.asdict`.
 """
 
 from __future__ import absolute_import, division, print_function
