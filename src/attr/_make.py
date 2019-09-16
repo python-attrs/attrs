@@ -773,10 +773,10 @@ def attrs(
         didn't freeze it programmatically) by passing ``True`` or not.  Both of
         these cases are rather special and should be used carefully.
 
-        See the `Python documentation \
-        <https://docs.python.org/3/reference/datamodel.html#object.__hash__>`_
-        and the `GitHub issue that led to the default behavior \
-        <https://github.com/python-attrs/attrs/issues/136>`_ for more details.
+        See our documentation on `hashing`, Python's documentation on
+        `object.__hash__`, and the `GitHub issue that led to the default \
+        behavior <https://github.com/python-attrs/attrs/issues/136>`_ for more
+        details.
     :type hash: ``bool`` or ``None``
     :param bool init: Create a ``__init__`` method that initializes the
         ``attrs`` attributes.  Leading underscores are stripped for the
