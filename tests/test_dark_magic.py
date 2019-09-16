@@ -5,7 +5,6 @@ End-to-end tests.
 from __future__ import absolute_import, division, print_function
 
 import pickle
-import sys
 
 from copy import deepcopy
 
@@ -607,13 +606,16 @@ class TestDarkMagic(object):
             x = attr.ib()
 
         if not PY2:
-            if sys.version_info < (3, 6):
-                error = r"unorderable types: C\(\) < C\(\)"
-            else:
-                error = "'<' not supported between instances of 'C' and 'C'"
+            possible_errors = (
+                "unorderable types: C() < C()",
+                "'<' not supported between instances of 'C' and 'C'",
+                "unorderable types: C < C",  # old PyPy 3
+            )
 
-            with pytest.raises(TypeError, match=error):
+            with pytest.raises(TypeError) as ei:
                 C(5) < C(6)
+
+            assert ei.value.args[0] in possible_errors
         else:
             i = C(42)
             for m in ("lt", "le", "gt", "ge"):
