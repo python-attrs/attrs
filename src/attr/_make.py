@@ -782,8 +782,8 @@ def attrs(
         ``attrs`` attributes.  Leading underscores are stripped for the
         argument name.  If a ``__attrs_post_init__`` method exists on the
         class, it will be called after the class is fully initialized.
-    :param bool slots: Create a slots_-style class that's more
-        memory-efficient.  See `slots` for further ramifications.
+    :param bool slots: Create a `slotted class <slotted classes>` that's more
+        memory-efficient.
     :param bool frozen: Make instances immutable after initialization.  If
         someone attempts to modify a frozen instance,
         `attr.exceptions.FrozenInstanceError` is raised.
@@ -804,7 +804,6 @@ def attrs(
                circumvent that limitation by using
                ``object.__setattr__(self, "attribute_name", value)``.
 
-        ..  _slots: https://docs.python.org/3/reference/datamodel.html#slots
     :param bool weakref_slot: Make instances weak-referenceable.  This has no
         effect unless ``slots`` is also enabled.
     :param bool auto_attribs: If True, collect `PEP 526`_-annotated attributes
