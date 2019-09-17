@@ -811,15 +811,21 @@ def attrs(
     :param bool str: Create a ``__str__`` method that is identical to
         ``__repr__``.  This is usually not necessary except for
         `Exception`\ s.
-    :param bool eq: If ``True`` (default), add ``__eq__`` and ``__ne__``
-        methods that check two instances for equality. They compare the class
-        as if it were a tuple of its ``attrs`` attributes. But the attributes
-        are *only* compared iff the types of both classes are *identical*!
-    :param bool order: If ``True`` (default), add ``__lt__``, ``__le__``,
-        ``__gt__``, and ``__ge__`` methods that behave like *eq* above and
-        allow instances to be ordered.
-    :param bool cmp: Setting to ``True`` is equivalent to setting ``eq=True,
-        order=True``. Deprecated in favor of *eq* and *order*.
+    :param bool eq: If ``True`` or ``None`` (default), add ``__eq__`` and
+        ``__ne__`` methods that check two instances for equality.
+
+        They compare the instances as if they were tuples of their ``attrs``
+        attributes, but only iff the types of both classes are *identical*!
+    :type eq: `bool` or `None`
+    :param bool order: If ``True``, add ``__lt__``, ``__le__``, ``__gt__``,
+        and ``__ge__`` methods that behave like *eq* above and allow instances
+        to be ordered. If ``None`` (default) mirror value of *eq*.
+    :type order: `bool` or `None`
+    :param cmp: Setting to ``True`` is equivalent to setting ``eq=True,
+        order=True``. Deprecated in favor of *eq* and *order*, has precedence
+        over them for backward-compatibility though. Must not be mixed with
+        *eq* or *order*.
+    :type cmp: `bool` or `None`
     :param hash: If ``None`` (default), the ``__hash__`` method is generated
         according how *cmp* and *frozen* are set.
 
