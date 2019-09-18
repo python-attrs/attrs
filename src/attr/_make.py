@@ -827,7 +827,7 @@ def attrs(
         *eq* or *order*.
     :type cmp: `bool` or `None`
     :param hash: If ``None`` (default), the ``__hash__`` method is generated
-        according how *cmp* and *frozen* are set.
+        according how *eq* and *frozen* are set.
 
         1. If *both* are True, ``attrs`` will generate a ``__hash__`` for you.
         2. If *eq* is True and *frozen* is False, ``__hash__`` will be set to
