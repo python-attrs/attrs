@@ -11,7 +11,7 @@ from copy import deepcopy
 import pytest
 import six
 
-from hypothesis import given
+from hypothesis import assume, given
 from hypothesis.strategies import booleans
 
 import attr
@@ -19,6 +19,8 @@ import attr
 from attr._compat import PY2, TYPE
 from attr._make import NOTHING, Attribute
 from attr.exceptions import FrozenInstanceError
+
+from .strategies import optional_bool
 
 
 @attr.s
@@ -621,23 +623,27 @@ class TestDarkMagic(object):
             for m in ("lt", "le", "gt", "ge"):
                 assert None is getattr(i, "__%s__" % (m,), None)
 
-    @pytest.mark.parametrize(
-        "cmp,eq,order,rv",
-        [
-            (None, None, None, True),
-            (True, None, None, True),
-            (None, True, None, True),
-            (False, None, None, False),
-            (None, False, None, False),
-            (None, None, False, False),
-            (None, True, False, False),
-        ],
-    )
-    def test_cmp_deprecated_attribute(self, cmp, eq, order, rv):
+    @given(cmp=optional_bool, eq=optional_bool, order=optional_bool)
+    def test_cmp_deprecated_attribute(self, cmp, eq, order):
         """
         Accessing Attribute.cmp raises a deprecation warning but returns True
         if cmp is True, or eq and order are *both* effectively True.
         """
+        assume(cmp is None or (eq is None and order is None))
+        assume(not (eq is False and order is True))
+
+        if cmp is not None:
+            rv = cmp
+        elif eq is True or eq is None:
+            rv = order is None or order is True
+        elif cmp is None and eq is None and order is None:
+            rv = True
+        elif cmp is None or eq is None:
+            rv = False
+        else:
+            pytest.fail(
+                "Unexpected state: cmp=%r eq=%r order=%r" % (cmp, eq, order)
+            )
 
         with pytest.deprecated_call() as dc:
 

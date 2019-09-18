@@ -15,15 +15,7 @@ from operator import attrgetter
 import pytest
 
 from hypothesis import assume, given
-from hypothesis.strategies import (
-    booleans,
-    integers,
-    lists,
-    none,
-    one_of,
-    sampled_from,
-    text,
-)
+from hypothesis.strategies import booleans, integers, lists, sampled_from, text
 
 import attr
 
@@ -53,6 +45,7 @@ from attr.exceptions import (
 from .strategies import (
     gen_attr_names,
     list_of_attrs,
+    optional_bool,
     simple_attrs,
     simple_attrs_with_metadata,
     simple_attrs_without_metadata,
@@ -1522,9 +1515,6 @@ class TestMakeOrder:
 
             with pytest.raises(TypeError):
                 a > b
-
-
-optional_bool = one_of(none(), booleans())
 
 
 class TestDetermineEqOrder(object):

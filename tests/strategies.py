@@ -14,6 +14,9 @@ import attr
 from .utils import make_class
 
 
+optional_bool = st.one_of(st.none(), st.booleans())
+
+
 def gen_attr_names():
     """
     Generate names for attributes, 'a'...'z', then 'aa'...'zz'.
