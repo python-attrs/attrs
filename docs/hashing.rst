@@ -10,7 +10,7 @@ Hash Method Generation
    Leave it at ``None`` which means that ``attrs`` will do the right thing for you, depending on the other parameters:
 
    - If you want to make objects hashable by value: use ``@attr.s(frozen=True)``.
-   - If you want hashing and comparison by object identity: use ``@attr.s(eq=False)``
+   - If you want hashing and equality by object identity: use ``@attr.s(eq=False)``
 
    Setting ``hash`` yourself can have unexpected consequences so we recommend to tinker with it only if you know exactly what you're doing.
 

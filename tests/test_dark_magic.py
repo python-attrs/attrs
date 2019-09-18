@@ -619,7 +619,7 @@ class TestDarkMagic(object):
         else:
             i = C(42)
             for m in ("lt", "le", "gt", "ge"):
-                assert None is getattr(i, m, None)
+                assert None is getattr(i, "__%s__" % (m,), None)
 
     def test_cmp_deprecated_attribute(self):
         """
