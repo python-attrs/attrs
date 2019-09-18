@@ -621,12 +621,35 @@ class TestDarkMagic(object):
             for m in ("lt", "le", "gt", "ge"):
                 assert None is getattr(i, "__%s__" % (m,), None)
 
-    def test_cmp_deprecated_attribute(self):
+    @pytest.mark.parametrize(
+        "cmp,eq,order,rv",
+        [
+            (None, None, None, True),
+            (True, None, None, True),
+            (None, True, None, True),
+            (False, None, None, False),
+            (None, False, None, False),
+            (None, None, False, False),
+            (None, True, False, False),
+        ],
+    )
+    def test_cmp_deprecated_attribute(self, cmp, eq, order, rv):
         """
-        Accessing Attribute.cmp raises a deprecation warning.
+        Accessing Attribute.cmp raises a deprecation warning but returns True
+        if cmp is True, or eq and order are *both* effectively True.
         """
+
         with pytest.deprecated_call() as dc:
-            attr.fields(C1).x.cmp
+
+            @attr.s
+            class C(object):
+                x = attr.ib(cmp=cmp, eq=eq, order=order)
+
+            assert rv == attr.fields(C).x.cmp
+
+        if cmp is not None:
+            # Remove warning from creating the attribute if cmp is not None.
+            dc.pop()
 
         w, = dc.list
 
