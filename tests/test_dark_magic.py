@@ -629,6 +629,7 @@ class TestDarkMagic(object):
         Accessing Attribute.cmp raises a deprecation warning but returns True
         if cmp is True, or eq and order are *both* effectively True.
         """
+        # These cases are invalid and raise a ValueError.
         assume(cmp is None or (eq is None and order is None))
         assume(not (eq is False and order is True))
 
