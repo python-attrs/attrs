@@ -35,12 +35,12 @@ Because according to the definition_ from the official Python docs, the returned
    Unfortunately ``attrs`` currently mimics Python 2's behavior for backward compatibility reasons if you set ``hash=False``.
 
    The *correct way* to achieve hashing by id is to set ``@attr.s(eq=False)``.
-   Setting ``@attr.s(hash=False)`` (that implies ``eq=True``) is almost certainly a *bug*.
+   Setting ``@attr.s(hash=False)`` (which implies ``eq=True``) is almost certainly a *bug*.
 
    .. warning::
 
       Be careful when subclassing!
-      Setting ``eq=False`` on class whose base class has a non-default ``__hash__`` method, will *not* make ``attrs`` remove that ``__hash__`` for you.
+      Setting ``eq=False`` on a class whose base class has a non-default ``__hash__`` method will *not* make ``attrs`` remove that ``__hash__`` for you.
 
       It is part of ``attrs``'s philosophy to only *add* to classes so you have the freedom to customize your classes as you wish.
       So if you want to *get rid* of methods, you'll have to do it by hand.
