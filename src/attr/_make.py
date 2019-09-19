@@ -751,7 +751,7 @@ def _determine_eq_order(cmp, eq, order):
 
         return cmp, cmp
 
-    # Both on by default.
+    # If left None, equality is on and ordering mirrors equality.
     if eq is None:
         eq = True
 
