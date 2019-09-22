@@ -1,0 +1,11 @@
+The ``cmp`` argument to ``attr.s()`` and ``attr.ib()`` is now deprecated.
+
+Please use ``eq`` to add equality methods (``__eq__`` and ``__ne__``) and ``order`` to add ordering methods (``__lt__``, ``__le__``, ``__gt__``, and ``__ge__``) instead – just like with `dataclasses <https://docs.python.org/3/library/dataclasses.html>`_.
+
+Both are effectively ``True`` by default but it's enough to set ``eq=False`` to disable both at once.
+Passing ``eq=False, order=True`` explicitly will raise a ``ValueError`` though.
+
+Since this is arguably a deeper backward-compatibility break, it will have an extended deprecation period until 2021-06-01.
+After that day, the ``cmp`` argument will be removed.
+
+``attr.Attribute`` also isn't orderable anymore.

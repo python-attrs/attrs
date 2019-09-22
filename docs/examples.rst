@@ -534,8 +534,6 @@ The generated ``__init__`` method will have an attribute called ``__annotations_
    However it's useful for writing your own validators or serialization frameworks.
 
 
-.. _slots:
-
 Slots
 -----
 

@@ -5,6 +5,7 @@ import linecache
 import sys
 import threading
 import uuid
+import warnings
 
 from operator import itemgetter
 
@@ -73,7 +74,7 @@ def attrib(
     default=NOTHING,
     validator=None,
     repr=True,
-    cmp=True,
+    cmp=None,
     hash=None,
     init=True,
     metadata=None,
@@ -81,6 +82,8 @@ def attrib(
     converter=None,
     factory=None,
     kw_only=False,
+    eq=None,
+    order=None,
 ):
     """
     Create a new attribute on a class.
@@ -135,10 +138,15 @@ def attrib(
         as-is, i.e. it will be used directly *instead* of calling ``repr()``
         (the default).
     :type repr: a ``bool`` or a ``callable`` to use a custom function.
-    :param bool cmp: Include this attribute in the generated comparison methods
-        (``__eq__`` et al).
+    :param bool eq: If ``True`` (default), include this attribute in the
+        generated ``__eq__`` and ``__ne__`` methods that check two instances
+        for equality.
+    :param bool order: If ``True`` (default), include this attributes in the
+        generated ``__lt__``, ``__le__``, ``__gt__`` and ``__ge__`` methods.
+    :param bool cmp: Setting to ``True`` is equivalent to setting ``eq=True,
+        order=True``. Deprecated in favor of *eq* and *order*.
     :param hash: Include this attribute in the generated ``__hash__``
-        method.  If ``None`` (default), mirror *cmp*'s value.  This is the
+        method.  If ``None`` (default), mirror *eq*'s value.  This is the
         correct behavior according the Python spec.  Setting this value to
         anything else than ``None`` is *discouraged*.
     :type hash: ``bool`` or ``None``
@@ -171,7 +179,7 @@ def attrib(
     .. versionadded:: 16.3.0 *metadata*
     .. versionchanged:: 17.1.0 *validator* can be a ``list`` now.
     .. versionchanged:: 17.1.0
-       *hash* is ``None`` and therefore mirrors *cmp* by default.
+       *hash* is ``None`` and therefore mirrors *eq* by default.
     .. versionadded:: 17.3.0 *type*
     .. deprecated:: 17.4.0 *convert*
     .. versionadded:: 17.4.0 *converter* as a replacement for the deprecated
@@ -181,7 +189,11 @@ def attrib(
     .. versionadded:: 18.2.0 *kw_only*
     .. versionchanged:: 19.2.0 *convert* keyword argument removed
     .. versionchanged:: 19.2.0 *repr* also accepts a custom callable.
+    .. deprecated:: 19.2.0 *cmp* Removal on or after 2021-06-01.
+    .. versionadded:: 19.2.0 *eq* and *order*
     """
+    eq, order = _determine_eq_order(cmp, eq, order)
+
     if hash is not None and hash is not True and hash is not False:
         raise TypeError(
             "Invalid value for hash.  Must be True, False, or None."
@@ -204,13 +216,15 @@ def attrib(
         default=default,
         validator=validator,
         repr=repr,
-        cmp=cmp,
+        cmp=None,
         hash=hash,
         init=init,
         converter=converter,
         metadata=metadata,
         type=type,
         kw_only=kw_only,
+        eq=eq,
+        order=order,
     )
 
 
@@ -678,14 +692,22 @@ class _ClassBuilder(object):
 
         return self
 
-    def add_cmp(self):
+    def add_eq(self):
         cd = self._cls_dict
 
-        cd["__eq__"], cd["__ne__"], cd["__lt__"], cd["__le__"], cd[
-            "__gt__"
-        ], cd["__ge__"] = (
+        cd["__eq__"], cd["__ne__"] = (
             self._add_method_dunders(meth)
-            for meth in _make_cmp(self._cls, self._attrs)
+            for meth in _make_eq(self._cls, self._attrs)
+        )
+
+        return self
+
+    def add_order(self):
+        cd = self._cls_dict
+
+        cd["__lt__"], cd["__le__"], cd["__gt__"], cd["__ge__"] = (
+            self._add_method_dunders(meth)
+            for meth in _make_order(self._cls, self._attrs)
         )
 
         return self
@@ -709,12 +731,45 @@ class _ClassBuilder(object):
         return method
 
 
+_CMP_DEPRECATION = (
+    "The usage of `cmp` is deprecated and will be removed on or after "
+    "2021-06-01.  Please use `eq` and `order` instead."
+)
+
+
+def _determine_eq_order(cmp, eq, order):
+    """
+    Validate the combination of *cmp*, *eq*, and *order*. Derive the effective
+    values of eq and order.
+    """
+    if cmp is not None and any((eq is not None, order is not None)):
+        raise ValueError("Don't mix `cmp` with `eq' and `order`.")
+
+    # cmp takes precedence due to bw-compatibility.
+    if cmp is not None:
+        warnings.warn(_CMP_DEPRECATION, DeprecationWarning, stacklevel=3)
+
+        return cmp, cmp
+
+    # If left None, equality is on and ordering mirrors equality.
+    if eq is None:
+        eq = True
+
+    if order is None:
+        order = eq
+
+    if eq is False and order is True:
+        raise ValueError("`order` can only be True if `eq` is True too.")
+
+    return eq, order
+
+
 def attrs(
     maybe_cls=None,
     these=None,
     repr_ns=None,
     repr=True,
-    cmp=True,
+    cmp=None,
     hash=None,
     init=True,
     slots=False,
@@ -725,6 +780,8 @@ def attrs(
     kw_only=False,
     cache_hash=False,
     auto_exc=False,
+    eq=None,
+    order=None,
 ):
     r"""
     A class decorator that adds `dunder
@@ -754,17 +811,28 @@ def attrs(
     :param bool str: Create a ``__str__`` method that is identical to
         ``__repr__``.  This is usually not necessary except for
         `Exception`\ s.
-    :param bool cmp: Create ``__eq__``, ``__ne__``, ``__lt__``, ``__le__``,
-        ``__gt__``, and ``__ge__`` methods that compare the class as if it were
-        a tuple of its ``attrs`` attributes.  But the attributes are *only*
-        compared, if the types of both classes are *identical*!
+    :param bool eq: If ``True`` or ``None`` (default), add ``__eq__`` and
+        ``__ne__`` methods that check two instances for equality.
+
+        They compare the instances as if they were tuples of their ``attrs``
+        attributes, but only iff the types of both classes are *identical*!
+    :type eq: `bool` or `None`
+    :param bool order: If ``True``, add ``__lt__``, ``__le__``, ``__gt__``,
+        and ``__ge__`` methods that behave like *eq* above and allow instances
+        to be ordered. If ``None`` (default) mirror value of *eq*.
+    :type order: `bool` or `None`
+    :param cmp: Setting to ``True`` is equivalent to setting ``eq=True,
+        order=True``. Deprecated in favor of *eq* and *order*, has precedence
+        over them for backward-compatibility though. Must not be mixed with
+        *eq* or *order*.
+    :type cmp: `bool` or `None`
     :param hash: If ``None`` (default), the ``__hash__`` method is generated
-        according how *cmp* and *frozen* are set.
+        according how *eq* and *frozen* are set.
 
         1. If *both* are True, ``attrs`` will generate a ``__hash__`` for you.
-        2. If *cmp* is True and *frozen* is False, ``__hash__`` will be set to
+        2. If *eq* is True and *frozen* is False, ``__hash__`` will be set to
            None, marking it unhashable (which it is).
-        3. If *cmp* is False, ``__hash__`` will be left untouched meaning the
+        3. If *eq* is False, ``__hash__`` will be left untouched meaning the
            ``__hash__`` method of the base class will be used (if base class is
            ``object``, this means it will fall back to id-based hashing.).
 
@@ -838,10 +906,10 @@ def attrs(
         following happens to behave like a well-behaved Python exceptions
         class:
 
-        - the values for *cmp* and *hash* are ignored and the instances compare
-          and hash by the instance's ids (N.B. ``attrs`` will *not* remove
-          existing implementations of ``__hash__`` or the equality methods. It
-          just won't add own ones.),
+        - the values for *eq*, *order*, and *hash* are ignored and the
+          instances compare and hash by the instance's ids (N.B. ``attrs`` will
+          *not* remove existing implementations of ``__hash__`` or the equality
+          methods. It just won't add own ones.),
         - all attributes that are either passed into ``__init__`` or have a
           default value are additionally available as a tuple in the ``args``
           attribute,
@@ -869,7 +937,10 @@ def attrs(
     .. versionadded:: 18.2.0 *kw_only*
     .. versionadded:: 18.2.0 *cache_hash*
     .. versionadded:: 19.1.0 *auto_exc*
+    .. deprecated:: 19.2.0 *cmp* Removal on or after 2021-06-01.
+    .. versionadded:: 19.2.0 *eq* and *order*
     """
+    eq, order = _determine_eq_order(cmp, eq, order)
 
     def wrap(cls):
 
@@ -894,15 +965,17 @@ def attrs(
             builder.add_repr(repr_ns)
         if str is True:
             builder.add_str()
-        if cmp is True and not is_exc:
-            builder.add_cmp()
+        if eq is True and not is_exc:
+            builder.add_eq()
+        if order is True and not is_exc:
+            builder.add_order()
 
         if hash is not True and hash is not False and hash is not None:
             # Can't use `hash in` because 1 == True for example.
             raise TypeError(
                 "Invalid value for hash.  Must be True, False, or None."
             )
-        elif hash is False or (hash is None and cmp is False) or is_exc:
+        elif hash is False or (hash is None and eq is False) or is_exc:
             # Don't do anything. Should fall back to __object__'s __hash__
             # which is by id.
             if cache_hash:
@@ -911,7 +984,7 @@ def attrs(
                     " hashing must be either explicitly or implicitly "
                     "enabled."
                 )
-        elif hash is True or (hash is None and cmp is True and frozen is True):
+        elif hash is True or (hash is None and eq is True and frozen is True):
             # Build a __hash__ if told so, or if it's safe.
             builder.add_hash()
         else:
@@ -1013,9 +1086,7 @@ def _generate_unique_filename(cls, func_name):
 
 def _make_hash(cls, attrs, frozen, cache_hash):
     attrs = tuple(
-        a
-        for a in attrs
-        if a.hash is True or (a.hash is None and a.cmp is True)
+        a for a in attrs if a.hash is True or (a.hash is None and a.eq is True)
     )
 
     tab = "        "
@@ -1093,8 +1164,8 @@ def __ne__(self, other):
     return not result
 
 
-def _make_cmp(cls, attrs):
-    attrs = [a for a in attrs if a.cmp]
+def _make_eq(cls, attrs):
+    attrs = [a for a in attrs if a.eq]
 
     unique_filename = _generate_unique_filename(cls, "eq")
     lines = [
@@ -1129,8 +1200,11 @@ def _make_cmp(cls, attrs):
         script.splitlines(True),
         unique_filename,
     )
-    eq = locs["__eq__"]
-    ne = __ne__
+    return locs["__eq__"], __ne__
+
+
+def _make_order(cls, attrs):
+    attrs = [a for a in attrs if a.order]
 
     def attrs_to_tuple(obj):
         """
@@ -1174,19 +1248,17 @@ def _make_cmp(cls, attrs):
 
         return NotImplemented
 
-    return eq, ne, __lt__, __le__, __gt__, __ge__
+    return __lt__, __le__, __gt__, __ge__
 
 
-def _add_cmp(cls, attrs=None):
+def _add_eq(cls, attrs=None):
     """
-    Add comparison methods to *cls*.
+    Add equality methods to *cls* with *attrs*.
     """
     if attrs is None:
         attrs = cls.__attrs_attrs__
 
-    cls.__eq__, cls.__ne__, cls.__lt__, cls.__le__, cls.__gt__, cls.__ge__ = _make_cmp(  # noqa
-        cls, attrs
-    )
+    cls.__eq__, cls.__ne__ = _make_eq(cls, attrs)
 
     return cls
 
@@ -1682,7 +1754,8 @@ class Attribute(object):
         "default",
         "validator",
         "repr",
-        "cmp",
+        "eq",
+        "order",
         "hash",
         "init",
         "metadata",
@@ -1697,14 +1770,18 @@ class Attribute(object):
         default,
         validator,
         repr,
-        cmp,
+        cmp,  # XXX: unused, remove along with other cmp code.
         hash,
         init,
         metadata=None,
         type=None,
         converter=None,
         kw_only=False,
+        eq=None,
+        order=None,
     ):
+        eq, order = _determine_eq_order(cmp, eq, order)
+
         # Cache this descriptor here to speed things up later.
         bound_setattr = _obj_setattr.__get__(self, Attribute)
 
@@ -1714,7 +1791,8 @@ class Attribute(object):
         bound_setattr("default", default)
         bound_setattr("validator", validator)
         bound_setattr("repr", repr)
-        bound_setattr("cmp", cmp)
+        bound_setattr("eq", eq)
+        bound_setattr("order", order)
         bound_setattr("hash", hash)
         bound_setattr("init", init)
         bound_setattr("converter", converter)
@@ -1757,8 +1835,18 @@ class Attribute(object):
             validator=ca._validator,
             default=ca._default,
             type=type,
+            cmp=None,
             **inst_dict
         )
+
+    @property
+    def cmp(self):
+        """
+        Simulate the presence of a cmp attribute and warn.
+        """
+        warnings.warn(_CMP_DEPRECATION, DeprecationWarning, stacklevel=2)
+
+        return self.eq and self.order
 
     # Don't use attr.assoc since fields(Attribute) doesn't work
     def _assoc(self, **changes):
@@ -1807,7 +1895,9 @@ _a = [
         default=NOTHING,
         validator=None,
         repr=True,
-        cmp=True,
+        cmp=None,
+        eq=True,
+        order=False,
         hash=(name != "metadata"),
         init=True,
     )
@@ -1815,7 +1905,7 @@ _a = [
 ]
 
 Attribute = _add_hash(
-    _add_cmp(_add_repr(Attribute, attrs=_a), attrs=_a),
+    _add_eq(_add_repr(Attribute, attrs=_a), attrs=_a),
     attrs=[a for a in _a if a.hash],
 )
 
@@ -1833,7 +1923,8 @@ class _CountingAttr(object):
         "counter",
         "_default",
         "repr",
-        "cmp",
+        "eq",
+        "order",
         "hash",
         "init",
         "metadata",
@@ -1848,22 +1939,34 @@ class _CountingAttr(object):
             default=NOTHING,
             validator=None,
             repr=True,
-            cmp=True,
+            cmp=None,
             hash=True,
             init=True,
             kw_only=False,
+            eq=True,
+            order=False,
         )
-        for name in ("counter", "_default", "repr", "cmp", "hash", "init")
+        for name in (
+            "counter",
+            "_default",
+            "repr",
+            "eq",
+            "order",
+            "hash",
+            "init",
+        )
     ) + (
         Attribute(
             name="metadata",
             default=None,
             validator=None,
             repr=True,
-            cmp=True,
+            cmp=None,
             hash=False,
             init=True,
             kw_only=False,
+            eq=True,
+            order=False,
         ),
     )
     cls_counter = 0
@@ -1873,13 +1976,15 @@ class _CountingAttr(object):
         default,
         validator,
         repr,
-        cmp,
+        cmp,  # XXX: unused, remove along with cmp
         hash,
         init,
         converter,
         metadata,
         type,
         kw_only,
+        eq,
+        order,
     ):
         _CountingAttr.cls_counter += 1
         self.counter = _CountingAttr.cls_counter
@@ -1890,7 +1995,8 @@ class _CountingAttr(object):
         else:
             self._validator = validator
         self.repr = repr
-        self.cmp = cmp
+        self.eq = eq
+        self.order = order
         self.hash = hash
         self.init = init
         self.converter = converter
@@ -1930,7 +2036,7 @@ class _CountingAttr(object):
         return meth
 
 
-_CountingAttr = _add_cmp(_add_repr(_CountingAttr))
+_CountingAttr = _add_eq(_add_repr(_CountingAttr))
 
 
 @attrs(slots=True, init=False, hash=True)
@@ -2010,6 +2116,14 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
         )
     except (AttributeError, ValueError):
         pass
+
+    # We do it here for proper warnings with meaningful stacklevel.
+    cmp = attributes_arguments.pop("cmp", None)
+    attributes_arguments["eq"], attributes_arguments[
+        "order"
+    ] = _determine_eq_order(
+        cmp, attributes_arguments.get("eq"), attributes_arguments.get("order")
+    )
 
     return _attrs(these=cls_dict, **attributes_arguments)(type_)
 

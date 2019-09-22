@@ -10,7 +10,7 @@ Hash Method Generation
    Leave it at ``None`` which means that ``attrs`` will do the right thing for you, depending on the other parameters:
 
    - If you want to make objects hashable by value: use ``@attr.s(frozen=True)``.
-   - If you want hashing and comparison by object identity: use ``@attr.s(cmp=False)``
+   - If you want hashing and equality by object identity: use ``@attr.s(eq=False)``
 
    Setting ``hash`` yourself can have unexpected consequences so we recommend to tinker with it only if you know exactly what you're doing.
 
@@ -34,13 +34,13 @@ Because according to the definition_ from the official Python docs, the returned
    Python 2 on the other hand will happily let you shoot your foot off.
    Unfortunately ``attrs`` currently mimics Python 2's behavior for backward compatibility reasons if you set ``hash=False``.
 
-   The *correct way* to achieve hashing by id is to set ``@attr.s(cmp=False)``.
-   Setting ``@attr.s(hash=False)`` (that implies ``cmp=True``) is almost certainly a *bug*.
+   The *correct way* to achieve hashing by id is to set ``@attr.s(eq=False)``.
+   Setting ``@attr.s(hash=False)`` (which implies ``eq=True``) is almost certainly a *bug*.
 
    .. warning::
 
       Be careful when subclassing!
-      Setting ``cmp=False`` on class whose base class has a non-default ``__hash__`` method, will *not* make ``attrs`` remove that ``__hash__`` for you.
+      Setting ``eq=False`` on a class whose base class has a non-default ``__hash__`` method will *not* make ``attrs`` remove that ``__hash__`` for you.
 
       It is part of ``attrs``'s philosophy to only *add* to classes so you have the freedom to customize your classes as you wish.
       So if you want to *get rid* of methods, you'll have to do it by hand.
@@ -65,8 +65,9 @@ For a more thorough explanation of this topic, please refer to this blog post: `
 
 Hashing and Mutability
 ----------------------
+
 Changing any field involved in hash code computation after the first call to ``__hash__`` (typically this would be after its insertion into a hash-based collection) can result in silent bugs.
-Therefore, it is strongly recommended that hashable classes be ``frozen.``
+Therefore, it is strongly recommended that hashable classes be ``frozen``.
 Beware, however, that this is not a complete guarantee of safety:
 if a field points to an object and that object is mutated, the hash code may change, but ``frozen`` will not protect you.
 

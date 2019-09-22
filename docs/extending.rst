@@ -16,7 +16,7 @@ So it is fairly simple to build your own decorators on top of ``attrs``:
    ... @attr.s
    ... class C(object):
    ...     a = attr.ib()
-   (Attribute(name='a', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False),)
+   (Attribute(name='a', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False),)
 
 
 .. warning::
@@ -99,10 +99,18 @@ Here are some tips for effective use of metadata:
 
     >>> MY_TYPE_METADATA = '__my_type_metadata'
     >>>
-    >>> def typed(cls, default=attr.NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, metadata={}, type=None, converter=None):
+    >>> def typed(
+    ...     cls, default=attr.NOTHING, validator=None, repr=True,
+    ...     eq=True, order=None, hash=None, init=True, metadata={},
+    ...     type=None, converter=None
+    ... ):
     ...     metadata = dict() if not metadata else metadata
     ...     metadata[MY_TYPE_METADATA] = cls
-    ...     return attr.ib(default, validator, repr, cmp, hash, init, metadata, type, converter)
+    ...     return attr.ib(
+    ...         default=default, validator=validator, repr=repr,
+    ...         eq=eq, order=order, hash=hash, init=init,
+    ...         metadata=metadata, type=type, converter=converter
+    ...     )
     >>>
     >>> @attr.s
     ... class C(object):
