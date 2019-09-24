@@ -1,6 +1,6 @@
 import re
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
 import attr
 
@@ -156,6 +156,16 @@ class Validated:
     e = attr.ib(validator=attr.validators.matches_re(r"foo"))
     f = attr.ib(
         validator=attr.validators.matches_re(r"foo", flags=42, func=re.search)
+    )
+
+    # Test different forms of instance_of
+    g: int = attr.ib(validator=attr.validators.instance_of(int))
+    h: int = attr.ib(validator=attr.validators.instance_of((int,)))
+    j: Union[int, str] = attr.ib(
+        validator=attr.validators.instance_of((int, str))
+    )
+    k: Union[int, str, C] = attr.ib(
+        validator=attr.validators.instance_of((int, C, str))
     )
 
 
