@@ -10,14 +10,16 @@ from typing import (
     Iterable,
     Mapping,
     Callable,
+    Match,
+    AnyStr,
 )
 from . import _ValidatorType
 
 _T = TypeVar("_T")
-_I = TypeVar("_I", bound=Iterable[_T])
+_I = TypeVar("_I", bound=Iterable)
 _K = TypeVar("_K")
 _V = TypeVar("_V")
-_M = TypeVar("_V", bound=Mapping[_K, _V])
+_M = TypeVar("_M", bound=Mapping)
 
 def instance_of(
     type: Union[Tuple[Type[_T], ...], Type[_T]]
@@ -29,10 +31,12 @@ def optional(
 def in_(options: Container[_T]) -> _ValidatorType[_T]: ...
 def and_(*validators: _ValidatorType[_T]) -> _ValidatorType[_T]: ...
 def matches_re(
-    regex: str,
+    regex: AnyStr,
     flags: int = ...,
-    func: Optional[Callable[[str, str, int], ...]] = ...,
-): ...
+    func: Optional[
+        Callable[[AnyStr, AnyStr, int], Optional[Match[AnyStr]]]
+    ] = ...,
+) -> _ValidatorType[AnyStr]: ...
 def deep_iterable(
     member_validator: _ValidatorType[_T],
     iterable_validator: Optional[_ValidatorType[_I]] = ...,
