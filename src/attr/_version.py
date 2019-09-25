@@ -10,7 +10,7 @@ from ._make import attrib, attrs
 @attrs(eq=False, order=False, slots=True, frozen=True)
 class VersionInfo(object):
     """
-    A version object that can be compared to tuple of length 1–4:
+    A version object that can be compared to tuple of length 1--4:
 
     >>> attr.VersionInfo(19, 1, 0, "final")  <= (19, 2)
     True
