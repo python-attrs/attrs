@@ -518,7 +518,7 @@ It behaves similarly to `sys.version_info` and is an instance of `VersionInfo`:
    >>> if getattr(attr, "__version_info__", (0,)) >= (19, 2):
    ...     cmp_off = {"eq": False}
    ... else:
-   ...     cmp_off= {"cmp": False}
+   ...     cmp_off = {"cmp": False}
    >>> cmp_off == {"eq":  False}
    True
    >>> @attr.s(**cmp_off)
