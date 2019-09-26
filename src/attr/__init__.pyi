@@ -20,6 +20,8 @@ from . import filters as filters
 from . import converters as converters
 from . import validators as validators
 
+from ._version import VersionInfo
+
 _T = TypeVar("_T")
 _C = TypeVar("_C", bound=type)
 
