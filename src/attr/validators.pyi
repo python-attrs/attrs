@@ -10,18 +10,37 @@ from typing import (
     Iterable,
     Mapping,
     Callable,
+    Match,
+    AnyStr,
+    overload,
 )
 from . import _ValidatorType
 
 _T = TypeVar("_T")
-_I = TypeVar("_I", bound=Iterable[_T])
+_T1 = TypeVar("_T1")
+_T2 = TypeVar("_T2")
+_T3 = TypeVar("_T3")
+_I = TypeVar("_I", bound=Iterable)
 _K = TypeVar("_K")
 _V = TypeVar("_V")
-_M = TypeVar("_V", bound=Mapping[_K, _V])
+_M = TypeVar("_M", bound=Mapping)
 
+# To be more precise on instance_of use some overloads.
+# If there are more than 3 items in the tuple then we fall back to Any
+@overload
+def instance_of(type: Type[_T]) -> _ValidatorType[_T]: ...
+@overload
+def instance_of(type: Tuple[Type[_T]]) -> _ValidatorType[_T]: ...
+@overload
 def instance_of(
-    type: Union[Tuple[Type[_T], ...], Type[_T]]
-) -> _ValidatorType[_T]: ...
+    type: Tuple[Type[_T1], Type[_T2]]
+) -> _ValidatorType[Union[_T1, _T2]]: ...
+@overload
+def instance_of(
+    type: Tuple[Type[_T1], Type[_T2], Type[_T3]]
+) -> _ValidatorType[Union[_T1, _T2, _T3]]: ...
+@overload
+def instance_of(type: Tuple[type, ...]) -> _ValidatorType[Any]: ...
 def provides(interface: Any) -> _ValidatorType[Any]: ...
 def optional(
     validator: Union[_ValidatorType[_T], List[_ValidatorType[_T]]]
@@ -29,10 +48,12 @@ def optional(
 def in_(options: Container[_T]) -> _ValidatorType[_T]: ...
 def and_(*validators: _ValidatorType[_T]) -> _ValidatorType[_T]: ...
 def matches_re(
-    regex: str,
+    regex: AnyStr,
     flags: int = ...,
-    func: Optional[Callable[[str, str, int], ...]] = ...,
-): ...
+    func: Optional[
+        Callable[[AnyStr, AnyStr, int], Optional[Match[AnyStr]]]
+    ] = ...,
+) -> _ValidatorType[AnyStr]: ...
 def deep_iterable(
     member_validator: _ValidatorType[_T],
     iterable_validator: Optional[_ValidatorType[_I]] = ...,
