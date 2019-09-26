@@ -1,5 +1,9 @@
 class VersionInfo:
-    year: int
-    minor: int
-    micro: int
-    releaselevel: str
+    @property
+    def year(self) -> int: ...
+    @property
+    def minor(self) -> int: ...
+    @property
+    def micro(self) -> int: ...
+    @property
+    def releaselevel(self) -> str: ...
