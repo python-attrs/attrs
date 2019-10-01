@@ -888,7 +888,8 @@ def attrs(
         ``attr.ib(default=42)``.  Passing an instance of `Factory` also
         works as expected.
 
-        Attributes annotated as `typing.ClassVar` are **ignored**.
+        Attributes annotated as `typing.ClassVar`, and attributes that are
+        neither annotated nor set to an `attr.ib` are **ignored**.
 
         .. _`PEP 526`: https://www.python.org/dev/peps/pep-0526/
     :param bool kw_only: Make all attributes keyword-only (Python 3+)
