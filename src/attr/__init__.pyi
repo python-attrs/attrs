@@ -20,6 +20,19 @@ from . import filters as filters
 from . import converters as converters
 from . import validators as validators
 
+from ._version import VersionInfo
+
+__version__: str
+__version_info__: VersionInfo
+__title__: str
+__description__: str
+__url__: str
+__uri__: str
+__author__: str
+__email__: str
+__license__: str
+__copyright__: str
+
 _T = TypeVar("_T")
 _C = TypeVar("_C", bound=type)
 

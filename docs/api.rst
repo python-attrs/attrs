@@ -506,7 +506,31 @@ Converters
 Deprecated APIs
 ---------------
 
+.. _version-info:
+
+To help you write backward compatible code that doesn't throw warnings on modern releases, the ``attr`` module has an ``__version_info__`` attribute as of version 19.2.0.
+It behaves similarly to `sys.version_info` and is an instance of `VersionInfo`:
+
+.. autoclass:: VersionInfo
+
+   With its help you can write code like this:
+
+   >>> if getattr(attr, "__version_info__", (0,)) >= (19, 2):
+   ...     cmp_off = {"eq": False}
+   ... else:
+   ...     cmp_off = {"cmp": False}
+   >>> cmp_off == {"eq":  False}
+   True
+   >>> @attr.s(**cmp_off)
+   ... class C(object):
+   ...     pass
+
+
+----
+
 The serious business aliases used to be called ``attr.attributes`` and ``attr.attr``.
 There are no plans to remove them but they shouldn't be used in new code.
+
+The ``cmp`` argument to both `attr.s` and `attr.ib` has been deprecated in 19.2 and shouldn't be used.
 
 .. autofunction:: assoc
