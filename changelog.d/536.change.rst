@@ -1,2 +1,0 @@
-``attr.validators.is_callable()`` validator now raises an exception ``attr.exceptions.NotCallableError``, a subclass of ``TypeError``, informing the received value.
-`#536 <https://github.com/python-attrs/attrs/pull/536>`_.

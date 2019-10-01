@@ -42,7 +42,7 @@ Wrapping the Decorator
 
 A more elegant way can be to wrap ``attrs`` altogether and build a class `DSL <https://en.wikipedia.org/wiki/Domain-specific_language>`_ on top of it.
 
-An example for that is the package `environ_config <https://github.com/hynek/environ_config>`_ that uses ``attrs`` under the hood to define environment-based configurations declaratively without exposing ``attrs`` APIs at all.
+An example for that is the package `environ-config <https://github.com/hynek/environ-config>`_ that uses ``attrs`` under the hood to define environment-based configurations declaratively without exposing ``attrs`` APIs at all.
 
 
 Types
