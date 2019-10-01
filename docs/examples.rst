@@ -423,6 +423,8 @@ You can use a decorator:
       ...
    ValueError: value out of bounds
 
+Please note that the decorator approach only works if -- and only if! -- the attribute in question has an ``attr.ib`` assigned.
+Therefore if you use ``@attr.s(auto_attribs=True)``, it is *not* enough to decorate said attribute with a type.
 
 ``attrs`` ships with a bunch of validators, make sure to `check them out <api_validators>` before writing your own:
 
