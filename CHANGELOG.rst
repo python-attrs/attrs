@@ -41,7 +41,7 @@ Deprecations
 Changes
 ^^^^^^^
 
-- Updated ``attr.validators.__all__`` to include new validators added in `#425 <https://github.com/python-attrs/attrs/pull/425>`_.
+- Updated ``attr.validators.__all__`` to include new validators added in `#425`_.
   `#517 <https://github.com/python-attrs/attrs/issues/517>`_
 - Slotted classes now use a pure Python mechanism to rewrite the ``__class__`` cell when rebuilding the class, so ``super()`` works even on environments where ``ctypes`` is not installed.
   `#522 <https://github.com/python-attrs/attrs/issues/522>`_
@@ -51,7 +51,6 @@ Changes
 - Fixed ``attr.validators.deep_iterable()`` and ``attr.validators.deep_mapping()`` type stubs.
   `#533 <https://github.com/python-attrs/attrs/issues/533>`_
 - ``attr.validators.is_callable()`` validator now raises an exception ``attr.exceptions.NotCallableError``, a subclass of ``TypeError``, informing the received value.
-  `#536 <https://github.com/python-attrs/attrs/pull/536>`_.
   `#536 <https://github.com/python-attrs/attrs/issues/536>`_
 - ``@attr.s(auto_exc=True)`` now generates classes that are hashable by ID, as the documentation always claimed it would.
   `#543 <https://github.com/python-attrs/attrs/issues/543>`_,
@@ -69,6 +68,8 @@ Changes
 - Added ``attr.__version_info__`` that can be used to reliably check the version of ``attrs`` and write forward- and backward-compatible code.
   Please check out the `section on deprecated APIs <http://www.attrs.org/en/stable/api.html#deprecated-apis>`_ on how to use it.
   `#580 <https://github.com/python-attrs/attrs/issues/580>`_
+
+ .. _`#425`: https://github.com/python-attrs/attrs/issues/425
 
 
 ----
@@ -101,7 +102,7 @@ Changes
     Also applies an optional validator to the mapping object itself.
 
   You can find them in the ``attr.validators`` package.
-  `#425 <https://github.com/python-attrs/attrs/issues/425>`_
+  `#425`_
 - Fixed stub files to prevent errors raised by mypy's ``disallow_any_generics = True`` option.
   `#443 <https://github.com/python-attrs/attrs/issues/443>`_
 - Attributes with ``init=False`` now can follow after ``kw_only=True`` attributes.
@@ -158,7 +159,7 @@ Changes
 - Slotted classes can now be made weakly referenceable by passing ``@attr.s(weakref_slot=True)``.
   `#420 <https://github.com/python-attrs/attrs/issues/420>`_
 - Added *cache_hash* option to ``@attr.s`` which causes the hash code to be computed once and stored on the object.
-  `#425 <https://github.com/python-attrs/attrs/issues/425>`_
+  `#426 <https://github.com/python-attrs/attrs/issues/426>`_
 - Attributes can be named ``property`` and ``itemgetter`` now.
   `#430 <https://github.com/python-attrs/attrs/issues/430>`_
 - It is now possible to override a base class' class variable using only class annotations.
