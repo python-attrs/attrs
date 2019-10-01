@@ -508,7 +508,7 @@ Deprecated APIs
 
 .. _version-info:
 
-To help you writing backward compatible code that doesn't throw warnings on modern releases, the ``attr`` module has an ``__version_info__`` attribute as of version 19.2.0.
+To help you write backward compatible code that doesn't throw warnings on modern releases, the ``attr`` module has an ``__version_info__`` attribute as of version 19.2.0.
 It behaves similarly to `sys.version_info` and is an instance of `VersionInfo`:
 
 .. autoclass:: VersionInfo
