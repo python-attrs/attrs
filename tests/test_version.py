@@ -18,6 +18,9 @@ class TestVersionInfo:
         """
         assert vi == VersionInfo._from_version_string("19.2.0")
 
+    @pytest.mark.skipif(
+        PY2, reason="Python 2 is too YOLO to care about comparability."
+    )
     @pytest.mark.parametrize("other", [(), (19, 2, 0, "final", "garbage")])
     def test_wrong_len(self, vi, other):
         """
@@ -25,9 +28,8 @@ class TestVersionInfo:
         """
         assert vi != other
 
-        if not PY2:
-            with pytest.raises(TypeError):
-                vi < other
+        with pytest.raises(TypeError):
+            vi < other
 
     @pytest.mark.parametrize("other", [[19, 2, 0, "final"]])
     def test_wrong_type(self, vi, other):
