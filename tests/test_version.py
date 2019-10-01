@@ -18,6 +18,15 @@ class TestVersionInfo:
         """
         assert vi == VersionInfo._from_version_string("19.2.0")
 
+    def test_suffix_is_preserved(self):
+        """
+        If there is a suffix, it's preserved.
+        """
+        assert (
+            "dev0"
+            == VersionInfo._from_version_string("19.2.0.dev0").releaselevel
+        )
+
     @pytest.mark.skipif(
         PY2, reason="Python 2 is too YOLO to care about comparability."
     )
