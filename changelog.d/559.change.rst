@@ -1,1 +1,0 @@
-Keyword-only attributes (``kw_only=True``) and attributes that are excluded from the ``attrs``'s ``__init__`` (``init=False``) now can appear before mandatory attributes.

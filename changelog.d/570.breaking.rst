@@ -1,3 +1,0 @@
-``__lt__``, ``__le__``, ``__gt__``, and ``__ge__`` do not consider subclasses comparable anymore.
-
-This has been deprecated since 18.2.0 and was raising a ``DeprecationWarning`` for over a year.

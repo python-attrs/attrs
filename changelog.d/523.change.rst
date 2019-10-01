@@ -1,1 +1,0 @@
-When collecting attributes using ``@attr.s(auto_attribs=True)``, attributes with a default of ``None`` are now deleted too.

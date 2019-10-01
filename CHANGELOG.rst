@@ -4,16 +4,75 @@ Changelog
 Versions follow `CalVer <https://calver.org>`_ with a strict backwards compatibility policy.
 The third digit is only for regressions.
 
-Changes for the upcoming release can be found in the `"changelog.d" directory <https://github.com/python-attrs/attrs/tree/master/changelog.d>`_ in our repository.
-
-..
-   Do *NOT* add changelog entries here!
-
-   This changelog is managed by towncrier and is compiled at release time.
-
-   See https://www.attrs.org/en/latest/contributing.html#changelog for details.
-
 .. towncrier release notes start
+
+19.2.0 (2019-10-01)
+-------------------
+
+Backward-incompatible Changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Removed deprecated ``Attribute`` attribute ``convert`` per scheduled removal on 2019/1.
+  This planned deprecation is tracked in issue `#307 <https://github.com/python-attrs/attrs/issues/307>`_.
+  `#504 <https://github.com/python-attrs/attrs/issues/504>`_
+- ``__lt__``, ``__le__``, ``__gt__``, and ``__ge__`` do not consider subclasses comparable anymore.
+
+  This has been deprecated since 18.2.0 and was raising a ``DeprecationWarning`` for over a year.
+  `#570 <https://github.com/python-attrs/attrs/issues/570>`_
+
+
+Deprecations
+^^^^^^^^^^^^
+
+- The ``cmp`` argument to ``attr.s()`` and ``attr.ib()`` is now deprecated.
+
+  Please use ``eq`` to add equality methods (``__eq__`` and ``__ne__``) and ``order`` to add ordering methods (``__lt__``, ``__le__``, ``__gt__``, and ``__ge__``) instead – just like with `dataclasses <https://docs.python.org/3/library/dataclasses.html>`_.
+
+  Both are effectively ``True`` by default but it's enough to set ``eq=False`` to disable both at once.
+  Passing ``eq=False, order=True`` explicitly will raise a ``ValueError`` though.
+
+  Since this is arguably a deeper backward-compatibility break, it will have an extended deprecation period until 2021-06-01.
+  After that day, the ``cmp`` argument will be removed.
+
+  ``attr.Attribute`` also isn't orderable anymore.
+  `#574 <https://github.com/python-attrs/attrs/issues/574>`_
+
+
+Changes
+^^^^^^^
+
+- Updated ``attr.validators.__all__`` to include new validators added in `#425 <https://github.com/python-attrs/attrs/pull/425>`_.
+  `#517 <https://github.com/python-attrs/attrs/issues/517>`_
+- Slotted classes now use a pure Python mechanism to rewrite the ``__class__`` cell when rebuilding the class, so ``super()`` works even on environments where ``ctypes`` is not installed.
+  `#522 <https://github.com/python-attrs/attrs/issues/522>`_
+- When collecting attributes using ``@attr.s(auto_attribs=True)``, attributes with a default of ``None`` are now deleted too.
+  `#523 <https://github.com/python-attrs/attrs/issues/523>`_,
+  `#556 <https://github.com/python-attrs/attrs/issues/556>`_
+- Fixed ``attr.validators.deep_iterable()`` and ``attr.validators.deep_mapping()`` type stubs.
+  `#533 <https://github.com/python-attrs/attrs/issues/533>`_
+- ``attr.validators.is_callable()`` validator now raises an exception ``attr.exceptions.NotCallableError``, a subclass of ``TypeError``, informing the received value.
+  `#536 <https://github.com/python-attrs/attrs/pull/536>`_.
+  `#536 <https://github.com/python-attrs/attrs/issues/536>`_
+- ``@attr.s(auto_exc=True)`` now generates classes that are hashable by ID, as the documentation always claimed it would.
+  `#543 <https://github.com/python-attrs/attrs/issues/543>`_,
+  `#563 <https://github.com/python-attrs/attrs/issues/563>`_
+- Added ``attr.validators.matches_re()`` that checks string attributes whether they match a regular expression.
+  `#552 <https://github.com/python-attrs/attrs/issues/552>`_
+- Keyword-only attributes (``kw_only=True``) and attributes that are excluded from the ``attrs``'s ``__init__`` (``init=False``) now can appear before mandatory attributes.
+  `#559 <https://github.com/python-attrs/attrs/issues/559>`_
+- The fake filename for generated methods is now more stable.
+  It won't change when you restart the process.
+  `#560 <https://github.com/python-attrs/attrs/issues/560>`_
+- The value passed to ``@attr.ib(repr=…)`` can now be either a boolean (as before) or a callable.
+  That callable must return a string and is then used for formatting the attribute by the generated ``__repr__()`` method.
+  `#568 <https://github.com/python-attrs/attrs/issues/568>`_
+- Added ``attr.__version_info__`` that can be used to reliably check the version of ``attrs`` and write forward- and backward-compatible code.
+  Please check out the `section on deprecated APIs <http://www.attrs.org/en/stable/api.html#deprecated-apis>`_ on how to use it.
+  `#580 <https://github.com/python-attrs/attrs/issues/580>`_
+
+
+----
+
 
 19.1.0 (2019-03-03)
 -------------------

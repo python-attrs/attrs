@@ -1,2 +1,0 @@
-Added ``attr.__version_info__`` that can be used to reliably check the version of ``attrs`` and write forward- and backward-compatible code.
-Please check out the `section on deprecated APIs <http://www.attrs.org/en/stable/api.html#deprecated-apis>`_ on how to use it.
