@@ -16,7 +16,7 @@ from ._make import (
     make_class,
     validate,
 )
-from ._version import VersionInfo
+from ._version_info import VersionInfo
 
 
 __version__ = "19.3.0.dev0"
