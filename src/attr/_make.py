@@ -859,7 +859,7 @@ def attrs(
         Please note:
 
             1. This is achieved by installing a custom ``__setattr__`` method
-               on your class so you can't implement an own one.
+               on your class, so you can't implement your own.
 
             2. True immutability is impossible in Python.
 
