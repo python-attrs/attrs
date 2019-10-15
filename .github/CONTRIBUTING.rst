@@ -245,6 +245,6 @@ Thank you for considering contributing to ``attrs``!
 .. _`team of volunteers`: https://github.com/python-attrs
 .. _BDFL: https://en.wikipedia.org/wiki/Benevolent_dictator_for_life
 .. _towncrier: https://pypi.org/project/towncrier
-.. _black: https://github.com/ambv/black
+.. _black: https://github.com/psf/black
 .. _pre-commit: https://pre-commit.com/
 .. _isort: https://github.com/timothycrosley/isort
