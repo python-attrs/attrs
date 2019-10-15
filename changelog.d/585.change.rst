@@ -1,0 +1,1 @@
+Fixed ``auto_attribs`` usage when default values cannot be compared directly with ``==``, such as ``numpy`` arrays.

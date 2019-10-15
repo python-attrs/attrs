@@ -282,3 +282,18 @@ class TestAnnotations:
 
         with pytest.raises(AttributeError):
             C.y
+
+    def test_non_comparable_defaults(self):
+        """
+        Regression test for #585: objects that are not directly comparable
+        (for example numpy arrays) would cause a crash when used as
+        default values of an attrs auto-attrib class.
+        """
+
+        class NonComparable:
+            def __eq__(self, other):
+                raise ValueError
+
+        @attr.s(auto_attribs=True)
+        class C:
+            x: typing.Any = NonComparable()

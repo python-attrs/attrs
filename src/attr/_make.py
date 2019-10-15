@@ -509,7 +509,7 @@ class _ClassBuilder(object):
             for name in self._attr_names:
                 if (
                     name not in base_names
-                    and getattr(cls, name, _sentinel) != _sentinel
+                    and getattr(cls, name, _sentinel) is not _sentinel
                 ):
                     try:
                         delattr(cls, name)
