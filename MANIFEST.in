@@ -1,4 +1,4 @@
-include LICENSE *.rst *.toml *.yml *.yaml
+include LICENSE *.rst *.toml *.yml *.yaml *.ini
 graft .github
 
 # Stubs

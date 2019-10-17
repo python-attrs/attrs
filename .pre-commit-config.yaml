@@ -23,6 +23,7 @@ repos:
     rev: v4.3.21
     hooks:
       - id: isort
+        additional_dependencies: [toml]
         language_version: python3.7
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
