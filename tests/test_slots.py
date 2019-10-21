@@ -553,7 +553,7 @@ def test_slots_empty_cell():
     class C(object):
         field = attr.ib()
 
-        def f(self, a):
+        def f(self, a):  # noqa F841
             super(C, self).__init__()
 
     c = C(field=1)
