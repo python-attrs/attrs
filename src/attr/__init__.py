@@ -1,36 +1,31 @@
 from __future__ import absolute_import, division, print_function
 
-from ._funcs import (
-    asdict,
-    assoc,
-    astuple,
-    evolve,
-    has,
-)
+from functools import partial
+
+from . import converters, exceptions, filters, validators
+from ._config import get_run_validators, set_run_validators
+from ._funcs import asdict, assoc, astuple, evolve, has
 from ._make import (
+    NOTHING,
     Attribute,
     Factory,
-    NOTHING,
-    attr,
-    attributes,
+    attrib,
+    attrs,
     fields,
+    fields_dict,
     make_class,
     validate,
 )
-from ._config import (
-    get_run_validators,
-    set_run_validators,
-)
-from . import exceptions
-from . import filters
-from . import validators
+from ._version_info import VersionInfo
 
 
-__version__ = "17.1.0.dev0"
+__version__ = "19.4.0.dev0"
+__version_info__ = VersionInfo._from_version_string(__version__)
 
 __title__ = "attrs"
 __description__ = "Classes Without Boilerplate"
-__uri__ = "https://attrs.readthedocs.io/"
+__url__ = "https://www.attrs.org/"
+__uri__ = __url__
 __doc__ = __description__ + " <" + __uri__ + ">"
 
 __author__ = "Hynek Schlawack"
@@ -40,8 +35,10 @@ __license__ = "MIT"
 __copyright__ = "Copyright (c) 2015 Hynek Schlawack"
 
 
-s = attrs = attributes
-ib = attrib = attr
+s = attributes = attrs
+ib = attr = attrib
+dataclass = partial(attrs, auto_attribs=True)  # happy Easter ;)
+
 
 __all__ = [
     "Attribute",
@@ -54,9 +51,11 @@ __all__ = [
     "attrib",
     "attributes",
     "attrs",
+    "converters",
     "evolve",
     "exceptions",
     "fields",
+    "fields_dict",
     "filters",
     "get_run_validators",
     "has",

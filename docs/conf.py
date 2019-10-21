@@ -21,8 +21,9 @@ def find_version(*file_paths):
     string inside.
     """
     version_file = read(*file_paths)
-    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
-                              version_file, re.M)
+    version_match = re.search(
+        r"^__version__ = ['\"]([^'\"]*)['\"]", version_file, re.M
+    )
     if version_match:
         return version_match.group(1)
     raise RuntimeError("Unable to find version string.")
@@ -30,29 +31,38 @@ def find_version(*file_paths):
 
 # -- General configuration ------------------------------------------------
 
+# In nitpick mode (-n), still ignore any of the following "broken" references
+# to non-types.
+nitpick_ignore = [
+    ("py:class", "Any value"),
+    ("py:class", "callable"),
+    ("py:class", "callables"),
+    ("py:class", "tuple of types"),
+]
+
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.todo',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.doctest",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.todo",
 ]
 
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # The suffix of source filenames.
-source_suffix = '.rst'
+source_suffix = ".rst"
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = "index"
 
 # General information about the project.
-project = u'attrs'
-copyright = u'2015, Hynek Schlawack'
+project = u"attrs"
+copyright = u"2015, Hynek Schlawack"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -65,13 +75,17 @@ version = release.rsplit(u".", 1)[0]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build']
+exclude_patterns = ["_build"]
+
+# The reST default role (used for this markup: `text`) to use for all
+# documents.
+default_role = "any"
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
 add_function_parentheses = True
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = "sphinx"
 
 # -- Options for HTML output ----------------------------------------------
 
@@ -79,10 +93,17 @@ pygments_style = 'sphinx'
 # a list of builtin themes.
 
 html_theme = "alabaster"
+html_theme_options = {
+    "font_family": '"Avenir Next", Calibri, "PT Sans", sans-serif',
+    "head_font_family": '"Avenir Next", Calibri, "PT Sans", sans-serif',
+    "font_size": "18px",
+    "page_width": "980px",
+    "show_relbars": True,
+}
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = "_static/attrs_logo.png"
+html_logo = "_static/attrs_logo.svg"
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
@@ -92,11 +113,7 @@ html_logo = "_static/attrs_logo.png"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
-
-# If true, SmartyPants will be used to convert quotes and dashes to
-# typographically correct entities.
-html_use_smartypants = True
+html_static_path = ["_static"]
 
 # If false, no module index is generated.
 html_domain_indices = True
@@ -122,15 +139,14 @@ html_show_copyright = True
 # html_use_opensearch = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'attrsdoc'
+htmlhelp_basename = "attrsdoc"
 
 # -- Options for manual page output ---------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'attrs', u'attrs Documentation',
-     [u'Hynek Schlawack'], 1)
+    ("index", "attrs", u"attrs Documentation", [u"Hynek Schlawack"], 1)
 ]
 
 
@@ -140,11 +156,21 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'attrs', u'attrs Documentation',
-     u'Hynek Schlawack', 'attrs', 'One line description of project.',
-     'Miscellaneous'),
+    (
+        "index",
+        "attrs",
+        u"attrs Documentation",
+        u"Hynek Schlawack",
+        "attrs",
+        "One line description of project.",
+        "Miscellaneous",
+    )
 ]
 
 intersphinx_mapping = {
     "https://docs.python.org/3": None,
+    "https://zopeinterface.readthedocs.io/en/latest/": None,
 }
+
+# Allow non-local URIs so we can have images in CHANGELOG etc.
+suppress_warnings = ["image.nonlocal_uri"]

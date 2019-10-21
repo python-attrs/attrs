@@ -1,21 +1,20 @@
 from __future__ import absolute_import, division, print_function
 
-import os
+import sys
 
-import pytest
-from hypothesis import settings
+from hypothesis import HealthCheck, settings
 
 
-@pytest.fixture(scope="session")
-def C():
-    """
-    Return a simple but fully featured attrs class with an x and a y attribute.
-    """
-    from attr import attributes, attr
+def pytest_configure(config):
+    # HealthCheck.too_slow causes more trouble than good -- especially in CIs.
+    settings.register_profile(
+        "patience", settings(suppress_health_check=[HealthCheck.too_slow])
+    )
+    settings.load_profile("patience")
 
-    @attributes
-    class C(object):
-        x = attr()
-        y = attr()
 
-    return C
+collect_ignore = []
+if sys.version_info[:2] < (3, 6):
+    collect_ignore.extend(
+        ["tests/test_annotations.py", "tests/test_init_subclass.py"]
+    )

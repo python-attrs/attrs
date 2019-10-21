@@ -1,5 +1,0 @@
-coverage
-pytest
-zope.interface
-pympler
-hypothesis
