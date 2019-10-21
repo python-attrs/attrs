@@ -213,42 +213,6 @@ Helpers
       False
 
 
-.. autofunction:: attr.validators.is_mandatory
-
-   For example:
-
-   .. doctest::
-
-      >>> @attr.s
-      ... class C(object):
-      ...     x = attr.ib(validator=attr.validators.instance_of(int))
-      ...     y = attr.ib(validator=attr.validators.optional(attr.validators.instance_of(int)))
-      >>> attr.validators.is_mandatory(attr.fields(C).x)
-      True
-      >>> attr.validators.is_mandatory(attr.fields(C).y)
-      False
-
-    ..  versionadded:: ??? (to complete)
-
-
-.. autofunction:: attr.validators.guess_type_from_validators
-
-   For example:
-
-   .. doctest::
-
-      >>> @attr.s
-      ... class C(object):
-      ...     x = attr.ib(validator=attr.validators.instance_of(int))
-      ...     y = attr.ib()
-      >>> attr.validators.guess_type_from_validators(attr.fields(C).x)
-      int
-      >>> attr.validators.guess_type_from_validators(attr.fields(C).y) is None
-      True
-
-    ..  versionadded:: ??? (to complete)
-
-
 .. autofunction:: attr.asdict
 
    For example:
