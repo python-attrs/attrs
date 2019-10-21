@@ -543,3 +543,17 @@ def tests_weakref_does_not_add_with_weakref_attribute():
     w = weakref.ref(c)
 
     assert c is w()
+
+
+def test_slots_empty_cell():
+    """
+    test for issue https://github.com/python-attrs/attrs/issues/589
+    """
+    @attr.s(slots=True)
+    class C(object):
+        field = attr.ib()
+
+        def f(self, a):
+            super(C, self).__init__()
+
+    c = C(field=1)
