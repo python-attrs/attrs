@@ -502,32 +502,6 @@ Converters
       >>> C(None)
       C(x='')
 
-.. autofunction:: attr.validators.chain
-
-    For example:
-
-    .. doctest::
-
-      >>> def custom_validator(instance, attribute, value):
-      ...     allowed = {'+', '*'}
-      ...     if value not in allowed:
-      ...         raise ValueError('\'op\' has to be a string in ' + str(allowed) + '!')
-      >>> @attr.s
-      ... class C(object):
-      ...     x = attr.ib(validator=attr.validators.chain(custom_validator, attr.validators.instance_of(str)))
-      >>> C("+")
-      C(x='+')
-      >>> C("-")
-      Traceback (most recent call last):
-         ...
-      ValueError: 'op' has to be a string in {'+', '*'}!
-      >>> C(None)
-      Traceback (most recent call last):
-         ...
-      ValueError: 'op' has to be a string in {'+', '*'}!
-
-    ..  versionadded:: ??? (to complete)
-
 
 Deprecated APIs
 ---------------
