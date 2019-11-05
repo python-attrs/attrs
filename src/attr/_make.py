@@ -815,7 +815,7 @@ def attrs(
         ``__ne__`` methods that check two instances for equality.
 
         They compare the instances as if they were tuples of their ``attrs``
-        attributes, but only iff the types of both classes are *identical*!
+        attributes if and only if the types of both classes are *identical*!
     :type eq: `bool` or `None`
     :param bool order: If ``True``, add ``__lt__``, ``__le__``, ``__gt__``,
         and ``__ge__`` methods that behave like *eq* above and allow instances
