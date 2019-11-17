@@ -1,0 +1,1 @@
+Small typo in docs/why.rst - fixed spelling of development.
