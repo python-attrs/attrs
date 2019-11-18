@@ -151,7 +151,7 @@ Nevertheless, there are still reasons to prefer ``attrs`` over Data Classes whos
 - ``attrs`` can and will move faster.
   We are not bound to any release schedules and we have a clear deprecation policy.
 
-  One of the `reasons <https://www.python.org/dev/peps/pep-0557/#why-not-just-use-attrs>`_ to not vendor ``attrs`` in the standard library was to not impede ``attrs``'s future developement.
+  One of the `reasons <https://www.python.org/dev/peps/pep-0557/#why-not-just-use-attrs>`_ to not vendor ``attrs`` in the standard library was to not impede ``attrs``'s future development.
 
 
 
