@@ -541,7 +541,7 @@ class _ClassBuilder(object):
                 # clear hash code cache
                 setattr(chss_self, _hash_cache_field, None)
 
-            setattr(cls, "__setstate__", cache_hash_set_state)
+            cls.__setstate__ = cache_hash_set_state
 
         return cls
 
