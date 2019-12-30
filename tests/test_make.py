@@ -749,7 +749,7 @@ class TestKeywordOnlyAttributes(object):
         assert c.non_init_keyword_default == "default-by-keyword"
 
     def test_init_false_attribute_after_keyword_attribute_with_inheritance(
-        self
+        self,
     ):
         """
         A positional attribute cannot follow a `kw_only` attribute,
@@ -1562,7 +1562,7 @@ class TestDetermineEqOrder(object):
             class C(object):
                 pass
 
-        w, = dc.list
+        (w,) = dc.list
 
         assert (
             "The usage of `cmp` is deprecated and will be removed on or after "

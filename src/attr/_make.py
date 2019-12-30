@@ -2120,9 +2120,10 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
 
     # We do it here for proper warnings with meaningful stacklevel.
     cmp = attributes_arguments.pop("cmp", None)
-    attributes_arguments["eq"], attributes_arguments[
-        "order"
-    ] = _determine_eq_order(
+    (
+        attributes_arguments["eq"],
+        attributes_arguments["order"],
+    ) = _determine_eq_order(
         cmp, attributes_arguments.get("eq"), attributes_arguments.get("order")
     )
 
