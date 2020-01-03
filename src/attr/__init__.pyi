@@ -187,6 +187,7 @@ def attrs(
     auto_exc: bool = ...,
     eq: Optional[bool] = ...,
     order: Optional[bool] = ...,
+    auto_detect: bool = ...,
 ) -> _C: ...
 @overload
 def attrs(
@@ -207,6 +208,7 @@ def attrs(
     auto_exc: bool = ...,
     eq: Optional[bool] = ...,
     order: Optional[bool] = ...,
+    auto_detect: bool = ...,
 ) -> Callable[[_C], _C]: ...
 
 # TODO: add support for returning NamedTuple from the mypy plugin
