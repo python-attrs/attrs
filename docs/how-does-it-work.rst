@@ -39,7 +39,8 @@ No magic, no meta programming, no expensive introspection at runtime.
 
 Everything until this point happens exactly *once* when the class is defined.
 As soon as a class is done, it's done.
-And it's just a regular Python class like any other, except for a single ``__attrs_attrs__`` attribute that can be used for introspection or for writing your own tools and decorators on top of ``attrs`` (like `attr.asdict`).
+And it's just a regular Python class like any other, except for a single ``__attrs_attrs__`` attribute that ``attrs`` uses internally.
+Much of the information is accessible via `attr.fields` and other functions which can be used for introspection or for writing your own tools and decorators on top of ``attrs`` (like `attr.asdict`).
 
 And once you start instantiating your classes, ``attrs`` is out of your way completely.
 
