@@ -39,7 +39,7 @@ INSTALL_REQUIRES = []
 EXTRAS_REQUIRE = {
     "docs": ["sphinx", "zope.interface"],
     "tests": [
-        "coverage",
+        "coverage[toml]",
         "hypothesis",
         "pympler",
         "pytest>=4.3.0",  # 4.3.0 dropped last use of `convert`
