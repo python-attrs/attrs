@@ -101,7 +101,7 @@ jobs:
             $PY get-pip.py --user
           fi
 
-          $PY -m pip install --user 'coverage<5.0' codecov
+          $PY -m pip install --user 'coverage' codecov
 
           coverage combine
           codecov
