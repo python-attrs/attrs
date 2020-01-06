@@ -141,6 +141,10 @@ Core
       C(x=[1, 2, 3], y={1, 2, 3})
 
 
+Exceptions
+----------
+
+.. autoexception:: attr.exceptions.PythonTooOldError
 .. autoexception:: attr.exceptions.FrozenInstanceError
 .. autoexception:: attr.exceptions.AttrsAttributeNotFoundError
 .. autoexception:: attr.exceptions.NotAnAttrsClassError
