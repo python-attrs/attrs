@@ -1466,7 +1466,6 @@ class TestClassBuilder(object):
 
         assert [C2] == C.__subclasses__()
 
-    @pytest.mark.xfail(raises=attr.exceptions.FrozenInstanceError)
     def test_cache_hash_with_frozen_serializes(self):
         """
         Frozen classes with cache_hash should be serializable.
