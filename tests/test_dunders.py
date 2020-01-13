@@ -502,7 +502,7 @@ class TestAddHash(object):
         # hash caching.
         # We don't care about the result of this; we just want to make sure we
         # can do it without exceptions.
-        hash(pickle.loads(pickle.dumps(HashCacheSerializationTestUncached)))
+        hash(pickle.loads(pickle.dumps(HashCacheSerializationTestUncached())))
 
         def assert_hash_code_not_cached_across_serialization(original):
             # Now check our fix for #482 for when hash caching is enabled.
