@@ -38,7 +38,8 @@ INSTALL_REQUIRES = []
 EXTRAS_REQUIRE = {
     "docs": ["sphinx", "zope.interface"],
     "tests": [
-        "coverage[toml]",
+        # 5.0 introduced toml; parallel was broken until 5.0.2
+        "coverage[toml]>=5.0.2",
         "hypothesis",
         "pympler",
         "pytest>=4.3.0",  # 4.3.0 dropped last use of `convert`
