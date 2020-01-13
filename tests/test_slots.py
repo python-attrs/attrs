@@ -2,6 +2,7 @@
 Unit tests for slots-related functionality.
 """
 
+import sys
 import types
 import weakref
 
@@ -271,7 +272,9 @@ def test_bare_inheritance_from_slots():
     Inheriting from a bare attrs slotted class works.
     """
 
-    @attr.s(init=False, cmp=False, hash=False, repr=False, slots=True)
+    @attr.s(
+        init=False, eq=False, order=False, hash=False, repr=False, slots=True
+    )
     class C1BareSlots(object):
         x = attr.ib(validator=attr.validators.instance_of(int))
         y = attr.ib()
@@ -287,7 +290,7 @@ def test_bare_inheritance_from_slots():
         def staticmethod():
             return "staticmethod"
 
-    @attr.s(init=False, cmp=False, hash=False, repr=False)
+    @attr.s(init=False, eq=False, order=False, hash=False, repr=False)
     class C1Bare(object):
         x = attr.ib(validator=attr.validators.instance_of(int))
         y = attr.ib()
@@ -413,6 +416,10 @@ class TestClosureCellRewriting(object):
         assert D.statmethod() is D
 
     @pytest.mark.skipif(PYPY, reason="set_closure_cell always works on PyPy")
+    @pytest.mark.skipif(
+        sys.version_info >= (3, 8),
+        reason="can't break CodeType.replace() via monkeypatch",
+    )
     def test_code_hack_failure(self, monkeypatch):
         """
         Keeps working if function/code object introspection doesn't work
@@ -528,7 +535,9 @@ def tests_weakref_does_not_add_with_weakref_attribute():
 
     @attr.s(slots=True, weakref_slot=True)
     class C(object):
-        __weakref__ = attr.ib(init=False, hash=False, repr=False, cmp=False)
+        __weakref__ = attr.ib(
+            init=False, hash=False, repr=False, eq=False, order=False
+        )
 
     c = C()
     w = weakref.ref(c)

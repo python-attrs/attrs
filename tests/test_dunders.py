@@ -29,8 +29,10 @@ from attr.validators import instance_of
 from .utils import simple_attr, simple_class
 
 
-CmpC = simple_class(cmp=True)
-CmpCSlots = simple_class(cmp=True, slots=True)
+EqC = simple_class(eq=True)
+EqCSlots = simple_class(eq=True, slots=True)
+OrderC = simple_class(order=True)
+OrderCSlots = simple_class(order=True, slots=True)
 ReprC = simple_class(repr=True)
 ReprCSlots = simple_class(repr=True, slots=True)
 
@@ -38,10 +40,10 @@ ReprCSlots = simple_class(repr=True, slots=True)
 # implicitly.  The "Cached" versions are the same, except with hash code
 # caching enabled
 HashC = simple_class(hash=True)
-HashCSlots = simple_class(hash=None, cmp=True, frozen=True, slots=True)
+HashCSlots = simple_class(hash=None, eq=True, frozen=True, slots=True)
 HashCCached = simple_class(hash=True, cache_hash=True)
 HashCSlotsCached = simple_class(
-    hash=None, cmp=True, frozen=True, slots=True, cache_hash=True
+    hash=None, eq=True, frozen=True, slots=True, cache_hash=True
 )
 # the cached hash code is stored slightly differently in this case
 # so it needs to be tested separately
@@ -58,6 +60,7 @@ def _add_init(cls, frozen):
     the tests for it are still useful to test the behavior of _make_init.
     """
     cls.__init__ = _make_init(
+        cls,
         cls.__attrs_attrs__,
         getattr(cls, "__attrs_post_init__", False),
         frozen,
@@ -76,23 +79,23 @@ class InitC(object):
 InitC = _add_init(InitC, False)
 
 
-class TestAddCmp(object):
+class TestEqOrder(object):
     """
-    Tests for `_add_cmp`.
+    Tests for eq and order related methods.
     """
 
     @given(booleans())
-    def test_cmp(self, slots):
+    def test_eq_ignore_attrib(self, slots):
         """
-        If `cmp` is False, ignore that attribute.
+        If `eq` is False for an attribute, ignore that attribute.
         """
         C = make_class(
-            "C", {"a": attr.ib(cmp=False), "b": attr.ib()}, slots=slots
+            "C", {"a": attr.ib(eq=False), "b": attr.ib()}, slots=slots
         )
 
         assert C(1, 2) == C(2, 2)
 
-    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    @pytest.mark.parametrize("cls", [EqC, EqCSlots])
     def test_equal(self, cls):
         """
         Equal objects are detected as equal.
@@ -100,7 +103,7 @@ class TestAddCmp(object):
         assert cls(1, 2) == cls(1, 2)
         assert not (cls(1, 2) != cls(1, 2))
 
-    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    @pytest.mark.parametrize("cls", [EqC, EqCSlots])
     def test_unequal_same_class(self, cls):
         """
         Unequal objects of correct type are detected as unequal.
@@ -108,21 +111,21 @@ class TestAddCmp(object):
         assert cls(1, 2) != cls(2, 1)
         assert not (cls(1, 2) == cls(2, 1))
 
-    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    @pytest.mark.parametrize("cls", [EqC, EqCSlots])
     def test_unequal_different_class(self, cls):
         """
         Unequal objects of different type are detected even if their attributes
         match.
         """
 
-        class NotCmpC(object):
+        class NotEqC(object):
             a = 1
             b = 2
 
-        assert cls(1, 2) != NotCmpC()
-        assert not (cls(1, 2) == NotCmpC())
+        assert cls(1, 2) != NotEqC()
+        assert not (cls(1, 2) == NotEqC())
 
-    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    @pytest.mark.parametrize("cls", [OrderC, OrderCSlots])
     def test_lt(self, cls):
         """
         __lt__ compares objects as tuples of attribute values.
@@ -134,14 +137,14 @@ class TestAddCmp(object):
         ]:
             assert cls(*a) < cls(*b)
 
-    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    @pytest.mark.parametrize("cls", [OrderC, OrderCSlots])
     def test_lt_unordable(self, cls):
         """
         __lt__ returns NotImplemented if classes differ.
         """
         assert NotImplemented == (cls(1, 2).__lt__(42))
 
-    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    @pytest.mark.parametrize("cls", [OrderC, OrderCSlots])
     def test_le(self, cls):
         """
         __le__ compares objects as tuples of attribute values.
@@ -155,14 +158,14 @@ class TestAddCmp(object):
         ]:
             assert cls(*a) <= cls(*b)
 
-    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    @pytest.mark.parametrize("cls", [OrderC, OrderCSlots])
     def test_le_unordable(self, cls):
         """
         __le__ returns NotImplemented if classes differ.
         """
         assert NotImplemented == (cls(1, 2).__le__(42))
 
-    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    @pytest.mark.parametrize("cls", [OrderC, OrderCSlots])
     def test_gt(self, cls):
         """
         __gt__ compares objects as tuples of attribute values.
@@ -174,14 +177,14 @@ class TestAddCmp(object):
         ]:
             assert cls(*a) > cls(*b)
 
-    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    @pytest.mark.parametrize("cls", [OrderC, OrderCSlots])
     def test_gt_unordable(self, cls):
         """
         __gt__ returns NotImplemented if classes differ.
         """
         assert NotImplemented == (cls(1, 2).__gt__(42))
 
-    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    @pytest.mark.parametrize("cls", [OrderC, OrderCSlots])
     def test_ge(self, cls):
         """
         __ge__ compares objects as tuples of attribute values.
@@ -195,7 +198,7 @@ class TestAddCmp(object):
         ]:
             assert cls(*a) >= cls(*b)
 
-    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    @pytest.mark.parametrize("cls", [OrderC, OrderCSlots])
     def test_ge_unordable(self, cls):
         """
         __ge__ returns NotImplemented if classes differ.
@@ -225,6 +228,21 @@ class TestAddRepr(object):
         repr returns a sensible value.
         """
         assert "C(a=1, b=2)" == repr(cls(1, 2))
+
+    def test_custom_repr_works(self):
+        """
+        repr returns a sensible value for attributes with a custom repr
+        callable.
+        """
+
+        def custom_repr(value):
+            return "foo:" + str(value)
+
+        @attr.s
+        class C(object):
+            a = attr.ib(repr=custom_repr)
+
+        assert "C(a=foo:1)" == repr(C(1))
 
     def test_infinite_recursion(self):
         """
@@ -331,7 +349,7 @@ class TestAddHash(object):
         # unhashable case
         with pytest.raises(TypeError) as e:
             make_class(
-                "C", {}, hash=None, cmp=True, frozen=False, cache_hash=True
+                "C", {}, hash=None, eq=True, frozen=False, cache_hash=True
             )
         assert exc_args == e.value.args
 
@@ -364,13 +382,13 @@ class TestAddHash(object):
         assert hash(C(1, 2)) == hash(C(2, 2))
 
     @given(booleans())
-    def test_hash_attribute_mirrors_cmp(self, cmp):
+    def test_hash_attribute_mirrors_eq(self, eq):
         """
-        If `hash` is None, the hash generation mirrors `cmp`.
+        If `hash` is None, the hash generation mirrors `eq`.
         """
-        C = make_class("C", {"a": attr.ib(cmp=cmp)}, cmp=True, frozen=True)
+        C = make_class("C", {"a": attr.ib(eq=eq)}, eq=True, frozen=True)
 
-        if cmp:
+        if eq:
             assert C(1) != C(2)
             assert hash(C(1)) != hash(C(2))
             assert hash(C(1)) == hash(C(1))
@@ -379,18 +397,18 @@ class TestAddHash(object):
             assert hash(C(1)) == hash(C(2))
 
     @given(booleans())
-    def test_hash_mirrors_cmp(self, cmp):
+    def test_hash_mirrors_eq(self, eq):
         """
-        If `hash` is None, the hash generation mirrors `cmp`.
+        If `hash` is None, the hash generation mirrors `eq`.
         """
-        C = make_class("C", {"a": attr.ib()}, cmp=cmp, frozen=True)
+        C = make_class("C", {"a": attr.ib()}, eq=eq, frozen=True)
 
         i = C(1)
 
         assert i == i
         assert hash(i) == hash(i)
 
-        if cmp:
+        if eq:
             assert C(1) == C(1)
             assert hash(C(1)) == hash(C(1))
         else:
@@ -759,3 +777,48 @@ class TestNothing(object):
         assert _Nothing() == _Nothing() == NOTHING
         assert not (_Nothing() != _Nothing())
         assert 1 != _Nothing()
+
+
+@attr.s(hash=True, order=True)
+class C(object):
+    pass
+
+
+# Store this class so that we recreate it.
+OriginalC = C
+
+
+@attr.s(hash=True, order=True)
+class C(object):
+    pass
+
+
+class TestFilenames(object):
+    def test_filenames(self):
+        """
+        The created dunder methods have a "consistent" filename.
+        """
+        assert (
+            OriginalC.__init__.__code__.co_filename
+            == "<attrs generated init tests.test_dunders.C>"
+        )
+        assert (
+            OriginalC.__eq__.__code__.co_filename
+            == "<attrs generated eq tests.test_dunders.C>"
+        )
+        assert (
+            OriginalC.__hash__.__code__.co_filename
+            == "<attrs generated hash tests.test_dunders.C>"
+        )
+        assert (
+            C.__init__.__code__.co_filename
+            == "<attrs generated init tests.test_dunders.C-2>"
+        )
+        assert (
+            C.__eq__.__code__.co_filename
+            == "<attrs generated eq tests.test_dunders.C-2>"
+        )
+        assert (
+            C.__hash__.__code__.co_filename
+            == "<attrs generated hash tests.test_dunders.C-2>"
+        )

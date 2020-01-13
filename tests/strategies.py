@@ -14,6 +14,9 @@ import attr
 from .utils import make_class
 
 
+optional_bool = st.one_of(st.none(), st.booleans())
+
+
 def gen_attr_names():
     """
     Generate names for attributes, 'a'...'z', then 'aa'...'zz'.
@@ -131,7 +134,8 @@ def simple_attrs_with_metadata(draw):
         default=c_attr._default,
         validator=c_attr._validator,
         repr=c_attr.repr,
-        cmp=c_attr.cmp,
+        eq=c_attr.eq,
+        order=c_attr.order,
         hash=c_attr.hash,
         init=c_attr.init,
         metadata=metadata,

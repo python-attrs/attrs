@@ -27,7 +27,7 @@ Philosophy
 
 **Be light on API impact.**
    As convenient as it seems at first, ``attrs`` will *not* tack on any methods to your classes save the dunder ones.
-   Hence all the useful :ref:`tools <helpers>` that come with ``attrs`` live in functions that operate on top of instances.
+   Hence all the useful `tools <helpers>` that come with ``attrs`` live in functions that operate on top of instances.
    Since they take an ``attrs`` instance as their first argument, you can attach them to your classes with one line of code.
 
 **Performance matters.**
@@ -39,7 +39,7 @@ Philosophy
    It doesn't try to guess what you mean because explicit is better than implicit.
    It doesn't try to be clever because software shouldn't be clever.
 
-Check out :doc:`how-does-it-work` if you'd like to know how it achieves all of the above.
+Check out `how-does-it-work` if you'd like to know how it achieves all of the above.
 
 
 What ``attrs`` Is Not

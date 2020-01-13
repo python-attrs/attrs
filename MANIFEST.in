@@ -1,4 +1,4 @@
-include LICENSE *.rst *.toml *.yml *.yaml
+include LICENSE *.rst *.toml *.yml *.yaml *.ini
 graft .github
 
 # Stubs
@@ -6,7 +6,7 @@ include src/attr/py.typed
 recursive-include src *.pyi
 
 # Tests
-include tox.ini .coveragerc conftest.py
+include tox.ini conftest.py
 recursive-include tests *.py
 
 # Documentation

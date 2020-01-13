@@ -1,2 +1,0 @@
-Removed deprecated ``Attribute`` attribute ``convert`` per scheduled removal on 2019/1.
-This planned deprecation is tracked in issue `#307 <https://github.com/python-attrs/attrs/issues/307>`_.

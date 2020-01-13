@@ -14,7 +14,7 @@ from operator import attrgetter
 
 import pytest
 
-from hypothesis import given
+from hypothesis import assume, given
 from hypothesis.strategies import booleans, integers, lists, sampled_from, text
 
 import attr
@@ -28,6 +28,7 @@ from attr._make import (
     _Attributes,
     _ClassBuilder,
     _CountingAttr,
+    _determine_eq_order,
     _transform_attrs,
     and_,
     fields,
@@ -44,6 +45,7 @@ from attr.exceptions import (
 from .strategies import (
     gen_attr_names,
     list_of_attrs,
+    optional_bool,
     simple_attrs,
     simple_attrs_with_metadata,
     simple_attrs_without_metadata,
@@ -216,8 +218,9 @@ class TestTransformAttrs(object):
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, repr=True, "
-            "cmp=True, hash=None, init=True, metadata=mappingproxy({}), "
-            "type=None, converter=None, kw_only=False)",
+            "eq=True, order=True, hash=None, init=True, "
+            "metadata=mappingproxy({}), type=None, converter=None, "
+            "kw_only=False)",
         ) == e.value.args
 
     def test_kw_only(self):
@@ -411,21 +414,30 @@ class TestAttributes(object):
         "arg_name, method_name",
         [
             ("repr", "__repr__"),
-            ("cmp", "__eq__"),
+            ("eq", "__eq__"),
+            ("order", "__le__"),
             ("hash", "__hash__"),
             ("init", "__init__"),
         ],
     )
     def test_respects_add_arguments(self, arg_name, method_name):
         """
-        If a certain `add_XXX` is `False`, `__XXX__` is not added to the class.
+        If a certain `XXX` is `False`, `__XXX__` is not added to the class.
         """
         # Set the method name to a sentinel and check whether it has been
         # overwritten afterwards.
         sentinel = object()
 
-        am_args = {"repr": True, "cmp": True, "hash": True, "init": True}
+        am_args = {
+            "repr": True,
+            "eq": True,
+            "order": True,
+            "hash": True,
+            "init": True,
+        }
         am_args[arg_name] = False
+        if arg_name == "eq":
+            am_args["order"] = False
 
         class C(object):
             x = attr.ib()
@@ -575,7 +587,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             a = attr.ib()
             b = attr.ib(default=2, kw_only=True)
             c = attr.ib(kw_only=True)
@@ -594,7 +606,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             x = attr.ib(init=False, default=0, kw_only=True)
             y = attr.ib()
 
@@ -610,7 +622,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             x = attr.ib(kw_only=True)
 
         with pytest.raises(TypeError) as e:
@@ -620,27 +632,36 @@ class TestKeywordOnlyAttributes(object):
             "missing 1 required keyword-only argument: 'x'"
         ) in e.value.args[0]
 
-    def test_conflicting_keyword_only_attributes(self):
+    def test_keyword_only_attributes_can_come_in_any_order(self):
         """
-        Raises `ValueError` if keyword-only attributes are followed by
-        regular (non keyword-only) attributes.
+        Mandatory vs non-mandatory attr order only matters when they are part
+        of the __init__ signature and when they aren't kw_only (which are
+        moved to the end and can be mandatory or non-mandatory in any order,
+        as they will be specified as keyword args anyway).
         """
 
-        class C(object):
-            x = attr.ib(kw_only=True)
-            y = attr.ib()
+        @attr.s
+        class C:
+            a = attr.ib(kw_only=True)
+            b = attr.ib(kw_only=True, default="b")
+            c = attr.ib(kw_only=True)
+            d = attr.ib()
+            e = attr.ib(default="e")
+            f = attr.ib(kw_only=True)
+            g = attr.ib(kw_only=True, default="g")
+            h = attr.ib(kw_only=True)
+            i = attr.ib(init=False)
 
-        with pytest.raises(ValueError) as e:
-            _transform_attrs(C, None, False, False)
+        c = C("d", a="a", c="c", f="f", h="h")
 
-        assert (
-            "Non keyword-only attributes are not allowed after a "
-            "keyword-only attribute (unless they are init=False).  "
-            "Attribute in question: Attribute"
-            "(name='y', default=NOTHING, validator=None, repr=True, "
-            "cmp=True, hash=None, init=True, metadata=mappingproxy({}), "
-            "type=None, converter=None, kw_only=False)",
-        ) == e.value.args
+        assert c.a == "a"
+        assert c.b == "b"
+        assert c.c == "c"
+        assert c.d == "d"
+        assert c.e == "e"
+        assert c.f == "f"
+        assert c.g == "g"
+        assert c.h == "h"
 
     def test_keyword_only_attributes_allow_subclassing(self):
         """
@@ -649,7 +670,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class Base(object):
+        class Base:
             x = attr.ib(default=0)
 
         @attr.s
@@ -687,7 +708,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class Base(object):
+        class Base:
             x = attr.ib(default=0)
 
         @attr.s(kw_only=True)
@@ -728,7 +749,7 @@ class TestKeywordOnlyAttributes(object):
         assert c.non_init_keyword_default == "default-by-keyword"
 
     def test_init_false_attribute_after_keyword_attribute_with_inheritance(
-        self
+        self,
     ):
         """
         A positional attribute cannot follow a `kw_only` attribute,
@@ -909,16 +930,17 @@ class TestFields(object):
     Tests for `fields`.
     """
 
+    @given(simple_classes())
     def test_instance(self, C):
         """
         Raises `TypeError` on non-classes.
         """
         with pytest.raises(TypeError) as e:
-            fields(C(1, 2))
+            fields(C())
 
         assert "Passed object must be a class." == e.value.args[0]
 
-    def test_handler_non_attrs_class(self, C):
+    def test_handler_non_attrs_class(self):
         """
         Raises `ValueError` if passed a non-``attrs`` instance.
         """
@@ -950,16 +972,17 @@ class TestFieldsDict(object):
     Tests for `fields_dict`.
     """
 
+    @given(simple_classes())
     def test_instance(self, C):
         """
         Raises `TypeError` on non-classes.
         """
         with pytest.raises(TypeError) as e:
-            fields_dict(C(1, 2))
+            fields_dict(C())
 
         assert "Passed object must be a class." == e.value.args[0]
 
-    def test_handler_non_attrs_class(self, C):
+    def test_handler_non_attrs_class(self):
         """
         Raises `ValueError` if passed a non-``attrs`` instance.
         """
@@ -1332,7 +1355,8 @@ class TestClassBuilder(object):
         )
 
         cls = (
-            b.add_cmp()
+            b.add_eq()
+            .add_order()
             .add_hash()
             .add_init()
             .add_repr("ns")
@@ -1418,7 +1442,7 @@ class TestClassBuilder(object):
         @attr.s(slots=True)
         class C(object):
             __weakref__ = attr.ib(
-                init=False, hash=False, repr=False, cmp=False
+                init=False, hash=False, repr=False, eq=False, order=False
             )
 
         assert C() == copy.deepcopy(C())
@@ -1442,19 +1466,28 @@ class TestClassBuilder(object):
 
         assert [C2] == C.__subclasses__()
 
-
-class TestMakeCmp:
-    """
-    Tests for _make_cmp().
-    """
-
-    @pytest.mark.parametrize(
-        "op", ["__%s__" % (op,) for op in ("lt", "le", "gt", "ge")]
-    )
-    def test_subclasses_deprecated(self, recwarn, op):
+    def test_cache_hash_with_frozen_serializes(self):
         """
-        Calling comparison methods on subclasses raises a deprecation warning;
-        calling them on identical classes does not..
+        Frozen classes with cache_hash should be serializable.
+        """
+
+        @attr.s(cache_hash=True, frozen=True)
+        class C(object):
+            pass
+
+        copy.deepcopy(C())
+
+
+class TestMakeOrder:
+    """
+    Tests for _make_order().
+    """
+
+    def test_subclasses_cannot_be_compared(self):
+        """
+        Calling comparison methods on subclasses raises a TypeError.
+
+        We use the actual operation so we get an error raised on Python 3.
         """
 
         @attr.s
@@ -1465,18 +1498,85 @@ class TestMakeCmp:
         class B(A):
             pass
 
-        getattr(A(42), op)(A(42))
-        getattr(B(42), op)(B(42))
+        a = A(42)
+        b = B(42)
 
-        assert [] == recwarn.list
+        assert a <= a
+        assert a >= a
+        assert not a < a
+        assert not a > a
 
-        getattr(A(42), op)(B(42))
-
-        w = recwarn.pop()
-
-        assert [] == recwarn.list
-        assert isinstance(w.message, DeprecationWarning)
         assert (
-            "Comparision of subclasses using %s is deprecated and will be "
-            "removed in 2019." % (op,)
-        ) == w.message.args[0]
+            NotImplemented
+            == a.__lt__(b)
+            == a.__le__(b)
+            == a.__gt__(b)
+            == a.__ge__(b)
+        )
+
+        if not PY2:
+            with pytest.raises(TypeError):
+                a <= b
+
+            with pytest.raises(TypeError):
+                a >= b
+
+            with pytest.raises(TypeError):
+                a < b
+
+            with pytest.raises(TypeError):
+                a > b
+
+
+class TestDetermineEqOrder(object):
+    def test_default(self):
+        """
+        If all are set to None, do the default: True, True
+        """
+        assert (True, True) == _determine_eq_order(None, None, None)
+
+    @pytest.mark.parametrize("eq", [True, False])
+    def test_order_mirrors_eq_by_default(self, eq):
+        """
+        If order is None, it mirrors eq.
+        """
+        assert (eq, eq) == _determine_eq_order(None, eq, None)
+
+    def test_order_without_eq(self):
+        """
+        eq=False, order=True raises a meaningful ValueError.
+        """
+        with pytest.raises(
+            ValueError, match="`order` can only be True if `eq` is True too."
+        ):
+            _determine_eq_order(None, False, True)
+
+    @given(cmp=booleans(), eq=optional_bool, order=optional_bool)
+    def test_mix(self, cmp, eq, order):
+        """
+        If cmp is not None, eq and order must be None and vice versa.
+        """
+        assume(eq is not None or order is not None)
+
+        with pytest.raises(
+            ValueError, match="Don't mix `cmp` with `eq' and `order`."
+        ):
+            _determine_eq_order(cmp, eq, order)
+
+    def test_cmp_deprecated(self):
+        """
+        Passing a cmp that is not None raises a DeprecationWarning.
+        """
+        with pytest.deprecated_call() as dc:
+
+            @attr.s(cmp=True)
+            class C(object):
+                pass
+
+        (w,) = dc.list
+
+        assert (
+            "The usage of `cmp` is deprecated and will be removed on or after "
+            "2021-06-01.  Please use `eq` and `order` instead."
+            == w.message.args[0]
+        )

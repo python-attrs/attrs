@@ -15,6 +15,88 @@ Changes for the upcoming release can be found in the `"changelog.d" directory <h
 
 .. towncrier release notes start
 
+19.3.0 (2019-10-15)
+-------------------
+
+Changes
+^^^^^^^
+
+- Fixed ``auto_attribs`` usage when default values cannot be compared directly with ``==``, such as ``numpy`` arrays.
+  `#585 <https://github.com/python-attrs/attrs/issues/585>`_
+
+
+----
+
+
+19.2.0 (2019-10-01)
+-------------------
+
+Backward-incompatible Changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Removed deprecated ``Attribute`` attribute ``convert`` per scheduled removal on 2019/1.
+  This planned deprecation is tracked in issue `#307 <https://github.com/python-attrs/attrs/issues/307>`_.
+  `#504 <https://github.com/python-attrs/attrs/issues/504>`_
+- ``__lt__``, ``__le__``, ``__gt__``, and ``__ge__`` do not consider subclasses comparable anymore.
+
+  This has been deprecated since 18.2.0 and was raising a ``DeprecationWarning`` for over a year.
+  `#570 <https://github.com/python-attrs/attrs/issues/570>`_
+
+
+Deprecations
+^^^^^^^^^^^^
+
+- The ``cmp`` argument to ``attr.s()`` and ``attr.ib()`` is now deprecated.
+
+  Please use ``eq`` to add equality methods (``__eq__`` and ``__ne__``) and ``order`` to add ordering methods (``__lt__``, ``__le__``, ``__gt__``, and ``__ge__``) instead – just like with `dataclasses <https://docs.python.org/3/library/dataclasses.html>`_.
+
+  Both are effectively ``True`` by default but it's enough to set ``eq=False`` to disable both at once.
+  Passing ``eq=False, order=True`` explicitly will raise a ``ValueError`` though.
+
+  Since this is arguably a deeper backward-compatibility break, it will have an extended deprecation period until 2021-06-01.
+  After that day, the ``cmp`` argument will be removed.
+
+  ``attr.Attribute`` also isn't orderable anymore.
+  `#574 <https://github.com/python-attrs/attrs/issues/574>`_
+
+
+Changes
+^^^^^^^
+
+- Updated ``attr.validators.__all__`` to include new validators added in `#425`_.
+  `#517 <https://github.com/python-attrs/attrs/issues/517>`_
+- Slotted classes now use a pure Python mechanism to rewrite the ``__class__`` cell when rebuilding the class, so ``super()`` works even on environments where ``ctypes`` is not installed.
+  `#522 <https://github.com/python-attrs/attrs/issues/522>`_
+- When collecting attributes using ``@attr.s(auto_attribs=True)``, attributes with a default of ``None`` are now deleted too.
+  `#523 <https://github.com/python-attrs/attrs/issues/523>`_,
+  `#556 <https://github.com/python-attrs/attrs/issues/556>`_
+- Fixed ``attr.validators.deep_iterable()`` and ``attr.validators.deep_mapping()`` type stubs.
+  `#533 <https://github.com/python-attrs/attrs/issues/533>`_
+- ``attr.validators.is_callable()`` validator now raises an exception ``attr.exceptions.NotCallableError``, a subclass of ``TypeError``, informing the received value.
+  `#536 <https://github.com/python-attrs/attrs/issues/536>`_
+- ``@attr.s(auto_exc=True)`` now generates classes that are hashable by ID, as the documentation always claimed it would.
+  `#543 <https://github.com/python-attrs/attrs/issues/543>`_,
+  `#563 <https://github.com/python-attrs/attrs/issues/563>`_
+- Added ``attr.validators.matches_re()`` that checks string attributes whether they match a regular expression.
+  `#552 <https://github.com/python-attrs/attrs/issues/552>`_
+- Keyword-only attributes (``kw_only=True``) and attributes that are excluded from the ``attrs``'s ``__init__`` (``init=False``) now can appear before mandatory attributes.
+  `#559 <https://github.com/python-attrs/attrs/issues/559>`_
+- The fake filename for generated methods is now more stable.
+  It won't change when you restart the process.
+  `#560 <https://github.com/python-attrs/attrs/issues/560>`_
+- The value passed to ``@attr.ib(repr=…)`` can now be either a boolean (as before) or a callable.
+  That callable must return a string and is then used for formatting the attribute by the generated ``__repr__()`` method.
+  `#568 <https://github.com/python-attrs/attrs/issues/568>`_
+- Added ``attr.__version_info__`` that can be used to reliably check the version of ``attrs`` and write forward- and backward-compatible code.
+  Please check out the `section on deprecated APIs <http://www.attrs.org/en/stable/api.html#deprecated-apis>`_ on how to use it.
+  `#580 <https://github.com/python-attrs/attrs/issues/580>`_
+
+ .. _`#425`: https://github.com/python-attrs/attrs/issues/425
+
+
+----
+
+
 19.1.0 (2019-03-03)
 -------------------
 
@@ -42,7 +124,7 @@ Changes
     Also applies an optional validator to the mapping object itself.
 
   You can find them in the ``attr.validators`` package.
-  `#425 <https://github.com/python-attrs/attrs/issues/425>`_
+  `#425`_
 - Fixed stub files to prevent errors raised by mypy's ``disallow_any_generics = True`` option.
   `#443 <https://github.com/python-attrs/attrs/issues/443>`_
 - Attributes with ``init=False`` now can follow after ``kw_only=True`` attributes.
@@ -99,7 +181,7 @@ Changes
 - Slotted classes can now be made weakly referenceable by passing ``@attr.s(weakref_slot=True)``.
   `#420 <https://github.com/python-attrs/attrs/issues/420>`_
 - Added *cache_hash* option to ``@attr.s`` which causes the hash code to be computed once and stored on the object.
-  `#425 <https://github.com/python-attrs/attrs/issues/425>`_
+  `#426 <https://github.com/python-attrs/attrs/issues/426>`_
 - Attributes can be named ``property`` and ``itemgetter`` now.
   `#430 <https://github.com/python-attrs/attrs/issues/430>`_
 - It is now possible to override a base class' class variable using only class annotations.
@@ -370,7 +452,7 @@ Changes:
   `#128 <https://github.com/python-attrs/attrs/pull/128>`_
 - ``__attrs_post_init__()`` is now run if validation is disabled.
   `#130 <https://github.com/python-attrs/attrs/pull/130>`_
-- Added ``attr.validators.in_(options)`` that, given the allowed `options`, checks whether the attribute value is in it.
+- Added ``attr.validators.in_(options)`` that, given the allowed ``options``, checks whether the attribute value is in it.
   This can be used to check constants, enums, mappings, etc.
   `#181 <https://github.com/python-attrs/attrs/pull/181>`_
 - Added ``attr.validators.and_()`` that composes multiple validators into one.

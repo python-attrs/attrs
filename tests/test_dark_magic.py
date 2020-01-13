@@ -11,14 +11,16 @@ from copy import deepcopy
 import pytest
 import six
 
-from hypothesis import given
+from hypothesis import assume, given
 from hypothesis.strategies import booleans
 
 import attr
 
-from attr._compat import TYPE
+from attr._compat import PY2, TYPE
 from attr._make import NOTHING, Attribute
 from attr.exceptions import FrozenInstanceError
+
+from .strategies import optional_bool
 
 
 @attr.s
@@ -124,7 +126,9 @@ class TestDarkMagic(object):
                 default=foo,
                 validator=None,
                 repr=True,
-                cmp=True,
+                cmp=None,
+                eq=True,
+                order=True,
                 hash=None,
                 init=True,
             ),
@@ -133,7 +137,9 @@ class TestDarkMagic(object):
                 default=attr.Factory(list),
                 validator=None,
                 repr=True,
-                cmp=True,
+                cmp=None,
+                eq=True,
+                order=True,
                 hash=None,
                 init=True,
             ),
@@ -181,13 +187,16 @@ class TestDarkMagic(object):
         `attr.make_class` works.
         """
         PC = attr.make_class("PC", ["a", "b"], slots=slots, frozen=frozen)
+
         assert (
             Attribute(
                 name="a",
                 default=NOTHING,
                 validator=None,
                 repr=True,
-                cmp=True,
+                cmp=None,
+                eq=True,
+                order=True,
                 hash=None,
                 init=True,
             ),
@@ -196,7 +205,9 @@ class TestDarkMagic(object):
                 default=NOTHING,
                 validator=None,
                 repr=True,
-                cmp=True,
+                cmp=None,
+                eq=True,
+                order=True,
                 hash=None,
                 init=True,
             ),
@@ -380,7 +391,7 @@ class TestDarkMagic(object):
             HashByIDBackwardCompat(1)
         )
 
-        @attr.s(hash=False, cmp=False)
+        @attr.s(hash=False, eq=False)
         class HashByID(object):
             x = attr.ib()
 
@@ -412,10 +423,10 @@ class TestDarkMagic(object):
     @pytest.mark.parametrize("slots", [True, False])
     def test_hash_false_cmp_false(self, slots):
         """
-        hash=False and cmp=False make a class hashable by ID.
+        hash=False and eq=False make a class hashable by ID.
         """
 
-        @attr.s(hash=False, cmp=False, slots=slots)
+        @attr.s(hash=False, eq=False, slots=slots)
         class C(object):
             pass
 
@@ -515,9 +526,8 @@ class TestDarkMagic(object):
     @pytest.mark.parametrize("frozen", [True, False])
     def test_auto_exc(self, slots, frozen):
         """
-        Classes with auto_exc=True have a Exception-style __str__, are neither
-        comparable nor hashable, and store the fields additionally in
-        self.args.
+        Classes with auto_exc=True have a Exception-style __str__, compare and
+        hash by id, and store the fields additionally in self.args.
         """
 
         @attr.s(auto_exc=True, slots=slots, frozen=frozen)
@@ -545,21 +555,28 @@ class TestDarkMagic(object):
         assert FooErrorMade(1, "foo") != FooErrorMade(1, "foo")
 
         for cls in (FooError, FooErrorMade):
-            with pytest.raises(cls) as ei:
+            with pytest.raises(cls) as ei1:
                 raise cls(1, "foo")
 
-            e = ei.value
+            with pytest.raises(cls) as ei2:
+                raise cls(1, "foo")
 
-            assert e is e
-            assert e == e
-            assert "(1, 'foo')" == str(e)
-            assert (1, "foo") == e.args
+            e1 = ei1.value
+            e2 = ei2.value
 
-            with pytest.raises(TypeError):
-                hash(e)
+            assert e1 is e1
+            assert e1 == e1
+            assert e2 == e2
+            assert e1 != e2
+            assert "(1, 'foo')" == str(e1) == str(e2)
+            assert (1, "foo") == e1.args == e2.args
+
+            hash(e1) == hash(e1)
+            hash(e2) == hash(e2)
 
             if not frozen:
-                deepcopy(e)
+                deepcopy(e1)
+                deepcopy(e2)
 
     @pytest.mark.parametrize("slots", [True, False])
     @pytest.mark.parametrize("frozen", [True, False])
@@ -575,3 +592,76 @@ class TestDarkMagic(object):
             x = attr.ib()
 
         FooError(1)
+
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("frozen", [True, False])
+    def test_eq_only(self, slots, frozen):
+        """
+        Classes with order=False cannot be ordered.
+
+        Python 3 throws a TypeError, in Python2 we have to check for the
+        absence.
+        """
+
+        @attr.s(eq=True, order=False, slots=slots, frozen=frozen)
+        class C(object):
+            x = attr.ib()
+
+        if not PY2:
+            possible_errors = (
+                "unorderable types: C() < C()",
+                "'<' not supported between instances of 'C' and 'C'",
+                "unorderable types: C < C",  # old PyPy 3
+            )
+
+            with pytest.raises(TypeError) as ei:
+                C(5) < C(6)
+
+            assert ei.value.args[0] in possible_errors
+        else:
+            i = C(42)
+            for m in ("lt", "le", "gt", "ge"):
+                assert None is getattr(i, "__%s__" % (m,), None)
+
+    @given(cmp=optional_bool, eq=optional_bool, order=optional_bool)
+    def test_cmp_deprecated_attribute(self, cmp, eq, order):
+        """
+        Accessing Attribute.cmp raises a deprecation warning but returns True
+        if cmp is True, or eq and order are *both* effectively True.
+        """
+        # These cases are invalid and raise a ValueError.
+        assume(cmp is None or (eq is None and order is None))
+        assume(not (eq is False and order is True))
+
+        if cmp is not None:
+            rv = cmp
+        elif eq is True or eq is None:
+            rv = order is None or order is True
+        elif cmp is None and eq is None and order is None:
+            rv = True
+        elif cmp is None or eq is None:
+            rv = False
+        else:
+            pytest.fail(
+                "Unexpected state: cmp=%r eq=%r order=%r" % (cmp, eq, order)
+            )
+
+        with pytest.deprecated_call() as dc:
+
+            @attr.s
+            class C(object):
+                x = attr.ib(cmp=cmp, eq=eq, order=order)
+
+            assert rv == attr.fields(C).x.cmp
+
+        if cmp is not None:
+            # Remove warning from creating the attribute if cmp is not None.
+            dc.pop()
+
+        (w,) = dc.list
+
+        assert (
+            "The usage of `cmp` is deprecated and will be removed on or after "
+            "2021-06-01.  Please use `eq` and `order` instead."
+            == w.message.args[0]
+        )

@@ -4,6 +4,8 @@ Tests for `attr.validators`.
 
 from __future__ import absolute_import, division, print_function
 
+import re
+
 import pytest
 import zope.interface
 
@@ -11,7 +13,7 @@ import attr
 
 from attr import has
 from attr import validators as validator_module
-from attr._compat import TYPE
+from attr._compat import PY2, TYPE
 from attr.validators import (
     and_,
     deep_iterable,
@@ -19,6 +21,7 @@ from attr.validators import (
     in_,
     instance_of,
     is_callable,
+    matches_re,
     optional,
     provides,
 )
@@ -78,9 +81,95 @@ class TestInstanceOf(object):
         ) == repr(v)
 
 
+class TestMatchesRe(object):
+    """
+    Tests for `matches_re`.
+    """
+
+    def test_in_all(self):
+        """
+        validator is in ``__all__``.
+        """
+        assert matches_re.__name__ in validator_module.__all__
+
+    def test_match(self):
+        """
+        Silent on matches, raises ValueError on mismatches.
+        """
+
+        @attr.s
+        class ReTester(object):
+            str_match = attr.ib(validator=matches_re("a"))
+
+        ReTester("a")  # shouldn't raise exceptions
+        with pytest.raises(TypeError):
+            ReTester(1)
+        with pytest.raises(ValueError):
+            ReTester("1")
+        with pytest.raises(ValueError):
+            ReTester("a1")
+
+    def test_flags(self):
+        """
+        Flags are propagated to the match function.
+        """
+
+        @attr.s
+        class MatchTester(object):
+            val = attr.ib(validator=matches_re("a", re.IGNORECASE, re.match))
+
+        MatchTester("A1")  # test flags and using re.match
+
+    def test_different_func(self):
+        """
+        Changing the match functions works.
+        """
+
+        @attr.s
+        class SearchTester(object):
+            val = attr.ib(validator=matches_re("a", 0, re.search))
+
+        SearchTester("bab")  # re.search will match
+
+    def test_catches_invalid_func(self):
+        """
+        Invalid match functions are caught.
+        """
+        with pytest.raises(ValueError) as ei:
+            matches_re("a", 0, lambda: None)
+
+        if not PY2:
+            assert (
+                "'func' must be one of None, fullmatch, match, search."
+                == ei.value.args[0]
+            )
+        else:
+            assert (
+                "'func' must be one of None, match, search."
+                == ei.value.args[0]
+            )
+
+    @pytest.mark.parametrize(
+        "func", [None, getattr(re, "fullmatch", None), re.match, re.search]
+    )
+    def test_accepts_all_valid_func(self, func):
+        """
+        Every valid match function is accepted.
+        """
+        matches_re("a", func=func)
+
+    def test_repr(self):
+        """
+        __repr__ is meaningful.
+        """
+        assert repr(matches_re("a")).startswith(
+            "<matches_re validator for pattern"
+        )
+
+
 def always_pass(_, __, ___):
     """
-    Toy validator that always passses.
+    Toy validator that always passes.
     """
 
 
@@ -350,7 +439,7 @@ class TestDeepIterable(object):
         self, member_validator, iterable_validator
     ):
         """
-        Raise :class:`TypeError` if any validators are not callable.
+        Raise `TypeError` if any validators are not callable.
         """
         with pytest.raises(TypeError) as e:
             deep_iterable(member_validator, iterable_validator)
@@ -468,7 +557,7 @@ class TestDeepMapping(object):
         self, key_validator, value_validator, mapping_validator
     ):
         """
-        Raise :class:`TypeError` if any validators are not callable.
+        Raise `TypeError` if any validators are not callable.
         """
         with pytest.raises(TypeError) as e:
             deep_mapping(key_validator, value_validator, mapping_validator)
@@ -485,7 +574,7 @@ class TestDeepMapping(object):
 
     def test_fail_invalid_mapping(self):
         """
-        Raise :class:`TypeError` if mapping validator fails.
+        Raise `TypeError` if mapping validator fails.
         """
         key_validator = instance_of(str)
         value_validator = instance_of(int)

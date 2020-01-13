@@ -1,5 +1,3 @@
-.. _why:
-
 Why not…
 ========
 
@@ -57,7 +55,7 @@ Adding an attribute to a class concerns only those who actually care about that 
 …namedtuples?
 -------------
 
-:func:`collections.namedtuple`\ s are tuples with names, not classes. [#history]_
+`collections.namedtuple`\ s are tuples with names, not classes. [#history]_
 Since writing classes is tiresome in Python, every now and then someone discovers all the typing they could save and gets really excited.
 However that convenience comes at a price.
 
@@ -104,7 +102,7 @@ Other often surprising behaviors include:
   you end up with a class that has *two* ``Point``\ s in its :attr:`__mro__ <class.__mro__>`: ``[<class 'point.Point'>, <class 'point.Point'>, <type 'tuple'>, <type 'object'>]``.
 
   That's not only confusing, it also has very practical consequences:
-  for example if you create documentation that includes class hierarchies like `Sphinx's autodoc <http://www.sphinx-doc.org/en/stable/ext/autodoc.html>`_ with ``show-inheritance``.
+  for example if you create documentation that includes class hierarchies like `Sphinx's autodoc <https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html>`_ with ``show-inheritance``.
   Again: common problem, hacky solution with confusing fallout.
 
 All these things make ``namedtuple``\ s a particularly poor choice for public APIs because all your objects are irrevocably tainted.
@@ -127,7 +125,7 @@ With ``attrs`` your users won't notice a difference because it creates regular, 
 .. [#pollution] ``attrs`` only adds a single attribute: ``__attrs_attrs__`` for introspection.
                 All helpers are functions in the ``attr`` package.
                 Since they take the instance as first argument, you can easily attach them to your classes under a name of your own choice.
-.. [#iter] :func:`attr.astuple` can be used to get that behavior in ``attrs`` on *explicit demand*.
+.. [#iter] `attr.astuple` can be used to get that behavior in ``attrs`` on *explicit demand*.
 .. [#immutable] ``attrs`` offers *optional* immutability through the ``frozen`` keyword.
 .. [#perf] Although ``attrs`` would serve you just as well!
            Since both employ the same method of writing and compiling Python code for you, the performance penalty is negligible at worst and in some cases ``attrs`` is even faster if you use ``slots=True`` (which is generally a good idea anyway).
@@ -153,7 +151,7 @@ Nevertheless, there are still reasons to prefer ``attrs`` over Data Classes whos
 - ``attrs`` can and will move faster.
   We are not bound to any release schedules and we have a clear deprecation policy.
 
-  One of the `reasons <https://www.python.org/dev/peps/pep-0557/#why-not-just-use-attrs>`_ to not vendor ``attrs`` in the standard library was to not impede ``attrs``'s future developement.
+  One of the `reasons <https://www.python.org/dev/peps/pep-0557/#why-not-just-use-attrs>`_ to not vendor ``attrs`` in the standard library was to not impede ``attrs``'s future development.
 
 
 

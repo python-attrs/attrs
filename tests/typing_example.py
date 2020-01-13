@@ -1,4 +1,6 @@
-from typing import Any, Dict, List, Tuple
+import re
+
+from typing import Any, Dict, List, Tuple, Union
 
 import attr
 
@@ -151,3 +153,33 @@ class Validated:
             attr.validators.instance_of(C), attr.validators.instance_of(D)
         ),
     )
+    e = attr.ib(validator=attr.validators.matches_re(r"foo"))
+    f = attr.ib(
+        validator=attr.validators.matches_re(r"foo", flags=42, func=re.search)
+    )
+
+    # Test different forms of instance_of
+    g: int = attr.ib(validator=attr.validators.instance_of(int))
+    h: int = attr.ib(validator=attr.validators.instance_of((int,)))
+    j: Union[int, str] = attr.ib(
+        validator=attr.validators.instance_of((int, str))
+    )
+    k: Union[int, str, C] = attr.ib(
+        validator=attr.validators.instance_of((int, C, str))
+    )
+
+
+# Custom repr()
+@attr.s
+class WithCustomRepr:
+    a = attr.ib(repr=True)
+    b = attr.ib(repr=False)
+    c = attr.ib(repr=lambda value: "c is for cookie")
+    d = attr.ib(repr=str)
+
+
+# Check some of our own types
+@attr.s(eq=True, order=False)
+class OrderFlags:
+    a = attr.ib(eq=False, order=False)
+    b = attr.ib(eq=True, order=True)

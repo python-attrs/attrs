@@ -18,7 +18,7 @@
    :alt: Test Coverage
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-   :target: https://github.com/ambv/black
+   :target: https://github.com/psf/black
    :alt: Code style: black
 
 .. teaser-begin
@@ -72,7 +72,7 @@ After *declaring* your attributes ``attrs`` gives you:
 
 - a concise and explicit overview of the class's attributes,
 - a nice human-readable ``__repr__``,
-- a complete set of comparison methods,
+- a complete set of comparison methods (equality and ordering),
 - an initializer,
 - and much more,
 
@@ -101,12 +101,12 @@ Testimonials
   It exerts a subtle, but positive, design influence in all the codebases I’ve see it used in.
 
 
-**Kenneth Reitz**, author of `Requests <http://www.python-requests.org/>`_ (`on paper no less <https://twitter.com/hynek/status/866817877650751488>`_!):
+**Kenneth Reitz**, creator of `Requests <https://github.com/psf/requests>`_ (`on paper no less <https://twitter.com/hynek/status/866817877650751488>`_!):
 
   attrs—classes for humans.  I like it.
 
 
-**Łukasz Langa**, prolific CPython core developer and Production Engineer at Facebook:
+**Łukasz Langa**, creator of `Black <https://github.com/psf/black>`_, prolific Python core developer, and release manager for Python 3.8 and 3.9:
 
   I'm increasingly digging your attr.ocity. Good job!
 
@@ -130,7 +130,7 @@ Project Information
 its documentation lives at `Read the Docs <https://www.attrs.org/>`_,
 the code on `GitHub <https://github.com/python-attrs/attrs>`_,
 and the latest release on `PyPI <https://pypi.org/project/attrs/>`_.
-It’s rigorously tested on Python 2.7, 3.4+, and PyPy.
+It’s rigorously tested on Python 2.7, 3.5+, and PyPy.
 
 We collect information on **third-party extensions** in our `wiki <https://github.com/python-attrs/attrs/wiki/Extensions-to-attrs>`_.
 Feel free to browse and add your own!

@@ -265,3 +265,35 @@ class TestAnnotations:
             x: int
 
         assert 1 == C(1).x
+
+    def test_removes_none_too(self):
+        """
+        Regression test for #523: make sure defaults that are set to None are
+        removed too.
+        """
+
+        @attr.s(auto_attribs=True)
+        class C:
+            x: int = 42
+            y: typing.Any = None
+
+        with pytest.raises(AttributeError):
+            C.x
+
+        with pytest.raises(AttributeError):
+            C.y
+
+    def test_non_comparable_defaults(self):
+        """
+        Regression test for #585: objects that are not directly comparable
+        (for example numpy arrays) would cause a crash when used as
+        default values of an attrs auto-attrib class.
+        """
+
+        class NonComparable:
+            def __eq__(self, other):
+                raise ValueError
+
+        @attr.s(auto_attribs=True)
+        class C:
+            x: typing.Any = NonComparable()

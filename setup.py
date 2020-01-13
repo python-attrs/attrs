@@ -26,10 +26,10 @@ CLASSIFIERS = [
     "Programming Language :: Python :: 2",
     "Programming Language :: Python :: 2.7",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.4",
     "Programming Language :: Python :: 3.5",
     "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Software Development :: Libraries :: Python Modules",
@@ -38,7 +38,8 @@ INSTALL_REQUIRES = []
 EXTRAS_REQUIRE = {
     "docs": ["sphinx", "zope.interface"],
     "tests": [
-        "coverage",
+        # 5.0 introduced toml; parallel was broken until 5.0.2
+        "coverage[toml]>=5.0.2",
         "hypothesis",
         "pympler",
         "pytest>=4.3.0",  # 4.3.0 dropped last use of `convert`
@@ -90,7 +91,7 @@ LONG = (
     + "Release Information\n"
     + "===================\n\n"
     + re.search(
-        r"(\d+.\d.\d \(.*?\)\n.*?)\n\n\n----\n\n\n",
+        r"(\d+.\d.\d \(.*?\)\r?\n.*?)\r?\n\r?\n\r?\n----\r?\n\r?\n\r?\n",
         read("CHANGELOG.rst"),
         re.S,
     ).group(1)
@@ -123,4 +124,5 @@ if __name__ == "__main__":
         install_requires=INSTALL_REQUIRES,
         extras_require=EXTRAS_REQUIRE,
         include_package_data=True,
+        options={"bdist_wheel": {"universal": "1"}},
     )

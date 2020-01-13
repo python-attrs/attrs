@@ -18,9 +18,6 @@ jobs:
         py27:
           python.version: '2.7'
           tox.env: py27
-        py34:
-          python.version: '3.4'
-          tox.env: py34
         py35:
           python.version: '3.5'
           tox.env: py35
@@ -67,15 +64,15 @@ jobs:
         inputs:
           versionSpec: '$(python.version)'
           architecture: 'x64'
-        condition: not(in(variables['python.version'], '3.8'))
+        # condition: not(in(variables['python.version'], '3.8'))
         displayName: Use cached Python $(python.version) for tests.
 
-      - script: |
-          sudo add-apt-repository ppa:deadsnakes
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends python$(python.version)-dev python$(python.version)-distutils
-        condition: in(variables['python.version'], '3.8')
-        displayName: Install Python $(python.version) from the deadsnakes PPA for tests.
+      # - script: |
+      #     sudo add-apt-repository ppa:deadsnakes
+      #     sudo apt-get update
+      #     sudo apt-get install -y --no-install-recommends python$(python.version)-dev python$(python.version)-distutils
+      #   condition: in(variables['python.version'], '3.8')
+      #   displayName: Install Python $(python.version) from the deadsnakes PPA for tests.
 
       - script: $(pyTools.pythonLocation)/bin/tox -e $(tox.env)
         env:
@@ -104,7 +101,7 @@ jobs:
             $PY get-pip.py --user
           fi
 
-          $PY -m pip install --user coverage codecov
+          $PY -m pip install --user 'coverage[toml]' codecov
 
           coverage combine
           codecov
@@ -112,3 +109,27 @@ jobs:
           CODECOV_TOKEN: $(codecov.token)
         displayName: Report Coverage
         condition: succeeded()
+
+  # Make sure contributors can use Windows.
+  - job: 'Windows'
+    pool:
+      vmImage: 'windows-latest'
+    strategy:
+      matrix:
+        py27:
+          python.version: '2.7'
+        py37:
+          python.version: '3.7'
+
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '$(python.version)'
+          architecture: 'x64'
+        displayName: Use cached Python $(python.version) for tests.
+
+      - script: python -m pip install -e .[dev]
+        displayName: Install package in dev mode.
+
+      - script: python -m pytest
+        displayName: Run tests.
