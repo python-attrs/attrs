@@ -537,9 +537,17 @@ class _ClassBuilder(object):
                     "See https://github.com/python-attrs/attrs/issues/494 ."
                 )
 
-            def cache_hash_set_state(chss_self, _):
-                # clear hash code cache
-                setattr(chss_self, _hash_cache_field, None)
+            # Clears the cached hash state on serialization; for frozen
+            # classes we need to bypass the class's setattr method.
+            if self._frozen:
+
+                def cache_hash_set_state(chss_self, _):
+                    object.__setattr__(chss_self, _hash_cache_field, None)
+
+            else:
+
+                def cache_hash_set_state(chss_self, _):
+                    setattr(chss_self, _hash_cache_field, None)
 
             cls.__setstate__ = cache_hash_set_state
 

@@ -1466,6 +1466,17 @@ class TestClassBuilder(object):
 
         assert [C2] == C.__subclasses__()
 
+    def test_cache_hash_with_frozen_serializes(self):
+        """
+        Frozen classes with cache_hash should be serializable.
+        """
+
+        @attr.s(cache_hash=True, frozen=True)
+        class C(object):
+            pass
+
+        copy.deepcopy(C())
+
 
 class TestMakeOrder:
     """
