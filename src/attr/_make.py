@@ -46,6 +46,23 @@ _empty_metadata_singleton = metadata_proxy({})
 _sentinel = object()
 
 
+if PY2 and object.__reduce__ is not int.__reduce__:  # pragma: no cover
+    # In pypy2.7, you can't use `is` on methods, but we want to use whichever
+    # method tells us `object.__reduce__` equals `int.__reduce__`.
+    #
+    # Note: This section is not expected to be covered in the current CI
+    # configuration because coverage is too slow on pypy; if coverage is
+    # ever turned back on for pypy, please remove the no cover pragma.
+    def _method_eq(a, b):
+        return a == b
+
+
+else:
+
+    def _method_eq(a, b):
+        return a is b
+
+
 class _Nothing(object):
     """
     Sentinel class to indicate the lack of a value when ``None`` is ambiguous.
@@ -496,8 +513,8 @@ class _ClassBuilder(object):
 
         if (
             cache_hash
-            and cls.__reduce__ is object.__reduce__
-            and cls.__reduce_ex__ is object.__reduce_ex__
+            and _method_eq(cls.__reduce__, object.__reduce__)
+            and _method_eq(cls.__reduce_ex__, object.__reduce_ex__)
         ):
             self._cls_dict["__reduce__"] = _cache_hash_reduce
 
