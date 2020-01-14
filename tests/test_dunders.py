@@ -569,6 +569,28 @@ class TestAddHash(object):
         assert original_hash == hash(obj)
         assert original_hash != hash(obj_rt)
 
+    @pytest.mark.parametrize("frozen", [True, False])
+    def test_copy_two_arg_reduce(self, frozen):
+        """
+        If __getstate__ returns None, the tuple returned by object.__reduce__
+        won't contain the state dictionary; this test ensures that the custom
+        __reduce__ generated when cache_hash=True works in that case.
+        """
+
+        @attr.s(frozen=frozen, cache_hash=True, hash=True)
+        class C(object):
+            x = attr.ib()
+
+            def __getstate__(self):
+                return None
+
+        # By the nature of this test it doesn't really create an object that's
+        # in a valid state - it basically does the equivalent of
+        # `object.__new__(C)`, so it doesn't make much sense to assert anything
+        # about the result of the copy. This test will just check that it
+        # doesn't raise an *error*.
+        copy.deepcopy(C(1))
+
     def _roundtrip_pickle(self, obj):
         pickle_str = pickle.dumps(obj)
         return pickle.loads(pickle_str)
