@@ -426,6 +426,17 @@ def _frozen_delattrs(self, name):
     raise FrozenInstanceError()
 
 
+def _cache_hash_reduce(self):
+    obj_reduce = object.__reduce__(self)
+    if len(obj_reduce) > 2:
+        state = obj_reduce[2]
+
+        if isinstance(state, dict) and _hash_cache_field in state:
+            state[_hash_cache_field] = None
+
+    return obj_reduce
+
+
 class _ClassBuilder(object):
     """
     Iteratively build *one* class.
@@ -483,6 +494,13 @@ class _ClassBuilder(object):
             self._cls_dict["__setattr__"] = _frozen_setattrs
             self._cls_dict["__delattr__"] = _frozen_delattrs
 
+        if (
+            cache_hash
+            and cls.__reduce__ is object.__reduce__
+            and cls.__reduce_ex__ is object.__reduce_ex__
+        ):
+            self._cls_dict["__reduce__"] = _cache_hash_reduce
+
     def __repr__(self):
         return "<_ClassBuilder(cls={cls})>".format(cls=self._cls.__name__)
 
@@ -522,34 +540,6 @@ class _ClassBuilder(object):
         # Attach our dunder methods.
         for name, value in self._cls_dict.items():
             setattr(cls, name, value)
-
-        # Attach __setstate__. This is necessary to clear the hash code
-        # cache on deserialization. See issue
-        # https://github.com/python-attrs/attrs/issues/482 .
-        # Note that this code only handles setstate for dict classes.
-        # For slotted classes, see similar code in _create_slots_class .
-        if self._cache_hash:
-            existing_set_state_method = getattr(cls, "__setstate__", None)
-            if existing_set_state_method:
-                raise NotImplementedError(
-                    "Currently you cannot use hash caching if "
-                    "you specify your own __setstate__ method."
-                    "See https://github.com/python-attrs/attrs/issues/494 ."
-                )
-
-            # Clears the cached hash state on serialization; for frozen
-            # classes we need to bypass the class's setattr method.
-            if self._frozen:
-
-                def cache_hash_set_state(chss_self, _):
-                    object.__setattr__(chss_self, _hash_cache_field, None)
-
-            else:
-
-                def cache_hash_set_state(chss_self, _):
-                    setattr(chss_self, _hash_cache_field, None)
-
-            cls.__setstate__ = cache_hash_set_state
 
         return cls
 
