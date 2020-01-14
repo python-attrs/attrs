@@ -449,7 +449,9 @@ def _cache_hash_reduce(self):
         state = obj_reduce[2]
 
         if isinstance(state, dict) and _hash_cache_field in state:
+            state = copy.copy(state)
             state[_hash_cache_field] = None
+            obj_reduce = obj_reduce[0:2] + (state,) + obj_reduce[3:]
 
     return obj_reduce
 

@@ -314,17 +314,27 @@ class TestAddRepr(object):
 # they need to be out here so they can be un-pickled
 @attr.attrs(hash=True, cache_hash=False)
 class HashCacheSerializationTestUncached(object):
-    foo_value = attr.ib(default=20)
+    foo_value = attr.ib()
 
 
 @attr.attrs(hash=True, cache_hash=True)
 class HashCacheSerializationTestCached(object):
-    foo_value = attr.ib(default=20)
+    foo_value = attr.ib()
 
 
 @attr.attrs(slots=True, hash=True, cache_hash=True)
 class HashCacheSerializationTestCachedSlots(object):
-    foo_value = attr.ib(default=20)
+    foo_value = attr.ib()
+
+
+class IncrementingHasher(object):
+    def __init__(self):
+        self.hash_value = 100
+
+    def __hash__(self):
+        rv = self.hash_value
+        self.hash_value += 1
+        return rv
 
 
 class TestAddHash(object):
@@ -519,35 +529,34 @@ class TestAddHash(object):
 
         kwargs = dict(frozen=frozen, slots=slots, cache_hash=cache_hash,)
 
-        # Ensure that we can mutate the copied object if it's frozen
-        # and that the hash can be calculated if not.
-        if frozen:
-            _setattr = object.__setattr__
-        else:
+        # Give it an explicit hash if we don't have an implicit one
+        if not frozen:
             kwargs["hash"] = True
-            _setattr = setattr
 
         @attr.s(**kwargs)
         class C(object):
             x = attr.ib()
 
-        a = C(1)
-        hash(a)  # Ensure that any hash cache would be calculated before copy
+        a = C(IncrementingHasher())
+        # Ensure that any hash cache would be calculated before copy
+        orig_hash = hash(a)
         b = copy.deepcopy(a)
 
-        _setattr(b, "x", 100)
+        if kwargs["cache_hash"]:
+            # For cache_hash classes, this call is cached
+            assert orig_hash == hash(a)
 
-        assert hash(a) != hash(b)
+        assert orig_hash != hash(b)
 
     @pytest.mark.parametrize(
-        "klass",
+        "klass,cached",
         [
-            HashCacheSerializationTestUncached,
-            HashCacheSerializationTestCached,
-            HashCacheSerializationTestCachedSlots,
+            (HashCacheSerializationTestUncached, False),
+            (HashCacheSerializationTestCached, True),
+            (HashCacheSerializationTestCachedSlots, True),
         ],
     )
-    def test_cache_hash_serialization_hash_cleared(self, klass):
+    def test_cache_hash_serialization_hash_cleared(self, klass, cached):
         """
         Tests that the hash cache is cleared on deserialization to fix
         https://github.com/python-attrs/attrs/issues/482 .
@@ -557,16 +566,13 @@ class TestAddHash(object):
         is different in different interpreters).
         """
 
-        obj = klass()
+        obj = klass(IncrementingHasher())
         original_hash = hash(obj)
         obj_rt = self._roundtrip_pickle(obj)
 
-        # Modify an attribute of the object used in the hash calculation; this
-        # assumes that pickle doesn't call `hash` before this point, and that
-        # there is no hash collision between the integers 20 and 40.
-        obj_rt.foo_value = 40
+        if cached:
+            assert original_hash == hash(obj)
 
-        assert original_hash == hash(obj)
         assert original_hash != hash(obj_rt)
 
     @pytest.mark.parametrize("frozen", [True, False])
