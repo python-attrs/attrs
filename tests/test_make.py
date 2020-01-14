@@ -1466,16 +1466,66 @@ class TestClassBuilder(object):
 
         assert [C2] == C.__subclasses__()
 
-    def test_cache_hash_with_frozen_serializes(self):
+    def _get_copy_kwargs(include_slots=True):
         """
-        Frozen classes with cache_hash should be serializable.
+        Generate a list of compatible attr.s arguments for the `copy` tests.
+        """
+        options = ["frozen", "hash", "cache_hash"]
+
+        if include_slots:
+            options.extend(["slots", "weakref_slot"])
+
+        out_kwargs = []
+        for args in itertools.product([True, False], repeat=len(options)):
+            kwargs = dict(zip(options, args))
+
+            kwargs["hash"] = kwargs["hash"] or None
+
+            if kwargs["cache_hash"] and not (
+                kwargs["frozen"] or kwargs["hash"]
+            ):
+                continue
+
+            out_kwargs.append(kwargs)
+
+        return out_kwargs
+
+    @pytest.mark.parametrize("kwargs", _get_copy_kwargs())
+    def test_copy(self, kwargs):
+        """
+        Ensure that an attrs class can be copied successfully.
         """
 
-        @attr.s(cache_hash=True, frozen=True)
+        @attr.s(eq=True, **kwargs)
         class C(object):
-            pass
+            x = attr.ib()
 
-        copy.deepcopy(C())
+        a = C(1)
+        b = copy.deepcopy(a)
+
+        assert a == b
+
+    @pytest.mark.parametrize("kwargs", _get_copy_kwargs(include_slots=False))
+    def test_copy_custom_setstate(self, kwargs):
+        """
+        Ensure that non-slots classes respect a custom __setstate__.
+        """
+
+        @attr.s(eq=True, **kwargs)
+        class C(object):
+            x = attr.ib()
+
+            def __getstate__(self):
+                return self.__dict__
+
+            def __setstate__(self, state):
+                state["x"] *= 5
+                self.__dict__.update(state)
+
+        expected = C(25)
+        actual = copy.copy(C(5))
+
+        assert actual == expected
 
 
 class TestMakeOrder:

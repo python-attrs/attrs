@@ -310,6 +310,23 @@ class TestAddRepr(object):
         ) == e.value.args[0]
 
 
+# these are for use in TestAddHash.test_cache_hash_serialization
+# they need to be out here so they can be un-pickled
+@attr.attrs(hash=True, cache_hash=False)
+class HashCacheSerializationTestUncached(object):
+    foo_value = attr.ib(default=20)
+
+
+@attr.attrs(hash=True, cache_hash=True)
+class HashCacheSerializationTestCached(object):
+    foo_value = attr.ib(default=20)
+
+
+@attr.attrs(slots=True, hash=True, cache_hash=True)
+class HashCacheSerializationTestCachedSlots(object):
+    foo_value = attr.ib(default=20)
+
+
 class TestAddHash(object):
     """
     Tests for `_add_hash`.
@@ -492,85 +509,69 @@ class TestAddHash(object):
         assert 2 == uncached_instance.hash_counter.times_hash_called
         assert 1 == cached_instance.hash_counter.times_hash_called
 
-    def test_cache_hash_serialization(self):
+    @pytest.mark.parametrize("cache_hash", [True, False])
+    @pytest.mark.parametrize("frozen", [True, False])
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_copy_hash_cleared(self, cache_hash, frozen, slots):
+        """
+        Test that the default hash is recalculated after a copy operation.
+        """
+
+        kwargs = dict(frozen=frozen, slots=slots, cache_hash=cache_hash,)
+
+        # Ensure that we can mutate the copied object if it's frozen
+        # and that the hash can be calculated if not.
+        if frozen:
+            _setattr = object.__setattr__
+        else:
+            kwargs["hash"] = True
+            _setattr = setattr
+
+        @attr.s(**kwargs)
+        class C(object):
+            x = attr.ib()
+
+        a = C(1)
+        hash(a)  # Ensure that any hash cache would be calculated before copy
+        b = copy.deepcopy(a)
+
+        _setattr(b, "x", 100)
+
+        assert hash(a) != hash(b)
+
+    @pytest.mark.parametrize(
+        "klass",
+        [
+            HashCacheSerializationTestUncached,
+            HashCacheSerializationTestCached,
+            HashCacheSerializationTestCachedSlots,
+        ],
+    )
+    def test_cache_hash_serialization_hash_cleared(self, klass):
         """
         Tests that the hash cache is cleared on deserialization to fix
         https://github.com/python-attrs/attrs/issues/482 .
+
+        This test is intended to guard against a stale hash code surviving
+        across serialization (which may cause problems when the hash value
+        is different in different interpreters).
         """
 
-        # First, check that our fix didn't break serialization without
-        # hash caching.
-        # We don't care about the result of this; we just want to make sure we
-        # can do it without exceptions.
-        hash(pickle.loads(pickle.dumps(HashCacheSerializationTestUncached)))
+        obj = klass()
+        original_hash = hash(obj)
+        obj_rt = self._roundtrip_pickle(obj)
 
-        def assert_hash_code_not_cached_across_serialization(original):
-            # Now check our fix for #482 for when hash caching is enabled.
-            original_hash = hash(original)
-            round_tripped = pickle.loads(pickle.dumps(original))
-            # What we want to guard against is having a stale hash code
-            # when a field's hash code differs in a new interpreter after
-            # deserialization.  This is tricky to test because we are,
-            # of course, still running in the same interpreter.  So
-            # after deserialization we reach in and change the value of
-            # a field to simulate the field changing its hash code. We then
-            # check that the object's hash code changes, indicating that we
-            # don't have a stale hash code.
-            # This could fail in two ways: (1) pickle.loads could get the hash
-            # code of the deserialized value (triggering it to cache) before
-            # we alter the field value.  This doesn't happen in our tested
-            # Python versions.  (2) "foo" and "something different" could
-            # have a hash collision on this interpreter run.   But this is
-            # extremely improbable and would just result in one buggy test run.
-            round_tripped.foo_string = "something different"
-            assert original_hash != hash(round_tripped)
+        # Modify an attribute of the object used in the hash calculation; this
+        # assumes that pickle doesn't call `hash` before this point, and that
+        # there is no hash collision between the integers 20 and 40.
+        obj_rt.foo_value = 40
 
-        # Slotted and dict classes implement __setstate__ differently,
-        # so we need to test both cases.
-        assert_hash_code_not_cached_across_serialization(
-            HashCacheSerializationTestCached()
-        )
-        assert_hash_code_not_cached_across_serialization(
-            HashCacheSerializationTestCachedSlots()
-        )
+        assert original_hash == hash(obj)
+        assert original_hash != hash(obj_rt)
 
-    def test_caching_and_custom_setstate(self):
-        """
-        The combination of a custom __setstate__ and cache_hash=True is caught
-        with a helpful message.
-
-        This is needed because we handle clearing the cache after
-        deserialization with a custom __setstate__. It is possible to make both
-        work, but it requires some thought about how to go about it, so it has
-        not yet been implemented.
-        """
-        with pytest.raises(
-            NotImplementedError,
-            match="Currently you cannot use hash caching if you "
-            "specify your own __setstate__ method.",
-        ):
-
-            @attr.attrs(hash=True, cache_hash=True)
-            class NoCacheHashAndCustomSetState(object):
-                def __setstate__(self, state):
-                    pass
-
-
-# these are for use in TestAddHash.test_cache_hash_serialization
-# they need to be out here so they can be un-pickled
-@attr.attrs(hash=True, cache_hash=False)
-class HashCacheSerializationTestUncached(object):
-    foo_string = attr.ib(default="foo")
-
-
-@attr.attrs(hash=True, cache_hash=True)
-class HashCacheSerializationTestCached(object):
-    foo_string = attr.ib(default="foo")
-
-
-@attr.attrs(slots=True, hash=True, cache_hash=True)
-class HashCacheSerializationTestCachedSlots(object):
-    foo_string = attr.ib(default="foo")
+    def _roundtrip_pickle(self, obj):
+        pickle_str = pickle.dumps(obj)
+        return pickle.loads(pickle_str)
 
 
 class TestAddInit(object):
