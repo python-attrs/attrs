@@ -38,7 +38,6 @@ _classvar_prefixes = ("typing.ClassVar", "t.ClassVar", "ClassVar")
 # we don't use a double-underscore prefix because that triggers
 # name mangling when trying to create a slot for the field
 # (when slots=True)
-_hash_cache_field = "_attrs_cached_hash"
 
 _empty_metadata_singleton = metadata_proxy({})
 
@@ -523,34 +522,6 @@ class _ClassBuilder(object):
         for name, value in self._cls_dict.items():
             setattr(cls, name, value)
 
-        # Attach __setstate__. This is necessary to clear the hash code
-        # cache on deserialization. See issue
-        # https://github.com/python-attrs/attrs/issues/482 .
-        # Note that this code only handles setstate for dict classes.
-        # For slotted classes, see similar code in _create_slots_class .
-        if self._cache_hash:
-            existing_set_state_method = getattr(cls, "__setstate__", None)
-            if existing_set_state_method:
-                raise NotImplementedError(
-                    "Currently you cannot use hash caching if "
-                    "you specify your own __setstate__ method."
-                    "See https://github.com/python-attrs/attrs/issues/494 ."
-                )
-
-            # Clears the cached hash state on serialization; for frozen
-            # classes we need to bypass the class's setattr method.
-            if self._frozen:
-
-                def cache_hash_set_state(chss_self, _):
-                    object.__setattr__(chss_self, _hash_cache_field, None)
-
-            else:
-
-                def cache_hash_set_state(chss_self, _):
-                    setattr(chss_self, _hash_cache_field, None)
-
-            cls.__setstate__ = cache_hash_set_state
-
         return cls
 
     def _create_slots_class(self):
@@ -584,8 +555,6 @@ class _ClassBuilder(object):
         # We only add the names of attributes that aren't inherited.
         # Settings __slots__ to inherited attributes wastes memory.
         slot_names = [name for name in names if name not in base_names]
-        if self._cache_hash:
-            slot_names.append(_hash_cache_field)
         cd["__slots__"] = tuple(slot_names)
 
         qualname = getattr(self._cls, "__qualname__", None)
@@ -603,8 +572,6 @@ class _ClassBuilder(object):
             """
             return tuple(getattr(self, name) for name in state_attr_names)
 
-        hash_caching_enabled = self._cache_hash
-
         def slots_setstate(self, state):
             """
             Automatically created by attrs.
@@ -612,13 +579,6 @@ class _ClassBuilder(object):
             __bound_setattr = _obj_setattr.__get__(self, Attribute)
             for name, value in zip(state_attr_names, state):
                 __bound_setattr(name, value)
-            # Clearing the hash code cache on deserialization is needed
-            # because hash codes can change from run to run. See issue
-            # https://github.com/python-attrs/attrs/issues/482 .
-            # Note that this code only handles setstate for slotted classes.
-            # For dict classes, see similar code in _patch_original_class .
-            if hash_caching_enabled:
-                __bound_setattr(_hash_cache_field, None)
 
         # slots and frozen require __getstate__/__setstate__ to work
         cd["__getstate__"] = slots_getstate
@@ -1121,17 +1081,19 @@ def _make_hash(cls, attrs, frozen, cache_hash):
         method_lines.append(indent + "    ))")
 
     if cache_hash:
-        method_lines.append(tab + "if self.%s is None:" % _hash_cache_field)
-        if frozen:
-            append_hash_computation_lines(
-                "object.__setattr__(self, '%s', " % _hash_cache_field, tab * 2
-            )
-            method_lines.append(tab * 2 + ")")  # close __setattr__
-        else:
-            append_hash_computation_lines(
-                "self.%s = " % _hash_cache_field, tab * 2
-            )
-        method_lines.append(tab + "return self.%s" % _hash_cache_field)
+        method_lines.append(
+            tab + "from attr._hash_cache import " + "HASH_CACHE, cache_hash"
+        )
+
+        method_lines.append(tab + "id_ = id(self)")
+        method_lines.append(tab + "if id_ not in HASH_CACHE:")
+        method_lines.append(
+            tab * 2 + "from attr._hash_cache import cache_hash"
+        )
+        append_hash_computation_lines("cache_hash(self, ", tab * 2)
+        method_lines.append(tab * 2 + ")")
+
+        method_lines.append(tab + "return HASH_CACHE[id_]")
     else:
         append_hash_computation_lines("return ", tab)
 
@@ -1698,23 +1660,6 @@ def _attrs_to_init_script(
             names_for_globals[attr_name] = a
     if post_init:
         lines.append("self.__attrs_post_init__()")
-
-    # because this is set only after __attrs_post_init is called, a crash
-    # will result if post-init tries to access the hash code.  This seemed
-    # preferable to setting this beforehand, in which case alteration to
-    # field values during post-init combined with post-init accessing the
-    # hash code would result in silent bugs.
-    if cache_hash:
-        if frozen:
-            if slots:
-                # if frozen and slots, then _setattr defined above
-                init_hash_cache = "_setattr('%s', %s)"
-            else:
-                # if frozen and not slots, then _inst_dict defined above
-                init_hash_cache = "_inst_dict['%s'] = %s"
-        else:
-            init_hash_cache = "self.%s = %s"
-        lines.append(init_hash_cache % (_hash_cache_field, "None"))
 
     # For exceptions we rely on BaseException.__init__ for proper
     # initialization.
