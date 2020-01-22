@@ -2003,6 +2003,8 @@ class _CountingAttr(object):
             self._validator = and_(*validator)
         else:
             self._validator = validator
+        if converter and isinstance(converter, (list, tuple)):
+            self.converter = and_(*converter)
         self.repr = repr
         self.eq = eq
         self.order = order

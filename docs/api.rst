@@ -477,6 +477,15 @@ Validators
 Converters
 ----------
 
+.. autofunction:: attr.converters.and_
+
+   For convenience, it's also possible to pass a list to `attr.ib`'s converter argument.
+
+   Thus the following two statements are equivalent::
+
+      x = attr.ib(converter=attr.converter.and_(c1, c2, c3))
+      x = attr.ib(converter=[c1, c2, c3])
+
 .. autofunction:: attr.converters.optional
 
    For example:

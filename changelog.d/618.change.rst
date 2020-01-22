@@ -1,0 +1,2 @@
+Added ``attr.converters.and_()``.
+The feature allows combining multiple conversion callbacks into one.

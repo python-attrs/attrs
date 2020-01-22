@@ -4,10 +4,14 @@ Tests for `attr.converters`.
 
 from __future__ import absolute_import
 
+from distutils.util import strtobool
+
 import pytest
 
-from attr import Factory
-from attr.converters import default_if_none, optional
+import attr
+
+from attr import Factory, s
+from attr.converters import default_if_none, optional, and_
 
 
 class TestOptional(object):
@@ -95,3 +99,39 @@ class TestDefaultIfNone(object):
         c = default_if_none(default=Factory(list))
 
         assert [] == c(None)
+
+
+class TestAnd(object):
+    def test_success(self):
+        """
+        Succeeds if all wrapped converters succeed.
+        """
+        c = and_(str, strtobool)
+
+        assert True == c('True') == c(True)
+
+    def test_fail(self):
+        """
+        Fails if any wrapped converter fails.
+        """
+        c = and_(str, strtobool)
+
+        # First wrapped converter fails:
+        with pytest.raises(ValueError):
+            c(33)
+
+        # Last wrapped converter fails:
+        with pytest.raises(ValueError):
+            c('33')
+
+    def test_sugar(self):
+        """
+        `and_(c1, c2, c3)` and `[c1, c2, c3]` are equivalent.
+        """
+
+        @attr.s
+        class C(object):
+            a1 = attr.ib("a1", validator=and_(str, strtobool))
+            a2 = attr.ib("a2", validator=[str, strtobool])
+
+        assert C.__attrs_attrs__[0].converter == C.__attrs_attrs__[1].converter

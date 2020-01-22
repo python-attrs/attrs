@@ -7,6 +7,26 @@ from __future__ import absolute_import, division, print_function
 from ._make import NOTHING, Factory
 
 
+def and_(*converters):
+    """
+    A converter that composes multiple converters into one.
+
+    When called on a value, it runs all wrapped converters.
+
+    :param converters: Arbitrary number of converters.
+    :type converters: callables
+
+    .. versionadded:: ???
+    """
+
+    def and_converter(val):
+        for converter in converters:
+            val = converter(val)
+        return val
+
+    return and_converter
+
+
 def optional(converter):
     """
     A converter that allows an attribute to be optional. An optional attribute
