@@ -7,7 +7,7 @@ from __future__ import absolute_import, division, print_function
 from ._make import NOTHING, Factory
 
 
-def and_(*converters):
+def chain(*converters):
     """
     A converter that composes multiple converters into one.
 
@@ -19,12 +19,12 @@ def and_(*converters):
     .. versionadded:: ???
     """
 
-    def and_converter(val):
+    def chain_converter(val):
         for converter in converters:
             val = converter(val)
         return val
 
-    return and_converter
+    return chain_converter
 
 
 def optional(converter):

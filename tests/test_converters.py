@@ -8,10 +8,8 @@ from distutils.util import strtobool
 
 import pytest
 
-import attr
-
-from attr import Factory, s
-from attr.converters import default_if_none, optional, and_
+from attr import Factory, s, attrib
+from attr.converters import default_if_none, optional, chain
 
 
 class TestOptional(object):
@@ -101,12 +99,12 @@ class TestDefaultIfNone(object):
         assert [] == c(None)
 
 
-class TestAnd(object):
+class TestChain(object):
     def test_success(self):
         """
         Succeeds if all wrapped converters succeed.
         """
-        c = and_(str, strtobool)
+        c = chain(str, strtobool)
 
         assert True == c('True') == c(True)
 
@@ -114,7 +112,7 @@ class TestAnd(object):
         """
         Fails if any wrapped converter fails.
         """
-        c = and_(str, strtobool)
+        c = chain(str, strtobool)
 
         # First wrapped converter fails:
         with pytest.raises(ValueError):
@@ -126,12 +124,12 @@ class TestAnd(object):
 
     def test_sugar(self):
         """
-        `and_(c1, c2, c3)` and `[c1, c2, c3]` are equivalent.
+        `chain(c1, c2, c3)` and `[c1, c2, c3]` are equivalent.
         """
 
-        @attr.s
+        @s
         class C(object):
-            a1 = attr.ib("a1", validator=and_(str, strtobool))
-            a2 = attr.ib("a2", validator=[str, strtobool])
+            a1 = attrib("a1", validator=chain(str, strtobool))
+            a2 = attrib("a2", validator=[str, strtobool])
 
         assert C.__attrs_attrs__[0].converter == C.__attrs_attrs__[1].converter

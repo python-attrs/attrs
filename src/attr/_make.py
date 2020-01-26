@@ -2004,7 +2004,7 @@ class _CountingAttr(object):
         else:
             self._validator = validator
         if converter and isinstance(converter, (list, tuple)):
-            self.converter = _and_converter(*converter)
+            self.converter = chain(*converter)
         else:
             self.converter = converter
         self.repr = repr
@@ -2180,7 +2180,7 @@ def and_(*validators):
     return _AndValidator(tuple(vals))
 
 
-def _and_converter(*converters):
+def chain(*converters):
     """
     A converter that composes multiple converters into one.
 
@@ -2192,9 +2192,9 @@ def _and_converter(*converters):
     .. versionadded:: ???
     """
 
-    def and_converter(val):
+    def chain_converter(val):
         for converter in converters:
             val = converter(val)
         return val
 
-    return and_converter
+    return chain_converter
