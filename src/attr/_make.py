@@ -77,7 +77,7 @@ class _CacheHashWrapper(int):
     This is used for non-slots classes with ``cache_hash=True``, to avoid
     serializing a potentially (even likely) invalid hash value. Since ``None``
     is the default value for uncalculated hashes, whenever this is copied,
-    the copy's value for hte hash should automatically reset.
+    the copy's value for the hash should automatically reset.
 
     See GH #613 for more details.
     """
