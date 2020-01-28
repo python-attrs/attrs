@@ -609,11 +609,10 @@ class _ClassBuilder(object):
             __bound_setattr = _obj_setattr.__get__(self, Attribute)
             for name, value in zip(state_attr_names, state):
                 __bound_setattr(name, value)
-            # Clearing the hash code cache on deserialization is needed
-            # because hash codes can change from run to run. See issue
-            # https://github.com/python-attrs/attrs/issues/482 .
-            # Note that this code only handles setstate for slotted classes.
-            # For dict classes, see similar code in _patch_original_class .
+
+            # The hash code cache is not included when the object is
+            # serialized, but it still needs to be initialized to None to
+            # indicate that the first call to __hash__ should be a cache miss.
             if hash_caching_enabled:
                 __bound_setattr(_hash_cache_field, None)
 
