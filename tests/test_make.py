@@ -1967,14 +1967,15 @@ class TestAutoDetect:
             assert 0 == len(recwarn.list)
 
     @pytest.mark.parametrize("slots", [True, False])
-    def test_total_ordering(self, slots):
+    @pytest.mark.parametrize("first", [True, False])
+    def test_total_ordering(self, slots, first):
         """
         functools.total_ordering works as expected if an order method and an eq
         method are detected.
+
+        Ensure the order doesn't matter.
         """
 
-        @attr.s(auto_detect=True, slots=slots)
-        @functools.total_ordering
         class C(object):
             x = attr.ib()
             own_eq_called = attr.ib(default=False)
@@ -1987,6 +1988,15 @@ class TestAutoDetect:
             def __le__(self, o):
                 self.own_le_called = True
                 return self.x <= o.x
+
+        if first:
+            C = functools.total_ordering(
+                attr.s(auto_detect=True, slots=slots)(C)
+            )
+        else:
+            C = attr.s(auto_detect=True, slots=slots)(
+                functools.total_ordering(C)
+            )
 
         c1, c2 = C(1), C(2)
 
