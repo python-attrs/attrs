@@ -5,6 +5,7 @@ Tests for `attr._make`.
 from __future__ import absolute_import, division, print_function
 
 import copy
+import functools
 import gc
 import inspect
 import itertools
@@ -1964,3 +1965,42 @@ class TestAutoDetect:
             assert 1 == len(recwarn.list)
         else:
             assert 0 == len(recwarn.list)
+
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_total_ordering(self, slots):
+        """
+        functools.total_ordering works as expected if an order method and an eq
+        method are detected.
+        """
+
+        @attr.s(auto_detect=True, slots=slots)
+        @functools.total_ordering
+        class C(object):
+            x = attr.ib()
+            own_eq_called = attr.ib(default=False)
+            own_le_called = attr.ib(default=False)
+
+            def __eq__(self, o):
+                self.own_eq_called = True
+                return self.x == o.x
+
+            def __le__(self, o):
+                self.own_le_called = True
+                return self.x <= o.x
+
+        c1, c2 = C(1), C(2)
+
+        assert c1 < c2
+        assert c1.own_le_called
+
+        c1, c2 = C(1), C(2)
+
+        assert c2 > c1
+        assert c2.own_le_called
+
+        c1, c2 = C(1), C(2)
+
+        assert c2 != c1
+        assert c1 == c1
+
+        assert c1.own_eq_called
