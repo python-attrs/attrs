@@ -1,1 +1,0 @@
-Fixed serialization of classes with ``frozen=True`` and ``cache_hash=True``, which has been broken since 19.1.0.
