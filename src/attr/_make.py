@@ -1190,45 +1190,70 @@ def __ne__(self, other):
 
 
 def _make_eq(cls, attrs):
+    """
+    Create equality methods.
+    """
     attrs = [a for a in attrs if a.eq]
 
-    unique_filename = _generate_unique_filename(cls, "eq")
-    lines = [
-        "def __eq__(self, other):",
-        "    if other.__class__ is not self.__class__:",
-        "        return NotImplemented",
-    ]
-    # We can't just do a big self.x = other.x and... clause due to
-    # irregularities like nan == nan is false but (nan,) == (nan,) is true.
-    if attrs:
-        lines.append("    return  (")
-        others = ["    ) == ("]
-        for a in attrs:
-            lines.append("        self.%s," % (a.name,))
-            others.append("        other.%s," % (a.name,))
+    def attrs_to_tuple(obj):
+        """
+        Save us some typing.
+        """
+        return _attrs_to_tuple(obj, attrs)
 
-        lines += others + ["    )"]
-    else:
-        lines.append("    return True")
+    def __eq__(self, other):
+        """
+        Automatically created by attrs.
+        """
+        if other.__class__ is self.__class__:
+            return attrs_to_tuple(self) == attrs_to_tuple(other)
 
-    script = "\n".join(lines)
-    globs = {}
-    locs = {}
-    bytecode = compile(script, unique_filename, "exec")
-    eval(bytecode, globs, locs)
+        return NotImplemented
 
-    # In order of debuggers like PDB being able to step through the code,
-    # we add a fake linecache entry.
-    linecache.cache[unique_filename] = (
-        len(script),
-        None,
-        script.splitlines(True),
-        unique_filename,
-    )
-    return locs["__eq__"], __ne__
+    return __eq__, __ne__
+
+    # unique_filename = _generate_unique_filename(cls, "eq")
+
+    # lines = [
+    #     "def __eq__(self, other):",
+    #     "    if other.__class__ is not self.__class__:",
+    #     "        return NotImplemented",
+    # ]
+
+    # # We can't just do a big self.x = other.x and... clause due to
+    # # irregularities like nan == nan is false but (nan,) == (nan,) is true.
+    # if attrs:
+    #     lines.append("    return  (")
+    #     others = ["    ) == ("]
+    #     for a in attrs:
+    #         lines.append("        self.%s," % (a.name,))
+    #         others.append("        other.%s," % (a.name,))
+
+    #     lines += others + ["    )"]
+    # else:
+    #     lines.append("    return True")
+
+    # script = "\n".join(lines)
+    # globs = {}
+    # locs = {}
+    # bytecode = compile(script, unique_filename, "exec")
+    # eval(bytecode, globs, locs)
+
+    # # In order of debuggers like PDB being able to step through the code,
+    # # we add a fake linecache entry.
+    # linecache.cache[unique_filename] = (
+    #     len(script),
+    #     None,
+    #     script.splitlines(True),
+    #     unique_filename,
+    # )
+    # return locs["__eq__"], __ne__
 
 
 def _make_order(cls, attrs):
+    """
+    Create ordering methods.
+    """
     attrs = [a for a in attrs if a.order]
 
     def attrs_to_tuple(obj):
@@ -1364,6 +1389,9 @@ def _add_repr(cls, ns=None, attrs=None):
 def _make_init(
     cls, attrs, post_init, frozen, slots, cache_hash, base_attr_map, is_exc
 ):
+    """
+    Add an init method to *cls*.
+    """
     attrs = [a for a in attrs if a.init or a.default is not NOTHING]
 
     unique_filename = _generate_unique_filename(cls, "init")
