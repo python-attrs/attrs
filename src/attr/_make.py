@@ -109,6 +109,7 @@ def attrib(
     kw_only=False,
     eq=None,
     order=None,
+    cmpspec=None,
 ):
     """
     Create a new attribute on a class.
@@ -200,6 +201,10 @@ def attrib(
         in the generated ``__init__`` (if ``init`` is ``False``, this
         parameter is ignored).
 
+    :param cmpspec: Class used to compare attribute. It must be initializable
+        with the value of the attribute, and implement equality
+        (e.g. ``__eq__``) and ordering (e.g. ``__lt__'') functions.
+
     .. versionadded:: 15.2.0 *convert*
     .. versionadded:: 16.3.0 *metadata*
     .. versionchanged:: 17.1.0 *validator* can be a ``list`` now.
@@ -216,6 +221,7 @@ def attrib(
     .. versionchanged:: 19.2.0 *repr* also accepts a custom callable.
     .. deprecated:: 19.2.0 *cmp* Removal on or after 2021-06-01.
     .. versionadded:: 19.2.0 *eq* and *order*
+    .. versionadded:: 20.1.0.dev0_botant *cmpspec*
     """
     eq, order = _determine_eq_order(cmp, eq, order)
 
@@ -250,6 +256,7 @@ def attrib(
         kw_only=kw_only,
         eq=eq,
         order=order,
+        cmpspec=cmpspec,
     )
 
 
@@ -1052,11 +1059,21 @@ else:
         return cls.__setattr__ == _frozen_setattrs
 
 
-def _attrs_to_tuple(obj, attrs):
+def _attrs_to_cmp_tuple(obj, attrs):
     """
     Create a tuple of all values of *obj*'s *attrs*.
+
+    .. versionchanged:: 20.1.0.dev0_botant
+       Renamed to *_attrs_to_cmp_tuple* to avoid confusion
+       and make it clear this function is used only to make
+       eq and order methods.
     """
-    return tuple(getattr(obj, a.name) for a in attrs)
+    return tuple(
+        cmpspec(value) if cmpspec else value
+        for value, cmpspec in (
+            (getattr(obj, a.name), a.cmpspec) for a in attrs
+        )
+    )
 
 
 def _generate_unique_filename(cls, func_name):
@@ -1090,6 +1107,9 @@ def _generate_unique_filename(cls, func_name):
 
 
 def _make_hash(cls, attrs, frozen, cache_hash):
+    """
+    Create a hash method.
+    """
     attrs = tuple(
         a for a in attrs if a.hash is True or (a.hash is None and a.eq is True)
     )
@@ -1199,7 +1219,10 @@ def _make_eq(cls, attrs):
         """
         Save us some typing.
         """
-        return _attrs_to_tuple(obj, attrs)
+        return _attrs_to_cmp_tuple(obj, attrs)
+
+    # We can't just do a big self.x = other.x and... clause due to
+    # irregularities like nan == nan is false but (nan,) == (nan,) is true.
 
     def __eq__(self, other):
         """
@@ -1212,43 +1235,6 @@ def _make_eq(cls, attrs):
 
     return __eq__, __ne__
 
-    # unique_filename = _generate_unique_filename(cls, "eq")
-
-    # lines = [
-    #     "def __eq__(self, other):",
-    #     "    if other.__class__ is not self.__class__:",
-    #     "        return NotImplemented",
-    # ]
-
-    # # We can't just do a big self.x = other.x and... clause due to
-    # # irregularities like nan == nan is false but (nan,) == (nan,) is true.
-    # if attrs:
-    #     lines.append("    return  (")
-    #     others = ["    ) == ("]
-    #     for a in attrs:
-    #         lines.append("        self.%s," % (a.name,))
-    #         others.append("        other.%s," % (a.name,))
-
-    #     lines += others + ["    )"]
-    # else:
-    #     lines.append("    return True")
-
-    # script = "\n".join(lines)
-    # globs = {}
-    # locs = {}
-    # bytecode = compile(script, unique_filename, "exec")
-    # eval(bytecode, globs, locs)
-
-    # # In order of debuggers like PDB being able to step through the code,
-    # # we add a fake linecache entry.
-    # linecache.cache[unique_filename] = (
-    #     len(script),
-    #     None,
-    #     script.splitlines(True),
-    #     unique_filename,
-    # )
-    # return locs["__eq__"], __ne__
-
 
 def _make_order(cls, attrs):
     """
@@ -1260,7 +1246,7 @@ def _make_order(cls, attrs):
         """
         Save us some typing.
         """
-        return _attrs_to_tuple(obj, attrs)
+        return _attrs_to_cmp_tuple(obj, attrs)
 
     def __lt__(self, other):
         """
@@ -1809,6 +1795,7 @@ class Attribute(object):
         "repr",
         "eq",
         "order",
+        "cmpspec",
         "hash",
         "init",
         "metadata",
@@ -1832,6 +1819,7 @@ class Attribute(object):
         kw_only=False,
         eq=None,
         order=None,
+        cmpspec=None,
     ):
         eq, order = _determine_eq_order(cmp, eq, order)
 
@@ -1846,6 +1834,7 @@ class Attribute(object):
         bound_setattr("repr", repr)
         bound_setattr("eq", eq)
         bound_setattr("order", order)
+        bound_setattr("cmpspec", cmpspec)
         bound_setattr("hash", hash)
         bound_setattr("init", init)
         bound_setattr("converter", converter)
@@ -1953,6 +1942,7 @@ _a = [
         order=False,
         hash=(name != "metadata"),
         init=True,
+        cmpspec=None,
     )
     for name in Attribute.__slots__
 ]
@@ -1968,7 +1958,7 @@ class _CountingAttr(object):
     Intermediate representation of attributes that uses a counter to preserve
     the order in which the attributes have been defined.
 
-    *Internal* data structure of the attrs library.  Running into is most
+    *Internal* data structure of the attrs library.  Running into it is most
     likely the result of a bug like a forgotten `@attr.s` decorator.
     """
 
@@ -1978,6 +1968,7 @@ class _CountingAttr(object):
         "repr",
         "eq",
         "order",
+        "cmpspec",
         "hash",
         "init",
         "metadata",
@@ -1998,6 +1989,7 @@ class _CountingAttr(object):
             kw_only=False,
             eq=True,
             order=False,
+            cmpspec=None,
         )
         for name in (
             "counter",
@@ -2020,6 +2012,7 @@ class _CountingAttr(object):
             kw_only=False,
             eq=True,
             order=False,
+            cmpspec=None,
         ),
     )
     cls_counter = 0
@@ -2038,6 +2031,7 @@ class _CountingAttr(object):
         kw_only,
         eq,
         order,
+        cmpspec,
     ):
         _CountingAttr.cls_counter += 1
         self.counter = _CountingAttr.cls_counter
@@ -2050,6 +2044,7 @@ class _CountingAttr(object):
         self.repr = repr
         self.eq = eq
         self.order = order
+        self.cmpspec = cmpspec
         self.hash = hash
         self.init = init
         self.converter = converter

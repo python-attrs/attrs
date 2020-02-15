@@ -3,11 +3,16 @@ Tests for equality and ordering methods from `attrib._make`
 when a CompSpec object is specified.
 """
 
+import functools
+
 import pytest
+
+from hypothesis import given
+from hypothesis.strategies import booleans
 
 import attr
 
-from .utils import simple_class
+from .utils import make_class, simple_class
 
 
 EqC = simple_class(eq=True)
@@ -40,12 +45,12 @@ class ObjWithoutTruthValue(object):
 
     __nonzero__ = __bool__  # Python 2
 
-    @classmethod
-    def compare(cls, obj, other):
+    @staticmethod
+    def is_equal(obj, other):
         return (obj == other).value
 
-    @classmethod
-    def less_than(cls, obj, other):
+    @staticmethod
+    def less_than(obj, other):
         return (obj < other).value
 
 
@@ -73,7 +78,36 @@ class TestCmpSpec(object):
             cls(ObjWithoutTruthValue(1), 2) < cls(ObjWithoutTruthValue(2), 2)
         with pytest.raises(ValueError):
             cls(ObjWithoutTruthValue(1), 2) > cls(ObjWithoutTruthValue(2), 2)
+
         with pytest.raises(ValueError):
             cls(ObjWithoutTruthValue(1), 2) <= cls(ObjWithoutTruthValue(2), 2)
         with pytest.raises(ValueError):
             cls(ObjWithoutTruthValue(1), 2) >= cls(ObjWithoutTruthValue(2), 2)
+
+    @given(booleans())
+    def test_cmpspec(self, slots):
+        """
+        Test for equality and ordering methods when attribute has cmpspec.
+        """
+        _DCmp = make_class("_DCmp", {"value": attr.ib()}, eq=False)
+        _DCmp.__eq__ = lambda obj, other: ObjWithoutTruthValue.is_equal(
+            obj.value, other.value
+        )
+        _DCmp.__lt__ = lambda obj, other: ObjWithoutTruthValue.less_than(
+            obj.value, other.value
+        )
+        _DCmp = functools.total_ordering(_DCmp)
+
+        _D = make_class(
+            "_D", {"a": attr.ib(cmpspec=_DCmp), "b": attr.ib()}, slots=slots
+        )
+
+        assert _D(ObjWithoutTruthValue(1), 2) == _D(ObjWithoutTruthValue(1), 2)
+        assert _D(ObjWithoutTruthValue(1), 1) != _D(ObjWithoutTruthValue(1), 2)
+        assert _D(ObjWithoutTruthValue(2), 2) != _D(ObjWithoutTruthValue(1), 2)
+
+        assert _D(ObjWithoutTruthValue(1), 2) >= _D(ObjWithoutTruthValue(1), 2)
+        assert _D(ObjWithoutTruthValue(1), 2) <= _D(ObjWithoutTruthValue(1), 2)
+
+        assert _D(ObjWithoutTruthValue(0), 1) < _D(ObjWithoutTruthValue(1), 2)
+        assert _D(ObjWithoutTruthValue(2), 3) > _D(ObjWithoutTruthValue(1), 2)
