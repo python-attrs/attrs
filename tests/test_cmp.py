@@ -12,18 +12,41 @@ from .utils import simple_class
 
 EqC = simple_class(eq=True)
 EqCSlots = simple_class(eq=True, slots=True)
+OrderC = simple_class(order=True)
+OrderCSlots = simple_class(order=True, slots=True)
 
 
-# ObjRequiringCustomEq is a simple object that throw an ValueError when
-# we naively try obj1 == obj2. This simulates what happens when we compare
-# numpy arrays or pandas dataframes.
+# ObjWithoutTruthValue is a simple object that has no truth value,
+# e.g. __eq__ returns something other than a boolean, and Python
+# tries to convert that non-boolean to a boolean by calling __bool__
+# (or __nonzero__ in Python 2) on it.
+#
+# We could simulate this behaviour by simply throwing an exception from __eq__,
+# but this complicated chain of events is more realistic because
+# it mimics what happens when we compare numpy arrays and pandas dataframes.
 @attr.s(eq=False)
-class ObjRequiringCustomEq(object):
+class ObjWithoutTruthValue(object):
 
     value = attr.ib()
 
     def __eq__(self, other):
-        raise ValueError("Can't compare ObjRequiringCustomEq using __eq__")
+        return ObjWithoutTruthValue(self.value == other.value)
+
+    def __lt__(self, other):
+        return ObjWithoutTruthValue(self.value < other.value)
+
+    def __bool__(self):
+        raise ValueError("ObjWithoutTruthValue has no truth value.")
+
+    __nonzero__ = __bool__  # Python 2
+
+    @classmethod
+    def compare(cls, obj, other):
+        return (obj == other).value
+
+    @classmethod
+    def less_than(cls, obj, other):
+        return (obj < other).value
 
 
 class TestCmpSpec(object):
@@ -32,11 +55,25 @@ class TestCmpSpec(object):
     """
 
     @pytest.mark.parametrize("cls", [EqC, EqCSlots])
-    def test_eq_exception(self, cls):
+    def test_equality_exception(self, cls):
         """
-        Test for eq method when attribute does not conform to default protocol.
+        Test for equality methods when attribute has not truth value.
         """
         with pytest.raises(ValueError):
-            cls(ObjRequiringCustomEq(1), 2) == cls(ObjRequiringCustomEq(1), 2)
+            cls(ObjWithoutTruthValue(1), 2) == cls(ObjWithoutTruthValue(1), 2)
         with pytest.raises(ValueError):
-            cls(ObjRequiringCustomEq(1), 2) != cls(ObjRequiringCustomEq(1), 2)
+            cls(ObjWithoutTruthValue(1), 2) != cls(ObjWithoutTruthValue(1), 2)
+
+    @pytest.mark.parametrize("cls", [OrderC, OrderCSlots])
+    def test_order_exception(self, cls):
+        """
+        Test for ordering methods when attribute has not truth value.
+        """
+        with pytest.raises(ValueError):
+            cls(ObjWithoutTruthValue(1), 2) < cls(ObjWithoutTruthValue(2), 2)
+        with pytest.raises(ValueError):
+            cls(ObjWithoutTruthValue(1), 2) > cls(ObjWithoutTruthValue(2), 2)
+        with pytest.raises(ValueError):
+            cls(ObjWithoutTruthValue(1), 2) <= cls(ObjWithoutTruthValue(2), 2)
+        with pytest.raises(ValueError):
+            cls(ObjWithoutTruthValue(1), 2) >= cls(ObjWithoutTruthValue(2), 2)
