@@ -1,0 +1,18 @@
+Added ``cmpspec`` to ``Attribute`` and ``attr.ib()`` (`#435 <https://github.com/python-attrs/attrs/issues/435>`_).
+
+``CmpSpec`` must be a class that wraps a value and implements equality and ordering methods.
+
+This change was motivated by the fact that some popular packages (``pandas dataframes``,
+``numpy arrays``) overload equality and ordering methods to return values that are not boolean,
+which makes sense in their specific domains (data science), but breaks generic functions
+that rely on the protocol ``__eq__(self, other) -> bool``.
+
+Under this change, the user will be able to specify *how* an ``Attribute`` is compared by
+supplying a *comparison class*.
+
+This change will also allow users to customize ``Attribute`` comparison in more
+intuitive scenarios, e.g. *case insensitive strings*, or simply using a sort-like *key*
+as requested in (`#624 <https://github.com/python-attrs/attrs/issues/624>`_).
+
+Finally, we provide a few off-the-shelf ``CmpSpec`` classes in the package ``attr.cmpspec``
+that users can use in the most common cases, or use as template to implement their own.
