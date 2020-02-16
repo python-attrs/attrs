@@ -218,7 +218,7 @@ class TestTransformAttrs(object):
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, repr=True, "
-            "eq=True, order=True, cmpspec=None, hash=None, init=True, "
+            "eq=True, order=True, comparator=None, hash=None, init=True, "
             "metadata=mappingproxy({}), type=None, converter=None, "
             "kw_only=False)",
         ) == e.value.args

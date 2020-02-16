@@ -109,7 +109,7 @@ def attrib(
     kw_only=False,
     eq=None,
     order=None,
-    cmpspec=None,
+    comparator=None,
 ):
     """
     Create a new attribute on a class.
@@ -201,8 +201,8 @@ def attrib(
         in the generated ``__init__`` (if ``init`` is ``False``, this
         parameter is ignored).
 
-    :param cmpspec: Class used to compare attribute. It must be initializable
-        with the value of the attribute, and implement equality
+    :param comparator: Class used to compare attribute. It must be
+        initializable with the value of the attribute, and implement equality
         (e.g. ``__eq__``) and ordering (e.g. ``__lt__'') functions.
 
     .. versionadded:: 15.2.0 *convert*
@@ -221,7 +221,7 @@ def attrib(
     .. versionchanged:: 19.2.0 *repr* also accepts a custom callable.
     .. deprecated:: 19.2.0 *cmp* Removal on or after 2021-06-01.
     .. versionadded:: 19.2.0 *eq* and *order*
-    .. versionadded:: 20.1.0.dev0_botant *cmpspec*
+    .. versionadded:: 20.1.0.dev0_botant *comparator*
     """
     eq, order = _determine_eq_order(cmp, eq, order)
 
@@ -256,7 +256,7 @@ def attrib(
         kw_only=kw_only,
         eq=eq,
         order=order,
-        cmpspec=cmpspec,
+        comparator=comparator,
     )
 
 
@@ -1069,9 +1069,9 @@ def _attrs_to_cmp_tuple(obj, attrs):
        eq and order methods.
     """
     return tuple(
-        cmpspec(value) if cmpspec else value
-        for value, cmpspec in (
-            (getattr(obj, a.name), a.cmpspec) for a in attrs
+        comparator(value) if comparator else value
+        for value, comparator in (
+            (getattr(obj, a.name), a.comparator) for a in attrs
         )
     )
 
@@ -1229,11 +1229,11 @@ def _make_eq(cls, attrs):
         lines.append("    return  (")
         others = ["    ) == ("]
         for a in attrs:
-            if a.cmpspec:
+            if a.comparator:
                 cmp_name = "_%s_comparator" % (a.name,)
                 # Add the cmp class to the global namespace of the evaluated
                 # function, since local does not work in all python versions.
-                global_vars[cmp_name] = a.cmpspec
+                global_vars[cmp_name] = a.comparator
                 lines.append("        %s(self.%s)," % (cmp_name, a.name,))
                 others.append("        %s(other.%s)," % (cmp_name, a.name,))
             else:
@@ -1819,7 +1819,7 @@ class Attribute(object):
         "repr",
         "eq",
         "order",
-        "cmpspec",
+        "comparator",
         "hash",
         "init",
         "metadata",
@@ -1843,7 +1843,7 @@ class Attribute(object):
         kw_only=False,
         eq=None,
         order=None,
-        cmpspec=None,
+        comparator=None,
     ):
         eq, order = _determine_eq_order(cmp, eq, order)
 
@@ -1858,7 +1858,7 @@ class Attribute(object):
         bound_setattr("repr", repr)
         bound_setattr("eq", eq)
         bound_setattr("order", order)
-        bound_setattr("cmpspec", cmpspec)
+        bound_setattr("comparator", comparator)
         bound_setattr("hash", hash)
         bound_setattr("init", init)
         bound_setattr("converter", converter)
@@ -1966,7 +1966,7 @@ _a = [
         order=False,
         hash=(name != "metadata"),
         init=True,
-        cmpspec=None,
+        comparator=None,
     )
     for name in Attribute.__slots__
 ]
@@ -1992,7 +1992,7 @@ class _CountingAttr(object):
         "repr",
         "eq",
         "order",
-        "cmpspec",
+        "comparator",
         "hash",
         "init",
         "metadata",
@@ -2013,7 +2013,7 @@ class _CountingAttr(object):
             kw_only=False,
             eq=True,
             order=False,
-            cmpspec=None,
+            comparator=None,
         )
         for name in (
             "counter",
@@ -2036,7 +2036,7 @@ class _CountingAttr(object):
             kw_only=False,
             eq=True,
             order=False,
-            cmpspec=None,
+            comparator=None,
         ),
     )
     cls_counter = 0
@@ -2055,7 +2055,7 @@ class _CountingAttr(object):
         kw_only,
         eq,
         order,
-        cmpspec,
+        comparator,
     ):
         _CountingAttr.cls_counter += 1
         self.counter = _CountingAttr.cls_counter
@@ -2068,7 +2068,7 @@ class _CountingAttr(object):
         self.repr = repr
         self.eq = eq
         self.order = order
-        self.cmpspec = cmpspec
+        self.comparator = comparator
         self.hash = hash
         self.init = init
         self.converter = converter
