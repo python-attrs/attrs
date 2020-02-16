@@ -1210,30 +1210,50 @@ def __ne__(self, other):
 
 
 def _make_eq(cls, attrs):
-    """
-    Create equality methods.
-    """
     attrs = [a for a in attrs if a.eq]
 
-    def attrs_to_tuple(obj):
-        """
-        Save us some typing.
-        """
-        return _attrs_to_cmp_tuple(obj, attrs)
-
+    unique_filename = _generate_unique_filename(cls, "eq")
+    lines = [
+        "def __eq__(self, other):",
+        "    if other.__class__ is not self.__class__:",
+        "        return NotImplemented",
+    ]
     # We can't just do a big self.x = other.x and... clause due to
     # irregularities like nan == nan is false but (nan,) == (nan,) is true.
+    global_vars = {}
+    if attrs:
+        lines.append("    return  (")
+        others = ["    ) == ("]
+        for a in attrs:
+            if a.cmpspec:
+                cmp_name = "_%s_cmpspec" % (a.name,)
+                # Add the cmp class to the global namespace of the evaluated
+                # fucntion, since local does not work in all python versions.
+                global_vars[cmp_name] = a.cmpspec
+                lines.append("        %s(self.%s)," % (cmp_name, a.name,))
+                others.append("        %s(other.%s)," % (cmp_name, a.name,))
+            else:
+                lines.append("        self.%s," % (a.name,))
+                others.append("        other.%s," % (a.name,))
 
-    def __eq__(self, other):
-        """
-        Automatically created by attrs.
-        """
-        if other.__class__ is self.__class__:
-            return attrs_to_tuple(self) == attrs_to_tuple(other)
+        lines += others + ["    )"]
+    else:
+        lines.append("    return True")
 
-        return NotImplemented
+    script = "\n".join(lines)
+    local_vars = {}
+    bytecode = compile(script, unique_filename, "exec")
+    eval(bytecode, global_vars, local_vars)
 
-    return __eq__, __ne__
+    # In order of debuggers like PDB being able to step through the code,
+    # we add a fake linecache entry.
+    linecache.cache[unique_filename] = (
+        len(script),
+        None,
+        script.splitlines(True),
+        unique_filename,
+    )
+    return local_vars["__eq__"], __ne__
 
 
 def _make_order(cls, attrs):
