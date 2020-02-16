@@ -1210,10 +1210,9 @@ def __ne__(self, other):
 
 
 def _make_eq(cls, attrs):
-    attrs = [a for a in attrs if a.eq or a.cmpspec]
+    attrs = [a for a in attrs if a.eq]
 
     unique_filename = _generate_unique_filename(cls, "eq")
-    cached_args = []
     lines = [
         "def __eq__(self, other):",
         "    if other.__class__ is not self.__class__:",
@@ -1221,17 +1220,18 @@ def _make_eq(cls, attrs):
     ]
     # We can't just do a big self.x = other.x and... clause due to
     # irregularities like nan == nan is false but (nan,) == (nan,) is true.
-    locs = {}
+    global_vars = {}
     if attrs:
         lines.append("    return  (")
         others = ["    ) == ("]
         for a in attrs:
             if a.cmpspec:
-                cmp_name = "%s_cmp" % (a.name,)
-                locs[cmp_name] = a.cmpspec
-                cached_args.append("_%s=%s" % (cmp_name, cmp_name))
-                lines.append("        _%s(self.%s)," % (cmp_name, a.name,))
-                others.append("        _%s(other.%s)," % (cmp_name, a.name,))
+                cmp_name = "_%s_cmpspec" % (a.name,)
+                # Add the cmp class to the global namespace of the evaluated
+                # fucntion, since local does not work in all python versions.
+                global_vars[cmp_name] = a.cmpspec
+                lines.append("        %s(self.%s)," % (cmp_name, a.name,))
+                others.append("        %s(other.%s)," % (cmp_name, a.name,))
             else:
                 lines.append("        self.%s," % (a.name,))
                 others.append("        other.%s," % (a.name,))
@@ -1240,15 +1240,10 @@ def _make_eq(cls, attrs):
     else:
         lines.append("    return True")
 
-    if locs:
-        # If we need references to the cmpspecs, add them in the func sig
-        cached_args_list = ', '.join(cached_args)
-        lines[0] = "def __eq__(self, other, %s):" % (cached_args_list,)
-
     script = "\n".join(lines)
-    globs = {}
+    local_vars = {}
     bytecode = compile(script, unique_filename, "exec")
-    eval(bytecode, globs, locs)
+    eval(bytecode, global_vars, local_vars)
 
     # In order of debuggers like PDB being able to step through the code,
     # we add a fake linecache entry.
@@ -1258,7 +1253,7 @@ def _make_eq(cls, attrs):
         script.splitlines(True),
         unique_filename,
     )
-    return locs["__eq__"], __ne__
+    return local_vars["__eq__"], __ne__
 
 
 def _make_order(cls, attrs):
