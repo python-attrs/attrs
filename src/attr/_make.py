@@ -1210,6 +1210,9 @@ def __ne__(self, other):
 
 
 def _make_eq(cls, attrs):
+    """
+    Create equality methods.
+    """
     attrs = [a for a in attrs if a.eq]
 
     unique_filename = _generate_unique_filename(cls, "eq")
@@ -1218,6 +1221,7 @@ def _make_eq(cls, attrs):
         "    if other.__class__ is not self.__class__:",
         "        return NotImplemented",
     ]
+
     # We can't just do a big self.x = other.x and... clause due to
     # irregularities like nan == nan is false but (nan,) == (nan,) is true.
     global_vars = {}
@@ -1226,9 +1230,9 @@ def _make_eq(cls, attrs):
         others = ["    ) == ("]
         for a in attrs:
             if a.cmpspec:
-                cmp_name = "_%s_cmpspec" % (a.name,)
+                cmp_name = "_%s_comparator" % (a.name,)
                 # Add the cmp class to the global namespace of the evaluated
-                # fucntion, since local does not work in all python versions.
+                # function, since local does not work in all python versions.
                 global_vars[cmp_name] = a.cmpspec
                 lines.append("        %s(self.%s)," % (cmp_name, a.name,))
                 others.append("        %s(other.%s)," % (cmp_name, a.name,))
