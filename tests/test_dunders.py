@@ -832,12 +832,20 @@ class TestFilenames(object):
             == "<attrs generated init tests.test_dunders.C>"
         )
         assert (
+            OriginalC.__eq__.__code__.co_filename
+            == "<attrs generated eq tests.test_dunders.C>"
+        )
+        assert (
             OriginalC.__hash__.__code__.co_filename
             == "<attrs generated hash tests.test_dunders.C>"
         )
         assert (
             C.__init__.__code__.co_filename
             == "<attrs generated init tests.test_dunders.C-2>"
+        )
+        assert (
+            C.__eq__.__code__.co_filename
+            == "<attrs generated eq tests.test_dunders.C-2>"
         )
         assert (
             C.__hash__.__code__.co_filename
