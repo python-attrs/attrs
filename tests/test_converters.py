@@ -112,7 +112,7 @@ class TestChain(object):
         """
         Fails if any wrapped converter fails.
         """
-        c = chain(str, strtobool, bool)
+        c = chain(str, strtobool)
 
         # First wrapped converter fails:
         with pytest.raises(ValueError):
