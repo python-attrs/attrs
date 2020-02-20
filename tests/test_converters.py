@@ -8,8 +8,8 @@ from distutils.util import strtobool
 
 import pytest
 
-from attr import Factory, s, attrib
-from attr.converters import default_if_none, optional, chain
+from attr import Factory, attrib, s
+from attr.converters import chain, default_if_none, optional
 
 
 class TestOptional(object):
@@ -104,15 +104,15 @@ class TestChain(object):
         """
         Succeeds if all wrapped converters succeed.
         """
-        c = chain(str, strtobool)
+        c = chain(str, strtobool, bool)
 
-        assert True == c('True') == c(True)
+        assert True is c("True") is c(True)
 
     def test_fail(self):
         """
         Fails if any wrapped converter fails.
         """
-        c = chain(str, strtobool)
+        c = chain(str, strtobool, bool)
 
         # First wrapped converter fails:
         with pytest.raises(ValueError):
@@ -120,7 +120,7 @@ class TestChain(object):
 
         # Last wrapped converter fails:
         with pytest.raises(ValueError):
-            c('33')
+            c("33")
 
     def test_sugar(self):
         """
