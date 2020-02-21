@@ -54,9 +54,9 @@ class ObjWithoutTruthValue(object):
         return (obj < other).value
 
 
-class TestCmpSpec(object):
+class TestComparator(object):
     """
-    Tests for equality and ordering when a CompSpec object is specified.
+    Tests for equality and ordering when a comparator object is specified.
     """
 
     @pytest.mark.parametrize("cls", [EqC, EqCSlots])
@@ -85,9 +85,9 @@ class TestCmpSpec(object):
             cls(ObjWithoutTruthValue(1), 2) >= cls(ObjWithoutTruthValue(2), 2)
 
     @given(booleans())
-    def test_cmpspec(self, slots):
+    def test_comparator(self, slots):
         """
-        Test for equality and ordering methods when attribute has cmpspec.
+        Test for equality and ordering methods when attribute has comparator.
         """
         _DCmp = make_class("_DCmp", {"value": attr.ib()}, eq=False)
         _DCmp.__eq__ = lambda obj, other: ObjWithoutTruthValue.is_equal(
@@ -99,7 +99,7 @@ class TestCmpSpec(object):
         _DCmp = functools.total_ordering(_DCmp)
 
         _D = make_class(
-            "_D", {"a": attr.ib(cmpspec=_DCmp), "b": attr.ib()}, slots=slots
+            "_D", {"a": attr.ib(comparator=_DCmp), "b": attr.ib()}, slots=slots
         )
 
         assert _D(ObjWithoutTruthValue(1), 2) == _D(ObjWithoutTruthValue(1), 2)
