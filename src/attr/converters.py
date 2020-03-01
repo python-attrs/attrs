@@ -4,27 +4,14 @@ Commonly useful converters.
 
 from __future__ import absolute_import, division, print_function
 
-from ._make import NOTHING, Factory
+from ._make import NOTHING, Factory, chain
 
 
-def chain(*converters):
-    """
-    A converter that composes multiple converters into one.
-
-    When called on a value, it runs all wrapped converters.
-
-    :param converters: Arbitrary number of converters.
-    :type converters: callables
-
-    .. versionadded:: ???
-    """
-
-    def chain_converter(val):
-        for converter in converters:
-            val = converter(val)
-        return val
-
-    return chain_converter
+__all__ = [
+    "chain",
+    "optional",
+    "default_if_none",
+]
 
 
 def optional(converter):

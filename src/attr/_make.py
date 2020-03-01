@@ -2189,7 +2189,7 @@ def chain(*converters):
     :param converters: Arbitrary number of converters.
     :type converters: callables
 
-    .. versionadded:: ???
+    .. versionadded:: 20.1.0
     """
 
     def chain_converter(val):

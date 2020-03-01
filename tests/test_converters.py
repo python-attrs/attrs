@@ -8,7 +8,9 @@ from distutils.util import strtobool
 
 import pytest
 
-from attr import Factory, attrib, s
+import attr
+
+from attr import Factory, attrib
 from attr.converters import chain, default_if_none, optional
 
 
@@ -127,7 +129,7 @@ class TestChain(object):
         `chain(c1, c2, c3)` and `[c1, c2, c3]` are equivalent.
         """
 
-        @s
+        @attr.s
         class C(object):
             a1 = attrib("a1", validator=chain(str, strtobool))
             a2 = attrib("a2", validator=[str, strtobool])
