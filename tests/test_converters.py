@@ -131,7 +131,8 @@ class TestChain(object):
 
         @attr.s
         class C(object):
-            a1 = attrib("a1", validator=chain(str, strtobool))
-            a2 = attrib("a2", validator=[str, strtobool])
+            a1 = attrib(default="True", converter=chain(str, strtobool, bool))
+            a2 = attrib(default=True, converter=[str, strtobool, bool])
 
-        assert C.__attrs_attrs__[0].converter == C.__attrs_attrs__[1].converter
+        c = C()
+        assert True is c.a1 is c.a2
