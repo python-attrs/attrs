@@ -2019,12 +2019,15 @@ class _CountingAttr(object):
             self._validator = and_(*validator)
         else:
             self._validator = validator
+        if converter and isinstance(converter, (list, tuple)):
+            self.converter = chain(*converter)
+        else:
+            self.converter = converter
         self.repr = repr
         self.eq = eq
         self.order = order
         self.hash = hash
         self.init = init
-        self.converter = converter
         self.metadata = metadata
         self.type = type
         self.kw_only = kw_only
@@ -2155,7 +2158,7 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
 
 
 # These are required by within this module so we define them here and merely
-# import into .validators.
+# import into .validators / .converters.
 
 
 @attrs(slots=True, hash=True)
@@ -2191,3 +2194,23 @@ def and_(*validators):
         )
 
     return _AndValidator(tuple(vals))
+
+
+def chain(*converters):
+    """
+    A converter that composes multiple converters into one.
+
+    When called on a value, it runs all wrapped converters.
+
+    :param converters: Arbitrary number of converters.
+    :type converters: callables
+
+    .. versionadded:: 20.1.0
+    """
+
+    def chain_converter(val):
+        for converter in converters:
+            val = converter(val)
+        return val
+
+    return chain_converter
