@@ -1,8 +1,8 @@
 # Pull Request Check List
 
-This is just a reminder about the most common mistakes.  Please make sure that you tick all *appropriate* boxes.  But please read our [contribution guide](https://www.attrs.org/en/latest/contributing.html) at least once, it will save you unnecessary review cycles!
+This is just a friendly reminder about the most common mistakes.  Please make sure that you tick all boxes.  But please read our [contribution guide](https://www.attrs.org/en/latest/contributing.html) at least once, it will save you unnecessary review cycles!
 
-If an item doesn't apply to your pull request, **check it anyway** to make it apparent that there's nothing to do.
+If an item doesn't apply to your pull request, **check it anyway** to make it apparent that there's nothing left to do.
 
 - [ ] Added **tests** for changed code.
 - [ ] New features have been added to our [Hypothesis testing strategy](https://github.com/python-attrs/attrs/blob/master/tests/strategies.py).
@@ -11,7 +11,7 @@ If an item doesn't apply to your pull request, **check it anyway** to make it ap
 - [ ] Updated **documentation** for changed code.
     - [ ] New functions/classes have to be added to `docs/api.rst` by hand.
     - [ ] Changes to the signature of `@attr.s()` have to be added by hand too.
-    - [ ] Changed/added classes/methods/functions have appropriate `versionadded`, `versionchanged`, or `deprecated` [directives](http://www.sphinx-doc.org/en/stable/markup/para.html#directive-versionadded).
+    - [ ] Changed/added classes/methods/functions have appropriate `versionadded`, `versionchanged`, or `deprecated` [directives](http://www.sphinx-doc.org/en/stable/markup/para.html#directive-versionadded).  Find the appropriate next version in our [``__init__.py``](https://github.com/python-attrs/attrs/blob/master/src/attr/__init__.py) file.
 - [ ] Documentation in `.rst` files is written using [semantic newlines](https://rhodesmill.org/brandon/2012/one-sentence-per-line/).
 - [ ] Changes (and possible deprecations) have news fragments in [`changelog.d`](https://github.com/python-attrs/attrs/blob/master/changelog.d).
 
