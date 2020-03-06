@@ -141,6 +141,10 @@ Core
       C(x=[1, 2, 3], y={1, 2, 3})
 
 
+Exceptions
+----------
+
+.. autoexception:: attr.exceptions.PythonTooOldError
 .. autoexception:: attr.exceptions.FrozenInstanceError
 .. autoexception:: attr.exceptions.AttrsAttributeNotFoundError
 .. autoexception:: attr.exceptions.NotAnAttrsClassError
@@ -472,6 +476,15 @@ Validators
 
 Converters
 ----------
+
+.. autofunction:: attr.converters.chain
+
+   For convenience, it's also possible to pass a list to `attr.ib`'s converter argument.
+
+   Thus the following two statements are equivalent::
+
+      x = attr.ib(converter=attr.converter.chain(c1, c2, c3))
+      x = attr.ib(converter=[c1, c2, c3])
 
 .. autofunction:: attr.converters.optional
 

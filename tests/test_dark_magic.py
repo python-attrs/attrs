@@ -658,7 +658,7 @@ class TestDarkMagic(object):
             # Remove warning from creating the attribute if cmp is not None.
             dc.pop()
 
-        w, = dc.list
+        (w,) = dc.list
 
         assert (
             "The usage of `cmp` is deprecated and will be removed on or after "

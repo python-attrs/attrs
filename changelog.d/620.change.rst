@@ -1,0 +1,8 @@
+Fixed serialization behavior of non-slots classes with ``cache_hash=True``.
+The hash cache will be cleared on operations which make "deep copies" of instances of classes with hash caching,
+though the cache will not be cleared with shallow copies like those made by ``copy.copy()``.
+
+Previously, ``copy.deepcopy()`` or serialization and deserialization with ``pickle`` would result in an un-initialized object.
+
+This change also allows the creation of ``cache_hash=True`` classes with a custom ``__setstate__``,
+which was previously forbidden (`#494 <https://github.com/python-attrs/attrs/issues/494>`_).
