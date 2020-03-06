@@ -1,1 +1,1 @@
-The documentation of generated methods is now created automatically using the method name.
+On Python 3, all generated methods now have a docstring explaining that they have been created by ``attrs``.
