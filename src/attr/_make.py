@@ -1177,19 +1177,29 @@ def _add_hash(cls, attrs):
     return cls
 
 
-def __ne__(self, other):
+def _make_ne():
     """
-    Check equality and either forward a NotImplemented or return the result
-    negated.
+    Create *not equal* method.
     """
-    result = self.__eq__(other)
-    if result is NotImplemented:
-        return NotImplemented
 
-    return not result
+    def __ne__(self, other):
+        """
+        Check equality and either forward a NotImplemented or
+        return the result negated.
+        """
+        result = self.__eq__(other)
+        if result is NotImplemented:
+            return NotImplemented
+
+        return not result
+
+    return __ne__
 
 
 def _make_eq(cls, attrs):
+    """
+    Create *equal* method.
+    """
     attrs = [a for a in attrs if a.eq]
 
     unique_filename = _generate_unique_filename(cls, "eq")
@@ -1225,10 +1235,13 @@ def _make_eq(cls, attrs):
         script.splitlines(True),
         unique_filename,
     )
-    return locs["__eq__"], __ne__
+    return locs["__eq__"], _make_ne()
 
 
 def _make_order(cls, attrs):
+    """
+    Create *order* methods.
+    """
     attrs = [a for a in attrs if a.order]
 
     def attrs_to_tuple(obj):
