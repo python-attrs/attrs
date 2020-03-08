@@ -699,10 +699,10 @@ class _ClassBuilder(object):
     def add_eq(self):
         cd = self._cls_dict
 
-        cd["__eq__"], cd["__ne__"] = (
-            self._add_method_dunders(meth)
-            for meth in _make_eq(self._cls, self._attrs)
+        cd["__eq__"] = self._add_method_dunders(
+            _make_eq(self._cls, self._attrs)
         )
+        cd["__ne__"] = self._add_method_dunders(_make_ne())
 
         return self
 
@@ -1179,7 +1179,7 @@ def _add_hash(cls, attrs):
 
 def _make_ne():
     """
-    Create *not equal* method.
+    Create __ne__ method.
     """
 
     def __ne__(self, other):
@@ -1198,7 +1198,7 @@ def _make_ne():
 
 def _make_eq(cls, attrs):
     """
-    Create *equal* method.
+    Create __eq__ method for *cls* with *attrs*.
     """
     attrs = [a for a in attrs if a.eq]
 
@@ -1235,12 +1235,12 @@ def _make_eq(cls, attrs):
         script.splitlines(True),
         unique_filename,
     )
-    return locs["__eq__"], _make_ne()
+    return locs["__eq__"]
 
 
 def _make_order(cls, attrs):
     """
-    Create *order* methods.
+    Create ordering methods for *cls* with *attrs*.
     """
     attrs = [a for a in attrs if a.order]
 
@@ -1296,7 +1296,8 @@ def _add_eq(cls, attrs=None):
     if attrs is None:
         attrs = cls.__attrs_attrs__
 
-    cls.__eq__, cls.__ne__ = _make_eq(cls, attrs)
+    cls.__eq__ = _make_eq(cls, attrs)
+    cls.__ne__ = _make_ne()
 
     return cls
 
