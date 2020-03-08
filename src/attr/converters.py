@@ -4,7 +4,14 @@ Commonly useful converters.
 
 from __future__ import absolute_import, division, print_function
 
-from ._make import NOTHING, Factory
+from ._make import NOTHING, Factory, chain
+
+
+__all__ = [
+    "chain",
+    "optional",
+    "default_if_none",
+]
 
 
 def optional(converter):

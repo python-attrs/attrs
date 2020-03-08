@@ -1,0 +1,2 @@
+Added ``attr.converters.chain()``.
+The feature allows combining multiple conversion callbacks into one.

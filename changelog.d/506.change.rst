@@ -1,0 +1,1 @@
+On Python 3, all generated methods now have a docstring explaining that they have been created by ``attrs``.
