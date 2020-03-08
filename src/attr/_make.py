@@ -869,7 +869,17 @@ def attrs(
 
         So for example by implementing ``__eq__`` on a class yourself,
         ``attrs`` will deduce ``eq=False`` and won't create *neither*
-        ``__eq__`` *nor* ``__ne__``.
+        ``__eq__`` *nor* ``__ne__`` (but Python classes come with a sensible
+        ``__ne__`` by default, so it *should* be enough to only implement
+        ``__eq__`` in most cases).
+
+        .. warning::
+
+           If you prevent ``attrs`` from creating the ordering methods for you
+           (``order=False``, e.g. by implementing ``__le__``), it becomes
+           *your* responsibility to make sure its ordering is sound. The best
+           way is to use the `functools.total_ordering` decorator.
+
 
         Passing ``True`` or ``False`` to *init*, *repr*, *eq*, *order*,
         *cmp*, or *hash* overrides whatever *auto_detect* would determine.
