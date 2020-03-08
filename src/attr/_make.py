@@ -869,11 +869,7 @@ def attrs(
 
         So for example by implementing ``__eq__`` on a class yourself,
         ``attrs`` will deduce ``eq=False`` and won't create *neither*
-        ``__eq__`` *nor* ``__ne__`` (but Python classes come with a sensible
-        ``__ne__`` by default, so it *should* be enough to only implement
-        ``__eq__`` in most cases). If you implement only a subset of the
-        ordering methods but miss some, ``attrs`` will raise a `UserWarning`.
-        Consider using `functools.total_ordering`.
+        ``__eq__`` *nor* ``__ne__``.
 
         Passing ``True`` or ``False`` to *init*, *repr*, *eq*, *order*,
         *cmp*, or *hash* overrides whatever *auto_detect* would determine.
@@ -1059,22 +1055,6 @@ def attrs(
             cls, order_, auto_detect, ("__lt__", "__le__", "__gt__", "__ge__")
         ):
             builder.add_order()
-        elif not is_exc and order_ is None and auto_detect:
-            # This means it was auto-detected to not implement, warn the user
-            # if their class is not sound.
-            if not all(
-                [
-                    _has_own_attribute(cls, meth_name)
-                    for meth_name in ("__lt__", "__le__", "__gt__", "__ge__",)
-                ]
-            ):
-                warnings.warn(
-                    "Your class implements only a subset of "
-                    "__lt_, __le__, __gt__, and __ge__.  "
-                    "Its orderring behavior is not sound; consider "
-                    "implementing them or using functools.total_ordering().",
-                    stacklevel=2,
-                )
 
         if (
             hash_ is None

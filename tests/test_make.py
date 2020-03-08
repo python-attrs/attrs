@@ -1818,9 +1818,6 @@ class TestAutoDetect:
 
         It's surprisingly difficult to test this programmatically, so we do it
         by hand.
-
-        Also verify that we warn the user if they don't implement all of the
-        ordering methods.
         """
 
         def assert_not_set(cls, ex, meth_name):
@@ -1838,31 +1835,21 @@ class TestAutoDetect:
             for m in ("le", "lt", "ge", "gt"):
                 assert_not_set(cls, ex, "__" + m + "__")
 
-        msg = "Your class implements only a subset of __lt_, __le__, __gt__,"
+        @attr.s(auto_detect=True, slots=slots, frozen=frozen)
+        class LE(object):
+            __le__ = 42
 
-        with pytest.warns(UserWarning, match=msg):
+        @attr.s(auto_detect=True, slots=slots, frozen=frozen)
+        class LT(object):
+            __lt__ = 42
 
-            @attr.s(auto_detect=True, slots=slots, frozen=frozen)
-            class LE(object):
-                __le__ = 42
+        @attr.s(auto_detect=True, slots=slots, frozen=frozen)
+        class GE(object):
+            __ge__ = 42
 
-        with pytest.warns(UserWarning, match=msg):
-
-            @attr.s(auto_detect=True, slots=slots, frozen=frozen)
-            class LT(object):
-                __lt__ = 42
-
-        with pytest.warns(UserWarning, match=msg):
-
-            @attr.s(auto_detect=True, slots=slots, frozen=frozen)
-            class GE(object):
-                __ge__ = 42
-
-        with pytest.warns(UserWarning, match=msg):
-
-            @attr.s(auto_detect=True, slots=slots, frozen=frozen)
-            class GT(object):
-                __gt__ = 42
+        @attr.s(auto_detect=True, slots=slots, frozen=frozen)
+        class GT(object):
+            __gt__ = 42
 
         assert_none_set(LE, "__le__")
         assert_none_set(LT, "__lt__")
