@@ -1392,13 +1392,20 @@ class TestClassBuilder(object):
             def organic(self):
                 pass
 
-        meth = getattr(C, meth_name)
+        @attr.s(hash=True, str=True)
+        class D(object):
+            pass
 
-        assert meth_name == meth.__name__
-        assert C.organic.__module__ == meth.__module__
+        meth_C = getattr(C, meth_name)
+        meth_D = getattr(D, meth_name)
+
+        assert meth_name == meth_C.__name__ == meth_D.__name__
+        assert C.organic.__module__ == meth_C.__module__ == meth_D.__module__
         if not PY2:
+            # This is assertion that would fail if a single __ne__ instance
+            # was reused across multiple _make_eq calls.
             organic_prefix = C.organic.__qualname__.rsplit(".", 1)[0]
-            assert organic_prefix + "." + meth_name == meth.__qualname__
+            assert organic_prefix + "." + meth_name == meth_C.__qualname__
 
     def test_handles_missing_meta_on_class(self):
         """
