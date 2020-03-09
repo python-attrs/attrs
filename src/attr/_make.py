@@ -134,8 +134,8 @@ def attrib(
 
     :type default: Any value
 
-    :param callable factory: Syntactic sugar for
-        ``default=attr.Factory(callable)``.
+    :param factory: Syntactic sugar for ``default=attr.Factory(callable)``.
+    :type factory: `callable`
 
     :param validator: `callable` that is called by ``attrs``-generated
         ``__init__`` methods after the instance has been initialized.  They
@@ -145,7 +145,7 @@ def attrib(
         The return value is *not* inspected so the validator has to throw an
         exception itself.
 
-        If a ``list`` is passed, its items are treated as validators and must
+        If a `list` is passed, its items are treated as validators and must
         all pass.
 
         Validators can be globally disabled and re-enabled using
@@ -153,7 +153,7 @@ def attrib(
 
         The validator can also be set using decorator notation as shown below.
 
-    :type validator: ``callable`` or a ``list`` of ``callable``\\ s.
+    :type validator: `callable` or a `list` of `callable`\\ s.
 
     :param repr: Include this attribute in the generated ``__repr__``
         method. If ``True``, include the attribute; if ``False``, omit it. By
@@ -162,7 +162,7 @@ def attrib(
         value and returns a string. Note that the resulting string is used
         as-is, i.e. it will be used directly *instead* of calling ``repr()``
         (the default).
-    :type repr: a ``bool`` or a ``callable`` to use a custom function.
+    :type repr: a `bool` or a `callable` to use a custom function.
     :param bool eq: If ``True`` (default), include this attribute in the
         generated ``__eq__`` and ``__ne__`` methods that check two instances
         for equality.
@@ -174,16 +174,17 @@ def attrib(
         method.  If ``None`` (default), mirror *eq*'s value.  This is the
         correct behavior according the Python spec.  Setting this value to
         anything else than ``None`` is *discouraged*.
-    :type hash: ``bool`` or ``None``
+    :type hash: `bool` or `None`
     :param bool init: Include this attribute in the generated ``__init__``
         method.  It is possible to set this to ``False`` and set a default
         value.  In that case this attributed is unconditionally initialized
         with the specified default value or factory.
-    :param callable converter: `callable` that is called by
+    :param converter: `callable` that is called by
         ``attrs``-generated ``__init__`` methods to convert attribute's value
         to the desired format.  It is given the passed-in value, and the
         returned value will be used as the new value of the attribute.  The
         value is converted before being passed to the validator, if any.
+    :type converter: `callable`
     :param metadata: An arbitrary mapping, to be used by third-party
         components.  See `extending_metadata`.
     :param type: The type of the attribute.  In Python 3.6 or greater, the
@@ -856,7 +857,7 @@ def attrs(
         `object.__hash__`, and the `GitHub issue that led to the default \
         behavior <https://github.com/python-attrs/attrs/issues/136>`_ for more
         details.
-    :type hash: ``bool`` or ``None``
+    :type hash: `bool` or `None`
     :param bool init: Create a ``__init__`` method that initializes the
         ``attrs`` attributes.  Leading underscores are stripped for the
         argument name.  If a ``__attrs_post_init__`` method exists on the
