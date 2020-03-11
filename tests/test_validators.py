@@ -169,7 +169,7 @@ class TestMatchesRe(object):
 
 def always_pass(_, __, ___):
     """
-    Toy validator that always passses.
+    Toy validator that always passes.
     """
 
 
