@@ -549,6 +549,7 @@ def test_slots_empty_cell():
     """
     test for issue https://github.com/python-attrs/attrs/issues/589
     """
+
     @attr.s(slots=True)
     class C(object):
         field = attr.ib()
