@@ -547,7 +547,16 @@ def tests_weakref_does_not_add_with_weakref_attribute():
 
 def test_slots_empty_cell():
     """
-    test for issue https://github.com/python-attrs/attrs/issues/589
+    Tests that no `ValueError: Cell is empty` exception is raised when
+    closure cells are present with no contents in a `slots=True` class.
+    (issue https://github.com/python-attrs/attrs/issues/589)
+
+    On Python 3, if a method mentions `__class__` or uses the no-arg `super()`,
+    the compiler will bake a reference to the class in the method itself as
+    `method.__closure__`. Since `attrs` replaces the class with a clone,
+    `_ClassBuilder._create_slots_class(self)` will rewrite these references so
+    it keeps working. This method was not properly covering the edge case where
+    the closure cell was empty, we fixed it and this is the non-regression test.
     """
 
     @attr.s(slots=True)
