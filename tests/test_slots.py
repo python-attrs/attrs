@@ -556,7 +556,8 @@ def test_slots_empty_cell():
     `method.__closure__`. Since `attrs` replaces the class with a clone,
     `_ClassBuilder._create_slots_class(self)` will rewrite these references so
     it keeps working. This method was not properly covering the edge case where
-    the closure cell was empty, we fixed it and this is the non-regression test.
+    the closure cell was empty, we fixed it and this is the non-regression 
+    test.
     """
 
     @attr.s(slots=True)
