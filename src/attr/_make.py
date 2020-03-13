@@ -641,8 +641,13 @@ class _ClassBuilder(object):
             if not closure_cells:  # Catch None or the empty list.
                 continue
             for cell in closure_cells:
-                if cell.cell_contents is self._cls:
-                    set_closure_cell(cell, cls)
+                try:
+                    match = cell.cell_contents is self._cls
+                except ValueError:  # ValueError: Cell is empty
+                    pass
+                else:
+                    if match:
+                        set_closure_cell(cell, cls)
 
         return cls
 
