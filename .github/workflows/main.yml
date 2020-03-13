@@ -7,7 +7,7 @@ on:
   pull_request:
     branches: ["master"]
   # Allow rebuilds via API.
-  on: "repository_dispatch"
+  repository_dispatch:
 
 jobs:
   tests:
