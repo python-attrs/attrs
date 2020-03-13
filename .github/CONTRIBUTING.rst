@@ -241,7 +241,7 @@ Thank you for considering contributing to ``attrs``!
 .. _semantic newlines: https://rhodesmill.org/brandon/2012/one-sentence-per-line/
 .. _examples page: https://github.com/python-attrs/attrs/blob/master/docs/examples.rst
 .. _Hypothesis: https://hypothesis.readthedocs.io/
-.. _CI: https://attrs.visualstudio.com/attrs/_build/latest?definitionId=1&branchName=master
+.. _CI: https://github.com/python-attrs/attrs/actions?query=workflow%3ACI
 .. _`team of volunteers`: https://github.com/python-attrs
 .. _BDFL: https://en.wikipedia.org/wiki/Benevolent_dictator_for_life
 .. _towncrier: https://pypi.org/project/towncrier
