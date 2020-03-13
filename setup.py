@@ -36,7 +36,7 @@ CLASSIFIERS = [
 ]
 INSTALL_REQUIRES = []
 EXTRAS_REQUIRE = {
-    "docs": ["sphinx", "zope.interface"],
+    "docs": ["sphinx", "sphinx-rtd-theme", "zope.interface"],
     "tests": [
         # 5.0 introduced toml; parallel was broken until 5.0.2
         "coverage[toml]>=5.0.2",

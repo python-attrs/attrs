@@ -6,7 +6,7 @@ Release v\ |release| (`What's new? <changelog>`).
 
 .. include:: ../README.rst
    :start-after: teaser-begin
-   :end-before: -spiel-end-
+   :end-before: teaser-end
 
 
 Getting Started
@@ -17,7 +17,7 @@ The recommended installation method is `pip <https://pip.pypa.io/en/stable/>`_-i
 
 .. code-block:: console
 
-   $ pip install attrs
+   $ python -m pip install attrs
 
 The next three steps should bring you up and running in no time:
 
@@ -49,20 +49,8 @@ Day-to-Day Usage
 
 
 .. include:: ../README.rst
-   :start-after: -testimonials-
-   :end-before: -end-
-
-.. include:: ../README.rst
-   :start-after: -project-information-
-
-.. toctree::
-   :maxdepth: 1
-
-   license
-   backward-compatibility
-   python-2
-   contributing
-   changelog
+   :start-after: -getting-help-
+   :end-before: -project-information-
 
 
 ----
@@ -84,6 +72,19 @@ Full Table of Contents
    extending
    how-does-it-work
    glossary
+
+
+.. include:: ../README.rst
+   :start-after: -project-information-
+
+.. toctree::
+   :maxdepth: 1
+
+   license
+   backward-compatibility
+   python-2
+   contributing
+   changelog
 
 
 Indices and tables
