@@ -3,7 +3,7 @@ repos:
     rev: 19.10b0
     hooks:
       - id: black
-        language_version: python3.7
+        language_version: python3.8
         # override until resolved: https://github.com/ambv/black/issues/402
         files: \.pyi?$
         types: []
@@ -12,7 +12,7 @@ repos:
     rev: 3.7.9
     hooks:
       - id: flake8
-        language_version: python3.7
+        language_version: python3.8
 
   - repo: https://github.com/asottile/seed-isort-config
     rev: v1.9.4
@@ -24,7 +24,6 @@ repos:
     hooks:
       - id: isort
         additional_dependencies: [toml]
-        language_version: python3.7
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.4.0
