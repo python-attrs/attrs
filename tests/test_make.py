@@ -494,7 +494,7 @@ class TestAttributes(object):
         assert C.D.__name__ == "D"
         assert C.D.__qualname__ == C.__qualname__ + ".D"
 
-    @given(with_validation=booleans())
+    @pytest.mark.parametrize("with_validation", [True, False])
     def test_post_init(self, with_validation, monkeypatch):
         """
         Verify that __attrs_post_init__ gets called if defined.
