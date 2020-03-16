@@ -183,3 +183,13 @@ class WithCustomRepr:
 class OrderFlags:
     a = attr.ib(eq=False, order=False)
     b = attr.ib(eq=True, order=True)
+
+
+# Auto-detect
+# XXX: needs support in mypy
+# @attr.s(auto_detect=True)
+# class AutoDetect:
+#     x: int
+
+#     def __init__(self, x: int):
+#         self.x = x

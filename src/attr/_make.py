@@ -218,7 +218,7 @@ def attrib(
     .. deprecated:: 19.2.0 *cmp* Removal on or after 2021-06-01.
     .. versionadded:: 19.2.0 *eq* and *order*
     """
-    eq, order = _determine_eq_order(cmp, eq, order)
+    eq, order = _determine_eq_order(cmp, eq, order, True)
 
     if hash is not None and hash is not True and hash is not False:
         raise TypeError(
@@ -308,20 +308,32 @@ def _is_class_var(annot):
     return str(annot).startswith(_classvar_prefixes)
 
 
+def _has_own_attribute(cls, attrib_name):
+    """
+    Check whether *cls* defines *attrib_name* (and doesn't just inherit it).
+
+    Requires Python 3.
+    """
+    attr = getattr(cls, attrib_name, _sentinel)
+    if attr is _sentinel:
+        return False
+
+    for base_cls in cls.__mro__[1:]:
+        a = getattr(base_cls, attrib_name, None)
+        if attr is a:
+            return False
+
+    return True
+
+
 def _get_annotations(cls):
     """
     Get annotations for *cls*.
     """
-    anns = getattr(cls, "__annotations__", None)
-    if anns is None:
-        return {}
+    if _has_own_attribute(cls, "__annotations__"):
+        return cls.__annotations__
 
-    # Verify that the annotations aren't merely inherited.
-    for base_cls in cls.__mro__[1:]:
-        if anns is getattr(base_cls, "__annotations__", None):
-            return {}
-
-    return anns
+    return {}
 
 
 def _counter_getter(e):
@@ -754,10 +766,10 @@ _CMP_DEPRECATION = (
 )
 
 
-def _determine_eq_order(cmp, eq, order):
+def _determine_eq_order(cmp, eq, order, default_eq):
     """
     Validate the combination of *cmp*, *eq*, and *order*. Derive the effective
-    values of eq and order.
+    values of eq and order.  If *eq* is None, set it to *default_eq*.
     """
     if cmp is not None and any((eq is not None, order is not None)):
         raise ValueError("Don't mix `cmp` with `eq' and `order`.")
@@ -768,9 +780,10 @@ def _determine_eq_order(cmp, eq, order):
 
         return cmp, cmp
 
-    # If left None, equality is on and ordering mirrors equality.
+    # If left None, equality is set to the specified default and ordering
+    # mirrors equality.
     if eq is None:
-        eq = True
+        eq = default_eq
 
     if order is None:
         order = eq
@@ -781,14 +794,38 @@ def _determine_eq_order(cmp, eq, order):
     return eq, order
 
 
+def _determine_whether_to_implement(cls, flag, auto_detect, dunders):
+    """
+    Check whether we should implement a set of methods for *cls*.
+
+    *flag* is the argument passed into @attr.s like 'init', *auto_detect* the
+    same as passed into @attr.s and *dunders* is a tuple of attribute names
+    whose presence signal that the user has implemented it themselves.
+
+    auto_detect must be False on Python 2.
+    """
+    if flag is True or flag is None and auto_detect is False:
+        return True
+
+    if flag is False:
+        return False
+
+    # Logically, flag is None and auto_detect is True here.
+    for dunder in dunders:
+        if _has_own_attribute(cls, dunder):
+            return False
+
+    return True
+
+
 def attrs(
     maybe_cls=None,
     these=None,
     repr_ns=None,
-    repr=True,
+    repr=None,
     cmp=None,
     hash=None,
-    init=True,
+    init=None,
     slots=False,
     frozen=False,
     weakref_slot=True,
@@ -799,6 +836,7 @@ def attrs(
     auto_exc=False,
     eq=None,
     order=None,
+    auto_detect=False,
 ):
     r"""
     A class decorator that adds `dunder
@@ -823,6 +861,32 @@ def attrs(
     :param str repr_ns: When using nested classes, there's no way in Python 2
         to automatically detect that.  Therefore it's possible to set the
         namespace explicitly for a more meaningful ``repr`` output.
+    :param bool auto_detect: Instead of setting the *init*, *repr*, *eq*,
+        *order*, and *hash* arguments explicitly, assume they are set to
+        ``True`` **unless any** of the involved methods for one of the
+        arguments is implemented in the *current* class (i.e. it is *not*
+        inherited from some base class).
+
+        So for example by implementing ``__eq__`` on a class yourself,
+        ``attrs`` will deduce ``eq=False`` and won't create *neither*
+        ``__eq__`` *nor* ``__ne__`` (but Python classes come with a sensible
+        ``__ne__`` by default, so it *should* be enough to only implement
+        ``__eq__`` in most cases).
+
+        .. warning::
+
+           If you prevent ``attrs`` from creating the ordering methods for you
+           (``order=False``, e.g. by implementing ``__le__``), it becomes
+           *your* responsibility to make sure its ordering is sound. The best
+           way is to use the `functools.total_ordering` decorator.
+
+
+        Passing ``True`` or ``False`` to *init*, *repr*, *eq*, *order*,
+        *cmp*, or *hash* overrides whatever *auto_detect* would determine.
+
+        *auto_detect* requires Python 3. Setting it ``True`` on Python 2 raises
+        a `PythonTooOldError`.
+
     :param bool repr: Create a ``__repr__`` method with a human readable
         representation of ``attrs`` attributes..
     :param bool str: Create a ``__str__`` method that is identical to
@@ -891,8 +955,8 @@ def attrs(
 
     :param bool weakref_slot: Make instances weak-referenceable.  This has no
         effect unless ``slots`` is also enabled.
-    :param bool auto_attribs: If True, collect `PEP 526`_-annotated attributes
-        (Python 3.6 and later only) from the class body.
+    :param bool auto_attribs: If ``True``, collect `PEP 526`_-annotated
+        attributes (Python 3.6 and later only) from the class body.
 
         In this case, you **must** annotate every field.  If ``attrs``
         encounters a field that is set to an `attr.ib` but lacks a type
@@ -957,8 +1021,15 @@ def attrs(
     .. versionadded:: 19.1.0 *auto_exc*
     .. deprecated:: 19.2.0 *cmp* Removal on or after 2021-06-01.
     .. versionadded:: 19.2.0 *eq* and *order*
+    .. versionadded:: 20.1.0 *auto_detect*
     """
-    eq, order = _determine_eq_order(cmp, eq, order)
+    if auto_detect and PY2:
+        raise PythonTooOldError(
+            "auto_detect only works on Python 3 and later."
+        )
+
+    eq_, order_ = _determine_eq_order(cmp, eq, order, None)
+    hash_ = hash  # workaround the lack of nonlocal
 
     def wrap(cls):
 
@@ -978,16 +1049,31 @@ def attrs(
             cache_hash,
             is_exc,
         )
-
-        if repr is True:
+        if _determine_whether_to_implement(
+            cls, repr, auto_detect, ("__repr__",)
+        ):
             builder.add_repr(repr_ns)
         if str is True:
             builder.add_str()
-        if eq is True and not is_exc:
+
+        eq = _determine_whether_to_implement(
+            cls, eq_, auto_detect, ("__eq__", "__ne__")
+        )
+        if not is_exc and eq is True:
             builder.add_eq()
-        if order is True and not is_exc:
+        if not is_exc and _determine_whether_to_implement(
+            cls, order_, auto_detect, ("__lt__", "__le__", "__gt__", "__ge__")
+        ):
             builder.add_order()
 
+        if (
+            hash_ is None
+            and auto_detect is True
+            and _has_own_attribute(cls, "__hash__")
+        ):
+            hash = False
+        else:
+            hash = hash_
         if hash is not True and hash is not False and hash is not None:
             # Can't use `hash in` because 1 == True for example.
             raise TypeError(
@@ -1015,7 +1101,9 @@ def attrs(
                 )
             builder.make_unhashable()
 
-        if init is True:
+        if _determine_whether_to_implement(
+            cls, init, auto_detect, ("__init__",)
+        ):
             builder.add_init()
         else:
             if cache_hash:
@@ -1832,7 +1920,7 @@ class Attribute(object):
         eq=None,
         order=None,
     ):
-        eq, order = _determine_eq_order(cmp, eq, order)
+        eq, order = _determine_eq_order(cmp, eq, order, True)
 
         # Cache this descriptor here to speed things up later.
         bound_setattr = _obj_setattr.__get__(self, Attribute)
@@ -2178,7 +2266,10 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
         attributes_arguments["eq"],
         attributes_arguments["order"],
     ) = _determine_eq_order(
-        cmp, attributes_arguments.get("eq"), attributes_arguments.get("order")
+        cmp,
+        attributes_arguments.get("eq"),
+        attributes_arguments.get("order"),
+        True,
     )
 
     return _attrs(these=cls_dict, **attributes_arguments)(type_)
