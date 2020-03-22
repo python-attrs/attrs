@@ -14,7 +14,7 @@ Support
 In case you'd like to help out but don't want to deal with GitHub, there's a great opportunity:
 help your fellow developers on `StackOverflow <https://stackoverflow.com/questions/tagged/python-attrs>`_!
 
-The offical tag is ``python-attrs`` and helping out in support frees us up to improve ``attrs`` instead!
+The official tag is ``python-attrs`` and helping out in support frees us up to improve ``attrs`` instead!
 
 
 Workflow
