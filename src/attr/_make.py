@@ -412,15 +412,17 @@ def _transform_attrs(cls, these, auto_attribs, kw_only):
     # Traverse the MRO and collect attributes.
     for base_cls in cls.__mro__[1:-1]:
         sub_attrs = getattr(base_cls, "__attrs_attrs__", None)
-        if sub_attrs is not None:
-            for a in sub_attrs:
-                prev_a = taken_attr_names.get(a.name)
-                # Only add an attribute if it hasn't been defined before.  This
-                # allows for overwriting attribute definitions by subclassing.
-                if prev_a is None:
-                    base_attrs.append(a)
-                    taken_attr_names[a.name] = a
-                    base_attr_map[a.name] = base_cls
+        if sub_attrs is None:
+            continue
+
+        for a in sub_attrs:
+            prev_a = taken_attr_names.get(a.name)
+            # Only add an attribute if it hasn't been defined before.  This
+            # allows for overwriting attribute definitions by subclassing.
+            if prev_a is None:
+                base_attrs.append(a)
+                taken_attr_names[a.name] = a
+                base_attr_map[a.name] = base_cls
 
     attr_names = [a.name for a in base_attrs + own_attrs]
 
