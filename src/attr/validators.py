@@ -171,7 +171,8 @@ def provides(interface):
     performed using ``interface.providedBy(value)`` (see `zope.interface
     <https://zopeinterface.readthedocs.io/en/latest/>`_).
 
-    :param zope.interface.Interface interface: The interface to check for.
+    :param interface: The interface to check for.
+    :type interface: ``zope.interface.Interface``
 
     :raises TypeError: With a human readable error message, the attribute
         (of type `attr.Attribute`), the expected interface, and the

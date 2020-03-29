@@ -166,7 +166,6 @@ texinfo_documents = [
 
 intersphinx_mapping = {
     "https://docs.python.org/3": None,
-    "https://zopeinterface.readthedocs.io/en/latest/": None,
 }
 
 # Allow non-local URIs so we can have images in CHANGELOG etc.
