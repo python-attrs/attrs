@@ -302,7 +302,7 @@ class TestTransformAttrs(object):
 
     def test_multiple_inheritance_old(self):
         """
-        Old multiple inheritance behavior is retained.
+        Old multiple inheritance attributre collection behavior is retained.
 
         See #285
         """
@@ -339,7 +339,7 @@ class TestTransformAttrs(object):
 
     def test_multiple_inheritance_proper_mro(self):
         """
-        Multiple inheritance is handled according to the MRO.
+        Attributes are collected according to the MRO.
 
         See #428
         """
@@ -376,7 +376,9 @@ class TestTransformAttrs(object):
 
     def test_mro(self):
         """
-        #428
+        Attributes and methods are looked up the same way.
+
+        See #428
         """
 
         @attr.s
