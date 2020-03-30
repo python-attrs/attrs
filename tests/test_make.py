@@ -343,7 +343,6 @@ class TestTransformAttrs(object):
 
         See #428
         """
-        pytest.xfail("borken")
 
         @attr.s
         class A(object):
@@ -365,7 +364,7 @@ class TestTransformAttrs(object):
             d1 = attr.ib(default="d1")
             d2 = attr.ib(default="d2")
 
-        @attr.s
+        @attr.s(collect_by_mro=True)
         class E(C, D):
             e1 = attr.ib(default="e1")
             e2 = attr.ib(default="e2")
@@ -379,7 +378,6 @@ class TestTransformAttrs(object):
         """
         #428
         """
-        pytest.xfail("borken")
 
         @attr.s
         class A(object):
@@ -400,7 +398,7 @@ class TestTransformAttrs(object):
             def xx(self):
                 return 50
 
-        @attr.s
+        @attr.s(collect_by_mro=True)
         class D(B, C):
             pass
 
@@ -1410,7 +1408,7 @@ class TestClassBuilder(object):
             pass
 
         b = _ClassBuilder(
-            C, None, True, True, False, False, False, False, False
+            C, None, True, True, False, False, False, False, False, True
         )
 
         assert "<_ClassBuilder(cls=C)>" == repr(b)
@@ -1424,7 +1422,7 @@ class TestClassBuilder(object):
             x = attr.ib()
 
         b = _ClassBuilder(
-            C, None, True, True, False, False, False, False, False
+            C, None, True, True, False, False, False, False, False, True
         )
 
         cls = (
@@ -1499,6 +1497,7 @@ class TestClassBuilder(object):
             is_exc=False,
             kw_only=False,
             cache_hash=False,
+            collect_by_mro=True,
         )
         b._cls = {}  # no __module__; no __qualname__
 

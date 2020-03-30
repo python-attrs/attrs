@@ -398,14 +398,14 @@ def _collect_base_attrs_broken(cls, taken_attr_names):
     return base_attrs, base_attr_map
 
 
-def _transform_attrs(cls, these, auto_attribs, kw_only, correct_mro):
+def _transform_attrs(cls, these, auto_attribs, kw_only, collect_by_mro):
     """
     Transform all `_CountingAttr`s on a class into `Attribute`s.
 
     If *these* is passed, use that and don't look for them on the class.
 
-    *correct_mro* is True, collect them in the correct MRO order, otherwise use
-     the old -- incorrect -- order.  See #428.
+    *collect_by_mro* is True, collect them in the correct MRO order, otherwise
+     use the old -- incorrect -- order.  See #428.
 
     Return an `_Attributes`.
     """
@@ -463,7 +463,7 @@ def _transform_attrs(cls, these, auto_attribs, kw_only, correct_mro):
         for attr_name, ca in ca_list
     ]
 
-    if correct_mro:
+    if collect_by_mro:
         base_attrs, base_attr_map = _collect_base_attrs(
             cls, {a.name for a in own_attrs}
         )
@@ -546,9 +546,10 @@ class _ClassBuilder(object):
         kw_only,
         cache_hash,
         is_exc,
+        collect_by_mro,
     ):
         attrs, base_attrs, base_map = _transform_attrs(
-            cls, these, auto_attribs, kw_only, False
+            cls, these, auto_attribs, kw_only, collect_by_mro,
         )
 
         self._cls = cls
@@ -887,6 +888,7 @@ def attrs(
     eq=None,
     order=None,
     auto_detect=False,
+    collect_by_mro=False,
 ):
     r"""
     A class decorator that adds `dunder
@@ -1046,6 +1048,13 @@ def attrs(
           default value are additionally available as a tuple in the ``args``
           attribute,
         - the value of *str* is ignored leaving ``__str__`` to base classes.
+    :param bool collect_by_mro: Setting this to `True` fixes the way ``attrs``
+       collects attributes from base classes.  The default behavior is
+       incorrect in certain cases of multiple inheritance.  It should be on by
+       default but is kept off for backward-compatability.
+
+       See issue `#428 <https://github.com/python-attrs/attrs/issues/428>`_ for
+       more details.
 
     .. versionadded:: 16.0.0 *slots*
     .. versionadded:: 16.1.0 *frozen*
@@ -1072,6 +1081,7 @@ def attrs(
     .. deprecated:: 19.2.0 *cmp* Removal on or after 2021-06-01.
     .. versionadded:: 19.2.0 *eq* and *order*
     .. versionadded:: 20.1.0 *auto_detect*
+    .. versionadded:: 20.1.0 *collect_by_mro*
     """
     if auto_detect and PY2:
         raise PythonTooOldError(
@@ -1098,6 +1108,7 @@ def attrs(
             kw_only,
             cache_hash,
             is_exc,
+            collect_by_mro,
         )
         if _determine_whether_to_implement(
             cls, repr, auto_detect, ("__repr__",)
@@ -1931,12 +1942,16 @@ class Attribute(object):
     """
     *Read-only* representation of an attribute.
 
-    :attribute name: The name of the attribute.
+    :attribute ``name``: The name of the attribute.
+    :attribute ``inherited``: Whether or not that attribute has been inherited
+       from a base class.
 
     Plus *all* arguments of `attr.ib` (except for ``factory``
     which is only syntactic sugar for ``default=Factory(...)``.
 
-    For the version history of the fields, see `attr.ib`.
+    ..versionadded:: 20.1.0 *inherited*
+
+    For the full version history of the fields, see `attr.ib`.
     """
 
     __slots__ = (
