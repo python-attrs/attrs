@@ -405,7 +405,7 @@ def _transform_attrs(cls, these, auto_attribs, kw_only, collect_by_mro):
     If *these* is passed, use that and don't look for them on the class.
 
     *collect_by_mro* is True, collect them in the correct MRO order, otherwise
-     use the old -- incorrect -- order.  See #428.
+    use the old -- incorrect -- order.  See #428.
 
     Return an `_Attributes`.
     """
