@@ -343,11 +343,69 @@ def _counter_getter(e):
     return e[1].counter
 
 
-def _transform_attrs(cls, these, auto_attribs, kw_only):
+def _collect_base_attrs(cls, taken_attr_names):
+    """
+    Collect attr.ibs from base classes of *cls*, except *taken_attr_names*.
+    """
+    base_attrs = []
+    base_attr_map = {}  # A dictionary of base attrs to their classes.
+
+    # Traverse the MRO and collect attributes.
+    for base_cls in reversed(cls.__mro__[1:-1]):
+        for a in getattr(base_cls, "__attrs_attrs__", []):
+            if not a.inherited and a.name not in taken_attr_names:
+                a = a._assoc(inherited=True)
+                base_attrs.append(a)
+                base_attr_map[a.name] = base_cls
+
+    # For each name, only keep the freshest definition i.e. the furthest at the
+    # back.  base_attr_map is fine because it gets overwritten with every new
+    # instance.
+    filtered = []
+    seen = set()
+    for a in reversed(base_attrs):
+        if a.name in seen:
+            continue
+        filtered.insert(0, a)
+        seen.add(a.name)
+
+    return filtered, base_attr_map
+
+
+def _collect_base_attrs_broken(cls, taken_attr_names):
+    """
+    Collect attr.ibs from base classes of *cls*, except *taken_attr_names*.
+
+    N.B. *taken_attr_names* will be mutated.
+
+    Adhere to the old incorrect behavior.
+
+    Notably it collects from the front and considers inherited attributes which
+    leads to the buggy behavior reported in #428.
+    """
+    base_attrs = []
+    base_attr_map = {}  # A dictionary of base attrs to their classes.
+
+    # Traverse the MRO and collect attributes.
+    for base_cls in cls.__mro__[1:-1]:
+        for a in getattr(base_cls, "__attrs_attrs__", []):
+            if a.name not in taken_attr_names:
+                a = a._assoc(inherited=True)
+                taken_attr_names.add(a.name)
+                base_attrs.append(a)
+                base_attr_map[a.name] = base_cls
+
+    return base_attrs, base_attr_map
+
+
+def _transform_attrs(cls, these, auto_attribs, kw_only, correct_mro):
     """
     Transform all `_CountingAttr`s on a class into `Attribute`s.
 
     If *these* is passed, use that and don't look for them on the class.
+
+    *correct_mro* is True, collect them in the correct MRO order, otherwise use
+     the old -- incorrect -- order.  See #428.
 
     Return an `_Attributes`.
     """
@@ -405,24 +463,14 @@ def _transform_attrs(cls, these, auto_attribs, kw_only):
         for attr_name, ca in ca_list
     ]
 
-    base_attrs = []
-    base_attr_map = {}  # A dictionary of base attrs to their classes.
-    taken_attr_names = {a.name: a for a in own_attrs}
-
-    # Traverse the MRO and collect attributes.
-    for base_cls in cls.__mro__[1:-1]:
-        sub_attrs = getattr(base_cls, "__attrs_attrs__", None)
-        if sub_attrs is None:
-            continue
-
-        for a in sub_attrs:
-            prev_a = taken_attr_names.get(a.name)
-            # Only add an attribute if it hasn't been defined before.  This
-            # allows for overwriting attribute definitions by subclassing.
-            if prev_a is None:
-                base_attrs.append(a)
-                taken_attr_names[a.name] = a
-                base_attr_map[a.name] = base_cls
+    if correct_mro:
+        base_attrs, base_attr_map = _collect_base_attrs(
+            cls, {a.name for a in own_attrs}
+        )
+    else:
+        base_attrs, base_attr_map = _collect_base_attrs_broken(
+            cls, {a.name for a in own_attrs}
+        )
 
     attr_names = [a.name for a in base_attrs + own_attrs]
 
@@ -500,7 +548,7 @@ class _ClassBuilder(object):
         is_exc,
     ):
         attrs, base_attrs, base_map = _transform_attrs(
-            cls, these, auto_attribs, kw_only
+            cls, these, auto_attribs, kw_only, False
         )
 
         self._cls = cls
@@ -1904,6 +1952,7 @@ class Attribute(object):
         "type",
         "converter",
         "kw_only",
+        "inherited",
     )
 
     def __init__(
@@ -1915,6 +1964,7 @@ class Attribute(object):
         cmp,  # XXX: unused, remove along with other cmp code.
         hash,
         init,
+        inherited,
         metadata=None,
         type=None,
         converter=None,
@@ -1948,6 +1998,7 @@ class Attribute(object):
         )
         bound_setattr("type", type)
         bound_setattr("kw_only", kw_only)
+        bound_setattr("inherited", inherited)
 
     def __setattr__(self, name, value):
         raise FrozenInstanceError()
@@ -1970,6 +2021,7 @@ class Attribute(object):
                 "validator",
                 "default",
                 "type",
+                "inherited",
             )  # exclude methods and deprecated alias
         }
         return cls(
@@ -1978,6 +2030,7 @@ class Attribute(object):
             default=ca._default,
             type=type,
             cmp=None,
+            inherited=False,
             **inst_dict
         )
 
@@ -2042,6 +2095,7 @@ _a = [
         order=False,
         hash=(name != "metadata"),
         init=True,
+        inherited=False,
     )
     for name in Attribute.__slots__
 ]
@@ -2087,6 +2141,7 @@ class _CountingAttr(object):
             kw_only=False,
             eq=True,
             order=False,
+            inherited=False,
         )
         for name in (
             "counter",
@@ -2109,6 +2164,7 @@ class _CountingAttr(object):
             kw_only=False,
             eq=True,
             order=False,
+            inherited=False,
         ),
     )
     cls_counter = 0

@@ -167,7 +167,7 @@ class TestTransformAttrs(object):
         Does not attach __attrs_attrs__ to the class.
         """
         C = make_tc()
-        _transform_attrs(C, None, False, False)
+        _transform_attrs(C, None, False, False, True)
 
         assert None is getattr(C, "__attrs_attrs__", None)
 
@@ -176,7 +176,7 @@ class TestTransformAttrs(object):
         Transforms every `_CountingAttr` and leaves others (a) be.
         """
         C = make_tc()
-        attrs, _, _ = _transform_attrs(C, None, False, False)
+        attrs, _, _ = _transform_attrs(C, None, False, False, True)
 
         assert ["z", "y", "x"] == [a.name for a in attrs]
 
@@ -190,7 +190,7 @@ class TestTransformAttrs(object):
             pass
 
         assert _Attributes(((), [], {})) == _transform_attrs(
-            C, None, False, False
+            C, None, False, False, True
         )
 
     def test_transforms_to_attribute(self):
@@ -198,7 +198,7 @@ class TestTransformAttrs(object):
         All `_CountingAttr`s are transformed into `Attribute`s.
         """
         C = make_tc()
-        attrs, base_attrs, _ = _transform_attrs(C, None, False, False)
+        attrs, base_attrs, _ = _transform_attrs(C, None, False, False, True)
 
         assert [] == base_attrs
         assert 3 == len(attrs)
@@ -215,14 +215,14 @@ class TestTransformAttrs(object):
             y = attr.ib()
 
         with pytest.raises(ValueError) as e:
-            _transform_attrs(C, None, False, False)
+            _transform_attrs(C, None, False, False, True)
         assert (
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, repr=True, "
             "eq=True, order=True, hash=None, init=True, "
             "metadata=mappingproxy({}), type=None, converter=None, "
-            "kw_only=False)",
+            "kw_only=False, inherited=False)",
         ) == e.value.args
 
     def test_kw_only(self):
@@ -245,7 +245,7 @@ class TestTransformAttrs(object):
             x = attr.ib(default=None)
             y = attr.ib()
 
-        attrs, base_attrs, _ = _transform_attrs(C, None, False, True)
+        attrs, base_attrs, _ = _transform_attrs(C, None, False, True, True)
 
         assert len(attrs) == 3
         assert len(base_attrs) == 1
@@ -268,7 +268,7 @@ class TestTransformAttrs(object):
             y = attr.ib()
 
         attrs, base_attrs, _ = _transform_attrs(
-            C, {"x": attr.ib()}, False, False
+            C, {"x": attr.ib()}, False, False, True
         )
 
         assert [] == base_attrs
@@ -300,9 +300,9 @@ class TestTransformAttrs(object):
 
         assert "C(a=1, b=2)" == repr(C())
 
-    def test_multiple_inheritance(self):
+    def test_multiple_inheritance_old(self):
         """
-        Order of attributes doesn't get mixed up by multiple inheritance.
+        Old multiple inheritance behavior is retained.
 
         See #285
         """
@@ -336,6 +336,77 @@ class TestTransformAttrs(object):
             "E(a1='a1', a2='a2', b1='b1', b2='b2', c1='c1', c2='c2', d1='d1', "
             "d2='d2', e1='e1', e2='e2')"
         ) == repr(E())
+
+    def test_multiple_inheritance_proper_mro(self):
+        """
+        Multiple inheritance is handled according to the MRO.
+
+        See #428
+        """
+        pytest.xfail("borken")
+
+        @attr.s
+        class A(object):
+            a1 = attr.ib(default="a1")
+            a2 = attr.ib(default="a2")
+
+        @attr.s
+        class B(A):
+            b1 = attr.ib(default="b1")
+            b2 = attr.ib(default="b2")
+
+        @attr.s
+        class C(B, A):
+            c1 = attr.ib(default="c1")
+            c2 = attr.ib(default="c2")
+
+        @attr.s
+        class D(A):
+            d1 = attr.ib(default="d1")
+            d2 = attr.ib(default="d2")
+
+        @attr.s
+        class E(C, D):
+            e1 = attr.ib(default="e1")
+            e2 = attr.ib(default="e2")
+
+        assert (
+            "E(a1='a1', a2='a2', d1='d1', d2='d2', b1='b1', b2='b2', c1='c1', "
+            "c2='c2', e1='e1', e2='e2')"
+        ) == repr(E())
+
+    def test_mro(self):
+        """
+        #428
+        """
+        pytest.xfail("borken")
+
+        @attr.s
+        class A(object):
+
+            x = attr.ib(10)
+
+            def xx(self):
+                return 10
+
+        @attr.s
+        class B(A):
+            y = attr.ib(20)
+
+        @attr.s
+        class C(A):
+            x = attr.ib(50)
+
+            def xx(self):
+                return 50
+
+        @attr.s
+        class D(B, C):
+            pass
+
+        d = D()
+
+        assert d.x == d.xx()
 
 
 class TestAttributes(object):
