@@ -353,10 +353,11 @@ def _collect_base_attrs(cls, taken_attr_names):
     # Traverse the MRO and collect attributes.
     for base_cls in reversed(cls.__mro__[1:-1]):
         for a in getattr(base_cls, "__attrs_attrs__", []):
-            if not a.inherited and a.name not in taken_attr_names:
-                a = a._assoc(inherited=True)
-                base_attrs.append(a)
-                base_attr_map[a.name] = base_cls
+            if a.inherited or a.name in taken_attr_names:
+                continue
+            a = a._assoc(inherited=True)
+            base_attrs.append(a)
+            base_attr_map[a.name] = base_cls
 
     # For each name, only keep the freshest definition i.e. the furthest at the
     # back.  base_attr_map is fine because it gets overwritten with every new
