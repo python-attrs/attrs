@@ -355,6 +355,7 @@ def _collect_base_attrs(cls, taken_attr_names):
         for a in getattr(base_cls, "__attrs_attrs__", []):
             if a.inherited or a.name in taken_attr_names:
                 continue
+
             a = a._assoc(inherited=True)
             base_attrs.append(a)
             base_attr_map[a.name] = base_cls
@@ -390,11 +391,13 @@ def _collect_base_attrs_broken(cls, taken_attr_names):
     # Traverse the MRO and collect attributes.
     for base_cls in cls.__mro__[1:-1]:
         for a in getattr(base_cls, "__attrs_attrs__", []):
-            if a.name not in taken_attr_names:
-                a = a._assoc(inherited=True)
-                taken_attr_names.add(a.name)
-                base_attrs.append(a)
-                base_attr_map[a.name] = base_cls
+            if a.name in taken_attr_names:
+                continue
+
+            a = a._assoc(inherited=True)
+            taken_attr_names.add(a.name)
+            base_attrs.append(a)
+            base_attr_map[a.name] = base_cls
 
     return base_attrs, base_attr_map
 

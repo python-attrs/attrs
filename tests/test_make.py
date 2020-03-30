@@ -337,6 +337,21 @@ class TestTransformAttrs(object):
             "d2='d2', e1='e1', e2='e2')"
         ) == repr(E())
 
+    def test_overwrite_proper_mro(self):
+        """
+        The proper MRO path works single overwrites too.
+        """
+
+        @attr.s(collect_by_mro=True)
+        class C(object):
+            x = attr.ib(default=1)
+
+        @attr.s(collect_by_mro=True)
+        class D(C):
+            x = attr.ib(default=2)
+
+        assert "D(x=2)" == repr(D())
+
     def test_multiple_inheritance_proper_mro(self):
         """
         Attributes are collected according to the MRO.
