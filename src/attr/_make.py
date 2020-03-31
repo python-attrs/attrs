@@ -1946,14 +1946,14 @@ class Attribute(object):
     """
     *Read-only* representation of an attribute.
 
-    :attribute ``name``: The name of the attribute.
-    :attribute ``inherited``: Whether or not that attribute has been inherited
-       from a base class.
+    :attribute name: The name of the attribute.
+    :attribute inherited: Whether or not that attribute has been inherited from
+        a base class.
 
     Plus *all* arguments of `attr.ib` (except for ``factory``
     which is only syntactic sugar for ``default=Factory(...)``.
 
-    ..versionadded:: 20.1.0 *inherited*
+    .. versionadded:: 20.1.0 *inherited*
 
     For the full version history of the fields, see `attr.ib`.
     """
