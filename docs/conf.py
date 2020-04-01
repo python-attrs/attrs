@@ -92,18 +92,15 @@ pygments_style = "sphinx"
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 
-html_theme = "alabaster"
+html_theme = "sphinx_rtd_theme"
 html_theme_options = {
-    "font_family": '"Avenir Next", Calibri, "PT Sans", sans-serif',
-    "head_font_family": '"Avenir Next", Calibri, "PT Sans", sans-serif',
-    "font_size": "18px",
-    "page_width": "980px",
-    "show_relbars": True,
+    "canonical_url": "https://www.attrs.org/",
+    "logo_only": True,
 }
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = "_static/attrs_logo.svg"
+html_logo = "_static/attrs_logo_white.png"
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
@@ -169,7 +166,6 @@ texinfo_documents = [
 
 intersphinx_mapping = {
     "https://docs.python.org/3": None,
-    "https://zopeinterface.readthedocs.io/en/latest/": None,
 }
 
 # Allow non-local URIs so we can have images in CHANGELOG etc.

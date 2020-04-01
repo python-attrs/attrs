@@ -1,0 +1,87 @@
+---
+name: CI
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+  # Allow rebuilds via API.
+  repository_dispatch:
+    types: rebuild
+
+jobs:
+  tests:
+    name: "Python ${{ matrix.python-version }}"
+    runs-on: "ubuntu-latest"
+    env:
+      USING_COVERAGE: '2.7,3.7,3.8'
+
+    strategy:
+      matrix:
+        python-version: ["2.7", "3.5", "3.6", "3.7", "3.8", "pypy2", "pypy3"]
+
+    steps:
+      - uses: "actions/checkout@v2"
+      - uses: "actions/setup-python@v1"
+        with:
+          python-version: "${{ matrix.python-version }}"
+      - name: "Install dependencies"
+        run: |
+          set -xe
+          python -VV
+          python -m site
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install --upgrade coverage[toml] virtualenv tox tox-gh-actions
+
+      - name: "Run tox targets for ${{ matrix.python-version }}"
+        run: "python -m tox"
+
+      - name: "Combine coverage"
+        run: |
+          set -xe
+          python -m coverage combine
+          python -m coverage xml
+        if: "contains(env.USING_COVERAGE, matrix.python-version)"
+      - name: "Upload coverage to Codecov"
+        if: "contains(env.USING_COVERAGE, matrix.python-version)"
+        uses: "codecov/codecov-action@v1"
+        with:
+          fail_ci_if_error: true
+
+  package:
+    name: "Build & verify package"
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - uses: "actions/checkout@v2"
+      - uses: "actions/setup-python@v1"
+        with:
+          python-version: "3.8"
+
+      - name: "Install pep517 and twine"
+        run: "python -m pip install pep517 twine"
+      - name: "Build package"
+        run: "python -m pep517.build --source --binary ."
+      - name: "List result"
+        run: "ls -l dist"
+      - name: "Check long_description"
+        run: "python -m twine check dist/*"
+
+  install-dev:
+    strategy:
+      matrix:
+        os: ["ubuntu-latest", "windows-latest", "macos-latest"]
+
+    name: "Verify dev env"
+    runs-on: "${{ matrix.os }}"
+
+    steps:
+      - uses: "actions/checkout@v2"
+      - uses: "actions/setup-python@v1"
+        with:
+          python-version: "3.8"
+      - name: "Install in dev mode"
+        run: "python -m pip install -e .[dev]"
+      - name: "Import package"
+        run: "python -c 'import attr; print(attr.__version__)'"

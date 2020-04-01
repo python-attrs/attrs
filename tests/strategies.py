@@ -127,7 +127,7 @@ def simple_attrs_with_metadata(draw):
     keys = st.booleans() | st.binary() | st.integers() | st.text()
     vals = st.booleans() | st.binary() | st.integers() | st.text()
     metadata = draw(
-        st.dictionaries(keys=keys, values=vals, min_size=1, max_size=5)
+        st.dictionaries(keys=keys, values=vals, min_size=1, max_size=3)
     )
 
     return attr.ib(
@@ -147,7 +147,7 @@ def simple_attrs_with_metadata(draw):
 simple_attrs = simple_attrs_without_metadata | simple_attrs_with_metadata()
 
 # Python functions support up to 255 arguments.
-list_of_attrs = st.lists(simple_attrs, max_size=9)
+list_of_attrs = st.lists(simple_attrs, max_size=3)
 
 
 @st.composite
@@ -212,5 +212,5 @@ def simple_classes(
 # and a special function.  This function receives a strategy, and returns
 # another strategy (building on top of the base strategy).
 nested_classes = st.recursive(
-    simple_classes(), _create_hyp_nested_strategy, max_leaves=10
+    simple_classes(), _create_hyp_nested_strategy, max_leaves=3
 )

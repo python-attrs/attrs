@@ -1,0 +1,5 @@
+``attrs`` can now automatically detect your own implementations and infer ``init=False``, ``repr=False``, ``eq=False``, ``order=False``, and ``hash=False`` if you set ``@attr.s(auto_detect=True)``.
+``attrs`` will ignore inherited methods.
+If the argument implies more than one method (e.g. ``eq=True`` creates both ``__eq__`` and ``__ne__``), it's enough for *one* of them to exist and ``attrs`` will create *neither*.
+
+This feature requires Python 3.
