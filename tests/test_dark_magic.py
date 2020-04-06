@@ -131,6 +131,7 @@ class TestDarkMagic(object):
                 order=True,
                 hash=None,
                 init=True,
+                inherited=False,
             ),
             Attribute(
                 name="y",
@@ -142,6 +143,7 @@ class TestDarkMagic(object):
                 order=True,
                 hash=None,
                 init=True,
+                inherited=False,
             ),
         ) == attr.fields(cls)
 
@@ -199,6 +201,7 @@ class TestDarkMagic(object):
                 order=True,
                 hash=None,
                 init=True,
+                inherited=False,
             ),
             Attribute(
                 name="b",
@@ -210,6 +213,7 @@ class TestDarkMagic(object):
                 order=True,
                 hash=None,
                 init=True,
+                inherited=False,
             ),
         ) == attr.fields(PC)
 
