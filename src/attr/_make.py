@@ -546,6 +546,7 @@ class _ClassBuilder(object):
         slots,
         frozen,
         weakref_slot,
+        getstate_setstate,
         auto_attribs,
         kw_only,
         cache_hash,
@@ -575,6 +576,12 @@ class _ClassBuilder(object):
         if frozen:
             self._cls_dict["__setattr__"] = _frozen_setattrs
             self._cls_dict["__delattr__"] = _frozen_delattrs
+
+        if getstate_setstate:
+            (
+                self._cls_dict["__getstate__"],
+                self._cls_dict["__setstate__"],
+            ) = self._make_getstate_setstate()
 
     def __repr__(self):
         return "<_ClassBuilder(cls={cls})>".format(cls=self._cls.__name__)
@@ -657,37 +664,6 @@ class _ClassBuilder(object):
         if qualname is not None:
             cd["__qualname__"] = qualname
 
-        # __weakref__ is not writable.
-        state_attr_names = tuple(
-            an for an in self._attr_names if an != "__weakref__"
-        )
-
-        def slots_getstate(self):
-            """
-            Automatically created by attrs.
-            """
-            return tuple(getattr(self, name) for name in state_attr_names)
-
-        hash_caching_enabled = self._cache_hash
-
-        def slots_setstate(self, state):
-            """
-            Automatically created by attrs.
-            """
-            __bound_setattr = _obj_setattr.__get__(self, Attribute)
-            for name, value in zip(state_attr_names, state):
-                __bound_setattr(name, value)
-
-            # The hash code cache is not included when the object is
-            # serialized, but it still needs to be initialized to None to
-            # indicate that the first call to __hash__ should be a cache miss.
-            if hash_caching_enabled:
-                __bound_setattr(_hash_cache_field, None)
-
-        # slots and frozen require __getstate__/__setstate__ to work
-        cd["__getstate__"] = slots_getstate
-        cd["__setstate__"] = slots_setstate
-
         # Create new class based on old class and our methods.
         cls = type(self._cls)(self._cls.__name__, self._cls.__bases__, cd)
 
@@ -736,6 +712,40 @@ class _ClassBuilder(object):
 
         self._cls_dict["__str__"] = self._add_method_dunders(__str__)
         return self
+
+    def _make_getstate_setstate(self):
+        """
+        Create custom __setstate__ and __getstate__ methods.
+        """
+        # __weakref__ is not writable.
+        state_attr_names = tuple(
+            an for an in self._attr_names if an != "__weakref__"
+        )
+
+        def slots_getstate(self):
+            """
+            Automatically created by attrs.
+            """
+            return tuple(getattr(self, name) for name in state_attr_names)
+
+        hash_caching_enabled = self._cache_hash
+
+        def slots_setstate(self, state):
+            """
+            Automatically created by attrs.
+            """
+            __bound_setattr = _obj_setattr.__get__(self, Attribute)
+            for name, value in zip(state_attr_names, state):
+                __bound_setattr(name, value)
+
+            # The hash code cache is not included when the object is
+            # serialized, but it still needs to be initialized to None to
+            # indicate that the first call to __hash__ should be a cache
+            # miss.
+            if hash_caching_enabled:
+                __bound_setattr(_hash_cache_field, None)
+
+        return slots_getstate, slots_setstate
 
     def make_unhashable(self):
         self._cls_dict["__hash__"] = None
@@ -849,7 +859,9 @@ def _determine_eq_order(cmp, eq, order, default_eq):
     return eq, order
 
 
-def _determine_whether_to_implement(cls, flag, auto_detect, dunders):
+def _determine_whether_to_implement(
+    cls, flag, auto_detect, dunders, default=True
+):
     """
     Check whether we should implement a set of methods for *cls*.
 
@@ -857,20 +869,22 @@ def _determine_whether_to_implement(cls, flag, auto_detect, dunders):
     same as passed into @attr.s and *dunders* is a tuple of attribute names
     whose presence signal that the user has implemented it themselves.
 
+    Return *default* if no reason for either for or against is found.
+
     auto_detect must be False on Python 2.
     """
-    if flag is True or flag is None and auto_detect is False:
-        return True
+    if flag is True or flag is False:
+        return flag
 
-    if flag is False:
-        return False
+    if flag is None and auto_detect is False:
+        return default
 
     # Logically, flag is None and auto_detect is True here.
     for dunder in dunders:
         if _has_own_attribute(cls, dunder):
             return False
 
-    return True
+    return default
 
 
 def attrs(
@@ -893,6 +907,7 @@ def attrs(
     order=None,
     auto_detect=False,
     collect_by_mro=False,
+    getstate_setstate=None,
 ):
     r"""
     A class decorator that adds `dunder
@@ -1060,6 +1075,21 @@ def attrs(
        See issue `#428 <https://github.com/python-attrs/attrs/issues/428>`_ for
        more details.
 
+    :param Optional[bool] getstate_setstate:
+       .. note::
+          This is usually only interesting for slotted classes and you should
+          probably just set *auto_detect* to `True`.
+
+       If `True`, ``__getstate__`` and
+       ``__setstate__`` are generated and attached to the class. This is
+       necessary for slotted classes to be pickleable. If left `None`, it's
+       `True` by default for slotted classes and ``False`` for dict classes.
+
+       If *auto_detect* is `True`, and *getstate_setstate* is left `None`,
+       and **either** ``__getstate__`` or ``__setstate__`` is detected directly
+       on the class (i.e. not inherited), it is set to `False` (this is usually
+       what you want).
+
     .. versionadded:: 16.0.0 *slots*
     .. versionadded:: 16.1.0 *frozen*
     .. versionadded:: 16.3.0 *str*
@@ -1086,6 +1116,7 @@ def attrs(
     .. versionadded:: 19.2.0 *eq* and *order*
     .. versionadded:: 20.1.0 *auto_detect*
     .. versionadded:: 20.1.0 *collect_by_mro*
+    .. versionadded:: 20.1.0 *getstate_setstate*
     """
     if auto_detect and PY2:
         raise PythonTooOldError(
@@ -1093,7 +1124,7 @@ def attrs(
         )
 
     eq_, order_ = _determine_eq_order(cmp, eq, order, None)
-    hash_ = hash  # workaround the lack of nonlocal
+    hash_ = hash  # work around the lack of nonlocal
 
     def wrap(cls):
 
@@ -1108,6 +1139,13 @@ def attrs(
             slots,
             frozen,
             weakref_slot,
+            _determine_whether_to_implement(
+                cls,
+                getstate_setstate,
+                auto_detect,
+                ("__getstate__", "__setstate__"),
+                default=slots,
+            ),
             auto_attribs,
             kw_only,
             cache_hash,
