@@ -539,7 +539,7 @@ The generated ``__init__`` method will have an attribute called ``__annotations_
 Slots
 -----
 
-:term:`Slotted classes` have a bunch of advantages on CPython.
+:term:`Slotted classes <slotted classes>` have several advantages on CPython.
 Defining ``__slots__`` by hand is tedious, in ``attrs`` it's just a matter of passing ``slots=True``:
 
 .. doctest::
