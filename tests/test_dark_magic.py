@@ -425,7 +425,7 @@ class TestDarkMagic(object):
             pass
 
     @pytest.mark.parametrize("slots", [True, False])
-    def test_hash_false_cmp_false(self, slots):
+    def test_hash_false_eq_false(self, slots):
         """
         hash=False and eq=False make a class hashable by ID.
         """
