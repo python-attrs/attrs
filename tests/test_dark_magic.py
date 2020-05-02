@@ -436,6 +436,18 @@ class TestDarkMagic(object):
 
         assert hash(C()) != hash(C())
 
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_eq_false(self, slots):
+        """
+        eq=False makes a class hashable by ID.
+        """
+
+        @attr.s(eq=False, slots=slots)
+        class C(object):
+            pass
+
+        assert hash(C()) != hash(C())
+
     def test_overwrite_base(self):
         """
         Base classes can overwrite each other and the attributes are added
