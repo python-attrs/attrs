@@ -1425,7 +1425,7 @@ class TestClassBuilder(object):
             pass
 
         b = _ClassBuilder(
-            C, None, True, True, False, False, False, False, False, True
+            C, None, True, True, False, False, False, False, False, False, True
         )
 
         assert "<_ClassBuilder(cls=C)>" == repr(b)
@@ -1439,7 +1439,7 @@ class TestClassBuilder(object):
             x = attr.ib()
 
         b = _ClassBuilder(
-            C, None, True, True, False, False, False, False, False, True
+            C, None, True, True, False, False, False, False, False, False, True
         )
 
         cls = (
@@ -1510,6 +1510,7 @@ class TestClassBuilder(object):
             slots=False,
             frozen=False,
             weakref_slot=True,
+            getstate_setstate=False,
             auto_attribs=False,
             is_exc=False,
             kw_only=False,
@@ -2101,3 +2102,32 @@ class TestAutoDetect:
         assert c1 == c1
 
         assert c1.own_eq_called
+
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_detects_setstate_getstate(self, slots):
+        """
+        __getstate__ and __setstate__ are not overwritten if either is present.
+        """
+
+        @attr.s(slots=slots, auto_detect=True)
+        class C(object):
+            def __getstate__(self):
+                return ("hi",)
+
+        assert None is getattr(C(), "__setstate__", None)
+
+        @attr.s(slots=slots, auto_detect=True)
+        class C(object):
+            called = attr.ib(False)
+
+            def __setstate__(self, state):
+                self.called = True
+
+        i = C()
+
+        assert False is i.called
+
+        i.__setstate__(())
+
+        assert True is i.called
+        assert None is getattr(C(), "__getstate__", None)

@@ -1,0 +1,6 @@
+It is now possible to prevent ``attrs`` from auto-generating the ``__setstate__`` and ``__getstate__`` methods that are required for pickling of slotted classes.
+
+Either pass ``@attr.s(getstate_setstate=False)`` or pass ``@attr.s(auto_detect=True)`` and implement them yourself:
+if ``attrs`` finds either of the two methods directly on the decorated class, it assumes implicitly ``getstate_setstate=False`` (and implements neither).
+
+This option works with dict class but should never be necessary.
