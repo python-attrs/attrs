@@ -33,7 +33,7 @@ For that, it gives you a class decorator and a way to declaratively define the a
 
 .. -code-begin-
 
-.. code-block:: pycon
+.. code-block:: python
 
    >>> import attr
 
