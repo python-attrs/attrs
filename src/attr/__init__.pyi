@@ -36,6 +36,7 @@ __copyright__: str
 _T = TypeVar("_T")
 _C = TypeVar("_C", bound=type)
 
+_EqOrderType = Union[bool, Callable[[Any], Any]]
 _ValidatorType = Callable[[Any, Attribute[_T], _T], Any]
 _ConverterType = Callable[[Any], _T]
 _FilterType = Callable[[Attribute[_T], _T], bool]
@@ -65,9 +66,9 @@ class Attribute(Generic[_T]):
     default: Optional[_T]
     validator: Optional[_ValidatorType[_T]]
     repr: _ReprArgType
-    cmp: bool
-    eq: bool
-    order: bool
+    cmp: _EqOrderType
+    eq: _EqOrderType
+    order: _EqOrderType
     hash: Optional[bool]
     init: bool
     converter: Optional[_ConverterType[_T]]
@@ -103,7 +104,7 @@ def attrib(
     default: None = ...,
     validator: None = ...,
     repr: _ReprArgType = ...,
-    cmp: Optional[bool] = ...,
+    cmp: Optional[_EqOrderType] = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
     metadata: Optional[Mapping[Any, Any]] = ...,
@@ -111,8 +112,8 @@ def attrib(
     converter: None = ...,
     factory: None = ...,
     kw_only: bool = ...,
-    eq: Optional[bool] = ...,
-    order: Optional[bool] = ...,
+    eq: Optional[_EqOrderType] = ...,
+    order: Optional[_EqOrderType] = ...,
 ) -> Any: ...
 
 # This form catches an explicit None or no default and infers the type from the other arguments.
@@ -121,7 +122,7 @@ def attrib(
     default: None = ...,
     validator: Optional[_ValidatorArgType[_T]] = ...,
     repr: _ReprArgType = ...,
-    cmp: Optional[bool] = ...,
+    cmp: Optional[_EqOrderType] = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
     metadata: Optional[Mapping[Any, Any]] = ...,
@@ -129,8 +130,8 @@ def attrib(
     converter: Optional[_ConverterType[_T]] = ...,
     factory: Optional[Callable[[], _T]] = ...,
     kw_only: bool = ...,
-    eq: Optional[bool] = ...,
-    order: Optional[bool] = ...,
+    eq: Optional[_EqOrderType] = ...,
+    order: Optional[_EqOrderType] = ...,
 ) -> _T: ...
 
 # This form catches an explicit default argument.
@@ -139,7 +140,7 @@ def attrib(
     default: _T,
     validator: Optional[_ValidatorArgType[_T]] = ...,
     repr: _ReprArgType = ...,
-    cmp: Optional[bool] = ...,
+    cmp: Optional[_EqOrderType] = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
     metadata: Optional[Mapping[Any, Any]] = ...,
@@ -147,8 +148,8 @@ def attrib(
     converter: Optional[_ConverterType[_T]] = ...,
     factory: Optional[Callable[[], _T]] = ...,
     kw_only: bool = ...,
-    eq: Optional[bool] = ...,
-    order: Optional[bool] = ...,
+    eq: Optional[_EqOrderType] = ...,
+    order: Optional[_EqOrderType] = ...,
 ) -> _T: ...
 
 # This form covers type=non-Type: e.g. forward references (str), Any
@@ -157,7 +158,7 @@ def attrib(
     default: Optional[_T] = ...,
     validator: Optional[_ValidatorArgType[_T]] = ...,
     repr: _ReprArgType = ...,
-    cmp: Optional[bool] = ...,
+    cmp: Optional[_EqOrderType] = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
     metadata: Optional[Mapping[Any, Any]] = ...,
@@ -165,8 +166,8 @@ def attrib(
     converter: Optional[_ConverterType[_T]] = ...,
     factory: Optional[Callable[[], _T]] = ...,
     kw_only: bool = ...,
-    eq: Optional[bool] = ...,
-    order: Optional[bool] = ...,
+    eq: Optional[_EqOrderType] = ...,
+    order: Optional[_EqOrderType] = ...,
 ) -> Any: ...
 @overload
 def attrs(
@@ -174,7 +175,7 @@ def attrs(
     these: Optional[Dict[str, Any]] = ...,
     repr_ns: Optional[str] = ...,
     repr: bool = ...,
-    cmp: Optional[bool] = ...,
+    cmp: Optional[_EqOrderType] = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
     slots: bool = ...,
@@ -185,8 +186,8 @@ def attrs(
     kw_only: bool = ...,
     cache_hash: bool = ...,
     auto_exc: bool = ...,
-    eq: Optional[bool] = ...,
-    order: Optional[bool] = ...,
+    eq: Optional[_EqOrderType] = ...,
+    order: Optional[_EqOrderType] = ...,
     auto_detect: bool = ...,
     getstate_setstate: Optional[bool] = ...,
 ) -> _C: ...
@@ -196,7 +197,7 @@ def attrs(
     these: Optional[Dict[str, Any]] = ...,
     repr_ns: Optional[str] = ...,
     repr: bool = ...,
-    cmp: Optional[bool] = ...,
+    cmp: Optional[_EqOrderType] = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
     slots: bool = ...,
@@ -207,8 +208,8 @@ def attrs(
     kw_only: bool = ...,
     cache_hash: bool = ...,
     auto_exc: bool = ...,
-    eq: Optional[bool] = ...,
-    order: Optional[bool] = ...,
+    eq: Optional[_EqOrderType] = ...,
+    order: Optional[_EqOrderType] = ...,
     auto_detect: bool = ...,
     getstate_setstate: Optional[bool] = ...,
 ) -> Callable[[_C], _C]: ...
@@ -229,7 +230,7 @@ def make_class(
     bases: Tuple[type, ...] = ...,
     repr_ns: Optional[str] = ...,
     repr: bool = ...,
-    cmp: Optional[bool] = ...,
+    cmp: Optional[_EqOrderType] = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
     slots: bool = ...,
@@ -240,8 +241,8 @@ def make_class(
     kw_only: bool = ...,
     cache_hash: bool = ...,
     auto_exc: bool = ...,
-    eq: Optional[bool] = ...,
-    order: Optional[bool] = ...,
+    eq: Optional[_EqOrderType] = ...,
+    order: Optional[_EqOrderType] = ...,
 ) -> type: ...
 
 # _funcs --

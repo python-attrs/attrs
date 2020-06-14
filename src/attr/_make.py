@@ -163,13 +163,26 @@ def attrib(
         as-is, i.e. it will be used directly *instead* of calling ``repr()``
         (the default).
     :type repr: a `bool` or a `callable` to use a custom function.
-    :param bool eq: If ``True`` (default), include this attribute in the
+
+    :param eq: If ``True`` (default), include this attribute in the
         generated ``__eq__`` and ``__ne__`` methods that check two instances
-        for equality.
-    :param bool order: If ``True`` (default), include this attributes in the
+        for equality. To override how the attribute value is compared,
+        pass a ``callable`` that takes a single value and returns the value
+        to be compared.
+    :type eq: a `bool` or a `callable`.
+
+    :param order: If ``True`` (default), include this attributes in the
         generated ``__lt__``, ``__le__``, ``__gt__`` and ``__ge__`` methods.
-    :param bool cmp: Setting to ``True`` is equivalent to setting ``eq=True,
-        order=True``. Deprecated in favor of *eq* and *order*.
+        To override how the attribute value is ordered,
+        pass a ``callable`` that takes a single value and returns the value
+        to be ordered.
+    :type order: a `bool` or a `callable`.
+
+    :param cmp: Setting to ``True`` is equivalent to setting ``eq=True,
+        order=True``. Can also be set to a ``callable``.
+        Deprecated in favor of *eq* and *order*.
+    :type cmp: a `bool` or a `callable`.
+
     :param hash: Include this attribute in the generated ``__hash__``
         method.  If ``None`` (default), mirror *eq*'s value.  This is the
         correct behavior according the Python spec.  Setting this value to
@@ -213,12 +226,15 @@ def attrib(
     .. versionadded:: 18.1.0
        ``factory=f`` is syntactic sugar for ``default=attr.Factory(f)``.
     .. versionadded:: 18.2.0 *kw_only*
-    .. versionchanged:: 19.2.0 *convert* keyword argument removed
+    .. versionchanged:: 19.2.0 *convert* keyword argument removed.
     .. versionchanged:: 19.2.0 *repr* also accepts a custom callable.
     .. deprecated:: 19.2.0 *cmp* Removal on or after 2021-06-01.
     .. versionadded:: 19.2.0 *eq* and *order*
+    .. versionchanged:: 20.1.1 *eq* and *order* also accept a custom callable.
     """
-    eq, order = _determine_eq_order(cmp, eq, order, True)
+    eq, eq_key, order, order_key = _determine_attrib_eq_order(
+        cmp, eq, order, True
+    )
 
     if hash is not None and hash is not True and hash is not False:
         raise TypeError(
@@ -250,7 +266,9 @@ def attrib(
         type=type,
         kw_only=kw_only,
         eq=eq,
+        eq_key=eq_key,
         order=order,
+        order_key=order_key,
     )
 
 
@@ -830,8 +848,13 @@ _CMP_DEPRECATION = (
     "2021-06-01.  Please use `eq` and `order` instead."
 )
 
+_EQ_ORDER_CUSTOMIZATION = (
+    "You have customized the behaviour of `eq` but not of `order`.  "
+    "This is probably a bug."
+)
 
-def _determine_eq_order(cmp, eq, order, default_eq):
+
+def _determine_attrs_eq_order(cmp, eq, order, default_eq):
     """
     Validate the combination of *cmp*, *eq*, and *order*. Derive the effective
     values of eq and order.  If *eq* is None, set it to *default_eq*.
@@ -857,6 +880,52 @@ def _determine_eq_order(cmp, eq, order, default_eq):
         raise ValueError("`order` can only be True if `eq` is True too.")
 
     return eq, order
+
+
+def _determine_attrib_eq_order(cmp, eq, order, default_eq):
+    """
+    Validate the combination of *cmp*, *eq*, and *order*. Derive the effective
+    values of eq and order.  If *eq* is None, set it to *default_eq*.
+    """
+    if cmp is not None and any((eq is not None, order is not None)):
+        raise ValueError("Don't mix `cmp` with `eq' and `order`.")
+
+    def decide_callable_or_boolean(value):
+        """
+        Decide whether a key function is used.
+        """
+        if callable(value):
+            value, key = True, value
+        else:
+            key = None
+        return value, key
+
+    # cmp takes precedence due to bw-compatibility.
+    if cmp is not None:
+        warnings.warn(_CMP_DEPRECATION, DeprecationWarning, stacklevel=3)
+
+        cmp, cmp_key = decide_callable_or_boolean(cmp)
+        return cmp, cmp_key, cmp, cmp_key
+
+    # If left None, equality is set to the specified default and ordering
+    # mirrors equality.
+    if eq is None:
+        eq, eq_key = default_eq, None
+    else:
+        eq, eq_key = decide_callable_or_boolean(eq)
+
+    if order is None:
+        if eq_key is not None:
+            warnings.warn(_EQ_ORDER_CUSTOMIZATION, SyntaxWarning, stacklevel=3)
+
+        order, order_key = eq, eq_key
+    else:
+        order, order_key = decide_callable_or_boolean(order)
+
+    if eq is False and order is True:
+        raise ValueError("`order` can only be True if `eq` is True too.")
+
+    return eq, eq_key, order, order_key
 
 
 def _determine_whether_to_implement(
@@ -1123,7 +1192,7 @@ def attrs(
             "auto_detect only works on Python 3 and later."
         )
 
-    eq_, order_ = _determine_eq_order(cmp, eq, order, None)
+    eq_, order_ = _determine_attrs_eq_order(cmp, eq, order, None)
     hash_ = hash  # work around the lack of nonlocal
 
     def wrap(cls):
@@ -1254,13 +1323,6 @@ else:
         __setattr__.
         """
         return cls.__setattr__ == _frozen_setattrs
-
-
-def _attrs_to_tuple(obj, attrs):
-    """
-    Create a tuple of all values of *obj*'s *attrs*.
-    """
-    return tuple(getattr(obj, a.name) for a in attrs)
 
 
 def _generate_unique_filename(cls, func_name):
@@ -1412,24 +1474,33 @@ def _make_eq(cls, attrs):
         "    if other.__class__ is not self.__class__:",
         "        return NotImplemented",
     ]
+
     # We can't just do a big self.x = other.x and... clause due to
     # irregularities like nan == nan is false but (nan,) == (nan,) is true.
+    global_vars = {}
     if attrs:
         lines.append("    return  (")
         others = ["    ) == ("]
         for a in attrs:
-            lines.append("        self.%s," % (a.name,))
-            others.append("        other.%s," % (a.name,))
+            if a.eq_key:
+                cmp_name = "_%s_key" % (a.name,)
+                # Add the cmp class to the global namespace of the evaluated
+                # function, since local does not work in all python versions.
+                global_vars[cmp_name] = a.eq_key
+                lines.append("        %s(self.%s)," % (cmp_name, a.name,))
+                others.append("        %s(other.%s)," % (cmp_name, a.name,))
+            else:
+                lines.append("        self.%s," % (a.name,))
+                others.append("        other.%s," % (a.name,))
 
         lines += others + ["    )"]
     else:
         lines.append("    return True")
 
     script = "\n".join(lines)
-    globs = {}
-    locs = {}
+    local_vars = {}
     bytecode = compile(script, unique_filename, "exec")
-    eval(bytecode, globs, locs)
+    eval(bytecode, global_vars, local_vars)
 
     # In order of debuggers like PDB being able to step through the code,
     # we add a fake linecache entry.
@@ -1439,7 +1510,7 @@ def _make_eq(cls, attrs):
         script.splitlines(True),
         unique_filename,
     )
-    return locs["__eq__"]
+    return local_vars["__eq__"]
 
 
 def _make_order(cls, attrs):
@@ -1452,7 +1523,12 @@ def _make_order(cls, attrs):
         """
         Save us some typing.
         """
-        return _attrs_to_tuple(obj, attrs)
+        return tuple(
+            key(value) if key else value
+            for value, key in (
+                (getattr(obj, a.name), a.order_key) for a in attrs
+            )
+        )
 
     def __lt__(self, other):
         """
@@ -1582,6 +1658,9 @@ def _add_repr(cls, ns=None, attrs=None):
 def _make_init(
     cls, attrs, post_init, frozen, slots, cache_hash, base_attr_map, is_exc
 ):
+    """
+    Add an init method to *cls*.
+    """
     attrs = [a for a in attrs if a.init or a.default is not NOTHING]
 
     unique_filename = _generate_unique_filename(cls, "init")
@@ -1992,6 +2071,7 @@ class Attribute(object):
     which is only syntactic sugar for ``default=Factory(...)``.
 
     .. versionadded:: 20.1.0 *inherited*
+    .. versionadded:: 20.1.1 *eq_key* and *order_key*
 
     For the full version history of the fields, see `attr.ib`.
     """
@@ -2002,7 +2082,9 @@ class Attribute(object):
         "validator",
         "repr",
         "eq",
+        "eq_key",
         "order",
+        "order_key",
         "hash",
         "init",
         "metadata",
@@ -2027,9 +2109,13 @@ class Attribute(object):
         converter=None,
         kw_only=False,
         eq=None,
+        eq_key=None,
         order=None,
+        order_key=None,
     ):
-        eq, order = _determine_eq_order(cmp, eq, order, True)
+        eq, eq_key, order, order_key = _determine_attrib_eq_order(
+            cmp, eq_key or eq, order_key or order, True
+        )
 
         # Cache this descriptor here to speed things up later.
         bound_setattr = _obj_setattr.__get__(self, Attribute)
@@ -2041,7 +2127,9 @@ class Attribute(object):
         bound_setattr("validator", validator)
         bound_setattr("repr", repr)
         bound_setattr("eq", eq)
+        bound_setattr("eq_key", eq_key)
         bound_setattr("order", order)
+        bound_setattr("order_key", order_key)
         bound_setattr("hash", hash)
         bound_setattr("init", init)
         bound_setattr("converter", converter)
@@ -2149,7 +2237,9 @@ _a = [
         repr=True,
         cmp=None,
         eq=True,
+        # eq_key=None,
         order=False,
+        # order_key=None,
         hash=(name != "metadata"),
         init=True,
         inherited=False,
@@ -2177,7 +2267,9 @@ class _CountingAttr(object):
         "_default",
         "repr",
         "eq",
+        "eq_key",
         "order",
+        "order_key",
         "hash",
         "init",
         "metadata",
@@ -2197,7 +2289,9 @@ class _CountingAttr(object):
             init=True,
             kw_only=False,
             eq=True,
+            # eq_key=None,
             order=False,
+            # order_key=None,
             inherited=False,
         )
         for name in (
@@ -2220,7 +2314,9 @@ class _CountingAttr(object):
             init=True,
             kw_only=False,
             eq=True,
+            # eq_key=None,
             order=False,
+            # order_key=None,
             inherited=False,
         ),
     )
@@ -2239,7 +2335,9 @@ class _CountingAttr(object):
         type,
         kw_only,
         eq,
+        eq_key,
         order,
+        order_key,
     ):
         _CountingAttr.cls_counter += 1
         self.counter = _CountingAttr.cls_counter
@@ -2255,7 +2353,9 @@ class _CountingAttr(object):
             self.converter = converter
         self.repr = repr
         self.eq = eq
+        self.eq_key = eq_key
         self.order = order
+        self.order_key = order_key
         self.hash = hash
         self.init = init
         self.metadata = metadata
@@ -2380,7 +2480,7 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
     (
         attributes_arguments["eq"],
         attributes_arguments["order"],
-    ) = _determine_eq_order(
+    ) = _determine_attrs_eq_order(
         cmp,
         attributes_arguments.get("eq"),
         attributes_arguments.get("order"),

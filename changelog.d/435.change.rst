@@ -1,0 +1,4 @@
+Allow users to customize behaviour of ``eq`` and ``order`` by passing
+a ``callable`` instead of a ``boolean``.
+(`#435 <https://github.com/python-attrs/attrs/issues/435>`_).
+(`#624 <https://github.com/python-attrs/attrs/issues/624>`_).
