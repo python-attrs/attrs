@@ -230,7 +230,7 @@ def attrib(
     .. versionchanged:: 19.2.0 *repr* also accepts a custom callable.
     .. deprecated:: 19.2.0 *cmp* Removal on or after 2021-06-01.
     .. versionadded:: 19.2.0 *eq* and *order*
-    .. versionchanged:: 20.1.1 *eq* and *order* also accept a custom callable.
+    .. versionchanged:: 20.1.0 *eq* and *order* also accept a custom callable.
     """
     eq, eq_key, order, order_key = _determine_attrib_eq_order(
         cmp, eq, order, True
@@ -2071,7 +2071,7 @@ class Attribute(object):
     which is only syntactic sugar for ``default=Factory(...)``.
 
     .. versionadded:: 20.1.0 *inherited*
-    .. versionadded:: 20.1.1 *eq_key* and *order_key*
+    .. versionadded:: 20.1.0 *eq_key* and *order_key*
 
     For the full version history of the fields, see `attr.ib`.
     """
