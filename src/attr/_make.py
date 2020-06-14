@@ -343,11 +343,73 @@ def _counter_getter(e):
     return e[1].counter
 
 
-def _transform_attrs(cls, these, auto_attribs, kw_only):
+def _collect_base_attrs(cls, taken_attr_names):
+    """
+    Collect attr.ibs from base classes of *cls*, except *taken_attr_names*.
+    """
+    base_attrs = []
+    base_attr_map = {}  # A dictionary of base attrs to their classes.
+
+    # Traverse the MRO and collect attributes.
+    for base_cls in reversed(cls.__mro__[1:-1]):
+        for a in getattr(base_cls, "__attrs_attrs__", []):
+            if a.inherited or a.name in taken_attr_names:
+                continue
+
+            a = a._assoc(inherited=True)
+            base_attrs.append(a)
+            base_attr_map[a.name] = base_cls
+
+    # For each name, only keep the freshest definition i.e. the furthest at the
+    # back.  base_attr_map is fine because it gets overwritten with every new
+    # instance.
+    filtered = []
+    seen = set()
+    for a in reversed(base_attrs):
+        if a.name in seen:
+            continue
+        filtered.insert(0, a)
+        seen.add(a.name)
+
+    return filtered, base_attr_map
+
+
+def _collect_base_attrs_broken(cls, taken_attr_names):
+    """
+    Collect attr.ibs from base classes of *cls*, except *taken_attr_names*.
+
+    N.B. *taken_attr_names* will be mutated.
+
+    Adhere to the old incorrect behavior.
+
+    Notably it collects from the front and considers inherited attributes which
+    leads to the buggy behavior reported in #428.
+    """
+    base_attrs = []
+    base_attr_map = {}  # A dictionary of base attrs to their classes.
+
+    # Traverse the MRO and collect attributes.
+    for base_cls in cls.__mro__[1:-1]:
+        for a in getattr(base_cls, "__attrs_attrs__", []):
+            if a.name in taken_attr_names:
+                continue
+
+            a = a._assoc(inherited=True)
+            taken_attr_names.add(a.name)
+            base_attrs.append(a)
+            base_attr_map[a.name] = base_cls
+
+    return base_attrs, base_attr_map
+
+
+def _transform_attrs(cls, these, auto_attribs, kw_only, collect_by_mro):
     """
     Transform all `_CountingAttr`s on a class into `Attribute`s.
 
     If *these* is passed, use that and don't look for them on the class.
+
+    *collect_by_mro* is True, collect them in the correct MRO order, otherwise
+    use the old -- incorrect -- order.  See #428.
 
     Return an `_Attributes`.
     """
@@ -405,24 +467,14 @@ def _transform_attrs(cls, these, auto_attribs, kw_only):
         for attr_name, ca in ca_list
     ]
 
-    base_attrs = []
-    base_attr_map = {}  # A dictionary of base attrs to their classes.
-    taken_attr_names = {a.name: a for a in own_attrs}
-
-    # Traverse the MRO and collect attributes.
-    for base_cls in cls.__mro__[1:-1]:
-        sub_attrs = getattr(base_cls, "__attrs_attrs__", None)
-        if sub_attrs is None:
-            continue
-
-        for a in sub_attrs:
-            prev_a = taken_attr_names.get(a.name)
-            # Only add an attribute if it hasn't been defined before.  This
-            # allows for overwriting attribute definitions by subclassing.
-            if prev_a is None:
-                base_attrs.append(a)
-                taken_attr_names[a.name] = a
-                base_attr_map[a.name] = base_cls
+    if collect_by_mro:
+        base_attrs, base_attr_map = _collect_base_attrs(
+            cls, {a.name for a in own_attrs}
+        )
+    else:
+        base_attrs, base_attr_map = _collect_base_attrs_broken(
+            cls, {a.name for a in own_attrs}
+        )
 
     attr_names = [a.name for a in base_attrs + own_attrs]
 
@@ -494,13 +546,15 @@ class _ClassBuilder(object):
         slots,
         frozen,
         weakref_slot,
+        getstate_setstate,
         auto_attribs,
         kw_only,
         cache_hash,
         is_exc,
+        collect_by_mro,
     ):
         attrs, base_attrs, base_map = _transform_attrs(
-            cls, these, auto_attribs, kw_only
+            cls, these, auto_attribs, kw_only, collect_by_mro,
         )
 
         self._cls = cls
@@ -522,6 +576,12 @@ class _ClassBuilder(object):
         if frozen:
             self._cls_dict["__setattr__"] = _frozen_setattrs
             self._cls_dict["__delattr__"] = _frozen_delattrs
+
+        if getstate_setstate:
+            (
+                self._cls_dict["__getstate__"],
+                self._cls_dict["__setstate__"],
+            ) = self._make_getstate_setstate()
 
     def __repr__(self):
         return "<_ClassBuilder(cls={cls})>".format(cls=self._cls.__name__)
@@ -604,37 +664,6 @@ class _ClassBuilder(object):
         if qualname is not None:
             cd["__qualname__"] = qualname
 
-        # __weakref__ is not writable.
-        state_attr_names = tuple(
-            an for an in self._attr_names if an != "__weakref__"
-        )
-
-        def slots_getstate(self):
-            """
-            Automatically created by attrs.
-            """
-            return tuple(getattr(self, name) for name in state_attr_names)
-
-        hash_caching_enabled = self._cache_hash
-
-        def slots_setstate(self, state):
-            """
-            Automatically created by attrs.
-            """
-            __bound_setattr = _obj_setattr.__get__(self, Attribute)
-            for name, value in zip(state_attr_names, state):
-                __bound_setattr(name, value)
-
-            # The hash code cache is not included when the object is
-            # serialized, but it still needs to be initialized to None to
-            # indicate that the first call to __hash__ should be a cache miss.
-            if hash_caching_enabled:
-                __bound_setattr(_hash_cache_field, None)
-
-        # slots and frozen require __getstate__/__setstate__ to work
-        cd["__getstate__"] = slots_getstate
-        cd["__setstate__"] = slots_setstate
-
         # Create new class based on old class and our methods.
         cls = type(self._cls)(self._cls.__name__, self._cls.__bases__, cd)
 
@@ -683,6 +712,40 @@ class _ClassBuilder(object):
 
         self._cls_dict["__str__"] = self._add_method_dunders(__str__)
         return self
+
+    def _make_getstate_setstate(self):
+        """
+        Create custom __setstate__ and __getstate__ methods.
+        """
+        # __weakref__ is not writable.
+        state_attr_names = tuple(
+            an for an in self._attr_names if an != "__weakref__"
+        )
+
+        def slots_getstate(self):
+            """
+            Automatically created by attrs.
+            """
+            return tuple(getattr(self, name) for name in state_attr_names)
+
+        hash_caching_enabled = self._cache_hash
+
+        def slots_setstate(self, state):
+            """
+            Automatically created by attrs.
+            """
+            __bound_setattr = _obj_setattr.__get__(self, Attribute)
+            for name, value in zip(state_attr_names, state):
+                __bound_setattr(name, value)
+
+            # The hash code cache is not included when the object is
+            # serialized, but it still needs to be initialized to None to
+            # indicate that the first call to __hash__ should be a cache
+            # miss.
+            if hash_caching_enabled:
+                __bound_setattr(_hash_cache_field, None)
+
+        return slots_getstate, slots_setstate
 
     def make_unhashable(self):
         self._cls_dict["__hash__"] = None
@@ -796,7 +859,9 @@ def _determine_eq_order(cmp, eq, order, default_eq):
     return eq, order
 
 
-def _determine_whether_to_implement(cls, flag, auto_detect, dunders):
+def _determine_whether_to_implement(
+    cls, flag, auto_detect, dunders, default=True
+):
     """
     Check whether we should implement a set of methods for *cls*.
 
@@ -804,20 +869,22 @@ def _determine_whether_to_implement(cls, flag, auto_detect, dunders):
     same as passed into @attr.s and *dunders* is a tuple of attribute names
     whose presence signal that the user has implemented it themselves.
 
+    Return *default* if no reason for either for or against is found.
+
     auto_detect must be False on Python 2.
     """
-    if flag is True or flag is None and auto_detect is False:
-        return True
+    if flag is True or flag is False:
+        return flag
 
-    if flag is False:
-        return False
+    if flag is None and auto_detect is False:
+        return default
 
     # Logically, flag is None and auto_detect is True here.
     for dunder in dunders:
         if _has_own_attribute(cls, dunder):
             return False
 
-    return True
+    return default
 
 
 def attrs(
@@ -839,6 +906,8 @@ def attrs(
     eq=None,
     order=None,
     auto_detect=False,
+    collect_by_mro=False,
+    getstate_setstate=None,
 ):
     r"""
     A class decorator that adds `dunder
@@ -998,6 +1067,28 @@ def attrs(
           default value are additionally available as a tuple in the ``args``
           attribute,
         - the value of *str* is ignored leaving ``__str__`` to base classes.
+    :param bool collect_by_mro: Setting this to `True` fixes the way ``attrs``
+       collects attributes from base classes.  The default behavior is
+       incorrect in certain cases of multiple inheritance.  It should be on by
+       default but is kept off for backward-compatability.
+
+       See issue `#428 <https://github.com/python-attrs/attrs/issues/428>`_ for
+       more details.
+
+    :param Optional[bool] getstate_setstate:
+       .. note::
+          This is usually only interesting for slotted classes and you should
+          probably just set *auto_detect* to `True`.
+
+       If `True`, ``__getstate__`` and
+       ``__setstate__`` are generated and attached to the class. This is
+       necessary for slotted classes to be pickleable. If left `None`, it's
+       `True` by default for slotted classes and ``False`` for dict classes.
+
+       If *auto_detect* is `True`, and *getstate_setstate* is left `None`,
+       and **either** ``__getstate__`` or ``__setstate__`` is detected directly
+       on the class (i.e. not inherited), it is set to `False` (this is usually
+       what you want).
 
     .. versionadded:: 16.0.0 *slots*
     .. versionadded:: 16.1.0 *frozen*
@@ -1024,6 +1115,8 @@ def attrs(
     .. deprecated:: 19.2.0 *cmp* Removal on or after 2021-06-01.
     .. versionadded:: 19.2.0 *eq* and *order*
     .. versionadded:: 20.1.0 *auto_detect*
+    .. versionadded:: 20.1.0 *collect_by_mro*
+    .. versionadded:: 20.1.0 *getstate_setstate*
     """
     if auto_detect and PY2:
         raise PythonTooOldError(
@@ -1031,7 +1124,7 @@ def attrs(
         )
 
     eq_, order_ = _determine_eq_order(cmp, eq, order, None)
-    hash_ = hash  # workaround the lack of nonlocal
+    hash_ = hash  # work around the lack of nonlocal
 
     def wrap(cls):
 
@@ -1046,10 +1139,18 @@ def attrs(
             slots,
             frozen,
             weakref_slot,
+            _determine_whether_to_implement(
+                cls,
+                getstate_setstate,
+                auto_detect,
+                ("__getstate__", "__setstate__"),
+                default=slots,
+            ),
             auto_attribs,
             kw_only,
             cache_hash,
             is_exc,
+            collect_by_mro,
         )
         if _determine_whether_to_implement(
             cls, repr, auto_detect, ("__repr__",)
@@ -1884,11 +1985,15 @@ class Attribute(object):
     *Read-only* representation of an attribute.
 
     :attribute name: The name of the attribute.
+    :attribute inherited: Whether or not that attribute has been inherited from
+        a base class.
 
     Plus *all* arguments of `attr.ib` (except for ``factory``
     which is only syntactic sugar for ``default=Factory(...)``.
 
-    For the version history of the fields, see `attr.ib`.
+    .. versionadded:: 20.1.0 *inherited*
+
+    For the full version history of the fields, see `attr.ib`.
     """
 
     __slots__ = (
@@ -1904,6 +2009,7 @@ class Attribute(object):
         "type",
         "converter",
         "kw_only",
+        "inherited",
     )
 
     def __init__(
@@ -1915,6 +2021,7 @@ class Attribute(object):
         cmp,  # XXX: unused, remove along with other cmp code.
         hash,
         init,
+        inherited,
         metadata=None,
         type=None,
         converter=None,
@@ -1948,6 +2055,7 @@ class Attribute(object):
         )
         bound_setattr("type", type)
         bound_setattr("kw_only", kw_only)
+        bound_setattr("inherited", inherited)
 
     def __setattr__(self, name, value):
         raise FrozenInstanceError()
@@ -1970,6 +2078,7 @@ class Attribute(object):
                 "validator",
                 "default",
                 "type",
+                "inherited",
             )  # exclude methods and deprecated alias
         }
         return cls(
@@ -1978,6 +2087,7 @@ class Attribute(object):
             default=ca._default,
             type=type,
             cmp=None,
+            inherited=False,
             **inst_dict
         )
 
@@ -2042,6 +2152,7 @@ _a = [
         order=False,
         hash=(name != "metadata"),
         init=True,
+        inherited=False,
     )
     for name in Attribute.__slots__
 ]
@@ -2087,6 +2198,7 @@ class _CountingAttr(object):
             kw_only=False,
             eq=True,
             order=False,
+            inherited=False,
         )
         for name in (
             "counter",
@@ -2109,6 +2221,7 @@ class _CountingAttr(object):
             kw_only=False,
             eq=True,
             order=False,
+            inherited=False,
         ),
     )
     cls_counter = 0

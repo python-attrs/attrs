@@ -131,6 +131,7 @@ class TestDarkMagic(object):
                 order=True,
                 hash=None,
                 init=True,
+                inherited=False,
             ),
             Attribute(
                 name="y",
@@ -142,6 +143,7 @@ class TestDarkMagic(object):
                 order=True,
                 hash=None,
                 init=True,
+                inherited=False,
             ),
         ) == attr.fields(cls)
 
@@ -199,6 +201,7 @@ class TestDarkMagic(object):
                 order=True,
                 hash=None,
                 init=True,
+                inherited=False,
             ),
             Attribute(
                 name="b",
@@ -210,6 +213,7 @@ class TestDarkMagic(object):
                 order=True,
                 hash=None,
                 init=True,
+                inherited=False,
             ),
         ) == attr.fields(PC)
 
@@ -421,12 +425,24 @@ class TestDarkMagic(object):
             pass
 
     @pytest.mark.parametrize("slots", [True, False])
-    def test_hash_false_cmp_false(self, slots):
+    def test_hash_false_eq_false(self, slots):
         """
         hash=False and eq=False make a class hashable by ID.
         """
 
         @attr.s(hash=False, eq=False, slots=slots)
+        class C(object):
+            pass
+
+        assert hash(C()) != hash(C())
+
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_eq_false(self, slots):
+        """
+        eq=False makes a class hashable by ID.
+        """
+
+        @attr.s(eq=False, slots=slots)
         class C(object):
             pass
 
