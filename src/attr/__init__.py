@@ -67,4 +67,5 @@ __all__ = [
     "set_run_validators",
     "validate",
     "validators",
+    "ed",
 ]
