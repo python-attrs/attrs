@@ -8,6 +8,7 @@ def attred(**attrs):
 
     .. versionadded:: 20.1.0
     """
+
     def inner(callabl: Callable):
         for attr_name, attr_value in attrs.items():
             setattr(callabl, attr_name, attr_value)
