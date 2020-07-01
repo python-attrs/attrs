@@ -141,6 +141,21 @@ Core
       C(x=[1, 2, 3], y={1, 2, 3})
 
 
+.. autofunction:: attr.ed
+
+   It is a decorator. Takes any number of keyword arguments and applies those key-values to decorated callable
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.ed(verbose_name='make_request')
+      ... def mkreq(*args, **kwargs):
+      ...     ...
+      >>> mkreq.verbose_name
+      make_request
+
+
 Exceptions
 ----------
 
