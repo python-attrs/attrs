@@ -283,6 +283,31 @@ Other times, all you want is a tuple and ``attrs`` won't let you down:
    True
 
 
+Attred
+------
+
+Sometimes you want to set some attributes on function, for example, when working with django admin.
+You normally do something like this:
+
+.. doctest::
+
+   >>> def full_name(user):
+   ...     return "{} {}".format(user.first_name, user.last_name)
+   >>> full_name.short_description = "Full Name"
+
+And here is the way you can do it with attr.ed:
+
+.. doctest::
+
+   >>> @attr.ed(short_description="Full Name")
+   ... def full_name(user):
+   ...     return "{} {}".format(user.first_name, user.last_name)
+
+The result is the same.
+
+Attr.ed also works on classes (also affects their instances), methods, etc.
+
+
 Defaults
 --------
 

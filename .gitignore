@@ -11,3 +11,4 @@ dist
 docs/_build/
 htmlcov
 pip-wheel-metadata
+venv/
