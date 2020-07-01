@@ -17,6 +17,7 @@ from ._make import (
     validate,
 )
 from ._version_info import VersionInfo
+from .attred import attred
 
 
 __version__ = "20.1.0.dev0"
@@ -37,6 +38,7 @@ __copyright__ = "Copyright (c) 2015 Hynek Schlawack"
 
 s = attributes = attrs
 ib = attr = attrib
+ed = attred
 dataclass = partial(attrs, auto_attribs=True)  # happy Easter ;)
 
 
