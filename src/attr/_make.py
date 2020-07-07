@@ -1659,7 +1659,7 @@ def _make_init(
     cls, attrs, post_init, frozen, slots, cache_hash, base_attr_map, is_exc
 ):
     """
-    Add an init method to *cls*.
+    Make an init method for *cls*.
     """
     attrs = [a for a in attrs if a.init or a.default is not NOTHING]
 
