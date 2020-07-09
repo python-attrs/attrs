@@ -24,7 +24,7 @@ Core
 
 .. autodata:: attr.NOTHING
 
-.. autofunction:: attr.s(these=None, repr_ns=None, repr=None, cmp=None, hash=None, init=None, slots=False, frozen=False, weakref_slot=True, str=False, auto_attribs=False, kw_only=False, cache_hash=False, auto_exc=False, eq=None, order=None, auto_detect=False, collect_by_mro=False, getstate_setstate=None, on_setattr=None)
+.. autofunction:: attr.s(these=None, repr_ns=None, repr=None, cmp=None, hash=None, init=None, slots=False, frozen=False, weakref_slot=True, str=False, auto_attribs=False, kw_only=False, cache_hash=False, auto_exc=False, eq=None, order=None, auto_detect=False, collect_by_mro=False, getstate_setstate=None, on_setattr=None, field_transformer=None)
 
    .. note::
 
@@ -93,11 +93,7 @@ Core
       ValueError: x must be positive
 
 .. autoclass:: attr.Attribute
-
-   Instances of this class are frequently used for introspection purposes like:
-
-   - `fields` returns a tuple of them.
-   - Validators get them passed as the first argument.
+   :members: assoc
 
    .. warning::
 
