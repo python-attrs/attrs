@@ -67,7 +67,7 @@ def instance_of(type):
     return _InstanceOfValidator(type)
 
 
-@attrs(repr=False, frozen=True)
+@attrs(repr=False, frozen=True, slots=True)
 class _MatchesReValidator(object):
     regex = attrib()
     flags = attrib()
