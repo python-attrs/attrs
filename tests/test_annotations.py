@@ -353,7 +353,7 @@ class TestAnnotations:
         @attr.s(slots=slots, auto_attribs=True)
         class A:
             a: "A"
-            b: typing.Optional["A"]  # noqa: We will resolve this missing symbol below.
+            b: typing.Optional["A"]  # noqa: will resolve below
 
         assert "A" == attr.fields(A).a.type
         assert typing.Optional["A"] == attr.fields(A).b.type
@@ -371,7 +371,7 @@ class TestAnnotations:
 
         @attr.s(slots=slots, auto_attribs=True)
         class A:
-            a: typing.List["B"]  # noqa: We will resolve this missing symbol below.
+            a: typing.List["B"]  # noqa: will resolve below
 
         @attr.s(slots=slots, auto_attribs=True)
         class B:
