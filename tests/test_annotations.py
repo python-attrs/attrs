@@ -337,6 +337,7 @@ class TestAnnotations:
         assert "typing.List[int]" == attr.fields(A).c.type
 
         # Note: I don't have to pass globals and locals here because
+        # int is a builtin and will be available in any scope.
         attr.resolve_types(A)
 
         assert typing.List[int] == attr.fields(A).a.type
@@ -352,7 +353,7 @@ class TestAnnotations:
         @attr.s(slots=slots, auto_attribs=True)
         class A:
             a: "A"
-            b: typing.Optional["A"]
+            b: typing.Optional["A"]  # noqa: We will resolve this missing symbol below.
 
         assert "A" == attr.fields(A).a.type
         assert typing.Optional["A"] == attr.fields(A).b.type
@@ -370,7 +371,7 @@ class TestAnnotations:
 
         @attr.s(slots=slots, auto_attribs=True)
         class A:
-            a: typing.List["B"]
+            a: typing.List["B"]  # noqa: We will resolve this missing symbol below.
 
         @attr.s(slots=slots, auto_attribs=True)
         class B:

@@ -265,7 +265,7 @@ Helpers
         ...     a: A
         ...
         >>> attr.fields(A).a.type
-        typing.List[_ForwardRef('A')]
+        typing.List[ForwardRef('A')]
         >>> attr.fields(A).b.type
         'B'
         >>> attr.resolve_types(A, globals(), locals())
