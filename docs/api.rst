@@ -531,7 +531,7 @@ These are helpers that you can use together with `attr.s`'s and `attr.ib`'s ``on
 .. autofunction:: attr.setters.validate
 .. autofunction:: attr.setters.convert
 .. autofunction:: attr.setters.pipe
-.. autodata:: attr.setters.DISABLE
+.. autodata:: attr.setters.NO_OP
 
    For example, only ``x`` is frozen here:
 
@@ -540,7 +540,7 @@ These are helpers that you can use together with `attr.s`'s and `attr.ib`'s ``on
      >>> @attr.s(on_setattr=attr.setters.frozen)
      ... class C(object):
      ...     x = attr.ib()
-     ...     y = attr.ib(on_setattr=attr.setters.DISABLE)
+     ...     y = attr.ib(on_setattr=attr.setters.NO_OP)
      >>> c = C(1, 2)
      >>> c.y = 3
      >>> c.y

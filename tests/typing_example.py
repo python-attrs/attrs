@@ -189,7 +189,7 @@ class OrderFlags:
 @attr.s(on_setattr=attr.setters.validate)
 class ValidatedSetter:
     a = attr.ib()
-    b = attr.ib(on_setattr=attr.setters.DISABLE)
+    b = attr.ib(on_setattr=attr.setters.NO_OP)
     c = attr.ib(on_setattr=attr.setters.frozen)
     d = attr.ib(on_setattr=[attr.setters.convert, attr.setters.validate])
     d = attr.ib(

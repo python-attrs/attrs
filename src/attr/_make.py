@@ -203,10 +203,10 @@ def attrib(
         parameter is ignored).
     :param on_setattr: Allows to overwrite the *on_setattr* setting from
         `attr.s`. If left `None`, the *on_setattr* value from `attr.s` is used.
-        Set to `attr.setters.DISABLE` to run **no** `setattr` hooks for this
+        Set to `attr.setters.NO_OP` to run **no** `setattr` hooks for this
         attribute -- regardless of the setting in `attr.s`.
     :type on_setattr: `callable`, or a list of callables, or `None`, or
-        `attr.setters.DISABLE`
+        `attr.setters.NO_OP`
 
     .. versionadded:: 15.2.0 *convert*
     .. versionadded:: 16.3.0 *metadata*
@@ -797,7 +797,7 @@ class _ClassBuilder(object):
                 self._base_attr_map,
                 self._is_exc,
                 self._on_setattr is not None
-                and self._on_setattr is not setters.DISABLE,
+                and self._on_setattr is not setters.NO_OP,
             )
         )
 
@@ -830,7 +830,7 @@ class _ClassBuilder(object):
         sa_attrs = {}
         for a in self._attrs:
             on_setattr = a.on_setattr or self._on_setattr
-            if on_setattr and on_setattr is not setters.DISABLE:
+            if on_setattr and on_setattr is not setters.NO_OP:
                 sa_attrs[a.name] = a, on_setattr
 
         if not sa_attrs:
@@ -1765,7 +1765,7 @@ def _make_init(
 
             needs_cached_setattr = True
         elif (
-            has_global_on_setattr and a.on_setattr is not setters.DISABLE
+            has_global_on_setattr and a.on_setattr is not setters.NO_OP
         ) or _is_slot_attr(a.name, base_attr_map):
             needs_cached_setattr = True
 
@@ -1932,7 +1932,7 @@ def _attrs_to_init_script(
 
         attr_name = a.name
         has_on_setattr = a.on_setattr is not None or (
-            a.on_setattr is not setters.DISABLE and has_global_on_setattr
+            a.on_setattr is not setters.NO_OP and has_global_on_setattr
         )
         arg_name = a.name.lstrip("_")
 

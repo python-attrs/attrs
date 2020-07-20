@@ -67,7 +67,7 @@ def convert(instance, attrib, new_value):
     return new_value
 
 
-DISABLE = object()
+NO_OP = object()
 """
 Sentinel for disabling class-wide *on_setattr* hooks for certain attributes.
 
