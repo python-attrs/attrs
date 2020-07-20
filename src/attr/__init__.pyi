@@ -46,16 +46,17 @@ _OnSetAttrType = Callable[[Any, Attribute[Any], Any], Any]
 _OnSetAttrArgType = Union[
     _OnSetAttrType, List[_OnSetAttrType], setters._NoOpType
 ]
-# FIXME: in reality, if multiple validators are passed they must be in a list or tuple,
-# but those are invariant and so would prevent subtypes of _ValidatorType from working
-# when passed in a list or tuple.
+# FIXME: in reality, if multiple validators are passed they must be in a list
+# or tuple, but those are invariant and so would prevent subtypes of
+# _ValidatorType from working when passed in a list or tuple.
 _ValidatorArgType = Union[_ValidatorType[_T], Sequence[_ValidatorType[_T]]]
 
 # _make --
 
 NOTHING: object
 
-# NOTE: Factory lies about its return type to make this possible: `x: List[int] = Factory(list)`
+# NOTE: Factory lies about its return type to make this possible:
+# `x: List[int] # = Factory(list)`
 # Work around mypy issue #4554 in the common case by using an overload.
 @overload
 def Factory(factory: Callable[[], _T]) -> _T: ...
@@ -84,8 +85,8 @@ class Attribute(Generic[_T]):
 # NOTE: We had several choices for the annotation to use for type arg:
 # 1) Type[_T]
 #   - Pros: Handles simple cases correctly
-#   - Cons: Might produce less informative errors in the case of conflicting TypeVars
-#   e.g. `attr.ib(default='bad', type=int)`
+#   - Cons: Might produce less informative errors in the case of conflicting
+#     TypeVars e.g. `attr.ib(default='bad', type=int)`
 # 2) Callable[..., _T]
 #   - Pros: Better error messages than #1 for conflicting TypeVars
 #   - Cons: Terrible error messages for validator checks.
@@ -103,7 +104,8 @@ class Attribute(Generic[_T]):
 # This makes this type of assignments possible:
 #     x: int = attr(8)
 #
-# This form catches explicit None or no default but with no other arguments returns Any.
+# This form catches explicit None or no default but with no other arguments
+# returns Any.
 @overload
 def attrib(
     default: None = ...,
@@ -122,7 +124,8 @@ def attrib(
     on_setattr: Optional[_OnSetAttrArgType] = ...,
 ) -> Any: ...
 
-# This form catches an explicit None or no default and infers the type from the other arguments.
+# This form catches an explicit None or no default and infers the type from the
+# other arguments.
 @overload
 def attrib(
     default: None = ...,
@@ -234,7 +237,8 @@ def fields_dict(cls: type) -> Dict[str, Attribute[Any]]: ...
 def validate(inst: Any) -> None: ...
 
 # TODO: add support for returning a proper attrs class from the mypy plugin
-# we use Any instead of _CountingAttr so that e.g. `make_class('Foo', [attr.ib()])` is valid
+# we use Any instead of _CountingAttr so that e.g. `make_class('Foo',
+# [attr.ib()])` is valid
 def make_class(
     name: str,
     attrs: Union[List[str], Tuple[str, ...], Dict[str, Any]],
@@ -260,7 +264,8 @@ def make_class(
 # _funcs --
 
 # TODO: add support for returning TypedDict from the mypy plugin
-# FIXME: asdict/astuple do not honor their factory args.  waiting on one of these:
+# FIXME: asdict/astuple do not honor their factory args. Waiting on one of
+# these:
 # https://github.com/python/mypy/issues/4236
 # https://github.com/python/typing/issues/253
 def asdict(
