@@ -74,6 +74,19 @@ At the moment, the best workaround is to hold your nose, write a fake mypy plugi
       return MyPlugin
 
 
+Then tell mypy about your plugin usin your project's ``mypy.ini``:
+
+.. code:: ini
+
+   [mypy]
+   plugins=<path to file>
+
+
+.. warning::
+   Please note that it is currently *impossible* to let mypy know that you've changed defaults like *eq* or *order*.
+   You can only use this trick to tell mypy that a class is actually an ``attrs`` class.
+
+
 Types
 -----
 
