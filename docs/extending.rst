@@ -44,6 +44,48 @@ A more elegant way can be to wrap ``attrs`` altogether and build a class `DSL <h
 
 An example for that is the package `environ-config <https://github.com/hynek/environ-config>`_ that uses ``attrs`` under the hood to define environment-based configurations declaratively without exposing ``attrs`` APIs at all.
 
+Another common use case is to overwrite ``attrs``'s defaults.
+
+Unfortunately, this currently `confuses <https://github.com/python/mypy/issues/5406>`_ mypy's ``attrs`` plugin.
+At the moment, the best workaround is to hold your nose, write a fake mypy plugin, and mutate a bunch of global variables::
+
+   from mypy.plugin import Plugin
+   from mypy.plugins.attrs import (
+      attr_attrib_makers,
+      attr_class_makers,
+      attr_dataclass_makers,
+   )
+
+   # These work just like `attr.dataclass`.
+   attr_dataclass_makers.add("my_module.method_looks_like_attr_dataclass")
+
+   # This works just like `attr.s`.
+   attr_class_makers.add("my_module.method_looks_like_attr_s")
+
+   # These are our `attr.ib` makers.
+   attr_attrib_makers.add("my_module.method_looks_like_attrib")
+
+   class MyPlugin(Plugin):
+      # Our plugin does nothing but it has to exist so this file gets loaded.
+      pass
+
+
+   def plugin(version):
+      return MyPlugin
+
+
+Then tell mypy about your plugin usin your project's ``mypy.ini``:
+
+.. code:: ini
+
+   [mypy]
+   plugins=<path to file>
+
+
+.. warning::
+   Please note that it is currently *impossible* to let mypy know that you've changed defaults like *eq* or *order*.
+   You can only use this trick to tell mypy that a class is actually an ``attrs`` class.
+
 
 Types
 -----
