@@ -38,7 +38,7 @@ _T = TypeVar("_T")
 _C = TypeVar("_C", bound=type)
 
 _ValidatorType = Callable[[Any, Attribute[_T], _T], Any]
-_ConverterType = Callable[[Any], _T]
+_ConverterType = Callable[[Any], Any]
 _FilterType = Callable[[Attribute[_T], _T], bool]
 _ReprType = Callable[[Any], str]
 _ReprArgType = Union[bool, _ReprType]
@@ -76,7 +76,7 @@ class Attribute(Generic[_T]):
     order: bool
     hash: Optional[bool]
     init: bool
-    converter: Optional[_ConverterType[_T]]
+    converter: Optional[_ConverterType]
     metadata: Dict[Any, Any]
     type: Optional[Type[_T]]
     kw_only: bool
@@ -136,7 +136,7 @@ def attrib(
     init: bool = ...,
     metadata: Optional[Mapping[Any, Any]] = ...,
     type: Optional[Type[_T]] = ...,
-    converter: Optional[_ConverterType[_T]] = ...,
+    converter: Optional[_ConverterType] = ...,
     factory: Optional[Callable[[], _T]] = ...,
     kw_only: bool = ...,
     eq: Optional[bool] = ...,
@@ -155,7 +155,7 @@ def attrib(
     init: bool = ...,
     metadata: Optional[Mapping[Any, Any]] = ...,
     type: Optional[Type[_T]] = ...,
-    converter: Optional[_ConverterType[_T]] = ...,
+    converter: Optional[_ConverterType] = ...,
     factory: Optional[Callable[[], _T]] = ...,
     kw_only: bool = ...,
     eq: Optional[bool] = ...,
@@ -174,7 +174,7 @@ def attrib(
     init: bool = ...,
     metadata: Optional[Mapping[Any, Any]] = ...,
     type: object = ...,
-    converter: Optional[_ConverterType[_T]] = ...,
+    converter: Optional[_ConverterType] = ...,
     factory: Optional[Callable[[], _T]] = ...,
     kw_only: bool = ...,
     eq: Optional[bool] = ...,
