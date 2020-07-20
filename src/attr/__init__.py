@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 from functools import partial
 
-from . import converters, exceptions, filters, validators
+from . import converters, exceptions, filters, setters, validators
 from ._config import get_run_validators, set_run_validators
 from ._funcs import asdict, assoc, astuple, evolve, has
 from ._make import (
@@ -63,6 +63,7 @@ __all__ = [
     "make_class",
     "s",
     "set_run_validators",
+    "setters",
     "validate",
     "validators",
 ]

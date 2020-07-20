@@ -18,6 +18,7 @@ from typing import (
 from . import exceptions as exceptions
 from . import filters as filters
 from . import converters as converters
+from . import setters as setters
 from . import validators as validators
 
 from ._version_info import VersionInfo
@@ -41,6 +42,10 @@ _ConverterType = Callable[[Any], _T]
 _FilterType = Callable[[Attribute[_T], _T], bool]
 _ReprType = Callable[[Any], str]
 _ReprArgType = Union[bool, _ReprType]
+_OnSetAttrType = Callable[[Any, Attribute[Any], Any], Any]
+_OnSetAttrArgType = Union[
+    _OnSetAttrType, List[_OnSetAttrType], setters._NoOpType
+]
 # FIXME: in reality, if multiple validators are passed they must be in a list or tuple,
 # but those are invariant and so would prevent subtypes of _ValidatorType from working
 # when passed in a list or tuple.
@@ -74,6 +79,7 @@ class Attribute(Generic[_T]):
     metadata: Dict[Any, Any]
     type: Optional[Type[_T]]
     kw_only: bool
+    on_setattr: _OnSetAttrType
 
 # NOTE: We had several choices for the annotation to use for type arg:
 # 1) Type[_T]
@@ -113,6 +119,7 @@ def attrib(
     kw_only: bool = ...,
     eq: Optional[bool] = ...,
     order: Optional[bool] = ...,
+    on_setattr: Optional[_OnSetAttrArgType] = ...,
 ) -> Any: ...
 
 # This form catches an explicit None or no default and infers the type from the other arguments.
@@ -131,6 +138,7 @@ def attrib(
     kw_only: bool = ...,
     eq: Optional[bool] = ...,
     order: Optional[bool] = ...,
+    on_setattr: Optional[_OnSetAttrArgType] = ...,
 ) -> _T: ...
 
 # This form catches an explicit default argument.
@@ -149,6 +157,7 @@ def attrib(
     kw_only: bool = ...,
     eq: Optional[bool] = ...,
     order: Optional[bool] = ...,
+    on_setattr: Optional[_OnSetAttrArgType] = ...,
 ) -> _T: ...
 
 # This form covers type=non-Type: e.g. forward references (str), Any
@@ -167,6 +176,7 @@ def attrib(
     kw_only: bool = ...,
     eq: Optional[bool] = ...,
     order: Optional[bool] = ...,
+    on_setattr: Optional[_OnSetAttrArgType] = ...,
 ) -> Any: ...
 @overload
 def attrs(
@@ -189,6 +199,7 @@ def attrs(
     order: Optional[bool] = ...,
     auto_detect: bool = ...,
     getstate_setstate: Optional[bool] = ...,
+    on_setattr: Optional[_OnSetAttrArgType] = ...,
 ) -> _C: ...
 @overload
 def attrs(
@@ -211,6 +222,7 @@ def attrs(
     order: Optional[bool] = ...,
     auto_detect: bool = ...,
     getstate_setstate: Optional[bool] = ...,
+    on_setattr: Optional[_OnSetAttrArgType] = ...,
 ) -> Callable[[_C], _C]: ...
 
 # TODO: add support for returning NamedTuple from the mypy plugin
@@ -242,6 +254,7 @@ def make_class(
     auto_exc: bool = ...,
     eq: Optional[bool] = ...,
     order: Optional[bool] = ...,
+    on_setattr: Optional[_OnSetAttrArgType] = ...,
 ) -> type: ...
 
 # _funcs --

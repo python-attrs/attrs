@@ -16,7 +16,9 @@ What follows is the API explanation, if you'd like a more hands-on introduction,
 Core
 ----
 
-.. autofunction:: attr.s(these=None, repr_ns=None, repr=None, cmp=None, hash=None, init=None, slots=False, frozen=False, weakref_slot=True, str=False, auto_attribs=False, kw_only=False, cache_hash=False, auto_exc=False, eq=None, order=None, auto_detect=False, collect_by_mro=False, getstate_setstate=None)
+.. autodata:: attr.NOTHING
+
+.. autofunction:: attr.s(these=None, repr_ns=None, repr=None, cmp=None, hash=None, init=None, slots=False, frozen=False, weakref_slot=True, str=False, auto_attribs=False, kw_only=False, cache_hash=False, auto_exc=False, eq=None, order=None, auto_detect=False, collect_by_mro=False, getstate_setstate=None, on_setattr=None)
 
    .. note::
 
@@ -102,7 +104,7 @@ Core
       ... class C(object):
       ...     x = attr.ib()
       >>> attr.fields(C).x
-      Attribute(name='x', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False)
+      Attribute(name='x', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False, on_setattr=None)
 
 
 .. autofunction:: attr.make_class
@@ -145,7 +147,9 @@ Exceptions
 ----------
 
 .. autoexception:: attr.exceptions.PythonTooOldError
+.. autoexception:: attr.exceptions.FrozenError
 .. autoexception:: attr.exceptions.FrozenInstanceError
+.. autoexception:: attr.exceptions.FrozenAttributeError
 .. autoexception:: attr.exceptions.AttrsAttributeNotFoundError
 .. autoexception:: attr.exceptions.NotAnAttrsClassError
 .. autoexception:: attr.exceptions.DefaultAlreadySetError
@@ -178,9 +182,9 @@ Helpers
       ...     x = attr.ib()
       ...     y = attr.ib()
       >>> attr.fields(C)
-      (Attribute(name='x', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False), Attribute(name='y', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False))
+      (Attribute(name='x', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False, on_setattr=None), Attribute(name='y', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False, on_setattr=None))
       >>> attr.fields(C)[1]
-      Attribute(name='y', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False)
+      Attribute(name='y', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False, on_setattr=None)
       >>> attr.fields(C).y is attr.fields(C)[1]
       True
 
@@ -195,9 +199,9 @@ Helpers
       ...     x = attr.ib()
       ...     y = attr.ib()
       >>> attr.fields_dict(C)
-      {'x': Attribute(name='x', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False), 'y': Attribute(name='y', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False)}
+      {'x': Attribute(name='x', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False, on_setattr=None), 'y': Attribute(name='y', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False, on_setattr=None)}
       >>> attr.fields_dict(C)['y']
-      Attribute(name='y', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False)
+      Attribute(name='y', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False, on_setattr=None)
       >>> attr.fields_dict(C)['y'] is attr.fields(C).y
       True
 
@@ -514,6 +518,39 @@ Converters
       ...     )
       >>> C(None)
       C(x='')
+
+
+.. _api_setters:
+
+Setters
+-------
+
+These are helpers that you can use together with `attr.s`'s and `attr.ib`'s ``on_setattr`` arguments.
+
+.. autofunction:: attr.setters.frozen
+.. autofunction:: attr.setters.validate
+.. autofunction:: attr.setters.convert
+.. autofunction:: attr.setters.pipe
+.. autodata:: attr.setters.NO_OP
+
+   For example, only ``x`` is frozen here:
+
+   .. doctest::
+
+     >>> @attr.s(on_setattr=attr.setters.frozen)
+     ... class C(object):
+     ...     x = attr.ib()
+     ...     y = attr.ib(on_setattr=attr.setters.NO_OP)
+     >>> c = C(1, 2)
+     >>> c.y = 3
+     >>> c.y
+     3
+     >>> c.x = 4
+     Traceback (most recent call last):
+         ...
+     attr.exceptions.FrozenAttributeError: ()
+
+   N.B. Please use `attr.s`'s *frozen* argument to freeze whole classes; it is more efficient.
 
 
 Deprecated APIs

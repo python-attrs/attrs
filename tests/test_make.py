@@ -222,7 +222,7 @@ class TestTransformAttrs(object):
             "(name='y', default=NOTHING, validator=None, repr=True, "
             "eq=True, order=True, hash=None, init=True, "
             "metadata=mappingproxy({}), type=None, converter=None, "
-            "kw_only=False, inherited=False)",
+            "kw_only=False, inherited=False, on_setattr=None)",
         ) == e.value.args
 
     def test_kw_only(self):
@@ -1425,7 +1425,18 @@ class TestClassBuilder(object):
             pass
 
         b = _ClassBuilder(
-            C, None, True, True, False, False, False, False, False, False, True
+            C,
+            None,
+            True,
+            True,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            True,
+            None,
         )
 
         assert "<_ClassBuilder(cls=C)>" == repr(b)
@@ -1439,7 +1450,18 @@ class TestClassBuilder(object):
             x = attr.ib()
 
         b = _ClassBuilder(
-            C, None, True, True, False, False, False, False, False, False, True
+            C,
+            None,
+            True,
+            True,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            True,
+            None,
         )
 
         cls = (
@@ -1516,6 +1538,7 @@ class TestClassBuilder(object):
             kw_only=False,
             cache_hash=False,
             collect_by_mro=True,
+            on_setattr=None,
         )
         b._cls = {}  # no __module__; no __qualname__
 
