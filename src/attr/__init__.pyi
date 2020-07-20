@@ -42,7 +42,7 @@ _ConverterType = Callable[[Any], _T]
 _FilterType = Callable[[Attribute[_T], _T], bool]
 _ReprType = Callable[[Any], str]
 _ReprArgType = Union[bool, _ReprType]
-_OnSetAttrType = Callable[[Any, Any, Any], Any]
+_OnSetAttrType = Callable[[Any, Attribute[Any], Any], Any]
 _OnSetAttrArgType = Union[
     _OnSetAttrType, List[_OnSetAttrType], setters._NoOpType
 ]
