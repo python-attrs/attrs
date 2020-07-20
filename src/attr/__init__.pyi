@@ -44,7 +44,7 @@ _ReprType = Callable[[Any], str]
 _ReprArgType = Union[bool, _ReprType]
 _OnSetAttrType = Callable[[Any, Any, Any], Any]
 _OnSetAttrArgType = Union[
-    _OnSetAttrType, List[_OnSetAttrType], setters._DisableType
+    _OnSetAttrType, List[_OnSetAttrType], setters._NoOpType
 ]
 # FIXME: in reality, if multiple validators are passed they must be in a list or tuple,
 # but those are invariant and so would prevent subtypes of _ValidatorType from working
