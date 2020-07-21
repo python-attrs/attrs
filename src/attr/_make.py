@@ -1711,6 +1711,11 @@ def resolve_types(cls, globalns=None, localns=None):
     """
     Resolve any strings and forward annotations in type annotations.
 
+    With no arguments, names will be looked up in the module in which the class was
+    created.  If this is incorrect, e.g. if the name only exists inside a method,
+    you may pass globalns or localns to specify other dictionaries in which to look up
+    these names. See the docs of `typing.get_type_hints` for more details.
+
     :param type cls: Class to resolve.
     :param globalns: Dictionary containing global variables, if needed.
     :param localns: Dictionary containing local variables, if needed.
@@ -1720,7 +1725,7 @@ def resolve_types(cls, globalns=None, localns=None):
         class.
     :raise NameError: If types cannot be resolved because of missing variables.
 
-    ..  versionadded:: 17.4.0
+    ..  versionadded:: 19.4.0
     """
     try:
         # Since calling get_type_hints is expensive we cache whether we've
@@ -1735,6 +1740,9 @@ def resolve_types(cls, globalns=None, localns=None):
                 # Since fields have been frozen we must work around it.
                 _obj_setattr(field, "type", hints[field.name])
         cls.__attrs_types_resolved__ = True
+
+    # Return the class so you can use it as a decorator too.
+    return cls
 
 
 def validate(inst):

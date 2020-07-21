@@ -345,6 +345,23 @@ class TestAnnotations:
         assert typing.List[int] == attr.fields(A).c.type
 
     @pytest.mark.parametrize("slots", [True, False])
+    def test_resolve_types_decorator(self, slots):
+        """
+        Types can be resolved using it as a decorator.
+        """
+
+        @attr.resolve_types
+        @attr.s(slots=slots, auto_attribs=True)
+        class A:
+            a: typing.List[int]
+            b: typing.List["int"]
+            c: "typing.List[int]"
+
+        assert typing.List[int] == attr.fields(A).a.type
+        assert typing.List[int] == attr.fields(A).b.type
+        assert typing.List[int] == attr.fields(A).c.type
+
+    @pytest.mark.parametrize("slots", [True, False])
     def test_self_reference(self, slots):
         """
         References to self class using quotes can be resolved.
