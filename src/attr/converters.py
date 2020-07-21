@@ -4,11 +4,11 @@ Commonly useful converters.
 
 from __future__ import absolute_import, division, print_function
 
-from ._make import NOTHING, Factory, chain
+from ._make import NOTHING, Factory, pipe
 
 
 __all__ = [
-    "chain",
+    "pipe",
     "optional",
     "default_if_none",
 ]

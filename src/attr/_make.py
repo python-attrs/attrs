@@ -254,7 +254,7 @@ def attrib(
         validator = and_(*validator)
 
     if converter and isinstance(converter, (list, tuple)):
-        converter = chain(*converter)
+        converter = pipe(*converter)
 
     return _CountingAttr(
         default=default,
@@ -2579,11 +2579,12 @@ def and_(*validators):
     return _AndValidator(tuple(vals))
 
 
-def chain(*converters):
+def pipe(*converters):
     """
     A converter that composes multiple converters into one.
 
-    When called on a value, it runs all wrapped converters.
+    When called on a value, it runs all wrapped converters, returning the
+    *last* value.
 
     :param converters: Arbitrary number of converters.
     :type converters: callables
@@ -2591,9 +2592,10 @@ def chain(*converters):
     .. versionadded:: 20.1.0
     """
 
-    def chain_converter(val):
+    def pipe_converter(val):
         for converter in converters:
             val = converter(val)
+
         return val
 
-    return chain_converter
+    return pipe_converter

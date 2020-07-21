@@ -11,7 +11,7 @@ import pytest
 import attr
 
 from attr import Factory, attrib
-from attr.converters import chain, default_if_none, optional
+from attr.converters import default_if_none, optional, pipe
 
 
 class TestOptional(object):
@@ -101,12 +101,12 @@ class TestDefaultIfNone(object):
         assert [] == c(None)
 
 
-class TestChain(object):
+class TestPipe(object):
     def test_success(self):
         """
         Succeeds if all wrapped converters succeed.
         """
-        c = chain(str, strtobool, bool)
+        c = pipe(str, strtobool, bool)
 
         assert True is c("True") is c(True)
 
@@ -114,7 +114,7 @@ class TestChain(object):
         """
         Fails if any wrapped converter fails.
         """
-        c = chain(str, strtobool)
+        c = pipe(str, strtobool)
 
         # First wrapped converter fails:
         with pytest.raises(ValueError):
@@ -126,12 +126,12 @@ class TestChain(object):
 
     def test_sugar(self):
         """
-        `chain(c1, c2, c3)` and `[c1, c2, c3]` are equivalent.
+        `pipe(c1, c2, c3)` and `[c1, c2, c3]` are equivalent.
         """
 
         @attr.s
         class C(object):
-            a1 = attrib(default="True", converter=chain(str, strtobool, bool))
+            a1 = attrib(default="True", converter=pipe(str, strtobool, bool))
             a2 = attrib(default=True, converter=[str, strtobool, bool])
 
         c = C()
