@@ -269,6 +269,7 @@ Helpers
         >>> attr.fields(A).b.type
         'B'
         >>> attr.resolve_types(A, globals(), locals())
+        <class 'A'>
         >>> attr.fields(A).a.type
         typing.List[A]
         >>> attr.fields(A).b.type
