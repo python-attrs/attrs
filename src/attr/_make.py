@@ -1711,10 +1711,11 @@ def resolve_types(cls, globalns=None, localns=None):
     """
     Resolve any strings and forward annotations in type annotations.
 
-    With no arguments, names will be looked up in the module in which the class was
-    created.  If this is incorrect, e.g. if the name only exists inside a method,
-    you may pass globalns or localns to specify other dictionaries in which to look up
-    these names. See the docs of `typing.get_type_hints` for more details.
+    With no arguments, names will be looked up in the module in which the class
+    was created.  If this is incorrect, e.g. if the name only exists inside a
+    method, you may pass globalns or localns to specify other dictionaries in
+    which to look up these names. See the docs of `typing.get_type_hints` for
+    more details.
 
     :param type cls: Class to resolve.
     :param globalns: Dictionary containing global variables, if needed.
