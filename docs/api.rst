@@ -248,6 +248,33 @@ Helpers
       >>> attr.astuple(C(1,2))
       (1, 2)
 
+.. autofunction:: attr.resolve_types
+
+    For example:
+
+    .. doctest::
+
+        >>> import typing
+        >>> @attr.s(auto_attribs=True)
+        ... class A:
+        ...     a: typing.List['A']
+        ...     b: 'B'
+        ...
+        >>> @attr.s(auto_attribs=True)
+        ... class B:
+        ...     a: A
+        ...
+        >>> attr.fields(A).a.type
+        typing.List[ForwardRef('A')]
+        >>> attr.fields(A).b.type
+        'B'
+        >>> attr.resolve_types(A, globals(), locals())
+        <class 'A'>
+        >>> attr.fields(A).a.type
+        typing.List[A]
+        >>> attr.fields(A).b.type
+        <class 'B'>
+
 ``attrs`` includes some handy helpers for filtering:
 
 .. autofunction:: attr.filters.include

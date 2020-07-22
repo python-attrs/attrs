@@ -530,6 +530,33 @@ If you don't mind annotating *all* attributes, you can even drop the `attr.ib` a
 
 The generated ``__init__`` method will have an attribute called ``__annotations__`` that contains this type information.
 
+If your annotations contain strings (e.g. forward references),
+you can resolve these after all references have been defined by using :func:`attr.resolve_types`.
+This will replace the *type* attribute in the respective fields.
+
+.. doctest::
+
+    >>> import typing
+    >>> @attr.s(auto_attribs=True)
+    ... class A:
+    ...     a: typing.List['A']
+    ...     b: 'B'
+    ...
+    >>> @attr.s(auto_attribs=True)
+    ... class B:
+    ...     a: A
+    ...
+    >>> attr.fields(A).a.type
+    typing.List[ForwardRef('A')]
+    >>> attr.fields(A).b.type
+    'B'
+    >>> attr.resolve_types(A, globals(), locals())
+    <class 'A'>
+    >>> attr.fields(A).a.type
+    typing.List[A]
+    >>> attr.fields(A).b.type
+    <class 'B'>
+
 .. warning::
 
    ``attrs`` itself doesn't have any features that work on top of type metadata *yet*.

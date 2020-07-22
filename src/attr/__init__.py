@@ -14,6 +14,7 @@ from ._make import (
     fields,
     fields_dict,
     make_class,
+    resolve_types,
     validate,
 )
 from ._version_info import VersionInfo
@@ -61,6 +62,7 @@ __all__ = [
     "has",
     "ib",
     "make_class",
+    "resolve_types",
     "s",
     "set_run_validators",
     "setters",

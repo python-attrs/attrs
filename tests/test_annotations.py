@@ -297,3 +297,107 @@ class TestAnnotations:
         @attr.s(auto_attribs=True)
         class C:
             x: typing.Any = NonComparable()
+
+    def test_basic_resolve(self):
+        """
+        Resolve the `Attribute.type` attr from basic type annotations.
+        Unannotated types are ignored.
+        """
+
+        @attr.s
+        class C:
+            x: "int" = attr.ib()
+            y = attr.ib(type=str)
+            z = attr.ib()
+
+        assert "int" == attr.fields(C).x.type
+        assert str is attr.fields(C).y.type
+        assert None is attr.fields(C).z.type
+
+        attr.resolve_types(C)
+
+        assert int is attr.fields(C).x.type
+        assert str is attr.fields(C).y.type
+        assert None is attr.fields(C).z.type
+
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_resolve_types_auto_attrib(self, slots):
+        """
+        Types can be resolved even when strings are involved.
+        """
+
+        @attr.s(slots=slots, auto_attribs=True)
+        class A:
+            a: typing.List[int]
+            b: typing.List["int"]
+            c: "typing.List[int]"
+
+        assert typing.List[int] == attr.fields(A).a.type
+        assert typing.List["int"] == attr.fields(A).b.type
+        assert "typing.List[int]" == attr.fields(A).c.type
+
+        # Note: I don't have to pass globals and locals here because
+        # int is a builtin and will be available in any scope.
+        attr.resolve_types(A)
+
+        assert typing.List[int] == attr.fields(A).a.type
+        assert typing.List[int] == attr.fields(A).b.type
+        assert typing.List[int] == attr.fields(A).c.type
+
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_resolve_types_decorator(self, slots):
+        """
+        Types can be resolved using it as a decorator.
+        """
+
+        @attr.resolve_types
+        @attr.s(slots=slots, auto_attribs=True)
+        class A:
+            a: typing.List[int]
+            b: typing.List["int"]
+            c: "typing.List[int]"
+
+        assert typing.List[int] == attr.fields(A).a.type
+        assert typing.List[int] == attr.fields(A).b.type
+        assert typing.List[int] == attr.fields(A).c.type
+
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_self_reference(self, slots):
+        """
+        References to self class using quotes can be resolved.
+        """
+
+        @attr.s(slots=slots, auto_attribs=True)
+        class A:
+            a: "A"
+            b: typing.Optional["A"]  # noqa: will resolve below
+
+        assert "A" == attr.fields(A).a.type
+        assert typing.Optional["A"] == attr.fields(A).b.type
+
+        attr.resolve_types(A, globals(), locals())
+
+        assert A == attr.fields(A).a.type
+        assert typing.Optional[A] == attr.fields(A).b.type
+
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_forward_reference(self, slots):
+        """
+        Forward references can be resolved.
+        """
+
+        @attr.s(slots=slots, auto_attribs=True)
+        class A:
+            a: typing.List["B"]  # noqa: will resolve below
+
+        @attr.s(slots=slots, auto_attribs=True)
+        class B:
+            a: A
+
+        assert typing.List["B"] == attr.fields(A).a.type
+        assert A == attr.fields(B).a.type
+
+        attr.resolve_types(A, globals(), locals())
+
+        assert typing.List[B] == attr.fields(A).a.type
+        assert A == attr.fields(B).a.type
