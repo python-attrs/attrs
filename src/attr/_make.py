@@ -1707,45 +1707,6 @@ def fields_dict(cls):
     return ordered_dict(((a.name, a) for a in attrs))
 
 
-def resolve_types(cls, globalns=None, localns=None):
-    """
-    Resolve any strings and forward annotations in type annotations.
-
-    With no arguments, names will be looked up in the module in which the class
-    was created.  If this is incorrect, e.g. if the name only exists inside a
-    method, you may pass globalns or localns to specify other dictionaries in
-    which to look up these names. See the docs of `typing.get_type_hints` for
-    more details.
-
-    :param type cls: Class to resolve.
-    :param globalns: Dictionary containing global variables, if needed.
-    :param localns: Dictionary containing local variables, if needed.
-
-    :raise TypeError: If *cls* is not a class.
-    :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
-        class.
-    :raise NameError: If types cannot be resolved because of missing variables.
-
-    ..  versionadded:: 19.4.0
-    """
-    try:
-        # Since calling get_type_hints is expensive we cache whether we've
-        # done it already.
-        cls.__attrs_types_resolved__
-    except AttributeError:
-        import typing
-
-        hints = typing.get_type_hints(cls, globalns=globalns, localns=localns)
-        for field in fields(cls):
-            if field.name in hints:
-                # Since fields have been frozen we must work around it.
-                _obj_setattr(field, "type", hints[field.name])
-        cls.__attrs_types_resolved__ = True
-
-    # Return the class so you can use it as a decorator too.
-    return cls
-
-
 def validate(inst):
     """
     Validate all attributes on *inst* that have a validator.

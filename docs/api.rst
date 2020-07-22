@@ -221,33 +221,6 @@ Helpers
       False
 
 
-.. autofunction:: attr.asdict
-
-   For example:
-
-   .. doctest::
-
-      >>> @attr.s
-      ... class C(object):
-      ...     x = attr.ib()
-      ...     y = attr.ib()
-      >>> attr.asdict(C(1, C(2, 3)))
-      {'x': 1, 'y': {'x': 2, 'y': 3}}
-
-
-.. autofunction:: attr.astuple
-
-   For example:
-
-   .. doctest::
-
-      >>> @attr.s
-      ... class C(object):
-      ...     x = attr.ib()
-      ...     y = attr.ib()
-      >>> attr.astuple(C(1,2))
-      (1, 2)
-
 .. autofunction:: attr.resolve_types
 
     For example:
@@ -275,7 +248,34 @@ Helpers
         >>> attr.fields(A).b.type
         <class 'B'>
 
-``attrs`` includes some handy helpers for filtering:
+.. autofunction:: attr.asdict
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib()
+      ...     y = attr.ib()
+      >>> attr.asdict(C(1, C(2, 3)))
+      {'x': 1, 'y': {'x': 2, 'y': 3}}
+
+
+.. autofunction:: attr.astuple
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib()
+      ...     y = attr.ib()
+      >>> attr.astuple(C(1,2))
+      (1, 2)
+
+``attrs`` includes some handy helpers for filtering the attributes in `attr.asdict` and `attr.astuple`:
 
 .. autofunction:: attr.filters.include
 
