@@ -41,7 +41,8 @@ Also, starting in Python 3.10 (:pep:`526`) **all** annotations will be string li
 When this happens, ``attrs`` will simply put these string literals into the ``type`` attributes.
 If you need to resolve these to real types, you can call `attr.resolve_types` which will update the attribute in place.
 
-In practice, their biggest usefulness shows in combination with mypy_ or pytype_ that both have dedicated support for ``attrs`` classes.
+In practice though, types show their biggest usefulness in combination with tools like mypy_ or pytype_ that both have dedicated support for ``attrs`` classes.
+
 
 mypy
 ----
