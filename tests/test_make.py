@@ -423,6 +423,35 @@ class TestTransformAttrs(object):
 
         assert d.x == d.xx()
 
+    def test_inherited(self):
+        """
+        Inherited Attributes have `.inherited` True, otherwise False.
+        """
+
+        @attr.s
+        class A(object):
+            a = attr.ib()
+
+        @attr.s
+        class B(A):
+            b = attr.ib()
+
+        @attr.s
+        class C(B):
+            a = attr.ib()
+            c = attr.ib()
+
+        f = attr.fields
+
+        assert False is f(A).a.inherited
+
+        assert True is f(B).a.inherited
+        assert False is f(B).b.inherited
+
+        assert False is f(C).a.inherited
+        assert True is f(C).b.inherited
+        assert False is f(C).c.inherited
+
 
 class TestAttributes(object):
     """
