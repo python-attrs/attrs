@@ -1,9 +1,10 @@
 from __future__ import absolute_import, division, print_function
 
+import sys
+
 from functools import partial
 
 from . import converters, exceptions, filters, setters, validators
-from ._compat import PY2 as _PY2
 from ._config import get_run_validators, set_run_validators
 from ._funcs import asdict, assoc, astuple, evolve, has, resolve_types
 from ._make import (
@@ -69,7 +70,7 @@ __all__ = [
     "validators",
 ]
 
-if not _PY2:
-    from ._auto import auto, frozen, mutable
+if sys.version_info[:2] >= (3, 6):
+    from ._next_gen import define, frozen, mutable
 
-    __all__.extend((auto, frozen, mutable))
+    __all__.extend((define, frozen, mutable))

@@ -1,5 +1,5 @@
 """
-Python 3-only integration tests for the attr.auto provisional API.
+Python 3-only integration tests for provisional next generation APIs.
 """
 
 import pytest
@@ -7,19 +7,13 @@ import pytest
 import attr
 
 
-@attr.auto
+@attr.define
 class C:
     x: str
     y: int
 
 
-@attr.auto
-class E(Exception):
-    msg: str
-    other: int
-
-
-class TestAuto:
+class TestNextGen:
     def test_simple(self):
         """
         Instantiation works.
@@ -31,7 +25,7 @@ class TestAuto:
         slots can be deactivated.
         """
 
-        @attr.auto(slots=False)
+        @attr.define(slots=False)
         class NoSlots:
             x: int
 
@@ -44,7 +38,7 @@ class TestAuto:
         Validators at __init__ and __setattr__ work.
         """
 
-        @attr.auto
+        @attr.define
         class Validated:
             x: int = attr.ib(validator=attr.validators.instance_of(int))
 
@@ -63,7 +57,7 @@ class TestAuto:
         with pytest.raises(TypeError):
             C("1", 2) < C("2", 3)
 
-        @attr.auto(order=True)
+        @attr.define(order=True)
         class Ordered:
             x: int
 
@@ -77,7 +71,7 @@ class TestAuto:
         """
         with pytest.raises(attr.exceptions.UnannotatedAttributeError):
 
-            @attr.auto(auto_attribs=True)
+            @attr.define(auto_attribs=True)
             class ThisFails:
                 x = attr.ib()
                 y: int
@@ -89,7 +83,7 @@ class TestAuto:
         Annotated fields that don't carry an attr.ib are ignored.
         """
 
-        @attr.auto(auto_attribs=False)
+        @attr.define(auto_attribs=False)
         class NoFields:
             x: int
             y: int
@@ -98,10 +92,10 @@ class TestAuto:
 
     def test_auto_attribs_detect(self):
         """
-        auto correctly detects if a class lacks type annotations.
+        define correctly detects if a class lacks type annotations.
         """
 
-        @attr.auto
+        @attr.define
         class OldSchool:
             x = attr.ib()
 
@@ -111,6 +105,12 @@ class TestAuto:
         """
         Exceptions are detected and correctly handled.
         """
+
+        @attr.define
+        class E(Exception):
+            msg: str
+            other: int
+
         with pytest.raises(E) as ei:
             raise E("yolo", 42)
 

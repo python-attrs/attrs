@@ -591,7 +591,7 @@ These are helpers that you can use together with `attr.s`'s and `attr.ib`'s ``on
 Provisional APIs
 ----------------
 
-These are Python 3-only, keyword-only, and **provisional** APIs that call `attr.s` with different default values.
+These are Python 3.6 and later-only, keyword-only, and **provisional** APIs that call `attr.s` with different default values.
 
 The most notable differences are:
 
@@ -617,14 +617,14 @@ Therefore your constructive feedback in the linked issues above is strongly enco
    `attr.s` and `attr.ib` (and their serious business cousins) aren't going anywhere.
    The new APIs build on top of them.
 
-.. autofunction:: attr.auto
+.. autofunction:: attr.define
 .. function:: attr.mutable(same_as_auto)
 
-   Alias for `attr.auto`.
+   Alias for `attr.define`.
 
 .. function:: attr.frozen(same_as_auto)
 
-   Behaves the same as `attr.auto` but sets *frozen=True* and *on_setattr=None*.
+   Behaves the same as `attr.define` but sets *frozen=True* and *on_setattr=None*.
 
 
 Deprecated APIs

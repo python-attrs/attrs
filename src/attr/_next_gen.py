@@ -1,6 +1,6 @@
 """
-This is a Python 3-only, keyword-only, and **provisional** API that calls
-`attr.s` with different default values.
+This is a Python 3.6 and later-only, keyword-only, and **provisional** API that
+calls `attr.s` with different default values.
 
 Provisional APIs that shall become "import attrs" one glorious day.
 """
@@ -13,7 +13,7 @@ from . import setters
 from ._make import attrs
 
 
-def auto(
+def define(
     maybe_cls=None,
     *,
     these=None,
@@ -82,5 +82,5 @@ def auto(
         return do_it(False)
 
 
-mutable = auto
-frozen = partial(auto, frozen=True, on_setattr=None)
+mutable = define
+frozen = partial(define, frozen=True, on_setattr=None)
