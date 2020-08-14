@@ -69,7 +69,34 @@ class TestAuto:
 
         assert Ordered(1) < Ordered(2)
 
-    def test_auto_attrib_detect(self):
+    def test_override_auto_attribs_true(self):
+        """
+        Don't guess if auto_attrib is set explicitly.
+
+        Having an unannotated attr.ib fails.
+        """
+        with pytest.raises(attr.exceptions.UnannotatedAttributeError):
+
+            @attr.auto(auto_attribs=True)
+            class ThisFails:
+                x = attr.ib()
+                y: int
+
+    def test_override_auto_attribs_false(self):
+        """
+        Don't guess if auto_attrib is set explicitly.
+
+        Annotated fields that don't carry an attr.ib are ignored.
+        """
+
+        @attr.auto(auto_attribs=False)
+        class NoFields:
+            x: int
+            y: int
+
+        assert NoFields() == NoFields()
+
+    def test_auto_attribs_detect(self):
         """
         auto correctly detects if a class lacks type annotations.
         """
