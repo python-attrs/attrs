@@ -1,0 +1,5 @@
+**Provisional** APIs called ``attr.auto()``, ``attr.mutable()``, and ``attr.frozen()`` have been added.
+
+They are only available on Python 3 and call ``attr.s()`` with different default values.
+
+If nothing comes up, they will become the official way for creating classes in 20.2.0 (see above).
