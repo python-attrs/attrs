@@ -618,11 +618,11 @@ Therefore your constructive feedback in the linked issues above is strongly enco
    The new APIs build on top of them.
 
 .. autofunction:: attr.define
-.. function:: attr.mutable(same_as_auto)
+.. function:: attr.mutable(same_as_define)
 
    Alias for `attr.define`.
 
-.. function:: attr.frozen(same_as_auto)
+.. function:: attr.frozen(same_as_define)
 
    Behaves the same as `attr.define` but sets *frozen=True* and *on_setattr=None*.
 
