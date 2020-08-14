@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 from functools import partial
 
 from . import converters, exceptions, filters, setters, validators
+from ._compat import PY2 as _PY2
 from ._config import get_run_validators, set_run_validators
 from ._funcs import asdict, assoc, astuple, evolve, has, resolve_types
 from ._make import (
@@ -39,7 +40,6 @@ s = attributes = attrs
 ib = attr = attrib
 dataclass = partial(attrs, auto_attribs=True)  # happy Easter ;)
 
-
 __all__ = [
     "Attribute",
     "Factory",
@@ -68,3 +68,8 @@ __all__ = [
     "validate",
     "validators",
 ]
+
+if not _PY2:
+    from ._auto import auto, frozen, mutable
+
+    __all__.extend((auto, frozen, mutable))
