@@ -35,9 +35,14 @@ jobs:
       - name: "Run tox targets for ${{ matrix.python-version }}"
         run: "python -m tox"
 
+      - uses: "actions/setup-python@v2"
+        with:
+          python-version: "3.8"
+
       - name: "Combine coverage"
         run: |
           set -xe
+          python -m pip install coverage[toml]
           python -m coverage combine
           python -m coverage xml
         if: "contains(env.USING_COVERAGE, matrix.python-version)"
