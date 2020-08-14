@@ -1,0 +1,8 @@
+Less of a deprecation and more of a heads up: the next release of ``attrs`` will introduce an ``attrs`` namespace.
+That means that you'll finally be able to run ``import attrs`` with new functions that aren't cute abbreviations and that will carry better defaults.
+
+This should not break any of your code, because project-local packages have priority before installed ones.
+If this is a problem for you for some reason, please report it to our bug tracker and we'll figure something out.
+
+The old ``attr`` namespace isn't going anywhere and its defaults are not changing – this is a purely additive measure.
+Please check out the linked issue for more details.
