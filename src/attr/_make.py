@@ -1064,8 +1064,8 @@ def attrs(
         ``eq=True, order=True``. Deprecated in favor of *eq* and *order*, has
         precedence over them for backward-compatibility though. Must not be
         mixed with *eq* or *order*.
-    :param Optional[hash]: If ``None`` (default), the ``__hash__`` method is
-        generated according how *eq* and *frozen* are set.
+    :param Optional[bool] hash: If ``None`` (default), the ``__hash__`` method
+        is generated according how *eq* and *frozen* are set.
 
         1. If *both* are True, ``attrs`` will generate a ``__hash__`` for you.
         2. If *eq* is True and *frozen* is False, ``__hash__`` will be set to
