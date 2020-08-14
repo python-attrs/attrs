@@ -600,9 +600,10 @@ The most notable differences are:
 - *auto_exc=True*
 - *auto_detect=True*
 - *eq=True*, but *order=False*
+- Validators run when you set an attribute (*on_setattr=attr.setters.validate*).
 - Some options that aren't relevant to Python 3 have been dropped.
 
-Please note that these are *default* and you're free to override them.
+Please note that these are *defaults* and you're free to override them, just like before.
 
 ----
 
