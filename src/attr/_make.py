@@ -135,8 +135,8 @@ def attrib(
 
     :type default: Any value
 
-    :param factory: Syntactic sugar for ``default=attr.Factory(callable)``.
-    :type factory: `callable`
+    :param callable factory: Syntactic sugar for
+        ``default=attr.Factory(factory)``.
 
     :param validator: `callable` that is called by ``attrs``-generated
         ``__init__`` methods after the instance has been initialized.  They
@@ -171,21 +171,19 @@ def attrib(
         generated ``__lt__``, ``__le__``, ``__gt__`` and ``__ge__`` methods.
     :param bool cmp: Setting to ``True`` is equivalent to setting ``eq=True,
         order=True``. Deprecated in favor of *eq* and *order*.
-    :param hash: Include this attribute in the generated ``__hash__``
-        method.  If ``None`` (default), mirror *eq*'s value.  This is the
-        correct behavior according the Python spec.  Setting this value to
-        anything else than ``None`` is *discouraged*.
-    :type hash: `bool` or `None`
+    :param Optional[bool] hash: Include this attribute in the generated
+        ``__hash__`` method.  If ``None`` (default), mirror *eq*'s value.  This
+        is the correct behavior according the Python spec.  Setting this value
+        to anything else than ``None`` is *discouraged*.
     :param bool init: Include this attribute in the generated ``__init__``
         method.  It is possible to set this to ``False`` and set a default
         value.  In that case this attributed is unconditionally initialized
         with the specified default value or factory.
-    :param converter: `callable` that is called by
+    :param callable converter: `callable` that is called by
         ``attrs``-generated ``__init__`` methods to convert attribute's value
         to the desired format.  It is given the passed-in value, and the
         returned value will be used as the new value of the attribute.  The
         value is converted before being passed to the validator, if any.
-    :type converter: `callable`
     :param metadata: An arbitrary mapping, to be used by third-party
         components.  See `extending_metadata`.
     :param type: The type of the attribute.  In Python 3.6 or greater, the
@@ -1053,23 +1051,21 @@ def attrs(
     :param bool str: Create a ``__str__`` method that is identical to
         ``__repr__``.  This is usually not necessary except for
         `Exception`\ s.
-    :param bool eq: If ``True`` or ``None`` (default), add ``__eq__`` and
-        ``__ne__`` methods that check two instances for equality.
+    :param Optional[bool] eq: If ``True`` or ``None`` (default), add ``__eq__``
+        and ``__ne__`` methods that check two instances for equality.
 
         They compare the instances as if they were tuples of their ``attrs``
         attributes if and only if the types of both classes are *identical*!
-    :type eq: `bool` or `None`
-    :param bool order: If ``True``, add ``__lt__``, ``__le__``, ``__gt__``,
-        and ``__ge__`` methods that behave like *eq* above and allow instances
-        to be ordered. If ``None`` (default) mirror value of *eq*.
-    :type order: `bool` or `None`
-    :param cmp: Setting to ``True`` is equivalent to setting ``eq=True,
-        order=True``. Deprecated in favor of *eq* and *order*, has precedence
-        over them for backward-compatibility though. Must not be mixed with
-        *eq* or *order*.
-    :type cmp: `bool` or `None`
-    :param hash: If ``None`` (default), the ``__hash__`` method is generated
-        according how *eq* and *frozen* are set.
+    :param Optional[bool] order: If ``True``, add ``__lt__``, ``__le__``,
+        ``__gt__``, and ``__ge__`` methods that behave like *eq* above and
+        allow instances to be ordered. If ``None`` (default) mirror value of
+        *eq*.
+    :param Optional[bool] cmp: Setting to ``True`` is equivalent to setting
+        ``eq=True, order=True``. Deprecated in favor of *eq* and *order*, has
+        precedence over them for backward-compatibility though. Must not be
+        mixed with *eq* or *order*.
+    :param Optional[hash]: If ``None`` (default), the ``__hash__`` method is
+        generated according how *eq* and *frozen* are set.
 
         1. If *both* are True, ``attrs`` will generate a ``__hash__`` for you.
         2. If *eq* is True and *frozen* is False, ``__hash__`` will be set to
@@ -1087,7 +1083,6 @@ def attrs(
         `object.__hash__`, and the `GitHub issue that led to the default \
         behavior <https://github.com/python-attrs/attrs/issues/136>`_ for more
         details.
-    :type hash: `bool` or `None`
     :param bool init: Create a ``__init__`` method that initializes the
         ``attrs`` attributes.  Leading underscores are stripped for the
         argument name.  If a ``__attrs_post_init__`` method exists on the
@@ -2529,8 +2524,7 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
     """
     A quick way to create a new class called *name* with *attrs*.
 
-    :param name: The name for the new class.
-    :type name: str
+    :param str name: The name for the new class.
 
     :param attrs: A list of names or a dictionary of mappings of names to
         attributes.
@@ -2613,8 +2607,7 @@ def and_(*validators):
 
     When called on a value, it runs all wrapped validators.
 
-    :param validators: Arbitrary number of validators.
-    :type validators: callables
+    :param callables validators: Arbitrary number of validators.
 
     .. versionadded:: 17.1.0
     """
@@ -2636,8 +2629,7 @@ def pipe(*converters):
     When called on a value, it runs all wrapped converters, returning the
     *last* value.
 
-    :param converters: Arbitrary number of converters.
-    :type converters: callables
+    :param callables converters: Arbitrary number of converters.
 
     .. versionadded:: 20.1.0
     """
