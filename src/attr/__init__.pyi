@@ -273,7 +273,7 @@ def define(
 ) -> Callable[[_C], _C]: ...
 
 mutable = define
-frozen = define  # XXX: not quite but good enough for now
+frozen = define  # they differ only in their defaults
 
 # TODO: add support for returning NamedTuple from the mypy plugin
 class _Fields(Tuple[Attribute[Any], ...]):
