@@ -1,0 +1,8 @@
+**Provisional** APIs called ``attr.define()``, ``attr.mutable()``, and ``attr.frozen()`` have been added.
+
+They are only available on Python 3.6 and later, and call ``attr.s()`` with different default values.
+
+If nothing comes up, they will become the official way for creating classes in 20.2.0 (see above).
+
+**Please note** that it may take some time until mypy – and other tools that have dedicated support for ``attrs`` – recognize these new APIs.
+Please **do not** open issues on our bug tracker, there is nothing we can do about it.

@@ -1,5 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
+import sys
+
 from functools import partial
 
 from . import converters, exceptions, filters, setters, validators
@@ -39,7 +41,6 @@ s = attributes = attrs
 ib = attr = attrib
 dataclass = partial(attrs, auto_attribs=True)  # happy Easter ;)
 
-
 __all__ = [
     "Attribute",
     "Factory",
@@ -68,3 +69,8 @@ __all__ = [
     "validate",
     "validators",
 ]
+
+if sys.version_info[:2] >= (3, 6):
+    from ._next_gen import define, frozen, mutable
+
+    __all__.extend((define, frozen, mutable))

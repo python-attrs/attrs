@@ -227,6 +227,53 @@ def attrs(
     getstate_setstate: Optional[bool] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
 ) -> Callable[[_C], _C]: ...
+@overload
+def define(
+    maybe_cls: _C,
+    *,
+    these: Optional[Dict[str, Any]] = ...,
+    repr: bool = ...,
+    hash: Optional[bool] = ...,
+    init: bool = ...,
+    slots: bool = ...,
+    frozen: bool = ...,
+    weakref_slot: bool = ...,
+    str: bool = ...,
+    auto_attribs: bool = ...,
+    kw_only: bool = ...,
+    cache_hash: bool = ...,
+    auto_exc: bool = ...,
+    eq: Optional[bool] = ...,
+    order: Optional[bool] = ...,
+    auto_detect: bool = ...,
+    getstate_setstate: Optional[bool] = ...,
+    on_setattr: Optional[_OnSetAttrArgType] = ...,
+) -> _C: ...
+@overload
+def define(
+    maybe_cls: None = ...,
+    *,
+    these: Optional[Dict[str, Any]] = ...,
+    repr: bool = ...,
+    hash: Optional[bool] = ...,
+    init: bool = ...,
+    slots: bool = ...,
+    frozen: bool = ...,
+    weakref_slot: bool = ...,
+    str: bool = ...,
+    auto_attribs: bool = ...,
+    kw_only: bool = ...,
+    cache_hash: bool = ...,
+    auto_exc: bool = ...,
+    eq: Optional[bool] = ...,
+    order: Optional[bool] = ...,
+    auto_detect: bool = ...,
+    getstate_setstate: Optional[bool] = ...,
+    on_setattr: Optional[_OnSetAttrArgType] = ...,
+) -> Callable[[_C], _C]: ...
+
+mutable = define
+frozen = define  # they differ only in their defaults
 
 # TODO: add support for returning NamedTuple from the mypy plugin
 class _Fields(Tuple[Attribute[Any], ...]):

@@ -207,3 +207,30 @@ class ValidatedSetter:
 
 #     def __init__(self, x: int):
 #         self.x = x
+
+# Provisional APIs
+@attr.define(order=True)
+class NGClass:
+    x: int
+
+
+# XXX: needs support in mypy
+# ngc = NGClass(1)
+
+
+@attr.mutable(slots=False)
+class NGClass2:
+    x: int
+
+
+# XXX: needs support in mypy
+# ngc2 = NGClass2(1)
+
+
+@attr.frozen(str=True)
+class NGFrozen:
+    x: int
+
+
+# XXX: needs support in mypy
+# ngf = NGFrozen(1)

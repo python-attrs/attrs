@@ -16,6 +16,12 @@ What follows is the API explanation, if you'd like a more hands-on introduction,
 Core
 ----
 
+
+.. warning::
+   As of ``attrs`` 20.1.0, it also ships with a bunch of provisional APIs that are intended to become the main way of defining classes in the future.
+
+   Please have a look at :ref:`prov`.
+
 .. autodata:: attr.NOTHING
 
 .. autofunction:: attr.s(these=None, repr_ns=None, repr=None, cmp=None, hash=None, init=None, slots=False, frozen=False, weakref_slot=True, str=False, auto_attribs=False, kw_only=False, cache_hash=False, auto_exc=False, eq=None, order=None, auto_detect=False, collect_by_mro=False, getstate_setstate=None, on_setattr=None)
@@ -578,6 +584,47 @@ These are helpers that you can use together with `attr.s`'s and `attr.ib`'s ``on
      attr.exceptions.FrozenAttributeError: ()
 
    N.B. Please use `attr.s`'s *frozen* argument to freeze whole classes; it is more efficient.
+
+
+.. _prov:
+
+Provisional APIs
+----------------
+
+These are Python 3.6 and later-only, keyword-only, and **provisional** APIs that call `attr.s` with different default values.
+
+The most notable differences are:
+
+- automatically detect whether or not *auto_attribs* should be `True`
+- *slots=True*  (see :term:`slotted classes`)
+- *auto_exc=True*
+- *auto_detect=True*
+- *eq=True*, but *order=False*
+- Validators run when you set an attribute (*on_setattr=attr.setters.validate*).
+- Some options that aren't relevant to Python 3 have been dropped.
+
+Please note that these are *defaults* and you're free to override them, just like before.
+
+----
+
+Their behavior is scheduled to become part of the upcoming ``import attrs`` that will introduce a new namespace  with nicer names and nicer defaults (see  `#408 <https://github.com/python-attrs/attrs/issues/408>`_ and `#487 <https://github.com/python-attrs/attrs/issues/487>`_).
+
+Therefore your constructive feedback in the linked issues above is strongly encouraged!
+
+.. note::
+   Provisional doesn't mean we will remove it (although it will be deprecated once the final form is released), but that it might change if we receive relevant feedback.
+
+   `attr.s` and `attr.ib` (and their serious business cousins) aren't going anywhere.
+   The new APIs build on top of them.
+
+.. autofunction:: attr.define
+.. function:: attr.mutable(same_as_define)
+
+   Alias for `attr.define`.
+
+.. function:: attr.frozen(same_as_define)
+
+   Behaves the same as `attr.define` but sets *frozen=True* and *on_setattr=None*.
 
 
 Deprecated APIs
