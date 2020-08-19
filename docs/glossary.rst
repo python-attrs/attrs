@@ -10,8 +10,9 @@ Glossary
       This is the type of class you get by default both with and without ``attrs``.
 
    slotted classes
-      A class that has no ``__dict__`` attribute and `defines <https://docs.python.org/3/reference/datamodel.html#slots>`_ its attributes in a ``__slots__`` attribute instead.
-      In ``attrs``, they are created by passing ``slots=True`` to ``@attr.s``.
+      A class whose instances have no ``__dict__`` attribute and `define <https://docs.python.org/3/reference/datamodel.html#slots>`_ their attributes in a ``__slots__`` attribute instead.
+      In ``attrs``, they are created by passing ``slots=True`` to ``@attr.s`` (and are on by default in `attr.define`/`attr.mutable`/`attr.frozen`.
+
 
       Their main advantage is that they use less memory on CPython [#pypy]_.
 
@@ -35,6 +36,8 @@ Glossary
 
       - Slotted classes can inherit from other classes just like non-slotted classes, but some of the benefits of slotted classes are lost if you do that.
         If you must inherit from other classes, try to inherit only from other slotted classes.
+
+      - However, `it's not possible <https://docs.python.org/3/reference/datamodel.html#notes-on-using-slots>`_ to inherit from more than one class that has attributes in ``__slots__`` (you will get an ``TypeError: multiple bases have instance lay-out conflict``).
 
       - Slotted classes must implement :meth:`__getstate__ <object.__getstate__>` and :meth:`__setstate__ <object.__setstate__>` to be serializable with `pickle` protocol 0 and 1.
         Therefore, ``attrs`` creates these methods automatically for ``slots=True`` classes (Python 2 uses protocol 0 by default).
