@@ -622,9 +622,15 @@ Therefore your constructive feedback in the linked issues above is strongly enco
 
    Alias for `attr.define`.
 
+   .. versionadded:: 20.1.0
+
 .. function:: attr.frozen(same_as_define)
 
    Behaves the same as `attr.define` but sets *frozen=True* and *on_setattr=None*.
+
+   .. versionadded:: 20.1.0
+
+.. autofunction:: attr.field
 
 
 Deprecated APIs

@@ -40,7 +40,7 @@ class TestNextGen:
 
         @attr.define
         class Validated:
-            x: int = attr.ib(validator=attr.validators.instance_of(int))
+            x: int = attr.field(validator=attr.validators.instance_of(int))
 
         v = Validated(1)
 
@@ -67,13 +67,13 @@ class TestNextGen:
         """
         Don't guess if auto_attrib is set explicitly.
 
-        Having an unannotated attr.ib fails.
+        Having an unannotated attr.ib/attr.field fails.
         """
         with pytest.raises(attr.exceptions.UnannotatedAttributeError):
 
             @attr.define(auto_attribs=True)
             class ThisFails:
-                x = attr.ib()
+                x = attr.field()
                 y: int
 
     def test_override_auto_attribs_false(self):
@@ -97,7 +97,7 @@ class TestNextGen:
 
         @attr.define
         class OldSchool:
-            x = attr.ib()
+            x = attr.field()
 
         assert OldSchool(1) == OldSchool(1)
 

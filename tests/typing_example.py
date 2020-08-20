@@ -211,7 +211,7 @@ class ValidatedSetter:
 # Provisional APIs
 @attr.define(order=True)
 class NGClass:
-    x: int
+    x: int = attr.field(default=42)
 
 
 # XXX: needs support in mypy
