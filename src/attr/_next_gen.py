@@ -10,7 +10,7 @@ from functools import partial
 from attr.exceptions import UnannotatedAttributeError
 
 from . import setters
-from ._make import attrs
+from ._make import NOTHING, attrib, attrs
 
 
 def define(
@@ -32,7 +32,7 @@ def define(
     order=False,
     auto_detect=True,
     getstate_setstate=None,
-    on_setattr=setters.validate
+    on_setattr=setters.validate,
 ):
     r"""
     The only behavioral difference is the handling of the *auto_attribs*
@@ -84,3 +84,40 @@ def define(
 
 mutable = define
 frozen = partial(define, frozen=True, on_setattr=None)
+
+
+def field(
+    *,
+    default=NOTHING,
+    validator=None,
+    repr=True,
+    hash=None,
+    init=True,
+    metadata=None,
+    converter=None,
+    factory=None,
+    kw_only=False,
+    eq=None,
+    order=None,
+    on_setattr=None,
+):
+    """
+    Identical to `attr.ib`, except keyword-only and with some arguments
+    removed.
+
+    .. versionadded:: 20.1.0
+    """
+    return attrib(
+        default=default,
+        validator=validator,
+        repr=repr,
+        hash=hash,
+        init=init,
+        metadata=metadata,
+        converter=converter,
+        factory=factory,
+        kw_only=kw_only,
+        eq=eq,
+        order=order,
+        on_setattr=on_setattr,
+    )

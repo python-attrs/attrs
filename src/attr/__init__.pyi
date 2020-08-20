@@ -182,6 +182,77 @@ def attrib(
     on_setattr: Optional[_OnSetAttrArgType] = ...,
 ) -> Any: ...
 @overload
+def field(
+    *,
+    default: None = ...,
+    validator: None = ...,
+    repr: _ReprArgType = ...,
+    hash: Optional[bool] = ...,
+    init: bool = ...,
+    metadata: Optional[Mapping[Any, Any]] = ...,
+    converter: None = ...,
+    factory: None = ...,
+    kw_only: bool = ...,
+    eq: Optional[bool] = ...,
+    order: Optional[bool] = ...,
+    on_setattr: Optional[_OnSetAttrArgType] = ...,
+) -> Any: ...
+
+# This form catches an explicit None or no default and infers the type from the
+# other arguments.
+@overload
+def field(
+    *,
+    default: None = ...,
+    validator: Optional[_ValidatorArgType[_T]] = ...,
+    repr: _ReprArgType = ...,
+    hash: Optional[bool] = ...,
+    init: bool = ...,
+    metadata: Optional[Mapping[Any, Any]] = ...,
+    converter: Optional[_ConverterType] = ...,
+    factory: Optional[Callable[[], _T]] = ...,
+    kw_only: bool = ...,
+    eq: Optional[bool] = ...,
+    order: Optional[bool] = ...,
+    on_setattr: Optional[_OnSetAttrArgType] = ...,
+) -> _T: ...
+
+# This form catches an explicit default argument.
+@overload
+def field(
+    *,
+    default: _T,
+    validator: Optional[_ValidatorArgType[_T]] = ...,
+    repr: _ReprArgType = ...,
+    hash: Optional[bool] = ...,
+    init: bool = ...,
+    metadata: Optional[Mapping[Any, Any]] = ...,
+    converter: Optional[_ConverterType] = ...,
+    factory: Optional[Callable[[], _T]] = ...,
+    kw_only: bool = ...,
+    eq: Optional[bool] = ...,
+    order: Optional[bool] = ...,
+    on_setattr: Optional[_OnSetAttrArgType] = ...,
+) -> _T: ...
+
+# This form covers type=non-Type: e.g. forward references (str), Any
+@overload
+def field(
+    *,
+    default: Optional[_T] = ...,
+    validator: Optional[_ValidatorArgType[_T]] = ...,
+    repr: _ReprArgType = ...,
+    hash: Optional[bool] = ...,
+    init: bool = ...,
+    metadata: Optional[Mapping[Any, Any]] = ...,
+    converter: Optional[_ConverterType] = ...,
+    factory: Optional[Callable[[], _T]] = ...,
+    kw_only: bool = ...,
+    eq: Optional[bool] = ...,
+    order: Optional[bool] = ...,
+    on_setattr: Optional[_OnSetAttrArgType] = ...,
+) -> Any: ...
+@overload
 def attrs(
     maybe_cls: _C,
     these: Optional[Dict[str, Any]] = ...,
