@@ -1,5 +1,0 @@
-Added ``attr.resolve_types()``.
-It ensures that all forward-references and types in string form are resolved into concrete types.
-
-You need this only if you need concrete types at runtime.
-That means that if you only use types for static type checking, you do **not** need this function.

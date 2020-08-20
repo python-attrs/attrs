@@ -1,5 +1,0 @@
-We have also provisionally added ``attr.field()`` that supplants ``attr.ib()``.
-It also requires at least Python 3.6 and is keyword-only.
-Other than that, it only dropped a few arguments, but changed no defaults.
-
-As with ``attr.s()``: ``attr.ib()`` is not going anywhere.

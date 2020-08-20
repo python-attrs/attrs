@@ -1,5 +1,0 @@
-It is now possible to specify hooks that are called whenever an attribute is set **after** a class has been instantiated.
-
-You can pass ``on_setattr`` both to ``@attr.s()`` to set the default for all attributes on a class, and to ``@attr.ib()`` to overwrite it for individual attributes.
-
-``attrs`` also comes with a new module ``attr.setters`` that brings helpers that run validators, converters, or allow to freeze a subset of attributes.

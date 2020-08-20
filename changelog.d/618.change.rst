@@ -1,4 +1,0 @@
-Added ``attr.converters.pipe()``.
-The feature allows combining multiple conversion callbacks into one by piping the value through all of them, and retuning the last result.
-
-As part of this feature, we had to relax the type information for converter callables.
