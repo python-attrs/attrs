@@ -7,5 +7,5 @@ If this is a problem for you for some reason, please report it to our bug tracke
 The old ``attr`` namespace isn't going anywhere and its defaults are not changing – this is a purely additive measure.
 Please check out the linked issue for more details.
 
-These new APIs have been added *provisionally* as part of `#666 <https://github.com/python-attrs/attrs/pull/666>`_ so you can try them out today and provide feedback.
+These new APIs have been added *provisionally* as part of #666 so you can try them out today and provide feedback.
 Learn more in the `API docs <https://www.attrs.org/en/stable/api.html#provisional-apis>`_.
