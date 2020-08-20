@@ -1,0 +1,2 @@
+We have also provisionally added ``attr.field()`` that supplants ``attr.ib()``.
+It's also Python 3.6- and keyword-only, but other than that it only dropped a few arguments and changed no defaults.
