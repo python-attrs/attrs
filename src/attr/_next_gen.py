@@ -28,7 +28,7 @@ def define(
     kw_only=False,
     cache_hash=False,
     auto_exc=True,
-    eq=True,
+    eq=None,
     order=False,
     auto_detect=True,
     getstate_setstate=None,
