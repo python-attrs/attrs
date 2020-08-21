@@ -66,12 +66,12 @@ At the moment, the best workaround is to hold your nose, write a fake mypy plugi
    attr_attrib_makers.add("my_module.method_looks_like_attrib")
 
    class MyPlugin(Plugin):
-      # Our plugin does nothing but it has to exist so this file gets loaded.
-      pass
+       # Our plugin does nothing but it has to exist so this file gets loaded.
+       pass
 
 
    def plugin(version):
-      return MyPlugin
+       return MyPlugin
 
 
 Then tell mypy about your plugin using your project's ``mypy.ini``:
