@@ -133,3 +133,18 @@ class TestNextGen:
 
         with pytest.raises(attr.exceptions.FrozenInstanceError):
             f.x = 2
+
+    def test_auto_detect_eq(self):
+        """
+        auto_detect=True works for eq.
+
+        Regression test for #670.
+        """
+
+        @attr.define
+        class C:
+            def __eq__(self, o):
+                raise ValueError()
+
+        with pytest.raises(ValueError):
+            C() == C()
