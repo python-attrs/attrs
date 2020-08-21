@@ -11,10 +11,10 @@ Glossary
 
    slotted classes
       A class whose instances have no ``__dict__`` attribute and `define <https://docs.python.org/3/reference/datamodel.html#slots>`_ their attributes in a ``__slots__`` attribute instead.
-      In ``attrs``, they are created by passing ``slots=True`` to ``@attr.s`` (and are on by default in `attr.define`/`attr.mutable`/`attr.frozen`.
+      In ``attrs``, they are created by passing ``slots=True`` to ``@attr.s`` (and are on by default in `attr.define`/`attr.mutable`/`attr.frozen`).
 
 
-      Their main advantage is that they use less memory on CPython [#pypy]_.
+      Their main advantage is that they use less memory on CPython [#pypy]_ and are slightly faster.
 
       However they also come with several possibly surprising gotchas:
 
@@ -38,6 +38,37 @@ Glossary
         If you must inherit from other classes, try to inherit only from other slotted classes.
 
       - However, `it's not possible <https://docs.python.org/3/reference/datamodel.html#notes-on-using-slots>`_ to inherit from more than one class that has attributes in ``__slots__`` (you will get an ``TypeError: multiple bases have instance lay-out conflict``).
+
+      - It's not possible to monkeypatch methods on slotted classes.
+        This can feel limiting in test code, however the need to monkeypatch your own classes is usually a design smell.
+
+        If you really need to monkeypatch an instance in your tests, but don't want to give up on the advantages of slotted classes in production code, you can always subclass a slotted class as a dict class with no further changes and all the limitations go away:
+
+        .. doctest::
+
+           >>> import attr, unittest.mock
+           >>> @attr.s(slots=True)
+           ... class Slotted(object):
+           ...     x = attr.ib()
+           ...
+           ...     def method(self):
+           ...         return self.x
+           >>> s = Slotted(42)
+           >>> s.method()
+           42
+           >>> with unittest.mock.patch.object(s, "method", return_value=23):
+           ...     pass
+           Traceback (most recent call last):
+              ...
+           AttributeError: 'Slotted' object attribute 'method' is read-only
+           >>> @attr.s  # implies 'slots=False'
+           ... class Dicted(Slotted):
+           ...     pass
+           >>> d = Dicted(42)
+           >>> d.method()
+           42
+           >>> with unittest.mock.patch.object(d, "method", return_value=23):
+           ...     assert 23 == d.method()
 
       - Slotted classes must implement :meth:`__getstate__ <object.__getstate__>` and :meth:`__setstate__ <object.__setstate__>` to be serializable with `pickle` protocol 0 and 1.
         Therefore, ``attrs`` creates these methods automatically for ``slots=True`` classes (Python 2 uses protocol 0 by default).
