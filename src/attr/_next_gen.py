@@ -50,9 +50,9 @@ def define(
     .. versionadded:: 20.1.0
     """
 
-    def do_it(auto_attribs):
+    def do_it(cls, auto_attribs):
         return attrs(
-            maybe_cls=maybe_cls,
+            maybe_cls=cls,
             these=these,
             repr=repr,
             hash=hash,
@@ -74,12 +74,21 @@ def define(
         )
 
     if auto_attribs is not None:
-        return do_it(auto_attribs)
+        return do_it(maybe_cls, auto_attribs)
 
-    try:
-        return do_it(True)
-    except UnannotatedAttributeError:
-        return do_it(False)
+    def wrap(cls):
+        # Making this a wrapper ensures this code runs during class creation.
+        try:
+            return do_it(cls, True)
+        except UnannotatedAttributeError:
+            return do_it(cls, False)
+
+    # maybe_cls's type depends on the usage of the decorator.  It's a class
+    # if it's used as `@attrs` but ``None`` if used as `@attrs()`.
+    if maybe_cls is None:
+        return wrap
+    else:
+        return wrap(maybe_cls)
 
 
 mutable = define

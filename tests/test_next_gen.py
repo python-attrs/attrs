@@ -101,6 +101,31 @@ class TestNextGen:
 
         assert OldSchool(1) == OldSchool(1)
 
+        # Test with maybe_cls = None
+        @attr.define()
+        class OldSchool2:
+            x = attr.field()
+
+        assert OldSchool2(1) == OldSchool2(1)
+
+    def test_auto_attribs_detect_annotations(self):
+        """
+        define correctly detects if a class has type annotations.
+        """
+
+        @attr.define
+        class NewSchool:
+            x: int
+
+        assert NewSchool(1) == NewSchool(1)
+
+        # Test with maybe_cls = None
+        @attr.define()
+        class NewSchool2:
+            x: int
+
+        assert NewSchool2(1) == NewSchool2(1)
+
     def test_exception(self):
         """
         Exceptions are detected and correctly handled.
