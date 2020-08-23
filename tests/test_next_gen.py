@@ -110,7 +110,7 @@ class TestNextGen:
 
     def test_auto_attribs_detect_annotations(self):
         """
-        define correctly detects if a class lacks type annotations.
+        define correctly detects if a class has type annotations.
         """
 
         @attr.define
