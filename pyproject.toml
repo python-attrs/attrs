@@ -19,6 +19,12 @@ show_missing = true
 line-length = 79
 
 
+[tool.interrogate]
+verbose = 2
+fail-under = 100
+whitelist-regex = ["test_.*"]
+
+
 [tool.isort]
 atomic=true
 force_grid_wrap=0
