@@ -2047,9 +2047,7 @@ def _attrs_to_init_script(
                         attr_name, arg_name, has_on_setattr,
                     )
                 )
-                names_for_globals[
-                    _init_converter_pat % (a.name,)
-                ] = converter
+                names_for_globals[_init_converter_pat % (a.name,)] = converter
             else:
                 lines.append(fmt_setter(attr_name, arg_name, has_on_setattr))
 
@@ -2078,9 +2076,7 @@ def _attrs_to_init_script(
                         has_on_setattr,
                     )
                 )
-                names_for_globals[
-                    _init_converter_pat % (a.name,)
-                ] = converter
+                names_for_globals[_init_converter_pat % (a.name,)] = converter
             else:
                 lines.append(
                     "    " + fmt_setter(attr_name, arg_name, has_on_setattr)
@@ -2107,9 +2103,7 @@ def _attrs_to_init_script(
                         attr_name, arg_name, has_on_setattr
                     )
                 )
-                names_for_globals[
-                    _init_converter_pat % (a.name,)
-                ] = converter
+                names_for_globals[_init_converter_pat % (a.name,)] = converter
             else:
                 lines.append(fmt_setter(attr_name, arg_name, has_on_setattr))
 
