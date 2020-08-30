@@ -1,5 +1,3 @@
-.. _examples:
-
 ``attrs`` by Example
 ====================
 
@@ -48,7 +46,7 @@ By default, all features are added, so you immediately have a fully functional d
 
 As shown, the generated ``__init__`` method allows for both positional and keyword arguments.
 
-If playful naming turns you off, ``attrs`` comes with serious business aliases:
+If playful naming turns you off, ``attrs`` comes with serious-business aliases:
 
 .. doctest::
 
@@ -145,12 +143,79 @@ Therefore ``@attr.s`` comes with the ``repr_ns`` option to set it manually:
 On Python 3 it overrides the implicit detection.
 
 
+Keyword-only Attributes
+~~~~~~~~~~~~~~~~~~~~~~~
+
+When using ``attrs`` on Python 3, you can also add `keyword-only <https://docs.python.org/3/glossary.html#keyword-only-parameter>`_ attributes:
+
+.. doctest::
+
+    >>> @attr.s
+    ... class A:
+    ...     a = attr.ib(kw_only=True)
+    >>> A()
+    Traceback (most recent call last):
+      ...
+    TypeError: A() missing 1 required keyword-only argument: 'a'
+    >>> A(a=1)
+    A(a=1)
+
+``kw_only`` may also be specified at via ``attr.s``, and will apply to all attributes:
+
+.. doctest::
+
+    >>> @attr.s(kw_only=True)
+    ... class A:
+    ...     a = attr.ib()
+    ...     b = attr.ib()
+    >>> A(1, 2)
+    Traceback (most recent call last):
+      ...
+    TypeError: __init__() takes 1 positional argument but 3 were given
+    >>> A(a=1, b=2)
+    A(a=1, b=2)
+
+
+
+If you create an attribute with ``init=False``, the ``kw_only`` argument is ignored.
+
+Keyword-only attributes allow subclasses to add attributes without default values, even if the base class defines attributes with default values:
+
+.. doctest::
+
+    >>> @attr.s
+    ... class A:
+    ...     a = attr.ib(default=0)
+    >>> @attr.s
+    ... class B(A):
+    ...     b = attr.ib(kw_only=True)
+    >>> B(b=1)
+    B(a=0, b=1)
+    >>> B()
+    Traceback (most recent call last):
+      ...
+    TypeError: B() missing 1 required keyword-only argument: 'b'
+
+If you don't set ``kw_only=True``, then there's is no valid attribute ordering and you'll get an error:
+
+.. doctest::
+
+    >>> @attr.s
+    ... class A:
+    ...     a = attr.ib(default=0)
+    >>> @attr.s
+    ... class B(A):
+    ...     b = attr.ib()
+    Traceback (most recent call last):
+      ...
+    ValueError: No mandatory attributes allowed after an attribute with a default value or factory.  Attribute in question: Attribute(name='b', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, converter=None, metadata=mappingproxy({}), type=None, kw_only=False)
+
 .. _asdict:
 
 Converting to Collections Types
 -------------------------------
 
-When you have a class with data, it often is very convenient to transform that class into a :class:`dict` (for example if you want to serialize it to JSON):
+When you have a class with data, it often is very convenient to transform that class into a `dict` (for example if you want to serialize it to JSON):
 
 .. doctest::
 
@@ -158,7 +223,7 @@ When you have a class with data, it often is very convenient to transform that c
    {'x': 1, 'y': 2}
 
 Some fields cannot or should not be transformed.
-For that, :func:`attr.asdict` offers a callback that decides whether an attribute should be included:
+For that, `attr.asdict` offers a callback that decides whether an attribute should be included:
 
 .. doctest::
 
@@ -174,7 +239,7 @@ For that, :func:`attr.asdict` offers a callback that decides whether an attribut
    ...             filter=lambda attr, value: attr.name != "password")
    {'users': [{'email': 'jane@doe.invalid'}, {'email': 'joe@doe.invalid'}]}
 
-For the common case where you want to :func:`include <attr.filters.include>` or :func:`exclude <attr.filters.exclude>` certain types or attributes, ``attrs`` ships with a few helpers:
+For the common case where you want to `include <attr.filters.include>` or `exclude <attr.filters.exclude>` certain types or attributes, ``attrs`` ships with a few helpers:
 
 .. doctest::
 
@@ -262,7 +327,7 @@ And sometimes you even want mutable objects as default values (ever used acciden
    >>> cp
    ConnectionPool(db_string='postgres://localhost', pool=deque([Connection(socket=42)]), debug=False)
 
-More information on why class methods for constructing objects are awesome can be found in this insightful `blog post <http://as.ynchrono.us/2014/12/asynchronous-object-initialization.html>`_.
+More information on why class methods for constructing objects are awesome can be found in this insightful `blog post <https://as.ynchrono.us/2014/12/asynchronous-object-initialization.html>`_.
 
 Default factories can also be set using a decorator.
 The method receives the partially initialized instance which enables you to base a default value on other attributes:
@@ -274,7 +339,7 @@ The method receives the partially initialized instance which enables you to base
    ...     x = attr.ib(default=1)
    ...     y = attr.ib()
    ...     @y.default
-   ...     def name_does_not_matter(self):
+   ...     def _any_name_except_a_name_of_an_attribute(self):
    ...         return self.x + 1
    >>> C()
    C(x=1, y=2)
@@ -297,7 +362,7 @@ Validators
 
 Although your initializers should do as little as possible (ideally: just initialize your instance according to the arguments!), it can come in handy to do some kind of validation on the arguments.
 
-``attrs`` offers two ways to define validators for each attribute and it's up to you to choose which one suites better your style and project.
+``attrs`` offers two ways to define validators for each attribute and it's up to you to choose which one suits your style and project better.
 
 You can use a decorator:
 
@@ -317,7 +382,7 @@ You can use a decorator:
       ...
    ValueError: x must be smaller or equal to 42
 
- ...or a callable...
+...or a callable...
 
 .. doctest::
 
@@ -352,14 +417,16 @@ You can use a decorator:
    >>> C("128")
    Traceback (most recent call last):
       ...
-   TypeError: ("'x' must be <class 'int'> (got '128' that is a <class 'str'>).", Attribute(name='x', default=NOTHING, validator=[<instance_of validator for type <class 'int'>>, <function fits_byte at 0x10fd7a0d0>], repr=True, cmp=True, hash=True, init=True, metadata=mappingproxy({}), type=None, converter=one), <class 'int'>, '128')
+   TypeError: ("'x' must be <class 'int'> (got '128' that is a <class 'str'>).", Attribute(name='x', default=NOTHING, validator=[<instance_of validator for type <class 'int'>>, <function fits_byte at 0x10fd7a0d0>], repr=True, cmp=True, hash=True, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False), <class 'int'>, '128')
    >>> C(256)
    Traceback (most recent call last):
       ...
    ValueError: value out of bounds
 
+Please note that the decorator approach only works if -- and only if! -- the attribute in question has an ``attr.ib`` assigned.
+Therefore if you use ``@attr.s(auto_attribs=True)``, it is *not* enough to decorate said attribute with a type.
 
-``attrs`` ships with a bunch of validators, make sure to :ref:`check them out <api_validators>` before writing your own:
+``attrs`` ships with a bunch of validators, make sure to `check them out <api_validators>` before writing your own:
 
 .. doctest::
 
@@ -371,9 +438,9 @@ You can use a decorator:
    >>> C("42")
    Traceback (most recent call last):
       ...
-   TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, factory=NOTHING, validator=<instance_of validator for type <type 'int'>>, type=None), <type 'int'>, '42')
+   TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, factory=NOTHING, validator=<instance_of validator for type <type 'int'>>, type=None, kw_only=False), <type 'int'>, '42')
 
-Check out :ref:`validators` for more details.
+Check out `validators` for more details.
 
 
 Conversion
@@ -391,7 +458,7 @@ This can be useful for doing type-conversions on values that you don't want to f
     >>> o.x
     1
 
-Check out :ref:`converters` for more details.
+Check out `converters` for more details.
 
 
 .. _metadata:
@@ -414,13 +481,13 @@ All ``attrs`` attributes may include arbitrary metadata in the form of a read-on
 Metadata is not used by ``attrs``, and is meant to enable rich functionality in third-party libraries.
 The metadata dictionary follows the normal dictionary rules: keys need to be hashable, and both keys and values are recommended to be immutable.
 
-If you're the author of a third-party library with ``attrs`` integration, please see :ref:`Extending Metadata <extending_metadata>`.
+If you're the author of a third-party library with ``attrs`` integration, please see `Extending Metadata <extending_metadata>`.
 
 
 Types
 -----
 
-``attrs`` also allows you to associate a type with an attribute using either the *type* argument to :func:`attr.ib` or -- as of Python 3.6 -- using `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_-annotations:
+``attrs`` also allows you to associate a type with an attribute using either the *type* argument to `attr.ib` or -- as of Python 3.6 -- using `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_-annotations:
 
 
 .. doctest::
@@ -434,7 +501,7 @@ Types
    >>> attr.fields(C).y.type
    <class 'int'>
 
-If you don't mind annotating *all* attributes, you can even drop the :func:`attr.ib` and assign default values instead:
+If you don't mind annotating *all* attributes, you can even drop the `attr.ib` and assign default values instead:
 
 .. doctest::
 
@@ -463,18 +530,43 @@ If you don't mind annotating *all* attributes, you can even drop the :func:`attr
 
 The generated ``__init__`` method will have an attribute called ``__annotations__`` that contains this type information.
 
+If your annotations contain strings (e.g. forward references),
+you can resolve these after all references have been defined by using :func:`attr.resolve_types`.
+This will replace the *type* attribute in the respective fields.
+
+.. doctest::
+
+    >>> import typing
+    >>> @attr.s(auto_attribs=True)
+    ... class A:
+    ...     a: typing.List['A']
+    ...     b: 'B'
+    ...
+    >>> @attr.s(auto_attribs=True)
+    ... class B:
+    ...     a: A
+    ...
+    >>> attr.fields(A).a.type
+    typing.List[ForwardRef('A')]
+    >>> attr.fields(A).b.type
+    'B'
+    >>> attr.resolve_types(A, globals(), locals())
+    <class 'A'>
+    >>> attr.fields(A).a.type
+    typing.List[A]
+    >>> attr.fields(A).b.type
+    <class 'B'>
+
 .. warning::
 
    ``attrs`` itself doesn't have any features that work on top of type metadata *yet*.
    However it's useful for writing your own validators or serialization frameworks.
 
 
-.. _slots:
-
 Slots
 -----
 
-:term:`Slotted classes` have a bunch of advantages on CPython.
+:term:`Slotted classes <slotted classes>` have several advantages on CPython.
 Defining ``__slots__`` by hand is tedious, in ``attrs`` it's just a matter of passing ``slots=True``:
 
 .. doctest::
@@ -505,11 +597,11 @@ If you'd like to enforce it, ``attrs`` will try to help:
    >>> i.x
    1
 
-Please note that true immutability is impossible in Python but it will :ref:`get <how-frozen>` you 99% there.
+Please note that true immutability is impossible in Python but it will `get <how-frozen>` you 99% there.
 By themselves, immutable classes are useful for long-lived objects that should never change; like configurations for example.
 
 In order to use them in regular program flow, you'll need a way to easily create new instances with changed attributes.
-In Clojure that function is called `assoc <https://clojuredocs.org/clojure.core/assoc>`_ and ``attrs`` shamelessly imitates it: :func:`attr.evolve`:
+In Clojure that function is called `assoc <https://clojuredocs.org/clojure.core/assoc>`_ and ``attrs`` shamelessly imitates it: `attr.evolve`:
 
 .. doctest::
 
@@ -531,7 +623,7 @@ Other Goodies
 -------------
 
 Sometimes you may want to create a class programmatically.
-``attrs`` won't let you down and gives you :func:`attr.make_class` :
+``attrs`` won't let you down and gives you `attr.make_class` :
 
 .. doctest::
 
@@ -558,7 +650,7 @@ You can still have power over the attributes if you pass a dictionary of name: `
    >>> i.y
    []
 
-If you need to dynamically make a class with :func:`attr.make_class` and it needs to be a subclass of something else than ``object``, use the ``bases`` argument:
+If you need to dynamically make a class with `attr.make_class` and it needs to be a subclass of something else than ``object``, use the ``bases`` argument:
 
 .. doctest::
 
@@ -589,7 +681,7 @@ It will get called at the end of the generated ``__init__`` method.
    >>> obj
    C(x=1, y=2, z=3)
 
-Finally, you can exclude single attributes from certain methods:
+You can exclude single attributes from certain methods:
 
 .. doctest::
 
@@ -599,3 +691,14 @@ Finally, you can exclude single attributes from certain methods:
    ...     password = attr.ib(repr=False)
    >>> C("me", "s3kr3t")
    C(user='me')
+
+Alternatively, to influence how the generated ``__repr__()`` method formats a specific attribute, specify a custom callable to be used instead of the ``repr()`` built-in function:
+
+.. doctest::
+
+   >>> @attr.s
+   ... class C(object):
+   ...     user = attr.ib()
+   ...     password = attr.ib(repr=lambda value: '***')
+   >>> C("me", "s3kr3t")
+   C(user='me', password=***)

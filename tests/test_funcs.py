@@ -4,7 +4,7 @@ Tests for `attr._funcs`.
 
 from __future__ import absolute_import, division, print_function
 
-from collections import Mapping, OrderedDict, Sequence
+from collections import OrderedDict
 
 import pytest
 
@@ -14,7 +14,7 @@ from hypothesis import strategies as st
 import attr
 
 from attr import asdict, assoc, astuple, evolve, fields, has
-from attr._compat import TYPE
+from attr._compat import TYPE, Mapping, Sequence, ordered_dict
 from attr.exceptions import AttrsAttributeNotFoundError
 from attr.validators import instance_of
 
@@ -23,6 +23,21 @@ from .strategies import nested_classes, simple_classes
 
 MAPPING_TYPES = (dict, OrderedDict)
 SEQUENCE_TYPES = (list, tuple)
+
+
+@pytest.fixture(scope="session", name="C")
+def fixture_C():
+    """
+    Return a simple but fully featured attrs class with an x and a y attribute.
+    """
+    import attr
+
+    @attr.s
+    class C(object):
+        x = attr.ib()
+        y = attr.ib()
+
+    return C
 
 
 class TestAsDict(object):
@@ -163,10 +178,10 @@ class TestAsDict(object):
     @given(simple_classes())
     def test_asdict_preserve_order(self, cls):
         """
-        Field order should be preserved when dumping to OrderedDicts.
+        Field order should be preserved when dumping to an ordered_dict.
         """
         instance = cls()
-        dict_instance = asdict(instance, dict_factory=OrderedDict)
+        dict_instance = asdict(instance, dict_factory=ordered_dict)
 
         assert [a.name for a in fields(cls)] == list(dict_instance.keys())
 
@@ -233,14 +248,14 @@ class TestAsTuple(object):
                 elif isinstance(field_val, (list, tuple)):
                     # This field holds a sequence of something.
                     expected_type = type(obj_tuple[index])
-                    assert type(field_val) is expected_type  # noqa: E721
+                    assert type(field_val) is expected_type
                     for obj_e, obj_tuple_e in zip(field_val, obj_tuple[index]):
                         if has(obj_e.__class__):
                             assert_proper_col_class(obj_e, obj_tuple_e)
                 elif isinstance(field_val, dict):
                     orig = field_val
                     tupled = obj_tuple[index]
-                    assert type(orig) is type(tupled)  # noqa: E721
+                    assert type(orig) is type(tupled)
                     for obj_e, obj_tuple_e in zip(
                         orig.items(), tupled.items()
                     ):

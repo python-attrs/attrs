@@ -165,7 +165,7 @@ class TestAnnotations:
     @pytest.mark.parametrize("slots", [True, False])
     def test_auto_attribs_subclassing(self, slots):
         """
-        Attributes from super classes are inherited, it doesn't matter if the
+        Attributes from base classes are inherited, it doesn't matter if the
         subclass has annotations or not.
 
         Ref #291
@@ -229,3 +229,175 @@ class TestAnnotations:
             "foo": "typing.Any",
             "return": None,
         }
+
+    def test_keyword_only_auto_attribs(self):
+        """
+        `kw_only` propagates to attributes defined via `auto_attribs`.
+        """
+
+        @attr.s(auto_attribs=True, kw_only=True)
+        class C:
+            x: int
+            y: int
+
+        with pytest.raises(TypeError):
+            C(0, 1)
+
+        with pytest.raises(TypeError):
+            C(x=0)
+
+        c = C(x=0, y=1)
+
+        assert c.x == 0
+        assert c.y == 1
+
+    def test_base_class_variable(self):
+        """
+        Base class' class variables can be overridden with an attribute
+        without resorting to using an explicit `attr.ib()`.
+        """
+
+        class Base:
+            x: int = 42
+
+        @attr.s(auto_attribs=True)
+        class C(Base):
+            x: int
+
+        assert 1 == C(1).x
+
+    def test_removes_none_too(self):
+        """
+        Regression test for #523: make sure defaults that are set to None are
+        removed too.
+        """
+
+        @attr.s(auto_attribs=True)
+        class C:
+            x: int = 42
+            y: typing.Any = None
+
+        with pytest.raises(AttributeError):
+            C.x
+
+        with pytest.raises(AttributeError):
+            C.y
+
+    def test_non_comparable_defaults(self):
+        """
+        Regression test for #585: objects that are not directly comparable
+        (for example numpy arrays) would cause a crash when used as
+        default values of an attrs auto-attrib class.
+        """
+
+        class NonComparable:
+            def __eq__(self, other):
+                raise ValueError
+
+        @attr.s(auto_attribs=True)
+        class C:
+            x: typing.Any = NonComparable()
+
+    def test_basic_resolve(self):
+        """
+        Resolve the `Attribute.type` attr from basic type annotations.
+        Unannotated types are ignored.
+        """
+
+        @attr.s
+        class C:
+            x: "int" = attr.ib()
+            y = attr.ib(type=str)
+            z = attr.ib()
+
+        assert "int" == attr.fields(C).x.type
+        assert str is attr.fields(C).y.type
+        assert None is attr.fields(C).z.type
+
+        attr.resolve_types(C)
+
+        assert int is attr.fields(C).x.type
+        assert str is attr.fields(C).y.type
+        assert None is attr.fields(C).z.type
+
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_resolve_types_auto_attrib(self, slots):
+        """
+        Types can be resolved even when strings are involved.
+        """
+
+        @attr.s(slots=slots, auto_attribs=True)
+        class A:
+            a: typing.List[int]
+            b: typing.List["int"]
+            c: "typing.List[int]"
+
+        assert typing.List[int] == attr.fields(A).a.type
+        assert typing.List["int"] == attr.fields(A).b.type
+        assert "typing.List[int]" == attr.fields(A).c.type
+
+        # Note: I don't have to pass globals and locals here because
+        # int is a builtin and will be available in any scope.
+        attr.resolve_types(A)
+
+        assert typing.List[int] == attr.fields(A).a.type
+        assert typing.List[int] == attr.fields(A).b.type
+        assert typing.List[int] == attr.fields(A).c.type
+
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_resolve_types_decorator(self, slots):
+        """
+        Types can be resolved using it as a decorator.
+        """
+
+        @attr.resolve_types
+        @attr.s(slots=slots, auto_attribs=True)
+        class A:
+            a: typing.List[int]
+            b: typing.List["int"]
+            c: "typing.List[int]"
+
+        assert typing.List[int] == attr.fields(A).a.type
+        assert typing.List[int] == attr.fields(A).b.type
+        assert typing.List[int] == attr.fields(A).c.type
+
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_self_reference(self, slots):
+        """
+        References to self class using quotes can be resolved.
+        """
+
+        @attr.s(slots=slots, auto_attribs=True)
+        class A:
+            a: "A"
+            b: typing.Optional["A"]  # noqa: will resolve below
+
+        assert "A" == attr.fields(A).a.type
+        assert typing.Optional["A"] == attr.fields(A).b.type
+
+        attr.resolve_types(A, globals(), locals())
+
+        assert A == attr.fields(A).a.type
+        assert typing.Optional[A] == attr.fields(A).b.type
+
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_forward_reference(self, slots):
+        """
+        Forward references can be resolved.
+        """
+
+        @attr.s(slots=slots, auto_attribs=True)
+        class A:
+            a: typing.List["B"]  # noqa: will resolve below
+
+        @attr.s(slots=slots, auto_attribs=True)
+        class B:
+            a: A
+
+        assert typing.List["B"] == attr.fields(A).a.type
+        assert A == attr.fields(B).a.type
+
+        attr.resolve_types(A, globals(), locals())
+
+        assert typing.List[B] == attr.fields(A).a.type
+        assert A == attr.fields(B).a.type

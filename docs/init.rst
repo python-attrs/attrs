@@ -1,7 +1,7 @@
 Initialization
 ==============
 
-In Python, instance intialization happens in the ``__init__`` method.
+In Python, instance initialization happens in the ``__init__`` method.
 Generally speaking, you should keep as little logic as possible in it, and you should think about what the class needs and not how it is going to be instantiated.
 
 Passing complex objects into ``__init__`` and then using them to derive data for the class unnecessarily couples your new class with the old class which makes it harder to test and also will cause problems later.
@@ -15,7 +15,7 @@ So assuming you use an ORM and want to extract 2D points from a row object, do n
 
     pt = Point(row)
 
-Instead, write a :func:`classmethod` that will extract it for you::
+Instead, write a `classmethod` that will extract it for you::
 
    @attr.s
    class Point(object):
@@ -97,6 +97,7 @@ This is when default values come into play:
    C(a=42, b=[], c=[], d={})
 
 It's important that the decorated method -- or any other method or property! -- doesn't have the same name as the attribute, otherwise it would overwrite the attribute definition.
+You also cannot use type annotations to elide the `attr.ib` call for ``d`` as explained in `types`.
 
 
 Please note that as with function and method signatures, ``default=[]`` will *not* do what you may think it might do:
@@ -161,13 +162,13 @@ If the value does not pass the validator's standards, it just raises an appropri
       ...
    ValueError: x must be smaller or equal to 42
 
-Again, it's important that the decorated method doesn't have the same name as the attribute.
+Again, it's important that the decorated method doesn't have the same name as the attribute and that you can't elide the call to `attr.ib`.
 
 
 Callables
 ~~~~~~~~~
 
-If you want to re-use your validators, you should have a look at the ``validator`` argument to :func:`attr.ib()`.
+If you want to re-use your validators, you should have a look at the ``validator`` argument to `attr.ib`.
 
 It takes either a callable or a list of callables (usually functions) and treats them as validators that receive the same arguments as with the decorator approach.
 
@@ -190,9 +191,9 @@ Since the validators runs *after* the instance is initialized, you can refer to 
       ...
    ValueError: 'x' has to be smaller than 'y'!
 
-This example also shows of some syntactic sugar for using the :func:`attr.validators.and_` validator: if you pass a list, all validators have to pass.
+This example also shows of some syntactic sugar for using the `attr.validators.and_` validator: if you pass a list, all validators have to pass.
 
-``attrs`` won't intercept your changes to those attributes but you can always call :func:`attr.validate` on any instance to verify that it's still valid:
+``attrs`` won't intercept your changes to those attributes but you can always call `attr.validate` on any instance to verify that it's still valid:
 
 .. doctest::
 
@@ -203,7 +204,7 @@ This example also shows of some syntactic sugar for using the :func:`attr.valida
       ...
    ValueError: 'x' has to be smaller than 'y'!
 
-``attrs`` ships with a bunch of validators, make sure to :ref:`check them out <api_validators>` before writing your own:
+``attrs`` ships with a bunch of validators, make sure to `check them out <api_validators>` before writing your own:
 
 .. doctest::
 
@@ -335,7 +336,7 @@ Please note that you can't directly set attributes on frozen classes:
       ...
    attr.exceptions.FrozenInstanceError: can't set attribute
 
-If you need to set attributes on a frozen class, you'll have to resort to the :ref:`same trick <how-frozen>` as ``attrs`` and use :meth:`object.__setattr__`:
+If you need to set attributes on a frozen class, you'll have to resort to the `same trick <how-frozen>` as ``attrs`` and use :meth:`object.__setattr__`:
 
 .. doctest::
 
@@ -347,6 +348,24 @@ If you need to set attributes on a frozen class, you'll have to resort to the :r
    ...         object.__setattr__(self, "y", self.x + 1)
    >>> Frozen(1)
    Frozen(x=1, y=2)
+
+Note that you *must not* access the hash code of the object in ``__attrs_post__init__`` if ``cache_hash=True``.
+
+
+Order of Execution
+------------------
+
+If present, the hooks are executed in the following order:
+
+1. For each attribute, in the order it was declared:
+
+   a. default factory
+   b. converter
+
+2. *all* validators
+3. ``__attrs_post_init__``
+
+Notably this means, that you can access all attributes from within your validators, but your converters have to deal with invalid values and have to return a valid value.
 
 
 .. _`Wiki page`: https://github.com/python-attrs/attrs/wiki/Extensions-to-attrs

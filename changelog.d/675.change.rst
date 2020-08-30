@@ -1,0 +1,1 @@
+``attr.define()`` et al's hybrid behavior now also works correctly when arguments are passed.

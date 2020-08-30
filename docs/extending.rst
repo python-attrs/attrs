@@ -1,10 +1,8 @@
-.. _extending:
-
 Extending
 =========
 
 Each ``attrs``-decorated class has a ``__attrs_attrs__`` class attribute.
-It is a tuple of :class:`attr.Attribute` carrying meta-data about each attribute.
+It is a tuple of `attr.Attribute` carrying meta-data about each attribute.
 
 So it is fairly simple to build your own decorators on top of ``attrs``:
 
@@ -13,16 +11,17 @@ So it is fairly simple to build your own decorators on top of ``attrs``:
    >>> import attr
    >>> def print_attrs(cls):
    ...     print(cls.__attrs_attrs__)
+   ...     return cls
    >>> @print_attrs
    ... @attr.s
    ... class C(object):
    ...     a = attr.ib()
-   (Attribute(name='a', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None),)
+   (Attribute(name='a', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False, on_setattr=None),)
 
 
 .. warning::
 
-   The :func:`attr.s` decorator **must** be applied first because it puts ``__attrs_attrs__`` in place!
+   The `attr.s` decorator **must** be applied first because it puts ``__attrs_attrs__`` in place!
    That means that is has to come *after* your decorator because::
 
       @a
@@ -43,7 +42,49 @@ Wrapping the Decorator
 
 A more elegant way can be to wrap ``attrs`` altogether and build a class `DSL <https://en.wikipedia.org/wiki/Domain-specific_language>`_ on top of it.
 
-An example for that is the package `environ_config <https://github.com/hynek/environ_config>`_ that uses ``attrs`` under the hood to define environment-based configurations declaratively without exposing ``attrs`` APIs at all.
+An example for that is the package `environ-config <https://github.com/hynek/environ-config>`_ that uses ``attrs`` under the hood to define environment-based configurations declaratively without exposing ``attrs`` APIs at all.
+
+Another common use case is to overwrite ``attrs``'s defaults.
+
+Unfortunately, this currently `confuses <https://github.com/python/mypy/issues/5406>`_ mypy's ``attrs`` plugin.
+At the moment, the best workaround is to hold your nose, write a fake mypy plugin, and mutate a bunch of global variables::
+
+   from mypy.plugin import Plugin
+   from mypy.plugins.attrs import (
+      attr_attrib_makers,
+      attr_class_makers,
+      attr_dataclass_makers,
+   )
+
+   # These work just like `attr.dataclass`.
+   attr_dataclass_makers.add("my_module.method_looks_like_attr_dataclass")
+
+   # This works just like `attr.s`.
+   attr_class_makers.add("my_module.method_looks_like_attr_s")
+
+   # These are our `attr.ib` makers.
+   attr_attrib_makers.add("my_module.method_looks_like_attrib")
+
+   class MyPlugin(Plugin):
+       # Our plugin does nothing but it has to exist so this file gets loaded.
+       pass
+
+
+   def plugin(version):
+       return MyPlugin
+
+
+Then tell mypy about your plugin using your project's ``mypy.ini``:
+
+.. code:: ini
+
+   [mypy]
+   plugins=<path to file>
+
+
+.. warning::
+   Please note that it is currently *impossible* to let mypy know that you've changed defaults like *eq* or *order*.
+   You can only use this trick to tell mypy that a class is actually an ``attrs`` class.
 
 
 Types
@@ -52,7 +93,7 @@ Types
 ``attrs`` offers two ways of attaching type information to attributes:
 
 - `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_ annotations on Python 3.6 and later,
-- and the *type* argument to :func:`attr.ib`.
+- and the *type* argument to `attr.ib`.
 
 This information is available to you:
 
@@ -100,10 +141,18 @@ Here are some tips for effective use of metadata:
 
     >>> MY_TYPE_METADATA = '__my_type_metadata'
     >>>
-    >>> def typed(cls, default=attr.NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, convert=None, metadata={}):
+    >>> def typed(
+    ...     cls, default=attr.NOTHING, validator=None, repr=True,
+    ...     eq=True, order=None, hash=None, init=True, metadata={},
+    ...     type=None, converter=None
+    ... ):
     ...     metadata = dict() if not metadata else metadata
     ...     metadata[MY_TYPE_METADATA] = cls
-    ...     return attr.ib(default, validator, repr, cmp, hash, init, convert, metadata)
+    ...     return attr.ib(
+    ...         default=default, validator=validator, repr=repr,
+    ...         eq=eq, order=order, hash=hash, init=init,
+    ...         metadata=metadata, type=type, converter=converter
+    ...     )
     >>>
     >>> @attr.s
     ... class C(object):

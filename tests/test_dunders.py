@@ -5,6 +5,7 @@ Tests for dunder methods from `attrib._make`.
 from __future__ import absolute_import, division, print_function
 
 import copy
+import pickle
 
 import pytest
 
@@ -16,8 +17,9 @@ import attr
 from attr._make import (
     NOTHING,
     Factory,
-    _add_init,
     _add_repr,
+    _is_slot_cls,
+    _make_init,
     _Nothing,
     fields,
     make_class,
@@ -27,15 +29,48 @@ from attr.validators import instance_of
 from .utils import simple_attr, simple_class
 
 
-CmpC = simple_class(cmp=True)
-CmpCSlots = simple_class(cmp=True, slots=True)
+EqC = simple_class(eq=True)
+EqCSlots = simple_class(eq=True, slots=True)
+OrderC = simple_class(order=True)
+OrderCSlots = simple_class(order=True, slots=True)
 ReprC = simple_class(repr=True)
 ReprCSlots = simple_class(repr=True, slots=True)
 
 # HashC is hashable by explicit definition while HashCSlots is hashable
-# implicitly.
+# implicitly.  The "Cached" versions are the same, except with hash code
+# caching enabled
 HashC = simple_class(hash=True)
-HashCSlots = simple_class(hash=None, cmp=True, frozen=True, slots=True)
+HashCSlots = simple_class(hash=None, eq=True, frozen=True, slots=True)
+HashCCached = simple_class(hash=True, cache_hash=True)
+HashCSlotsCached = simple_class(
+    hash=None, eq=True, frozen=True, slots=True, cache_hash=True
+)
+# the cached hash code is stored slightly differently in this case
+# so it needs to be tested separately
+HashCFrozenNotSlotsCached = simple_class(
+    frozen=True, slots=False, hash=True, cache_hash=True
+)
+
+
+def _add_init(cls, frozen):
+    """
+    Add a __init__ method to *cls*.  If *frozen* is True, make it immutable.
+
+    This function used to be part of _make.  It wasn't used anymore however
+    the tests for it are still useful to test the behavior of _make_init.
+    """
+    cls.__init__ = _make_init(
+        cls,
+        cls.__attrs_attrs__,
+        getattr(cls, "__attrs_post_init__", False),
+        frozen,
+        _is_slot_cls(cls),
+        cache_hash=False,
+        base_attr_map={},
+        is_exc=False,
+        has_global_on_setattr=False,
+    )
+    return cls
 
 
 class InitC(object):
@@ -45,23 +80,23 @@ class InitC(object):
 InitC = _add_init(InitC, False)
 
 
-class TestAddCmp(object):
+class TestEqOrder(object):
     """
-    Tests for `_add_cmp`.
+    Tests for eq and order related methods.
     """
 
     @given(booleans())
-    def test_cmp(self, slots):
+    def test_eq_ignore_attrib(self, slots):
         """
-        If `cmp` is False, ignore that attribute.
+        If `eq` is False for an attribute, ignore that attribute.
         """
         C = make_class(
-            "C", {"a": attr.ib(cmp=False), "b": attr.ib()}, slots=slots
+            "C", {"a": attr.ib(eq=False), "b": attr.ib()}, slots=slots
         )
 
         assert C(1, 2) == C(2, 2)
 
-    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    @pytest.mark.parametrize("cls", [EqC, EqCSlots])
     def test_equal(self, cls):
         """
         Equal objects are detected as equal.
@@ -69,7 +104,7 @@ class TestAddCmp(object):
         assert cls(1, 2) == cls(1, 2)
         assert not (cls(1, 2) != cls(1, 2))
 
-    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    @pytest.mark.parametrize("cls", [EqC, EqCSlots])
     def test_unequal_same_class(self, cls):
         """
         Unequal objects of correct type are detected as unequal.
@@ -77,21 +112,21 @@ class TestAddCmp(object):
         assert cls(1, 2) != cls(2, 1)
         assert not (cls(1, 2) == cls(2, 1))
 
-    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    @pytest.mark.parametrize("cls", [EqC, EqCSlots])
     def test_unequal_different_class(self, cls):
         """
         Unequal objects of different type are detected even if their attributes
         match.
         """
 
-        class NotCmpC(object):
+        class NotEqC(object):
             a = 1
             b = 2
 
-        assert cls(1, 2) != NotCmpC()
-        assert not (cls(1, 2) == NotCmpC())
+        assert cls(1, 2) != NotEqC()
+        assert not (cls(1, 2) == NotEqC())
 
-    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    @pytest.mark.parametrize("cls", [OrderC, OrderCSlots])
     def test_lt(self, cls):
         """
         __lt__ compares objects as tuples of attribute values.
@@ -103,14 +138,14 @@ class TestAddCmp(object):
         ]:
             assert cls(*a) < cls(*b)
 
-    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    @pytest.mark.parametrize("cls", [OrderC, OrderCSlots])
     def test_lt_unordable(self, cls):
         """
         __lt__ returns NotImplemented if classes differ.
         """
         assert NotImplemented == (cls(1, 2).__lt__(42))
 
-    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    @pytest.mark.parametrize("cls", [OrderC, OrderCSlots])
     def test_le(self, cls):
         """
         __le__ compares objects as tuples of attribute values.
@@ -124,14 +159,14 @@ class TestAddCmp(object):
         ]:
             assert cls(*a) <= cls(*b)
 
-    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    @pytest.mark.parametrize("cls", [OrderC, OrderCSlots])
     def test_le_unordable(self, cls):
         """
         __le__ returns NotImplemented if classes differ.
         """
         assert NotImplemented == (cls(1, 2).__le__(42))
 
-    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    @pytest.mark.parametrize("cls", [OrderC, OrderCSlots])
     def test_gt(self, cls):
         """
         __gt__ compares objects as tuples of attribute values.
@@ -143,14 +178,14 @@ class TestAddCmp(object):
         ]:
             assert cls(*a) > cls(*b)
 
-    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    @pytest.mark.parametrize("cls", [OrderC, OrderCSlots])
     def test_gt_unordable(self, cls):
         """
         __gt__ returns NotImplemented if classes differ.
         """
         assert NotImplemented == (cls(1, 2).__gt__(42))
 
-    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    @pytest.mark.parametrize("cls", [OrderC, OrderCSlots])
     def test_ge(self, cls):
         """
         __ge__ compares objects as tuples of attribute values.
@@ -164,7 +199,7 @@ class TestAddCmp(object):
         ]:
             assert cls(*a) >= cls(*b)
 
-    @pytest.mark.parametrize("cls", [CmpC, CmpCSlots])
+    @pytest.mark.parametrize("cls", [OrderC, OrderCSlots])
     def test_ge_unordable(self, cls):
         """
         __ge__ returns NotImplemented if classes differ.
@@ -194,6 +229,21 @@ class TestAddRepr(object):
         repr returns a sensible value.
         """
         assert "C(a=1, b=2)" == repr(cls(1, 2))
+
+    def test_custom_repr_works(self):
+        """
+        repr returns a sensible value for attributes with a custom repr
+        callable.
+        """
+
+        def custom_repr(value):
+            return "foo:" + str(value)
+
+        @attr.s
+        class C(object):
+            a = attr.ib(repr=custom_repr)
+
+        assert "C(a=foo:1)" == repr(C(1))
 
     def test_infinite_recursion(self):
         """
@@ -261,6 +311,33 @@ class TestAddRepr(object):
         ) == e.value.args[0]
 
 
+# these are for use in TestAddHash.test_cache_hash_serialization
+# they need to be out here so they can be un-pickled
+@attr.attrs(hash=True, cache_hash=False)
+class HashCacheSerializationTestUncached(object):
+    foo_value = attr.ib()
+
+
+@attr.attrs(hash=True, cache_hash=True)
+class HashCacheSerializationTestCached(object):
+    foo_value = attr.ib()
+
+
+@attr.attrs(slots=True, hash=True, cache_hash=True)
+class HashCacheSerializationTestCachedSlots(object):
+    foo_value = attr.ib()
+
+
+class IncrementingHasher(object):
+    def __init__(self):
+        self.hash_value = 100
+
+    def __hash__(self):
+        rv = self.hash_value
+        self.hash_value += 1
+        return rv
+
+
 class TestAddHash(object):
     """
     Tests for `_add_hash`.
@@ -283,8 +360,42 @@ class TestAddHash(object):
 
         assert exc_args == e.value.args
 
-    @given(booleans())
-    def test_hash_attribute(self, slots):
+    def test_enforce_no_cache_hash_without_hash(self):
+        """
+        Ensure exception is thrown if caching the hash code is requested
+        but attrs is not requested to generate `__hash__`.
+        """
+        exc_args = (
+            "Invalid value for cache_hash.  To use hash caching,"
+            " hashing must be either explicitly or implicitly "
+            "enabled.",
+        )
+        with pytest.raises(TypeError) as e:
+            make_class("C", {}, hash=False, cache_hash=True)
+        assert exc_args == e.value.args
+
+        # unhashable case
+        with pytest.raises(TypeError) as e:
+            make_class(
+                "C", {}, hash=None, eq=True, frozen=False, cache_hash=True
+            )
+        assert exc_args == e.value.args
+
+    def test_enforce_no_cached_hash_without_init(self):
+        """
+        Ensure exception is thrown if caching the hash code is requested
+        but attrs is not requested to generate `__init__`.
+        """
+        exc_args = (
+            "Invalid value for cache_hash.  To use hash caching,"
+            " init must be True.",
+        )
+        with pytest.raises(TypeError) as e:
+            make_class("C", {}, init=False, hash=True, cache_hash=True)
+        assert exc_args == e.value.args
+
+    @given(booleans(), booleans())
+    def test_hash_attribute(self, slots, cache_hash):
         """
         If `hash` is False on an attribute, ignore that attribute.
         """
@@ -293,18 +404,19 @@ class TestAddHash(object):
             {"a": attr.ib(hash=False), "b": attr.ib()},
             slots=slots,
             hash=True,
+            cache_hash=cache_hash,
         )
 
         assert hash(C(1, 2)) == hash(C(2, 2))
 
     @given(booleans())
-    def test_hash_attribute_mirrors_cmp(self, cmp):
+    def test_hash_attribute_mirrors_eq(self, eq):
         """
-        If `hash` is None, the hash generation mirrors `cmp`.
+        If `hash` is None, the hash generation mirrors `eq`.
         """
-        C = make_class("C", {"a": attr.ib(cmp=cmp)}, cmp=True, frozen=True)
+        C = make_class("C", {"a": attr.ib(eq=eq)}, eq=True, frozen=True)
 
-        if cmp:
+        if eq:
             assert C(1) != C(2)
             assert hash(C(1)) != hash(C(2))
             assert hash(C(1)) == hash(C(1))
@@ -313,30 +425,44 @@ class TestAddHash(object):
             assert hash(C(1)) == hash(C(2))
 
     @given(booleans())
-    def test_hash_mirrors_cmp(self, cmp):
+    def test_hash_mirrors_eq(self, eq):
         """
-        If `hash` is None, the hash generation mirrors `cmp`.
+        If `hash` is None, the hash generation mirrors `eq`.
         """
-        C = make_class("C", {"a": attr.ib()}, cmp=cmp, frozen=True)
+        C = make_class("C", {"a": attr.ib()}, eq=eq, frozen=True)
 
         i = C(1)
 
         assert i == i
         assert hash(i) == hash(i)
 
-        if cmp:
+        if eq:
             assert C(1) == C(1)
             assert hash(C(1)) == hash(C(1))
         else:
             assert C(1) != C(1)
             assert hash(C(1)) != hash(C(1))
 
-    @pytest.mark.parametrize("cls", [HashC, HashCSlots])
+    @pytest.mark.parametrize(
+        "cls",
+        [
+            HashC,
+            HashCSlots,
+            HashCCached,
+            HashCSlotsCached,
+            HashCFrozenNotSlotsCached,
+        ],
+    )
     def test_hash_works(self, cls):
         """
         __hash__ returns different hashes for different values.
         """
-        assert hash(cls(1, 2)) != hash(cls(1, 1))
+        a = cls(1, 2)
+        b = cls(1, 1)
+        assert hash(a) != hash(b)
+        # perform the test again to test the pre-cached path through
+        # __hash__ for the cached-hash versions
+        assert hash(a) != hash(b)
 
     def test_hash_default(self):
         """
@@ -351,6 +477,130 @@ class TestAddHash(object):
             "'C' objects are unhashable",  # PyPy
             "unhashable type: 'C'",  # CPython
         )
+
+    def test_cache_hashing(self):
+        """
+        Ensure that hash computation if cached if and only if requested
+        """
+
+        class HashCounter:
+            """
+            A class for testing which counts how many times its hash
+            has been requested
+            """
+
+            def __init__(self):
+                self.times_hash_called = 0
+
+            def __hash__(self):
+                self.times_hash_called += 1
+                return 12345
+
+        Uncached = make_class(
+            "Uncached",
+            {"hash_counter": attr.ib(factory=HashCounter)},
+            hash=True,
+            cache_hash=False,
+        )
+        Cached = make_class(
+            "Cached",
+            {"hash_counter": attr.ib(factory=HashCounter)},
+            hash=True,
+            cache_hash=True,
+        )
+
+        uncached_instance = Uncached()
+        cached_instance = Cached()
+
+        hash(uncached_instance)
+        hash(uncached_instance)
+        hash(cached_instance)
+        hash(cached_instance)
+
+        assert 2 == uncached_instance.hash_counter.times_hash_called
+        assert 1 == cached_instance.hash_counter.times_hash_called
+
+    @pytest.mark.parametrize("cache_hash", [True, False])
+    @pytest.mark.parametrize("frozen", [True, False])
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_copy_hash_cleared(self, cache_hash, frozen, slots):
+        """
+        Test that the default hash is recalculated after a copy operation.
+        """
+
+        kwargs = dict(frozen=frozen, slots=slots, cache_hash=cache_hash,)
+
+        # Give it an explicit hash if we don't have an implicit one
+        if not frozen:
+            kwargs["hash"] = True
+
+        @attr.s(**kwargs)
+        class C(object):
+            x = attr.ib()
+
+        a = C(IncrementingHasher())
+        # Ensure that any hash cache would be calculated before copy
+        orig_hash = hash(a)
+        b = copy.deepcopy(a)
+
+        if kwargs["cache_hash"]:
+            # For cache_hash classes, this call is cached
+            assert orig_hash == hash(a)
+
+        assert orig_hash != hash(b)
+
+    @pytest.mark.parametrize(
+        "klass,cached",
+        [
+            (HashCacheSerializationTestUncached, False),
+            (HashCacheSerializationTestCached, True),
+            (HashCacheSerializationTestCachedSlots, True),
+        ],
+    )
+    def test_cache_hash_serialization_hash_cleared(self, klass, cached):
+        """
+        Tests that the hash cache is cleared on deserialization to fix
+        https://github.com/python-attrs/attrs/issues/482 .
+
+        This test is intended to guard against a stale hash code surviving
+        across serialization (which may cause problems when the hash value
+        is different in different interpreters).
+        """
+
+        obj = klass(IncrementingHasher())
+        original_hash = hash(obj)
+        obj_rt = self._roundtrip_pickle(obj)
+
+        if cached:
+            assert original_hash == hash(obj)
+
+        assert original_hash != hash(obj_rt)
+
+    @pytest.mark.parametrize("frozen", [True, False])
+    def test_copy_two_arg_reduce(self, frozen):
+        """
+        If __getstate__ returns None, the tuple returned by object.__reduce__
+        won't contain the state dictionary; this test ensures that the custom
+        __reduce__ generated when cache_hash=True works in that case.
+        """
+
+        @attr.s(frozen=frozen, cache_hash=True, hash=True)
+        class C(object):
+            x = attr.ib()
+
+            def __getstate__(self):
+                return None
+
+        # By the nature of this test it doesn't really create an object that's
+        # in a valid state - it basically does the equivalent of
+        # `object.__new__(C)`, so it doesn't make much sense to assert anything
+        # about the result of the copy. This test will just check that it
+        # doesn't raise an *error*.
+        copy.deepcopy(C(1))
+
+    def _roundtrip_pickle(self, obj):
+        pickle_str = pickle.dumps(obj)
+        return pickle.loads(pickle_str)
 
 
 class TestAddInit(object):
@@ -557,3 +807,48 @@ class TestNothing(object):
         assert _Nothing() == _Nothing() == NOTHING
         assert not (_Nothing() != _Nothing())
         assert 1 != _Nothing()
+
+
+@attr.s(hash=True, order=True)
+class C(object):
+    pass
+
+
+# Store this class so that we recreate it.
+OriginalC = C
+
+
+@attr.s(hash=True, order=True)
+class C(object):
+    pass
+
+
+class TestFilenames(object):
+    def test_filenames(self):
+        """
+        The created dunder methods have a "consistent" filename.
+        """
+        assert (
+            OriginalC.__init__.__code__.co_filename
+            == "<attrs generated init tests.test_dunders.C>"
+        )
+        assert (
+            OriginalC.__eq__.__code__.co_filename
+            == "<attrs generated eq tests.test_dunders.C>"
+        )
+        assert (
+            OriginalC.__hash__.__code__.co_filename
+            == "<attrs generated hash tests.test_dunders.C>"
+        )
+        assert (
+            C.__init__.__code__.co_filename
+            == "<attrs generated init tests.test_dunders.C-2>"
+        )
+        assert (
+            C.__eq__.__code__.co_filename
+            == "<attrs generated eq tests.test_dunders.C-2>"
+        )
+        assert (
+            C.__hash__.__code__.co_filename
+            == "<attrs generated hash tests.test_dunders.C-2>"
+        )

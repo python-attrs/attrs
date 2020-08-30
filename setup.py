@@ -12,7 +12,7 @@ PACKAGES = find_packages(where="src")
 META_PATH = os.path.join("src", "attr", "__init__.py")
 KEYWORDS = ["class", "attribute", "boilerplate"]
 PROJECT_URLS = {
-    "Documentation": "http://www.attrs.org/",
+    "Documentation": "https://www.attrs.org/",
     "Bug Tracker": "https://github.com/python-attrs/attrs/issues",
     "Source Code": "https://github.com/python-attrs/attrs",
 }
@@ -26,22 +26,24 @@ CLASSIFIERS = [
     "Programming Language :: Python :: 2",
     "Programming Language :: Python :: 2.7",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.4",
     "Programming Language :: Python :: 3.5",
     "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 INSTALL_REQUIRES = []
 EXTRAS_REQUIRE = {
-    "docs": ["sphinx", "zope.interface"],
+    "docs": ["sphinx", "sphinx-rtd-theme", "zope.interface"],
     "tests": [
-        "coverage",
+        # 5.0 introduced toml; parallel was broken until 5.0.2
+        "coverage[toml]>=5.0.2",
         "hypothesis",
         "pympler",
-        "pytest",
+        "pytest>=4.3.0",  # 4.3.0 dropped last use of `convert`
         "six",
         "zope.interface",
     ],
@@ -57,7 +59,7 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 
 def read(*parts):
     """
-    Build an absolute path from *parts* and and return the contents of the
+    Build an absolute path from *parts* and return the contents of the
     resulting file.  Assume UTF-8 encoding.
     """
     with codecs.open(os.path.join(HERE, *parts), "rb", "utf-8") as f:
@@ -87,7 +89,9 @@ LONG = (
     + "Release Information\n"
     + "===================\n\n"
     + re.search(
-        "(\d+.\d.\d \(.*?\)\n.*?)\n\n\n----\n\n\n", read("CHANGELOG.rst"), re.S
+        r"(\d+.\d.\d \(.*?\)\r?\n.*?)\r?\n\r?\n\r?\n----\r?\n\r?\n\r?\n",
+        read("CHANGELOG.rst"),
+        re.S,
     ).group(1)
     + "\n\n`Full changelog "
     + "<{url}en/stable/changelog.html>`_.\n\n".format(url=URL)
@@ -109,11 +113,14 @@ if __name__ == "__main__":
         maintainer_email=find_meta("email"),
         keywords=KEYWORDS,
         long_description=LONG,
+        long_description_content_type="text/x-rst",
         packages=PACKAGES,
         package_dir={"": "src"},
+        python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
         zip_safe=False,
         classifiers=CLASSIFIERS,
         install_requires=INSTALL_REQUIRES,
         extras_require=EXTRAS_REQUIRE,
         include_package_data=True,
+        options={"bdist_wheel": {"universal": "1"}},
     )

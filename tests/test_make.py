@@ -5,6 +5,8 @@ Tests for `attr._make`.
 from __future__ import absolute_import, division, print_function
 
 import copy
+import functools
+import gc
 import inspect
 import itertools
 import sys
@@ -13,7 +15,7 @@ from operator import attrgetter
 
 import pytest
 
-from hypothesis import given
+from hypothesis import assume, given
 from hypothesis.strategies import booleans, integers, lists, sampled_from, text
 
 import attr
@@ -28,6 +30,8 @@ from attr._make import (
     _Attributes,
     _ClassBuilder,
     _CountingAttr,
+    _determine_eq_order,
+    _determine_whether_to_implement,
     _transform_attrs,
     and_,
     fields,
@@ -35,11 +39,16 @@ from attr._make import (
     make_class,
     validate,
 )
-from attr.exceptions import DefaultAlreadySetError, NotAnAttrsClassError
+from attr.exceptions import (
+    DefaultAlreadySetError,
+    NotAnAttrsClassError,
+    PythonTooOldError,
+)
 
 from .strategies import (
     gen_attr_names,
     list_of_attrs,
+    optional_bool,
     simple_attrs,
     simple_attrs_with_metadata,
     simple_attrs_without_metadata,
@@ -165,76 +174,6 @@ class TestCountingAttr(object):
                 pass
 
 
-class TestAttribute(object):
-    """
-    Tests for `attr.Attribute`.
-    """
-
-    def test_deprecated_convert_argument(self):
-        """
-        Using *convert* raises a DeprecationWarning and sets the converter
-        field.
-        """
-
-        def conv(v):
-            return v
-
-        with pytest.warns(DeprecationWarning) as wi:
-            a = Attribute(
-                "a", True, True, True, True, True, True, convert=conv
-            )
-        w = wi.pop()
-
-        assert conv == a.converter
-        assert (
-            "The `convert` argument is deprecated in favor of `converter`.  "
-            "It will be removed after 2019/01.",
-        ) == w.message.args
-        assert __file__ == w.filename
-
-    def test_deprecated_convert_attribute(self):
-        """
-        If Attribute.convert is accessed, a DeprecationWarning is raised.
-        """
-
-        def conv(v):
-            return v
-
-        a = simple_attr("a", converter=conv)
-        with pytest.warns(DeprecationWarning) as wi:
-            convert = a.convert
-        w = wi.pop()
-
-        assert conv is convert is a.converter
-        assert (
-            "The `convert` attribute is deprecated in favor of `converter`.  "
-            "It will be removed after 2019/01.",
-        ) == w.message.args
-        assert __file__ == w.filename
-
-    def test_convert_converter(self):
-        """
-        A TypeError is raised if both *convert* and *converter* are passed.
-        """
-        with pytest.raises(RuntimeError) as ei:
-            Attribute(
-                "a",
-                True,
-                True,
-                True,
-                True,
-                True,
-                True,
-                convert=lambda v: v,
-                converter=lambda v: v,
-            )
-
-        assert (
-            "Can't pass both `convert` and `converter`.  "
-            "Please use `converter` only.",
-        ) == ei.value.args
-
-
 def make_tc():
     class TransformC(object):
         z = attr.ib()
@@ -252,10 +191,10 @@ class TestTransformAttrs(object):
 
     def test_no_modifications(self):
         """
-        Doesn't attach __attrs_attrs__ to the class anymore.
+        Does not attach __attrs_attrs__ to the class.
         """
         C = make_tc()
-        _transform_attrs(C, None, False)
+        _transform_attrs(C, None, False, False, True)
 
         assert None is getattr(C, "__attrs_attrs__", None)
 
@@ -264,7 +203,7 @@ class TestTransformAttrs(object):
         Transforms every `_CountingAttr` and leaves others (a) be.
         """
         C = make_tc()
-        attrs, _, _ = _transform_attrs(C, None, False)
+        attrs, _, _ = _transform_attrs(C, None, False, False, True)
 
         assert ["z", "y", "x"] == [a.name for a in attrs]
 
@@ -277,16 +216,18 @@ class TestTransformAttrs(object):
         class C(object):
             pass
 
-        assert _Attributes(((), [], {})) == _transform_attrs(C, None, False)
+        assert _Attributes(((), [], {})) == _transform_attrs(
+            C, None, False, False, True
+        )
 
     def test_transforms_to_attribute(self):
         """
         All `_CountingAttr`s are transformed into `Attribute`s.
         """
         C = make_tc()
-        attrs, super_attrs, _ = _transform_attrs(C, None, False)
+        attrs, base_attrs, _ = _transform_attrs(C, None, False, False, True)
 
-        assert [] == super_attrs
+        assert [] == base_attrs
         assert 3 == len(attrs)
         assert all(isinstance(a, Attribute) for a in attrs)
 
@@ -301,18 +242,50 @@ class TestTransformAttrs(object):
             y = attr.ib()
 
         with pytest.raises(ValueError) as e:
-            _transform_attrs(C, None, False)
+            _transform_attrs(C, None, False, False, True)
         assert (
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, repr=True, "
-            "cmp=True, hash=None, init=True, metadata=mappingproxy({}), "
-            "type=None, converter=None)",
+            "eq=True, order=True, hash=None, init=True, "
+            "metadata=mappingproxy({}), type=None, converter=None, "
+            "kw_only=False, inherited=False, on_setattr=None)",
         ) == e.value.args
+
+    def test_kw_only(self):
+        """
+        Converts all attributes, including base class' attributes, if `kw_only`
+        is provided. Therefore, `kw_only` allows attributes with defaults to
+        preceed mandatory attributes.
+
+        Updates in the subclass *don't* affect the base class attributes.
+        """
+
+        @attr.s
+        class B(object):
+            b = attr.ib()
+
+        for b_a in B.__attrs_attrs__:
+            assert b_a.kw_only is False
+
+        class C(B):
+            x = attr.ib(default=None)
+            y = attr.ib()
+
+        attrs, base_attrs, _ = _transform_attrs(C, None, False, True, True)
+
+        assert len(attrs) == 3
+        assert len(base_attrs) == 1
+
+        for a in attrs:
+            assert a.kw_only is True
+
+        for b_a in B.__attrs_attrs__:
+            assert b_a.kw_only is False
 
     def test_these(self):
         """
-        If these is passed, use it and ignore body and super classes.
+        If these is passed, use it and ignore body and base classes.
         """
 
         class Base(object):
@@ -321,9 +294,11 @@ class TestTransformAttrs(object):
         class C(Base):
             y = attr.ib()
 
-        attrs, super_attrs, _ = _transform_attrs(C, {"x": attr.ib()}, False)
+        attrs, base_attrs, _ = _transform_attrs(
+            C, {"x": attr.ib()}, False, False, True
+        )
 
-        assert [] == super_attrs
+        assert [] == base_attrs
         assert (simple_attr("x"),) == attrs
 
     def test_these_leave_body(self):
@@ -352,9 +327,9 @@ class TestTransformAttrs(object):
 
         assert "C(a=1, b=2)" == repr(C())
 
-    def test_multiple_inheritance(self):
+    def test_multiple_inheritance_old(self):
         """
-        Order of attributes doesn't get mixed up by multiple inheritance.
+        Old multiple inheritance attributre collection behavior is retained.
 
         See #285
         """
@@ -388,6 +363,121 @@ class TestTransformAttrs(object):
             "E(a1='a1', a2='a2', b1='b1', b2='b2', c1='c1', c2='c2', d1='d1', "
             "d2='d2', e1='e1', e2='e2')"
         ) == repr(E())
+
+    def test_overwrite_proper_mro(self):
+        """
+        The proper MRO path works single overwrites too.
+        """
+
+        @attr.s(collect_by_mro=True)
+        class C(object):
+            x = attr.ib(default=1)
+
+        @attr.s(collect_by_mro=True)
+        class D(C):
+            x = attr.ib(default=2)
+
+        assert "D(x=2)" == repr(D())
+
+    def test_multiple_inheritance_proper_mro(self):
+        """
+        Attributes are collected according to the MRO.
+
+        See #428
+        """
+
+        @attr.s
+        class A(object):
+            a1 = attr.ib(default="a1")
+            a2 = attr.ib(default="a2")
+
+        @attr.s
+        class B(A):
+            b1 = attr.ib(default="b1")
+            b2 = attr.ib(default="b2")
+
+        @attr.s
+        class C(B, A):
+            c1 = attr.ib(default="c1")
+            c2 = attr.ib(default="c2")
+
+        @attr.s
+        class D(A):
+            d1 = attr.ib(default="d1")
+            d2 = attr.ib(default="d2")
+
+        @attr.s(collect_by_mro=True)
+        class E(C, D):
+            e1 = attr.ib(default="e1")
+            e2 = attr.ib(default="e2")
+
+        assert (
+            "E(a1='a1', a2='a2', d1='d1', d2='d2', b1='b1', b2='b2', c1='c1', "
+            "c2='c2', e1='e1', e2='e2')"
+        ) == repr(E())
+
+    def test_mro(self):
+        """
+        Attributes and methods are looked up the same way.
+
+        See #428
+        """
+
+        @attr.s
+        class A(object):
+
+            x = attr.ib(10)
+
+            def xx(self):
+                return 10
+
+        @attr.s
+        class B(A):
+            y = attr.ib(20)
+
+        @attr.s
+        class C(A):
+            x = attr.ib(50)
+
+            def xx(self):
+                return 50
+
+        @attr.s(collect_by_mro=True)
+        class D(B, C):
+            pass
+
+        d = D()
+
+        assert d.x == d.xx()
+
+    def test_inherited(self):
+        """
+        Inherited Attributes have `.inherited` True, otherwise False.
+        """
+
+        @attr.s
+        class A(object):
+            a = attr.ib()
+
+        @attr.s
+        class B(A):
+            b = attr.ib()
+
+        @attr.s
+        class C(B):
+            a = attr.ib()
+            c = attr.ib()
+
+        f = attr.fields
+
+        assert False is f(A).a.inherited
+
+        assert True is f(B).a.inherited
+        assert False is f(B).b.inherited
+
+        assert False is f(C).a.inherited
+        assert True is f(C).b.inherited
+        assert False is f(C).c.inherited
 
 
 class TestAttributes(object):
@@ -468,21 +558,30 @@ class TestAttributes(object):
         "arg_name, method_name",
         [
             ("repr", "__repr__"),
-            ("cmp", "__eq__"),
+            ("eq", "__eq__"),
+            ("order", "__le__"),
             ("hash", "__hash__"),
             ("init", "__init__"),
         ],
     )
     def test_respects_add_arguments(self, arg_name, method_name):
         """
-        If a certain `add_XXX` is `False`, `__XXX__` is not added to the class.
+        If a certain `XXX` is `False`, `__XXX__` is not added to the class.
         """
         # Set the method name to a sentinel and check whether it has been
         # overwritten afterwards.
         sentinel = object()
 
-        am_args = {"repr": True, "cmp": True, "hash": True, "init": True}
+        am_args = {
+            "repr": True,
+            "eq": True,
+            "order": True,
+            "hash": True,
+            "init": True,
+        }
         am_args[arg_name] = False
+        if arg_name == "eq":
+            am_args["order"] = False
 
         class C(object):
             x = attr.ib()
@@ -539,7 +638,7 @@ class TestAttributes(object):
         assert C.D.__name__ == "D"
         assert C.D.__qualname__ == C.__qualname__ + ".D"
 
-    @given(with_validation=booleans())
+    @pytest.mark.parametrize("with_validation", [True, False])
     def test_post_init(self, with_validation, monkeypatch):
         """
         Verify that __attrs_post_init__ gets called if defined.
@@ -618,6 +717,248 @@ class TestAttributes(object):
             @attr.s
             class C(object):
                 x = attr.ib(factory=Factory(list))
+
+
+@pytest.mark.skipif(PY2, reason="keyword-only arguments are PY3-only.")
+class TestKeywordOnlyAttributes(object):
+    """
+    Tests for keyword-only attributes.
+    """
+
+    def test_adds_keyword_only_arguments(self):
+        """
+        Attributes can be added as keyword-only.
+        """
+
+        @attr.s
+        class C:
+            a = attr.ib()
+            b = attr.ib(default=2, kw_only=True)
+            c = attr.ib(kw_only=True)
+            d = attr.ib(default=attr.Factory(lambda: 4), kw_only=True)
+
+        c = C(1, c=3)
+
+        assert c.a == 1
+        assert c.b == 2
+        assert c.c == 3
+        assert c.d == 4
+
+    def test_ignores_kw_only_when_init_is_false(self):
+        """
+        Specifying ``kw_only=True`` when ``init=False`` is essentially a no-op.
+        """
+
+        @attr.s
+        class C:
+            x = attr.ib(init=False, default=0, kw_only=True)
+            y = attr.ib()
+
+        c = C(1)
+
+        assert c.x == 0
+        assert c.y == 1
+
+    def test_keyword_only_attributes_presence(self):
+        """
+        Raises `TypeError` when keyword-only arguments are
+        not specified.
+        """
+
+        @attr.s
+        class C:
+            x = attr.ib(kw_only=True)
+
+        with pytest.raises(TypeError) as e:
+            C()
+
+        assert (
+            "missing 1 required keyword-only argument: 'x'"
+        ) in e.value.args[0]
+
+    def test_keyword_only_attributes_can_come_in_any_order(self):
+        """
+        Mandatory vs non-mandatory attr order only matters when they are part
+        of the __init__ signature and when they aren't kw_only (which are
+        moved to the end and can be mandatory or non-mandatory in any order,
+        as they will be specified as keyword args anyway).
+        """
+
+        @attr.s
+        class C:
+            a = attr.ib(kw_only=True)
+            b = attr.ib(kw_only=True, default="b")
+            c = attr.ib(kw_only=True)
+            d = attr.ib()
+            e = attr.ib(default="e")
+            f = attr.ib(kw_only=True)
+            g = attr.ib(kw_only=True, default="g")
+            h = attr.ib(kw_only=True)
+            i = attr.ib(init=False)
+
+        c = C("d", a="a", c="c", f="f", h="h")
+
+        assert c.a == "a"
+        assert c.b == "b"
+        assert c.c == "c"
+        assert c.d == "d"
+        assert c.e == "e"
+        assert c.f == "f"
+        assert c.g == "g"
+        assert c.h == "h"
+
+    def test_keyword_only_attributes_allow_subclassing(self):
+        """
+        Subclass can define keyword-only attributed without defaults,
+        when the base class has attributes with defaults.
+        """
+
+        @attr.s
+        class Base:
+            x = attr.ib(default=0)
+
+        @attr.s
+        class C(Base):
+            y = attr.ib(kw_only=True)
+
+        c = C(y=1)
+
+        assert c.x == 0
+        assert c.y == 1
+
+    def test_keyword_only_class_level(self):
+        """
+        `kw_only` can be provided at the attr.s level, converting all
+        attributes to `kw_only.`
+        """
+
+        @attr.s(kw_only=True)
+        class C:
+            x = attr.ib()
+            y = attr.ib(kw_only=True)
+
+        with pytest.raises(TypeError):
+            C(0, y=1)
+
+        c = C(x=0, y=1)
+
+        assert c.x == 0
+        assert c.y == 1
+
+    def test_keyword_only_class_level_subclassing(self):
+        """
+        Subclass `kw_only` propagates to attrs inherited from the base,
+        allowing non-default following default.
+        """
+
+        @attr.s
+        class Base:
+            x = attr.ib(default=0)
+
+        @attr.s(kw_only=True)
+        class C(Base):
+            y = attr.ib()
+
+        with pytest.raises(TypeError):
+            C(1)
+
+        c = C(x=0, y=1)
+
+        assert c.x == 0
+        assert c.y == 1
+
+    def test_init_false_attribute_after_keyword_attribute(self):
+        """
+        A positional attribute cannot follow a `kw_only` attribute,
+        but an `init=False` attribute can because it won't appear
+        in `__init__`
+        """
+
+        @attr.s
+        class KwArgBeforeInitFalse:
+            kwarg = attr.ib(kw_only=True)
+            non_init_function_default = attr.ib(init=False)
+            non_init_keyword_default = attr.ib(
+                init=False, default="default-by-keyword"
+            )
+
+            @non_init_function_default.default
+            def _init_to_init(self):
+                return self.kwarg + "b"
+
+        c = KwArgBeforeInitFalse(kwarg="a")
+
+        assert c.kwarg == "a"
+        assert c.non_init_function_default == "ab"
+        assert c.non_init_keyword_default == "default-by-keyword"
+
+    def test_init_false_attribute_after_keyword_attribute_with_inheritance(
+        self,
+    ):
+        """
+        A positional attribute cannot follow a `kw_only` attribute,
+        but an `init=False` attribute can because it won't appear
+        in `__init__`. This test checks that we allow this
+        even when the `kw_only` attribute appears in a parent class
+        """
+
+        @attr.s
+        class KwArgBeforeInitFalseParent:
+            kwarg = attr.ib(kw_only=True)
+
+        @attr.s
+        class KwArgBeforeInitFalseChild(KwArgBeforeInitFalseParent):
+            non_init_function_default = attr.ib(init=False)
+            non_init_keyword_default = attr.ib(
+                init=False, default="default-by-keyword"
+            )
+
+            @non_init_function_default.default
+            def _init_to_init(self):
+                return self.kwarg + "b"
+
+        c = KwArgBeforeInitFalseChild(kwarg="a")
+
+        assert c.kwarg == "a"
+        assert c.non_init_function_default == "ab"
+        assert c.non_init_keyword_default == "default-by-keyword"
+
+
+@pytest.mark.skipif(not PY2, reason="PY2-specific keyword-only error behavior")
+class TestKeywordOnlyAttributesOnPy2(object):
+    """
+    Tests for keyword-only attribute behavior on py2.
+    """
+
+    def test_syntax_error(self):
+        """
+        Keyword-only attributes raise Syntax error on ``__init__`` generation.
+        """
+
+        with pytest.raises(PythonTooOldError):
+
+            @attr.s(kw_only=True)
+            class ClassLevel(object):
+                a = attr.ib()
+
+        with pytest.raises(PythonTooOldError):
+
+            @attr.s()
+            class AttrLevel(object):
+                a = attr.ib(kw_only=True)
+
+    def test_no_init(self):
+        """
+        Keyworld-only is a no-op, not any error, if ``init=false``.
+        """
+
+        @attr.s(kw_only=True, init=False)
+        class ClassLevel(object):
+            a = attr.ib()
+
+        @attr.s(init=False)
+        class AttrLevel(object):
+            a = attr.ib(kw_only=True)
 
 
 @attr.s
@@ -733,16 +1074,17 @@ class TestFields(object):
     Tests for `fields`.
     """
 
+    @given(simple_classes())
     def test_instance(self, C):
         """
         Raises `TypeError` on non-classes.
         """
         with pytest.raises(TypeError) as e:
-            fields(C(1, 2))
+            fields(C())
 
         assert "Passed object must be a class." == e.value.args[0]
 
-    def test_handler_non_attrs_class(self, C):
+    def test_handler_non_attrs_class(self):
         """
         Raises `ValueError` if passed a non-``attrs`` instance.
         """
@@ -774,16 +1116,17 @@ class TestFieldsDict(object):
     Tests for `fields_dict`.
     """
 
+    @given(simple_classes())
     def test_instance(self, C):
         """
         Raises `TypeError` on non-classes.
         """
         with pytest.raises(TypeError) as e:
-            fields_dict(C(1, 2))
+            fields_dict(C())
 
         assert "Passed object must be a class." == e.value.args[0]
 
-    def test_handler_non_attrs_class(self, C):
+    def test_handler_non_attrs_class(self):
         """
         Raises `ValueError` if passed a non-``attrs`` instance.
         """
@@ -826,7 +1169,7 @@ class TestConverter(object):
     @given(integers(), booleans())
     def test_convert_property(self, val, init):
         """
-        Property tests for attributes with convert.
+        Property tests for attributes using converter.
         """
         C = make_class(
             "C",
@@ -843,9 +1186,9 @@ class TestConverter(object):
         assert c.y == 2
 
     @given(integers(), booleans())
-    def test_convert_factory_property(self, val, init):
+    def test_converter_factory_property(self, val, init):
         """
-        Property tests for attributes with convert, and a factory default.
+        Property tests for attributes with converter, and a factory default.
         """
         C = make_class(
             "C",
@@ -917,48 +1260,6 @@ class TestConverter(object):
             "C", {"x": attr.ib(converter=lambda v: int(v))}, frozen=True
         )
         C("1")
-
-    def test_deprecated_convert(self):
-        """
-        Using *convert* raises a DeprecationWarning and sets the converter
-        field.
-        """
-
-        def conv(v):
-            return v
-
-        with pytest.warns(DeprecationWarning) as wi:
-
-            @attr.s
-            class C(object):
-                x = attr.ib(convert=conv)
-
-            convert = fields(C).x.convert
-
-        assert 2 == len(wi.list)
-        w = wi.pop()
-
-        assert conv == fields(C).x.converter == convert
-        assert (
-            "The `convert` argument is deprecated in favor of `converter`.  "
-            "It will be removed after 2019/01.",
-        ) == w.message.args
-        assert __file__ == w.filename
-
-    def test_convert_converter(self):
-        """
-        A TypeError is raised if both *convert* and *converter* are passed.
-        """
-        with pytest.raises(RuntimeError) as ei:
-
-            @attr.s
-            class C(object):
-                x = attr.ib(convert=lambda v: v, converter=lambda v: v)
-
-        assert (
-            "Can't pass both `convert` and `converter`.  "
-            "Please use `converter` only.",
-        ) == ei.value.args
 
     @pytest.mark.parametrize("frozen", (False, True))
     @pytest.mark.parametrize("slots", (False, True))
@@ -1250,7 +1551,21 @@ class TestClassBuilder(object):
         class C(object):
             pass
 
-        b = _ClassBuilder(C, None, True, True, False)
+        b = _ClassBuilder(
+            C,
+            None,
+            True,
+            True,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            True,
+            None,
+            False,
+        )
 
         assert "<_ClassBuilder(cls=C)>" == repr(b)
 
@@ -1262,10 +1577,25 @@ class TestClassBuilder(object):
         class C(object):
             x = attr.ib()
 
-        b = _ClassBuilder(C, None, True, True, False)
+        b = _ClassBuilder(
+            C,
+            None,
+            True,
+            True,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            True,
+            None,
+            False,
+        )
 
         cls = (
-            b.add_cmp()
+            b.add_eq()
+            .add_order()
             .add_hash()
             .add_init()
             .add_repr("ns")
@@ -1301,13 +1631,20 @@ class TestClassBuilder(object):
             def organic(self):
                 pass
 
-        meth = getattr(C, meth_name)
+        @attr.s(hash=True, str=True)
+        class D(object):
+            pass
 
-        assert meth_name == meth.__name__
-        assert C.organic.__module__ == meth.__module__
+        meth_C = getattr(C, meth_name)
+        meth_D = getattr(D, meth_name)
+
+        assert meth_name == meth_C.__name__ == meth_D.__name__
+        assert C.organic.__module__ == meth_C.__module__ == meth_D.__module__
         if not PY2:
+            # This is assertion that would fail if a single __ne__ instance
+            # was reused across multiple _make_eq calls.
             organic_prefix = C.organic.__qualname__.rsplit(".", 1)[0]
-            assert organic_prefix + "." + meth_name == meth.__qualname__
+            assert organic_prefix + "." + meth_name == meth_C.__qualname__
 
     def test_handles_missing_meta_on_class(self):
         """
@@ -1319,7 +1656,19 @@ class TestClassBuilder(object):
             pass
 
         b = _ClassBuilder(
-            C, these=None, slots=False, frozen=False, auto_attribs=False
+            C,
+            these=None,
+            slots=False,
+            frozen=False,
+            weakref_slot=True,
+            getstate_setstate=False,
+            auto_attribs=False,
+            is_exc=False,
+            kw_only=False,
+            cache_hash=False,
+            collect_by_mro=True,
+            on_setattr=None,
+            has_custom_setattr=False,
         )
         b._cls = {}  # no __module__; no __qualname__
 
@@ -1337,30 +1686,108 @@ class TestClassBuilder(object):
     def test_weakref_setstate(self):
         """
         __weakref__ is not set on in setstate because it's not writable in
-        slots classes.
+        slotted classes.
         """
 
         @attr.s(slots=True)
         class C(object):
             __weakref__ = attr.ib(
-                init=False, hash=False, repr=False, cmp=False
+                init=False, hash=False, repr=False, eq=False, order=False
             )
 
         assert C() == copy.deepcopy(C())
 
-
-class TestMakeCmp:
-    """
-    Tests for _make_cmp().
-    """
-
-    @pytest.mark.parametrize(
-        "op", ["__%s__" % (op,) for op in ("lt", "le", "gt", "ge")]
-    )
-    def test_subclasses_deprecated(self, recwarn, op):
+    def test_no_references_to_original(self):
         """
-        Calling comparison methods on subclasses raises a deprecation warning;
-        calling them on identical classes does not..
+        When subclassing a slotted class, there are no stray references to the
+        original class.
+        """
+
+        @attr.s(slots=True)
+        class C(object):
+            pass
+
+        @attr.s(slots=True)
+        class C2(C):
+            pass
+
+        # The original C2 is in a reference cycle, so force a collect:
+        gc.collect()
+
+        assert [C2] == C.__subclasses__()
+
+    def _get_copy_kwargs(include_slots=True):
+        """
+        Generate a list of compatible attr.s arguments for the `copy` tests.
+        """
+        options = ["frozen", "hash", "cache_hash"]
+
+        if include_slots:
+            options.extend(["slots", "weakref_slot"])
+
+        out_kwargs = []
+        for args in itertools.product([True, False], repeat=len(options)):
+            kwargs = dict(zip(options, args))
+
+            kwargs["hash"] = kwargs["hash"] or None
+
+            if kwargs["cache_hash"] and not (
+                kwargs["frozen"] or kwargs["hash"]
+            ):
+                continue
+
+            out_kwargs.append(kwargs)
+
+        return out_kwargs
+
+    @pytest.mark.parametrize("kwargs", _get_copy_kwargs())
+    def test_copy(self, kwargs):
+        """
+        Ensure that an attrs class can be copied successfully.
+        """
+
+        @attr.s(eq=True, **kwargs)
+        class C(object):
+            x = attr.ib()
+
+        a = C(1)
+        b = copy.deepcopy(a)
+
+        assert a == b
+
+    @pytest.mark.parametrize("kwargs", _get_copy_kwargs(include_slots=False))
+    def test_copy_custom_setstate(self, kwargs):
+        """
+        Ensure that non-slots classes respect a custom __setstate__.
+        """
+
+        @attr.s(eq=True, **kwargs)
+        class C(object):
+            x = attr.ib()
+
+            def __getstate__(self):
+                return self.__dict__
+
+            def __setstate__(self, state):
+                state["x"] *= 5
+                self.__dict__.update(state)
+
+        expected = C(25)
+        actual = copy.copy(C(5))
+
+        assert actual == expected
+
+
+class TestMakeOrder:
+    """
+    Tests for _make_order().
+    """
+
+    def test_subclasses_cannot_be_compared(self):
+        """
+        Calling comparison methods on subclasses raises a TypeError.
+
+        We use the actual operation so we get an error raised on Python 3.
         """
 
         @attr.s
@@ -1371,18 +1798,489 @@ class TestMakeCmp:
         class B(A):
             pass
 
-        getattr(A(42), op)(A(42))
-        getattr(B(42), op)(B(42))
+        a = A(42)
+        b = B(42)
 
-        assert [] == recwarn.list
+        assert a <= a
+        assert a >= a
+        assert not a < a
+        assert not a > a
 
-        getattr(A(42), op)(B(42))
-
-        w = recwarn.pop()
-
-        assert [] == recwarn.list
-        assert isinstance(w.message, DeprecationWarning)
         assert (
-            "Comparision of subclasses using %s is deprecated and will be "
-            "removed in 2019." % (op,)
-        ) == w.message.args[0]
+            NotImplemented
+            == a.__lt__(b)
+            == a.__le__(b)
+            == a.__gt__(b)
+            == a.__ge__(b)
+        )
+
+        if not PY2:
+            with pytest.raises(TypeError):
+                a <= b
+
+            with pytest.raises(TypeError):
+                a >= b
+
+            with pytest.raises(TypeError):
+                a < b
+
+            with pytest.raises(TypeError):
+                a > b
+
+
+class TestDetermineEqOrder(object):
+    def test_default(self):
+        """
+        If all are set to None, set both eq and order to the passed default.
+        """
+        assert (42, 42) == _determine_eq_order(None, None, None, 42)
+
+    @pytest.mark.parametrize("eq", [True, False])
+    def test_order_mirrors_eq_by_default(self, eq):
+        """
+        If order is None, it mirrors eq.
+        """
+        assert (eq, eq) == _determine_eq_order(None, eq, None, True)
+
+    def test_order_without_eq(self):
+        """
+        eq=False, order=True raises a meaningful ValueError.
+        """
+        with pytest.raises(
+            ValueError, match="`order` can only be True if `eq` is True too."
+        ):
+            _determine_eq_order(None, False, True, True)
+
+    @given(cmp=booleans(), eq=optional_bool, order=optional_bool)
+    def test_mix(self, cmp, eq, order):
+        """
+        If cmp is not None, eq and order must be None and vice versa.
+        """
+        assume(eq is not None or order is not None)
+
+        with pytest.raises(
+            ValueError, match="Don't mix `cmp` with `eq' and `order`."
+        ):
+            _determine_eq_order(cmp, eq, order, True)
+
+    def test_cmp_deprecated(self):
+        """
+        Passing a cmp that is not None raises a DeprecationWarning.
+        """
+        with pytest.deprecated_call() as dc:
+
+            @attr.s(cmp=True)
+            class C(object):
+                pass
+
+        (w,) = dc.list
+
+        assert (
+            "The usage of `cmp` is deprecated and will be removed on or after "
+            "2021-06-01.  Please use `eq` and `order` instead."
+            == w.message.args[0]
+        )
+
+
+class TestDocs:
+    @pytest.mark.parametrize(
+        "meth_name",
+        [
+            "__init__",
+            "__repr__",
+            "__eq__",
+            "__ne__",
+            "__lt__",
+            "__le__",
+            "__gt__",
+            "__ge__",
+        ],
+    )
+    def test_docs(self, meth_name):
+        """
+        Tests the presence and correctness of the documentation
+        for the generated methods
+        """
+
+        @attr.s
+        class A(object):
+            pass
+
+        if hasattr(A, "__qualname__"):
+            method = getattr(A, meth_name)
+            expected = "Method generated by attrs for class {}.".format(
+                A.__qualname__
+            )
+            assert expected == method.__doc__
+
+
+@pytest.mark.skipif(not PY2, reason="Needs to be only caught on Python 2.")
+def test_auto_detect_raises_on_py2():
+    """
+    Trying to pass auto_detect=True to attr.s raises PythonTooOldError.
+    """
+    with pytest.raises(PythonTooOldError):
+        attr.s(auto_detect=True)
+
+
+class BareC(object):
+    pass
+
+
+class BareSlottedC(object):
+    __slots__ = ()
+
+
+@pytest.mark.skipif(PY2, reason="Auto-detection is Python 3-only.")
+class TestAutoDetect:
+    @pytest.mark.parametrize("C", (BareC, BareSlottedC))
+    def test_determine_detects_non_presence_correctly(self, C):
+        """
+        On an empty class, nothing should be detected.
+        """
+        assert True is _determine_whether_to_implement(
+            C, None, True, ("__init__",)
+        )
+        assert True is _determine_whether_to_implement(
+            C, None, True, ("__repr__",)
+        )
+        assert True is _determine_whether_to_implement(
+            C, None, True, ("__eq__", "__ne__")
+        )
+        assert True is _determine_whether_to_implement(
+            C, None, True, ("__le__", "__lt__", "__ge__", "__gt__")
+        )
+
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("frozen", [True, False])
+    def test_make_all_by_default(self, slots, frozen):
+        """
+        If nothing is there to be detected, imply init=True, repr=True,
+        hash=None, eq=True, order=True.
+        """
+
+        @attr.s(auto_detect=True, slots=slots, frozen=frozen)
+        class C(object):
+            x = attr.ib()
+
+        i = C(1)
+        o = object()
+
+        assert i.__init__ is not o.__init__
+        assert i.__repr__ is not o.__repr__
+        assert i.__eq__ is not o.__eq__
+        assert i.__ne__ is not o.__ne__
+        assert i.__le__ is not o.__le__
+        assert i.__lt__ is not o.__lt__
+        assert i.__ge__ is not o.__ge__
+        assert i.__gt__ is not o.__gt__
+
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("frozen", [True, False])
+    def test_detect_auto_init(self, slots, frozen):
+        """
+        If auto_detect=True and an __init__ exists, don't write one.
+        """
+
+        @attr.s(auto_detect=True, slots=slots, frozen=frozen)
+        class CI(object):
+            x = attr.ib()
+
+            def __init__(self):
+                object.__setattr__(self, "x", 42)
+
+        assert 42 == CI().x
+
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("frozen", [True, False])
+    def test_detect_auto_repr(self, slots, frozen):
+        """
+        If auto_detect=True and an __repr__ exists, don't write one.
+        """
+
+        @attr.s(auto_detect=True, slots=slots, frozen=frozen)
+        class C(object):
+            x = attr.ib()
+
+            def __repr__(self):
+                return "hi"
+
+        assert "hi" == repr(C(42))
+
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("frozen", [True, False])
+    def test_detect_auto_hash(self, slots, frozen):
+        """
+        If auto_detect=True and an __hash__ exists, don't write one.
+        """
+
+        @attr.s(auto_detect=True, slots=slots, frozen=frozen)
+        class C(object):
+            x = attr.ib()
+
+            def __hash__(self):
+                return 0xC0FFEE
+
+        assert 0xC0FFEE == hash(C(42))
+
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("frozen", [True, False])
+    def test_detect_auto_eq(self, slots, frozen):
+        """
+        If auto_detect=True and an __eq__ or an __ne__, exist, don't write one.
+        """
+
+        @attr.s(auto_detect=True, slots=slots, frozen=frozen)
+        class C(object):
+            x = attr.ib()
+
+            def __eq__(self, o):
+                raise ValueError("worked")
+
+        with pytest.raises(ValueError, match="worked"):
+            C(1) == C(1)
+
+        @attr.s(auto_detect=True, slots=slots, frozen=frozen)
+        class D(object):
+            x = attr.ib()
+
+            def __ne__(self, o):
+                raise ValueError("worked")
+
+        with pytest.raises(ValueError, match="worked"):
+            D(1) != D(1)
+
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("frozen", [True, False])
+    def test_detect_auto_order(self, slots, frozen):
+        """
+        If auto_detect=True and an __ge__, __gt__, __le__, or and __lt__ exist,
+        don't write one.
+
+        It's surprisingly difficult to test this programmatically, so we do it
+        by hand.
+        """
+
+        def assert_not_set(cls, ex, meth_name):
+            __tracebackhide__ = True
+
+            a = getattr(cls, meth_name)
+            if meth_name == ex:
+                assert a == 42
+            else:
+                assert a is getattr(object, meth_name)
+
+        def assert_none_set(cls, ex):
+            __tracebackhide__ = True
+
+            for m in ("le", "lt", "ge", "gt"):
+                assert_not_set(cls, ex, "__" + m + "__")
+
+        @attr.s(auto_detect=True, slots=slots, frozen=frozen)
+        class LE(object):
+            __le__ = 42
+
+        @attr.s(auto_detect=True, slots=slots, frozen=frozen)
+        class LT(object):
+            __lt__ = 42
+
+        @attr.s(auto_detect=True, slots=slots, frozen=frozen)
+        class GE(object):
+            __ge__ = 42
+
+        @attr.s(auto_detect=True, slots=slots, frozen=frozen)
+        class GT(object):
+            __gt__ = 42
+
+        assert_none_set(LE, "__le__")
+        assert_none_set(LT, "__lt__")
+        assert_none_set(GE, "__ge__")
+        assert_none_set(GT, "__gt__")
+
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("frozen", [True, False])
+    def test_override_init(self, slots, frozen):
+        """
+        If init=True is passed, ignore __init__.
+        """
+
+        @attr.s(init=True, auto_detect=True, slots=slots, frozen=frozen)
+        class C(object):
+            x = attr.ib()
+
+            def __init__(self):
+                pytest.fail("should not be called")
+
+        assert C(1) == C(1)
+
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("frozen", [True, False])
+    def test_override_repr(self, slots, frozen):
+        """
+        If repr=True is passed, ignore __repr__.
+        """
+
+        @attr.s(repr=True, auto_detect=True, slots=slots, frozen=frozen)
+        class C(object):
+            x = attr.ib()
+
+            def __repr__(self):
+                pytest.fail("should not be called")
+
+        assert "C(x=1)" == repr(C(1))
+
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("frozen", [True, False])
+    def test_override_hash(self, slots, frozen):
+        """
+        If hash=True is passed, ignore __hash__.
+        """
+
+        @attr.s(hash=True, auto_detect=True, slots=slots, frozen=frozen)
+        class C(object):
+            x = attr.ib()
+
+            def __hash__(self):
+                pytest.fail("should not be called")
+
+        assert hash(C(1))
+
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("frozen", [True, False])
+    def test_override_eq(self, slots, frozen):
+        """
+        If eq=True is passed, ignore __eq__ and __ne__.
+        """
+
+        @attr.s(eq=True, auto_detect=True, slots=slots, frozen=frozen)
+        class C(object):
+            x = attr.ib()
+
+            def __eq__(self, o):
+                pytest.fail("should not be called")
+
+            def __ne__(self, o):
+                pytest.fail("should not be called")
+
+        assert C(1) == C(1)
+
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("frozen", [True, False])
+    @pytest.mark.parametrize(
+        "eq,order,cmp",
+        [
+            (True, None, None),
+            (True, True, None),
+            (None, True, None),
+            (None, None, True),
+        ],
+    )
+    def test_override_order(self, slots, frozen, eq, order, cmp, recwarn):
+        """
+        If order=True is passed, ignore __le__, __lt__, __gt__, __ge__.
+
+        eq=True and cmp=True both imply order=True so test it too.
+        """
+
+        def meth(self, o):
+            pytest.fail("should not be called")
+
+        @attr.s(
+            cmp=cmp,
+            order=order,
+            eq=eq,
+            auto_detect=True,
+            slots=slots,
+            frozen=frozen,
+        )
+        class C(object):
+            x = attr.ib()
+            __le__ = __lt__ = __gt__ = __ge__ = meth
+
+        assert C(1) < C(2)
+        assert C(1) <= C(2)
+        assert C(2) > C(1)
+        assert C(2) >= C(1)
+
+        if cmp:
+            assert 1 == len(recwarn.list)
+        else:
+            assert 0 == len(recwarn.list)
+
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("first", [True, False])
+    def test_total_ordering(self, slots, first):
+        """
+        functools.total_ordering works as expected if an order method and an eq
+        method are detected.
+
+        Ensure the order doesn't matter.
+        """
+
+        class C(object):
+            x = attr.ib()
+            own_eq_called = attr.ib(default=False)
+            own_le_called = attr.ib(default=False)
+
+            def __eq__(self, o):
+                self.own_eq_called = True
+                return self.x == o.x
+
+            def __le__(self, o):
+                self.own_le_called = True
+                return self.x <= o.x
+
+        if first:
+            C = functools.total_ordering(
+                attr.s(auto_detect=True, slots=slots)(C)
+            )
+        else:
+            C = attr.s(auto_detect=True, slots=slots)(
+                functools.total_ordering(C)
+            )
+
+        c1, c2 = C(1), C(2)
+
+        assert c1 < c2
+        assert c1.own_le_called
+
+        c1, c2 = C(1), C(2)
+
+        assert c2 > c1
+        assert c2.own_le_called
+
+        c1, c2 = C(1), C(2)
+
+        assert c2 != c1
+        assert c1 == c1
+
+        assert c1.own_eq_called
+
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_detects_setstate_getstate(self, slots):
+        """
+        __getstate__ and __setstate__ are not overwritten if either is present.
+        """
+
+        @attr.s(slots=slots, auto_detect=True)
+        class C(object):
+            def __getstate__(self):
+                return ("hi",)
+
+        assert None is getattr(C(), "__setstate__", None)
+
+        @attr.s(slots=slots, auto_detect=True)
+        class C(object):
+            called = attr.ib(False)
+
+            def __setstate__(self, state):
+                self.called = True
+
+        i = C()
+
+        assert False is i.called
+
+        i.__setstate__(())
+
+        assert True is i.called
+        assert None is getattr(C(), "__getstate__", None)

@@ -14,6 +14,9 @@ import attr
 from .utils import make_class
 
 
+optional_bool = st.one_of(st.none(), st.booleans())
+
+
 def gen_attr_names():
     """
     Generate names for attributes, 'a'...'z', then 'aa'...'zz'.
@@ -124,14 +127,15 @@ def simple_attrs_with_metadata(draw):
     keys = st.booleans() | st.binary() | st.integers() | st.text()
     vals = st.booleans() | st.binary() | st.integers() | st.text()
     metadata = draw(
-        st.dictionaries(keys=keys, values=vals, min_size=1, max_size=5)
+        st.dictionaries(keys=keys, values=vals, min_size=1, max_size=3)
     )
 
     return attr.ib(
         default=c_attr._default,
         validator=c_attr._validator,
         repr=c_attr.repr,
-        cmp=c_attr.cmp,
+        eq=c_attr.eq,
+        order=c_attr.order,
         hash=c_attr.hash,
         init=c_attr.init,
         metadata=metadata,
@@ -143,17 +147,19 @@ def simple_attrs_with_metadata(draw):
 simple_attrs = simple_attrs_without_metadata | simple_attrs_with_metadata()
 
 # Python functions support up to 255 arguments.
-list_of_attrs = st.lists(simple_attrs, max_size=9)
+list_of_attrs = st.lists(simple_attrs, max_size=3)
 
 
 @st.composite
-def simple_classes(draw, slots=None, frozen=None, private_attrs=None):
+def simple_classes(
+    draw, slots=None, frozen=None, weakref_slot=None, private_attrs=None
+):
     """
     A strategy that generates classes with default non-attr attributes.
 
     For example, this strategy might generate a class such as:
 
-    @attr.s(slots=True, frozen=True)
+    @attr.s(slots=True, frozen=True, weakref_slot=True)
     class HypClass:
         a = attr.ib(default=1)
         _b = attr.ib(default=None)
@@ -161,10 +167,10 @@ def simple_classes(draw, slots=None, frozen=None, private_attrs=None):
         _d = attr.ib(default=1.0)
         c = attr.ib(default={'t': 1})
 
-    By default, all combinations of slots and frozen classes will be generated.
-    If `slots=True` is passed in, only slots classes will be generated, and
-    if `slots=False` is passed in, no slot classes will be generated. The same
-    applies to `frozen`.
+    By default, all combinations of slots, frozen, and weakref_slot classes
+    will be generated.  If `slots=True` is passed in, only slotted classes will
+    be generated, and if `slots=False` is passed in, no slotted classes will be
+    generated. The same applies to `frozen` and `weakref_slot`.
 
     By default, some attributes will be private (i.e. prefixed with an
     underscore). If `private_attrs=True` is passed in, all attributes will be
@@ -173,6 +179,9 @@ def simple_classes(draw, slots=None, frozen=None, private_attrs=None):
     attrs = draw(list_of_attrs)
     frozen_flag = draw(st.booleans()) if frozen is None else frozen
     slots_flag = draw(st.booleans()) if slots is None else slots
+    weakref_slot_flag = (
+        draw(st.booleans()) if weakref_slot is None else weakref_slot
+    )
 
     if private_attrs is None:
         attr_names = maybe_underscore_prefix(gen_attr_names())
@@ -191,7 +200,11 @@ def simple_classes(draw, slots=None, frozen=None, private_attrs=None):
         cls_dict["__attrs_post_init__"] = post_init
 
     return make_class(
-        "HypClass", cls_dict, slots=slots_flag, frozen=frozen_flag
+        "HypClass",
+        cls_dict,
+        slots=slots_flag,
+        frozen=frozen_flag,
+        weakref_slot=weakref_slot_flag,
     )
 
 
@@ -199,5 +212,5 @@ def simple_classes(draw, slots=None, frozen=None, private_attrs=None):
 # and a special function.  This function receives a strategy, and returns
 # another strategy (building on top of the base strategy).
 nested_classes = st.recursive(
-    simple_classes(), _create_hyp_nested_strategy, max_leaves=10
+    simple_classes(), _create_hyp_nested_strategy, max_leaves=3
 )

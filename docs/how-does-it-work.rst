@@ -13,14 +13,14 @@ But its **declarative** approach combined with **no runtime overhead** lets it s
 Once you apply the ``@attr.s`` decorator to a class, ``attrs`` searches the class object for instances of ``attr.ib``\ s.
 Internally they're a representation of the data passed into ``attr.ib`` along with a counter to preserve the order of the attributes.
 
-In order to ensure that sub-classing works as you'd expect it to work, ``attrs`` also walks the class hierarchy and collects the attributes of all super-classes.
+In order to ensure that subclassing works as you'd expect it to work, ``attrs`` also walks the class hierarchy and collects the attributes of all base classes.
 Please note that ``attrs`` does *not* call ``super()`` *ever*.
 It will write dunder methods to work on *all* of those attributes which also has performance benefits due to fewer function calls.
 
 Once ``attrs`` knows what attributes it has to work on, it writes the requested dunder methods and -- depending on whether you wish to have a :term:`dict <dict classes>` or :term:`slotted <slotted classes>` class -- creates a new class for you (``slots=True``) or attaches them to the original class (``slots=False``).
 While creating new classes is more elegant, we've run into several edge cases surrounding metaclasses that make it impossible to go this route unconditionally.
 
-To be very clear: if you define a class with a single attribute  without a default value, the generated ``__init__`` will look *exactly* how you'd expect:
+To be very clear: if you define a class with a single attribute without a default value, the generated ``__init__`` will look *exactly* how you'd expect:
 
 .. doctest::
 
@@ -39,7 +39,8 @@ No magic, no meta programming, no expensive introspection at runtime.
 
 Everything until this point happens exactly *once* when the class is defined.
 As soon as a class is done, it's done.
-And it's just a regular Python class like any other, except for a single ``__attrs_attrs__`` attribute that can be used for introspection or for writing your own tools and decorators on top of ``attrs`` (like :func:`attr.asdict`).
+And it's just a regular Python class like any other, except for a single ``__attrs_attrs__`` attribute that ``attrs`` uses internally.
+Much of the information is accessible via `attr.fields` and other functions which can be used for introspection or for writing your own tools and decorators on top of ``attrs`` (like `attr.asdict`).
 
 And once you start instantiating your classes, ``attrs`` is out of your way completely.
 
@@ -51,9 +52,15 @@ This **static** approach was very much a design goal of ``attrs`` and what I str
 Immutability
 ------------
 
-In order to give you immutability, ``attrs`` will attach a ``__setattr__`` method to your class that raises a :exc:`attr.exceptions.FrozenInstanceError` whenever anyone tries to set an attribute.
+In order to give you immutability, ``attrs`` will attach a ``__setattr__`` method to your class that raises an `attr.exceptions.FrozenInstanceError` whenever anyone tries to set an attribute.
 
-Depending on whether of not a class is a dict class or a slots class, ``attrs`` uses a different technique to circumvent that limitation in the ``__init__`` method.
+The same is true if you choose to freeze individual attributes using the `attr.setters.frozen` *on_setattr* hook -- except that the exception becomes `attr.exceptions.FrozenAttributeError`.
+
+Both errors subclass `attr.exceptions.FrozenError`.
+
+-----
+
+Depending on whether a class is a dict class or a slotted class, ``attrs`` uses a different technique to circumvent that limitation in the ``__init__`` method.
 
 Once constructed, frozen instances don't differ in any way from regular ones except that you cannot change its attributes.
 
@@ -66,10 +73,10 @@ Dict classes -- i.e. regular classes -- simply assign the value directly into th
 The performance impact is negligible.
 
 
-Slots Classes
-+++++++++++++
+Slotted Classes
++++++++++++++++
 
-Slots classes are more complicated.
+Slotted classes are more complicated.
 Here it uses (an aggressively cached) :meth:`object.__setattr__` to set your attributes.
 This is (still) slower than a plain assignment:
 
@@ -87,7 +94,7 @@ This is (still) slower than a plain assignment:
   ........................................
   Median +- std dev: 676 ns +- 16 ns
 
-So on a standard notebook the difference is about 300 nanoseconds (1 second is 1,000,000,000 nanoseconds).
+So on a laptop computer the difference is about 300 nanoseconds (1 second is 1,000,000,000 nanoseconds).
 It's certainly something you'll feel in a hot loop but shouldn't matter in normal code.
 Pick what's more important to you.
 
@@ -95,6 +102,6 @@ Pick what's more important to you.
 Summary
 +++++++
 
-You should avoid to instantiate lots of frozen slotted classes (i.e. ``@attr.s(slots=True, frozen=True)``) in performance-critical code.
+You should avoid instantiating lots of frozen slotted classes (i.e. ``@attr.s(slots=True, frozen=True)``) in performance-critical code.
 
 Frozen dict classes have barely a performance impact, unfrozen slotted classes are even *faster* than unfrozen dict classes (i.e. regular classes).

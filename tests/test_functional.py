@@ -6,17 +6,21 @@ from __future__ import absolute_import, division, print_function
 
 import pickle
 
+from copy import deepcopy
+
 import pytest
 import six
 
-from hypothesis import given
+from hypothesis import assume, given
 from hypothesis.strategies import booleans
 
 import attr
 
-from attr._compat import TYPE
+from attr._compat import PY2, TYPE
 from attr._make import NOTHING, Attribute
 from attr.exceptions import FrozenInstanceError
+
+from .strategies import optional_bool
 
 
 @attr.s
@@ -47,7 +51,7 @@ class C2Slots(object):
 
 
 @attr.s
-class Super(object):
+class Base(object):
     x = attr.ib()
 
     def meth(self):
@@ -55,7 +59,7 @@ class Super(object):
 
 
 @attr.s(slots=True)
-class SuperSlots(object):
+class BaseSlots(object):
     x = attr.ib()
 
     def meth(self):
@@ -63,12 +67,12 @@ class SuperSlots(object):
 
 
 @attr.s
-class Sub(Super):
+class Sub(Base):
     y = attr.ib()
 
 
 @attr.s(slots=True)
-class SubSlots(SuperSlots):
+class SubSlots(BaseSlots):
     y = attr.ib()
 
 
@@ -106,9 +110,9 @@ class WithMetaSlots(object):
 FromMakeClass = attr.make_class("FromMakeClass", ["x"])
 
 
-class TestDarkMagic(object):
+class TestFunctional(object):
     """
-    Integration tests.
+    Functional tests.
     """
 
     @pytest.mark.parametrize("cls", [C2, C2Slots])
@@ -122,18 +126,24 @@ class TestDarkMagic(object):
                 default=foo,
                 validator=None,
                 repr=True,
-                cmp=True,
+                cmp=None,
+                eq=True,
+                order=True,
                 hash=None,
                 init=True,
+                inherited=False,
             ),
             Attribute(
                 name="y",
                 default=attr.Factory(list),
                 validator=None,
                 repr=True,
-                cmp=True,
+                cmp=None,
+                eq=True,
+                order=True,
                 hash=None,
                 init=True,
+                inherited=False,
             ),
         ) == attr.fields(cls)
 
@@ -152,7 +162,7 @@ class TestDarkMagic(object):
         with pytest.raises(TypeError) as e:
             cls("1", 2)
 
-        # Using C1 explicitly, since slot classes don't support this.
+        # Using C1 explicitly, since slotted classes don't support this.
         assert (
             "'x' must be <{type} 'int'> (got '1' that is a <{type} "
             "'str'>).".format(type=TYPE),
@@ -179,31 +189,38 @@ class TestDarkMagic(object):
         `attr.make_class` works.
         """
         PC = attr.make_class("PC", ["a", "b"], slots=slots, frozen=frozen)
+
         assert (
             Attribute(
                 name="a",
                 default=NOTHING,
                 validator=None,
                 repr=True,
-                cmp=True,
+                cmp=None,
+                eq=True,
+                order=True,
                 hash=None,
                 init=True,
+                inherited=False,
             ),
             Attribute(
                 name="b",
                 default=NOTHING,
                 validator=None,
                 repr=True,
-                cmp=True,
+                cmp=None,
+                eq=True,
+                order=True,
                 hash=None,
                 init=True,
+                inherited=False,
             ),
         ) == attr.fields(PC)
 
     @pytest.mark.parametrize("cls", [Sub, SubSlots])
     def test_subclassing_with_extra_attrs(self, cls):
         """
-        Sub-classing (where the subclass has extra attrs) does what you'd hope
+        Subclassing (where the subclass has extra attrs) does what you'd hope
         for.
         """
         obj = object()
@@ -215,10 +232,10 @@ class TestDarkMagic(object):
         else:
             assert "SubSlots(x={obj}, y=2)".format(obj=obj) == repr(i)
 
-    @pytest.mark.parametrize("base", [Super, SuperSlots])
+    @pytest.mark.parametrize("base", [Base, BaseSlots])
     def test_subclass_without_extra_attrs(self, base):
         """
-        Sub-classing (where the subclass does not have extra attrs) still
+        Subclassing (where the subclass does not have extra attrs) still
         behaves the same as a subclass with extra attrs.
         """
 
@@ -259,8 +276,8 @@ class TestDarkMagic(object):
             C1Slots,
             C2,
             C2Slots,
-            Super,
-            SuperSlots,
+            Base,
+            BaseSlots,
             Sub,
             SubSlots,
             Frozen,
@@ -283,8 +300,8 @@ class TestDarkMagic(object):
             C1Slots,
             C2,
             C2Slots,
-            Super,
-            SuperSlots,
+            Base,
+            BaseSlots,
             Sub,
             SubSlots,
             Frozen,
@@ -301,6 +318,7 @@ class TestDarkMagic(object):
             obj = cls(123, 456)
         else:
             obj = cls(123)
+
         assert repr(obj) == repr(pickle.loads(pickle.dumps(obj, protocol)))
 
     def test_subclassing_frozen_gives_frozen(self):
@@ -312,6 +330,9 @@ class TestDarkMagic(object):
 
         assert i.x == "foo"
         assert i.y == "bar"
+
+        with pytest.raises(FrozenInstanceError):
+            i.x = "baz"
 
     @pytest.mark.parametrize("cls", [WithMeta, WithMetaSlots])
     def test_metaclass_preserved(self, cls):
@@ -339,13 +360,14 @@ class TestDarkMagic(object):
 
     @pytest.mark.parametrize("slots", [True, False])
     @pytest.mark.parametrize("frozen", [True, False])
-    def test_attrib_overwrite(self, slots, frozen):
+    @pytest.mark.parametrize("weakref_slot", [True, False])
+    def test_attrib_overwrite(self, slots, frozen, weakref_slot):
         """
-        Subclasses can overwrite attributes of their superclass.
+        Subclasses can overwrite attributes of their base class.
         """
 
-        @attr.s(slots=slots, frozen=frozen)
-        class SubOverwrite(Super):
+        @attr.s(slots=slots, frozen=frozen, weakref_slot=weakref_slot)
+        class SubOverwrite(Base):
             x = attr.ib(default=attr.Factory(list))
 
         assert SubOverwrite([]) == SubOverwrite()
@@ -377,7 +399,7 @@ class TestDarkMagic(object):
             HashByIDBackwardCompat(1)
         )
 
-        @attr.s(hash=False, cmp=False)
+        @attr.s(hash=False, eq=False)
         class HashByID(object):
             x = attr.ib()
 
@@ -407,20 +429,32 @@ class TestDarkMagic(object):
             pass
 
     @pytest.mark.parametrize("slots", [True, False])
-    def test_hash_false_cmp_false(self, slots):
+    def test_hash_false_eq_false(self, slots):
         """
-        hash=False and cmp=False make a class hashable by ID.
+        hash=False and eq=False make a class hashable by ID.
         """
 
-        @attr.s(hash=False, cmp=False, slots=slots)
+        @attr.s(hash=False, eq=False, slots=slots)
         class C(object):
             pass
 
         assert hash(C()) != hash(C())
 
-    def test_overwrite_super(self):
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_eq_false(self, slots):
         """
-        Super classes can overwrite each other and the attributes are added
+        eq=False makes a class hashable by ID.
+        """
+
+        @attr.s(eq=False, slots=slots)
+        class C(object):
+            pass
+
+        assert hash(C()) != hash(C())
+
+    def test_overwrite_base(self):
+        """
+        Base classes can overwrite each other and the attributes are added
         in the order they are defined.
         """
 
@@ -447,6 +481,8 @@ class TestDarkMagic(object):
     @pytest.mark.parametrize("sub_slots", [True, False])
     @pytest.mark.parametrize("base_frozen", [True, False])
     @pytest.mark.parametrize("sub_frozen", [True, False])
+    @pytest.mark.parametrize("base_weakref_slot", [True, False])
+    @pytest.mark.parametrize("sub_weakref_slot", [True, False])
     @pytest.mark.parametrize("base_converter", [True, False])
     @pytest.mark.parametrize("sub_converter", [True, False])
     def test_frozen_slots_combo(
@@ -455,6 +491,8 @@ class TestDarkMagic(object):
         sub_slots,
         base_frozen,
         sub_frozen,
+        base_weakref_slot,
+        sub_weakref_slot,
         base_converter,
         sub_converter,
     ):
@@ -463,11 +501,17 @@ class TestDarkMagic(object):
         with a single attribute.
         """
 
-        @attr.s(frozen=base_frozen, slots=base_slots)
+        @attr.s(
+            frozen=base_frozen,
+            slots=base_slots,
+            weakref_slot=base_weakref_slot,
+        )
         class Base(object):
             a = attr.ib(converter=int if base_converter else None)
 
-        @attr.s(frozen=sub_frozen, slots=sub_slots)
+        @attr.s(
+            frozen=sub_frozen, slots=sub_slots, weakref_slot=sub_weakref_slot
+        )
         class Sub(Base):
             b = attr.ib(converter=int if sub_converter else None)
 
@@ -482,3 +526,162 @@ class TestDarkMagic(object):
 
             with pytest.raises(FrozenInstanceError):
                 i.b = "3"
+
+    def test_tuple_class_aliasing(self):
+        """
+        itemgetter and property are legal attribute names.
+        """
+
+        @attr.s
+        class C(object):
+            property = attr.ib()
+            itemgetter = attr.ib()
+            x = attr.ib()
+
+        assert "property" == attr.fields(C).property.name
+        assert "itemgetter" == attr.fields(C).itemgetter.name
+        assert "x" == attr.fields(C).x.name
+
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("frozen", [True, False])
+    def test_auto_exc(self, slots, frozen):
+        """
+        Classes with auto_exc=True have a Exception-style __str__, compare and
+        hash by id, and store the fields additionally in self.args.
+        """
+
+        @attr.s(auto_exc=True, slots=slots, frozen=frozen)
+        class FooError(Exception):
+            x = attr.ib()
+            y = attr.ib(init=False, default=42)
+            z = attr.ib(init=False)
+            a = attr.ib()
+
+        FooErrorMade = attr.make_class(
+            "FooErrorMade",
+            bases=(Exception,),
+            attrs={
+                "x": attr.ib(),
+                "y": attr.ib(init=False, default=42),
+                "z": attr.ib(init=False),
+                "a": attr.ib(),
+            },
+            auto_exc=True,
+            slots=slots,
+            frozen=frozen,
+        )
+
+        assert FooError(1, "foo") != FooError(1, "foo")
+        assert FooErrorMade(1, "foo") != FooErrorMade(1, "foo")
+
+        for cls in (FooError, FooErrorMade):
+            with pytest.raises(cls) as ei1:
+                raise cls(1, "foo")
+
+            with pytest.raises(cls) as ei2:
+                raise cls(1, "foo")
+
+            e1 = ei1.value
+            e2 = ei2.value
+
+            assert e1 is e1
+            assert e1 == e1
+            assert e2 == e2
+            assert e1 != e2
+            assert "(1, 'foo')" == str(e1) == str(e2)
+            assert (1, "foo") == e1.args == e2.args
+
+            hash(e1) == hash(e1)
+            hash(e2) == hash(e2)
+
+            if not frozen:
+                deepcopy(e1)
+                deepcopy(e2)
+
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("frozen", [True, False])
+    def test_auto_exc_one_attrib(self, slots, frozen):
+        """
+        Having one attribute works with auto_exc=True.
+
+        Easy to get wrong with tuple literals.
+        """
+
+        @attr.s(auto_exc=True, slots=slots, frozen=frozen)
+        class FooError(Exception):
+            x = attr.ib()
+
+        FooError(1)
+
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("frozen", [True, False])
+    def test_eq_only(self, slots, frozen):
+        """
+        Classes with order=False cannot be ordered.
+
+        Python 3 throws a TypeError, in Python2 we have to check for the
+        absence.
+        """
+
+        @attr.s(eq=True, order=False, slots=slots, frozen=frozen)
+        class C(object):
+            x = attr.ib()
+
+        if not PY2:
+            possible_errors = (
+                "unorderable types: C() < C()",
+                "'<' not supported between instances of 'C' and 'C'",
+                "unorderable types: C < C",  # old PyPy 3
+            )
+
+            with pytest.raises(TypeError) as ei:
+                C(5) < C(6)
+
+            assert ei.value.args[0] in possible_errors
+        else:
+            i = C(42)
+            for m in ("lt", "le", "gt", "ge"):
+                assert None is getattr(i, "__%s__" % (m,), None)
+
+    @given(cmp=optional_bool, eq=optional_bool, order=optional_bool)
+    def test_cmp_deprecated_attribute(self, cmp, eq, order):
+        """
+        Accessing Attribute.cmp raises a deprecation warning but returns True
+        if cmp is True, or eq and order are *both* effectively True.
+        """
+        # These cases are invalid and raise a ValueError.
+        assume(cmp is None or (eq is None and order is None))
+        assume(not (eq is False and order is True))
+
+        if cmp is not None:
+            rv = cmp
+        elif eq is True or eq is None:
+            rv = order is None or order is True
+        elif cmp is None and eq is None and order is None:
+            rv = True
+        elif cmp is None or eq is None:
+            rv = False
+        else:
+            pytest.fail(
+                "Unexpected state: cmp=%r eq=%r order=%r" % (cmp, eq, order)
+            )
+
+        with pytest.deprecated_call() as dc:
+
+            @attr.s
+            class C(object):
+                x = attr.ib(cmp=cmp, eq=eq, order=order)
+
+            assert rv == attr.fields(C).x.cmp
+
+        if cmp is not None:
+            # Remove warning from creating the attribute if cmp is not None.
+            dc.pop()
+
+        (w,) = dc.list
+
+        assert (
+            "The usage of `cmp` is deprecated and will be removed on or after "
+            "2021-06-01.  Please use `eq` and `order` instead."
+            == w.message.args[0]
+        )
