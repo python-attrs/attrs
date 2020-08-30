@@ -62,7 +62,7 @@ class ConverterAlreadySetError(RuntimeError):
     A converter has been set using ``attr.ib()`` and is attempted to be reset
     using the decorator.
 
-    .. versionadded:: 18.2.0
+    .. versionadded:: TODO
     """
 
 

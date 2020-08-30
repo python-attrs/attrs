@@ -230,6 +230,7 @@ def attrib(
     .. deprecated:: 19.2.0 *cmp* Removal on or after 2021-06-01.
     .. versionadded:: 19.2.0 *eq* and *order*
     .. versionadded:: 20.1.0 *on_setattr*
+    .. versionchanged:: TODO *converter* understands `Converter`.
     """
     eq, order = _determine_eq_order(cmp, eq, order, True)
 
@@ -2507,7 +2508,7 @@ class _CountingAttr(object):
 
         :raises ConverterAlreadySetError: If converter has been set before.
 
-        .. versionadded:: 18.2.0
+        .. versionadded:: TODO
         """
         if self._converter is not None:
             raise ConverterAlreadySetError()
@@ -2560,6 +2561,8 @@ class Converter(object):
         mandatory positional arguments depending on *takes_self*.
     :param bool takes_self: Pass the partially initialized instance that is
         being initialized as a positional argument.
+
+    .. versionadded:: TODO
     """
 
     converter = attrib()
