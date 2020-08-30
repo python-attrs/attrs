@@ -180,11 +180,17 @@ def attrib(
         method.  It is possible to set this to ``False`` and set a default
         value.  In that case this attributed is unconditionally initialized
         with the specified default value or factory.
-    :param callable converter: `callable` that is called by
+    :param converter: `callable` that is called by
         ``attrs``-generated ``__init__`` methods to convert attribute's value
         to the desired format.  It is given the passed-in value, and the
         returned value will be used as the new value of the attribute.  The
         value is converted before being passed to the validator, if any.
+
+        The converter can also be set using decorator notation as shown below
+        which allows access to ``self``.
+
+    :type converter: `callable` or a `Converter`.
+
     :param metadata: An arbitrary mapping, to be used by third-party
         components.  See `extending_metadata`.
     :param type: The type of the attribute.  In Python 3.6 or greater, the
@@ -2544,6 +2550,18 @@ class Factory(object):
 
 @attrs(slots=True, init=False, hash=True)
 class Converter(object):
+    """
+    Stores a converter callable.
+
+    If passed as the converter value to `attr.ib`, the converter is used to
+    process values.
+
+    :param callable converter: A callable that takes either one or exactly two
+        mandatory positional arguments depending on *takes_self*.
+    :param bool takes_self: Pass the partially initialized instance that is
+        being initialized as a positional argument.
+    """
+
     converter = attrib()
     takes_self = attrib()
 

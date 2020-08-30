@@ -454,9 +454,18 @@ This can be useful for doing type-conversions on values that you don't want to f
     >>> @attr.s
     ... class C(object):
     ...     x = attr.ib(converter=int)
-    >>> o = C("1")
-    >>> o.x
-    1
+    ...     y = attr.ib(
+    ...         converter=attr.Converter(
+    ...             lambda self, value: self.x + value,
+    ...             takes_self=True,
+    ...         ),
+    ...     )
+    ...     z = attr.ib()
+    ...     @z.converter
+    ...     def z_converter(self, value):
+    ...         return self.x + value
+    >>> C("10", 2, 3)
+    C(x=10, y=12, z=13)
 
 Check out `converters` for more details.
 

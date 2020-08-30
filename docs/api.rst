@@ -70,7 +70,7 @@ Core
 
       ``attrs`` also comes with a serious business alias ``attr.attrib``.
 
-   The object returned by `attr.ib` also allows for setting the default and the validator using decorators:
+   The object returned by `attr.ib` also allows for setting the default, the validator, and the converter using decorators:
 
    .. doctest::
 
@@ -78,16 +78,20 @@ Core
       ... class C(object):
       ...     x = attr.ib()
       ...     y = attr.ib()
+      ...     z = attr.ib()
       ...     @x.validator
       ...     def _any_name_except_a_name_of_an_attribute(self, attribute, value):
       ...         if value < 0:
       ...             raise ValueError("x must be positive")
-      ...     @y.default
+      ...     @y.converter
+      ...     def _any_name_except_a_name_of_an_attribute(self, value):
+      ...         return int(value)
+      ...     @z.default
       ...     def _any_name_except_a_name_of_an_attribute(self):
-      ...         return self.x + 1
-      >>> C(1)
-      C(x=1, y=2)
-      >>> C(-1)
+      ...         return self.x + 2
+      >>> C(1, "2")
+      C(x=1, y=2, z=3)
+      >>> C(-1, "2")
       Traceback (most recent call last):
           ...
       ValueError: x must be positive
@@ -147,6 +151,23 @@ Core
       C(x=[], y=set())
       >>> C([1, 2, 3])
       C(x=[1, 2, 3], y={1, 2, 3})
+
+
+.. autoclass:: attr.Converter
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib(converter=attr.Converter(int))
+      ...     y = attr.ib(converter=attr.Converter(
+      ...         lambda self, value: self.x + value,
+      ...         takes_self=True)
+      ...     )
+      >>> C("1", 2)
+      C(x=1, y=3)
 
 
 Exceptions

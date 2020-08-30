@@ -302,6 +302,20 @@ Arguably, you can abuse converters as one-argument validators:
    ValueError: invalid literal for int() with base 10: 'x'
 
 
+Similar to validators, converters can be specified with a decorator.
+
+.. doctest::
+
+    >>> @attr.s
+    ... class C(object):
+    ...     x = attr.ib()
+    ...     @x.converter
+    ...     def int(self, value):
+    ...         return int(value)
+    >>> o = C("1")
+    >>> o
+    C(x=1)
+
 Post-Init Hook
 --------------
 
