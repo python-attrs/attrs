@@ -131,7 +131,7 @@ This is why ``attrs`` comes with factory options.
 Validators
 ----------
 
-Another thing that definitely *does* belong into ``__init__`` is checking the resulting instance for invariants.
+Another thing that definitely *does* belong in ``__init__`` is checking the resulting instance for invariants.
 This is why ``attrs`` has the concept of validators.
 
 
