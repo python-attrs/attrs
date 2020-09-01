@@ -274,6 +274,45 @@ class TestSetAttr(object):
 
         assert True is WOSAH.__attrs_own_setattr__
 
+    def test_slotted_class_can_have_custom_setattr(self):
+        """
+        A slotted class can define a custom setattr and it doesn't get
+        overwritten.
+
+        Regression test for #680.
+        """
+
+        @attr.s(slots=True)
+        class A(object):
+            def __setattr__(self, key, value):
+                raise SystemError
+
+        with pytest.raises(SystemError):
+            A().x = 1
+
+    @pytest.mark.xfail
+    def test_slotted_confused(self):
+        """
+        If we have a in-between non-attrs class, setattr reset detection
+        should still work, but currently doesn't.
+
+        It works with dict classes because we can look the finished class and
+        patch it.  With slotted classes we have to deduce it ourselves.
+        """
+
+        @attr.s(slots=True)
+        class A(object):
+            x = attr.ib(on_setattr=setters.frozen)
+
+        class B(A):
+            pass
+
+        @attr.s(slots=True)
+        class C(B):
+            x = attr.ib()
+
+        C(1).x = 2
+
 
 @pytest.mark.skipif(PY2, reason="Python 3-only.")
 class TestSetAttrNoPy2(object):

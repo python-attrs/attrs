@@ -669,23 +669,28 @@ class _ClassBuilder(object):
             if k not in tuple(self._attr_names) + ("__dict__", "__weakref__")
         }
 
-        # Traverse the MRO to check for an existing __weakref__ and
-        # __setattr__.
-        custom_setattr_inherited = False
-        weakref_inherited = False
-        for base_cls in self._cls.__mro__[1:-1]:
-            d = getattr(base_cls, "__dict__", {})
-
-            weakref_inherited = weakref_inherited or "__weakref__" in d
-            custom_setattr_inherited = custom_setattr_inherited or not (
-                d.get("__attrs_own_setattr__", False)
-            )
-
-            if weakref_inherited and custom_setattr_inherited:
+        # Check the bases if one of them has an attrs-made __setattr__ that
+        # needs to be reset.
+        # XXX: This can be confused by subclassing a slotted attrs class with
+        # XXX: a non-attrs class and subclass the resulting class with an attrs
+        # XXX: class.  See `test_slotted_confused for details.  For now that's
+        # XXX: OK with us.
+        for base_cls in self._cls.__bases__:
+            if not self._has_own_setattr and getattr(
+                base_cls, "__dict__", {}
+            ).get("__attrs_own_setattr__", False):
+                cd["__setattr__"] = object.__setattr__
                 break
 
-        if not self._has_own_setattr and not custom_setattr_inherited:
-            cd["__setattr__"] = object.__setattr__
+        # Traverse the MRO to check for an existing __weakref__.
+        weakref_inherited = False
+        for base_cls in self._cls.__mro__[1:-1]:
+            if (
+                getattr(base_cls, "__dict__", {}).get("__weakref__", None)
+                is not None
+            ):
+                weakref_inherited = True
+                break
 
         names = self._attr_names
         if (
@@ -697,7 +702,7 @@ class _ClassBuilder(object):
             names += ("__weakref__",)
 
         # We only add the names of attributes that aren't inherited.
-        # Settings __slots__ to inherited attributes wastes memory.
+        # Setting __slots__ to inherited attributes wastes memory.
         slot_names = [name for name in names if name not in base_names]
         if self._cache_hash:
             slot_names.append(_hash_cache_field)
