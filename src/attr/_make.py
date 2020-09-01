@@ -575,7 +575,7 @@ class _ClassBuilder(object):
         has_custom_setattr,
     ):
         attrs, base_attrs, base_map = _transform_attrs(
-            cls, these, auto_attribs, kw_only, collect_by_mro,
+            cls, these, auto_attribs, kw_only, collect_by_mro
         )
 
         self._cls = cls
@@ -1857,7 +1857,7 @@ def _setattr(attr_name, value_var, has_on_setattr):
     """
     Use the cached object.setattr to set *attr_name* to *value_var*.
     """
-    return "_setattr('%s', %s)" % (attr_name, value_var,)
+    return "_setattr('%s', %s)" % (attr_name, value_var)
 
 
 def _setattr_with_converter(attr_name, value_var, has_on_setattr):
@@ -1880,7 +1880,7 @@ def _assign(attr_name, value, has_on_setattr):
     if has_on_setattr:
         return _setattr(attr_name, value, True)
 
-    return "self.%s = %s" % (attr_name, value,)
+    return "self.%s = %s" % (attr_name, value)
 
 
 def _assign_with_converter(attr_name, value_var, has_on_setattr):
@@ -1941,7 +1941,7 @@ def _attrs_to_init_script(
                 if _is_slot_attr(attr_name, base_attr_map):
                     return _setattr(attr_name, value_var, has_on_setattr)
 
-                return "_inst_dict['%s'] = %s" % (attr_name, value_var,)
+                return "_inst_dict['%s'] = %s" % (attr_name, value_var)
 
             def fmt_setter_with_converter(
                 attr_name, value_var, has_on_setattr
@@ -2029,7 +2029,7 @@ def _attrs_to_init_script(
                         )
                     )
         elif a.default is not NOTHING and not has_factory:
-            arg = "%s=attr_dict['%s'].default" % (arg_name, attr_name,)
+            arg = "%s=attr_dict['%s'].default" % (arg_name, attr_name)
             if a.kw_only:
                 kw_only_args.append(arg)
             else:
@@ -2038,7 +2038,7 @@ def _attrs_to_init_script(
             if a.converter is not None:
                 lines.append(
                     fmt_setter_with_converter(
-                        attr_name, arg_name, has_on_setattr,
+                        attr_name, arg_name, has_on_setattr
                     )
                 )
                 names_for_globals[
