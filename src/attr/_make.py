@@ -686,10 +686,7 @@ class _ClassBuilder(object):
         # Traverse the MRO to check for an existing __weakref__.
         weakref_inherited = False
         for base_cls in self._cls.__mro__[1:-1]:
-            if (
-                getattr(base_cls, "__dict__", {}).get("__weakref__", None)
-                is not None
-            ):
+            if base_cls.__dict__.get("__weakref__", None) is not None:
                 weakref_inherited = True
                 break
 
