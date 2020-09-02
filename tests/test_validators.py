@@ -29,16 +29,16 @@ from .utils import simple_attr
 
 
 @pytest.fixture(scope="module")
-def zope():
+def zope_interface():
+    """Provides ``zope.interface`` if available, skipping the test if not."""
     try:
-        import zope
         import zope.interface
     except ImportError:
         raise pytest.skip(
             "zope-related tests skipped when zope.interface is not installed"
         )
 
-    return zope
+    return zope.interface
 
 
 class TestInstanceOf(object):
@@ -230,8 +230,10 @@ class TestAnd(object):
 
 
 @pytest.fixture(scope="module")
-def ifoo(zope):
-    class IFoo(zope.interface.Interface):
+def ifoo(zope_interface):
+    """Provides a test ``zope.interface.Interface`` in ``zope`` tests."""
+
+    class IFoo(zope_interface.Interface):
         """
         An interface.
         """
@@ -255,12 +257,12 @@ class TestProvides(object):
         """
         assert provides.__name__ in validator_module.__all__
 
-    def test_success(self, zope, ifoo):
+    def test_success(self, zope_interface, ifoo):
         """
         Nothing happens if value provides requested interface.
         """
 
-        @zope.interface.implementer(ifoo)
+        @zope_interface.implementer(ifoo)
         class C(object):
             def f(self):
                 pass
