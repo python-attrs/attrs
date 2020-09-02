@@ -39,3 +39,4 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: debug-statements
+      - id: check-toml
