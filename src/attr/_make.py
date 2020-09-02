@@ -675,12 +675,11 @@ class _ClassBuilder(object):
         # XXX: a non-attrs class and subclass the resulting class with an attrs
         # XXX: class.  See `test_slotted_confused for details.  For now that's
         # XXX: OK with us.
-        for base_cls in self._cls.__bases__:
-            if not self._has_own_setattr and getattr(
-                base_cls, "__dict__", {}
-            ).get("__attrs_own_setattr__", False):
-                cd["__setattr__"] = object.__setattr__
-                break
+        if not self._has_own_setattr:
+            for base_cls in self._cls.__bases__:
+                if base_cls.__dict__.get("__attrs_own_setattr__", False):
+                    cd["__setattr__"] = object.__setattr__
+                    break
 
         # Traverse the MRO to check for an existing __weakref__.
         weakref_inherited = False
