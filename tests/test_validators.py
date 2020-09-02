@@ -30,8 +30,13 @@ from .utils import simple_attr
 
 @pytest.fixture(scope="module")
 def zope():
-    import zope
-    import zope.interface
+    try:
+        import zope
+        import zope.interface
+    except ImportError:
+        raise pytest.skip(
+            "zope-related tests skipped when zope.interface is not installed"
+        )
 
     return zope
 
@@ -239,7 +244,6 @@ def ifoo(zope):
     return IFoo
 
 
-@pytest.mark.zope
 class TestProvides(object):
     """
     Tests for `provides`.
