@@ -669,8 +669,9 @@ class _ClassBuilder(object):
             if k not in tuple(self._attr_names) + ("__dict__", "__weakref__")
         }
 
-        # Check the bases if one of them has an attrs-made __setattr__ that
-        # needs to be reset.
+        # If our class doesn't have an own __setattr__ (either from the user or
+        # by us), check the bases, if one of them has an attrs-made
+        # __setattr__, that needs to be reset.
         # XXX: This can be confused by subclassing a slotted attrs class with
         # XXX: a non-attrs class and subclass the resulting class with an attrs
         # XXX: class.  See `test_slotted_confused for details.  For now that's
