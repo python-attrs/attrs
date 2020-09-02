@@ -290,7 +290,7 @@ class TestSetAttr(object):
         with pytest.raises(SystemError):
             A().x = 1
 
-    @pytest.mark.xfail
+    @pytest.mark.xfail(raises=attr.exceptions.FrozenAttributeError)
     def test_slotted_confused(self):
         """
         If we have a in-between non-attrs class, setattr reset detection
