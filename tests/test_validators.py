@@ -7,7 +7,6 @@ from __future__ import absolute_import, division, print_function
 import re
 
 import pytest
-import zope.interface
 
 import attr
 
@@ -27,6 +26,14 @@ from attr.validators import (
 )
 
 from .utils import simple_attr
+
+
+@pytest.fixture(scope="module")
+def zope():
+    import zope
+    import zope.interface
+
+    return zope
 
 
 class TestInstanceOf(object):
@@ -217,17 +224,22 @@ class TestAnd(object):
         assert C.__attrs_attrs__[0].validator == C.__attrs_attrs__[1].validator
 
 
-class IFoo(zope.interface.Interface):
-    """
-    An interface.
-    """
-
-    def f():
+@pytest.fixture(scope="module")
+def ifoo(zope):
+    class IFoo(zope.interface.Interface):
         """
-        A function called f.
+        An interface.
         """
 
+        def f():
+            """
+            A function called f.
+            """
 
+    return IFoo
+
+
+@pytest.mark.zope
 class TestProvides(object):
     """
     Tests for `provides`.
@@ -239,46 +251,46 @@ class TestProvides(object):
         """
         assert provides.__name__ in validator_module.__all__
 
-    def test_success(self):
+    def test_success(self, zope, ifoo):
         """
         Nothing happens if value provides requested interface.
         """
 
-        @zope.interface.implementer(IFoo)
+        @zope.interface.implementer(ifoo)
         class C(object):
             def f(self):
                 pass
 
-        v = provides(IFoo)
+        v = provides(ifoo)
         v(None, simple_attr("x"), C())
 
-    def test_fail(self):
+    def test_fail(self, ifoo):
         """
         Raises `TypeError` if interfaces isn't provided by value.
         """
         value = object()
         a = simple_attr("x")
 
-        v = provides(IFoo)
+        v = provides(ifoo)
         with pytest.raises(TypeError) as e:
             v(None, a, value)
         assert (
             "'x' must provide {interface!r} which {value!r} doesn't.".format(
-                interface=IFoo, value=value
+                interface=ifoo, value=value
             ),
             a,
-            IFoo,
+            ifoo,
             value,
         ) == e.value.args
 
-    def test_repr(self):
+    def test_repr(self, ifoo):
         """
         Returned validator has a useful `__repr__`.
         """
-        v = provides(IFoo)
+        v = provides(ifoo)
         assert (
             "<provides validator for interface {interface!r}>".format(
-                interface=IFoo
+                interface=ifoo
             )
         ) == repr(v)
 

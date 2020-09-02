@@ -35,7 +35,7 @@ multi_line_output=3
 use_parentheses=true
 
 known_first_party="attr"
-known_third_party=["attr", "hypothesis", "pytest", "setuptools", "six", "zope"]
+known_third_party=["attr", "hypothesis", "pytest", "setuptools", "six"]
 
 
 [tool.towncrier]
