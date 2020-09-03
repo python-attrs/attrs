@@ -227,6 +227,9 @@ class TestSetAttr(object):
             assert NoHook.__setattr__ == object.__setattr__
 
         assert 1 == NoHook(1).x
+        assert Hooked.__attrs_own_setattr__
+        assert not NoHook.__attrs_own_setattr__
+        assert WithOnSetAttrHook.__attrs_own_setattr__
 
     @pytest.mark.parametrize("slots", [True, False])
     def test_setattr_inherited_do_not_reset(self, slots):

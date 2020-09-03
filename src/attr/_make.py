@@ -655,6 +655,7 @@ class _ClassBuilder(object):
             cls, "__attrs_own_setattr__", False
         ):
             cls.__setattr__ = object.__setattr__
+            cls.__attrs_own_setattr__ = False
 
         return cls
 
@@ -669,9 +670,10 @@ class _ClassBuilder(object):
             if k not in tuple(self._attr_names) + ("__dict__", "__weakref__")
         }
 
-        # If our class doesn't have an own __setattr__ (either from the user or
-        # by us), check the bases, if one of them has an attrs-made
-        # __setattr__, that needs to be reset.
+        # If our class doesn't have its own implementation of __setattr__
+        # (either from the user or by us), check the bases, if one of them has
+        # an attrs-made __setattr__, that needs to be reset. We don't walk the
+        # MRO because we only care about our immediate base classes.
         # XXX: This can be confused by subclassing a slotted attrs class with
         # XXX: a non-attrs class and subclass the resulting class with an attrs
         # XXX: class.  See `test_slotted_confused for details.  For now that's
@@ -682,6 +684,7 @@ class _ClassBuilder(object):
             for base_cls in getattr(self._cls, "__bases__", ()):
                 if base_cls.__dict__.get("__attrs_own_setattr__", False):
                     cd["__setattr__"] = object.__setattr__
+                    cd["__attrs_own_setattr__"] = False
                     break
 
         # Traverse the MRO to check for an existing __weakref__.
