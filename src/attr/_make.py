@@ -2185,6 +2185,8 @@ class Attribute(object):
 
     .. versionadded:: 20.1.0 *inherited*
     .. versionadded:: 20.1.0 *on_setattr*
+    .. versionchanged:: 20.2.0 *inherited* is not taken into account for
+        equality checks and hashing anymore.
 
     For the full version history of the fields, see `attr.ib`.
     """
@@ -2354,8 +2356,11 @@ _a = [
 ]
 
 Attribute = _add_hash(
-    _add_eq(_add_repr(Attribute, attrs=_a), attrs=_a),
-    attrs=[a for a in _a if a.hash],
+    _add_eq(
+        _add_repr(Attribute, attrs=_a),
+        attrs=[a for a in _a if a.name != "inherited"],
+    ),
+    attrs=[a for a in _a if a.hash and a.name != "inherited"],
 )
 
 

@@ -691,6 +691,26 @@ class TestAttributes(object):
             class C(object):
                 x = attr.ib(factory=Factory(list))
 
+    def test_inherited_does_not_affect_hashing_and_equality(self):
+        """
+        Whether or not an Attribute has been inherited doesn't affect how it's
+        hashed and compared.
+        """
+
+        @attr.s
+        class BaseClass(object):
+            x = attr.ib()
+
+        @attr.s
+        class SubClass(BaseClass):
+            pass
+
+        ba = attr.fields(BaseClass)[0]
+        sa = attr.fields(SubClass)[0]
+
+        assert ba == sa
+        assert hash(ba) == hash(sa)
+
 
 @pytest.mark.skipif(PY2, reason="keyword-only arguments are PY3-only.")
 class TestKeywordOnlyAttributes(object):

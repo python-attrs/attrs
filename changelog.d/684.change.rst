@@ -1,0 +1,1 @@
+The ``inherited`` field of ``attr.Attribute`` (introduced in 20.1.0) instances is not considered when hashing and comparing anymore.
