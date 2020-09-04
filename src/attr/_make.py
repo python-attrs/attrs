@@ -686,10 +686,7 @@ class _ClassBuilder(object):
             cd["__attrs_own_setattr__"] = False
 
             if not self._has_custom_setattr:
-                # There's metaclass magic that may result in a baseclassa
-                # without __bases__ which results in _us_ not having one. cf.
-                # #681
-                for base_cls in getattr(self._cls, "__bases__", ()):
+                for base_cls in self._cls.__bases__:
                     if base_cls.__dict__.get("__attrs_own_setattr__", False):
                         cd["__setattr__"] = object.__setattr__
                         break
