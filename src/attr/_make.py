@@ -676,7 +676,7 @@ class _ClassBuilder(object):
         # MRO because we only care about our immediate base classes.
         # XXX: This can be confused by subclassing a slotted attrs class with
         # XXX: a non-attrs class and subclass the resulting class with an attrs
-        # XXX: class.  See `test_slotted_confused for details.  For now that's
+        # XXX: class.  See `test_slotted_confused` for details.  For now that's
         # XXX: OK with us.
         if not self._has_own_setattr:
             # There's metaclass magic that may result in a baseclass without
