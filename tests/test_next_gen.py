@@ -1,6 +1,7 @@
 """
 Python 3-only integration tests for provisional next generation APIs.
 """
+
 import re
 
 import pytest
@@ -189,7 +190,7 @@ class TestNextGen:
         class B(A):
             b: int
 
-        @attr.define
+        @attr.define(on_setattr=attr.setters.NO_OP)
         class C(B):
             c: int
 

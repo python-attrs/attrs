@@ -82,7 +82,7 @@ def define(
         """
         nonlocal frozen, on_setattr
 
-        had_on_setattr = on_setattr is not None
+        had_on_setattr = on_setattr not in (None, setters.NO_OP)
 
         # By default, mutable classes validate on setattr.
         if frozen is False and on_setattr is None:
@@ -98,7 +98,6 @@ def define(
                         "(frozen-ness was inherited)."
                     )
 
-                frozen = True
                 on_setattr = setters.NO_OP
                 break
 
