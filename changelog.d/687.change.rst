@@ -1,2 +1,2 @@
-The ergonomics of creating frozen classes using ``@define(frozen=True)`` and sub=classing frozen classes has been improved:
+The ergonomics of creating frozen classes using ``@define(frozen=True)`` and sub-classing frozen classes has been improved:
 you don't have to set ``on_setattr=None`` anymore.
