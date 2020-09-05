@@ -1,5 +1,0 @@
-In 20.1.0 we introduced the ``inherited`` attribute on the ``attr.Attribute`` class to differentiate attributes that have been inherited and those that have been defined directly on the class.
-
-It has shown to be problematic to involve that attribute when comparing instances of ``attr.Attribute`` though, because when sub-classing, attributes from base classes are suddenly not equal to themselves in a super class.
-
-Therefore the ``inherited`` attribute will now be ignored when hashing and comparing instances of ``attr.Attribute``.

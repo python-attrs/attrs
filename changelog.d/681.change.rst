@@ -1,1 +1,0 @@
-It's possible to define custom ``__setattr__`` methods on slotted classes again.

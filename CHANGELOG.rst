@@ -4,16 +4,50 @@ Changelog
 Versions follow `CalVer <https://calver.org>`_ with a strict backwards compatibility policy.
 The third digit is only for regressions.
 
-Changes for the upcoming release can be found in the `"changelog.d" directory <https://github.com/python-attrs/attrs/tree/master/changelog.d>`_ in our repository.
-
-..
-   Do *NOT* add changelog entries here!
-
-   This changelog is managed by towncrier and is compiled at release time.
-
-   See https://www.attrs.org/en/latest/contributing.html#changelog for details.
-
 .. towncrier release notes start
+
+20.2.0 (2020-09-05)
+-------------------
+
+Backward-incompatible Changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- ``attr.define()``, ``attr.frozen()``, ``attr.mutable()``, and ``attr.field()`` remain **provisional**.
+
+  This release fixes a bunch of bugs and ergonomics but they remain mostly unchanged.
+
+  If you wish to use them together with mypy, you can simply drop `this plugin <https://gist.github.com/hynek/1e3844d0c99e479e716169034b5fa963#file-attrs_ng_plugin-py>`_ into your project.
+
+  Feel free to provide feedback to them in the linked issue #668.
+
+  We will release the ``attrs`` namespace once we have the feeling that the APIs have properly settled.
+  `#668 <https://github.com/python-attrs/attrs/issues/668>`_
+
+
+Changes
+^^^^^^^
+
+- ``attr.define()`` et al now correct detect ``__eq__`` and ``__ne__``.
+  `#671 <https://github.com/python-attrs/attrs/issues/671>`_
+- ``attr.define()`` et al's hybrid behavior now also works correctly when arguments are passed.
+  `#675 <https://github.com/python-attrs/attrs/issues/675>`_
+- It's possible to define custom ``__setattr__`` methods on slotted classes again.
+  `#681 <https://github.com/python-attrs/attrs/issues/681>`_
+- In 20.1.0 we introduced the ``inherited`` attribute on the ``attr.Attribute`` class to differentiate attributes that have been inherited and those that have been defined directly on the class.
+
+  It has shown to be problematic to involve that attribute when comparing instances of ``attr.Attribute`` though, because when sub-classing, attributes from base classes are suddenly not equal to themselves in a super class.
+
+  Therefore the ``inherited`` attribute will now be ignored when hashing and comparing instances of ``attr.Attribute``.
+  `#684 <https://github.com/python-attrs/attrs/issues/684>`_
+- ``zope.interface`` is now a "soft dependency" when running the test suite; if ``zope.interface`` is not installed when running the test suite, the interface-related tests will be automatically skipped.
+  `#685 <https://github.com/python-attrs/attrs/issues/685>`_
+- The ergonomics of creating frozen classes using ``@define(frozen=True)`` and sub-classing frozen classes has been improved:
+  you don't have to set ``on_setattr=None`` anymore.
+  `#687 <https://github.com/python-attrs/attrs/issues/687>`_
+
+
+----
+
 
 20.1.0 (2020-08-20)
 -------------------

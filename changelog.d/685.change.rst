@@ -1,1 +1,0 @@
-``zope.interface`` is now a "soft dependency" when running the test suite; if ``zope.interface`` is not installed when running the test suite, the interface-related tests will be automatically skipped.
