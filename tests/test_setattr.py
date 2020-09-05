@@ -400,7 +400,7 @@ class TestSetAttrNoPy2(object):
         object.__setattr__.
 
         This only can work on Python 3+ with auto_detect activated, such that
-        attrs can know, that there is a user-provided __setattr__.
+        attrs can know that there is a user-provided __setattr__.
         """
 
         @attr.s(slots=a_slots)
