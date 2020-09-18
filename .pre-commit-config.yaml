@@ -12,7 +12,7 @@ repos:
       - id: seed-isort-config
 
   - repo: https://github.com/pre-commit/mirrors-isort
-    rev: v5.4.2
+    rev: v5.5.2
     hooks:
       - id: isort
         additional_dependencies: [toml]
@@ -24,7 +24,7 @@ repos:
         language_version: python3.8
 
   - repo: https://github.com/econchick/interrogate
-    rev: 1.3.0
+    rev: 1.3.1
     hooks:
       - id: interrogate
         args: [tests]
