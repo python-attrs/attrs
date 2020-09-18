@@ -28,8 +28,8 @@ whitelist-regex = ["test_.*"]
 [tool.isort]
 profile = "attrs"
 
-known_first_party="attr"
-known_third_party=["attr", "hypothesis", "pytest", "setuptools", "six"]
+known_first_party = "attr"
+known_third_party = ["attr", "hypothesis", "pytest", "setuptools", "six"]
 
 
 [tool.towncrier]
