@@ -87,6 +87,9 @@ Glossary
       - Since it's currently impossible to make a class slotted after it's been created, ``attrs`` has to replace your class with a new one.
         While it tries to do that as graciously as possible, certain metaclass features like ``__init_subclass__`` do not work with slotted classes.
 
+      - The `class.__subclasses__` attribute needs a garbage collection run (which can be manually triggered using `gc.collect`), for the original class to be removed.
+        See issue `#407 <https://github.com/python-attrs/attrs/issues/407>`_ for more details.
+
 
 .. [#pypy] On PyPy, there is no memory advantage in using slotted classes.
 .. [#pypyweakref] On PyPy, slotted classes are naturally weak-referenceable so ``weakref_slot=False`` has no effect.
