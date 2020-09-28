@@ -4,13 +4,13 @@ Glossary
 .. glossary::
 
    dict classes
-      A regular class whose attributes are stored in the ``__dict__`` attribute of every single instance.
+      A regular class whose attributes are stored in the `object.__dict__` attribute of every single instance.
       This is quite wasteful especially for objects with very few data attributes and the space consumption can become significant when creating large numbers of instances.
 
-      This is the type of class you get by default both with and without ``attrs``.
+      This is the type of class you get by default both with and without ``attrs`` (except with the next APIs `attr.define`, `attr.mutable`, and `attr.frozen`).
 
    slotted classes
-      A class whose instances have no ``__dict__`` attribute and `define <https://docs.python.org/3/reference/datamodel.html#slots>`_ their attributes in a ``__slots__`` attribute instead.
+      A class whose instances have no `object.__dict__` attribute and `define <https://docs.python.org/3/reference/datamodel.html#slots>`_ their attributes in a `object.__slots__` attribute instead.
       In ``attrs``, they are created by passing ``slots=True`` to ``@attr.s`` (and are on by default in `attr.define`/`attr.mutable`/`attr.frozen`).
 
 
@@ -85,7 +85,7 @@ Glossary
         This can be disabled in CPython by passing ``weakref_slot=False`` to ``@attr.s`` [#pypyweakref]_.
 
       - Since it's currently impossible to make a class slotted after it's been created, ``attrs`` has to replace your class with a new one.
-        While it tries to do that as graciously as possible, certain metaclass features like ``__init_subclass__`` do not work with slotted classes.
+        While it tries to do that as graciously as possible, certain metaclass features like `object.__init_subclass__` do not work with slotted classes.
 
       - The `class.__subclasses__` attribute needs a garbage collection run (which can be manually triggered using `gc.collect`), for the original class to be removed.
         See issue `#407 <https://github.com/python-attrs/attrs/issues/407>`_ for more details.

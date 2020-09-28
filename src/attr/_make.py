@@ -1093,7 +1093,9 @@ def attrs(
         argument name.  If a ``__attrs_post_init__`` method exists on the
         class, it will be called after the class is fully initialized.
     :param bool slots: Create a `slotted class <slotted classes>` that's more
-        memory-efficient.
+        memory-efficient. Slotted classes are generally superior to the default
+        dict classes, but have some gotchas you should know about, so we
+        encourage you to read the `glossary entry <slotted classes>`.
     :param bool frozen: Make instances immutable after initialization.  If
         someone attempts to modify a frozen instance,
         `attr.exceptions.FrozenInstanceError` is raised.

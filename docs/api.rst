@@ -596,7 +596,7 @@ These are Python 3.6 and later-only, keyword-only, and **provisional** APIs that
 The most notable differences are:
 
 - automatically detect whether or not *auto_attribs* should be `True`
-- *slots=True*  (see :term:`slotted classes`)
+- *slots=True*  (see :term:`slotted classes` for potentially surprising behaviors)
 - *auto_exc=True*
 - *auto_detect=True*
 - *eq=True*, but *order=False*
