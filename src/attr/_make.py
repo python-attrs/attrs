@@ -1186,7 +1186,7 @@ def attrs(
 
     :param on_setattr: A callable that is run whenever the user attempts to set
         an attribute (either by assignment like ``i.x = 42`` or by using
-        `setattr` like ``setattr(i, "x", 42)``). It receives the same argument
+        `setattr` like ``setattr(i, "x", 42)``). It receives the same arguments
         as validators: the instance, the attribute that is being modified, and
         the new value.
 
