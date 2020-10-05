@@ -1100,7 +1100,7 @@ def attrs(
         someone attempts to modify a frozen instance,
         `attr.exceptions.FrozenInstanceError` is raised.
 
-        Please note:
+        .. note::
 
             1. This is achieved by installing a custom ``__setattr__`` method
                on your class, so you can't implement your own.
