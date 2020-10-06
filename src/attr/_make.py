@@ -1105,12 +1105,14 @@ def attrs(
         argument name.  If a ``__attrs_post_init__`` method exists on the
         class, it will be called after the class is fully initialized.
     :param bool slots: Create a `slotted class <slotted classes>` that's more
-        memory-efficient.
+        memory-efficient. Slotted classes are generally superior to the default
+        dict classes, but have some gotchas you should know about, so we
+        encourage you to read the `glossary entry <slotted classes>`.
     :param bool frozen: Make instances immutable after initialization.  If
         someone attempts to modify a frozen instance,
         `attr.exceptions.FrozenInstanceError` is raised.
 
-        Please note:
+        .. note::
 
             1. This is achieved by installing a custom ``__setattr__`` method
                on your class, so you can't implement your own.
@@ -1196,7 +1198,7 @@ def attrs(
 
     :param on_setattr: A callable that is run whenever the user attempts to set
         an attribute (either by assignment like ``i.x = 42`` or by using
-        `setattr` like ``setattr(i, "x", 42)``). It receives the same argument
+        `setattr` like ``setattr(i, "x", 42)``). It receives the same arguments
         as validators: the instance, the attribute that is being modified, and
         the new value.
 

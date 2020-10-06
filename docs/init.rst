@@ -99,7 +99,6 @@ This is when default values come into play:
 It's important that the decorated method -- or any other method or property! -- doesn't have the same name as the attribute, otherwise it would overwrite the attribute definition.
 You also cannot use type annotations to elide the `attr.ib` call for ``d`` as explained in `types`.
 
-
 Please note that as with function and method signatures, ``default=[]`` will *not* do what you may think it might do:
 
 .. doctest::
@@ -126,7 +125,7 @@ This is why ``attrs`` comes with factory options.
    Even the smartest of us can `get confused`_ by what happens if you pass partially initialized objects around.
 
 
- .. _validators:
+.. _validators:
 
 Validators
 ----------
