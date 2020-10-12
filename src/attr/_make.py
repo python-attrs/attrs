@@ -2159,14 +2159,27 @@ def _attrs_to_init_script(
     args = ", ".join(args)
     if kw_only_args:
         if PY2:
-            raise PythonTooOldError(
-                "Keyword-only arguments only work on Python 3 and later."
+            kw_only_args.sort(key=lambda arg: "=" in arg)
+            kw_only_arg_tuple = ", ".join(
+                arg.split("=", 1)[0] for arg in kw_only_args
             )
 
-        args += "{leading_comma}*, {kw_only_args}".format(
-            leading_comma=", " if args else "",
-            kw_only_args=", ".join(kw_only_args),
-        )
+            parse_kw_only_args_lines = [
+                "def __attrs_unpack_kw_only__(%s):" % ", ".join(kw_only_args),
+                "    return %s" % kw_only_arg_tuple,
+                "%s = __attrs_unpack_kw_only__(**_kwargs)" % kw_only_arg_tuple,
+                "    ",
+            ]
+            lines = parse_kw_only_args_lines + lines
+
+            args += "{leading_comma} **_kwargs".format(
+                leading_comma=", " if args else ""
+            )
+        else:
+            args += "{leading_comma}*, {kw_only_args}".format(
+                leading_comma=", " if args else "",
+                kw_only_args=", ".join(kw_only_args),
+            )
     return (
         """\
 def __init__(self, {args}):
