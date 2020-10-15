@@ -1905,35 +1905,39 @@ def _assign_with_converter(attr_name, value_var, has_on_setattr):
     )
 
 
-if PY2:
+def _unpack_kw_only_py2(attr_name, default=None):
+    """
+    Unpack *attr_name* from _kw_only dict.
+    """
+    if default is not None:
+        arg_default = ", %s" % default
+    else:
+        arg_default = ""
+    return "%s = _kw_only.pop('%s'%s)" % (
+        attr_name,
+        attr_name,
+        arg_default,
+    )
 
-    def _unpack_kw_only_py2(attr_name, default=None):
-        """
-        Unpack *attr_name* for _kw_only dict. Used to support kw_only arguments in py2.
-        """
-        if default is not None:
-            arg_default = ", %s" % default
-        else:
-            arg_default = ""
-        return "%s = _kw_only.pop('%s'%s)" % (
-            attr_name,
-            attr_name,
-            arg_default,
-        )
 
-    def _unpack_kw_only_lines_py2(kw_only_args):
-        lines = ["try:"]
-        lines += [
-            "    " + _unpack_kw_only_py2(*arg.split("="))
-            for arg in kw_only_args
-        ]
-        lines += [
-            "except KeyError as _key_error:",
-            "    raise TypeError('__init__() missing required keyword-only argument: %s' % _key_error)",
-            "if _kw_only:",
-            "    raise TypeError('__init__() got an unexpected keyword argument %r' % next(iter(_kw_only)))",
-        ]
-        return lines
+def _unpack_kw_only_lines_py2(kw_only_args):
+    """
+    Unpack all *kw_only_args* from _kw_only dict and handle errors.
+    """
+    lines = ["try:"]
+    lines += [
+        "    " + _unpack_kw_only_py2(*arg.split("="))
+        for arg in kw_only_args
+    ]
+    lines += """\
+except KeyError as _key_error:
+    _msg = '__init__() missing required keyword-only argument: %s'
+    raise TypeError(_msg % _key_error)
+if _kw_only:
+    _msg = '__init__() got an unexpected keyword argument %r'
+    raise TypeError(_msg % next(iter(_kw_only)))
+""".split('\n')
+    return lines
 
 
 def _attrs_to_init_script(
