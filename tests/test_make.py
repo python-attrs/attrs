@@ -766,7 +766,7 @@ class TestKeywordOnlyAttributes(object):
 
         if PY2:
             assert (
-                "__attrs_unpack_kw_only__() takes exactly 1 argument (0 given)"
+                "missing required keyword-only argument: 'x'"
             ) in e.value.args[0]
         else:
             assert (

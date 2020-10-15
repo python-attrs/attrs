@@ -1905,6 +1905,31 @@ def _assign_with_converter(attr_name, value_var, has_on_setattr):
     )
 
 
+def _unpack_kw_only_py2(attr_name, default=None):
+    """
+    Unpack *attr_name* for _kw_only dict. Used to support kw_only arguments in py2.
+    """
+    if default is not None:
+        arg_default = ", %s" % default
+    else:
+        arg_default = ""
+    return "%s = _kw_only.pop('%s'%s)" % (attr_name, attr_name, arg_default)
+
+
+def _unpack_kw_only_lines_py2(kw_only_args):
+    lines = ["try:"]
+    lines += [
+        "    " + _unpack_kw_only_py2(*arg.split("=")) for arg in kw_only_args
+    ]
+    lines += [
+        "except KeyError as _key_error:",
+        "    raise TypeError('__init__() missing required keyword-only argument: %s' % _key_error)",
+        "if _kw_only:",
+        "    raise TypeError('__init__() got an unexpected keyword argument %r' % next(iter(_kw_only)))",
+    ]
+    return lines
+
+
 def _attrs_to_init_script(
     attrs,
     frozen,
@@ -2159,26 +2184,13 @@ def _attrs_to_init_script(
     args = ", ".join(args)
     if kw_only_args:
         if PY2:
-            kw_only_args.sort(key=lambda arg: "=" in arg)
-            kw_only_arg_tuple = ", ".join(
-                arg.split("=", 1)[0] for arg in kw_only_args
-            )
+            lines = _unpack_kw_only_lines_py2(kw_only_args) + lines
 
-            parse_kw_only_args_lines = [
-                "def __attrs_unpack_kw_only__(%s):" % ", ".join(kw_only_args),
-                "    return %s" % kw_only_arg_tuple,
-                "%s = __attrs_unpack_kw_only__(**_kwargs)" % kw_only_arg_tuple,
-                "    ",
-            ]
-            lines = parse_kw_only_args_lines + lines
-
-            args += "{leading_comma} **_kwargs".format(
-                leading_comma=", " if args else ""
-            )
+            args += "%s**_kw_only" % (", " if args else "",)  # leading comma
         else:
-            args += "{leading_comma}*, {kw_only_args}".format(
-                leading_comma=", " if args else "",
-                kw_only_args=", ".join(kw_only_args),
+            args += "%s*, %s" % (
+                ", " if args else "",  # leading comma
+                ", ".join(kw_only_args),  # kw_only args
             )
     return (
         """\
