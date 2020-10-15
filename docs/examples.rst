@@ -146,7 +146,7 @@ On Python 3 it overrides the implicit detection.
 Keyword-only Attributes
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-You can also add `keyword-only <https://docs.python.org/3/glossary.html#keyword-only-parameter>`_ attributes:
+You can also add `keyword-only <https://docs.python.org/3/glossary.html#keyword-only-parameter>`_ attributes (even on Python 2):
 
 .. doctest::
 
@@ -159,8 +159,6 @@ You can also add `keyword-only <https://docs.python.org/3/glossary.html#keyword-
     TypeError: A() missing 1 required keyword-only argument: 'a'
     >>> A(a=1)
     A(a=1)
-
-``attrs`` supports ``kw_only`` attributes even on Python 2, though error messages are default python error messages and may be a bit confusing.
 
 ``kw_only`` may also be specified at via ``attr.s``, and will apply to all attributes:
 
