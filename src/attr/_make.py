@@ -223,6 +223,7 @@ def attrib(
     .. deprecated:: 19.2.0 *cmp* Removal on or after 2021-06-01.
     .. versionadded:: 19.2.0 *eq* and *order*
     .. versionadded:: 20.1.0 *on_setattr*
+    .. versionchanged:: 20.3.0 *kw_only* supported on python 2
     """
     eq, order = _determine_eq_order(cmp, eq, order, True)
 
