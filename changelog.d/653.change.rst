@@ -1,0 +1,3 @@
+``attr.s()`` now has a *field_transformer* hook that is called for all ``Attribute``\ s and returns a (modified or updated) list of ``Attribute`` instances.
+``attr.asdict()`` has a *value_serializer* hook that can change the way values are converted.
+Both hooks are meant to help with data (de-)serialization workflows.

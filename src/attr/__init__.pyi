@@ -46,6 +46,7 @@ _OnSetAttrType = Callable[[Any, Attribute[Any], Any], Any]
 _OnSetAttrArgType = Union[
     _OnSetAttrType, List[_OnSetAttrType], setters._NoOpType
 ]
+_FieldTransformer = Callable[[type, List[Attribute]], List[Attribute]]
 # FIXME: in reality, if multiple validators are passed they must be in a list
 # or tuple, but those are invariant and so would prevent subtypes of
 # _ValidatorType from working when passed in a list or tuple.
@@ -274,6 +275,7 @@ def attrs(
     auto_detect: bool = ...,
     getstate_setstate: Optional[bool] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
+    field_transformer: Optional[_FieldTransformer] = ...,
 ) -> _C: ...
 @overload
 def attrs(
@@ -297,6 +299,7 @@ def attrs(
     auto_detect: bool = ...,
     getstate_setstate: Optional[bool] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
+    field_transformer: Optional[_FieldTransformer] = ...,
 ) -> Callable[[_C], _C]: ...
 @overload
 def define(
@@ -319,6 +322,7 @@ def define(
     auto_detect: bool = ...,
     getstate_setstate: Optional[bool] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
+    field_transformer: Optional[_FieldTransformer] = ...,
 ) -> _C: ...
 @overload
 def define(
@@ -341,6 +345,7 @@ def define(
     auto_detect: bool = ...,
     getstate_setstate: Optional[bool] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
+    field_transformer: Optional[_FieldTransformer] = ...,
 ) -> Callable[[_C], _C]: ...
 
 mutable = define
@@ -382,6 +387,7 @@ def make_class(
     eq: Optional[bool] = ...,
     order: Optional[bool] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
+    field_transformer: Optional[_FieldTransformer] = ...,
 ) -> type: ...
 
 # _funcs --
@@ -397,6 +403,7 @@ def asdict(
     filter: Optional[_FilterType[Any]] = ...,
     dict_factory: Type[Mapping[Any, Any]] = ...,
     retain_collection_types: bool = ...,
+    value_serializer: Optional[Callable[[type, Attribute, Any], Any]] = ...,
 ) -> Dict[str, Any]: ...
 
 # TODO: add support for returning NamedTuple from the mypy plugin
