@@ -223,7 +223,7 @@ def attrib(
     .. deprecated:: 19.2.0 *cmp* Removal on or after 2021-06-01.
     .. versionadded:: 19.2.0 *eq* and *order*
     .. versionadded:: 20.1.0 *on_setattr*
-    .. versionchanged:: 20.3.0 *kw_only* supported on python 2
+    .. versionchanged:: 20.3.0 *kw_only* backported to Python 2
     """
     eq, order = _determine_eq_order(cmp, eq, order, True)
 
@@ -1906,31 +1906,32 @@ def _assign_with_converter(attr_name, value_var, has_on_setattr):
     )
 
 
-def _unpack_kw_only_py2(attr_name, default=None):
-    """
-    Unpack *attr_name* from _kw_only dict.
-    """
-    if default is not None:
-        arg_default = ", %s" % default
-    else:
-        arg_default = ""
-    return "%s = _kw_only.pop('%s'%s)" % (
-        attr_name,
-        attr_name,
-        arg_default,
-    )
+if PY2:
+    def _unpack_kw_only_py2(attr_name, default=None):
+        """
+        Unpack *attr_name* from _kw_only dict.
+        """
+        if default is not None:
+            arg_default = ", %s" % default
+        else:
+            arg_default = ""
+        return "%s = _kw_only.pop('%s'%s)" % (
+            attr_name,
+            attr_name,
+            arg_default,
+        )
 
 
-def _unpack_kw_only_lines_py2(kw_only_args):
-    """
-    Unpack all *kw_only_args* from _kw_only dict and handle errors.
-    """
-    lines = ["try:"]
-    lines += [
-        "    " + _unpack_kw_only_py2(*arg.split("="))
-        for arg in kw_only_args
-    ]
-    lines += """\
+    def _unpack_kw_only_lines_py2(kw_only_args):
+        """
+        Unpack all *kw_only_args* from _kw_only dict and handle errors.
+        """
+        lines = ["try:"]
+        lines += [
+            "    " + _unpack_kw_only_py2(*arg.split("="))
+            for arg in kw_only_args
+        ]
+        lines += """\
 except KeyError as _key_error:
     _msg = '__init__() missing required keyword-only argument: %s'
     raise TypeError(_msg % _key_error)
@@ -1938,7 +1939,7 @@ if _kw_only:
     _msg = '__init__() got an unexpected keyword argument %r'
     raise TypeError(_msg % next(iter(_kw_only)))
 """.split('\n')
-    return lines
+        return lines
 
 
 def _attrs_to_init_script(
