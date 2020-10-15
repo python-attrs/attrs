@@ -1947,10 +1947,8 @@ if PY2:
         """
         assert kw_only_args
         lines = ["try:"]
-        lines += [
-            "    " + _unpack_kw_only_py2(*arg.split("="))
-            for arg in kw_only_args
-        ]
+        for arg in kw_only_args:
+            lines.append("    " + _unpack_kw_only_py2(*arg.split("=")))
         lines += """\
 except KeyError as _key_error:
     _msg = '__init__() missing required keyword-only argument: %s'
