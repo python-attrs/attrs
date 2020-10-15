@@ -789,7 +789,7 @@ class TestKeywordOnlyAttributes(object):
         with pytest.raises(TypeError) as e:
             C(x=5, y=10)
 
-        assert ("got an unexpected keyword argument 'y'") in e.value.args[0]
+        assert "got an unexpected keyword argument 'y'" in e.value.args[0]
 
     def test_keyword_only_attributes_can_come_in_any_order(self):
         """
