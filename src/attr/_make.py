@@ -1907,6 +1907,7 @@ def _assign_with_converter(attr_name, value_var, has_on_setattr):
 
 
 if PY2:
+
     def _unpack_kw_only_py2(attr_name, default=None):
         """
         Unpack *attr_name* from _kw_only dict.
@@ -1920,7 +1921,6 @@ if PY2:
             attr_name,
             arg_default,
         )
-
 
     def _unpack_kw_only_lines_py2(kw_only_args):
         """
@@ -1938,7 +1938,9 @@ except KeyError as _key_error:
 if _kw_only:
     _msg = '__init__() got an unexpected keyword argument %r'
     raise TypeError(_msg % next(iter(_kw_only)))
-""".split('\n')
+""".split(
+            "\n"
+        )
         return lines
 
 
