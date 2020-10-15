@@ -4,6 +4,7 @@ Commonly useful validators.
 
 from __future__ import absolute_import, division, print_function
 
+import operator
 import re
 
 from ._make import _AndValidator, and_, attrib, attrs
@@ -17,6 +18,11 @@ __all__ = [
     "in_",
     "instance_of",
     "is_callable",
+    "lt",
+    "le",
+    "ge",
+    "gt",
+    "maxlen",
     "matches_re",
     "optional",
     "provides",
@@ -65,6 +71,111 @@ def instance_of(type):
         got.
     """
     return _InstanceOfValidator(type)
+
+
+@attrs(repr=False, frozen=True, slots=True)
+class _NumberValidator(object):
+    bound = attrib()
+    compare_op = attrib()
+    compare_func = attrib()
+
+    def __call__(self, inst, attr, value):
+        """
+        We use a callable class to be able to change the ``__repr__``.
+        """
+        if not self.compare_func(value, self.bound):
+            raise ValueError(
+                "'{name}' must be {op} {bound}: {value}".format(
+                    name=attr.name,
+                    op=self.compare_op,
+                    bound=self.bound,
+                    value=value,
+                )
+            )
+
+    def __repr__(self):
+        return "<Validator for x {op} {bound}>".format(
+            op=self.compare_op, bound=self.bound
+        )
+
+
+def lt(val):
+    """
+    A validator that raises `ValueError` if the initializer is called
+    with a number larger or equal to *val*.
+
+    :param int val: Exclusive upper bound for values
+
+    .. versionadded:: 20.3.0
+    """
+    return _NumberValidator(val, "<", operator.lt)
+
+
+def le(val):
+    """
+    A validator that raises `ValueError` if the initializer is called
+    with a number greater than *val*.
+
+    :param int val: Inclusive upper bound for values
+
+    .. versionadded:: 20.3.0
+    """
+    return _NumberValidator(val, "<=", operator.le)
+
+
+def ge(val):
+    """
+    A validator that raises `ValueError` if the initializer is called
+    with a number smaller than *val*.
+
+    :param int val: Inclusive lower bound for values
+
+    .. versionadded:: 20.3.0
+    """
+    return _NumberValidator(val, ">=", operator.ge)
+
+
+def gt(val):
+    """
+    A validator that raises `ValueError` if the initializer is called
+    with a number smaller or equal to *val*.
+
+    :param int val: Exclusive lower bound for values
+
+    .. versionadded:: 20.3.0
+    """
+    return _NumberValidator(val, ">", operator.gt)
+
+
+@attrs(repr=False, frozen=True, slots=True)
+class _MaxLengthValidator:
+    max_length = attrib()
+
+    def __call__(self, inst, attr, value):
+        """
+        We use a callable class to be able to change the ``__repr__``.
+        """
+        if len(value) > self.max_length:
+            raise ValueError(
+                "Length of '{name}' must be <= {max}: {len}".format(
+                    name=attr.name, max=self.max_length, len=len(value)
+                )
+            )
+
+    def __repr__(self):
+        return "<maxlen validator for {max}>".format(max=self.max_length)
+
+
+def maxlen(length):
+    """
+    A validator that raises `ValueError` if the initializer is called
+    with a string or iterable that is longer than *length*.
+
+    :param int length: Maximum length of the string or iterable
+
+    .. versionadded:: 20.3.0
+    """
+    return _MaxLengthValidator(length)
 
 
 @attrs(repr=False, frozen=True, slots=True)

@@ -505,16 +505,16 @@ If you don't mind annotating *all* attributes, you can even drop the `attr.ib` a
 
 .. doctest::
 
-   >>> import typing
+   >>> from typing import Any, ClassVar, List
    >>> @attr.s(auto_attribs=True)
    ... class AutoC:
-   ...     cls_var: typing.ClassVar[int] = 5  # this one is ignored
-   ...     l: typing.List[int] = attr.Factory(list)
+   ...     cls_var: ClassVar[int] = 5  # this one is ignored
+   ...     l: List[int] = attr.Factory(list)
    ...     x: int = 1
    ...     foo: str = attr.ib(
    ...          default="every attrib needs a type if auto_attribs=True"
    ...     )
-   ...     bar: typing.Any = None
+   ...     bar: Any = None
    >>> attr.fields(AutoC).l.type
    typing.List[int]
    >>> attr.fields(AutoC).x.type
@@ -557,10 +557,53 @@ This will replace the *type* attribute in the respective fields.
     >>> attr.fields(A).b.type
     <class 'B'>
 
-.. warning::
 
-   ``attrs`` itself doesn't have any features that work on top of type metadata *yet*.
-   However it's useful for writing your own validators or serialization frameworks.
+Automatic type conversion
+-------------------------
+
+Based on the type annoations shown in the examples above, attrs can automatically create converters for a class' attributes.
+This can be very useful when loading data from JSON or dumping to it.
+
+.. doctest::
+
+    >>> from datetime import datetime
+    >>> from enum import Enum
+    >>> from typing import List, Set
+    >>> import json
+    >>>
+    >>> import attr
+    >>>
+    >>>
+    >>> class LeEnum(Enum):
+    ...     spam = "Le spam"
+    ...     eggs = "Le eggs"
+    ...
+    >>> @attr.frozen(field_transformer=attr.auto_convert)
+    ... class Child:
+    ...     x: int = attr.ib()
+    ...     y: int = attr.ib(converter=float)
+    ...
+    >>> @attr.frozen(kw_only=True, field_transformer=attr.auto_convert)
+    ... class Parent:
+    ...     child: Child
+    ...     d: datetime
+    ...     e: LeEnum
+    ...     f: List[float]
+    ...
+    >>> DATA = {
+    ...     "d": "2020-05-04T13:37:00",
+    ...     "e": "Le spam",
+    ...     "f": [2.3, "1"],  # There is a string in it :-O
+    ...     "child": {"x": "23", "y": "42"},
+    ... }
+    >>> p = Parent(**DATA)
+    >>> p
+    Parent(child=Child(x=23, y=42.0), d=datetime.datetime(2020, 5, 4, 13, 37), e=<LeEnum.spam: 'Le spam'>, f=[2.3, 1.0])
+    >>> d = attr.asdict(p, value_serializer=attr.auto_serialize)
+    >>> d
+    {'child': {'x': 23, 'y': 42.0}, 'd': '2020-05-04T13:37:00', 'e': 'Le spam', 'f': [2.3, 1.0]}
+    >>> # Do a JSON round-trip:
+    >>> assert Parent(**json.loads(json.dumps(d))) == p
 
 
 Slots

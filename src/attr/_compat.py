@@ -18,6 +18,17 @@ else:
     ordered_dict = OrderedDict
 
 
+if sys.version_info[:2] >= (3, 6):
+    from typing import get_args, get_origin
+else:
+
+    def get_args(t):
+        return getattr(t, "__args__", None)
+
+    def get_origin(t):
+        return getattr(t, "__origin__", None)
+
+
 if PY2:
     from collections import Mapping, Sequence
 

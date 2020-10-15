@@ -4,7 +4,7 @@ import sys
 
 from functools import partial
 
-from . import converters, exceptions, filters, setters, validators
+from . import converters, exceptions, filters, hooks, setters, validators
 from ._config import get_run_validators, set_run_validators
 from ._funcs import asdict, assoc, astuple, evolve, has, resolve_types
 from ._make import (
@@ -19,6 +19,7 @@ from ._make import (
     validate,
 )
 from ._version_info import VersionInfo
+from .hooks import auto_convert, auto_serialize
 
 
 __version__ = "20.3.0.dev0"
@@ -52,6 +53,8 @@ __all__ = [
     "attrib",
     "attributes",
     "attrs",
+    "auto_convert",
+    "auto_serialize",
     "converters",
     "evolve",
     "exceptions",
@@ -60,6 +63,7 @@ __all__ = [
     "filters",
     "get_run_validators",
     "has",
+    "hooks",
     "ib",
     "make_class",
     "resolve_types",

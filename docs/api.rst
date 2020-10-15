@@ -436,6 +436,102 @@ Validators
         attr.exceptions.NotCallableError: 'x' must be callable (got 'not a callable' that is a <class 'str'>).
 
 
+.. autofunction:: attr.validators.lt
+
+    For example:
+
+    .. doctest::
+
+        >>> @attr.s
+        ... class C(object):
+        ...     x = attr.ib(validator=attr.validators.lt(3))
+        ...
+        >>> C(2)
+        C(x=2)
+        >>> C(3)
+        Traceback (most recent call last):
+            ...
+        ValueError: 'x' must be < 3: 3
+
+
+.. autofunction:: attr.validators.le
+
+    For example:
+
+    .. doctest::
+
+        >>> @attr.s
+        ... class C(object):
+        ...     x = attr.ib(validator=attr.validators.le(3))
+        ...
+        >>> C(3)
+        C(x=3)
+        >>> C(4)
+        Traceback (most recent call last):
+            ...
+        ValueError: 'x' must be <= 3: 4
+
+
+.. autofunction:: attr.validators.ge
+
+    For example:
+
+    .. doctest::
+
+        >>> @attr.s
+        ... class C(object):
+        ...     x = attr.ib(validator=attr.validators.ge(3))
+        ...
+        >>> C(3)
+        C(x=3)
+        >>> C(2)
+        Traceback (most recent call last):
+            ...
+        ValueError: 'x' must be >= 3: 2
+
+
+.. autofunction:: attr.validators.gt
+
+    For example:
+
+    .. doctest::
+
+        >>> @attr.s
+        ... class C(object):
+        ...     x = attr.ib(validator=attr.validators.gt(3))
+        ...
+        >>> C(4)
+        C(x=4)
+        >>> C(3)
+        Traceback (most recent call last):
+            ...
+        ValueError: 'x' must be > 3: 3
+
+
+.. autofunction:: attr.validators.maxlen
+
+    For example:
+
+    .. doctest::
+
+        >>> @attr.s
+        ... class C(object):
+        ...     x = attr.ib(validator=attr.validators.maxlen(4))
+        ...
+        >>> C('spam')
+        C(x='spam')
+        >>> C(list(range(4)))
+        C(x=[0, 1, 2, 3])
+        >>> C('bacon')
+        Traceback (most recent call last):
+            ...
+        ValueError: Lenght of 'x' must be <= 4: 5
+        >>> C(list(range(5)))
+        Traceback (most recent call last):
+            ...
+        ValueError: Lenght of 'x' must be <= 4: 5
+
+
 .. autofunction:: attr.validators.matches_re
 
     For example:
@@ -548,6 +644,29 @@ Converters
       >>> C(None)
       C(x='')
 
+
+.. autofunction:: attr.converters.to_attrs
+
+.. autofunction:: attr.converters.to_dt
+
+.. autofunction:: attr.converters.to_iterable
+
+.. autofunction:: attr.converters.to_tuple
+
+.. autofunction:: attr.converters.to_mapping
+
+.. autofunction:: attr.converters.to_union
+
+Hooks
+-----
+
+Hooks for automatic data conversion based on type annotations.
+
+.. autofunction:: attr.hooks.make_auto_converter
+
+.. autofunction:: attr.hooks.auto_convert
+
+.. autofunction:: attr.hooks.auto_serialize
 
 .. _api_setters:
 

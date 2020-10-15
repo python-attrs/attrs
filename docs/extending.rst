@@ -228,6 +228,21 @@ A more realistic example would be to automatically convert data that you, e.g., 
    Data(a=3, b='spam', c=datetime.datetime(2020, 5, 4, 13, 37))
 
 
+Automatically convert data
+++++++++++++++++++++++++++
+
+todo
+
+
+Extend the auto converter
++++++++++++++++++++++++++
+
+todo
+
+
+
+
+
 Customize Value Serialization in ``asdict()``
 ---------------------------------------------
 
