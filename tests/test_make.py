@@ -773,6 +773,23 @@ class TestKeywordOnlyAttributes(object):
                 "missing 1 required keyword-only argument: 'x'"
             ) in e.value.args[0]
 
+    def test_keyword_only_attributes_unexpected(self):
+        """
+        Raises `TypeError` when unexpected keyword argument passed.
+        """
+
+        @attr.s
+        class C(object):
+            x = attr.ib(kw_only=True)
+
+        with pytest.raises(TypeError) as e:
+            C(x=5, y=10)
+
+        assert(
+            "got an unexpected keyword argument 'y'"
+        ) in e.value.args[0]
+
+
     def test_keyword_only_attributes_can_come_in_any_order(self):
         """
         Mandatory vs non-mandatory attr order only matters when they are part
