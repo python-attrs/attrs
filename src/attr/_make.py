@@ -373,7 +373,7 @@ def _collect_base_attrs(cls, taken_attr_names):
             if a.inherited or a.name in taken_attr_names:
                 continue
 
-            a = a._assoc(inherited=True)
+            a = a.assoc(inherited=True)
             base_attrs.append(a)
             base_attr_map[a.name] = base_cls
 
@@ -411,7 +411,7 @@ def _collect_base_attrs_broken(cls, taken_attr_names):
             if a.name in taken_attr_names:
                 continue
 
-            a = a._assoc(inherited=True)
+            a = a.assoc(inherited=True)
             taken_attr_names.add(a.name)
             base_attrs.append(a)
             base_attr_map[a.name] = base_cls
@@ -419,7 +419,9 @@ def _collect_base_attrs_broken(cls, taken_attr_names):
     return base_attrs, base_attr_map
 
 
-def _transform_attrs(cls, these, auto_attribs, kw_only, collect_by_mro):
+def _transform_attrs(
+    cls, these, auto_attribs, kw_only, collect_by_mro, field_transformer
+):
     """
     Transform all `_CountingAttr`s on a class into `Attribute`s.
 
@@ -451,6 +453,7 @@ def _transform_attrs(cls, these, auto_attribs, kw_only, collect_by_mro):
                 continue
             annot_names.add(attr_name)
             a = cd.get(attr_name, NOTHING)
+
             if not isinstance(a, _CountingAttr):
                 if a is NOTHING:
                     a = attrib()
@@ -498,8 +501,8 @@ def _transform_attrs(cls, these, auto_attribs, kw_only, collect_by_mro):
     AttrsClass = _make_attr_tuple_class(cls.__name__, attr_names)
 
     if kw_only:
-        own_attrs = [a._assoc(kw_only=True) for a in own_attrs]
-        base_attrs = [a._assoc(kw_only=True) for a in base_attrs]
+        own_attrs = [a.assoc(kw_only=True) for a in own_attrs]
+        base_attrs = [a.assoc(kw_only=True) for a in base_attrs]
 
     attrs = AttrsClass(base_attrs + own_attrs)
 
@@ -518,6 +521,8 @@ def _transform_attrs(cls, these, auto_attribs, kw_only, collect_by_mro):
         if had_default is False and a.default is not NOTHING:
             had_default = True
 
+    if field_transformer is not None:
+        attrs = field_transformer(cls, attrs)
     return _Attributes((attrs, base_attrs, base_attr_map))
 
 
@@ -574,9 +579,15 @@ class _ClassBuilder(object):
         collect_by_mro,
         on_setattr,
         has_custom_setattr,
+        field_transformer,
     ):
         attrs, base_attrs, base_map = _transform_attrs(
-            cls, these, auto_attribs, kw_only, collect_by_mro
+            cls,
+            these,
+            auto_attribs,
+            kw_only,
+            collect_by_mro,
+            field_transformer,
         )
 
         self._cls = cls
@@ -1001,6 +1012,7 @@ def attrs(
     collect_by_mro=False,
     getstate_setstate=None,
     on_setattr=None,
+    field_transformer=None,
 ):
     r"""
     A class decorator that adds `dunder
@@ -1196,6 +1208,11 @@ def attrs(
         If a list of callables is passed, they're automatically wrapped in an
         `attr.setters.pipe`.
 
+    :param Optional[callable] field_transformer:
+        A function that is called with the original class object and all
+        fields right before ``attrs`` finalizes the class.  You can use
+        this, e.g., to automatically add converters or validators to
+        fields based on their types.  See `transform-fields` for more details.
 
     .. versionadded:: 16.0.0 *slots*
     .. versionadded:: 16.1.0 *frozen*
@@ -1225,6 +1242,7 @@ def attrs(
     .. versionadded:: 20.1.0 *collect_by_mro*
     .. versionadded:: 20.1.0 *getstate_setstate*
     .. versionadded:: 20.1.0 *on_setattr*
+    .. versionadded:: 20.3.0 *field_transformer*
     """
     if auto_detect and PY2:
         raise PythonTooOldError(
@@ -1271,6 +1289,7 @@ def attrs(
             collect_by_mro,
             on_setattr,
             has_own_setattr,
+            field_transformer,
         )
         if _determine_whether_to_implement(
             cls, repr, auto_detect, ("__repr__",)
@@ -2183,6 +2202,13 @@ class Attribute(object):
     """
     *Read-only* representation of an attribute.
 
+    Instances of this class are frequently used for introspection purposes
+    like:
+
+    - `fields` returns a tuple of them.
+    - Validators get them passed as the first argument.
+    - The *field transformer* hook receives a list of them.
+
     :attribute name: The name of the attribute.
     :attribute inherited: Whether or not that attribute has been inherited from
         a base class.
@@ -2306,9 +2332,12 @@ class Attribute(object):
         return self.eq and self.order
 
     # Don't use attr.assoc since fields(Attribute) doesn't work
-    def _assoc(self, **changes):
+    def assoc(self, **changes):
         """
         Copy *self* and apply *changes*.
+
+        This works similarly to `attr.evolve` but that function does not work
+        with ``Attribute``.
         """
         new = copy.copy(self)
 

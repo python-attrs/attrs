@@ -199,6 +199,16 @@ class ValidatedSetter:
     )
 
 
+# field_transformer
+def ft_hook(cls: type, attribs: List[attr.Attribute]) -> List[attr.Attribute]:
+    return attribs
+
+
+@attr.s(field_transformer=ft_hook)
+class TransformedAttrs:
+    x: int
+
+
 # Auto-detect
 # XXX: needs support in mypy
 # @attr.s(auto_detect=True)
