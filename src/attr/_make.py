@@ -1945,6 +1945,7 @@ if PY2:
         """
         Unpack all *kw_only_args* from _kw_only dict and handle errors.
         """
+        assert kw_only_args
         lines = ["try:"]
         lines += [
             "    " + _unpack_kw_only_py2(*arg.split("="))
