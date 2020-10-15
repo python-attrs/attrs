@@ -1948,7 +1948,7 @@ if PY2:
         assert kw_only_args
         lines = ["try:"]
         lines.extend(
-            lines.append("    " + _unpack_kw_only_py2(*arg.split("=")))
+            "    " + _unpack_kw_only_py2(*arg.split("="))
             for arg in kw_only_args
         )
         lines += """\
