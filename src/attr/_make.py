@@ -1963,7 +1963,7 @@ except KeyError as _key_error:
     )
 if _kw_only:
     raise TypeError(
-        '__init__() got an unexpected keyword argument %r' 
+        '__init__() got an unexpected keyword argument %r'
         % next(iter(_kw_only))
     )
 """.split(
