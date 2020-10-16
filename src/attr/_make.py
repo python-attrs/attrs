@@ -1949,7 +1949,7 @@ if PY2:
         generate a list of lines "{attr_name} = _kw_only.pop('{attr_name}')"
         and "{attr_name} = _kw_only.pop('{attr_name}', {attr_default}).
         If required attr is missing in _kw_only dict or extra key is passed
-        - generated code raises TypeError with TypeError similar to builtins.
+        - generated code raises TypeError similar to python builtin.
         """
         lines = ["try:"]
         lines.extend(
