@@ -1945,11 +1945,21 @@ if PY2:
         """
         Unpack all *kw_only_args* from _kw_only dict and handle errors.
 
-        Given a list of strings "{attr_name}" and "{attr_name}={attr_default}"
-        generate a list of lines "{attr_name} = _kw_only.pop('{attr_name}')"
-        and "{attr_name} = _kw_only.pop('{attr_name}', {attr_default}).
-        If required attr is missing in _kw_only dict or extra key is passed
-        - generated code raises TypeError similar to python builtin.
+        Given a list of strings {attr_name} and {attr_name}={default}
+        generates list of lines of code that pop attrs from _kw_only dict and
+        raise TypeError similar to builtin if required attr is missing or
+        extra key is passed.
+
+        >>> print("\n".join(_unpack_kw_only_lines_py2(["a", "b=42"])))
+        try:
+            a = _kw_only.pop('a')
+            b = _kw_only.pop('b', 42)
+        except KeyError as _key_error:
+            raise TypeError(
+                ...
+        if _kw_only:
+            raise TypeError(
+                ...
         """
         lines = ["try:"]
         lines.extend(
