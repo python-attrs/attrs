@@ -1944,8 +1944,13 @@ if PY2:
     def _unpack_kw_only_lines_py2(kw_only_args):
         """
         Unpack all *kw_only_args* from _kw_only dict and handle errors.
+
+        Given a list of strings "{attr_name}" and "{attr_name}={attr_default}"
+        generate a list of lines "{attr_name} = _kw_only.pop('{attr_name}')"
+        and "{attr_name} = _kw_only.pop('{attr_name}', {attr_default}).
+        If required attr is missing in _kw_only dict or extra key is passed
+        - generated code raises TypeError with TypeError similar to builtins.
         """
-        assert kw_only_args
         lines = ["try:"]
         lines.extend(
             "    " + _unpack_kw_only_py2(*arg.split("="))
@@ -1953,11 +1958,14 @@ if PY2:
         )
         lines += """\
 except KeyError as _key_error:
-    _msg = '__init__() missing required keyword-only argument: %s'
-    raise TypeError(_msg % _key_error)
+    raise TypeError(
+        '__init__() missing required keyword-only argument: %s' % _key_error
+    )
 if _kw_only:
-    _msg = '__init__() got an unexpected keyword argument %r'
-    raise TypeError(_msg % next(iter(_kw_only)))
+    raise TypeError(
+        '__init__() got an unexpected keyword argument %r' 
+        % next(iter(_kw_only))
+    )
 """.split(
             "\n"
         )
