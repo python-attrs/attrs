@@ -450,7 +450,13 @@ class TestFunctional(object):
         class C(object):
             pass
 
-        assert hash(C()) != hash(C())
+        # Ensure both objects live long enough such that their ids/hashes
+        # can't be recycled. Thanks to Ask Hjorth Larsen for pointing that
+        # out.
+        c1 = C()
+        c2 = C()
+
+        assert hash(c1) != hash(c2)
 
     def test_overwrite_base(self):
         """
