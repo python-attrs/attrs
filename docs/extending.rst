@@ -166,7 +166,7 @@ Here are some tips for effective use of metadata:
 Automatic Field Transformation and Modification
 -----------------------------------------------
 
-Attrs allows you to automatically modify or transform the class' fields while the class is being created.
+``attrs`` allows you to automatically modify or transform the class' fields while the class is being created.
 You do this by passing a *field_transformer* hook to `attr.define` (and its friends).
 Its main purpose is to automatically add converters to attributes based on their type to aid the development of API clients and other typed data loaders.
 
@@ -214,7 +214,7 @@ A more realistic example would be to automatically convert data that you, e.g., 
    ...             converter = (lambda d: datetime.fromisoformat(d) if isinstance(d, str) else d)
    ...         else:
    ...             converter = None
-   ...         results.append(field.assoc(converter=converter))
+   ...         results.append(field.evolve(converter=converter))
    ...     return results
    ...
    >>> @attr.frozen(field_transformer=auto_convert)
