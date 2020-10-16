@@ -1945,7 +1945,7 @@ if PY2:
         """
         Unpack all *kw_only_args* from _kw_only dict and handle errors.
 
-        Given a list of strings {attr_name} and {attr_name}={default}
+        Given a list of strings "{attr_name}" and "{attr_name}={default}"
         generates list of lines of code that pop attrs from _kw_only dict and
         raise TypeError similar to builtin if required attr is missing or
         extra key is passed.
