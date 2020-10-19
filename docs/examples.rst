@@ -146,7 +146,7 @@ On Python 3 it overrides the implicit detection.
 Keyword-only Attributes
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-When using ``attrs`` on Python 3, you can also add `keyword-only <https://docs.python.org/3/glossary.html#keyword-only-parameter>`_ attributes:
+You can also add `keyword-only <https://docs.python.org/3/glossary.html#keyword-only-parameter>`_ attributes:
 
 .. doctest::
 
