@@ -149,12 +149,26 @@ class TestAsDict(object):
             retain_collection_types=True,
         )
 
+    @given(set_type=st.sampled_from((set, frozenset)))
+    def test_sets_no_retain(self, C, set_type):
+        """
+        Set types are converted to lists if retain_collection_types=False.
+        """
+        d = asdict(
+            C(1, set_type((1, 2, 3))),
+            retain_collection_types=False,
+            recurse=True,
+        )
+
+        assert {"x": 1, "y": [1, 2, 3]} == d
+
     @given(st.sampled_from(MAPPING_TYPES))
     def test_dicts(self, C, dict_factory):
         """
         If recurse is True, also recurse into dicts.
         """
         res = asdict(C(1, {"a": C(4, 5)}), dict_factory=dict_factory)
+
         assert {"x": 1, "y": {"a": {"x": 4, "y": 5}}} == res
         assert isinstance(res, dict_factory)
 
@@ -329,6 +343,19 @@ class TestAsTuple(object):
         roundtrip_instance = cls(*tuple_instance)
 
         assert instance == roundtrip_instance
+
+    @given(set_type=st.sampled_from((set, frozenset)))
+    def test_sets_no_retain(self, C, set_type):
+        """
+        Set types are converted to lists if retain_collection_types=False.
+        """
+        d = astuple(
+            C(1, set_type((1, 2, 3))),
+            retain_collection_types=False,
+            recurse=True,
+        )
+
+        assert (1, [1, 2, 3]) == d
 
 
 class TestHas(object):
