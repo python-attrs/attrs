@@ -194,7 +194,7 @@ class TestTransformAttrs(object):
         Does not attach __attrs_attrs__ to the class.
         """
         C = make_tc()
-        _transform_attrs(C, None, False, False, True)
+        _transform_attrs(C, None, False, False, True, None)
 
         assert None is getattr(C, "__attrs_attrs__", None)
 
@@ -203,7 +203,7 @@ class TestTransformAttrs(object):
         Transforms every `_CountingAttr` and leaves others (a) be.
         """
         C = make_tc()
-        attrs, _, _ = _transform_attrs(C, None, False, False, True)
+        attrs, _, _ = _transform_attrs(C, None, False, False, True, None)
 
         assert ["z", "y", "x"] == [a.name for a in attrs]
 
@@ -217,7 +217,7 @@ class TestTransformAttrs(object):
             pass
 
         assert _Attributes(((), [], {})) == _transform_attrs(
-            C, None, False, False, True
+            C, None, False, False, True, None
         )
 
     def test_transforms_to_attribute(self):
@@ -225,7 +225,9 @@ class TestTransformAttrs(object):
         All `_CountingAttr`s are transformed into `Attribute`s.
         """
         C = make_tc()
-        attrs, base_attrs, _ = _transform_attrs(C, None, False, False, True)
+        attrs, base_attrs, _ = _transform_attrs(
+            C, None, False, False, True, None
+        )
 
         assert [] == base_attrs
         assert 3 == len(attrs)
@@ -242,7 +244,7 @@ class TestTransformAttrs(object):
             y = attr.ib()
 
         with pytest.raises(ValueError) as e:
-            _transform_attrs(C, None, False, False, True)
+            _transform_attrs(C, None, False, False, True, None)
         assert (
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
@@ -272,7 +274,9 @@ class TestTransformAttrs(object):
             x = attr.ib(default=None)
             y = attr.ib()
 
-        attrs, base_attrs, _ = _transform_attrs(C, None, False, True, True)
+        attrs, base_attrs, _ = _transform_attrs(
+            C, None, False, True, True, None
+        )
 
         assert len(attrs) == 3
         assert len(base_attrs) == 1
@@ -295,7 +299,7 @@ class TestTransformAttrs(object):
             y = attr.ib()
 
         attrs, base_attrs, _ = _transform_attrs(
-            C, {"x": attr.ib()}, False, False, True
+            C, {"x": attr.ib()}, False, False, True, None
         )
 
         assert [] == base_attrs
@@ -717,6 +721,26 @@ class TestAttributes(object):
             @attr.s
             class C(object):
                 x = attr.ib(factory=Factory(list))
+
+    def test_inherited_does_not_affect_hashing_and_equality(self):
+        """
+        Whether or not an Attribute has been inherited doesn't affect how it's
+        hashed and compared.
+        """
+
+        @attr.s
+        class BaseClass(object):
+            x = attr.ib()
+
+        @attr.s
+        class SubClass(BaseClass):
+            pass
+
+        ba = attr.fields(BaseClass)[0]
+        sa = attr.fields(SubClass)[0]
+
+        assert ba == sa
+        assert hash(ba) == hash(sa)
 
 
 @pytest.mark.skipif(PY2, reason="keyword-only arguments are PY3-only.")
@@ -1565,6 +1589,7 @@ class TestClassBuilder(object):
             True,
             None,
             False,
+            None,
         )
 
         assert "<_ClassBuilder(cls=C)>" == repr(b)
@@ -1591,6 +1616,7 @@ class TestClassBuilder(object):
             True,
             None,
             False,
+            None,
         )
 
         cls = (
@@ -1669,6 +1695,7 @@ class TestClassBuilder(object):
             collect_by_mro=True,
             on_setattr=None,
             has_custom_setattr=False,
+            field_transformer=None,
         )
         b._cls = {}  # no __module__; no __qualname__
 

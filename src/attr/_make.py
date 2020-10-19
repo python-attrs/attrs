@@ -381,7 +381,7 @@ def _collect_base_attrs(cls, taken_attr_names):
             if a.inherited or a.name in taken_attr_names:
                 continue
 
-            a = a._assoc(inherited=True)
+            a = a.evolve(inherited=True)
             base_attrs.append(a)
             base_attr_map[a.name] = base_cls
 
@@ -419,7 +419,7 @@ def _collect_base_attrs_broken(cls, taken_attr_names):
             if a.name in taken_attr_names:
                 continue
 
-            a = a._assoc(inherited=True)
+            a = a.evolve(inherited=True)
             taken_attr_names.add(a.name)
             base_attrs.append(a)
             base_attr_map[a.name] = base_cls
@@ -427,7 +427,9 @@ def _collect_base_attrs_broken(cls, taken_attr_names):
     return base_attrs, base_attr_map
 
 
-def _transform_attrs(cls, these, auto_attribs, kw_only, collect_by_mro):
+def _transform_attrs(
+    cls, these, auto_attribs, kw_only, collect_by_mro, field_transformer
+):
     """
     Transform all `_CountingAttr`s on a class into `Attribute`s.
 
@@ -459,6 +461,7 @@ def _transform_attrs(cls, these, auto_attribs, kw_only, collect_by_mro):
                 continue
             annot_names.add(attr_name)
             a = cd.get(attr_name, NOTHING)
+
             if not isinstance(a, _CountingAttr):
                 if a is NOTHING:
                     a = attrib()
@@ -506,8 +509,8 @@ def _transform_attrs(cls, these, auto_attribs, kw_only, collect_by_mro):
     AttrsClass = _make_attr_tuple_class(cls.__name__, attr_names)
 
     if kw_only:
-        own_attrs = [a._assoc(kw_only=True) for a in own_attrs]
-        base_attrs = [a._assoc(kw_only=True) for a in base_attrs]
+        own_attrs = [a.evolve(kw_only=True) for a in own_attrs]
+        base_attrs = [a.evolve(kw_only=True) for a in base_attrs]
 
     attrs = AttrsClass(base_attrs + own_attrs)
 
@@ -526,6 +529,8 @@ def _transform_attrs(cls, these, auto_attribs, kw_only, collect_by_mro):
         if had_default is False and a.default is not NOTHING:
             had_default = True
 
+    if field_transformer is not None:
+        attrs = field_transformer(cls, attrs)
     return _Attributes((attrs, base_attrs, base_attr_map))
 
 
@@ -564,6 +569,7 @@ class _ClassBuilder(object):
         "_slots",
         "_weakref_slot",
         "_has_own_setattr",
+        "_has_custom_setattr",
     )
 
     def __init__(
@@ -581,9 +587,15 @@ class _ClassBuilder(object):
         collect_by_mro,
         on_setattr,
         has_custom_setattr,
+        field_transformer,
     ):
         attrs, base_attrs, base_map = _transform_attrs(
-            cls, these, auto_attribs, kw_only, collect_by_mro,
+            cls,
+            these,
+            auto_attribs,
+            kw_only,
+            collect_by_mro,
+            field_transformer,
         )
 
         self._cls = cls
@@ -601,7 +613,8 @@ class _ClassBuilder(object):
         self._is_exc = is_exc
         self._on_setattr = on_setattr
 
-        self._has_own_setattr = has_custom_setattr
+        self._has_custom_setattr = has_custom_setattr
+        self._has_own_setattr = False
 
         self._cls_dict["__attrs_attrs__"] = self._attrs
 
@@ -662,7 +675,10 @@ class _ClassBuilder(object):
         if not self._has_own_setattr and getattr(
             cls, "__attrs_own_setattr__", False
         ):
-            cls.__setattr__ = object.__setattr__
+            cls.__attrs_own_setattr__ = False
+
+            if not self._has_custom_setattr:
+                cls.__setattr__ = object.__setattr__
 
         return cls
 
@@ -677,23 +693,29 @@ class _ClassBuilder(object):
             if k not in tuple(self._attr_names) + ("__dict__", "__weakref__")
         }
 
-        # Traverse the MRO to check for an existing __weakref__ and
-        # __setattr__.
-        custom_setattr_inherited = False
+        # If our class doesn't have its own implementation of __setattr__
+        # (either from the user or by us), check the bases, if one of them has
+        # an attrs-made __setattr__, that needs to be reset. We don't walk the
+        # MRO because we only care about our immediate base classes.
+        # XXX: This can be confused by subclassing a slotted attrs class with
+        # XXX: a non-attrs class and subclass the resulting class with an attrs
+        # XXX: class.  See `test_slotted_confused` for details.  For now that's
+        # XXX: OK with us.
+        if not self._has_own_setattr:
+            cd["__attrs_own_setattr__"] = False
+
+            if not self._has_custom_setattr:
+                for base_cls in self._cls.__bases__:
+                    if base_cls.__dict__.get("__attrs_own_setattr__", False):
+                        cd["__setattr__"] = object.__setattr__
+                        break
+
+        # Traverse the MRO to check for an existing __weakref__.
         weakref_inherited = False
         for base_cls in self._cls.__mro__[1:-1]:
-            d = getattr(base_cls, "__dict__", {})
-
-            weakref_inherited = weakref_inherited or "__weakref__" in d
-            custom_setattr_inherited = custom_setattr_inherited or not (
-                d.get("__attrs_own_setattr__", False)
-            )
-
-            if weakref_inherited and custom_setattr_inherited:
+            if base_cls.__dict__.get("__weakref__", None) is not None:
+                weakref_inherited = True
                 break
-
-        if not self._has_own_setattr and not custom_setattr_inherited:
-            cd["__setattr__"] = object.__setattr__
 
         names = self._attr_names
         if (
@@ -705,7 +727,7 @@ class _ClassBuilder(object):
             names += ("__weakref__",)
 
         # We only add the names of attributes that aren't inherited.
-        # Settings __slots__ to inherited attributes wastes memory.
+        # Setting __slots__ to inherited attributes wastes memory.
         slot_names = [name for name in names if name not in base_names]
         if self._cache_hash:
             slot_names.append(_hash_cache_field)
@@ -865,20 +887,14 @@ class _ClassBuilder(object):
         if not sa_attrs:
             return self
 
-        if self._has_own_setattr:
+        if self._has_custom_setattr:
             # We need to write a __setattr__ but there already is one!
             raise ValueError(
                 "Can't combine custom __setattr__ with on_setattr hooks."
             )
 
-        cls = self._cls
-
+        # docstring comes from _add_method_dunders
         def __setattr__(self, name, val):
-            """
-            Method generated by attrs for class %s.
-            """ % (
-                cls.__name__,
-            )
             try:
                 a, hook = sa_attrs[name]
             except KeyError:
@@ -1004,6 +1020,7 @@ def attrs(
     collect_by_mro=False,
     getstate_setstate=None,
     on_setattr=None,
+    field_transformer=None,
 ):
     r"""
     A class decorator that adds `dunder
@@ -1096,12 +1113,14 @@ def attrs(
         argument name.  If a ``__attrs_post_init__`` method exists on the
         class, it will be called after the class is fully initialized.
     :param bool slots: Create a `slotted class <slotted classes>` that's more
-        memory-efficient.
+        memory-efficient. Slotted classes are generally superior to the default
+        dict classes, but have some gotchas you should know about, so we
+        encourage you to read the `glossary entry <slotted classes>`.
     :param bool frozen: Make instances immutable after initialization.  If
         someone attempts to modify a frozen instance,
         `attr.exceptions.FrozenInstanceError` is raised.
 
-        Please note:
+        .. note::
 
             1. This is achieved by installing a custom ``__setattr__`` method
                on your class, so you can't implement your own.
@@ -1187,7 +1206,7 @@ def attrs(
 
     :param on_setattr: A callable that is run whenever the user attempts to set
         an attribute (either by assignment like ``i.x = 42`` or by using
-        `setattr` like ``setattr(i, "x", 42)``). It receives the same argument
+        `setattr` like ``setattr(i, "x", 42)``). It receives the same arguments
         as validators: the instance, the attribute that is being modified, and
         the new value.
 
@@ -1197,6 +1216,11 @@ def attrs(
         If a list of callables is passed, they're automatically wrapped in an
         `attr.setters.pipe`.
 
+    :param Optional[callable] field_transformer:
+        A function that is called with the original class object and all
+        fields right before ``attrs`` finalizes the class.  You can use
+        this, e.g., to automatically add converters or validators to
+        fields based on their types.  See `transform-fields` for more details.
 
     .. versionadded:: 16.0.0 *slots*
     .. versionadded:: 16.1.0 *frozen*
@@ -1226,6 +1250,7 @@ def attrs(
     .. versionadded:: 20.1.0 *collect_by_mro*
     .. versionadded:: 20.1.0 *getstate_setstate*
     .. versionadded:: 20.1.0 *on_setattr*
+    .. versionadded:: 20.3.0 *field_transformer*
     """
     if auto_detect and PY2:
         raise PythonTooOldError(
@@ -1272,6 +1297,7 @@ def attrs(
             collect_by_mro,
             on_setattr,
             has_own_setattr,
+            field_transformer,
         )
         if _determine_whether_to_implement(
             cls, repr, auto_detect, ("__repr__",)
@@ -1865,7 +1891,7 @@ def _setattr(attr_name, value_var, has_on_setattr):
     """
     Use the cached object.setattr to set *attr_name* to *value_var*.
     """
-    return "_setattr('%s', %s)" % (attr_name, value_var,)
+    return "_setattr('%s', %s)" % (attr_name, value_var)
 
 
 def _setattr_with_converter(attr_name, value_var, has_on_setattr):
@@ -1888,7 +1914,7 @@ def _assign(attr_name, value, has_on_setattr):
     if has_on_setattr:
         return _setattr(attr_name, value, True)
 
-    return "self.%s = %s" % (attr_name, value,)
+    return "self.%s = %s" % (attr_name, value)
 
 
 def _assign_with_converter(attr_name, value_var, has_on_setattr):
@@ -1949,7 +1975,7 @@ def _attrs_to_init_script(
                 if _is_slot_attr(attr_name, base_attr_map):
                     return _setattr(attr_name, value_var, has_on_setattr)
 
-                return "_inst_dict['%s'] = %s" % (attr_name, value_var,)
+                return "_inst_dict['%s'] = %s" % (attr_name, value_var)
 
             def fmt_setter_with_converter(
                 attr_name, value_var, has_on_setattr
@@ -2042,7 +2068,7 @@ def _attrs_to_init_script(
                         )
                     )
         elif a.default is not NOTHING and not has_factory:
-            arg = "%s=attr_dict['%s'].default" % (arg_name, attr_name,)
+            arg = "%s=attr_dict['%s'].default" % (arg_name, attr_name)
             if a.kw_only:
                 kw_only_args.append(arg)
             else:
@@ -2051,7 +2077,7 @@ def _attrs_to_init_script(
             if converter is not None:
                 lines.append(
                     fmt_setter_with_converter(
-                        attr_name, arg_name, has_on_setattr,
+                        attr_name, arg_name, has_on_setattr
                     )
                 )
                 names_for_globals[_init_converter_pat % (a.name,)] = converter
@@ -2183,6 +2209,13 @@ class Attribute(object):
     """
     *Read-only* representation of an attribute.
 
+    Instances of this class are frequently used for introspection purposes
+    like:
+
+    - `fields` returns a tuple of them.
+    - Validators get them passed as the first argument.
+    - The *field transformer* hook receives a list of them.
+
     :attribute name: The name of the attribute.
     :attribute inherited: Whether or not that attribute has been inherited from
         a base class.
@@ -2192,6 +2225,8 @@ class Attribute(object):
 
     .. versionadded:: 20.1.0 *inherited*
     .. versionadded:: 20.1.0 *on_setattr*
+    .. versionchanged:: 20.2.0 *inherited* is not taken into account for
+        equality checks and hashing anymore.
 
     For the full version history of the fields, see `attr.ib`.
     """
@@ -2305,10 +2340,17 @@ class Attribute(object):
 
         return self.eq and self.order
 
-    # Don't use attr.assoc since fields(Attribute) doesn't work
-    def _assoc(self, **changes):
+    # Don't use attr.evolve since fields(Attribute) doesn't work
+    def evolve(self, **changes):
         """
         Copy *self* and apply *changes*.
+
+        This works similarly to `attr.evolve` but that function does not work
+        with ``Attribute``.
+
+        It is mainly meant to be used for `transform-fields`.
+
+        .. versionadded:: 20.3.0
         """
         new = copy.copy(self)
 
@@ -2363,8 +2405,11 @@ _a = [
 ]
 
 Attribute = _add_hash(
-    _add_eq(_add_repr(Attribute, attrs=_a), attrs=_a),
-    attrs=[a for a in _a if a.hash],
+    _add_eq(
+        _add_repr(Attribute, attrs=_a),
+        attrs=[a for a in _a if a.name != "inherited"],
+    ),
+    attrs=[a for a in _a if a.hash and a.name != "inherited"],
 )
 
 

@@ -1,1 +1,0 @@
-``attr.define()`` et al now correct detect ``__eq__`` and ``__ne__``.

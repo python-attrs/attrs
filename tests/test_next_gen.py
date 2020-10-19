@@ -2,6 +2,8 @@
 Python 3-only integration tests for provisional next generation APIs.
 """
 
+import re
+
 import pytest
 
 import attr
@@ -173,3 +175,66 @@ class TestNextGen:
 
         with pytest.raises(ValueError):
             C() == C()
+
+    def test_subclass_frozen(self):
+        """
+        It's possible to subclass an `attr.frozen` class and the frozen-ness is
+        inherited.
+        """
+
+        @attr.frozen
+        class A:
+            a: int
+
+        @attr.frozen
+        class B(A):
+            b: int
+
+        @attr.define(on_setattr=attr.setters.NO_OP)
+        class C(B):
+            c: int
+
+        assert B(1, 2) == B(1, 2)
+        assert C(1, 2, 3) == C(1, 2, 3)
+
+        with pytest.raises(attr.exceptions.FrozenInstanceError):
+            A(1).a = 1
+
+        with pytest.raises(attr.exceptions.FrozenInstanceError):
+            B(1, 2).a = 1
+
+        with pytest.raises(attr.exceptions.FrozenInstanceError):
+            B(1, 2).b = 2
+
+        with pytest.raises(attr.exceptions.FrozenInstanceError):
+            C(1, 2, 3).c = 3
+
+    def test_catches_frozen_on_setattr(self):
+        """
+        Passing frozen=True and on_setattr hooks is caught, even if the
+        immutability is inherited.
+        """
+
+        @attr.define(frozen=True)
+        class A:
+            pass
+
+        with pytest.raises(
+            ValueError, match="Frozen classes can't use on_setattr."
+        ):
+
+            @attr.define(frozen=True, on_setattr=attr.setters.validate)
+            class B:
+                pass
+
+        with pytest.raises(
+            ValueError,
+            match=re.escape(
+                "Frozen classes can't use on_setattr "
+                "(frozen-ness was inherited)."
+            ),
+        ):
+
+            @attr.define(on_setattr=attr.setters.validate)
+            class C(A):
+                pass

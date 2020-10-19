@@ -37,17 +37,17 @@ CLASSIFIERS = [
 ]
 INSTALL_REQUIRES = []
 EXTRAS_REQUIRE = {
-    "docs": ["sphinx", "sphinx-rtd-theme", "zope.interface"],
-    "tests": [
+    "docs": ["furo", "sphinx", "zope.interface"],
+    "tests_no_zope": [
         # 5.0 introduced toml; parallel was broken until 5.0.2
         "coverage[toml]>=5.0.2",
         "hypothesis",
         "pympler",
         "pytest>=4.3.0",  # 4.3.0 dropped last use of `convert`
         "six",
-        "zope.interface",
     ],
 }
+EXTRAS_REQUIRE["tests"] = EXTRAS_REQUIRE["tests_no_zope"] + ["zope.interface"]
 EXTRAS_REQUIRE["dev"] = (
     EXTRAS_REQUIRE["tests"] + EXTRAS_REQUIRE["docs"] + ["pre-commit"]
 )

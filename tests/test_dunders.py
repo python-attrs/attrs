@@ -528,7 +528,7 @@ class TestAddHash(object):
         Test that the default hash is recalculated after a copy operation.
         """
 
-        kwargs = dict(frozen=frozen, slots=slots, cache_hash=cache_hash,)
+        kwargs = dict(frozen=frozen, slots=slots, cache_hash=cache_hash)
 
         # Give it an explicit hash if we don't have an implicit one
         if not frozen:
