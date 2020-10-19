@@ -743,7 +743,6 @@ class TestAttributes(object):
         assert hash(ba) == hash(sa)
 
 
-@pytest.mark.skipif(PY2, reason="keyword-only arguments are PY3-only.")
 class TestKeywordOnlyAttributes(object):
     """
     Tests for keyword-only attributes.
@@ -755,7 +754,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class C:
+        class C(object):
             a = attr.ib()
             b = attr.ib(default=2, kw_only=True)
             c = attr.ib(kw_only=True)
@@ -774,7 +773,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class C:
+        class C(object):
             x = attr.ib(init=False, default=0, kw_only=True)
             y = attr.ib()
 
@@ -790,15 +789,34 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class C:
+        class C(object):
             x = attr.ib(kw_only=True)
 
         with pytest.raises(TypeError) as e:
             C()
 
-        assert (
-            "missing 1 required keyword-only argument: 'x'"
-        ) in e.value.args[0]
+        if PY2:
+            assert (
+                "missing required keyword-only argument: 'x'"
+            ) in e.value.args[0]
+        else:
+            assert (
+                "missing 1 required keyword-only argument: 'x'"
+            ) in e.value.args[0]
+
+    def test_keyword_only_attributes_unexpected(self):
+        """
+        Raises `TypeError` when unexpected keyword argument passed.
+        """
+
+        @attr.s
+        class C(object):
+            x = attr.ib(kw_only=True)
+
+        with pytest.raises(TypeError) as e:
+            C(x=5, y=10)
+
+        assert "got an unexpected keyword argument 'y'" in e.value.args[0]
 
     def test_keyword_only_attributes_can_come_in_any_order(self):
         """
@@ -809,7 +827,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class C:
+        class C(object):
             a = attr.ib(kw_only=True)
             b = attr.ib(kw_only=True, default="b")
             c = attr.ib(kw_only=True)
@@ -838,7 +856,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class Base:
+        class Base(object):
             x = attr.ib(default=0)
 
         @attr.s
@@ -857,7 +875,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s(kw_only=True)
-        class C:
+        class C(object):
             x = attr.ib()
             y = attr.ib(kw_only=True)
 
@@ -876,7 +894,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class Base:
+        class Base(object):
             x = attr.ib(default=0)
 
         @attr.s(kw_only=True)
@@ -899,7 +917,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class KwArgBeforeInitFalse:
+        class KwArgBeforeInitFalse(object):
             kwarg = attr.ib(kw_only=True)
             non_init_function_default = attr.ib(init=False)
             non_init_keyword_default = attr.ib(
@@ -927,7 +945,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class KwArgBeforeInitFalseParent:
+        class KwArgBeforeInitFalseParent(object):
             kwarg = attr.ib(kw_only=True)
 
         @attr.s
@@ -953,23 +971,6 @@ class TestKeywordOnlyAttributesOnPy2(object):
     """
     Tests for keyword-only attribute behavior on py2.
     """
-
-    def test_syntax_error(self):
-        """
-        Keyword-only attributes raise Syntax error on ``__init__`` generation.
-        """
-
-        with pytest.raises(PythonTooOldError):
-
-            @attr.s(kw_only=True)
-            class ClassLevel(object):
-                a = attr.ib()
-
-        with pytest.raises(PythonTooOldError):
-
-            @attr.s()
-            class AttrLevel(object):
-                a = attr.ib(kw_only=True)
 
     def test_no_init(self):
         """
