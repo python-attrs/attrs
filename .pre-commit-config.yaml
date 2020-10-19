@@ -12,13 +12,13 @@ repos:
       - id: seed-isort-config
 
   - repo: https://github.com/pre-commit/mirrors-isort
-    rev: v5.5.2
+    rev: v5.6.4
     hooks:
       - id: isort
         additional_dependencies: [toml]
 
   - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.8.3
+    rev: 3.8.4
     hooks:
       - id: flake8
         language_version: python3.8

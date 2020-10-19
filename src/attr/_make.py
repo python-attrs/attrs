@@ -374,7 +374,7 @@ def _collect_base_attrs(cls, taken_attr_names):
             if a.inherited or a.name in taken_attr_names:
                 continue
 
-            a = a.assoc(inherited=True)
+            a = a.evolve(inherited=True)
             base_attrs.append(a)
             base_attr_map[a.name] = base_cls
 
@@ -412,7 +412,7 @@ def _collect_base_attrs_broken(cls, taken_attr_names):
             if a.name in taken_attr_names:
                 continue
 
-            a = a.assoc(inherited=True)
+            a = a.evolve(inherited=True)
             taken_attr_names.add(a.name)
             base_attrs.append(a)
             base_attr_map[a.name] = base_cls
@@ -502,8 +502,8 @@ def _transform_attrs(
     AttrsClass = _make_attr_tuple_class(cls.__name__, attr_names)
 
     if kw_only:
-        own_attrs = [a.assoc(kw_only=True) for a in own_attrs]
-        base_attrs = [a.assoc(kw_only=True) for a in base_attrs]
+        own_attrs = [a.evolve(kw_only=True) for a in own_attrs]
+        base_attrs = [a.evolve(kw_only=True) for a in base_attrs]
 
     attrs = AttrsClass(base_attrs + own_attrs)
 
@@ -2389,13 +2389,17 @@ class Attribute(object):
 
         return self.eq and self.order
 
-    # Don't use attr.assoc since fields(Attribute) doesn't work
-    def assoc(self, **changes):
+    # Don't use attr.evolve since fields(Attribute) doesn't work
+    def evolve(self, **changes):
         """
         Copy *self* and apply *changes*.
 
         This works similarly to `attr.evolve` but that function does not work
         with ``Attribute``.
+
+        It is mainly meant to be used for `transform-fields`.
+
+        .. versionadded:: 20.3.0
         """
         new = copy.copy(self)
 

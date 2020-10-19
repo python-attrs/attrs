@@ -93,11 +93,7 @@ Core
       ValueError: x must be positive
 
 .. autoclass:: attr.Attribute
-   :members: assoc
-
-   .. warning::
-
-       You should never instantiate this class yourself!
+   :members: evolve
 
    .. doctest::
 

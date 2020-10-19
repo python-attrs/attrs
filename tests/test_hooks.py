@@ -52,7 +52,7 @@ class TestTransformHook:
         """
 
         def hook(cls, attribs):
-            return [a.assoc(converter=a.type) for a in attribs]
+            return [a.evolve(converter=a.type) for a in attribs]
 
         @attr.s(auto_attribs=True, field_transformer=hook)
         class C:
@@ -84,7 +84,7 @@ class TestTransformHook:
 
         def hook(cls, attribs):
             a1 = attribs[0]
-            a2 = a1.assoc(name="new")
+            a2 = a1.evolve(name="new")
             return [a1, a2]
 
         @attr.s(auto_attribs=True, field_transformer=hook)

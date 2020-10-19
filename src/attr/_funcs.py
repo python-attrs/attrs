@@ -53,8 +53,10 @@ def asdict(
         v = getattr(inst, a.name)
         if filter is not None and not filter(a, v):
             continue
+
         if value_serializer is not None:
             v = value_serializer(inst, a, v)
+
         if recurse is True:
             if has(v.__class__):
                 rv[a.name] = asdict(
@@ -65,7 +67,7 @@ def asdict(
                     retain_collection_types,
                     value_serializer,
                 )
-            elif isinstance(v, (tuple, list, set)):
+            elif isinstance(v, (tuple, list, set, frozenset)):
                 cf = v.__class__ if retain_collection_types is True else list
                 rv[a.name] = cf(
                     [
@@ -127,7 +129,7 @@ def _asdict_anything(
             retain_collection_types,
             value_serializer,
         )
-    elif isinstance(val, (tuple, list, set)):
+    elif isinstance(val, (tuple, list, set, frozenset)):
         cf = val.__class__ if retain_collection_types is True else list
         rv = cf(
             [
@@ -158,6 +160,7 @@ def _asdict_anything(
         rv = val
         if value_serializer is not None:
             rv = value_serializer(None, None, rv)
+
     return rv
 
 
@@ -212,7 +215,7 @@ def astuple(
                         retain_collection_types=retain,
                     )
                 )
-            elif isinstance(v, (tuple, list, set)):
+            elif isinstance(v, (tuple, list, set, frozenset)):
                 cf = v.__class__ if retain is True else list
                 rv.append(
                     cf(
@@ -257,6 +260,7 @@ def astuple(
                 rv.append(v)
         else:
             rv.append(v)
+
     return rv if tuple_factory is list else tuple_factory(rv)
 
 
