@@ -177,11 +177,9 @@ def simple_classes(
     private, and if `private_attrs=False`, no attributes will be private.
     """
     attrs = draw(list_of_attrs)
-    frozen_flag = draw(st.booleans()) if frozen is None else frozen
-    slots_flag = draw(st.booleans()) if slots is None else slots
-    weakref_slot_flag = (
-        draw(st.booleans()) if weakref_slot is None else weakref_slot
-    )
+    frozen_flag = draw(st.booleans())
+    slots_flag = draw(st.booleans())
+    weakref_flag = draw(st.booleans())
 
     if private_attrs is None:
         attr_names = maybe_underscore_prefix(gen_attr_names())
@@ -202,9 +200,9 @@ def simple_classes(
     return make_class(
         "HypClass",
         cls_dict,
-        slots=slots_flag,
-        frozen=frozen_flag,
-        weakref_slot=weakref_slot_flag,
+        slots=slots_flag if slots is None else slots,
+        frozen=frozen_flag if frozen is None else frozen,
+        weakref_slot=weakref_flag if weakref_slot is None else weakref_slot,
     )
 
 
