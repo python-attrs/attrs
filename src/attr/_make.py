@@ -2611,7 +2611,7 @@ class _CountingAttr(object):
 
         :raises ConverterAlreadySetError: If converter has been set before.
 
-        .. versionadded:: 20.2.0
+        .. versionadded:: 20.3.0
         """
         if self._converter is not None:
             raise ConverterAlreadySetError()
@@ -2665,7 +2665,7 @@ class Converter(object):
     :param bool takes_self: Pass the partially initialized instance that is
         being initialized as a positional argument.
 
-    .. versionadded:: 20.2.0
+    .. versionadded:: 20.3.0
     """
 
     converter = attrib()
