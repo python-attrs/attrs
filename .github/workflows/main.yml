@@ -17,7 +17,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["2.7", "3.5", "3.6", "3.7", "3.8", "3.9.0-alpha - 3.9.0", "pypy2", "pypy3"]
+        python-version: ["2.7", "3.5", "3.6", "3.7", "3.8", "3.9", "pypy2", "pypy3"]
 
     steps:
       - uses: "actions/checkout@v2"
@@ -39,7 +39,7 @@ jobs:
       # parsing errors in older versions for modern code.
       - uses: "actions/setup-python@v2"
         with:
-          python-version: "3.8"
+          python-version: "3.9"
 
       - name: "Combine coverage"
         run: |
@@ -60,9 +60,9 @@ jobs:
 
     steps:
       - uses: "actions/checkout@v2"
-      - uses: "actions/setup-python@v1"
+      - uses: "actions/setup-python@v2"
         with:
-          python-version: "3.8"
+          python-version: "3.9"
 
       - name: "Install pep517 and twine"
         run: "python -m pip install pep517 twine"
@@ -83,9 +83,9 @@ jobs:
 
     steps:
       - uses: "actions/checkout@v2"
-      - uses: "actions/setup-python@v1"
+      - uses: "actions/setup-python@v2"
         with:
-          python-version: "3.8"
+          python-version: "3.9"
       - name: "Install in dev mode"
         run: "python -m pip install -e .[dev]"
       - name: "Import package"
