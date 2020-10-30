@@ -156,8 +156,7 @@ Core
       ...     x = attr.ib(converter=attr.Converter(int))
       ...     y = attr.ib(converter=attr.Converter(
       ...         lambda self, attr, value: self.x + value,
-      ...         takes_self=True)
-      ...     )
+      ...     ))
       >>> C("1", 2)
       C(x=1, y=3)
 

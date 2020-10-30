@@ -457,7 +457,6 @@ This can be useful for doing type-conversions on values that you don't want to f
     ...     y = attr.ib(
     ...         converter=attr.Converter(
     ...             lambda self, attr, value: self.x + value,
-    ...             takes_self=True,
     ...         ),
     ...     )
     ...     z = attr.ib()
