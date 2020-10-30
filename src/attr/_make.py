@@ -2086,7 +2086,8 @@ def _attrs_to_init_script(
         if a.converter is None or isinstance(a.converter, Converter):
             converter = a.converter
         else:
-            converter = Converter(converter=a.converter, only_takes_value=True)
+            def converter(self, attr, value, converter=a.converter):
+                return converter(value)
 
         if a.init is False:
             if has_factory:
@@ -2666,24 +2667,17 @@ class Converter(object):
 
     :param callable converter: A callable that takes either one or exactly two
         mandatory positional arguments depending on *takes_self*.
-    :param bool only_takes_value: Pass the partially initialized instance that
-        is being initialized and the attribute as a positional arguments.
 
     .. versionadded:: 20.3.0
     """
 
     converter = attrib()
-    only_takes_value = attrib()
 
-    def __init__(self, converter, only_takes_value=False):
+    def __init__(self, converter):
         self.converter = converter
-        self.only_takes_value = only_takes_value
 
-    def __call__(self, inst, attr, *args, **kwargs):
-        if not self.only_takes_value:
-            args = (inst, attr, *args)
-
-        return self.converter(*args, **kwargs)
+    def __call__(self, inst, attr, value):
+        return self.converter(inst, attr, value)
 
 
 def make_class(name, attrs, bases=(object,), **attributes_arguments):

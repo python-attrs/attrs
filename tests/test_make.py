@@ -158,7 +158,7 @@ class TestCountingAttr(object):
         def c(self, attr, value):
             pass
 
-        assert Converter(c, only_takes_value=False) == a._converter
+        assert Converter(c) == a._converter
 
     def test_converter_decorator_already_set(self):
         """
