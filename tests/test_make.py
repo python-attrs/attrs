@@ -155,10 +155,10 @@ class TestCountingAttr(object):
         a = attr.ib()
 
         @a.converter
-        def c(self, value):
+        def c(self, attr, value):
             pass
 
-        assert Converter(c, True) == a._converter
+        assert Converter(c, only_takes_value=False) == a._converter
 
     def test_converter_decorator_already_set(self):
         """
@@ -170,7 +170,7 @@ class TestCountingAttr(object):
         with pytest.raises(attr.exceptions.ConverterAlreadySetError):
 
             @a.converter
-            def c(self, value):
+            def c(self, attr, value):
                 pass
 
 
@@ -1298,7 +1298,7 @@ class TestConverter(object):
             a = attr.ib(default=42)
 
             @a.converter
-            def _(self, value):
+            def _(self, attr, value):
                 return self
 
         c = C()
@@ -1319,7 +1319,7 @@ class TestConverter(object):
             b = attr.ib()
 
             @b.converter
-            def _(self, value):
+            def _(self, attr, value):
                 return self.a + value
 
         c = C(a=a, b=b)
@@ -1334,7 +1334,7 @@ class TestConverter(object):
             "C",
             {
                 "x": attr.ib(
-                    converter=Converter(lambda self, x: x + 1, takes_self=True)
+                    converter=Converter(lambda self, attr, x: x + 1)
                 )
             },
         )

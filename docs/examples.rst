@@ -456,13 +456,13 @@ This can be useful for doing type-conversions on values that you don't want to f
     ...     x = attr.ib(converter=int)
     ...     y = attr.ib(
     ...         converter=attr.Converter(
-    ...             lambda self, value: self.x + value,
+    ...             lambda self, attr, value: self.x + value,
     ...             takes_self=True,
     ...         ),
     ...     )
     ...     z = attr.ib()
     ...     @z.converter
-    ...     def z_converter(self, value):
+    ...     def z_converter(self, attr, value):
     ...         return self.x + value
     >>> C("10", 2, 3)
     C(x=10, y=12, z=13)

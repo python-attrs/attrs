@@ -309,7 +309,7 @@ Similar to validators, converters can be specified with a decorator.
     ... class C(object):
     ...     x = attr.ib()
     ...     @x.converter
-    ...     def int(self, value):
+    ...     def int(self, attr, value):
     ...         return int(value)
     >>> o = C("1")
     >>> o

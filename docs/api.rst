@@ -84,7 +84,7 @@ Core
       ...         if value < 0:
       ...             raise ValueError("x must be positive")
       ...     @y.converter
-      ...     def _any_name_except_a_name_of_an_attribute(self, value):
+      ...     def _any_name_except_a_name_of_an_attribute(self, attr, value):
       ...         return int(value)
       ...     @z.default
       ...     def _any_name_except_a_name_of_an_attribute(self):
@@ -155,7 +155,7 @@ Core
       ... class C(object):
       ...     x = attr.ib(converter=attr.Converter(int))
       ...     y = attr.ib(converter=attr.Converter(
-      ...         lambda self, value: self.x + value,
+      ...         lambda self, attr, value: self.x + value,
       ...         takes_self=True)
       ...     )
       >>> C("1", 2)

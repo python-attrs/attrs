@@ -187,7 +187,8 @@ def attrib(
         value is converted before being passed to the validator, if any.
 
         The converter can also be set using decorator notation as shown below
-        which allows access to ``self``.
+        which allows access to the instance and attribute in addition to the
+        value.
 
     :type converter: `callable` or a `Converter`.
 
@@ -1900,9 +1901,10 @@ def _setattr_with_converter(attr_name, value_var, has_on_setattr):
     Use the cached object.setattr to set *attr_name* to *value_var*, but run
     its converter first.
     """
-    return "_setattr('%s', %s(self, %s))" % (
+    return "_setattr('%s', %s(self, attr_dict['%s'], %s))" % (
         attr_name,
         _init_converter_pat % (attr_name,),
+        attr_name,
         value_var,
     )
 
@@ -1926,9 +1928,10 @@ def _assign_with_converter(attr_name, value_var, has_on_setattr):
     if has_on_setattr:
         return _setattr_with_converter(attr_name, value_var, True)
 
-    return "self.%s = %s(self, %s)" % (
+    return "self.%s = %s(self, attr_dict['%s'], %s)" % (
         attr_name,
         _init_converter_pat % (attr_name,),
+        attr_name,
         value_var,
     )
 
@@ -2043,9 +2046,10 @@ def _attrs_to_init_script(
                         attr_name, value_var, has_on_setattr
                     )
 
-                return "_inst_dict['%s'] = %s(self, %s)" % (
+                return "_inst_dict['%s'] = %s(self, attr_dict['%s'], %s)" % (
                     attr_name,
                     _init_converter_pat % (attr_name,),
+                    attr_name,
                     value_var,
                 )
 
@@ -2082,7 +2086,7 @@ def _attrs_to_init_script(
         if a.converter is None or isinstance(a.converter, Converter):
             converter = a.converter
         else:
-            converter = Converter(converter=a.converter)
+            converter = Converter(converter=a.converter, only_takes_value=True)
 
         if a.init is False:
             if has_factory:
@@ -2616,7 +2620,7 @@ class _CountingAttr(object):
         if self._converter is not None:
             raise ConverterAlreadySetError()
 
-        self._converter = Converter(meth, takes_self=True)
+        self._converter = Converter(meth)
 
         return meth
 
@@ -2662,22 +2666,22 @@ class Converter(object):
 
     :param callable converter: A callable that takes either one or exactly two
         mandatory positional arguments depending on *takes_self*.
-    :param bool takes_self: Pass the partially initialized instance that is
-        being initialized as a positional argument.
+    :param bool only_takes_value: Pass the partially initialized instance that
+        is being initialized and the attribute as a positional arguments.
 
     .. versionadded:: 20.3.0
     """
 
     converter = attrib()
-    takes_self = attrib()
+    only_takes_value = attrib()
 
-    def __init__(self, converter, takes_self=False):
+    def __init__(self, converter, only_takes_value=False):
         self.converter = converter
-        self.takes_self = takes_self
+        self.only_takes_value = only_takes_value
 
-    def __call__(self, pass_through_self, *args, **kwargs):
-        if self.takes_self:
-            args = (pass_through_self,) + args
+    def __call__(self, inst, attr, *args, **kwargs):
+        if not self.only_takes_value:
+            args = (inst, attr, *args)
 
         return self.converter(*args, **kwargs)
 
