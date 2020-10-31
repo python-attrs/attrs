@@ -1290,7 +1290,7 @@ class TestConverter(object):
     @pytest.mark.parametrize("slots", (False, True))
     def test_converter_decorator_gets_self(self, frozen, slots):
         """
-        If takes_self on Converter is True, self is passed.
+        A decorated converter receives self.
         """
 
         @attr.s(frozen=frozen, slots=slots)
@@ -1303,7 +1303,26 @@ class TestConverter(object):
 
         c = C()
 
-        assert c is c.a
+        assert c.a is c
+
+    @pytest.mark.parametrize("frozen", (False, True))
+    @pytest.mark.parametrize("slots", (False, True))
+    def test_converter_decorator_gets_attribute(self, frozen, slots):
+        """
+        A decorated converter receives the attribute.
+        """
+
+        @attr.s(frozen=frozen, slots=slots)
+        class C(object):
+            a = attr.ib(default=42)
+
+            @a.converter
+            def _(self, attr, value):
+                return attr
+
+        c = C()
+
+        assert c.a is attr.fields(C).a
 
     def test_converter_decorator_can_access_previous(self):
         """
@@ -1326,22 +1345,39 @@ class TestConverter(object):
 
         assert c.b == a + b
 
-    def test_converter_takes_self(self):
+    def test_converter_class_passes_self(self):
         """
-        If takes_self on Converter is True, self is passed.
+        When Converter() is used self is passed.
         """
         C = make_class(
             "C",
             {
                 "x": attr.ib(
-                    converter=Converter(lambda self, attr, x: x + 1)
+                    converter=Converter(lambda self, attr, x: self)
                 )
             },
         )
 
         i = C(x=1)
 
-        assert i.x == 2
+        assert i.x is i
+
+    def test_converter_class_passes_attribute(self):
+        """
+        When Converter() is used the attribute is passed.
+        """
+        C = make_class(
+            "C",
+            {
+                "x": attr.ib(
+                    converter=Converter(lambda self, attr, x: attr)
+                )
+            },
+        )
+
+        i = C(x=1)
+
+        assert i.x is attr.fields(C).x
 
     def test_fields_converter_is_passed_converter(self):
         """
