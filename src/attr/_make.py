@@ -2086,6 +2086,7 @@ def _attrs_to_init_script(
         if a.converter is None or isinstance(a.converter, Converter):
             converter = a.converter
         else:
+
             def converter(self, attr, value, converter=a.converter):
                 return converter(value)
 

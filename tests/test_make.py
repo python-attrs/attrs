@@ -1351,11 +1351,7 @@ class TestConverter(object):
         """
         C = make_class(
             "C",
-            {
-                "x": attr.ib(
-                    converter=Converter(lambda self, attr, x: self)
-                )
-            },
+            {"x": attr.ib(converter=Converter(lambda self, attr, x: self))},
         )
 
         i = C(x=1)
@@ -1368,11 +1364,7 @@ class TestConverter(object):
         """
         C = make_class(
             "C",
-            {
-                "x": attr.ib(
-                    converter=Converter(lambda self, attr, x: attr)
-                )
-            },
+            {"x": attr.ib(converter=Converter(lambda self, attr, x: attr))},
         )
 
         i = C(x=1)
