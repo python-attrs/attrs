@@ -153,7 +153,7 @@ Core
 
       >>> @attr.s
       ... class C(object):
-      ...     x = attr.ib(converter=attr.Converter(int))
+      ...     x = attr.ib(converter=int)
       ...     y = attr.ib(converter=attr.Converter(
       ...         lambda self, attr, value: self.x + value,
       ...     ))
