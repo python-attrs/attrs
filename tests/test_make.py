@@ -1385,6 +1385,72 @@ class TestConverter(object):
 
         assert attr.fields(C).a.converter is f
 
+    def test_fields_converter_with_setattr_applies_on_assignment(self):
+        """
+        When Converter and setattr are used converter is applied on assignment.
+        """
+        C = make_class(
+            "C",
+            {
+                "a": attr.ib(
+                    converter=Converter(
+                        lambda self, attr, x: x + 1
+                    ),
+                    on_setattr=attr.setters.convert,
+                ),
+            },
+        )
+
+        o = C(a=1)
+
+        assert o.a == 2
+        o.a = 3
+        assert o.a == 4
+
+    def test_fields_converter_with_setattr_gets_self_on_assignment(self):
+        """
+        When Converter and setattr are used self is passed on assignment.
+        """
+        C = make_class(
+            "C",
+            {
+                "a": attr.ib(
+                    converter=Converter(
+                        lambda self, attr, x: self if x else None
+                    ),
+                    on_setattr=attr.setters.convert,
+                ),
+            },
+        )
+
+        o = C(a=False)
+
+        assert o.a is None
+        o.a = True
+        assert o.a is o
+
+    def test_fields_converter_with_setattr_gets_attribute_on_assignment(self):
+        """
+        When Converter and setattr are used the attribute is passed on assignment.
+        """
+        C = make_class(
+            "C",
+            {
+                "a": attr.ib(
+                    converter=Converter(
+                        lambda self, attr, x: attr if x else None
+                    ),
+                    on_setattr=attr.setters.convert,
+                ),
+            },
+        )
+
+        o = C(a=False)
+
+        assert o.a is None
+        o.a = True
+        assert o.a is attr.fields(C).a
+
 
 class TestValidate(object):
     """

@@ -4,9 +4,8 @@ Commonly used hooks for on_setattr.
 
 from __future__ import absolute_import, division, print_function
 
-from . import _config
+from . import _config, _make
 from .exceptions import FrozenAttributeError
-
 
 def pipe(*setters):
     """
@@ -61,7 +60,9 @@ def convert(instance, attrib, new_value):
     .. versionadded:: 20.1.0
     """
     c = attrib.converter
-    if c:
+    if isinstance(c, _make.Converter):
+        return c(instance, attrib, new_value)
+    elif c:
         return c(new_value)
 
     return new_value
