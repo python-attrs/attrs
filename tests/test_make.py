@@ -1429,7 +1429,8 @@ class TestConverter(object):
 
     def test_fields_converter_with_setattr_gets_attribute_on_assignment(self):
         """
-        When Converter and setattr are used the attribute is passed on assignment.
+        When Converter and setattr are used the attribute is passed on
+        assignment.
         """
         C = make_class(
             "C",
