@@ -7,6 +7,7 @@ from __future__ import absolute_import, division, print_function
 from . import _config, _make
 from .exceptions import FrozenAttributeError
 
+
 def pipe(*setters):
     """
     Run all *setters* and return the return value of the last one.

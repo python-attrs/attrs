@@ -1393,9 +1393,7 @@ class TestConverter(object):
             "C",
             {
                 "a": attr.ib(
-                    converter=Converter(
-                        lambda self, attr, x: x + 1
-                    ),
+                    converter=Converter(lambda self, attr, x: x + 1),
                     on_setattr=attr.setters.convert,
                 ),
             },
