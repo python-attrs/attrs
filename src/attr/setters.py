@@ -63,6 +63,7 @@ def convert(instance, attrib, new_value):
     c = attrib.converter
     # TODO: fix this circular import workaround
     from ._make import Converter
+
     if isinstance(c, Converter):
         return c(instance, attrib, new_value)
     elif c:
