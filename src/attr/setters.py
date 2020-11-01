@@ -4,7 +4,7 @@ Commonly used hooks for on_setattr.
 
 from __future__ import absolute_import, division, print_function
 
-from . import _config, _make
+from . import _config
 from .exceptions import FrozenAttributeError
 
 
@@ -61,7 +61,9 @@ def convert(instance, attrib, new_value):
     .. versionadded:: 20.1.0
     """
     c = attrib.converter
-    if isinstance(c, _make.Converter):
+    # TODO: fix this circular import workaround
+    from ._make import Converter
+    if isinstance(c, Converter):
         return c(instance, attrib, new_value)
     elif c:
         return c(new_value)
