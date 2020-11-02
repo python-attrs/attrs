@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
 import copy
+import inspect
 import linecache
 import sys
 import threading
@@ -2191,8 +2192,21 @@ def _attrs_to_init_script(
             else:
                 lines.append(fmt_setter(attr_name, arg_name, has_on_setattr))
 
-        if a.init is True and a.converter is None and a.type is not None:
-            annotations[arg_name] = a.type
+        if a.init is True:
+            if a.type is not None:
+                annotations[arg_name] = a.type
+            elif a.converter is not None and sys.version_info >= (3, 3):
+                # Try to get the type from the converter.
+                # inspect.signature() wasn't added until Python 3.3.
+                sig = None
+                try:
+                    sig = inspect.signature(a.converter)
+                except (ValueError, TypeError):  # inspect failed
+                    pass
+                if sig:
+                    sig_params = list(sig.parameters.values())
+                    if sig_params[0].annotation is not inspect.Parameter.empty:
+                        annotations[arg_name] = sig_params[0].annotation
 
     if attrs_to_validate:  # we can skip this if there are no validators.
         names_for_globals["_config"] = _config

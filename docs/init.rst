@@ -301,6 +301,20 @@ Arguably, you can abuse converters as one-argument validators:
    ValueError: invalid literal for int() with base 10: 'x'
 
 
+If a converter's first argument has a type annotation, that type will appear in the signature for ``__init__``. You can override this by passing the ``type`` argument or by giving an explicit type annotation.
+
+.. doctest::
+
+   >>> def str2int(x: str) -> int:
+   ...     return int(x)
+   >>> @attr.s
+   ... class C(object):
+   ...     x = attr.ib(converter=str2int)
+   ...     y = attr.ib(converter=str2int, type=int)
+   >>> C.__init__.__annotations__
+   {'return': None, 'x': <class 'str'>, 'y': <class 'int'>}
+
+
 Post-Init Hook
 --------------
 

@@ -194,16 +194,59 @@ class TestAnnotations:
         }
         assert C.__init__.__annotations__ == {"a": int, "return": None}
 
-    def test_converter_annotations(self):
+    def test_simple_converter_annotations(self):
         """
-        Attributes with converters don't have annotations.
+        An unannotated attribute with an annotated converter gets its
+        annotation from the converter.
         """
 
-        @attr.s(auto_attribs=True)
+        def int2str(x: int) -> str:
+            return str(x)
+
+        @attr.s
         class A:
-            a: int = attr.ib(converter=int)
+            a = attr.ib(converter=int2str)
 
-        assert A.__init__.__annotations__ == {"return": None}
+        assert A.__init__.__annotations__ == {"a": int, "return": None}
+
+    def test_complex_converter_annotations(self):
+        """
+        An unannotated attribute with an annotated converter gets its
+        annotation from the converter, even if the converter takes extra
+        arguments.
+        """
+
+        def int2str(x: int, extra: None = None) -> str:
+            return str(x)
+
+        @attr.s
+        class A:
+            a = attr.ib(converter=int2str)
+
+        assert A.__init__.__annotations__ == {"a": int, "return": None}
+
+    def test_converter_annotations_override(self):
+        """
+        An explicit type annotation overrides a converter's annotation.
+        """
+
+        def int2str(x: int) -> str:
+            return str(x)
+
+        @attr.s
+        class A:
+            a: str = attr.ib(converter=int2str)
+
+        assert A.__init__.__annotations__ == {"a": str, "return": None}
+
+    def test_non_introspectable_converter(self):
+        """
+        A non-introspectable converter doesn't cause a crash.
+        """
+
+        @attr.s
+        class A:
+            a = attr.ib(converter=print)
 
     @pytest.mark.parametrize("slots", [True, False])
     @pytest.mark.parametrize("classvar", _classvar_prefixes)
