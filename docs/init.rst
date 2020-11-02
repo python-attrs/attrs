@@ -301,7 +301,8 @@ Arguably, you can abuse converters as one-argument validators:
    ValueError: invalid literal for int() with base 10: 'x'
 
 
-If a converter's first argument has a type annotation, that type will appear in the signature for ``__init__``. You can override this by passing the ``type`` argument or by giving an explicit type annotation.
+If a converter's first argument has a type annotation, that type will appear in the signature for ``__init__``.
+You can override this by passing the ``type`` argument or by giving an explicit type annotation.
 
 .. doctest::
 
