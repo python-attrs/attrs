@@ -244,3 +244,8 @@ class NGFrozen:
 
 # XXX: needs support in mypy
 # ngf = NGFrozen(1)
+
+
+@attr.s(collect_by_mro=True)
+class MRO:
+    pass

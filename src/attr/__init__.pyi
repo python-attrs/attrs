@@ -273,6 +273,7 @@ def attrs(
     eq: Optional[bool] = ...,
     order: Optional[bool] = ...,
     auto_detect: bool = ...,
+    collect_by_mro = ...,
     getstate_setstate: Optional[bool] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
     field_transformer: Optional[_FieldTransformer] = ...,
@@ -297,6 +298,7 @@ def attrs(
     eq: Optional[bool] = ...,
     order: Optional[bool] = ...,
     auto_detect: bool = ...,
+    collect_by_mro = ...,
     getstate_setstate: Optional[bool] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
     field_transformer: Optional[_FieldTransformer] = ...,
@@ -386,6 +388,7 @@ def make_class(
     auto_exc: bool = ...,
     eq: Optional[bool] = ...,
     order: Optional[bool] = ...,
+    collect_by_mro = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
     field_transformer: Optional[_FieldTransformer] = ...,
 ) -> type: ...
