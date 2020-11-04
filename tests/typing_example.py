@@ -85,7 +85,7 @@ c == cc
 # Exceptions
 @attr.s(auto_exc=True)
 class Error(Exception):
-    x = attr.ib()
+    x: int = attr.ib()
 
 
 try:
@@ -153,8 +153,8 @@ class Validated:
             attr.validators.instance_of(C), attr.validators.instance_of(D)
         ),
     )
-    e = attr.ib(validator=attr.validators.matches_re(r"foo"))
-    f = attr.ib(
+    e: str = attr.ib(validator=attr.validators.matches_re(r"foo"))
+    f: str = attr.ib(
         validator=attr.validators.matches_re(r"foo", flags=42, func=re.search)
     )
 
@@ -172,27 +172,27 @@ class Validated:
 # Custom repr()
 @attr.s
 class WithCustomRepr:
-    a = attr.ib(repr=True)
-    b = attr.ib(repr=False)
-    c = attr.ib(repr=lambda value: "c is for cookie")
-    d = attr.ib(repr=str)
+    a: int = attr.ib(repr=True)
+    b: str = attr.ib(repr=False)
+    c: str = attr.ib(repr=lambda value: "c is for cookie")
+    d: bool = attr.ib(repr=str)
 
 
 # Check some of our own types
 @attr.s(eq=True, order=False)
 class OrderFlags:
-    a = attr.ib(eq=False, order=False)
-    b = attr.ib(eq=True, order=True)
+    a: int = attr.ib(eq=False, order=False)
+    b: int = attr.ib(eq=True, order=True)
 
 
 # on_setattr hooks
 @attr.s(on_setattr=attr.setters.validate)
 class ValidatedSetter:
-    a = attr.ib()
-    b = attr.ib(on_setattr=attr.setters.NO_OP)
-    c = attr.ib(on_setattr=attr.setters.frozen)
-    d = attr.ib(on_setattr=[attr.setters.convert, attr.setters.validate])
-    d = attr.ib(
+    a: int
+    b: str = attr.ib(on_setattr=attr.setters.NO_OP)
+    c: bool = attr.ib(on_setattr=attr.setters.frozen)
+    d: int = attr.ib(on_setattr=[attr.setters.convert, attr.setters.validate])
+    e: bool = attr.ib(
         on_setattr=attr.setters.pipe(
             attr.setters.convert, attr.setters.validate
         )
