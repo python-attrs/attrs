@@ -107,9 +107,9 @@ Please note that as with function and method signatures, ``default=[]`` will *no
    ... class C(object):
    ...     x = attr.ib(default=[])
    >>> i = C()
-   >>> j = C()
+   >>> k = C()
    >>> i.x.append(42)
-   >>> j.x
+   >>> k.x
    [42]
 
 
