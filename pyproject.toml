@@ -13,6 +13,10 @@ source = ["src", ".tox/*/site-packages"]
 
 [tool.coverage.report]
 show_missing = true
+exclude_lines = [
+    # PyPy is unacceptably slow under coverage.
+    "if PYPY:",
+]
 
 
 [tool.black]

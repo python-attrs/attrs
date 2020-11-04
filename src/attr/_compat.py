@@ -132,7 +132,7 @@ def make_set_closure_cell():
     """
     # pypy makes this easy. (It also supports the logic below, but
     # why not do the easy/fast thing?)
-    if PYPY:  # pragma: no cover
+    if PYPY:
 
         def set_closure_cell(cell, value):
             cell.__setstate__((value,))
