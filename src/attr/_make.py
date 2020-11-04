@@ -2193,7 +2193,7 @@ def _attrs_to_init_script(
                 lines.append(fmt_setter(attr_name, arg_name, has_on_setattr))
 
         if a.init is True:
-            if a.type is not None:
+            if a.type is not None and a.converter is None:
                 annotations[arg_name] = a.type
             elif a.converter is not None and sys.version_info >= (3, 3):
                 # Try to get the type from the converter.

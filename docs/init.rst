@@ -302,7 +302,7 @@ Arguably, you can abuse converters as one-argument validators:
 
 
 If a converter's first argument has a type annotation, that type will appear in the signature for ``__init__``.
-You can override this by passing the ``type`` argument or by giving an explicit type annotation.
+A converter will override an explicit type annotation or ``type`` argument.
 
 .. doctest::
 
@@ -311,9 +311,8 @@ You can override this by passing the ``type`` argument or by giving an explicit 
    >>> @attr.s
    ... class C(object):
    ...     x = attr.ib(converter=str2int)
-   ...     y = attr.ib(converter=str2int, type=int)
    >>> C.__init__.__annotations__
-   {'return': None, 'x': <class 'str'>, 'y': <class 'int'>}
+   {'return': None, 'x': <class 'str'>}
 
 
 Post-Init Hook
