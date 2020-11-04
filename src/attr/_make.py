@@ -12,6 +12,7 @@ from operator import itemgetter
 from . import _config, setters
 from ._compat import (
     PY2,
+    PYPY,
     isclass,
     iteritems,
     metadata_proxy,
@@ -527,11 +528,29 @@ def _transform_attrs(
     return _Attributes((attrs, base_attrs, base_attr_map))
 
 
-def _frozen_setattrs(self, name, value):
-    """
-    Attached to frozen classes as __setattr__.
-    """
-    raise FrozenInstanceError()
+if PYPY:
+
+    def _frozen_setattrs(self, name, value):
+        """
+        Attached to frozen classes as __setattr__.
+        """
+        if isinstance(self, BaseException) and name in (
+            "__cause__",
+            "__context__",
+        ):
+            BaseException.__setattr__(self, name, value)
+            return
+
+        raise FrozenInstanceError()
+
+
+else:
+
+    def _frozen_setattrs(self, name, value):
+        """
+        Attached to frozen classes as __setattr__.
+        """
+        raise FrozenInstanceError()
 
 
 def _frozen_delattrs(self, name):

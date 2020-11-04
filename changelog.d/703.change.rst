@@ -1,0 +1,1 @@
+``raise from`` now works on frozen classes on PyPy.
