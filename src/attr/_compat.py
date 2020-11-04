@@ -91,7 +91,7 @@ if PY2:
         res.data.update(d)  # We blocked update, so we have to do it like this.
         return res
 
-    def just_warn(*args, **kw):  # pragma: nocover
+    def just_warn(*args, **kw):  # pragma: no cover
         """
         We only warn on Python 3 because we are not aware of any concrete
         consequences of not setting the cell on Python 2.

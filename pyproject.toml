@@ -14,6 +14,7 @@ source = ["src", ".tox/*/site-packages"]
 [tool.coverage.report]
 show_missing = true
 exclude_lines = [
+    "pragma: no cover",
     # PyPy is unacceptably slow under coverage.
     "if PYPY:",
 ]
