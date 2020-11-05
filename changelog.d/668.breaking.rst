@@ -1,9 +1,0 @@
-``attr.define()``, ``attr.frozen()``, ``attr.mutable()``, and ``attr.field()`` remain **provisional**.
-
-This release does **not** change change anything about them and they are already used widely in production though.
-
-If you wish to use them together with mypy, you can simply drop `this plugin <https://gist.github.com/hynek/1e3844d0c99e479e716169034b5fa963#file-attrs_ng_plugin-py>`_ into your project.
-
-Feel free to provide feedback to them in the linked issue #668.
-
-We will release the ``attrs`` namespace once we have the feeling that the APIs have properly settled.

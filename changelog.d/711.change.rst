@@ -1,1 +1,0 @@
-The type stubs for ``attr.s()`` and ``attr.make_class()`` are not missing the *collect_by_mro* argument anymore.
