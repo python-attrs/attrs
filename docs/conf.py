@@ -31,6 +31,10 @@ def find_version(*file_paths):
 
 # -- General configuration ------------------------------------------------
 
+linkcheck_ignore = [
+    r"https://github.com/.*/(issues|pull)/\d+",
+]
+
 # In nitpick mode (-n), still ignore any of the following "broken" references
 # to non-types.
 nitpick_ignore = [
