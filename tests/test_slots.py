@@ -232,6 +232,8 @@ def test_inheritance_from_slots():
 
     @attr.s(slots=True, hash=True)
     class C2Slots(C1Slots):
+        # y re-defined here but it shouldn't get a slot
+        y = attr.ib()
         z = attr.ib()
 
     @attr.s(slots=True, hash=True)

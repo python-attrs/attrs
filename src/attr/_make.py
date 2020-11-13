@@ -698,7 +698,6 @@ class _ClassBuilder(object):
         """
         Build and return a new class with a `__slots__` attribute.
         """
-        base_names = self._base_names
         cd = {
             k: v
             for k, v in iteritems(self._cls_dict)
@@ -722,12 +721,16 @@ class _ClassBuilder(object):
                         cd["__setattr__"] = object.__setattr__
                         break
 
-        # Traverse the MRO to check for an existing __weakref__.
+        # Traverse the MRO to collect existing slots
+        # and check for an existing __weakref__.
+        existing_slots_and_base_names = set(self._base_names)
         weakref_inherited = False
         for base_cls in self._cls.__mro__[1:-1]:
             if base_cls.__dict__.get("__weakref__", None) is not None:
                 weakref_inherited = True
-                break
+            existing_slots_and_base_names.update(
+                getattr(base_cls, "__slots__", [])
+            )
 
         names = self._attr_names
         if (
@@ -740,7 +743,9 @@ class _ClassBuilder(object):
 
         # We only add the names of attributes that aren't inherited.
         # Setting __slots__ to inherited attributes wastes memory.
-        slot_names = [name for name in names if name not in base_names]
+        slot_names = [
+            name for name in names if name not in existing_slots_and_base_names
+        ]
         if self._cache_hash:
             slot_names.append(_hash_cache_field)
         cd["__slots__"] = tuple(slot_names)
