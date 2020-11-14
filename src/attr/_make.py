@@ -723,14 +723,19 @@ class _ClassBuilder(object):
 
         # Traverse the MRO to collect existing slots
         # and check for an existing __weakref__.
-        existing_slots_and_base_names = set(self._base_names)
+        existing_slots = dict()
         weakref_inherited = False
         for base_cls in self._cls.__mro__[1:-1]:
             if base_cls.__dict__.get("__weakref__", None) is not None:
                 weakref_inherited = True
-            existing_slots_and_base_names.update(
-                getattr(base_cls, "__slots__", [])
+            existing_slots.update(
+                {
+                    name: getattr(base_cls, name)
+                    for name in getattr(base_cls, "__slots__", [])
+                }
             )
+
+        base_names = set(self._base_names)
 
         names = self._attr_names
         if (
@@ -743,9 +748,18 @@ class _ClassBuilder(object):
 
         # We only add the names of attributes that aren't inherited.
         # Setting __slots__ to inherited attributes wastes memory.
-        slot_names = [
-            name for name in names if name not in existing_slots_and_base_names
-        ]
+        slot_names = [name for name in names if name not in base_names]
+        # There are slots for attributes from current class
+        # that are defined in parent classes.
+        # As their descriptors may be overriden by a child class,
+        # we collect them here and update the class dict
+        reused_slots = {
+            slot: slot_descriptor
+            for slot, slot_descriptor in iteritems(existing_slots)
+            if slot in slot_names
+        }
+        slot_names = [name for name in slot_names if name not in reused_slots]
+        cd.update(reused_slots)
         if self._cache_hash:
             slot_names.append(_hash_cache_field)
         cd["__slots__"] = tuple(slot_names)

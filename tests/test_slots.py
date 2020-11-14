@@ -301,7 +301,35 @@ def test_inheritance_from_slots_with_attribute_override():
     assert 2 == na.y
     assert "test" == na.z
 
-    assert {"y", "z"} == set(NonAttrsChild.__slots__)
+    assert {"__weakref__", "y", "z"} == set(NonAttrsChild.__slots__)
+
+
+def test_inherited_slot_reuses_slot_descriptor():
+    """
+    We reuse slot descriptor for an attr.ib defined in a slotted attr.s
+    """
+
+    class HasXSlot(object):
+        __slots__ = ("x",)
+
+    class OverridesX(HasXSlot):
+        @property
+        def x(self):
+            return None
+
+    @attr.s(slots=True)
+    class Child(OverridesX):
+        x = attr.ib()
+
+    assert Child.x is not OverridesX.x
+    assert Child.x is HasXSlot.x
+
+    c = Child(1)
+    assert 1 == c.x
+    assert set() == set(Child.__slots__)
+
+    ox = OverridesX()
+    assert ox.x is None
 
 
 def test_bare_inheritance_from_slots():
