@@ -1,25 +1,24 @@
-.. image:: https://www.attrs.org/en/latest/_static/attrs_logo.png
-   :alt: attrs Logo
+.. raw:: html
 
-======================================
-``attrs``: Classes Without Boilerplate
-======================================
-
-.. image:: https://readthedocs.org/projects/attrs/badge/?version=stable
-   :target: https://www.attrs.org/en/stable/?badge=stable
-   :alt: Documentation Status
-
-.. image:: https://github.com/python-attrs/attrs/workflows/CI/badge.svg?branch=master
-   :target: https://github.com/python-attrs/attrs/actions?workflow=CI
-   :alt: CI Status
-
-.. image:: https://codecov.io/github/python-attrs/attrs/branch/master/graph/badge.svg
-   :target: https://codecov.io/github/python-attrs/attrs
-   :alt: Test Coverage
-
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-   :target: https://github.com/psf/black
-   :alt: Code style: black
+   <p align="center">
+      <a href="https://www.attrs.org/">
+         <img src="./docs/_static/attrs_logo.svg" width="35%" alt="attrs" />
+      </a>
+   </p>
+   <p align="center">
+      <a href="https://www.attrs.org/en/stable/?badge=stable">
+          <img src="https://readthedocs.org/projects/attrs/badge/?version=stable" alt="Documentation Status" />
+      </a>
+      <a href="https://github.com/python-attrs/attrs/actions?workflow=CI">
+          <img src="https://github.com/python-attrs/attrs/workflows/CI/badge.svg?branch=master" alt="CI Status" />
+      </a>
+      <a href="https://codecov.io/github/python-attrs/attrs">
+          <img src="https://codecov.io/github/python-attrs/attrs/branch/master/graph/badge.svg" alt="Test Coverage" />
+      </a>
+      <a href="https://github.com/psf/black">
+          <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code style: black" />
+      </a>
+   </p>
 
 .. teaser-begin
 
