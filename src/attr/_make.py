@@ -20,6 +20,7 @@ from ._compat import (
     set_closure_cell,
 )
 from .exceptions import (
+    ConverterAlreadySetError,
     DefaultAlreadySetError,
     FrozenInstanceError,
     NotAnAttrsClassError,
@@ -180,11 +181,18 @@ def attrib(
         method.  It is possible to set this to ``False`` and set a default
         value.  In that case this attributed is unconditionally initialized
         with the specified default value or factory.
-    :param callable converter: `callable` that is called by
+    :param converter: `callable` that is called by
         ``attrs``-generated ``__init__`` methods to convert attribute's value
         to the desired format.  It is given the passed-in value, and the
         returned value will be used as the new value of the attribute.  The
         value is converted before being passed to the validator, if any.
+
+        The converter can also be set using decorator notation as shown below
+        which allows access to the instance and attribute in addition to the
+        value.
+
+    :type converter: `callable` or a `Converter`.
+
     :param metadata: An arbitrary mapping, to be used by third-party
         components.  See `extending_metadata`.
     :param type: The type of the attribute.  In Python 3.6 or greater, the
@@ -225,6 +233,7 @@ def attrib(
     .. versionadded:: 19.2.0 *eq* and *order*
     .. versionadded:: 20.1.0 *on_setattr*
     .. versionchanged:: 20.3.0 *kw_only* backported to Python 2
+    .. versionchanged:: 20.3.0 *converter* accepts `Converter`.
     """
     eq, order = _determine_eq_order(cmp, eq, order, True)
 
@@ -1911,9 +1920,10 @@ def _setattr_with_converter(attr_name, value_var, has_on_setattr):
     Use the cached object.setattr to set *attr_name* to *value_var*, but run
     its converter first.
     """
-    return "_setattr('%s', %s(%s))" % (
+    return "_setattr('%s', %s(self, attr_dict['%s'], %s))" % (
         attr_name,
         _init_converter_pat % (attr_name,),
+        attr_name,
         value_var,
     )
 
@@ -1937,9 +1947,10 @@ def _assign_with_converter(attr_name, value_var, has_on_setattr):
     if has_on_setattr:
         return _setattr_with_converter(attr_name, value_var, True)
 
-    return "self.%s = %s(%s)" % (
+    return "self.%s = %s(self, attr_dict['%s'], %s)" % (
         attr_name,
         _init_converter_pat % (attr_name,),
+        attr_name,
         value_var,
     )
 
@@ -2054,9 +2065,10 @@ def _attrs_to_init_script(
                         attr_name, value_var, has_on_setattr
                     )
 
-                return "_inst_dict['%s'] = %s(%s)" % (
+                return "_inst_dict['%s'] = %s(self, attr_dict['%s'], %s)" % (
                     attr_name,
                     _init_converter_pat % (attr_name,),
+                    attr_name,
                     value_var,
                 )
 
@@ -2090,10 +2102,17 @@ def _attrs_to_init_script(
         else:
             maybe_self = ""
 
+        if a.converter is None or isinstance(a.converter, Converter):
+            converter = a.converter
+        else:
+
+            def converter(self, attr, value, converter=a.converter):
+                return converter(value)
+
         if a.init is False:
             if has_factory:
                 init_factory_name = _init_factory_pat.format(a.name)
-                if a.converter is not None:
+                if converter is not None:
                     lines.append(
                         fmt_setter_with_converter(
                             attr_name,
@@ -2102,7 +2121,7 @@ def _attrs_to_init_script(
                         )
                     )
                     conv_name = _init_converter_pat % (a.name,)
-                    names_for_globals[conv_name] = a.converter
+                    names_for_globals[conv_name] = converter
                 else:
                     lines.append(
                         fmt_setter(
@@ -2113,7 +2132,7 @@ def _attrs_to_init_script(
                     )
                 names_for_globals[init_factory_name] = a.default.factory
             else:
-                if a.converter is not None:
+                if converter is not None:
                     lines.append(
                         fmt_setter_with_converter(
                             attr_name,
@@ -2122,7 +2141,7 @@ def _attrs_to_init_script(
                         )
                     )
                     conv_name = _init_converter_pat % (a.name,)
-                    names_for_globals[conv_name] = a.converter
+                    names_for_globals[conv_name] = converter
                 else:
                     lines.append(
                         fmt_setter(
@@ -2138,15 +2157,13 @@ def _attrs_to_init_script(
             else:
                 args.append(arg)
 
-            if a.converter is not None:
+            if converter is not None:
                 lines.append(
                     fmt_setter_with_converter(
                         attr_name, arg_name, has_on_setattr
                     )
                 )
-                names_for_globals[
-                    _init_converter_pat % (a.name,)
-                ] = a.converter
+                names_for_globals[_init_converter_pat % (a.name,)] = converter
             else:
                 lines.append(fmt_setter(attr_name, arg_name, has_on_setattr))
 
@@ -2159,7 +2176,7 @@ def _attrs_to_init_script(
             lines.append("if %s is not NOTHING:" % (arg_name,))
 
             init_factory_name = _init_factory_pat.format(a.name)
-            if a.converter is not None:
+            if converter is not None:
                 lines.append(
                     "    "
                     + fmt_setter_with_converter(
@@ -2175,9 +2192,7 @@ def _attrs_to_init_script(
                         has_on_setattr,
                     )
                 )
-                names_for_globals[
-                    _init_converter_pat % (a.name,)
-                ] = a.converter
+                names_for_globals[_init_converter_pat % (a.name,)] = converter
             else:
                 lines.append(
                     "    " + fmt_setter(attr_name, arg_name, has_on_setattr)
@@ -2198,19 +2213,17 @@ def _attrs_to_init_script(
             else:
                 args.append(arg_name)
 
-            if a.converter is not None:
+            if converter is not None:
                 lines.append(
                     fmt_setter_with_converter(
                         attr_name, arg_name, has_on_setattr
                     )
                 )
-                names_for_globals[
-                    _init_converter_pat % (a.name,)
-                ] = a.converter
+                names_for_globals[_init_converter_pat % (a.name,)] = converter
             else:
                 lines.append(fmt_setter(attr_name, arg_name, has_on_setattr))
 
-        if a.init is True and a.converter is None and a.type is not None:
+        if a.init is True and converter is None and a.type is not None:
             annotations[arg_name] = a.type
 
     if attrs_to_validate:  # we can skip this if there are no validators.
@@ -2387,12 +2400,14 @@ class Attribute(object):
                 "default",
                 "type",
                 "inherited",
+                "converter",
             )  # exclude methods and deprecated alias
         }
         return cls(
             name=name,
             validator=ca._validator,
             default=ca._default,
+            converter=ca._converter,
             type=type,
             cmp=None,
             inherited=False,
@@ -2500,7 +2515,7 @@ class _CountingAttr(object):
         "init",
         "metadata",
         "_validator",
-        "converter",
+        "_converter",
         "type",
         "kw_only",
         "on_setattr",
@@ -2510,6 +2525,7 @@ class _CountingAttr(object):
             name=name,
             default=NOTHING,
             validator=None,
+            converter=None,
             repr=True,
             cmp=None,
             hash=True,
@@ -2523,6 +2539,7 @@ class _CountingAttr(object):
         for name in (
             "counter",
             "_default",
+            "_converter",
             "repr",
             "eq",
             "order",
@@ -2535,6 +2552,7 @@ class _CountingAttr(object):
             name="metadata",
             default=None,
             validator=None,
+            converter=None,
             repr=True,
             cmp=None,
             hash=False,
@@ -2568,7 +2586,7 @@ class _CountingAttr(object):
         self.counter = _CountingAttr.cls_counter
         self._default = default
         self._validator = validator
-        self.converter = converter
+        self._converter = converter
         self.repr = repr
         self.eq = eq
         self.order = order
@@ -2610,6 +2628,23 @@ class _CountingAttr(object):
 
         return meth
 
+    def converter(self, meth):
+        """
+        Decorator that allows to set the converter for an attribute.
+
+        Returns *meth* unchanged.
+
+        :raises ConverterAlreadySetError: If converter has been set before.
+
+        .. versionadded:: 20.3.0
+        """
+        if self._converter is not None:
+            raise ConverterAlreadySetError()
+
+        self._converter = Converter(meth)
+
+        return meth
+
 
 _CountingAttr = _add_eq(_add_repr(_CountingAttr))
 
@@ -2640,6 +2675,29 @@ class Factory(object):
         """
         self.factory = factory
         self.takes_self = takes_self
+
+
+@attrs(slots=True, init=False, hash=True)
+class Converter(object):
+    """
+    Stores a converter callable.
+
+    If passed as the converter value to `attr.ib`, the converter is used to
+    process values.
+
+    :param callable converter: A callable that takes either one or exactly two
+        mandatory positional arguments depending on *takes_self*.
+
+    .. versionadded:: 20.3.0
+    """
+
+    converter = attrib()
+
+    def __init__(self, converter):
+        self.converter = converter
+
+    def __call__(self, inst, attr, value):
+        return self.converter(inst, attr, value)
 
 
 def make_class(name, attrs, bases=(object,), **attributes_arguments):

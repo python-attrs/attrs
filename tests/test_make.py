@@ -24,6 +24,7 @@ from attr import _config
 from attr._compat import PY2, ordered_dict
 from attr._make import (
     Attribute,
+    Converter,
     Factory,
     _AndValidator,
     _Attributes,
@@ -145,6 +146,32 @@ class TestCountingAttr(object):
             pass
 
         assert Factory(f, True) == a._default
+
+    def test_converter_decorator(self):
+        """
+        If _CountingAttr.converter is used as a decorator and there is no
+        converter set, the decorated method is used as the converter.
+        """
+        a = attr.ib()
+
+        @a.converter
+        def c(self, attr, value):
+            pass
+
+        assert Converter(c) == a._converter
+
+    def test_converter_decorator_already_set(self):
+        """
+        Raise ConverterAlreadySetError if the decorator is used after a
+        default has been set.
+        """
+        a = attr.ib(converter=list)
+
+        with pytest.raises(attr.exceptions.ConverterAlreadySetError):
+
+            @a.converter
+            def c(self, attr, value):
+                pass
 
 
 def make_tc():
@@ -1258,6 +1285,170 @@ class TestConverter(object):
             "C", {"x": attr.ib(converter=lambda v: int(v))}, frozen=True
         )
         C("1")
+
+    @pytest.mark.parametrize("frozen", (False, True))
+    @pytest.mark.parametrize("slots", (False, True))
+    def test_converter_decorator_gets_self(self, frozen, slots):
+        """
+        A decorated converter receives self.
+        """
+
+        @attr.s(frozen=frozen, slots=slots)
+        class C(object):
+            a = attr.ib(default=42)
+
+            @a.converter
+            def _(self, attr, value):
+                return self
+
+        c = C()
+
+        assert c.a is c
+
+    @pytest.mark.parametrize("frozen", (False, True))
+    @pytest.mark.parametrize("slots", (False, True))
+    def test_converter_decorator_gets_attribute(self, frozen, slots):
+        """
+        A decorated converter receives the attribute.
+        """
+
+        @attr.s(frozen=frozen, slots=slots)
+        class C(object):
+            a = attr.ib(default=42)
+
+            @a.converter
+            def _(self, attr, value):
+                return attr
+
+        c = C()
+
+        assert c.a is attr.fields(C).a
+
+    def test_converter_decorator_can_access_previous(self):
+        """
+        Converter with takes_self has access to already initialized
+        attributes.
+        """
+        a = 42
+        b = 37
+
+        @attr.s
+        class C(object):
+            a = attr.ib()
+            b = attr.ib()
+
+            @b.converter
+            def _(self, attr, value):
+                return self.a + value
+
+        c = C(a=a, b=b)
+
+        assert c.b == a + b
+
+    def test_converter_class_passes_self(self):
+        """
+        When Converter() is used self is passed.
+        """
+        C = make_class(
+            "C",
+            {"x": attr.ib(converter=Converter(lambda self, attr, x: self))},
+        )
+
+        i = C(x=1)
+
+        assert i.x is i
+
+    def test_converter_class_passes_attribute(self):
+        """
+        When Converter() is used the attribute is passed.
+        """
+        C = make_class(
+            "C",
+            {"x": attr.ib(converter=Converter(lambda self, attr, x: attr))},
+        )
+
+        i = C(x=1)
+
+        assert i.x is attr.fields(C).x
+
+    def test_fields_converter_is_passed_converter(self):
+        """
+        attr.fields(C).a.converter is same object as passed converter
+        """
+
+        def f(value):
+            return value
+
+        @attr.s
+        class C(object):
+            a = attr.ib(converter=f)
+
+        assert attr.fields(C).a.converter is f
+
+    def test_fields_converter_with_setattr_applies_on_assignment(self):
+        """
+        When Converter and setattr are used converter is applied on assignment.
+        """
+        C = make_class(
+            "C",
+            {
+                "a": attr.ib(
+                    converter=Converter(lambda self, attr, x: x + 1),
+                    on_setattr=attr.setters.convert,
+                ),
+            },
+        )
+
+        o = C(a=1)
+
+        assert o.a == 2
+        o.a = 3
+        assert o.a == 4
+
+    def test_fields_converter_with_setattr_gets_self_on_assignment(self):
+        """
+        When Converter and setattr are used self is passed on assignment.
+        """
+        C = make_class(
+            "C",
+            {
+                "a": attr.ib(
+                    converter=Converter(
+                        lambda self, attr, x: self if x else None
+                    ),
+                    on_setattr=attr.setters.convert,
+                ),
+            },
+        )
+
+        o = C(a=False)
+
+        assert o.a is None
+        o.a = True
+        assert o.a is o
+
+    def test_fields_converter_with_setattr_gets_attribute_on_assignment(self):
+        """
+        When Converter and setattr are used the attribute is passed on
+        assignment.
+        """
+        C = make_class(
+            "C",
+            {
+                "a": attr.ib(
+                    converter=Converter(
+                        lambda self, attr, x: attr if x else None
+                    ),
+                    on_setattr=attr.setters.convert,
+                ),
+            },
+        )
+
+        o = C(a=False)
+
+        assert o.a is None
+        o.a = True
+        assert o.a is attr.fields(C).a
 
 
 class TestValidate(object):
