@@ -87,7 +87,10 @@ def find_meta(meta):
 VERSION = find_meta("version")
 URL = find_meta("url")
 LONG = (
-    read("README.rst")
+    "======================================\n"
+    "``attrs``: Classes Without Boilerplate\n"
+    "======================================\n"
+    + read("README.rst").split(".. teaser-begin")[1]
     + "\n\n"
     + "Release Information\n"
     + "===================\n\n"
