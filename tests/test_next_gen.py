@@ -4,6 +4,8 @@ Python 3-only integration tests for provisional next generation APIs.
 
 import re
 
+from functools import partial
+
 import pytest
 
 import attr
@@ -238,3 +240,32 @@ class TestNextGen:
             @attr.define(on_setattr=attr.setters.validate)
             class C(A):
                 pass
+
+    @pytest.mark.parametrize(
+        "decorator",
+        [
+            partial(attr.s, frozen=True, slots=True, auto_exc=True),
+            attr.frozen,
+            attr.define,
+            attr.mutable,
+        ],
+    )
+    def test_discard_context(self, decorator):
+        """
+        raise from None works.
+
+        Regression test for #703.
+        """
+
+        @decorator
+        class MyException(Exception):
+            x: str = attr.ib()
+
+        with pytest.raises(MyException) as ei:
+            try:
+                raise ValueError()
+            except ValueError:
+                raise MyException("foo") from None
+
+        assert "foo" == ei.value.x
+        assert ei.value.__cause__ is None

@@ -15,6 +15,9 @@ PROJECT_URLS = {
     "Documentation": "https://www.attrs.org/",
     "Bug Tracker": "https://github.com/python-attrs/attrs/issues",
     "Source Code": "https://github.com/python-attrs/attrs",
+    "Funding": "https://github.com/sponsors/hynek",
+    "Tidelift": "https://tidelift.com/subscription/pkg/pypi-attrs?"
+    "utm_source=pypi-attrs&utm_medium=pypi",
 }
 CLASSIFIERS = [
     "Development Status :: 5 - Production/Stable",
