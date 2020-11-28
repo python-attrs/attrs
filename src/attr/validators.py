@@ -25,29 +25,40 @@ __all__ = [
 
 @attrs(repr=False, slots=True, hash=True)
 class _InstanceOfValidator(object):
-    type = attrib()
+    type = attrib(default=None)
+    type_getter = attrib(default=None)
+
+    @type_getter.validator
+    def _check_exactly_one_argument(self, *_):
+        """
+        Check that exactly one of ``type`` or ``type_getter`` is set.
+        """
+        if self.type is None and self.type_getter is None:
+            raise TypeError("either 'type' or 'type_getter' must be passed")
+        if self.type is not None and self.type_getter is not None:
+            raise TypeError("only one of 'type' or 'type_getter' must be passed")
 
     def __call__(self, inst, attr, value):
         """
         We use a callable class to be able to change the ``__repr__``.
         """
-        if not isinstance(value, self.type):
+        if not isinstance(value, self.type or self.type_getter()):
             raise TypeError(
                 "'{name}' must be {type!r} (got {value!r} that is a "
                 "{actual!r}).".format(
                     name=attr.name,
-                    type=self.type,
+                    type=self.type or self.type_getter(),
                     actual=value.__class__,
                     value=value,
                 ),
                 attr,
-                self.type,
+                self.type or self.type_getter(),
                 value,
             )
 
     def __repr__(self):
         return "<instance_of validator for type {type!r}>".format(
-            type=self.type
+            type=self.type or self.type_getter()
         )
 
 
