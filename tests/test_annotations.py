@@ -238,6 +238,51 @@ class TestAnnotations:
         class A:
             a = attr.ib(converter=print)
 
+    def test_pipe(self):
+        """
+        pipe() uses the input annotation of its first argument and the
+        output annotation of its last argument.
+        """
+
+        def int2str(x: int) -> str:
+            return str(x)
+
+        def strlen(y: str) -> int:
+            return len(y)
+
+        def identity(z):
+            return z
+
+        assert attr.converters.pipe(int2str).__annotations__ == {
+            "x": int,
+            "return": str,
+        }
+        assert attr.converters.pipe(int2str, strlen).__annotations__ == {
+            "x": int,
+            "return": int,
+        }
+        assert attr.converters.pipe(identity, strlen).__annotations__ == {
+            "return": int
+        }
+        assert attr.converters.pipe(int2str, identity).__annotations__ == {
+            "x": int
+        }
+
+    def test_pipe_empty(self):
+        """
+        pipe() with no converters has no annotations.
+        """
+
+        assert attr.converters.pipe().__annotations__ == {}
+
+    def test_pipe_no_annotations(self):
+        """
+        pipe() has no annotations if passed a converter with no
+        __annotations__.
+        """
+
+        assert attr.converters.pipe(bool).__annotations__ == {}
+
     @pytest.mark.parametrize("slots", [True, False])
     @pytest.mark.parametrize("classvar", _classvar_prefixes)
     def test_annotations_strings(self, slots, classvar):

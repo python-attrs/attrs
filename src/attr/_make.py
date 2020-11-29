@@ -2746,6 +2746,9 @@ def pipe(*converters):
     When called on a value, it runs all wrapped converters, returning the
     *last* value.
 
+    Type annotations will be inferred from the wrapped converters, if
+    present.
+
     :param callables converters: Arbitrary number of converters.
 
     .. versionadded:: 20.1.0
@@ -2756,5 +2759,18 @@ def pipe(*converters):
             val = converter(val)
 
         return val
+
+    if not PY2 and converters:
+        annotations = {}
+        if hasattr(converters[0], "__annotations__"):
+            annotations.update(converters[0].__annotations__)
+        if "return" in annotations:
+            del annotations["return"]
+        if (
+            hasattr(converters[-1], "__annotations__")
+            and "return" in converters[-1].__annotations__
+        ):
+            annotations["return"] = converters[-1].__annotations__["return"]
+        pipe_converter.__annotations__ = annotations
 
     return pipe_converter
