@@ -1,1 +1,0 @@
-``attr.asdict()`` and ``attr.astuple()`` now treat ``frozenset``\ s like ``set``\ s with regards to the *retain_collection_types* argument.

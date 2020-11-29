@@ -13,6 +13,11 @@ source = ["src", ".tox/*/site-packages"]
 
 [tool.coverage.report]
 show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    # PyPy is unacceptably slow under coverage.
+    "if PYPY:",
+]
 
 
 [tool.black]
@@ -27,9 +32,6 @@ whitelist-regex = ["test_.*"]
 
 [tool.isort]
 profile = "attrs"
-
-known_first_party = "attr"
-known_third_party = ["attr", "hypothesis", "pytest", "setuptools", "six"]
 
 
 [tool.towncrier]
