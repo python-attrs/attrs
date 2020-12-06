@@ -3,6 +3,7 @@
 .cache
 .coverage*
 .hypothesis
+.idea/
 .mypy_cache
 .pytest_cache
 .tox
@@ -11,3 +12,5 @@ dist
 docs/_build/
 htmlcov
 pip-wheel-metadata
+Pipfile
+Pipfile.lock

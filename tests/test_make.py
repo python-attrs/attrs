@@ -120,6 +120,36 @@ class TestCountingAttr(object):
 
         assert _AndValidator((v, v2)) == a._validator
 
+    def test_converter_decorator_single(self):
+        """
+        If _CountingAttr.converter is used as a decorator and there is no
+        decorator set, the decorated method is used as the converter.
+        """
+        a = attr.ib()
+
+        @a.converter
+        def c():
+            pass
+
+        assert c == a._converter
+
+    def test_converter_decorator(self):
+        """
+        If _CountingAttr.converter is used as a decorator and there is already
+        a decorator set, the decorators are composed using `pipe`.
+        """
+
+        def c(val):
+            return ('c', val)
+
+        a = attr.ib(converter=c)
+
+        @a.converter
+        def c2(val):
+            return ('c2', val)
+
+        assert ('c2', ('c', 'foo')) == a._converter('foo')
+
     def test_default_decorator_already_set(self):
         """
         Raise DefaultAlreadySetError if the decorator is used after a default

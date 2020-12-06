@@ -2384,6 +2384,7 @@ class Attribute(object):
             not in (
                 "name",
                 "validator",
+                "converter",
                 "default",
                 "type",
                 "inherited",
@@ -2392,6 +2393,7 @@ class Attribute(object):
         return cls(
             name=name,
             validator=ca._validator,
+            converter=ca._converter,
             default=ca._default,
             type=type,
             cmp=None,
@@ -2500,7 +2502,7 @@ class _CountingAttr(object):
         "init",
         "metadata",
         "_validator",
-        "converter",
+        "_converter",
         "type",
         "kw_only",
         "on_setattr",
@@ -2568,7 +2570,7 @@ class _CountingAttr(object):
         self.counter = _CountingAttr.cls_counter
         self._default = default
         self._validator = validator
-        self.converter = converter
+        self._converter = converter
         self.repr = repr
         self.eq = eq
         self.order = order
@@ -2591,6 +2593,20 @@ class _CountingAttr(object):
             self._validator = meth
         else:
             self._validator = and_(self._validator, meth)
+        return meth
+
+    def converter(self, meth):
+        """
+        Decorator that adds *meth* to the list of converters.
+
+        Returns *meth* unchanged.
+
+        .. versionadded:: # TODO: TBD
+        """
+        if self._converter is None:
+            self._converter = meth
+        else:
+            self._converter = pipe(self._converter, meth)
         return meth
 
     def default(self, meth):
