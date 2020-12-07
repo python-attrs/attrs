@@ -2214,9 +2214,8 @@ def _attrs_to_init_script(
         if a.init is True:
             if a.type is not None and a.converter is None:
                 annotations[arg_name] = a.type
-            elif a.converter is not None and sys.version_info >= (3, 3):
+            elif a.converter is not None and not PY2:
                 # Try to get the type from the converter.
-                # inspect.signature() wasn't added until Python 3.3.
                 sig = None
                 try:
                     sig = inspect.signature(a.converter)
