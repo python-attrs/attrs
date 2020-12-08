@@ -238,6 +238,20 @@ class TestAnnotations:
         class A:
             a = attr.ib(converter=print)
 
+    def test_nullary_converter(self):
+        """
+        A coverter with no arguments doesn't cause a crash.
+        """
+
+        def noop():
+            pass
+
+        @attr.s
+        class A:
+            a = attr.ib(converter=noop)
+
+        assert A.__init__.__annotations__ == {"return": None}
+
     def test_pipe(self):
         """
         pipe() uses the input annotation of its first argument and the

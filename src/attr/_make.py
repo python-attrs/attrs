@@ -2223,7 +2223,11 @@ def _attrs_to_init_script(
                     pass
                 if sig:
                     sig_params = list(sig.parameters.values())
-                    if sig_params[0].annotation is not inspect.Parameter.empty:
+                    if (
+                        sig_params
+                        and sig_params[0].annotation
+                        is not inspect.Parameter.empty
+                    ):
                         annotations[arg_name] = sig_params[0].annotation
 
     if attrs_to_validate:  # we can skip this if there are no validators.
