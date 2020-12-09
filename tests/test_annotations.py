@@ -297,6 +297,51 @@ class TestAnnotations:
 
         assert attr.converters.pipe(bool).__annotations__ == {}
 
+    def test_optional(self):
+        """
+        optional() uses the annotations of the converter it wraps.
+        """
+
+        def int2str(x: int) -> str:
+            return str(x)
+
+        def int_identity(x: int):
+            return x
+
+        def strify(x) -> str:
+            return str(x)
+
+        def identity(x):
+            return x
+
+        assert attr.converters.optional(int2str).__annotations__ == {
+            "val": typing.Optional[int],
+            "return": typing.Optional[str],
+        }
+
+        assert attr.converters.optional(int_identity).__annotations__ == {
+            "val": typing.Optional[int]
+        }
+
+        assert attr.converters.optional(strify).__annotations__ == {
+            "return": typing.Optional[str]
+        }
+
+        assert attr.converters.optional(identity).__annotations__ == {}
+
+    def test_optional_non_introspectable(self):
+        "optional() doesn't crash when passed a non-introspectable converter."
+
+        assert attr.converters.optional(print).__annotations__ == {}
+
+    def test_optional_nullary(self):
+        "optional() doesn't crash when passed a nullary converter."
+
+        def noop():
+            pass
+
+        assert attr.converters.optional(noop).__annotations__ == {}
+
     @pytest.mark.parametrize("slots", [True, False])
     @pytest.mark.parametrize("classvar", _classvar_prefixes)
     def test_annotations_strings(self, slots, classvar):
