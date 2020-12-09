@@ -29,6 +29,10 @@ from .exceptions import (
 )
 
 
+if not PY2:
+    import typing
+
+
 # This is used at least twice, so cache it here.
 _obj_setattr = object.__setattr__
 _init_converter_pat = "__attr_converter_%s"
@@ -2782,17 +2786,36 @@ def pipe(*converters):
 
         return val
 
-    if not PY2 and converters:
-        annotations = {}
-        if hasattr(converters[0], "__annotations__"):
-            annotations.update(converters[0].__annotations__)
-        if "return" in annotations:
-            del annotations["return"]
-        if (
-            hasattr(converters[-1], "__annotations__")
-            and "return" in converters[-1].__annotations__
-        ):
-            annotations["return"] = converters[-1].__annotations__["return"]
-        pipe_converter.__annotations__ = annotations
+    if not PY2:
+        if not converters:
+            # If the converter list is empty, pipe_converter is the identity.
+            A = typing.TypeVar("A")
+            pipe_converter.__annotations__ = {"val": A, "return": A}
+        else:
+            # Get parameter type.
+            sig = None
+            try:
+                sig = inspect.signature(converters[0])
+            except (ValueError, TypeError):  # inspect failed
+                pass
+            if sig:
+                params = list(sig.parameters.values())
+                if (
+                    params
+                    and params[0].annotation is not inspect.Parameter.empty
+                ):
+                    pipe_converter.__annotations__["val"] = params[
+                        0
+                    ].annotation
+            # Get return type.
+            sig = None
+            try:
+                sig = inspect.signature(converters[-1])
+            except (ValueError, TypeError):  # inspect failed
+                pass
+            if sig and sig.return_annotation is not inspect.Signature().empty:
+                pipe_converter.__annotations__[
+                    "return"
+                ] = sig.return_annotation
 
     return pipe_converter

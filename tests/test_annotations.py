@@ -194,7 +194,7 @@ class TestAnnotations:
         }
         assert C.__init__.__annotations__ == {"a": int, "return": None}
 
-    def test_simple_converter_annotations(self):
+    def test_converter_annotations(self):
         """
         An unannotated attribute with an annotated converter gets its
         annotation from the converter.
@@ -206,6 +206,15 @@ class TestAnnotations:
         @attr.s
         class A:
             a = attr.ib(converter=int2str)
+
+        assert A.__init__.__annotations__ == {"a": int, "return": None}
+
+        def int2str_(x: int, y: str = ""):
+            return str(x)
+
+        @attr.s
+        class A:
+            a = attr.ib(converter=int2str_)
 
         assert A.__init__.__annotations__ == {"a": int, "return": None}
 
@@ -268,34 +277,55 @@ class TestAnnotations:
             return z
 
         assert attr.converters.pipe(int2str).__annotations__ == {
-            "x": int,
+            "val": int,
             "return": str,
         }
         assert attr.converters.pipe(int2str, strlen).__annotations__ == {
-            "x": int,
+            "val": int,
             "return": int,
         }
         assert attr.converters.pipe(identity, strlen).__annotations__ == {
             "return": int
         }
         assert attr.converters.pipe(int2str, identity).__annotations__ == {
-            "x": int
+            "val": int
+        }
+
+        def int2str_(x: int, y: int = 0) -> str:
+            return str(x)
+
+        assert attr.converters.pipe(int2str_).__annotations__ == {
+            "val": int,
+            "return": str,
         }
 
     def test_pipe_empty(self):
         """
-        pipe() with no converters has no annotations.
+        pipe() with no converters is annotated like the identity.
         """
 
-        assert attr.converters.pipe().__annotations__ == {}
+        p = attr.converters.pipe()
+        assert "val" in p.__annotations__
+        t = p.__annotations__["val"]
+        assert isinstance(t, typing.TypeVar)
+        assert p.__annotations__ == {"val": t, "return": t}
 
-    def test_pipe_no_annotations(self):
+    def test_pipe_non_introspectable(self):
         """
-        pipe() has no annotations if passed a converter with no
-        __annotations__.
+        pipe() doesn't crash when passed a non-introspectable converter.
         """
 
-        assert attr.converters.pipe(bool).__annotations__ == {}
+        assert attr.converters.pipe(print).__annotations__ == {}
+
+    def test_pipe_nullary(self):
+        """
+        pipe() doesn't crash when passed a nullary converter.
+        """
+
+        def noop():
+            pass
+
+        assert attr.converters.pipe(noop).__annotations__ == {}
 
     def test_optional(self):
         """
@@ -318,24 +348,34 @@ class TestAnnotations:
             "val": typing.Optional[int],
             "return": typing.Optional[str],
         }
-
         assert attr.converters.optional(int_identity).__annotations__ == {
             "val": typing.Optional[int]
         }
-
         assert attr.converters.optional(strify).__annotations__ == {
             "return": typing.Optional[str]
         }
-
         assert attr.converters.optional(identity).__annotations__ == {}
 
+        def int2str_(x: int, y: int = 0) -> str:
+            return str(x)
+
+        assert attr.converters.optional(int2str_).__annotations__ == {
+            "val": typing.Optional[int],
+            "return": typing.Optional[str],
+        }
+
     def test_optional_non_introspectable(self):
-        "optional() doesn't crash when passed a non-introspectable converter."
+        """
+        optional() doesn't crash when passed a non-introspectable
+        converter.
+        """
 
         assert attr.converters.optional(print).__annotations__ == {}
 
     def test_optional_nullary(self):
-        "optional() doesn't crash when passed a nullary converter."
+        """
+        optional() doesn't crash when passed a nullary converter.
+        """
 
         def noop():
             pass
