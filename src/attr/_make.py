@@ -2768,8 +2768,8 @@ def pipe(*converters):
     When called on a value, it runs all wrapped converters, returning the
     *last* value.
 
-    Type annotations will be inferred from the wrapped converters, if
-    present.
+    Type annotations will be inferred from the wrapped converters', if
+    they have any.
 
     :param callables converters: Arbitrary number of converters.
 
