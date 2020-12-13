@@ -1526,7 +1526,7 @@ class TestClassBuilder(object):
             b.add_eq()
             .add_order()
             .add_hash()
-            .add_init()
+            .add_init(True, True)
             .add_repr("ns")
             .add_str()
             .build_class()
