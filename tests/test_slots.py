@@ -268,6 +268,70 @@ def test_inheritance_from_slots():
     assert {"x": 1, "y": 2, "z": "test"} == attr.asdict(c2)
 
 
+def test_inheritance_from_slots_with_attribute_override():
+    """
+    Inheriting from a slotted class doesn't re-create existing slots
+    """
+
+    class HasXSlot(object):
+        __slots__ = ("x",)
+
+    @attr.s(slots=True, hash=True)
+    class C2Slots(C1Slots):
+        # y re-defined here but it shouldn't get a slot
+        y = attr.ib()
+        z = attr.ib()
+
+    @attr.s(slots=True, hash=True)
+    class NonAttrsChild(HasXSlot):
+        # Parent class has slot for "x" already, so we skip it
+        x = attr.ib()
+        y = attr.ib()
+        z = attr.ib()
+
+    c2 = C2Slots(1, 2, "test")
+    assert 1 == c2.x
+    assert 2 == c2.y
+    assert "test" == c2.z
+
+    assert {"z"} == set(C2Slots.__slots__)
+
+    na = NonAttrsChild(1, 2, "test")
+    assert 1 == na.x
+    assert 2 == na.y
+    assert "test" == na.z
+
+    assert {"__weakref__", "y", "z"} == set(NonAttrsChild.__slots__)
+
+
+def test_inherited_slot_reuses_slot_descriptor():
+    """
+    We reuse slot descriptor for an attr.ib defined in a slotted attr.s
+    """
+
+    class HasXSlot(object):
+        __slots__ = ("x",)
+
+    class OverridesX(HasXSlot):
+        @property
+        def x(self):
+            return None
+
+    @attr.s(slots=True)
+    class Child(OverridesX):
+        x = attr.ib()
+
+    assert Child.x is not OverridesX.x
+    assert Child.x is HasXSlot.x
+
+    c = Child(1)
+    assert 1 == c.x
+    assert set() == set(Child.__slots__)
+
+    ox = OverridesX()
+    assert ox.x is None
+
+
 def test_bare_inheritance_from_slots():
     """
     Inheriting from a bare attrs slotted class works.
