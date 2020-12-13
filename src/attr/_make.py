@@ -67,6 +67,9 @@ class _Nothing(object):
     def __bool__(self):
         return False
 
+    def __len__(self):
+        return 0  # __bool__ for Python 2
+
 
 NOTHING = _Nothing()
 """
