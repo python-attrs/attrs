@@ -64,6 +64,9 @@ class _Nothing(object):
     def __repr__(self):
         return "NOTHING"
 
+    def __bool__(self):
+        return False
+
 
 NOTHING = _Nothing()
 """

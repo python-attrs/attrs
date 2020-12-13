@@ -808,6 +808,13 @@ class TestNothing(object):
         assert not (_Nothing() != _Nothing())
         assert 1 != _Nothing()
 
+    def test_false(self):
+        """
+        NOTHING evaluates as falsey.
+        """
+        assert not NOTHING
+        assert False is bool(NOTHING)
+
 
 @attr.s(hash=True, order=True)
 class C(object):
