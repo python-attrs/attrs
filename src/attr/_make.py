@@ -2703,11 +2703,15 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
         raise TypeError("attrs argument must be a dict or a list.")
 
     post_init = cls_dict.pop("__attrs_post_init__", None)
-    type_ = type(
-        name,
-        bases,
-        {} if post_init is None else {"__attrs_post_init__": post_init},
-    )
+    user_init = cls_dict.pop("__init__", None)
+
+    body = {}
+    if post_init is not None:
+        body["__attrs_post_init__"] = post_init
+    if user_init is not None:
+        body["__init__"] = user_init
+
+    type_ = type(name, bases, body)
     # For pickling to work, the __module__ variable needs to be set to the
     # frame where the class is created.  Bypass this step in environments where
     # sys._getframe is not defined (Jython for example) or sys._getframe is not
