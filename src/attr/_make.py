@@ -46,6 +46,8 @@ _empty_metadata_singleton = metadata_proxy({})
 # Unique object for unequivocal getattr() defaults.
 _sentinel = object()
 
+Factory = None
+
 
 class _Nothing(object):
     """
@@ -861,6 +863,26 @@ class _ClassBuilder(object):
                 self._is_exc,
                 self._on_setattr is not None
                 and self._on_setattr is not setters.NO_OP,
+                attrs_init=False,
+            )
+        )
+
+        return self
+
+    def add_attrs_init(self):
+        self._cls_dict["__attrs_init__"] = self._add_method_dunders(
+            _make_init(
+                self._cls,
+                self._attrs,
+                self._has_post_init,
+                self._frozen,
+                self._slots,
+                self._cache_hash,
+                self._base_attr_map,
+                self._is_exc,
+                self._on_setattr is not None
+                and self._on_setattr is not setters.NO_OP,
+                attrs_init=True,
             )
         )
 
@@ -1372,6 +1394,7 @@ def attrs(
         ):
             builder.add_init()
         else:
+            builder.add_attrs_init()
             if cache_hash:
                 raise TypeError(
                     "Invalid value for cache_hash.  To use hash caching,"
@@ -1836,6 +1859,7 @@ def _make_init(
     base_attr_map,
     is_exc,
     has_global_on_setattr,
+    attrs_init,
 ):
     if frozen and has_global_on_setattr:
         raise ValueError("Frozen classes can't use on_setattr.")
@@ -1872,6 +1896,7 @@ def _make_init(
         is_exc,
         needs_cached_setattr,
         has_global_on_setattr,
+        attrs_init,
     )
     locs = {}
     bytecode = compile(script, unique_filename, "exec")
@@ -1893,10 +1918,10 @@ def _make_init(
         unique_filename,
     )
 
-    __init__ = locs["__init__"]
-    __init__.__annotations__ = annotations
+    init = locs["__attrs_init__"] if attrs_init else locs["__init__"]
+    init.__annotations__ = annotations
 
-    return __init__
+    return init
 
 
 def _setattr(attr_name, value_var, has_on_setattr):
@@ -2011,6 +2036,7 @@ def _attrs_to_init_script(
     is_exc,
     needs_cached_setattr,
     has_global_on_setattr,
+    attrs_init,
 ):
     """
     Return a script of an initializer for *attrs* and a dict of globals.
@@ -2084,7 +2110,7 @@ def _attrs_to_init_script(
         )
         arg_name = a.name.lstrip("_")
 
-        has_factory = isinstance(a.default, Factory)
+        has_factory = Factory is not None and isinstance(a.default, Factory)
         if has_factory and a.default.takes_self:
             maybe_self = "self"
         else:
@@ -2225,7 +2251,7 @@ def _attrs_to_init_script(
             names_for_globals[val_name] = a.validator
             names_for_globals[attr_name] = a
 
-    if post_init:
+    if post_init and not attrs_init:
         lines.append("self.__attrs_post_init__()")
 
     # because this is set only after __attrs_post_init is called, a crash
@@ -2265,10 +2291,12 @@ def _attrs_to_init_script(
             )
     return (
         """\
-def __init__(self, {args}):
+def {init_name}(self, {args}):
     {lines}
 """.format(
-            args=args, lines="\n    ".join(lines) if lines else "pass"
+            init_name=("__attrs_init__" if attrs_init else "__init__"),
+            args=args,
+            lines="\n    ".join(lines) if lines else "pass",
         ),
         names_for_globals,
         annotations,
