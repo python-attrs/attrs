@@ -1146,6 +1146,11 @@ def attrs(
         ``attrs`` attributes.  Leading underscores are stripped for the
         argument name.  If a ``__attrs_post_init__`` method exists on the
         class, it will be called after the class is fully initialized.
+
+        If ``init`` is ``False``, an ``__attrs_init__`` method will be
+        injected instead. This allows you to define a custom ``__init__``
+        method that can do pre-init work such as ``super().__init__()``,
+        and then call ``__attrs_init__()`` and ``__attrs_post_init__()``.
     :param bool slots: Create a `slotted class <slotted classes>` that's more
         memory-efficient. Slotted classes are generally superior to the default
         dict classes, but have some gotchas you should know about, so we
@@ -1285,6 +1290,7 @@ def attrs(
     .. versionadded:: 20.1.0 *getstate_setstate*
     .. versionadded:: 20.1.0 *on_setattr*
     .. versionadded:: 20.3.0 *field_transformer*
+    .. versionchanged:: 20.4.0 *``init=False`` injects ``__attrs_init__``
     """
     if auto_detect and PY2:
         raise PythonTooOldError(
