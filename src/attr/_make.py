@@ -46,10 +46,6 @@ _empty_metadata_singleton = metadata_proxy({})
 # Unique object for unequivocal getattr() defaults.
 _sentinel = object()
 
-# Need a forward definition of Factory because _make_init() refers to
-# it, but since Factory is an attrs class, it calls _make_init()
-Factory = None
-
 
 class _Nothing(object):
     """
@@ -852,37 +848,21 @@ class _ClassBuilder(object):
 
         return self
 
-    def add_init(self, init, auto_detect):
-        should_implement_init = _determine_whether_to_implement(
-            self._cls, init, auto_detect, ("__init__",)
-        )
-        attrs_init_method, init_method = _make_init(
-            self._cls,
-            self._attrs,
-            self._has_post_init,
-            self._frozen,
-            self._slots,
-            self._cache_hash,
-            self._base_attr_map,
-            self._is_exc,
-            (
+    def add_init(self):
+        self._cls_dict["__init__"] = self._add_method_dunders(
+            _make_init(
+                self._cls,
+                self._attrs,
+                self._has_post_init,
+                self._frozen,
+                self._slots,
+                self._cache_hash,
+                self._base_attr_map,
+                self._is_exc,
                 self._on_setattr is not None
-                and self._on_setattr is not setters.NO_OP
-            ),
-            should_implement_init,
+                and self._on_setattr is not setters.NO_OP,
+            )
         )
-
-        self._cls_dict["__attrs_init__"] = self._add_method_dunders(
-            attrs_init_method
-        )
-        if init_method is not None:
-            self._cls_dict["__init__"] = self._add_method_dunders(init_method)
-        else:
-            if self._cache_hash:
-                raise TypeError(
-                    "Invalid value for cache_hash.  To use hash caching,"
-                    " init must be True."
-                )
 
         return self
 
@@ -1387,7 +1367,17 @@ def attrs(
                 )
             builder.make_unhashable()
 
-        builder.add_init(init, auto_detect)
+        if _determine_whether_to_implement(
+            cls, init, auto_detect, ("__init__",)
+        ):
+            builder.add_init()
+        else:
+            if cache_hash:
+                raise TypeError(
+                    "Invalid value for cache_hash.  To use hash caching,"
+                    " init must be True."
+                )
+
         return builder.build_class()
 
     # maybe_cls's type depends on the usage of the decorator.  It's a class
@@ -1846,7 +1836,6 @@ def _make_init(
     base_attr_map,
     is_exc,
     has_global_on_setattr,
-    should_implement_init,
 ):
     if frozen and has_global_on_setattr:
         raise ValueError("Frozen classes can't use on_setattr.")
@@ -1883,7 +1872,6 @@ def _make_init(
         is_exc,
         needs_cached_setattr,
         has_global_on_setattr,
-        should_implement_init,
     )
     locs = {}
     bytecode = compile(script, unique_filename, "exec")
@@ -1905,16 +1893,10 @@ def _make_init(
         unique_filename,
     )
 
-    __attrs_init__ = locs["__attrs_init__"]
-    __attrs_init__.__annotations__ = annotations
+    __init__ = locs["__init__"]
+    __init__.__annotations__ = annotations
 
-    if "__init__" in locs:
-        __init__ = locs["__init__"]
-        __init__.__annotations__ = annotations
-    else:
-        __init__ = None
-
-    return __attrs_init__, __init__
+    return __init__
 
 
 def _setattr(attr_name, value_var, has_on_setattr):
@@ -2029,7 +2011,6 @@ def _attrs_to_init_script(
     is_exc,
     needs_cached_setattr,
     has_global_on_setattr,
-    should_implement_init,
 ):
     """
     Return a script of an initializer for *attrs* and a dict of globals.
@@ -2103,7 +2084,7 @@ def _attrs_to_init_script(
         )
         arg_name = a.name.lstrip("_")
 
-        has_factory = Factory is not None and isinstance(a.default, Factory)
+        has_factory = isinstance(a.default, Factory)
         if has_factory and a.default.takes_self:
             maybe_self = "self"
         else:
@@ -2244,6 +2225,9 @@ def _attrs_to_init_script(
             names_for_globals[val_name] = a.validator
             names_for_globals[attr_name] = a
 
+    if post_init:
+        lines.append("self.__attrs_post_init__()")
+
     # because this is set only after __attrs_post_init is called, a crash
     # will result if post-init tries to access the hash code.  This seemed
     # preferable to setting this beforehand, in which case alteration to
@@ -2279,30 +2263,12 @@ def _attrs_to_init_script(
                 ", " if args else "",  # leading comma
                 ", ".join(kw_only_args),  # kw_only args
             )
-
-    init_lines = ""
-    if should_implement_init:
-        init_lines = """\
-
-def __init__(self, {args}):
-    args = locals()
-    del args['self']
-    self.__attrs_init__(**args)
-    {post_init_call}
-""".format(
-            args=args,
-            post_init_call="self.__attrs_post_init__()" if post_init else "",
-        )
-
     return (
         """\
-def __attrs_init__(self, {args}):
+def __init__(self, {args}):
     {lines}
-{init_lines}
 """.format(
-            args=args,
-            lines="\n    ".join(lines) if lines else "pass",
-            init_lines=init_lines,
+            args=args, lines="\n    ".join(lines) if lines else "pass"
         ),
         names_for_globals,
         annotations,

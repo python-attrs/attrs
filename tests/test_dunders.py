@@ -59,7 +59,7 @@ def _add_init(cls, frozen):
     This function used to be part of _make.  It wasn't used anymore however
     the tests for it are still useful to test the behavior of _make_init.
     """
-    cls.__attrs_init__, cls.__init__ = _make_init(
+    cls.__init__ = _make_init(
         cls,
         cls.__attrs_attrs__,
         getattr(cls, "__attrs_post_init__", False),
@@ -69,7 +69,6 @@ def _add_init(cls, frozen):
         base_attr_map={},
         is_exc=False,
         has_global_on_setattr=False,
-        should_implement_init=True,
     )
     return cls
 
