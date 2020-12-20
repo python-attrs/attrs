@@ -1,0 +1,20 @@
+- case: attr_s_with_type_argument
+  main: |
+    import attr
+    @attr.s
+    class C:
+        a = attr.ib(type=int)
+    C()  # E: Too few arguments for "C"
+    C(1)
+    C(a=1)
+    C(a="hi")  # E: Argument "a" to "C" has incompatible type "str"; expected "int"
+- case: attr_s_with_type_annotations
+  main : |
+    import attr
+    @attr.s
+    class C:
+      a: int = attr.ib()
+    C()  # E: Too few arguments for "C"
+    C(1)
+    C(a=1)
+    C(a="hi")  # E: Argument "a" to "C" has incompatible type "str"; expected "int"

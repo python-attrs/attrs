@@ -47,6 +47,8 @@ EXTRAS_REQUIRE = {
         "hypothesis",
         "pympler",
         "pytest>=4.3.0",  # 4.3.0 dropped last use of `convert`
+        "mypy",
+        "pytest-mypy-plugins",
         "six",
     ],
 }
