@@ -1,8 +1,8 @@
 import codecs
 import os
+import platform
 import re
 import sys
-import platform
 
 from setuptools import find_packages, setup
 
@@ -52,7 +52,10 @@ EXTRAS_REQUIRE = {
         "six",
     ],
 }
-if sys.version_info[:2] >= (3, 6) and platform.python_implementation() != "PyPy":
+if (
+    sys.version_info[:2] >= (3, 6)
+    and platform.python_implementation() != "PyPy"
+):
     EXTRAS_REQUIRE["tests_no_zope"].extend(["mypy", "pytest-mypy-plugins"])
 
 EXTRAS_REQUIRE["tests"] = EXTRAS_REQUIRE["tests_no_zope"] + ["zope.interface"]
