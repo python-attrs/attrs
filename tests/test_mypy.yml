@@ -1,9 +1,12 @@
 - case: attr_s_with_type_argument
+  parametrized:
+    - val: 'a = attr.ib(type=int)'
+    - val: 'a: int = attr.ib()'
   main: |
     import attr
     @attr.s
     class C:
-        a = attr.ib(type=int)
+        {{ val }}
     C()  # E: Too few arguments for "C"
     C(1)
     C(a=1)
