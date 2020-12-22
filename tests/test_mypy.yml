@@ -32,7 +32,7 @@
         c = attr.ib(18)
         _d = attr.ib(validator=None, default=18)
         E = 18
-    
+
         def foo(self):
             return self.a
     reveal_type(A)  # N: Revealed type is 'def (a: Any, b: Any, c: Any =, d: Any =) -> main.A'
@@ -40,7 +40,7 @@
     A(1, [2], '3', 4)
     A(1, 2, 3, 4)
     A(1, [2], '3', 4, 5)  # E: Too many arguments for "A"
-    
+
 - case: testAttrsAnnotated
   main: |
     import attr
@@ -58,7 +58,7 @@
     A(1, [2], '3', 4)
     A(1, 2, 3, 4)  # E: Argument 2 to "A" has incompatible type "int"; expected "List[int]" # E: Argument 3 to "A" has incompatible type "int"; expected "str"
     A(1, [2], '3', 4, 5)  # E: Too many arguments for "A"
-    
+
 - case: testAttrsPython2Annotations
   main: |
     import attr
@@ -76,7 +76,7 @@
     A(1, [2], '3', 4)
     A(1, 2, 3, 4)  # E: Argument 2 to "A" has incompatible type "int"; expected "List[int]" # E: Argument 3 to "A" has incompatible type "int"; expected "str"
     A(1, [2], '3', 4, 5)  # E: Too many arguments for "A"
-    
+
 - case: testAttrsAutoAttribs
   main: |
     import attr
@@ -94,7 +94,7 @@
     A(1, [2], '3', 4)
     A(1, 2, 3, 4)  # E: Argument 2 to "A" has incompatible type "int"; expected "List[int]" # E: Argument 3 to "A" has incompatible type "int"; expected "str"
     A(1, [2], '3', 4, 5)  # E: Too many arguments for "A"
-    
+
 - case: testAttrsUntypedNoUntypedDefs
   mypy_config: |
      disallow_untyped_defs = True
@@ -107,7 +107,7 @@
         c = attr.ib(18)  # E: Need type annotation for 'c'
         _d = attr.ib(validator=None, default=18)   # E: Need type annotation for '_d'
         E = 18
-    
+
 - case: testAttrsWrongReturnValue
   main: |
     import attr
@@ -131,7 +131,7 @@
         x = attr.ib(8, type=int)
         def foo(self) -> str:
             return self.x  # E: Incompatible return value type (got "int", expected "str")
-    
+
 - case: testAttrsSeriousNames
   main: |
     from attr import attrib, attrs
@@ -148,7 +148,7 @@
     A(1, [2], '3', 4)
     A(1, 2, 3, 4)  # E: Argument 2 to "A" has incompatible type "int"; expected "List[int]"
     A(1, [2], '3', 4, 5)  # E: Too many arguments for "A"
-    
+
 - case: testAttrsDefaultErrors
   main: |
     import attr
@@ -168,11 +168,11 @@
     class D:
         x = attr.ib()
         y = attr.ib() # E: Non-default attributes not allowed after default attributes.
-    
+
         @x.default
         def foo(self):
             return 17
-    
+
 - case: testAttrsNotBooleans
   main: |
     import attr
@@ -180,7 +180,7 @@
     @attr.s(cmp=x)  # E: "cmp" argument must be True or False.
     class A:
         a = attr.ib(init=x)  # E: "init" argument must be True or False.
-    
+
 - case: testAttrsInitFalse
   main: |
     from attr import attrib, attrs
@@ -194,7 +194,7 @@
     A()
     A(1, [2])  # E: Too many arguments for "A"
     A(1, [2], '3', 4)  # E: Too many arguments for "A"
-    
+
 - case: testAttrsInitAttribFalse
   main: |
     from attr import attrib, attrs
@@ -203,7 +203,7 @@
         a = attrib(init=False)
         b = attrib()
     reveal_type(A)  # N: Revealed type is 'def (b: Any) -> main.A'
-    
+
 - case: testAttrsCmpTrue
   main: |
     from attr import attrib, attrs
@@ -215,28 +215,28 @@
     reveal_type(A.__le__)  # N: Revealed type is 'def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool'
     reveal_type(A.__gt__)  # N: Revealed type is 'def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool'
     reveal_type(A.__ge__)  # N: Revealed type is 'def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool'
-    
+
     A(1) < A(2)
     A(1) <= A(2)
     A(1) > A(2)
     A(1) >= A(2)
     A(1) == A(2)
     A(1) != A(2)
-    
+
     A(1) < 1  # E: Unsupported operand types for < ("A" and "int")
     A(1) <= 1  # E: Unsupported operand types for <= ("A" and "int")
     A(1) > 1  # E: Unsupported operand types for > ("A" and "int")
     A(1) >= 1  # E: Unsupported operand types for >= ("A" and "int")
     A(1) == 1
     A(1) != 1
-    
+
     1 < A(1)  # E: Unsupported operand types for < ("int" and "A")
     1 <= A(1)  # E: Unsupported operand types for <= ("int" and "A")
     1 > A(1)  # E: Unsupported operand types for > ("int" and "A")
     1 >= A(1)  # E: Unsupported operand types for >= ("int" and "A")
     1 == A(1)
     1 != A(1)
-    
+
 - case: testAttrsEqFalse
   main: |
     from attr import attrib, attrs
@@ -246,43 +246,14 @@
     reveal_type(A)  # N: Revealed type is 'def (a: builtins.int) -> main.A'
     reveal_type(A.__eq__)  # N: Revealed type is 'def (builtins.object, builtins.object) -> builtins.bool'
     reveal_type(A.__ne__)  # N: Revealed type is 'def (builtins.object, builtins.object) -> builtins.bool'
-    
+
     A(1) < A(2)  # E: Unsupported left operand type for < ("A")
     A(1) <= A(2)  # E: Unsupported left operand type for <= ("A")
     A(1) > A(2)  # E: Unsupported left operand type for > ("A")
     A(1) >= A(2)  # E: Unsupported left operand type for >= ("A")
     A(1) == A(2)
     A(1) != A(2)
-    
-    A(1) < 1  # E: Unsupported operand types for > ("int" and "A")
-    A(1) <= 1  # E: Unsupported operand types for >= ("int" and "A")
-    A(1) > 1  # E: Unsupported operand types for < ("int" and "A")
-    A(1) >= 1  # E: Unsupported operand types for <= ("int" and "A")
-    A(1) == 1
-    A(1) != 1
-    
-    1 < A(1)  # E: Unsupported operand types for < ("int" and "A")
-    1 <= A(1)  # E: Unsupported operand types for <= ("int" and "A")
-    1 > A(1)  # E: Unsupported operand types for > ("int" and "A")
-    1 >= A(1)  # E: Unsupported operand types for >= ("int" and "A")
-    1 == A(1)
-    1 != A(1)
-    
-- case: testAttrsOrderFalse
-  main: |
-    from attr import attrib, attrs
-    @attrs(auto_attribs=True, order=False)
-    class A:
-        a: int
-    reveal_type(A)  # N: Revealed type is 'def (a: builtins.int) -> main.A'
-    
-    A(1) < A(2)  # E: Unsupported left operand type for < ("A")
-    A(1) <= A(2)  # E: Unsupported left operand type for <= ("A")
-    A(1) > A(2)  # E: Unsupported left operand type for > ("A")
-    A(1) >= A(2)  # E: Unsupported left operand type for >= ("A")
-    A(1) == A(2)
-    A(1) != A(2)
-    
+
     A(1) < 1  # E: Unsupported operand types for > ("int" and "A")
     A(1) <= 1  # E: Unsupported operand types for >= ("int" and "A")
     A(1) > 1  # E: Unsupported operand types for < ("int" and "A")
@@ -296,27 +267,56 @@
     1 >= A(1)  # E: Unsupported operand types for >= ("int" and "A")
     1 == A(1)
     1 != A(1)
-    
+
+- case: testAttrsOrderFalse
+  main: |
+    from attr import attrib, attrs
+    @attrs(auto_attribs=True, order=False)
+    class A:
+        a: int
+    reveal_type(A)  # N: Revealed type is 'def (a: builtins.int) -> main.A'
+
+    A(1) < A(2)  # E: Unsupported left operand type for < ("A")
+    A(1) <= A(2)  # E: Unsupported left operand type for <= ("A")
+    A(1) > A(2)  # E: Unsupported left operand type for > ("A")
+    A(1) >= A(2)  # E: Unsupported left operand type for >= ("A")
+    A(1) == A(2)
+    A(1) != A(2)
+
+    A(1) < 1  # E: Unsupported operand types for > ("int" and "A")
+    A(1) <= 1  # E: Unsupported operand types for >= ("int" and "A")
+    A(1) > 1  # E: Unsupported operand types for < ("int" and "A")
+    A(1) >= 1  # E: Unsupported operand types for <= ("int" and "A")
+    A(1) == 1
+    A(1) != 1
+
+    1 < A(1)  # E: Unsupported operand types for < ("int" and "A")
+    1 <= A(1)  # E: Unsupported operand types for <= ("int" and "A")
+    1 > A(1)  # E: Unsupported operand types for > ("int" and "A")
+    1 >= A(1)  # E: Unsupported operand types for >= ("int" and "A")
+    1 == A(1)
+    1 != A(1)
+
 - case: testAttrsCmpEqOrderValues
   main: |
     from attr import attrib, attrs
     @attrs(cmp=True)
     class DeprecatedTrue:
        ...
-    
+
     @attrs(cmp=False)
     class DeprecatedFalse:
        ...
-    
+
     @attrs(cmp=False, eq=True)  # E: Don't mix `cmp` with `eq' and `order`
     class Mixed:
        ...
-    
+
     @attrs(order=True, eq=False)  # E: eq must be True if order is True
     class Confused:
        ...
-    
-    
+
+
 - case: testAttrsInheritance
   main: |
     import attr
@@ -330,7 +330,7 @@
     class C(A, B):
         c: bool = attr.ib()
     reveal_type(C)  # N: Revealed type is 'def (a: builtins.int, b: builtins.str, c: builtins.bool) -> main.C'
-    
+
 - case: testAttrsNestedInClasses
   main: |
     import attr
@@ -342,54 +342,54 @@
             x: int = attr.ib()
     reveal_type(C)  # N: Revealed type is 'def (y: Any) -> main.C'
     reveal_type(C.D)  # N: Revealed type is 'def (x: builtins.int) -> main.C.D'
-    
+
 - case: testAttrsInheritanceOverride
   main: |
     import attr
-    
+
     @attr.s
     class A:
         a: int = attr.ib()
         x: int = attr.ib()
-    
+
     @attr.s
     class B(A):
         b: str = attr.ib()
         x: int = attr.ib(default=22)
-    
+
     @attr.s
     class C(B):
         c: bool = attr.ib()  # No error here because the x below overwrites the x above.
         x: int = attr.ib()
-    
+
     reveal_type(A)  # N: Revealed type is 'def (a: builtins.int, x: builtins.int) -> main.A'
     reveal_type(B)  # N: Revealed type is 'def (a: builtins.int, b: builtins.str, x: builtins.int =) -> main.B'
     reveal_type(C)  # N: Revealed type is 'def (a: builtins.int, b: builtins.str, c: builtins.bool, x: builtins.int) -> main.C'
-    
+
 - case: testAttrsTypeEquals
   main: |
     import attr
-    
+
     @attr.s
     class A:
         a = attr.ib(type=int)
         b = attr.ib(18, type=int)
     reveal_type(A) # N: Revealed type is 'def (a: builtins.int, b: builtins.int =) -> main.A'
-    
+
 - case: testAttrsFrozen
   main: |
     import attr
-    
+
     @attr.s(frozen=True)
     class A:
         a = attr.ib()
-    
+
     a = A(5)
     a.a = 16  # E: Property "a" defined in "A" is read-only
 - case: testAttrsNextGenFrozen
   main: |
     from attr import frozen, field
-    
+
     @frozen
     class A:
         a = field()
@@ -398,24 +398,24 @@
     a = A(5)  # E: Too many arguments for "A"
     # The error should be Property "a" defined in "A" is read-only
     a.a = 16
-    
+
 - case: testAttrsNextGenDetect
   main: |
     from attr import define, field
-    
+
     @define
     class A:
         a = field()
-    
+
     @define
     class B:
         a: int
-    
+
     @define
     class C:
         a: int = field()
         b = field()
-    
+
     @define
     class D:
         a: int
@@ -426,7 +426,7 @@
     reveal_type(B)  # N: Revealed type is 'def () -> main.B'
     reveal_type(C)  # N: Revealed type is 'def () -> main.C'
     reveal_type(D)  # N: Revealed type is 'def () -> main.D'
-    
+
 - case: testAttrsDataClass
   main: |
     import attr
@@ -441,7 +441,7 @@
         F: ClassVar[int] = 22
     reveal_type(A)  # N: Revealed type is 'def (a: builtins.int, b: builtins.list[builtins.str], c: builtins.str =, d: builtins.int =) -> main.A'
     A(1, ['2'])
-    
+
 - case: testAttrsTypeAlias
   main: |
     from typing import List
@@ -453,7 +453,7 @@
         x: Alias
         y: Alias2 = attr.ib()
     reveal_type(A) # N: Revealed type is 'def (x: builtins.list[builtins.int], y: builtins.list[builtins.str]) -> main.A'
-    
+
 - case: testAttrsGeneric
   main: |
     from typing import TypeVar, Generic, List
@@ -474,51 +474,51 @@
     reveal_type(a)  # N: Revealed type is 'main.A[builtins.int*]'
     reveal_type(a.x)  # N: Revealed type is 'builtins.list[builtins.int*]'
     reveal_type(a.y)  # N: Revealed type is 'builtins.int*'
-    
+
     A(['str'], 7)  # E: Cannot infer type argument 1 of "A"
     A([1], '2')  # E: Cannot infer type argument 1 of "A"
-    
-    
+
+
 - case: testAttrsUntypedGenericInheritance
   main: |
     from typing import Generic, TypeVar
     import attr
-    
+
     T = TypeVar("T")
-    
+
     @attr.s(auto_attribs=True)
     class Base(Generic[T]):
         attr: T
-    
+
     @attr.s(auto_attribs=True)
     class Sub(Base):
         pass
-    
+
     sub = Sub(attr=1)
     reveal_type(sub)  # N: Revealed type is 'main.Sub'
     reveal_type(sub.attr)  # N: Revealed type is 'Any'
   skip: True # Need to investigate why this is broken
-    
+
 - case: testAttrsGenericInheritance
   main: |
     from typing import Generic, TypeVar
     import attr
-    
+
     S = TypeVar("S")
     T = TypeVar("T")
-    
+
     @attr.s(auto_attribs=True)
     class Base(Generic[T]):
         attr: T
-    
+
     @attr.s(auto_attribs=True)
     class Sub(Base[S]):
         pass
-    
+
     sub_int = Sub[int](attr=1)
     reveal_type(sub_int)  # N: Revealed type is 'main.Sub[builtins.int*]'
     reveal_type(sub_int.attr)  # N: Revealed type is 'builtins.int*'
-    
+
     sub_str = Sub[str](attr='ok')
     reveal_type(sub_str)  # N: Revealed type is 'main.Sub[builtins.str*]'
     reveal_type(sub_str.attr)  # N: Revealed type is 'builtins.str*'
@@ -589,7 +589,7 @@
         @classmethod
         def clsmeth(cls) -> None:
            reveal_type(cls)  # N: Revealed type is 'Type[main.A[T`1]]'
-    
+
 - case: testAttrsForwardReference
   main: |
     from typing import Optional
@@ -597,15 +597,15 @@
     @attr.s(auto_attribs=True)
     class A:
         parent: 'B'
-    
+
     @attr.s(auto_attribs=True)
     class B:
         parent: Optional[A]
-    
+
     reveal_type(A) # N: Revealed type is 'def (parent: main.B) -> main.A'
     reveal_type(B) # N: Revealed type is 'def (parent: Union[main.A, None]) -> main.B'
     A(B(None))
-    
+
 - case: testAttrsForwardReferenceInClass
   main: |
     from typing import Optional
@@ -613,15 +613,15 @@
     @attr.s(auto_attribs=True)
     class A:
         parent: A.B
-    
+
         @attr.s(auto_attribs=True)
         class B:
             parent: Optional[A]
-    
+
     reveal_type(A) # N: Revealed type is 'def (parent: main.A.B) -> main.A'
     reveal_type(A.B) # N: Revealed type is 'def (parent: Union[main.A, None]) -> main.A.B'
     A(A.B(None))
-    
+
 - case: testAttrsImporting
   main: |
     from helper import A
@@ -634,7 +634,7 @@
         class A:
            a: int
            b: str = attr.ib()
-    
+
 - case: testAttrsOtherMethods
   main: |
     import attr
@@ -654,38 +654,38 @@
     reveal_type(A)  # N: Revealed type is 'def (a: builtins.int, b: builtins.str) -> main.A'
     a = A.new()
     reveal_type(a.foo) # N: Revealed type is 'def () -> builtins.int'
-    
+
 - case: testAttrsOtherOverloads
   main: |
     import attr
     from typing import overload, Union
-    
+
     @attr.s
     class A:
         a = attr.ib()
         b = attr.ib(default=3)
-    
+
         @classmethod
         def other(cls) -> str:
             return "..."
-    
+
         @overload
         @classmethod
         def foo(cls, x: int) -> int: ...
-    
+
         @overload
         @classmethod
         def foo(cls, x: str) -> str: ...
-    
+
         @classmethod
         def foo(cls, x: Union[int, str]) -> Union[int, str]:
             reveal_type(cls)            # N: Revealed type is 'Type[main.A]'
             reveal_type(cls.other())    # N: Revealed type is 'builtins.str'
             return x
-    
+
     reveal_type(A.foo(3))      # N: Revealed type is 'builtins.int'
     reveal_type(A.foo("foo"))  # N: Revealed type is 'builtins.str'
-    
+
 - case: testAttrsDefaultDecorator
   main: |
     import attr
@@ -697,7 +697,7 @@
         def name_does_not_matter(self):
             return self.x + 1
     C()
-    
+
 - case: testAttrsValidatorDecorator
   main: |
     import attr
@@ -710,7 +710,7 @@
                 raise ValueError("x must be smaller or equal to 42")
     C(42)
     C(43)
-    
+
 - case: testAttrsLocalVariablesInClassMethod
   main: |
     import attr
@@ -723,39 +723,39 @@
            a = foo
            b = a
            return cls(a, b)
-    
+
 - case: testAttrsUnionForward
   main: |
     import attr
     from typing import Union, List
-    
+
     @attr.s(auto_attribs=True)
     class A:
         frob: List['AOrB']
-    
+
     class B:
        pass
-    
+
     AOrB = Union[A, B]
-    
+
     reveal_type(A)  # N: Revealed type is 'def (frob: builtins.list[Union[main.A, main.B]]) -> main.A'
     reveal_type(B)  # N: Revealed type is 'def () -> main.B'
-    
+
     A([B()])
 
 - case: testAttrsUsingConverter
   main: |
     import attr
     import helper
-    
+
     def converter2(s:int) -> str:
         return 'hello'
-    
+
     @attr.s
     class C:
         x: str = attr.ib(converter=helper.converter)
         y: str = attr.ib(converter=converter2)
-    
+
     # Because of the converter the __init__ takes an int, but the variable is a str.
     reveal_type(C)  # N: Revealed type is 'def (x: builtins.int, y: builtins.int) -> main.C'
     reveal_type(C(15, 16).x)  # N: Revealed type is 'builtins.str'
@@ -792,7 +792,7 @@
     main:16: error: Cannot determine __init__ type from converter
     main:16: error: Argument "converter" has incompatible type overloaded function; expected "Callable[[Any], Any]"
     main:17: note: Revealed type is 'def (bad: Any, bad_overloaded: Any) -> main.A'
-    
+
 - case: testAttrsUsingBadConverterReprocess
   mypy_config:
     strict_optional = False
@@ -821,7 +821,7 @@
     main:17: error: Cannot determine __init__ type from converter
     main:17: error: Argument "converter" has incompatible type overloaded function; expected "Callable[[Any], Any]"
     main:18: note: Revealed type is 'def (bad: Any, bad_overloaded: Any) -> main.A'
-    
+
 - case: testAttrsUsingUnsupportedConverter
   main: |
     import attr
@@ -837,44 +837,44 @@
         y: str = attr.ib(converter=lambda x: x)  # E: Unsupported converter, only named functions and types are currently supported
         z: str = attr.ib(converter=factory(8))   # E: Unsupported converter, only named functions and types are currently supported
     reveal_type(C)  # N: Revealed type is 'def (x: Any, y: Any, z: Any) -> main.C'
-    
+
 - case: testAttrsUsingConverterAndSubclass
   main: |
     import attr
-    
+
     def converter(s:int) -> str:
         return 'hello'
-    
+
     @attr.s
     class C:
         x: str = attr.ib(converter=converter)
-    
+
     @attr.s
     class A(C):
         pass
-    
+
     # Because of the convert the __init__ takes an int, but the variable is a str.
     reveal_type(A)  # N: Revealed type is 'def (x: builtins.int) -> main.A'
     reveal_type(A(15).x)  # N: Revealed type is 'builtins.str'
-    
+
 - case: testAttrsUsingConverterWithTypes
   main: |
     from typing import overload
     import attr
-    
+
     @attr.dataclass
     class A:
         x: str
-    
+
     @attr.s
     class C:
         x: complex = attr.ib(converter=complex)
         y: int = attr.ib(converter=int)
         z: A = attr.ib(converter=A)
-    
+
     o = C("1", "2", "3")
     o = C(1, 2, "3")
-    
+
 - case: testAttrsCmpWithSubclasses
   main: |
     import attr
@@ -886,31 +886,31 @@
     class C(A, B): pass
     @attr.s
     class D(A): pass
-    
+
     reveal_type(A.__lt__)  # N: Revealed type is 'def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool'
     reveal_type(B.__lt__)  # N: Revealed type is 'def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool'
     reveal_type(C.__lt__)  # N: Revealed type is 'def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool'
     reveal_type(D.__lt__)  # N: Revealed type is 'def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool'
-    
+
     A() < A()
     B() < B()
     A() < B() # E: Unsupported operand types for < ("A" and "B")
-    
+
     C() > A()
     C() > B()
     C() > C()
     C() > D() # E: Unsupported operand types for > ("C" and "D")
-    
+
     D() >= A()
     D() >= B()  # E: Unsupported operand types for >= ("D" and "B")
     D() >= C()  # E: Unsupported operand types for >= ("D" and "C")
     D() >= D()
-    
+
     A() <= 1  # E: Unsupported operand types for <= ("A" and "int")
     B() <= 1  # E: Unsupported operand types for <= ("B" and "int")
     C() <= 1  # E: Unsupported operand types for <= ("C" and "int")
     D() <= 1  # E: Unsupported operand types for <= ("D" and "int")
-    
+
 - case: testAttrsComplexSuperclass
   main: |
     import attr
@@ -926,7 +926,7 @@
         z: int = attr.ib(default=18)
     reveal_type(C)  # N: Revealed type is 'def (x: builtins.int =, y: builtins.int =) -> main.C'
     reveal_type(A)  # N: Revealed type is 'def (x: builtins.int =, y: builtins.int =, z: builtins.int =) -> main.A'
-    
+
 - case: testAttrsMultiAssign
   main: |
     import attr
@@ -934,14 +934,14 @@
     class A:
        x, y, z = attr.ib(), attr.ib(type=int), attr.ib(default=17)
     reveal_type(A) # N: Revealed type is 'def (x: Any, y: builtins.int, z: Any =) -> main.A'
-    
+
 - case: testAttrsMultiAssign2
   main: |
     import attr
     @attr.s
     class A:
        x = y = z = attr.ib()  # E: Too many names for one attribute
-    
+
 - case: testAttrsPrivateInit
   main: |
     import attr
@@ -950,7 +950,7 @@
         _x = attr.ib(init=False, default=42)
     C()
     C(_x=42)  # E: Unexpected keyword argument "_x" for "C"
-    
+
 - case: testAttrsAutoMustBeAll
   main: |
     import attr
@@ -962,7 +962,7 @@
        c = attr.ib()  # E: Need type annotation for 'c'
        d, e = attr.ib(), attr.ib() # E: Need type annotation for 'd' # E: Need type annotation for 'e'
        f = g = attr.ib()  # E: Need type annotation for 'f' # E: Need type annotation for 'g'
-    
+
 - case: testAttrsRepeatedName
   main: |
     import attr
@@ -984,7 +984,7 @@
        b: int
        a: int = attr.ib()  # E: Name 'a' already defined on line 16
     reveal_type(C)  # N: Revealed type is 'def (a: builtins.int, b: builtins.int) -> main.C'
-    
+
 - case: testAttrsNewStyleClassPy2
   mypy_config:
     python_version = 2.7
@@ -1011,41 +1011,41 @@
 - case: testAttrsFrozenSubclass
   main: |
     import attr
-    
+
     @attr.dataclass
     class NonFrozenBase:
         a: int
-    
+
     @attr.dataclass(frozen=True)
     class FrozenBase:
         a: int
-    
+
     @attr.dataclass(frozen=True)
     class FrozenNonFrozen(NonFrozenBase):
         b: int
-    
+
     @attr.dataclass(frozen=True)
     class FrozenFrozen(FrozenBase):
         b: int
-    
+
     @attr.dataclass
     class NonFrozenFrozen(FrozenBase):
         b: int
-    
+
     # Make sure these are untouched
     non_frozen_base = NonFrozenBase(1)
     non_frozen_base.a = 17
     frozen_base = FrozenBase(1)
     frozen_base.a = 17  # E: Property "a" defined in "FrozenBase" is read-only
-    
+
     a = FrozenNonFrozen(1, 2)
     a.a = 17  # E: Property "a" defined in "FrozenNonFrozen" is read-only
     a.b = 17  # E: Property "b" defined in "FrozenNonFrozen" is read-only
-    
+
     b = FrozenFrozen(1, 2)
     b.a = 17  # E: Property "a" defined in "FrozenFrozen" is read-only
     b.b = 17  # E: Property "b" defined in "FrozenFrozen" is read-only
-    
+
     c = NonFrozenFrozen(1, 2)
     c.a = 17  # E: Property "a" defined in "NonFrozenFrozen" is read-only
     c.b = 17  # E: Property "b" defined in "NonFrozenFrozen" is read-only
@@ -1055,24 +1055,24 @@
     import attr
     def blah(a: int, b: int) -> bool:
         return True
-    
+
     @attr.s(auto_attribs=True)
     class F:
         _cb: Callable[[int, int], bool] = blah
         def foo(self) -> bool:
             return self._cb(5, 6)
-    
+
     @attr.s
     class G:
         _cb: Callable[[int, int], bool] = attr.ib(blah)
         def foo(self) -> bool:
             return self._cb(5, 6)
-    
+
     @attr.s(auto_attribs=True, frozen=True)
     class FFrozen(F):
         def bar(self) -> bool:
             return self._cb(5, 6)
-    
+
 - case: testAttrsWithFactory
   main: |
     from typing import List
@@ -1084,14 +1084,14 @@
         x: List[int] = attr.ib(factory=list)
         y: int = attr.ib(factory=my_factory)
     A()
-    
+
 - case: testAttrsFactoryAndDefault
   main: |
     import attr
     @attr.s
     class A:
         x: int = attr.ib(factory=int, default=7)  # E: Can't pass both `default` and `factory`.
-    
+
 - case: testAttrsFactoryBadReturn
   main: |
     import attr
@@ -1101,11 +1101,11 @@
     class A:
         x: int = attr.ib(factory=list)  # E: Incompatible types in assignment (expression has type "List[_T]", variable has type "int")
         y: str = attr.ib(factory=my_factory) # E: Incompatible types in assignment (expression has type "int", variable has type "str")
-    
+
 - case: testAttrsDefaultAndInit
   main: |
     import attr
-    
+
     @attr.s
     class C:
        a = attr.ib(init=False, default=42)
@@ -1113,38 +1113,38 @@
        c = attr.ib(default=44)
        d = attr.ib(init=False)  # Ok because this attribute is init=False
        e = attr.ib()  # E: Non-default attributes not allowed after default attributes.
-    
+
 - case: testAttrsOptionalConverter
   main: |
     # flags: --strict-optional
     import attr
     from attr.converters import optional
     from typing import Optional
-    
+
     def converter(s:int) -> str:
         return 'hello'
-    
-    
+
+
     @attr.s
     class A:
         y: Optional[int] = attr.ib(converter=optional(int))
         z: Optional[str] = attr.ib(converter=optional(converter))
-    
-    
+
+
     A(None, None)
-    
+
 - case: testAttrsTypeVarNoCollision
   main: |
     from typing import TypeVar, Generic
     import attr
-    
+
     T = TypeVar("T", bytes, str)
-    
+
     # Make sure the generated __le__ (and friends) don't use T for their arguments.
     @attr.s(auto_attribs=True)
     class A(Generic[T]):
         v: T
-    
+
 - case: testAttrsKwOnlyAttrib
   main: |
     import attr
@@ -1154,7 +1154,7 @@
     A()  # E: Missing named argument "a" for "A"
     A(15) # E: Too many positional arguments for "A"
     A(a=15)
-    
+
 - case: testAttrsKwOnlyClass
   main: |
     import attr
@@ -1164,7 +1164,7 @@
         b: bool
     A()  # E: Missing named argument "a" for "A" # E: Missing named argument "b" for "A"
     A(b=True, a=15)
-    
+
 - case: testAttrsKwOnlyClassNoInit
   main: |
     import attr
@@ -1173,7 +1173,7 @@
         a = attr.ib(init=False)
         b = attr.ib()
     B(b=True)
-    
+
 - case: testAttrsKwOnlyWithDefault
   main: |
     import attr
@@ -1183,7 +1183,7 @@
         b = attr.ib(kw_only=True)
         c = attr.ib(16, kw_only=True)
     C(b=17)
-    
+
 - case: testAttrsKwOnlyClassWithMixedDefaults
   main: |
     import attr
@@ -1193,8 +1193,8 @@
         b = attr.ib()
         c = attr.ib(15)
     D(b=17)
-    
-    
+
+
 - case: testAttrsKwOnlySubclass
   main: |
     import attr
@@ -1205,7 +1205,7 @@
     class B2(A2):
         b = attr.ib(kw_only=True)
     B2(b=1)
-    
+
 - case: testAttrsNonKwOnlyAfterKwOnly
   main: |
     import attr
@@ -1219,7 +1219,7 @@
     class C:
         a = attr.ib(kw_only=True)
         b = attr.ib(15)
-    
+
 - case: testAttrsKwOnlyPy2
   mypy_config:
     python_version=2.7
@@ -1238,32 +1238,32 @@
     # flags: --disallow-untyped-defs
     import attr
     from typing import List
-    
+
     @attr.s
     class B:
         x: C = attr.ib()
-    
+
     class C(List[C]):
         pass
-    
+
     reveal_type(B)  # N: Revealed type is 'def (x: main.C) -> main.B'
-    
+
 - case: testDisallowUntypedWorksForwardBad
   mypy_config:
     disallow_untyped_defs = True
   main: |
     import attr
-    
+
     @attr.s
     class B:
         x = attr.ib()  # E: Need type annotation for 'x'
-    
+
     reveal_type(B)  # N: Revealed type is 'def (x: Any) -> main.B'
-    
+
 - case: testAttrsDefaultDecoratorDeferred
   main: |
     defer: Yes
-    
+
     import attr
     @attr.s
     class C(object):
@@ -1272,13 +1272,13 @@
         @y.default
         def inc(self):
             return self.x + 1
-    
+
     class Yes: ...
-    
+
 - case: testAttrsValidatorDecoratorDeferred
   main: |
     defer: Yes
-    
+
     import attr
     @attr.s
     class C(object):
@@ -1289,53 +1289,53 @@
                 raise ValueError("x must be smaller or equal to 42")
     C(42)
     C(43)
-    
+
     class Yes: ...
-    
+
 - case: testTypeInAttrUndefined
   main: |
     import attr
-    
+
     @attr.s
     class C:
         total = attr.ib(type=Bad)  # E: Name 'Bad' is not defined
-    
+
 - case: testTypeInAttrForwardInRuntime
   main: |
     import attr
-    
+
     @attr.s
     class C:
         total = attr.ib(type=Forward)
-    
+
     reveal_type(C.total)  # N: Revealed type is 'main.Forward'
     C('no')  # E: Argument 1 to "C" has incompatible type "str"; expected "Forward"
     class Forward: ...
-    
+
 - case: testDefaultInAttrForward
   main: |
     import attr
-    
+
     @attr.s
     class C:
         total = attr.ib(default=func())
-    
+
     def func() -> int: ...
-    
+
     C()
     C(1)
     C(1, 2)  # E: Too many arguments for "C"
-    
+
 - case: testTypeInAttrUndefinedFrozen
   main: |
     import attr
-    
+
     @attr.s(frozen=True)
     class C:
         total = attr.ib(type=Bad)  # E: Name 'Bad' is not defined
-    
+
     C(0).total = 1  # E: Property "total" defined in "C" is read-only
-    
+
 - case: testTypeInAttrDeferredStar
   main: |
     import lib
@@ -1356,7 +1356,7 @@
     - path: other.py
       content: |
         import lib
-    
+
 - case: testAttrsDefaultsMroOtherFile
   main: |
     import a
@@ -1380,18 +1380,18 @@
         @attr.s
         class A2:
             b: int = attr.ib()
-    
+
 - case: testAttrsInheritanceNoAnnotation
   main: |
     import attr
-    
+
     @attr.s
     class A:
         foo = attr.ib()  # type: int
-    
+
     x = 0
     @attr.s
     class B(A):
         foo = x
-    
+
     reveal_type(B)  # N: Revealed type is 'def (foo: builtins.int) -> main.B'
