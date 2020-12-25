@@ -120,9 +120,16 @@ class TestNextGen:
         @attr.define
         class NewSchool:
             x: int
-            y: list = attr.field(factory=list)
+            y: list = attr.field()
 
-        assert NewSchool(1) == NewSchool(1, [])
+            @y.validator
+            def _validate_y(self, attribute, value):
+                if value < 0:
+                    raise ValueError("y must be positive")
+
+        assert NewSchool(1, 1) == NewSchool(1, 1)
+        with pytest.raises(ValueError):
+            NewSchool(1, -1)
         assert list(attr.fields_dict(NewSchool).keys()) == ["x", "y"]
 
     def test_auto_attribs_partially_annotated(self):
@@ -143,7 +150,6 @@ class TestNextGen:
         # while the unannotated attributes are left as class vars
         assert NewSchool.z == 10
         assert "z" in NewSchool.__dict__
-
 
     def test_auto_attribs_detect_annotations(self):
         """
