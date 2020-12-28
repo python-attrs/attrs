@@ -23,6 +23,8 @@ exclude_lines = [
 [tool.black]
 line-length = 79
 
+[tool.pytest.ini_options]
+addopts = "--mypy-ini-file=mypy-pytest.ini"
 
 [tool.interrogate]
 verbose = 2

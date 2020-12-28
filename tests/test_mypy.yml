@@ -394,10 +394,8 @@
     class A:
         a = field()
 
-    # TODO: Next Gen hasn't shipped with mypy yet so the following doesn't work
-    a = A(5)  # E: Too many arguments for "A"
-    # The error should be Property "a" defined in "A" is read-only
-    a.a = 16
+    a = A(5)
+    a.a = 16 # E: Property "a" defined in "A" is read-only
 
 - case: testAttrsNextGenDetect
   main: |
@@ -421,11 +419,10 @@
         a: int
         b = field()
 
-    # TODO: Next Gen hasn't shipped with mypy yet so the following are wrong
-    reveal_type(A)  # N: Revealed type is 'def () -> main.A'
-    reveal_type(B)  # N: Revealed type is 'def () -> main.B'
-    reveal_type(C)  # N: Revealed type is 'def () -> main.C'
-    reveal_type(D)  # N: Revealed type is 'def () -> main.D'
+    reveal_type(A)  # N: Revealed type is 'def (a: Any) -> main.A'
+    reveal_type(B)  # N: Revealed type is 'def (a: builtins.int) -> main.B'
+    reveal_type(C)  # N: Revealed type is 'def (a: builtins.int, b: Any) -> main.C'
+    reveal_type(D)  # N: Revealed type is 'def (b: Any) -> main.D'
 
 - case: testAttrsDataClass
   main: |
