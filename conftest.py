@@ -12,6 +12,9 @@ def pytest_configure(config):
     )
     settings.load_profile("patience")
 
+    # Use this mypy file for the tests.
+    config.option.mypy_ini_file = "mypy-pytest.ini"
+
 
 collect_ignore = []
 if sys.version_info[:2] < (3, 6):
