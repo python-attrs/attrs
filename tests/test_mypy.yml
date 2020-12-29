@@ -494,7 +494,6 @@
     sub = Sub(attr=1)
     reveal_type(sub)  # N: Revealed type is 'main.Sub'
     reveal_type(sub.attr)  # N: Revealed type is 'Any'
-  skip: True # Need to investigate why this is broken
 
 - case: testAttrsGenericInheritance
   main: |
@@ -544,7 +543,6 @@
     reveal_type(sub.one)  # N: Revealed type is 'builtins.int*'
     reveal_type(sub.two)  # N: Revealed type is 'builtins.str*'
     reveal_type(sub.three)  # N: Revealed type is 'builtins.float*'
-  skip: True # Need to investigate why this is broken
 
 - case: testAttrsMultiGenericInheritance
   main: |
@@ -567,13 +565,10 @@
     class Sub(Middle[str]):
         pass
 
-    reveal_type(Sub.__init__)
-
     sub = Sub(base_attr=1, middle_attr='ok')
     reveal_type(sub)  # N: Revealed type is 'main.Sub'
     reveal_type(sub.base_attr)  # N: Revealed type is 'builtins.int*'
     reveal_type(sub.middle_attr)  # N: Revealed type is 'builtins.str*'
-  skip: True # Need to investigate why this is broken
 
 - case: testAttrsGenericClassmethod
   main: |
