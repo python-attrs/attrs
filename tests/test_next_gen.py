@@ -112,6 +112,45 @@ class TestNextGen:
 
         assert OldSchool2(1) == OldSchool2(1)
 
+    def test_auto_attribs_detect_fields_and_annotations(self):
+        """
+        define infers auto_attribs=True if fields have type annotations
+        """
+
+        @attr.define
+        class NewSchool:
+            x: int
+            y: list = attr.field()
+
+            @y.validator
+            def _validate_y(self, attribute, value):
+                if value < 0:
+                    raise ValueError("y must be positive")
+
+        assert NewSchool(1, 1) == NewSchool(1, 1)
+        with pytest.raises(ValueError):
+            NewSchool(1, -1)
+        assert list(attr.fields_dict(NewSchool).keys()) == ["x", "y"]
+
+    def test_auto_attribs_partially_annotated(self):
+        """
+        define infers auto_attribs=True if any type annotations are found
+        """
+
+        @attr.define
+        class NewSchool:
+            x: int
+            y: list
+            z = 10
+
+        # fields are defined for any annotated attributes
+        assert NewSchool(1, []) == NewSchool(1, [])
+        assert list(attr.fields_dict(NewSchool).keys()) == ["x", "y"]
+
+        # while the unannotated attributes are left as class vars
+        assert NewSchool.z == 10
+        assert "z" in NewSchool.__dict__
+
     def test_auto_attribs_detect_annotations(self):
         """
         define correctly detects if a class has type annotations.
