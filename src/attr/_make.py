@@ -57,6 +57,8 @@ class _Nothing(object):
     Sentinel class to indicate the lack of a value when ``None`` is ambiguous.
 
     ``_Nothing`` is a singleton. There is only ever one of it.
+
+    .. versionchanged:: 21.1.0 ``bool(NOTHING)`` is now False.
     """
 
     _singleton = None
