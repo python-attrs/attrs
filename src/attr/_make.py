@@ -795,6 +795,10 @@ class _ClassBuilder(object):
                 # Class- and staticmethods hide their functions inside.
                 # These might need to be rewritten as well.
                 closure_cells = getattr(item.__func__, "__closure__", None)
+            elif isinstance(item, property):
+                # Workaround for property `super()` shortcut (PY3-only).
+                # There is no universal way for other descriptors.
+                closure_cells = getattr(item.fget, "__closure__", None)
             else:
                 closure_cells = getattr(item, "__closure__", None)
 

@@ -1,0 +1,1 @@
+Fixed ``TypeError`` when using properties, ``super()``, and ``slots=True``.
