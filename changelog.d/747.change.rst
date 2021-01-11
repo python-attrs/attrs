@@ -1,1 +1,1 @@
-Fixed ``TypeError`` when using properties, ``super()``, and ``slots=True``.
+It's now possible to use ``super()`` inside of properties of slotted classes.

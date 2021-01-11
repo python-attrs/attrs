@@ -693,7 +693,7 @@ class TestPickle(object):
 
 def test_slots_super_property_get():
     """
-    In Python 2/3: the `super(self.__class__, self)`.
+    On Python 2/3: the `super(self.__class__, self)` works.
     """
 
     @attr.s(slots=True)
@@ -717,7 +717,7 @@ def test_slots_super_property_get():
 @pytest.mark.skipif(PY2, reason="shortcut super() is PY3-only.")
 def test_slots_super_property_get_shurtcut():
     """
-    In Python 3, the `super()` shortcut is allowed.
+    On Python 3, the `super()` shortcut is allowed.
     """
 
     @attr.s(slots=True)
