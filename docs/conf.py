@@ -88,9 +88,6 @@ default_role = "any"
 # If true, '()' will be appended to :func: etc. cross-reference text.
 add_function_parentheses = True
 
-# The name of the Pygments (syntax highlighting) style to use.
-pygments_style = "sphinx"
-
 # -- Options for HTML output ----------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for

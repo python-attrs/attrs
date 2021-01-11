@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
 import copy
+import inspect
 import linecache
 import sys
 import threading
@@ -26,6 +27,10 @@ from .exceptions import (
     PythonTooOldError,
     UnannotatedAttributeError,
 )
+
+
+if not PY2:
+    import typing
 
 
 # This is used at least twice, so cache it here.
@@ -54,6 +59,8 @@ class _Nothing(object):
     Sentinel class to indicate the lack of a value when ``None`` is ambiguous.
 
     ``_Nothing`` is a singleton. There is only ever one of it.
+
+    .. versionchanged:: 21.1.0 ``bool(NOTHING)`` is now False.
     """
 
     _singleton = None
@@ -65,6 +72,12 @@ class _Nothing(object):
 
     def __repr__(self):
         return "NOTHING"
+
+    def __bool__(self):
+        return False
+
+    def __len__(self):
+        return 0  # __bool__ for Python 2
 
 
 NOTHING = _Nothing()
@@ -700,7 +713,6 @@ class _ClassBuilder(object):
         """
         Build and return a new class with a `__slots__` attribute.
         """
-        base_names = self._base_names
         cd = {
             k: v
             for k, v in iteritems(self._cls_dict)
@@ -724,12 +736,21 @@ class _ClassBuilder(object):
                         cd["__setattr__"] = object.__setattr__
                         break
 
-        # Traverse the MRO to check for an existing __weakref__.
+        # Traverse the MRO to collect existing slots
+        # and check for an existing __weakref__.
+        existing_slots = dict()
         weakref_inherited = False
         for base_cls in self._cls.__mro__[1:-1]:
             if base_cls.__dict__.get("__weakref__", None) is not None:
                 weakref_inherited = True
-                break
+            existing_slots.update(
+                {
+                    name: getattr(base_cls, name)
+                    for name in getattr(base_cls, "__slots__", [])
+                }
+            )
+
+        base_names = set(self._base_names)
 
         names = self._attr_names
         if (
@@ -743,6 +764,17 @@ class _ClassBuilder(object):
         # We only add the names of attributes that aren't inherited.
         # Setting __slots__ to inherited attributes wastes memory.
         slot_names = [name for name in names if name not in base_names]
+        # There are slots for attributes from current class
+        # that are defined in parent classes.
+        # As their descriptors may be overriden by a child class,
+        # we collect them here and update the class dict
+        reused_slots = {
+            slot: slot_descriptor
+            for slot, slot_descriptor in iteritems(existing_slots)
+            if slot in slot_names
+        }
+        slot_names = [name for name in slot_names if name not in reused_slots]
+        cd.update(reused_slots)
         if self._cache_hash:
             slot_names.append(_hash_cache_field)
         cd["__slots__"] = tuple(slot_names)
@@ -765,6 +797,10 @@ class _ClassBuilder(object):
                 # Class- and staticmethods hide their functions inside.
                 # These might need to be rewritten as well.
                 closure_cells = getattr(item.__func__, "__closure__", None)
+            elif isinstance(item, property):
+                # Workaround for property `super()` shortcut (PY3-only).
+                # There is no universal way for other descriptors.
+                closure_cells = getattr(item.fget, "__closure__", None)
             else:
                 closure_cells = getattr(item, "__closure__", None)
 
@@ -2243,8 +2279,24 @@ def _attrs_to_init_script(
             else:
                 lines.append(fmt_setter(attr_name, arg_name, has_on_setattr))
 
-        if a.init is True and a.converter is None and a.type is not None:
-            annotations[arg_name] = a.type
+        if a.init is True:
+            if a.type is not None and a.converter is None:
+                annotations[arg_name] = a.type
+            elif a.converter is not None and not PY2:
+                # Try to get the type from the converter.
+                sig = None
+                try:
+                    sig = inspect.signature(a.converter)
+                except (ValueError, TypeError):  # inspect failed
+                    pass
+                if sig:
+                    sig_params = list(sig.parameters.values())
+                    if (
+                        sig_params
+                        and sig_params[0].annotation
+                        is not inspect.Parameter.empty
+                    ):
+                        annotations[arg_name] = sig_params[0].annotation
 
     if attrs_to_validate:  # we can skip this if there are no validators.
         names_for_globals["_config"] = _config
@@ -2790,6 +2842,9 @@ def pipe(*converters):
     When called on a value, it runs all wrapped converters, returning the
     *last* value.
 
+    Type annotations will be inferred from the wrapped converters', if
+    they have any.
+
     :param callables converters: Arbitrary number of converters.
 
     .. versionadded:: 20.1.0
@@ -2800,5 +2855,37 @@ def pipe(*converters):
             val = converter(val)
 
         return val
+
+    if not PY2:
+        if not converters:
+            # If the converter list is empty, pipe_converter is the identity.
+            A = typing.TypeVar("A")
+            pipe_converter.__annotations__ = {"val": A, "return": A}
+        else:
+            # Get parameter type.
+            sig = None
+            try:
+                sig = inspect.signature(converters[0])
+            except (ValueError, TypeError):  # inspect failed
+                pass
+            if sig:
+                params = list(sig.parameters.values())
+                if (
+                    params
+                    and params[0].annotation is not inspect.Parameter.empty
+                ):
+                    pipe_converter.__annotations__["val"] = params[
+                        0
+                    ].annotation
+            # Get return type.
+            sig = None
+            try:
+                sig = inspect.signature(converters[-1])
+            except (ValueError, TypeError):  # inspect failed
+                pass
+            if sig and sig.return_annotation is not inspect.Signature().empty:
+                pipe_converter.__annotations__[
+                    "return"
+                ] = sig.return_annotation
 
     return pipe_converter

@@ -1,0 +1,1 @@
+``bool(attr.NOTHING)`` is now ``False``.
