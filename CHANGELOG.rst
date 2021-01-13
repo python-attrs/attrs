@@ -15,6 +15,197 @@ Changes for the upcoming release can be found in the `"changelog.d" directory <h
 
 .. towncrier release notes start
 
+20.3.0 (2020-11-05)
+-------------------
+
+Backward-incompatible Changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- ``attr.define()``, ``attr.frozen()``, ``attr.mutable()``, and ``attr.field()`` remain **provisional**.
+
+  This release does **not** change change anything about them and they are already used widely in production though.
+
+  If you wish to use them together with mypy, you can simply drop `this plugin <https://gist.github.com/hynek/1e3844d0c99e479e716169034b5fa963#file-attrs_ng_plugin-py>`_ into your project.
+
+  Feel free to provide feedback to them in the linked issue #668.
+
+  We will release the ``attrs`` namespace once we have the feeling that the APIs have properly settled.
+  `#668 <https://github.com/python-attrs/attrs/issues/668>`_
+
+
+Changes
+^^^^^^^
+
+- ``attr.s()`` now has a *field_transformer* hook that is called for all ``Attribute``\ s and returns a (modified or updated) list of ``Attribute`` instances.
+  ``attr.asdict()`` has a *value_serializer* hook that can change the way values are converted.
+  Both hooks are meant to help with data (de-)serialization workflows.
+  `#653 <https://github.com/python-attrs/attrs/issues/653>`_
+- ``kw_only=True`` now works on Python 2.
+  `#700 <https://github.com/python-attrs/attrs/issues/700>`_
+- ``raise from`` now works on frozen classes on PyPy.
+  `#703 <https://github.com/python-attrs/attrs/issues/703>`_,
+  `#712 <https://github.com/python-attrs/attrs/issues/712>`_
+- ``attr.asdict()`` and ``attr.astuple()`` now treat ``frozenset``\ s like ``set``\ s with regards to the *retain_collection_types* argument.
+  `#704 <https://github.com/python-attrs/attrs/issues/704>`_
+- The type stubs for ``attr.s()`` and ``attr.make_class()`` are not missing the *collect_by_mro* argument anymore.
+  `#711 <https://github.com/python-attrs/attrs/issues/711>`_
+
+
+----
+
+
+20.2.0 (2020-09-05)
+-------------------
+
+Backward-incompatible Changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- ``attr.define()``, ``attr.frozen()``, ``attr.mutable()``, and ``attr.field()`` remain **provisional**.
+
+  This release fixes a bunch of bugs and ergonomics but they remain mostly unchanged.
+
+  If you wish to use them together with mypy, you can simply drop `this plugin <https://gist.github.com/hynek/1e3844d0c99e479e716169034b5fa963#file-attrs_ng_plugin-py>`_ into your project.
+
+  Feel free to provide feedback to them in the linked issue #668.
+
+  We will release the ``attrs`` namespace once we have the feeling that the APIs have properly settled.
+  `#668 <https://github.com/python-attrs/attrs/issues/668>`_
+
+
+Changes
+^^^^^^^
+
+- ``attr.define()`` et al now correct detect ``__eq__`` and ``__ne__``.
+  `#671 <https://github.com/python-attrs/attrs/issues/671>`_
+- ``attr.define()`` et al's hybrid behavior now also works correctly when arguments are passed.
+  `#675 <https://github.com/python-attrs/attrs/issues/675>`_
+- It's possible to define custom ``__setattr__`` methods on slotted classes again.
+  `#681 <https://github.com/python-attrs/attrs/issues/681>`_
+- In 20.1.0 we introduced the ``inherited`` attribute on the ``attr.Attribute`` class to differentiate attributes that have been inherited and those that have been defined directly on the class.
+
+  It has shown to be problematic to involve that attribute when comparing instances of ``attr.Attribute`` though, because when sub-classing, attributes from base classes are suddenly not equal to themselves in a super class.
+
+  Therefore the ``inherited`` attribute will now be ignored when hashing and comparing instances of ``attr.Attribute``.
+  `#684 <https://github.com/python-attrs/attrs/issues/684>`_
+- ``zope.interface`` is now a "soft dependency" when running the test suite; if ``zope.interface`` is not installed when running the test suite, the interface-related tests will be automatically skipped.
+  `#685 <https://github.com/python-attrs/attrs/issues/685>`_
+- The ergonomics of creating frozen classes using ``@define(frozen=True)`` and sub-classing frozen classes has been improved:
+  you don't have to set ``on_setattr=None`` anymore.
+  `#687 <https://github.com/python-attrs/attrs/issues/687>`_
+
+
+----
+
+
+20.1.0 (2020-08-20)
+-------------------
+
+Backward-incompatible Changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Python 3.4 is not supported anymore.
+  It has been unsupported by the Python core team for a while now, its PyPI downloads are negligible, and our CI provider removed it as a supported option.
+
+  It's very unlikely that ``attrs`` will break under 3.4 anytime soon, which is why we do *not* block its installation on Python 3.4.
+  But we don't test it anymore and will block it once someone reports breakage.
+  `#608 <https://github.com/python-attrs/attrs/issues/608>`_
+
+
+Deprecations
+^^^^^^^^^^^^
+
+- Less of a deprecation and more of a heads up: the next release of ``attrs`` will introduce an ``attrs`` namespace.
+  That means that you'll finally be able to run ``import attrs`` with new functions that aren't cute abbreviations and that will carry better defaults.
+
+  This should not break any of your code, because project-local packages have priority before installed ones.
+  If this is a problem for you for some reason, please report it to our bug tracker and we'll figure something out.
+
+  The old ``attr`` namespace isn't going anywhere and its defaults are not changing – this is a purely additive measure.
+  Please check out the linked issue for more details.
+
+  These new APIs have been added *provisionally* as part of #666 so you can try them out today and provide feedback.
+  Learn more in the `API docs <https://www.attrs.org/en/stable/api.html#provisional-apis>`_.
+  `#408 <https://github.com/python-attrs/attrs/issues/408>`_
+
+
+Changes
+^^^^^^^
+
+- Added ``attr.resolve_types()``.
+  It ensures that all forward-references and types in string form are resolved into concrete types.
+
+  You need this only if you need concrete types at runtime.
+  That means that if you only use types for static type checking, you do **not** need this function.
+  `#288 <https://github.com/python-attrs/attrs/issues/288>`_,
+  `#302 <https://github.com/python-attrs/attrs/issues/302>`_
+- Added ``@attr.s(collect_by_mro=False)`` argument that if set to ``True`` fixes the collection of attributes from base classes.
+
+  It's only necessary for certain cases of multiple-inheritance but is kept off for now for backward-compatibility reasons.
+  It will be turned on by default in the future.
+
+  As a side-effect, ``attr.Attribute`` now *always* has an ``inherited`` attribute indicating whether an attribute on a class was directly defined or inherited.
+  `#428 <https://github.com/python-attrs/attrs/issues/428>`_,
+  `#635 <https://github.com/python-attrs/attrs/issues/635>`_
+- On Python 3, all generated methods now have a docstring explaining that they have been created by ``attrs``.
+  `#506 <https://github.com/python-attrs/attrs/issues/506>`_
+- It is now possible to prevent ``attrs`` from auto-generating the ``__setstate__`` and ``__getstate__`` methods that are required for pickling of slotted classes.
+
+  Either pass ``@attr.s(getstate_setstate=False)`` or pass ``@attr.s(auto_detect=True)`` and implement them yourself:
+  if ``attrs`` finds either of the two methods directly on the decorated class, it assumes implicitly ``getstate_setstate=False`` (and implements neither).
+
+  This option works with dict classes but should never be necessary.
+  `#512 <https://github.com/python-attrs/attrs/issues/512>`_,
+  `#513 <https://github.com/python-attrs/attrs/issues/513>`_,
+  `#642 <https://github.com/python-attrs/attrs/issues/642>`_
+- Fixed a ``ValueError: Cell is empty`` bug that could happen in some rare edge cases.
+  `#590 <https://github.com/python-attrs/attrs/issues/590>`_
+- ``attrs`` can now automatically detect your own implementations and infer ``init=False``, ``repr=False``, ``eq=False``, ``order=False``, and ``hash=False`` if you set ``@attr.s(auto_detect=True)``.
+  ``attrs`` will ignore inherited methods.
+  If the argument implies more than one method (e.g. ``eq=True`` creates both ``__eq__`` and ``__ne__``), it's enough for *one* of them to exist and ``attrs`` will create *neither*.
+
+  This feature requires Python 3.
+  `#607 <https://github.com/python-attrs/attrs/issues/607>`_
+- Added ``attr.converters.pipe()``.
+  The feature allows combining multiple conversion callbacks into one by piping the value through all of them, and retuning the last result.
+
+  As part of this feature, we had to relax the type information for converter callables.
+  `#618 <https://github.com/python-attrs/attrs/issues/618>`_
+- Fixed serialization behavior of non-slots classes with ``cache_hash=True``.
+  The hash cache will be cleared on operations which make "deep copies" of instances of classes with hash caching,
+  though the cache will not be cleared with shallow copies like those made by ``copy.copy()``.
+
+  Previously, ``copy.deepcopy()`` or serialization and deserialization with ``pickle`` would result in an un-initialized object.
+
+  This change also allows the creation of ``cache_hash=True`` classes with a custom ``__setstate__``,
+  which was previously forbidden (`#494 <https://github.com/python-attrs/attrs/issues/494>`_).
+  `#620 <https://github.com/python-attrs/attrs/issues/620>`_
+- It is now possible to specify hooks that are called whenever an attribute is set **after** a class has been instantiated.
+
+  You can pass ``on_setattr`` both to ``@attr.s()`` to set the default for all attributes on a class, and to ``@attr.ib()`` to overwrite it for individual attributes.
+
+  ``attrs`` also comes with a new module ``attr.setters`` that brings helpers that run validators, converters, or allow to freeze a subset of attributes.
+  `#645 <https://github.com/python-attrs/attrs/issues/645>`_,
+  `#660 <https://github.com/python-attrs/attrs/issues/660>`_
+- **Provisional** APIs called ``attr.define()``, ``attr.mutable()``, and ``attr.frozen()`` have been added.
+
+  They are only available on Python 3.6 and later, and call ``attr.s()`` with different default values.
+
+  If nothing comes up, they will become the official way for creating classes in 20.2.0 (see above).
+
+  **Please note** that it may take some time until mypy – and other tools that have dedicated support for ``attrs`` – recognize these new APIs.
+  Please **do not** open issues on our bug tracker, there is nothing we can do about it.
+  `#666 <https://github.com/python-attrs/attrs/issues/666>`_
+- We have also provisionally added ``attr.field()`` that supplants ``attr.ib()``.
+  It also requires at least Python 3.6 and is keyword-only.
+  Other than that, it only dropped a few arguments, but changed no defaults.
+
+  As with ``attr.s()``: ``attr.ib()`` is not going anywhere.
+  `#669 <https://github.com/python-attrs/attrs/issues/669>`_
+
+
+----
+
+
 19.3.0 (2019-10-15)
 -------------------
 

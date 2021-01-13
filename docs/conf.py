@@ -31,6 +31,10 @@ def find_version(*file_paths):
 
 # -- General configuration ------------------------------------------------
 
+linkcheck_ignore = [
+    r"https://github.com/.*/(issues|pull)/\d+",
+]
+
 # In nitpick mode (-n), still ignore any of the following "broken" references
 # to non-types.
 nitpick_ignore = [
@@ -84,23 +88,18 @@ default_role = "any"
 # If true, '()' will be appended to :func: etc. cross-reference text.
 add_function_parentheses = True
 
-# The name of the Pygments (syntax highlighting) style to use.
-pygments_style = "sphinx"
-
 # -- Options for HTML output ----------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 
-html_theme = "sphinx_rtd_theme"
+html_theme = "furo"
 html_theme_options = {
-    "canonical_url": "https://www.attrs.org/",
-    "logo_only": True,
+    "sidebar_hide_name": True,
+    "light_logo": "attrs_logo.svg",
+    "dark_logo": "attrs_logo_white.svg",
 }
 
-# The name of an image file (relative to this directory) to place at the top
-# of the sidebar.
-html_logo = "_static/attrs_logo_white.png"
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32

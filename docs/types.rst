@@ -35,7 +35,13 @@ Attributes that only carry a class annotation do not have that object so trying 
 
 Please note that types -- however added -- are *only metadata* that can be queried from the class and they aren't used for anything out of the box!
 
-In practice, their biggest usefulness shows in combination with mypy_ or pytype_ that both have dedicated support for ``attrs`` classes.
+Because Python does not allow references to a class object before the class is defined,
+types may be defined as string literals, so-called *forward references*.
+Also, starting in Python 3.10 (:pep:`526`) **all** annotations will be string literals.
+When this happens, ``attrs`` will simply put these string literals into the ``type`` attributes.
+If you need to resolve these to real types, you can call `attr.resolve_types` which will update the attribute in place.
+
+In practice though, types show their biggest usefulness in combination with tools like mypy_ or pytype_ that both have dedicated support for ``attrs`` classes.
 
 
 mypy

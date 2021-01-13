@@ -16,7 +16,15 @@ What follows is the API explanation, if you'd like a more hands-on introduction,
 Core
 ----
 
-.. autofunction:: attr.s(these=None, repr_ns=None, repr=None, cmp=None, hash=None, init=None, slots=False, frozen=False, weakref_slot=True, str=False, auto_attribs=False, kw_only=False, cache_hash=False, auto_exc=False, eq=None, order=None, auto_detect=False, collect_by_mro=False, getstate_setstate=None)
+
+.. warning::
+   As of ``attrs`` 20.1.0, it also ships with a bunch of provisional APIs that are intended to become the main way of defining classes in the future.
+
+   Please have a look at :ref:`prov`.
+
+.. autodata:: attr.NOTHING
+
+.. autofunction:: attr.s(these=None, repr_ns=None, repr=None, cmp=None, hash=None, init=None, slots=False, frozen=False, weakref_slot=True, str=False, auto_attribs=False, kw_only=False, cache_hash=False, auto_exc=False, eq=None, order=None, auto_detect=False, collect_by_mro=False, getstate_setstate=None, on_setattr=None, field_transformer=None)
 
    .. note::
 
@@ -85,15 +93,7 @@ Core
       ValueError: x must be positive
 
 .. autoclass:: attr.Attribute
-
-   Instances of this class are frequently used for introspection purposes like:
-
-   - `fields` returns a tuple of them.
-   - Validators get them passed as the first argument.
-
-   .. warning::
-
-       You should never instantiate this class yourself!
+   :members: evolve
 
    .. doctest::
 
@@ -102,7 +102,7 @@ Core
       ... class C(object):
       ...     x = attr.ib()
       >>> attr.fields(C).x
-      Attribute(name='x', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False)
+      Attribute(name='x', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False, on_setattr=None)
 
 
 .. autofunction:: attr.make_class
@@ -145,7 +145,9 @@ Exceptions
 ----------
 
 .. autoexception:: attr.exceptions.PythonTooOldError
+.. autoexception:: attr.exceptions.FrozenError
 .. autoexception:: attr.exceptions.FrozenInstanceError
+.. autoexception:: attr.exceptions.FrozenAttributeError
 .. autoexception:: attr.exceptions.AttrsAttributeNotFoundError
 .. autoexception:: attr.exceptions.NotAnAttrsClassError
 .. autoexception:: attr.exceptions.DefaultAlreadySetError
@@ -178,9 +180,9 @@ Helpers
       ...     x = attr.ib()
       ...     y = attr.ib()
       >>> attr.fields(C)
-      (Attribute(name='x', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False), Attribute(name='y', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False))
+      (Attribute(name='x', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False, on_setattr=None), Attribute(name='y', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False, on_setattr=None))
       >>> attr.fields(C)[1]
-      Attribute(name='y', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False)
+      Attribute(name='y', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False, on_setattr=None)
       >>> attr.fields(C).y is attr.fields(C)[1]
       True
 
@@ -195,9 +197,9 @@ Helpers
       ...     x = attr.ib()
       ...     y = attr.ib()
       >>> attr.fields_dict(C)
-      {'x': Attribute(name='x', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False), 'y': Attribute(name='y', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False)}
+      {'x': Attribute(name='x', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False, on_setattr=None), 'y': Attribute(name='y', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False, on_setattr=None)}
       >>> attr.fields_dict(C)['y']
-      Attribute(name='y', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False)
+      Attribute(name='y', default=NOTHING, validator=None, repr=True, eq=True, order=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False, on_setattr=None)
       >>> attr.fields_dict(C)['y'] is attr.fields(C).y
       True
 
@@ -216,6 +218,33 @@ Helpers
       >>> attr.has(object)
       False
 
+
+.. autofunction:: attr.resolve_types
+
+    For example:
+
+    .. doctest::
+
+        >>> import typing
+        >>> @attr.s(auto_attribs=True)
+        ... class A:
+        ...     a: typing.List['A']
+        ...     b: 'B'
+        ...
+        >>> @attr.s(auto_attribs=True)
+        ... class B:
+        ...     a: A
+        ...
+        >>> attr.fields(A).a.type
+        typing.List[ForwardRef('A')]
+        >>> attr.fields(A).b.type
+        'B'
+        >>> attr.resolve_types(A, globals(), locals())
+        <class 'A'>
+        >>> attr.fields(A).a.type
+        typing.List[A]
+        >>> attr.fields(A).b.type
+        <class 'B'>
 
 .. autofunction:: attr.asdict
 
@@ -244,7 +273,7 @@ Helpers
       >>> attr.astuple(C(1,2))
       (1, 2)
 
-``attrs`` includes some handy helpers for filtering:
+``attrs`` includes some handy helpers for filtering the attributes in `attr.asdict` and `attr.astuple`:
 
 .. autofunction:: attr.filters.include
 
@@ -477,13 +506,13 @@ Validators
 Converters
 ----------
 
-.. autofunction:: attr.converters.chain
+.. autofunction:: attr.converters.pipe
 
    For convenience, it's also possible to pass a list to `attr.ib`'s converter argument.
 
    Thus the following two statements are equivalent::
 
-      x = attr.ib(converter=attr.converter.chain(c1, c2, c3))
+      x = attr.ib(converter=attr.converter.pipe(c1, c2, c3))
       x = attr.ib(converter=[c1, c2, c3])
 
 .. autofunction:: attr.converters.optional
@@ -514,6 +543,86 @@ Converters
       ...     )
       >>> C(None)
       C(x='')
+
+
+.. _api_setters:
+
+Setters
+-------
+
+These are helpers that you can use together with `attr.s`'s and `attr.ib`'s ``on_setattr`` arguments.
+
+.. autofunction:: attr.setters.frozen
+.. autofunction:: attr.setters.validate
+.. autofunction:: attr.setters.convert
+.. autofunction:: attr.setters.pipe
+.. autodata:: attr.setters.NO_OP
+
+   For example, only ``x`` is frozen here:
+
+   .. doctest::
+
+     >>> @attr.s(on_setattr=attr.setters.frozen)
+     ... class C(object):
+     ...     x = attr.ib()
+     ...     y = attr.ib(on_setattr=attr.setters.NO_OP)
+     >>> c = C(1, 2)
+     >>> c.y = 3
+     >>> c.y
+     3
+     >>> c.x = 4
+     Traceback (most recent call last):
+         ...
+     attr.exceptions.FrozenAttributeError: ()
+
+   N.B. Please use `attr.s`'s *frozen* argument to freeze whole classes; it is more efficient.
+
+
+.. _prov:
+
+Provisional APIs
+----------------
+
+These are Python 3.6 and later-only, keyword-only, and **provisional** APIs that call `attr.s` with different default values.
+
+The most notable differences are:
+
+- automatically detect whether or not *auto_attribs* should be `True`
+- *slots=True*  (see :term:`slotted classes` for potentially surprising behaviors)
+- *auto_exc=True*
+- *auto_detect=True*
+- *eq=True*, but *order=False*
+- Validators run when you set an attribute (*on_setattr=attr.setters.validate*).
+- Some options that aren't relevant to Python 3 have been dropped.
+
+Please note that these are *defaults* and you're free to override them, just like before.
+
+----
+
+Their behavior is scheduled to become part of the upcoming ``import attrs`` that will introduce a new namespace  with nicer names and nicer defaults (see  `#408 <https://github.com/python-attrs/attrs/issues/408>`_ and `#487 <https://github.com/python-attrs/attrs/issues/487>`_).
+
+Therefore your constructive feedback in the linked issues above is strongly encouraged!
+
+.. note::
+   Provisional doesn't mean we will remove it (although it will be deprecated once the final form is released), but that it might change if we receive relevant feedback.
+
+   `attr.s` and `attr.ib` (and their serious business cousins) aren't going anywhere.
+   The new APIs build on top of them.
+
+.. autofunction:: attr.define
+.. function:: attr.mutable(same_as_define)
+
+   Alias for `attr.define`.
+
+   .. versionadded:: 20.1.0
+
+.. function:: attr.frozen(same_as_define)
+
+   Behaves the same as `attr.define` but sets *frozen=True* and *on_setattr=None*.
+
+   .. versionadded:: 20.1.0
+
+.. autofunction:: attr.field
 
 
 Deprecated APIs

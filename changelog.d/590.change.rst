@@ -1,1 +1,0 @@
-Fixed a ``ValueError: Cell is empty`` bug that could happen in some rare edge cases.

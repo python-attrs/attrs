@@ -99,7 +99,6 @@ This is when default values come into play:
 It's important that the decorated method -- or any other method or property! -- doesn't have the same name as the attribute, otherwise it would overwrite the attribute definition.
 You also cannot use type annotations to elide the `attr.ib` call for ``d`` as explained in `types`.
 
-
 Please note that as with function and method signatures, ``default=[]`` will *not* do what you may think it might do:
 
 .. doctest::
@@ -108,9 +107,9 @@ Please note that as with function and method signatures, ``default=[]`` will *no
    ... class C(object):
    ...     x = attr.ib(default=[])
    >>> i = C()
-   >>> j = C()
+   >>> k = C()
    >>> i.x.append(42)
-   >>> j.x
+   >>> k.x
    [42]
 
 
@@ -126,12 +125,12 @@ This is why ``attrs`` comes with factory options.
    Even the smartest of us can `get confused`_ by what happens if you pass partially initialized objects around.
 
 
- .. _validators:
+.. _validators:
 
 Validators
 ----------
 
-Another thing that definitely *does* belong into ``__init__`` is checking the resulting instance for invariants.
+Another thing that definitely *does* belong in ``__init__`` is checking the resulting instance for invariants.
 This is why ``attrs`` has the concept of validators.
 
 
@@ -300,6 +299,20 @@ Arguably, you can abuse converters as one-argument validators:
    Traceback (most recent call last):
        ...
    ValueError: invalid literal for int() with base 10: 'x'
+
+
+If a converter's first argument has a type annotation, that type will appear in the signature for ``__init__``.
+A converter will override an explicit type annotation or ``type`` argument.
+
+.. doctest::
+
+   >>> def str2int(x: str) -> int:
+   ...     return int(x)
+   >>> @attr.s
+   ... class C(object):
+   ...     x = attr.ib(converter=str2int)
+   >>> C.__init__.__annotations__
+   {'return': None, 'x': <class 'str'>}
 
 
 Post-Init Hook

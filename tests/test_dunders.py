@@ -68,6 +68,7 @@ def _add_init(cls, frozen):
         cache_hash=False,
         base_attr_map={},
         is_exc=False,
+        has_global_on_setattr=False,
     )
     return cls
 
@@ -527,7 +528,7 @@ class TestAddHash(object):
         Test that the default hash is recalculated after a copy operation.
         """
 
-        kwargs = dict(frozen=frozen, slots=slots, cache_hash=cache_hash,)
+        kwargs = dict(frozen=frozen, slots=slots, cache_hash=cache_hash)
 
         # Give it an explicit hash if we don't have an implicit one
         if not frozen:
@@ -806,6 +807,13 @@ class TestNothing(object):
         assert _Nothing() == _Nothing() == NOTHING
         assert not (_Nothing() != _Nothing())
         assert 1 != _Nothing()
+
+    def test_false(self):
+        """
+        NOTHING evaluates as falsey.
+        """
+        assert not NOTHING
+        assert False is bool(NOTHING)
 
 
 @attr.s(hash=True, order=True)
