@@ -52,7 +52,13 @@ This **static** approach was very much a design goal of ``attrs`` and what I str
 Immutability
 ------------
 
-In order to give you immutability, ``attrs`` will attach a ``__setattr__`` method to your class that raises a `attr.exceptions.FrozenInstanceError` whenever anyone tries to set an attribute.
+In order to give you immutability, ``attrs`` will attach a ``__setattr__`` method to your class that raises an `attr.exceptions.FrozenInstanceError` whenever anyone tries to set an attribute.
+
+The same is true if you choose to freeze individual attributes using the `attr.setters.frozen` *on_setattr* hook -- except that the exception becomes `attr.exceptions.FrozenAttributeError`.
+
+Both errors subclass `attr.exceptions.FrozenError`.
+
+-----
 
 Depending on whether a class is a dict class or a slotted class, ``attrs`` uses a different technique to circumvent that limitation in the ``__init__`` method.
 
@@ -88,7 +94,7 @@ This is (still) slower than a plain assignment:
   ........................................
   Median +- std dev: 676 ns +- 16 ns
 
-So on a standard notebook the difference is about 300 nanoseconds (1 second is 1,000,000,000 nanoseconds).
+So on a laptop computer the difference is about 300 nanoseconds (1 second is 1,000,000,000 nanoseconds).
 It's certainly something you'll feel in a hot loop but shouldn't matter in normal code.
 Pick what's more important to you.
 

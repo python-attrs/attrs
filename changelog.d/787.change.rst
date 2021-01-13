@@ -1,0 +1,2 @@
+If present, type annotations of the ``converter`` argument to ``attr.ib`` are now used to give type annotations to ``__init__``.
+``attr.converters.pipe`` and ``attr.converters.optional`` also infer type annotations based on the passed converters.

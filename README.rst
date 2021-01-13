@@ -1,25 +1,24 @@
-.. image:: https://www.attrs.org/en/latest/_static/attrs_logo.png
-   :alt: attrs Logo
+.. raw:: html
 
-======================================
-``attrs``: Classes Without Boilerplate
-======================================
-
-.. image:: https://readthedocs.org/projects/attrs/badge/?version=stable
-   :target: https://www.attrs.org/en/stable/?badge=stable
-   :alt: Documentation Status
-
-.. image:: https://github.com/python-attrs/attrs/workflows/CI/badge.svg?branch=master
-   :target: https://github.com/python-attrs/attrs/actions?workflow=CI
-   :alt: CI Status
-
-.. image:: https://codecov.io/github/python-attrs/attrs/branch/master/graph/badge.svg
-   :target: https://codecov.io/github/python-attrs/attrs
-   :alt: Test Coverage
-
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-   :target: https://github.com/psf/black
-   :alt: Code style: black
+   <p align="center">
+      <a href="https://www.attrs.org/">
+         <img src="./docs/_static/attrs_logo.svg" width="35%" alt="attrs" />
+      </a>
+   </p>
+   <p align="center">
+      <a href="https://www.attrs.org/en/stable/?badge=stable">
+          <img src="https://readthedocs.org/projects/attrs/badge/?version=stable" alt="Documentation Status" />
+      </a>
+      <a href="https://github.com/python-attrs/attrs/actions?workflow=CI">
+          <img src="https://github.com/python-attrs/attrs/workflows/CI/badge.svg?branch=master" alt="CI Status" />
+      </a>
+      <a href="https://codecov.io/github/python-attrs/attrs">
+          <img src="https://codecov.io/github/python-attrs/attrs/branch/master/graph/badge.svg" alt="Test Coverage" />
+      </a>
+      <a href="https://github.com/psf/black">
+          <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code style: black" />
+      </a>
+   </p>
 
 .. teaser-begin
 
@@ -92,7 +91,7 @@ Getting Help
 
 Please use the ``python-attrs`` tag on `StackOverflow <https://stackoverflow.com/questions/tagged/python-attrs>`_ to get help.
 
-Answering questions of your fellow developers is also great way to help the project!
+Answering questions of your fellow developers is also a great way to help the project!
 
 
 .. -project-information-
@@ -110,3 +109,13 @@ We collect information on **third-party extensions** in our `wiki <https://githu
 Feel free to browse and add your own!
 
 If you'd like to contribute to ``attrs`` you're most welcome and we've written `a little guide <https://www.attrs.org/en/latest/contributing.html>`_ to get you started!
+
+
+``attrs`` for Enterprise
+------------------------
+
+Available as part of the Tidelift Subscription.
+
+The maintainers of ``attrs`` and thousands of other packages are working with Tidelift to deliver commercial support and maintenance for the open source packages you use to build your applications.
+Save time, reduce risk, and improve code health, while paying the maintainers of the exact packages you use.
+`Learn more. <https://tidelift.com/subscription/pkg/pypi-attrs?utm_source=pypi-attrs&utm_medium=referral&utm_campaign=enterprise&utm_term=repo>`_

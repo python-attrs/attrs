@@ -1,0 +1,1 @@
+Fixed the creation of an extra slot for an ``attr.ib`` when the parent class already has a slot with the same name.

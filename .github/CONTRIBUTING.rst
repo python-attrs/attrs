@@ -247,4 +247,4 @@ Thank you for considering contributing to ``attrs``!
 .. _towncrier: https://pypi.org/project/towncrier
 .. _black: https://github.com/psf/black
 .. _pre-commit: https://pre-commit.com/
-.. _isort: https://github.com/timothycrosley/isort
+.. _isort: https://github.com/PyCQA/isort

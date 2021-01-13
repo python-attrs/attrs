@@ -168,7 +168,7 @@ class TestTransformAttrs(object):
         Does not attach __attrs_attrs__ to the class.
         """
         C = make_tc()
-        _transform_attrs(C, None, False, False, True)
+        _transform_attrs(C, None, False, False, True, None)
 
         assert None is getattr(C, "__attrs_attrs__", None)
 
@@ -177,7 +177,7 @@ class TestTransformAttrs(object):
         Transforms every `_CountingAttr` and leaves others (a) be.
         """
         C = make_tc()
-        attrs, _, _ = _transform_attrs(C, None, False, False, True)
+        attrs, _, _ = _transform_attrs(C, None, False, False, True, None)
 
         assert ["z", "y", "x"] == [a.name for a in attrs]
 
@@ -191,7 +191,7 @@ class TestTransformAttrs(object):
             pass
 
         assert _Attributes(((), [], {})) == _transform_attrs(
-            C, None, False, False, True
+            C, None, False, False, True, None
         )
 
     def test_transforms_to_attribute(self):
@@ -199,7 +199,9 @@ class TestTransformAttrs(object):
         All `_CountingAttr`s are transformed into `Attribute`s.
         """
         C = make_tc()
-        attrs, base_attrs, _ = _transform_attrs(C, None, False, False, True)
+        attrs, base_attrs, _ = _transform_attrs(
+            C, None, False, False, True, None
+        )
 
         assert [] == base_attrs
         assert 3 == len(attrs)
@@ -216,14 +218,15 @@ class TestTransformAttrs(object):
             y = attr.ib()
 
         with pytest.raises(ValueError) as e:
-            _transform_attrs(C, None, False, False, True)
+            _transform_attrs(C, None, False, False, True, None)
         assert (
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, repr=True, "
-            "eq=True, eq_key=None, order=True, order_key=None, hash=None, "
-            "init=True, metadata=mappingproxy({}), type=None, converter=None, "
-            "kw_only=False, inherited=False)",
+            "eq=True, eq_key=None, order=True, order_key=None, "
+            "hash=None, init=True, "
+            "metadata=mappingproxy({}), type=None, converter=None, "
+            "kw_only=False, inherited=False, on_setattr=None)",
         ) == e.value.args
 
     def test_kw_only(self):
@@ -246,7 +249,9 @@ class TestTransformAttrs(object):
             x = attr.ib(default=None)
             y = attr.ib()
 
-        attrs, base_attrs, _ = _transform_attrs(C, None, False, True, True)
+        attrs, base_attrs, _ = _transform_attrs(
+            C, None, False, True, True, None
+        )
 
         assert len(attrs) == 3
         assert len(base_attrs) == 1
@@ -269,7 +274,7 @@ class TestTransformAttrs(object):
             y = attr.ib()
 
         attrs, base_attrs, _ = _transform_attrs(
-            C, {"x": attr.ib()}, False, False, True
+            C, {"x": attr.ib()}, False, False, True, None
         )
 
         assert [] == base_attrs
@@ -423,6 +428,35 @@ class TestTransformAttrs(object):
         d = D()
 
         assert d.x == d.xx()
+
+    def test_inherited(self):
+        """
+        Inherited Attributes have `.inherited` True, otherwise False.
+        """
+
+        @attr.s
+        class A(object):
+            a = attr.ib()
+
+        @attr.s
+        class B(A):
+            b = attr.ib()
+
+        @attr.s
+        class C(B):
+            a = attr.ib()
+            c = attr.ib()
+
+        f = attr.fields
+
+        assert False is f(A).a.inherited
+
+        assert True is f(B).a.inherited
+        assert False is f(B).b.inherited
+
+        assert False is f(C).a.inherited
+        assert True is f(C).b.inherited
+        assert False is f(C).c.inherited
 
 
 class TestAttributes(object):
@@ -663,8 +697,27 @@ class TestAttributes(object):
             class C(object):
                 x = attr.ib(factory=Factory(list))
 
+    def test_inherited_does_not_affect_hashing_and_equality(self):
+        """
+        Whether or not an Attribute has been inherited doesn't affect how it's
+        hashed and compared.
+        """
 
-@pytest.mark.skipif(PY2, reason="keyword-only arguments are PY3-only.")
+        @attr.s
+        class BaseClass(object):
+            x = attr.ib()
+
+        @attr.s
+        class SubClass(BaseClass):
+            pass
+
+        ba = attr.fields(BaseClass)[0]
+        sa = attr.fields(SubClass)[0]
+
+        assert ba == sa
+        assert hash(ba) == hash(sa)
+
+
 class TestKeywordOnlyAttributes(object):
     """
     Tests for keyword-only attributes.
@@ -676,7 +729,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class C:
+        class C(object):
             a = attr.ib()
             b = attr.ib(default=2, kw_only=True)
             c = attr.ib(kw_only=True)
@@ -695,7 +748,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class C:
+        class C(object):
             x = attr.ib(init=False, default=0, kw_only=True)
             y = attr.ib()
 
@@ -711,15 +764,34 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class C:
+        class C(object):
             x = attr.ib(kw_only=True)
 
         with pytest.raises(TypeError) as e:
             C()
 
-        assert (
-            "missing 1 required keyword-only argument: 'x'"
-        ) in e.value.args[0]
+        if PY2:
+            assert (
+                "missing required keyword-only argument: 'x'"
+            ) in e.value.args[0]
+        else:
+            assert (
+                "missing 1 required keyword-only argument: 'x'"
+            ) in e.value.args[0]
+
+    def test_keyword_only_attributes_unexpected(self):
+        """
+        Raises `TypeError` when unexpected keyword argument passed.
+        """
+
+        @attr.s
+        class C(object):
+            x = attr.ib(kw_only=True)
+
+        with pytest.raises(TypeError) as e:
+            C(x=5, y=10)
+
+        assert "got an unexpected keyword argument 'y'" in e.value.args[0]
 
     def test_keyword_only_attributes_can_come_in_any_order(self):
         """
@@ -730,7 +802,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class C:
+        class C(object):
             a = attr.ib(kw_only=True)
             b = attr.ib(kw_only=True, default="b")
             c = attr.ib(kw_only=True)
@@ -759,7 +831,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class Base:
+        class Base(object):
             x = attr.ib(default=0)
 
         @attr.s
@@ -778,7 +850,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s(kw_only=True)
-        class C:
+        class C(object):
             x = attr.ib()
             y = attr.ib(kw_only=True)
 
@@ -797,7 +869,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class Base:
+        class Base(object):
             x = attr.ib(default=0)
 
         @attr.s(kw_only=True)
@@ -820,7 +892,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class KwArgBeforeInitFalse:
+        class KwArgBeforeInitFalse(object):
             kwarg = attr.ib(kw_only=True)
             non_init_function_default = attr.ib(init=False)
             non_init_keyword_default = attr.ib(
@@ -848,7 +920,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class KwArgBeforeInitFalseParent:
+        class KwArgBeforeInitFalseParent(object):
             kwarg = attr.ib(kw_only=True)
 
         @attr.s
@@ -874,23 +946,6 @@ class TestKeywordOnlyAttributesOnPy2(object):
     """
     Tests for keyword-only attribute behavior on py2.
     """
-
-    def test_syntax_error(self):
-        """
-        Keyword-only attributes raise Syntax error on ``__init__`` generation.
-        """
-
-        with pytest.raises(PythonTooOldError):
-
-            @attr.s(kw_only=True)
-            class ClassLevel(object):
-                a = attr.ib()
-
-        with pytest.raises(PythonTooOldError):
-
-            @attr.s()
-            class AttrLevel(object):
-                a = attr.ib(kw_only=True)
 
     def test_no_init(self):
         """
@@ -1426,7 +1481,20 @@ class TestClassBuilder(object):
             pass
 
         b = _ClassBuilder(
-            C, None, True, True, False, False, False, False, False, False, True
+            C,
+            None,
+            True,
+            True,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            True,
+            None,
+            False,
+            None,
         )
 
         assert "<_ClassBuilder(cls=C)>" == repr(b)
@@ -1440,7 +1508,20 @@ class TestClassBuilder(object):
             x = attr.ib()
 
         b = _ClassBuilder(
-            C, None, True, True, False, False, False, False, False, False, True
+            C,
+            None,
+            True,
+            True,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            True,
+            None,
+            False,
+            None,
         )
 
         cls = (
@@ -1517,6 +1598,9 @@ class TestClassBuilder(object):
             kw_only=False,
             cache_hash=False,
             collect_by_mro=True,
+            on_setattr=None,
+            has_custom_setattr=False,
+            field_transformer=None,
         )
         b._cls = {}  # no __module__; no __qualname__
 

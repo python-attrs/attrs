@@ -1,6 +1,0 @@
-Added ``@attr.s(collect_by_mro=False)`` argument that if set to ``True`` fixes the collection of attributes from base classes.
-
-It's only necessary for certain cases of multiple-inheritance but is kept off for now for backward-compatibility reasons.
-It will be turned on by default in the future.
-
-As a side-effect, ``attr.Attribute`` now *always* has an ``inherited`` attribute indicating whether an attribute on a class was directly defined or inherited.

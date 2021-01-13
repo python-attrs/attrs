@@ -110,9 +110,9 @@ class WithMetaSlots(object):
 FromMakeClass = attr.make_class("FromMakeClass", ["x"])
 
 
-class TestDarkMagic(object):
+class TestFunctional(object):
     """
-    Integration tests.
+    Functional tests.
     """
 
     @pytest.mark.parametrize("cls", [C2, C2Slots])
@@ -318,6 +318,7 @@ class TestDarkMagic(object):
             obj = cls(123, 456)
         else:
             obj = cls(123)
+
         assert repr(obj) == repr(pickle.loads(pickle.dumps(obj, protocol)))
 
     def test_subclassing_frozen_gives_frozen(self):
@@ -329,6 +330,9 @@ class TestDarkMagic(object):
 
         assert i.x == "foo"
         assert i.y == "bar"
+
+        with pytest.raises(FrozenInstanceError):
+            i.x = "baz"
 
     @pytest.mark.parametrize("cls", [WithMeta, WithMetaSlots])
     def test_metaclass_preserved(self, cls):
@@ -446,7 +450,13 @@ class TestDarkMagic(object):
         class C(object):
             pass
 
-        assert hash(C()) != hash(C())
+        # Ensure both objects live long enough such that their ids/hashes
+        # can't be recycled. Thanks to Ask Hjorth Larsen for pointing that
+        # out.
+        c1 = C()
+        c2 = C()
+
+        assert hash(c1) != hash(c2)
 
     def test_overwrite_base(self):
         """
