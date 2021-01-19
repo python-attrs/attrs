@@ -3,5 +3,3 @@
 This enables users to do "pre-init" work in their ``__init__()`` (such as ``super().__init__()``).
 
 ``__init__()`` can then delegate constructor argument processing to ``__attrs_init__(*args, **kwargs)``.
-
-Note that ``__attrs_post_init__()`` will need to be explicitly called from ``__init__()`` if appropriate.

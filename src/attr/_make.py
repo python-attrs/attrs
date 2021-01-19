@@ -2310,7 +2310,7 @@ def _attrs_to_init_script(
             names_for_globals[val_name] = a.validator
             names_for_globals[attr_name] = a
 
-    if post_init and not attrs_init:
+    if post_init:
         lines.append("self.__attrs_post_init__()")
 
     # because this is set only after __attrs_post_init is called, a crash

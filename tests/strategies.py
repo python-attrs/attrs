@@ -167,8 +167,6 @@ def simple_classes(
 
         def init(self, *args, **kwargs):
             self.__attrs_init__(*args, **kwargs)
-            if post_init_flag:
-                self.__attrs_post_init__()
 
         cls_dict["__init__"] = init
 
