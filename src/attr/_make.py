@@ -1326,7 +1326,7 @@ def attrs(
     .. versionadded:: 20.1.0 *getstate_setstate*
     .. versionadded:: 20.1.0 *on_setattr*
     .. versionadded:: 20.3.0 *field_transformer*
-    .. versionchanged:: 20.4.0
+    .. versionchanged:: 21.1.0
        ``init=False`` injects ``__attrs_init__``
     """
     if auto_detect and PY2:
