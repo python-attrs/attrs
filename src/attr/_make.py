@@ -1686,8 +1686,20 @@ def _make_eq(cls, attrs):
                 # Add the cmp class to the global namespace of the evaluated
                 # function, since local does not work in all python versions.
                 global_vars[cmp_name] = a.eq_key
-                lines.append("        %s(self.%s)," % (cmp_name, a.name,))
-                others.append("        %s(other.%s)," % (cmp_name, a.name,))
+                lines.append(
+                    "        %s(self.%s),"
+                    % (
+                        cmp_name,
+                        a.name,
+                    )
+                )
+                others.append(
+                    "        %s(other.%s),"
+                    % (
+                        cmp_name,
+                        a.name,
+                    )
+                )
             else:
                 lines.append("        self.%s," % (a.name,))
                 others.append("        other.%s," % (a.name,))
