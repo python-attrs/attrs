@@ -51,8 +51,6 @@ _empty_metadata_singleton = metadata_proxy({})
 # Unique object for unequivocal getattr() defaults.
 _sentinel = object()
 
-Factory = None
-
 
 class _Nothing(object):
     """
@@ -2153,7 +2151,7 @@ def _attrs_to_init_script(
         )
         arg_name = a.name.lstrip("_")
 
-        has_factory = Factory is not None and isinstance(a.default, Factory)
+        has_factory = isinstance(a.default, Factory)
         if has_factory and a.default.takes_self:
             maybe_self = "self"
         else:
@@ -2701,7 +2699,6 @@ class _CountingAttr(object):
 _CountingAttr = _add_eq(_add_repr(_CountingAttr))
 
 
-@attrs(slots=True, init=False, hash=True)
 class Factory(object):
     """
     Stores a factory callable.
@@ -2717,8 +2714,7 @@ class Factory(object):
     .. versionadded:: 17.1.0  *takes_self*
     """
 
-    factory = attrib()
-    takes_self = attrib()
+    __slots__ = ("factory", "takes_self")
 
     def __init__(self, factory, takes_self=False):
         """
@@ -2727,6 +2723,38 @@ class Factory(object):
         """
         self.factory = factory
         self.takes_self = takes_self
+
+    def __getstate__(self):
+        """
+        Play nice with pickle.
+        """
+        return tuple(getattr(self, name) for name in self.__slots__)
+
+    def __setstate__(self, state):
+        """
+        Play nice with pickle.
+        """
+        for name, value in zip(self.__slots__, state):
+            setattr(self, name, value)
+
+
+_f = [
+    Attribute(
+        name=name,
+        default=NOTHING,
+        validator=None,
+        repr=True,
+        cmp=None,
+        eq=True,
+        order=False,
+        hash=True,
+        init=True,
+        inherited=False,
+    )
+    for name in Factory.__slots__
+]
+
+Factory = _add_hash(_add_eq(_add_repr(Factory, attrs=_f), attrs=_f), attrs=_f)
 
 
 def make_class(name, attrs, bases=(object,), **attributes_arguments):
