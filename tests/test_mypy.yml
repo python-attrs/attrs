@@ -7,7 +7,7 @@
     @attr.s
     class C:
         {{ val }}
-    C()  # E: Too few arguments for "C"
+    C()  # E: Missing positional argument "a" in call to "C"
     C(1)
     C(a=1)
     C(a="hi")  # E: Argument "a" to "C" has incompatible type "str"; expected "int"
@@ -17,7 +17,7 @@
     @attr.s
     class C:
       a: int = attr.ib()
-    C()  # E: Too few arguments for "C"
+    C()  # E: Missing positional argument "a" in call to "C"
     C(1)
     C(a=1)
     C(a="hi")  # E: Argument "a" to "C" has incompatible type "str"; expected "int"
@@ -394,10 +394,8 @@
     class A:
         a = field()
 
-    # TODO: Next Gen hasn't shipped with mypy yet so the following doesn't work
-    a = A(5)  # E: Too many arguments for "A"
-    # The error should be Property "a" defined in "A" is read-only
-    a.a = 16
+    a = A(5)
+    a.a = 16  # E: Property "a" defined in "A" is read-only
 
 - case: testAttrsNextGenDetect
   main: |
@@ -422,10 +420,10 @@
         b = field()
 
     # TODO: Next Gen hasn't shipped with mypy yet so the following are wrong
-    reveal_type(A)  # N: Revealed type is 'def () -> main.A'
-    reveal_type(B)  # N: Revealed type is 'def () -> main.B'
-    reveal_type(C)  # N: Revealed type is 'def () -> main.C'
-    reveal_type(D)  # N: Revealed type is 'def () -> main.D'
+    reveal_type(A) # N: Revealed type is 'def (a: Any) -> main.A'
+    reveal_type(B) # N: Revealed type is 'def (a: builtins.int) -> main.B'
+    reveal_type(C) # N: Revealed type is 'def (a: builtins.int, b: Any) -> main.C'
+    reveal_type(D) # N: Revealed type is 'def (b: Any) -> main.D'
 
 - case: testAttrsDataClass
   main: |
@@ -648,7 +646,7 @@
            return cls(6, 'hello')
         @classmethod
         def bad(cls) -> A:
-            return cls(17)  # E: Too few arguments for "A"
+            return cls(17)  # E: Missing positional argument "b" in call to "A"
         def foo(self) -> int:
            return self.a
     reveal_type(A)  # N: Revealed type is 'def (a: builtins.int, b: builtins.str) -> main.A'
@@ -1351,7 +1349,7 @@
         class C:
             total = attr.ib(type=int)
 
-        C()  # E: Too few arguments for "C"
+        C()  # E: Missing positional argument "total" in call to "C"
         C('no')  # E: Argument 1 to "C" has incompatible type "str"; expected "int"
     - path: other.py
       content: |
