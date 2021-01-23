@@ -154,6 +154,8 @@ def simple_classes(
 
     cls_dict = dict(zip(attr_names, attrs))
     post_init_flag = draw(st.booleans())
+    init_flag = draw(st.booleans())
+
     if post_init_flag:
 
         def post_init(self):
@@ -161,12 +163,20 @@ def simple_classes(
 
         cls_dict["__attrs_post_init__"] = post_init
 
+    if not init_flag:
+
+        def init(self, *args, **kwargs):
+            self.__attrs_init__(*args, **kwargs)
+
+        cls_dict["__init__"] = init
+
     return make_class(
         "HypClass",
         cls_dict,
         slots=slots_flag if slots is None else slots,
         frozen=frozen_flag if frozen is None else frozen,
         weakref_slot=weakref_flag if weakref_slot is None else weakref_slot,
+        init=init_flag,
     )
 
 

@@ -897,6 +897,26 @@ class _ClassBuilder(object):
                 self._is_exc,
                 self._on_setattr is not None
                 and self._on_setattr is not setters.NO_OP,
+                attrs_init=False,
+            )
+        )
+
+        return self
+
+    def add_attrs_init(self):
+        self._cls_dict["__attrs_init__"] = self._add_method_dunders(
+            _make_init(
+                self._cls,
+                self._attrs,
+                self._has_post_init,
+                self._frozen,
+                self._slots,
+                self._cache_hash,
+                self._base_attr_map,
+                self._is_exc,
+                self._on_setattr is not None
+                and self._on_setattr is not setters.NO_OP,
+                attrs_init=True,
             )
         )
 
@@ -1160,6 +1180,11 @@ def attrs(
         ``attrs`` attributes.  Leading underscores are stripped for the
         argument name.  If a ``__attrs_post_init__`` method exists on the
         class, it will be called after the class is fully initialized.
+
+        If ``init`` is ``False``, an ``__attrs_init__`` method will be
+        injected instead. This allows you to define a custom ``__init__``
+        method that can do pre-init work such as ``super().__init__()``,
+        and then call ``__attrs_init__()`` and ``__attrs_post_init__()``.
     :param bool slots: Create a `slotted class <slotted classes>` that's more
         memory-efficient. Slotted classes are generally superior to the default
         dict classes, but have some gotchas you should know about, so we
@@ -1299,6 +1324,8 @@ def attrs(
     .. versionadded:: 20.1.0 *getstate_setstate*
     .. versionadded:: 20.1.0 *on_setattr*
     .. versionadded:: 20.3.0 *field_transformer*
+    .. versionchanged:: 21.1.0
+       ``init=False`` injects ``__attrs_init__``
     """
     if auto_detect and PY2:
         raise PythonTooOldError(
@@ -1408,6 +1435,7 @@ def attrs(
         ):
             builder.add_init()
         else:
+            builder.add_attrs_init()
             if cache_hash:
                 raise TypeError(
                     "Invalid value for cache_hash.  To use hash caching,"
@@ -1872,6 +1900,7 @@ def _make_init(
     base_attr_map,
     is_exc,
     has_global_on_setattr,
+    attrs_init,
 ):
     if frozen and has_global_on_setattr:
         raise ValueError("Frozen classes can't use on_setattr.")
@@ -1908,6 +1937,7 @@ def _make_init(
         is_exc,
         needs_cached_setattr,
         has_global_on_setattr,
+        attrs_init,
     )
     locs = {}
     bytecode = compile(script, unique_filename, "exec")
@@ -1929,10 +1959,10 @@ def _make_init(
         unique_filename,
     )
 
-    __init__ = locs["__init__"]
-    __init__.__annotations__ = annotations
+    init = locs["__attrs_init__"] if attrs_init else locs["__init__"]
+    init.__annotations__ = annotations
 
-    return __init__
+    return init
 
 
 def _setattr(attr_name, value_var, has_on_setattr):
@@ -2047,6 +2077,7 @@ def _attrs_to_init_script(
     is_exc,
     needs_cached_setattr,
     has_global_on_setattr,
+    attrs_init,
 ):
     """
     Return a script of an initializer for *attrs* and a dict of globals.
@@ -2317,10 +2348,12 @@ def _attrs_to_init_script(
             )
     return (
         """\
-def __init__(self, {args}):
+def {init_name}(self, {args}):
     {lines}
 """.format(
-            args=args, lines="\n    ".join(lines) if lines else "pass"
+            init_name=("__attrs_init__" if attrs_init else "__init__"),
+            args=args,
+            lines="\n    ".join(lines) if lines else "pass",
         ),
         names_for_globals,
         annotations,
@@ -2666,7 +2699,6 @@ class _CountingAttr(object):
 _CountingAttr = _add_eq(_add_repr(_CountingAttr))
 
 
-@attrs(slots=True, init=False, hash=True)
 class Factory(object):
     """
     Stores a factory callable.
@@ -2682,8 +2714,7 @@ class Factory(object):
     .. versionadded:: 17.1.0  *takes_self*
     """
 
-    factory = attrib()
-    takes_self = attrib()
+    __slots__ = ("factory", "takes_self")
 
     def __init__(self, factory, takes_self=False):
         """
@@ -2692,6 +2723,38 @@ class Factory(object):
         """
         self.factory = factory
         self.takes_self = takes_self
+
+    def __getstate__(self):
+        """
+        Play nice with pickle.
+        """
+        return tuple(getattr(self, name) for name in self.__slots__)
+
+    def __setstate__(self, state):
+        """
+        Play nice with pickle.
+        """
+        for name, value in zip(self.__slots__, state):
+            setattr(self, name, value)
+
+
+_f = [
+    Attribute(
+        name=name,
+        default=NOTHING,
+        validator=None,
+        repr=True,
+        cmp=None,
+        eq=True,
+        order=False,
+        hash=True,
+        init=True,
+        inherited=False,
+    )
+    for name in Factory.__slots__
+]
+
+Factory = _add_hash(_add_eq(_add_repr(Factory, attrs=_f), attrs=_f), attrs=_f)
 
 
 def make_class(name, attrs, bases=(object,), **attributes_arguments):
@@ -2727,11 +2790,15 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
         raise TypeError("attrs argument must be a dict or a list.")
 
     post_init = cls_dict.pop("__attrs_post_init__", None)
-    type_ = type(
-        name,
-        bases,
-        {} if post_init is None else {"__attrs_post_init__": post_init},
-    )
+    user_init = cls_dict.pop("__init__", None)
+
+    body = {}
+    if post_init is not None:
+        body["__attrs_post_init__"] = post_init
+    if user_init is not None:
+        body["__init__"] = user_init
+
+    type_ = type(name, bases, body)
     # For pickling to work, the __module__ variable needs to be set to the
     # frame where the class is created.  Bypass this step in environments where
     # sys._getframe is not defined (Jython for example) or sys._getframe is not

@@ -69,6 +69,7 @@ def _add_init(cls, frozen):
         base_attr_map={},
         is_exc=False,
         has_global_on_setattr=False,
+        attrs_init=False,
     )
     return cls
 

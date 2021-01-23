@@ -1,0 +1,5 @@
+``__attrs__init__()`` will now be injected if ``init==False`` or if ``auto_detect=True`` and a user-defined ``__init__()`` exists.
+
+This enables users to do "pre-init" work in their ``__init__()`` (such as ``super().__init__()``).
+
+``__init__()`` can then delegate constructor argument processing to ``__attrs_init__(*args, **kwargs)``.
