@@ -544,7 +544,14 @@ class TestEvolve(object):
         # No generated class will have a four letter attribute.
         with pytest.raises(TypeError) as e:
             evolve(C(), aaaa=2)
-        expected = "__init__() got an unexpected keyword argument 'aaaa'"
+
+        if hasattr(C, "__attrs_init__"):
+            expected = (
+                "__attrs_init__() got an unexpected keyword argument 'aaaa'"
+            )
+        else:
+            expected = "__init__() got an unexpected keyword argument 'aaaa'"
+
         assert (expected,) == e.value.args
 
     def test_validator_failure(self):
