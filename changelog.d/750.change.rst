@@ -1,0 +1,1 @@
+Allow for a ``__attrs_ppre_init__()`` method that -- if defined -- will get called at the beginning of the ``attrs``-generated ``__init__()`` method.
