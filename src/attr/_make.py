@@ -633,6 +633,7 @@ class _ClassBuilder(object):
         self._frozen = frozen
         self._weakref_slot = weakref_slot
         self._cache_hash = cache_hash
+        self._has_pre_init = bool(getattr(cls, "__attrs_pre_init__", False))
         self._has_post_init = bool(getattr(cls, "__attrs_post_init__", False))
         self._delete_attribs = not bool(these)
         self._is_exc = is_exc
@@ -889,6 +890,7 @@ class _ClassBuilder(object):
             _make_init(
                 self._cls,
                 self._attrs,
+                self._has_pre_init,
                 self._has_post_init,
                 self._frozen,
                 self._slots,
@@ -908,6 +910,7 @@ class _ClassBuilder(object):
             _make_init(
                 self._cls,
                 self._attrs,
+                self._has_pre_init,
                 self._has_post_init,
                 self._frozen,
                 self._slots,
@@ -1893,6 +1896,7 @@ def _is_slot_attr(a_name, base_attr_map):
 def _make_init(
     cls,
     attrs,
+    pre_init,
     post_init,
     frozen,
     slots,
@@ -1931,6 +1935,7 @@ def _make_init(
         filtered_attrs,
         frozen,
         slots,
+        pre_init,
         post_init,
         cache_hash,
         base_attr_map,
@@ -2071,6 +2076,7 @@ def _attrs_to_init_script(
     attrs,
     frozen,
     slots,
+    pre_init,
     post_init,
     cache_hash,
     base_attr_map,
@@ -2088,6 +2094,9 @@ def _attrs_to_init_script(
     a cached ``object.__setattr__``.
     """
     lines = []
+    if pre_init:
+        lines.append("self.__attrs_pre_init__()")
+
     if needs_cached_setattr:
         lines.append(
             # Circumvent the __setattr__ descriptor to save one lookup per
