@@ -1094,7 +1094,8 @@ def attrs(
     on_setattr=None,
     field_transformer=None,
 ):
-    r"""A class decorator that adds `dunder
+    r"""
+    A class decorator that adds `dunder
     <https://wiki.python.org/moin/DunderAlias>`_\ -methods according to the
     specified attributes using `attr.ib` or the *these* argument.
 
