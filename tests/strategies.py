@@ -153,8 +153,16 @@ def simple_classes(
         attr_names = gen_attr_names()
 
     cls_dict = dict(zip(attr_names, attrs))
+    pre_init_flag = draw(st.booleans())
     post_init_flag = draw(st.booleans())
     init_flag = draw(st.booleans())
+
+    if pre_init_flag:
+
+        def pre_init(self):
+            pass
+
+        cls_dict["__attrs_pre_init__"] = pre_init
 
     if post_init_flag:
 

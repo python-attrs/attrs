@@ -588,6 +588,7 @@ class _ClassBuilder(object):
         "_cls_dict",
         "_delete_attribs",
         "_frozen",
+        "_has_pre_init",
         "_has_post_init",
         "_is_exc",
         "_on_setattr",
@@ -633,6 +634,7 @@ class _ClassBuilder(object):
         self._frozen = frozen
         self._weakref_slot = weakref_slot
         self._cache_hash = cache_hash
+        self._has_pre_init = bool(getattr(cls, "__attrs_pre_init__", False))
         self._has_post_init = bool(getattr(cls, "__attrs_post_init__", False))
         self._delete_attribs = not bool(these)
         self._is_exc = is_exc
@@ -889,6 +891,7 @@ class _ClassBuilder(object):
             _make_init(
                 self._cls,
                 self._attrs,
+                self._has_pre_init,
                 self._has_post_init,
                 self._frozen,
                 self._slots,
@@ -908,6 +911,7 @@ class _ClassBuilder(object):
             _make_init(
                 self._cls,
                 self._attrs,
+                self._has_pre_init,
                 self._has_post_init,
                 self._frozen,
                 self._slots,
@@ -1177,9 +1181,11 @@ def attrs(
         behavior <https://github.com/python-attrs/attrs/issues/136>`_ for more
         details.
     :param bool init: Create a ``__init__`` method that initializes the
-        ``attrs`` attributes.  Leading underscores are stripped for the
-        argument name.  If a ``__attrs_post_init__`` method exists on the
-        class, it will be called after the class is fully initialized.
+        ``attrs`` attributes. Leading underscores are stripped for the argument
+        name. If a ``__attrs_pre_init__`` method exists on the class, it will
+        be called before the class is initialized. If a ``__attrs_post_init__``
+        method exists on the class, it will be called after the class is fully
+        initialized.
 
         If ``init`` is ``False``, an ``__attrs_init__`` method will be
         injected instead. This allows you to define a custom ``__init__``
@@ -1326,6 +1332,8 @@ def attrs(
     .. versionadded:: 20.3.0 *field_transformer*
     .. versionchanged:: 21.1.0
        ``init=False`` injects ``__attrs_init__``
+    .. versionchanged:: 21.1.0 Support for ``__attrs_pre_init__``
+
     """
     if auto_detect and PY2:
         raise PythonTooOldError(
@@ -1893,6 +1901,7 @@ def _is_slot_attr(a_name, base_attr_map):
 def _make_init(
     cls,
     attrs,
+    pre_init,
     post_init,
     frozen,
     slots,
@@ -1931,6 +1940,7 @@ def _make_init(
         filtered_attrs,
         frozen,
         slots,
+        pre_init,
         post_init,
         cache_hash,
         base_attr_map,
@@ -2071,6 +2081,7 @@ def _attrs_to_init_script(
     attrs,
     frozen,
     slots,
+    pre_init,
     post_init,
     cache_hash,
     base_attr_map,
@@ -2088,6 +2099,9 @@ def _attrs_to_init_script(
     a cached ``object.__setattr__``.
     """
     lines = []
+    if pre_init:
+        lines.append("self.__attrs_pre_init__()")
+
     if needs_cached_setattr:
         lines.append(
             # Circumvent the __setattr__ descriptor to save one lookup per
@@ -2789,10 +2803,13 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
     else:
         raise TypeError("attrs argument must be a dict or a list.")
 
+    pre_init = cls_dict.pop("__attrs_pre_init__", None)
     post_init = cls_dict.pop("__attrs_post_init__", None)
     user_init = cls_dict.pop("__init__", None)
 
     body = {}
+    if pre_init is not None:
+        body["__attrs_pre_init__"] = pre_init
     if post_init is not None:
         body["__attrs_post_init__"] = post_init
     if user_init is not None:
