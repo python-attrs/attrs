@@ -4,9 +4,9 @@ from typing import (
     Dict,
     Generic,
     List,
+    Mapping,
     Optional,
     Sequence,
-    Mapping,
     Tuple,
     Type,
     TypeVar,
@@ -15,13 +15,13 @@ from typing import (
 )
 
 # `import X as X` is required to make these public
+from . import converters as converters
 from . import exceptions as exceptions
 from . import filters as filters
-from . import converters as converters
 from . import setters as setters
 from . import validators as validators
-
 from ._version_info import VersionInfo
+
 
 __version__: str
 __version_info__: VersionInfo
@@ -83,6 +83,8 @@ class Attribute(Generic[_T]):
     type: Optional[Type[_T]]
     kw_only: bool
     on_setattr: _OnSetAttrType
+
+    def evolve(self, **changes: Any) -> "Attribute": ...
 
 # NOTE: We had several choices for the annotation to use for type arg:
 # 1) Type[_T]
