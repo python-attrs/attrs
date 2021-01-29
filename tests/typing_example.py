@@ -242,6 +242,10 @@ class NGFrozen:
 
 ngf = NGFrozen(1)
 
+attr.fields(NGFrozen).x.evolve(eq=False)
+a = attr.fields(NGFrozen).x
+a.evolve(repr=False)
+
 
 @attr.s(collect_by_mro=True)
 class MRO:

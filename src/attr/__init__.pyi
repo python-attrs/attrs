@@ -83,6 +83,8 @@ class Attribute(Generic[_T]):
     kw_only: bool
     on_setattr: _OnSetAttrType
 
+    def evolve(self, **changes: Any) -> "Attribute": ...
+
 # NOTE: We had several choices for the annotation to use for type arg:
 # 1) Type[_T]
 #   - Pros: Handles simple cases correctly
