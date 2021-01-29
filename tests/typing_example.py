@@ -210,13 +210,13 @@ class TransformedAttrs:
 
 
 # Auto-detect
-# XXX: needs support in mypy
-# @attr.s(auto_detect=True)
-# class AutoDetect:
-#     x: int
+@attr.s(auto_detect=True)
+class AutoDetect:
+    x: int
 
-#     def __init__(self, x: int):
-#         self.x = x
+    def __init__(self, x: int):
+        self.x = x
+
 
 # Provisional APIs
 @attr.define(order=True)
@@ -224,8 +224,7 @@ class NGClass:
     x: int = attr.field(default=42)
 
 
-# XXX: needs support in mypy
-# ngc = NGClass(1)
+ngc = NGClass(1)
 
 
 @attr.mutable(slots=False)
@@ -233,8 +232,7 @@ class NGClass2:
     x: int
 
 
-# XXX: needs support in mypy
-# ngc2 = NGClass2(1)
+ngc2 = NGClass2(1)
 
 
 @attr.frozen(str=True)
@@ -242,8 +240,7 @@ class NGFrozen:
     x: int
 
 
-# XXX: needs support in mypy
-# ngf = NGFrozen(1)
+ngf = NGFrozen(1)
 
 
 @attr.s(collect_by_mro=True)
