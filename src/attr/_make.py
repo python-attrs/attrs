@@ -251,7 +251,7 @@ def attrib(
     .. versionadded:: 19.2.0 *eq* and *order*
     .. versionadded:: 20.1.0 *on_setattr*
     .. versionchanged:: 20.3.0 *kw_only* backported to Python 2
-    .. versionchanged:: 20.X.Y *eq* and *order* also accept a custom callable.
+    .. versionchanged:: 21.1.0 *eq* and *order* also accept a custom callable.
     """
     eq, eq_key, order, order_key = _determine_attrib_eq_order(
         cmp, eq, order, True
