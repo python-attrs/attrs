@@ -1,0 +1,1 @@
+Let ``evolve()`` work with nested ``attrs`` classes.  #634
