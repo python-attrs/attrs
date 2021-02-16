@@ -578,3 +578,17 @@ class TestAnnotations:
 
         assert typing.List[B] == attr.fields(A).a.type
         assert A == attr.fields(B).a.type
+
+    def test_init_type_hints(self):
+        """
+        Forward references in __init__ can be automatically resolved.
+        """
+
+        @attr.s
+        class C:
+            x = attr.ib(type="typing.List[int]")
+
+        assert typing.get_type_hints(C.__init__) == {
+            "return": type(None),
+            "x": typing.List[int],
+        }

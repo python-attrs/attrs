@@ -1951,6 +1951,10 @@ def _make_init(
     )
     locs = {}
     bytecode = compile(script, unique_filename, "exec")
+    if cls.__module__ in sys.modules:
+        # This makes typing.get_type_hints(CLS.__init__) resolve string types.
+        globs.update(sys.modules[cls.__module__].__dict__)
+
     globs.update({"NOTHING": NOTHING, "attr_dict": attr_dict})
 
     if needs_cached_setattr:
