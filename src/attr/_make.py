@@ -294,14 +294,11 @@ def _compile_and_eval(script, globs, locs=None, filename=""):
     eval(bytecode, globs, locs)
 
 
-def _make_method(name, script, filename, globs=None, locs=None):
+def _make_method(name, script, filename, globs=None):
     """
-    Create the method with the script give and return the method object.
-
-    Note: This will mutate locals.
+    Create the method with the script given and return the method object.
     """
-    if locs is None:
-        locs = {}
+    locs = {}
     if globs is None:
         globs = {}
 

@@ -592,3 +592,18 @@ class TestAnnotations:
             "return": type(None),
             "x": typing.List[int],
         }
+
+    def test_init_type_hints_fake_module(self):
+        """
+        If you somehow set the __module__ to something that doesn't exist
+        you'll lose __init__ resolution.
+        """
+
+        class C:
+            x = attr.ib(type="typing.List[int]")
+
+        C.__module__ = "totally fake"
+        C = attr.s(C)
+
+        with pytest.raises(NameError):
+            typing.get_type_hints(C.__init__)
