@@ -620,4 +620,5 @@ class TestEvolve(object):
 
         c1 = C(N1(N2(1), 2), 3)
         c2 = evolve(c1, a={"c": {"e": 23}})
+
         assert c2 == C(N1(N2(23), 2), 3)

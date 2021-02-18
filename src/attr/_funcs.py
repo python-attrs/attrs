@@ -319,8 +319,8 @@ def evolve(inst, **changes):
     Create a new instance, based on *inst* with *changes* applied.
 
     :param inst: Instance of a class with ``attrs`` attributes.
-    :param changes: Keyword changes in the new copy.  Nested attrs classes ca
-                    be updated by passing (nested) dicts of values.
+    :param changes: Keyword changes in the new copy.  Nested ``attrs`` classes
+       can be updated by passing (nested) dicts of values.
 
     :return: A copy of inst with *changes* incorporated.
 

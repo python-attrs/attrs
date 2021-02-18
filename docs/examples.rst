@@ -619,7 +619,7 @@ In Clojure that function is called `assoc <https://clojuredocs.org/clojure.core/
    False
 
 This functions also works for nested ``attrs`` classes.
-You just pass a (possibly nested) dict with changes for an attribute:
+Pass a (possibly nested) dictionary with changes for an attribute:
 
 .. doctest::
 
