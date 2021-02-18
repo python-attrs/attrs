@@ -619,6 +619,6 @@ class TestEvolve(object):
             b = attr.ib(type=int)
 
         c1 = C(N1(N2(1), 2), 3)
-        c2 = evolve(c1, a={"c": {"e": 23}})
+        c2 = evolve(c1, a={"c": {"e": 23}}, b=42)
 
-        assert c2 == C(N1(N2(23), 2), 3)
+        assert c2 == C(N1(N2(23), 2), 42)
