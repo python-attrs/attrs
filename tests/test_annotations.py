@@ -15,6 +15,17 @@ import attr
 from attr.exceptions import UnannotatedAttributeError
 
 
+def assert_init_annotations(cls, **annotations):
+    """
+    Assert cls.__init__ has the correct annotations.
+    """
+    __tracebackhide__ = True
+
+    annotations["return"] = type(None)
+
+    assert annotations == typing.get_type_hints(cls.__init__)
+
+
 class TestAnnotations:
     """
     Tests for types derived from variable annotations (PEP-526).
@@ -35,11 +46,7 @@ class TestAnnotations:
         assert int is attr.fields(C).x.type
         assert str is attr.fields(C).y.type
         assert None is attr.fields(C).z.type
-        assert {
-            "x": int,
-            "y": str,
-            "return": type(None),
-        } == typing.get_type_hints(C.__init__)
+        assert_init_annotations(C, x=int, y=str)
 
     def test_catches_basic_type_conflict(self):
         """
@@ -68,11 +75,7 @@ class TestAnnotations:
 
         assert typing.List[int] is attr.fields(C).x.type
         assert typing.Optional[str] is attr.fields(C).y.type
-        assert {
-            "x": typing.List[int],
-            "y": typing.Optional[str],
-            "return": type(None),
-        } == typing.get_type_hints(C.__init__)
+        assert_init_annotations(C, x=typing.List[int], y=typing.Optional[str])
 
     def test_only_attrs_annotations_collected(self):
         """
@@ -86,10 +89,7 @@ class TestAnnotations:
             y: int
 
         assert 1 == len(attr.fields(C))
-        assert {
-            "x": typing.List[int],
-            "return": type(None),
-        } == typing.get_type_hints(C.__init__)
+        assert_init_annotations(C, x=typing.List[int])
 
     @pytest.mark.parametrize("slots", [True, False])
     def test_auto_attribs(self, slots):
@@ -140,14 +140,14 @@ class TestAnnotations:
             i.y = 23
             assert 23 == i.y
 
-        assert {
-            "a": int,
-            "x": typing.List[int],
-            "y": int,
-            "z": int,
-            "foo": typing.Optional[typing.Any],
-            "return": type(None),
-        } == typing.get_type_hints(C.__init__)
+        assert_init_annotations(
+            C,
+            a=int,
+            x=typing.List[int],
+            y=int,
+            z=int,
+            foo=typing.Optional[typing.Any],
+        )
 
     @pytest.mark.parametrize("slots", [True, False])
     def test_auto_attribs_unannotated(self, slots):
@@ -193,17 +193,9 @@ class TestAnnotations:
 
         assert "B(a=1, b=2)" == repr(B())
         assert "C(a=1)" == repr(C())
-        assert {"a": int, "return": type(None)} == typing.get_type_hints(
-            A.__init__
-        )
-        assert {
-            "a": int,
-            "b": int,
-            "return": type(None),
-        } == typing.get_type_hints(B.__init__)
-        assert {"a": int, "return": type(None)} == typing.get_type_hints(
-            C.__init__
-        )
+        assert_init_annotations(A, a=int)
+        assert_init_annotations(B, a=int, b=int)
+        assert_init_annotations(C, a=int)
 
     def test_converter_annotations(self):
         """
@@ -218,9 +210,7 @@ class TestAnnotations:
         class A:
             a = attr.ib(converter=int2str)
 
-        assert {"a": int, "return": type(None)} == typing.get_type_hints(
-            A.__init__
-        )
+        assert_init_annotations(A, a=int)
 
         def int2str_(x: int, y: str = ""):
             return str(x)
@@ -229,9 +219,7 @@ class TestAnnotations:
         class A:
             a = attr.ib(converter=int2str_)
 
-        assert {"a": int, "return": type(None)} == typing.get_type_hints(
-            A.__init__
-        )
+        assert_init_annotations(A, a=int)
 
     def test_converter_attrib_annotations(self):
         """
@@ -247,11 +235,7 @@ class TestAnnotations:
             a: str = attr.ib(converter=int2str)
             b = attr.ib(converter=int2str, type=str)
 
-        assert A.__init__.__annotations__ == {
-            "a": int,
-            "b": int,
-            "return": None,
-        }
+        assert_init_annotations(A, a=int, b=int)
 
     def test_non_introspectable_converter(self):
         """
@@ -424,14 +408,14 @@ class TestAnnotations:
 
         attr.resolve_types(C, locals(), globals())
 
-        assert {
-            "a": int,
-            "x": typing.List[int],
-            "y": int,
-            "z": int,
-            "foo": typing.Optional[typing.Any],
-            "return": type(None),
-        } == typing.get_type_hints(C.__init__)
+        assert_init_annotations(
+            C,
+            a=int,
+            x=typing.List[int],
+            y=int,
+            z=int,
+            foo=typing.Optional[typing.Any],
+        )
 
     def test_keyword_only_auto_attribs(self):
         """
@@ -604,10 +588,7 @@ class TestAnnotations:
         class C:
             x = attr.ib(type="typing.List[int]")
 
-        assert typing.get_type_hints(C.__init__) == {
-            "return": type(None),
-            "x": typing.List[int],
-        }
+        assert_init_annotations(C, x=typing.List[int])
 
     def test_init_type_hints_fake_module(self):
         """
