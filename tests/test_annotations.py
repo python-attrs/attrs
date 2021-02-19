@@ -25,13 +25,12 @@ class TestAnnotations:
         Sets the `Attribute.type` attr from basic type annotations.
         """
 
+        @attr.resolve_types
         @attr.s
         class C:
             x: int = attr.ib()
             y = attr.ib(type=str)
             z = attr.ib()
-
-        attr.resolve_types(C)
 
         assert int is attr.fields(C).x.type
         assert str is attr.fields(C).y.type
@@ -61,12 +60,11 @@ class TestAnnotations:
         Sets the `Attribute.type` attr from typing annotations.
         """
 
+        @attr.resolve_types
         @attr.s
         class C:
             x: typing.List[int] = attr.ib()
             y = attr.ib(type=typing.Optional[str])
-
-        attr.resolve_types(C)
 
         assert typing.List[int] is attr.fields(C).x.type
         assert typing.Optional[str] is attr.fields(C).y.type
@@ -81,12 +79,11 @@ class TestAnnotations:
         Annotations that aren't set to an attr.ib are ignored.
         """
 
+        @attr.resolve_types
         @attr.s
         class C:
             x: typing.List[int] = attr.ib()
             y: int
-
-        attr.resolve_types(C)
 
         assert 1 == len(attr.fields(C))
         assert {
@@ -179,25 +176,23 @@ class TestAnnotations:
         Ref #291
         """
 
+        @attr.resolve_types
         @attr.s(slots=slots, auto_attribs=True)
         class A:
             a: int = 1
 
+        @attr.resolve_types
         @attr.s(slots=slots, auto_attribs=True)
         class B(A):
             b: int = 2
 
+        @attr.resolve_types
         @attr.s(slots=slots, auto_attribs=True)
         class C(A):
             pass
 
         assert "B(a=1, b=2)" == repr(B())
         assert "C(a=1)" == repr(C())
-
-        attr.resolve_types(A)
-        attr.resolve_types(B)
-        attr.resolve_types(C)
-
         assert {"a": int, "return": type(None)} == typing.get_type_hints(
             A.__init__
         )
