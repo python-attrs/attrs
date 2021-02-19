@@ -597,3 +597,44 @@ class TestEvolve(object):
             b = attr.ib(init=False, default=0)
 
         assert evolve(C(1), a=2).a == 2
+
+    def test_recursive(self):
+        """
+        evolve() recursively evolves nested attrs classes when a dict is
+        passed for an attribute.
+        """
+
+        @attr.s
+        class N2(object):
+            e = attr.ib(type=int)
+
+        @attr.s
+        class N1(object):
+            c = attr.ib(type=N2)
+            d = attr.ib(type=int)
+
+        @attr.s
+        class C(object):
+            a = attr.ib(type=N1)
+            b = attr.ib(type=int)
+
+        c1 = C(N1(N2(1), 2), 3)
+        c2 = evolve(c1, a={"c": {"e": 23}}, b=42)
+
+        assert c2 == C(N1(N2(23), 2), 42)
+
+    def test_recursive_dict_val(self):
+        """
+        evolve() only attempts recursion when the current value is an ``attrs``
+        class.  Dictionaries as values can be replaced like any other value.
+        """
+
+        @attr.s
+        class C(object):
+            a = attr.ib(type=dict)
+            b = attr.ib(type=int)
+
+        c1 = C({"spam": 1}, 2)
+        c2 = evolve(c1, a={"eggs": 2}, b=42)
+
+        assert c2 == C({"eggs": 2}, 42)

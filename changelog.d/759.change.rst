@@ -1,0 +1,1 @@
+``attrs.evolve()`` now works recursively with nested ``attrs`` classes.
