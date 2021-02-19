@@ -12,6 +12,7 @@ import pytest
 
 import attr
 
+from attr._make import _is_class_var
 from attr.exceptions import UnannotatedAttributeError
 
 
@@ -604,3 +605,19 @@ class TestAnnotations:
 
         with pytest.raises(NameError):
             typing.get_type_hints(C.__init__)
+
+
+@pytest.mark.parametrize(
+    "annot",
+    [
+        typing.ClassVar,
+        "typing.ClassVar",
+        "'typing.ClassVar[dict]'",
+        "t.ClassVar[int]",
+    ],
+)
+def test_is_class_var(annot):
+    """
+    ClassVars are detected, even if they're a string or quoted.
+    """
+    assert _is_class_var(annot)
