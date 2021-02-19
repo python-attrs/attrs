@@ -569,6 +569,19 @@ class TestAttributes(object):
 
         assert sentinel == getattr(C, method_name)
 
+    @pytest.mark.parametrize("init", [True, False])
+    def test_respects_init_attrs_init(self, init):
+        """
+        If init=False, adds __attrs_init__ to the class.
+        Otherwise, it does not.
+        """
+
+        class C(object):
+            x = attr.ib()
+
+        C = attr.s(init=init)(C)
+        assert hasattr(C, "__attrs_init__") != init
+
     @pytest.mark.skipif(PY2, reason="__qualname__ is PY3-only.")
     @given(slots_outer=booleans(), slots_inner=booleans())
     def test_repr_qualname(self, slots_outer, slots_inner):
@@ -616,6 +629,22 @@ class TestAttributes(object):
         assert C.D.__qualname__ == C.__qualname__ + ".D"
 
     @pytest.mark.parametrize("with_validation", [True, False])
+    def test_pre_init(self, with_validation, monkeypatch):
+        """
+        Verify that __attrs_pre_init__ gets called if defined.
+        """
+        monkeypatch.setattr(_config, "_run_validators", with_validation)
+
+        @attr.s
+        class C(object):
+            def __attrs_pre_init__(self2):
+                self2.z = 30
+
+        c = C()
+
+        assert 30 == getattr(c, "z", None)
+
+    @pytest.mark.parametrize("with_validation", [True, False])
     def test_post_init(self, with_validation, monkeypatch):
         """
         Verify that __attrs_post_init__ gets called if defined.
@@ -633,6 +662,27 @@ class TestAttributes(object):
         c = C(x=10, y=20)
 
         assert 30 == getattr(c, "z", None)
+
+    @pytest.mark.parametrize("with_validation", [True, False])
+    def test_pre_post_init_order(self, with_validation, monkeypatch):
+        """
+        Verify that __attrs_post_init__ gets called if defined.
+        """
+        monkeypatch.setattr(_config, "_run_validators", with_validation)
+
+        @attr.s
+        class C(object):
+            x = attr.ib()
+
+            def __attrs_pre_init__(self2):
+                self2.z = 30
+
+            def __attrs_post_init__(self2):
+                self2.z += self2.x
+
+        c = C(x=10)
+
+        assert 40 == getattr(c, "z", None)
 
     def test_types(self):
         """
@@ -1527,6 +1577,7 @@ class TestClassBuilder(object):
             .add_order()
             .add_hash()
             .add_init()
+            .add_attrs_init()
             .add_repr("ns")
             .add_str()
             .build_class()

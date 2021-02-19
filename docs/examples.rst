@@ -618,6 +618,27 @@ In Clojure that function is called `assoc <https://clojuredocs.org/clojure.core/
    >>> i1 == i2
    False
 
+This functions also works for nested ``attrs`` classes.
+Pass a (possibly nested) dictionary with changes for an attribute:
+
+.. doctest::
+
+   >>> @attr.s(frozen=True)
+   ... class Child(object):
+   ...     x = attr.ib()
+   ...     y = attr.ib()
+   >>> @attr.s(frozen=True)
+   ... class Parent(object):
+   ...     child = attr.ib()
+   >>> i1 = Parent(Child(1, 2))
+   >>> i1
+   Parent(child=Child(x=1, y=2))
+   >>> i2 = attr.evolve(i1, child={"y": 3})
+   >>> i2
+   Parent(child=Child(x=1, y=3))
+   >>> i1 == i2, i1.child == i2.child
+   (False, False)
+
 
 Other Goodies
 -------------

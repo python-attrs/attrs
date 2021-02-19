@@ -286,6 +286,36 @@ def attrib(
     )
 
 
+def _compile_and_eval(script, globs, locs=None, filename=""):
+    """
+    "Exec" the script with the given global (globs) and local (locs) variables.
+    """
+    bytecode = compile(script, filename, "exec")
+    eval(bytecode, globs, locs)
+
+
+def _make_method(name, script, filename, globs=None):
+    """
+    Create the method with the script given and return the method object.
+    """
+    locs = {}
+    if globs is None:
+        globs = {}
+
+    _compile_and_eval(script, globs, locs, filename)
+
+    # In order of debuggers like PDB being able to step through the code,
+    # we add a fake linecache entry.
+    linecache.cache[filename] = (
+        len(script),
+        None,
+        script.splitlines(True),
+        filename,
+    )
+
+    return locs[name]
+
+
 def _make_attr_tuple_class(cls_name, attr_names):
     """
     Create a tuple subclass to hold `Attribute`s for an `attrs` class.
@@ -309,8 +339,7 @@ def _make_attr_tuple_class(cls_name, attr_names):
     else:
         attr_class_template.append("    pass")
     globs = {"_attrs_itemgetter": itemgetter, "_attrs_property": property}
-    eval(compile("\n".join(attr_class_template), "", "exec"), globs)
-
+    _compile_and_eval("\n".join(attr_class_template), globs)
     return globs[attr_class_name]
 
 
@@ -588,6 +617,7 @@ class _ClassBuilder(object):
         "_cls_dict",
         "_delete_attribs",
         "_frozen",
+        "_has_pre_init",
         "_has_post_init",
         "_is_exc",
         "_on_setattr",
@@ -633,6 +663,7 @@ class _ClassBuilder(object):
         self._frozen = frozen
         self._weakref_slot = weakref_slot
         self._cache_hash = cache_hash
+        self._has_pre_init = bool(getattr(cls, "__attrs_pre_init__", False))
         self._has_post_init = bool(getattr(cls, "__attrs_post_init__", False))
         self._delete_attribs = not bool(these)
         self._is_exc = is_exc
@@ -889,6 +920,7 @@ class _ClassBuilder(object):
             _make_init(
                 self._cls,
                 self._attrs,
+                self._has_pre_init,
                 self._has_post_init,
                 self._frozen,
                 self._slots,
@@ -897,6 +929,27 @@ class _ClassBuilder(object):
                 self._is_exc,
                 self._on_setattr is not None
                 and self._on_setattr is not setters.NO_OP,
+                attrs_init=False,
+            )
+        )
+
+        return self
+
+    def add_attrs_init(self):
+        self._cls_dict["__attrs_init__"] = self._add_method_dunders(
+            _make_init(
+                self._cls,
+                self._attrs,
+                self._has_pre_init,
+                self._has_post_init,
+                self._frozen,
+                self._slots,
+                self._cache_hash,
+                self._base_attr_map,
+                self._is_exc,
+                self._on_setattr is not None
+                and self._on_setattr is not setters.NO_OP,
+                attrs_init=True,
             )
         )
 
@@ -1157,9 +1210,16 @@ def attrs(
         behavior <https://github.com/python-attrs/attrs/issues/136>`_ for more
         details.
     :param bool init: Create a ``__init__`` method that initializes the
-        ``attrs`` attributes.  Leading underscores are stripped for the
-        argument name.  If a ``__attrs_post_init__`` method exists on the
-        class, it will be called after the class is fully initialized.
+        ``attrs`` attributes. Leading underscores are stripped for the argument
+        name. If a ``__attrs_pre_init__`` method exists on the class, it will
+        be called before the class is initialized. If a ``__attrs_post_init__``
+        method exists on the class, it will be called after the class is fully
+        initialized.
+
+        If ``init`` is ``False``, an ``__attrs_init__`` method will be
+        injected instead. This allows you to define a custom ``__init__``
+        method that can do pre-init work such as ``super().__init__()``,
+        and then call ``__attrs_init__()`` and ``__attrs_post_init__()``.
     :param bool slots: Create a `slotted class <slotted classes>` that's more
         memory-efficient. Slotted classes are generally superior to the default
         dict classes, but have some gotchas you should know about, so we
@@ -1299,6 +1359,10 @@ def attrs(
     .. versionadded:: 20.1.0 *getstate_setstate*
     .. versionadded:: 20.1.0 *on_setattr*
     .. versionadded:: 20.3.0 *field_transformer*
+    .. versionchanged:: 21.1.0
+       ``init=False`` injects ``__attrs_init__``
+    .. versionchanged:: 21.1.0 Support for ``__attrs_pre_init__``
+
     """
     if auto_detect and PY2:
         raise PythonTooOldError(
@@ -1408,6 +1472,7 @@ def attrs(
         ):
             builder.add_init()
         else:
+            builder.add_attrs_init()
             if cache_hash:
                 raise TypeError(
                     "Invalid value for cache_hash.  To use hash caching,"
@@ -1555,21 +1620,7 @@ def _make_hash(cls, attrs, frozen, cache_hash):
         append_hash_computation_lines("return ", tab)
 
     script = "\n".join(method_lines)
-    globs = {}
-    locs = {}
-    bytecode = compile(script, unique_filename, "exec")
-    eval(bytecode, globs, locs)
-
-    # In order of debuggers like PDB being able to step through the code,
-    # we add a fake linecache entry.
-    linecache.cache[unique_filename] = (
-        len(script),
-        None,
-        script.splitlines(True),
-        unique_filename,
-    )
-
-    return locs["__hash__"]
+    return _make_method("__hash__", script, unique_filename)
 
 
 def _add_hash(cls, attrs):
@@ -1625,20 +1676,7 @@ def _make_eq(cls, attrs):
         lines.append("    return True")
 
     script = "\n".join(lines)
-    globs = {}
-    locs = {}
-    bytecode = compile(script, unique_filename, "exec")
-    eval(bytecode, globs, locs)
-
-    # In order of debuggers like PDB being able to step through the code,
-    # we add a fake linecache entry.
-    linecache.cache[unique_filename] = (
-        len(script),
-        None,
-        script.splitlines(True),
-        unique_filename,
-    )
-    return locs["__eq__"]
+    return _make_method("__eq__", script, unique_filename)
 
 
 def _make_order(cls, attrs):
@@ -1865,6 +1903,7 @@ def _is_slot_attr(a_name, base_attr_map):
 def _make_init(
     cls,
     attrs,
+    pre_init,
     post_init,
     frozen,
     slots,
@@ -1872,6 +1911,7 @@ def _make_init(
     base_attr_map,
     is_exc,
     has_global_on_setattr,
+    attrs_init,
 ):
     if frozen and has_global_on_setattr:
         raise ValueError("Frozen classes can't use on_setattr.")
@@ -1902,15 +1942,19 @@ def _make_init(
         filtered_attrs,
         frozen,
         slots,
+        pre_init,
         post_init,
         cache_hash,
         base_attr_map,
         is_exc,
         needs_cached_setattr,
         has_global_on_setattr,
+        attrs_init,
     )
-    locs = {}
-    bytecode = compile(script, unique_filename, "exec")
+    if cls.__module__ in sys.modules:
+        # This makes typing.get_type_hints(CLS.__init__) resolve string types.
+        globs.update(sys.modules[cls.__module__].__dict__)
+
     globs.update({"NOTHING": NOTHING, "attr_dict": attr_dict})
 
     if needs_cached_setattr:
@@ -1918,21 +1962,15 @@ def _make_init(
         # setattr hooks.
         globs["_cached_setattr"] = _obj_setattr
 
-    eval(bytecode, globs, locs)
-
-    # In order of debuggers like PDB being able to step through the code,
-    # we add a fake linecache entry.
-    linecache.cache[unique_filename] = (
-        len(script),
-        None,
-        script.splitlines(True),
+    init = _make_method(
+        "__attrs_init__" if attrs_init else "__init__",
+        script,
         unique_filename,
+        globs,
     )
+    init.__annotations__ = annotations
 
-    __init__ = locs["__init__"]
-    __init__.__annotations__ = annotations
-
-    return __init__
+    return init
 
 
 def _setattr(attr_name, value_var, has_on_setattr):
@@ -2041,12 +2079,14 @@ def _attrs_to_init_script(
     attrs,
     frozen,
     slots,
+    pre_init,
     post_init,
     cache_hash,
     base_attr_map,
     is_exc,
     needs_cached_setattr,
     has_global_on_setattr,
+    attrs_init,
 ):
     """
     Return a script of an initializer for *attrs* and a dict of globals.
@@ -2057,6 +2097,9 @@ def _attrs_to_init_script(
     a cached ``object.__setattr__``.
     """
     lines = []
+    if pre_init:
+        lines.append("self.__attrs_pre_init__()")
+
     if needs_cached_setattr:
         lines.append(
             # Circumvent the __setattr__ descriptor to save one lookup per
@@ -2317,10 +2360,12 @@ def _attrs_to_init_script(
             )
     return (
         """\
-def __init__(self, {args}):
+def {init_name}(self, {args}):
     {lines}
 """.format(
-            args=args, lines="\n    ".join(lines) if lines else "pass"
+            init_name=("__attrs_init__" if attrs_init else "__init__"),
+            args=args,
+            lines="\n    ".join(lines) if lines else "pass",
         ),
         names_for_globals,
         annotations,
@@ -2666,7 +2711,6 @@ class _CountingAttr(object):
 _CountingAttr = _add_eq(_add_repr(_CountingAttr))
 
 
-@attrs(slots=True, init=False, hash=True)
 class Factory(object):
     """
     Stores a factory callable.
@@ -2682,8 +2726,7 @@ class Factory(object):
     .. versionadded:: 17.1.0  *takes_self*
     """
 
-    factory = attrib()
-    takes_self = attrib()
+    __slots__ = ("factory", "takes_self")
 
     def __init__(self, factory, takes_self=False):
         """
@@ -2692,6 +2735,38 @@ class Factory(object):
         """
         self.factory = factory
         self.takes_self = takes_self
+
+    def __getstate__(self):
+        """
+        Play nice with pickle.
+        """
+        return tuple(getattr(self, name) for name in self.__slots__)
+
+    def __setstate__(self, state):
+        """
+        Play nice with pickle.
+        """
+        for name, value in zip(self.__slots__, state):
+            setattr(self, name, value)
+
+
+_f = [
+    Attribute(
+        name=name,
+        default=NOTHING,
+        validator=None,
+        repr=True,
+        cmp=None,
+        eq=True,
+        order=False,
+        hash=True,
+        init=True,
+        inherited=False,
+    )
+    for name in Factory.__slots__
+]
+
+Factory = _add_hash(_add_eq(_add_repr(Factory, attrs=_f), attrs=_f), attrs=_f)
 
 
 def make_class(name, attrs, bases=(object,), **attributes_arguments):
@@ -2726,12 +2801,19 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
     else:
         raise TypeError("attrs argument must be a dict or a list.")
 
+    pre_init = cls_dict.pop("__attrs_pre_init__", None)
     post_init = cls_dict.pop("__attrs_post_init__", None)
-    type_ = type(
-        name,
-        bases,
-        {} if post_init is None else {"__attrs_post_init__": post_init},
-    )
+    user_init = cls_dict.pop("__init__", None)
+
+    body = {}
+    if pre_init is not None:
+        body["__attrs_pre_init__"] = pre_init
+    if post_init is not None:
+        body["__attrs_post_init__"] = post_init
+    if user_init is not None:
+        body["__init__"] = user_init
+
+    type_ = type(name, bases, body)
     # For pickling to work, the __module__ variable needs to be set to the
     # frame where the class is created.  Bypass this step in environments where
     # sys._getframe is not defined (Jython for example) or sys._getframe is not

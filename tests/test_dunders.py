@@ -62,6 +62,7 @@ def _add_init(cls, frozen):
     cls.__init__ = _make_init(
         cls,
         cls.__attrs_attrs__,
+        getattr(cls, "__attrs_pre_init__", False),
         getattr(cls, "__attrs_post_init__", False),
         frozen,
         _is_slot_cls(cls),
@@ -69,6 +70,7 @@ def _add_init(cls, frozen):
         base_attr_map={},
         is_exc=False,
         has_global_on_setattr=False,
+        attrs_init=False,
     )
     return cls
 
