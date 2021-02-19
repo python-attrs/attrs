@@ -622,3 +622,19 @@ class TestEvolve(object):
         c2 = evolve(c1, a={"c": {"e": 23}}, b=42)
 
         assert c2 == C(N1(N2(23), 2), 42)
+
+    def test_recursive_dict_val(self):
+        """
+        evolve() only attempts recursion when the current value is an ``attrs``
+        class.  Dictionaries as values can be replaced like any other value.
+        """
+
+        @attr.s
+        class C(object):
+            a = attr.ib(type=dict)
+            b = attr.ib(type=int)
+
+        c1 = C({"spam": 1}, 2)
+        c2 = evolve(c1, a={"eggs": 2}, b=42)
+
+        assert c2 == C({"eggs": 2}, 42)
