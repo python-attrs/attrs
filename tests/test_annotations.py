@@ -4,6 +4,7 @@ Tests for PEP-526 type annotations.
 Python 3.6+ only.
 """
 
+import sys
 import types
 import typing
 
@@ -11,7 +12,6 @@ import pytest
 
 import attr
 
-from attr._make import _classvar_prefixes
 from attr.exceptions import UnannotatedAttributeError
 
 
@@ -31,14 +31,16 @@ class TestAnnotations:
             y = attr.ib(type=str)
             z = attr.ib()
 
+        attr.resolve_types(C)
+
         assert int is attr.fields(C).x.type
         assert str is attr.fields(C).y.type
         assert None is attr.fields(C).z.type
-        assert C.__init__.__annotations__ == {
+        assert {
             "x": int,
             "y": str,
-            "return": None,
-        }
+            "return": type(None),
+        } == typing.get_type_hints(C.__init__)
 
     def test_catches_basic_type_conflict(self):
         """
@@ -64,13 +66,15 @@ class TestAnnotations:
             x: typing.List[int] = attr.ib()
             y = attr.ib(type=typing.Optional[str])
 
+        attr.resolve_types(C)
+
         assert typing.List[int] is attr.fields(C).x.type
         assert typing.Optional[str] is attr.fields(C).y.type
-        assert C.__init__.__annotations__ == {
+        assert {
             "x": typing.List[int],
             "y": typing.Optional[str],
-            "return": None,
-        }
+            "return": type(None),
+        } == typing.get_type_hints(C.__init__)
 
     def test_only_attrs_annotations_collected(self):
         """
@@ -82,11 +86,13 @@ class TestAnnotations:
             x: typing.List[int] = attr.ib()
             y: int
 
+        attr.resolve_types(C)
+
         assert 1 == len(attr.fields(C))
-        assert C.__init__.__annotations__ == {
+        assert {
             "x": typing.List[int],
-            "return": None,
-        }
+            "return": type(None),
+        } == typing.get_type_hints(C.__init__)
 
     @pytest.mark.parametrize("slots", [True, False])
     def test_auto_attribs(self, slots):
@@ -110,6 +116,8 @@ class TestAnnotations:
         attr_names = set(a.name for a in C.__attrs_attrs__)
         assert "a" in attr_names  # just double check that the set works
         assert "cls_var" not in attr_names
+
+        attr.resolve_types(C)
 
         assert int == attr.fields(C).a.type
 
@@ -135,14 +143,14 @@ class TestAnnotations:
             i.y = 23
             assert 23 == i.y
 
-        assert C.__init__.__annotations__ == {
+        assert {
             "a": int,
             "x": typing.List[int],
             "y": int,
             "z": int,
-            "foo": typing.Any,
-            "return": None,
-        }
+            "foo": typing.Optional[typing.Any],
+            "return": type(None),
+        } == typing.get_type_hints(C.__init__)
 
     @pytest.mark.parametrize("slots", [True, False])
     def test_auto_attribs_unannotated(self, slots):
@@ -186,13 +194,21 @@ class TestAnnotations:
         assert "B(a=1, b=2)" == repr(B())
         assert "C(a=1)" == repr(C())
 
-        assert A.__init__.__annotations__ == {"a": int, "return": None}
-        assert B.__init__.__annotations__ == {
+        attr.resolve_types(A)
+        attr.resolve_types(B)
+        attr.resolve_types(C)
+
+        assert {"a": int, "return": type(None)} == typing.get_type_hints(
+            A.__init__
+        )
+        assert {
             "a": int,
             "b": int,
-            "return": None,
-        }
-        assert C.__init__.__annotations__ == {"a": int, "return": None}
+            "return": type(None),
+        } == typing.get_type_hints(B.__init__)
+        assert {"a": int, "return": type(None)} == typing.get_type_hints(
+            C.__init__
+        )
 
     def test_converter_annotations(self):
         """
@@ -207,7 +223,9 @@ class TestAnnotations:
         class A:
             a = attr.ib(converter=int2str)
 
-        assert A.__init__.__annotations__ == {"a": int, "return": None}
+        assert {"a": int, "return": type(None)} == typing.get_type_hints(
+            A.__init__
+        )
 
         def int2str_(x: int, y: str = ""):
             return str(x)
@@ -216,7 +234,9 @@ class TestAnnotations:
         class A:
             a = attr.ib(converter=int2str_)
 
-        assert A.__init__.__annotations__ == {"a": int, "return": None}
+        assert {"a": int, "return": type(None)} == typing.get_type_hints(
+            A.__init__
+        )
 
     def test_converter_attrib_annotations(self):
         """
@@ -382,30 +402,41 @@ class TestAnnotations:
 
         assert attr.converters.optional(noop).__annotations__ == {}
 
+    @pytest.mark.xfail(
+        sys.version_info[:2] == (3, 6), reason="Does not work on 3.6."
+    )
     @pytest.mark.parametrize("slots", [True, False])
-    @pytest.mark.parametrize("classvar", _classvar_prefixes)
-    def test_annotations_strings(self, slots, classvar):
+    def test_annotations_strings(self, slots):
         """
         String annotations are passed into __init__ as is.
+
+        It fails on 3.6 due to a bug in Python.
         """
+        import typing as t
+
+        from typing import ClassVar
 
         @attr.s(auto_attribs=True, slots=slots)
         class C:
-            cls_var: classvar + "[int]" = 23
+            cls_var1: "typing.ClassVar[int]" = 23
+            cls_var2: "ClassVar[int]" = 23
+            cls_var3: "t.ClassVar[int]" = 23
             a: "int"
             x: "typing.List[int]" = attr.Factory(list)
             y: "int" = 2
             z: "int" = attr.ib(default=3)
             foo: "typing.Any" = None
 
-        assert C.__init__.__annotations__ == {
-            "a": "int",
-            "x": "typing.List[int]",
-            "y": "int",
-            "z": "int",
-            "foo": "typing.Any",
-            "return": None,
-        }
+        attr.resolve_types(C, locals(), globals())
+
+        assert {
+            "a": int,
+            "x": typing.List[int],
+            "y": int,
+            "z": int,
+            "foo": typing.Optional[typing.Any],
+            "return": type(None),
+        } == typing.get_type_hints(C.__init__)
 
     def test_keyword_only_auto_attribs(self):
         """
@@ -487,10 +518,6 @@ class TestAnnotations:
             y = attr.ib(type=str)
             z = attr.ib()
 
-        assert "int" == attr.fields(C).x.type
-        assert str is attr.fields(C).y.type
-        assert None is attr.fields(C).z.type
-
         attr.resolve_types(C)
 
         assert int is attr.fields(C).x.type
@@ -508,10 +535,6 @@ class TestAnnotations:
             a: typing.List[int]
             b: typing.List["int"]
             c: "typing.List[int]"
-
-        assert typing.List[int] == attr.fields(A).a.type
-        assert typing.List["int"] == attr.fields(A).b.type
-        assert "typing.List[int]" == attr.fields(A).c.type
 
         # Note: I don't have to pass globals and locals here because
         # int is a builtin and will be available in any scope.
@@ -549,9 +572,6 @@ class TestAnnotations:
             a: "A"
             b: typing.Optional["A"]  # noqa: will resolve below
 
-        assert "A" == attr.fields(A).a.type
-        assert typing.Optional["A"] == attr.fields(A).b.type
-
         attr.resolve_types(A, globals(), locals())
 
         assert A == attr.fields(A).a.type
@@ -571,10 +591,11 @@ class TestAnnotations:
         class B:
             a: A
 
-        assert typing.List["B"] == attr.fields(A).a.type
-        assert A == attr.fields(B).a.type
-
         attr.resolve_types(A, globals(), locals())
+        attr.resolve_types(B, globals(), locals())
+
+        assert typing.List[B] == attr.fields(A).a.type
+        assert A == attr.fields(B).a.type
 
         assert typing.List[B] == attr.fields(A).a.type
         assert A == attr.fields(B).a.type

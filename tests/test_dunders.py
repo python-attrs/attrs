@@ -729,9 +729,8 @@ class TestAddInit(object):
         with pytest.raises(TypeError) as e:
             C(a=1, b=2)
 
-        assert (
+        assert e.value.args[0].endswith(
             "__init__() got an unexpected keyword argument 'a'"
-            == e.value.args[0]
         )
 
     @given(booleans(), booleans())
