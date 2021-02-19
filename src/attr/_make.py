@@ -1761,11 +1761,7 @@ def _make_eq(cls, attrs):
 
     script = "\n".join(lines)
 
-    return _make_method(
-        "__eq__",
-        script,
-        unique_filename,
-        globs)
+    return _make_method("__eq__", script, unique_filename, globs)
 
 
 def _make_order(cls, attrs):
