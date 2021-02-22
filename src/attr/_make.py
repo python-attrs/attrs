@@ -384,7 +384,13 @@ def _is_class_var(annot):
     annotations which would put attrs-based classes at a performance
     disadvantage compared to plain old classes.
     """
-    return str(annot).startswith(_classvar_prefixes)
+    annot = str(annot)
+
+    # Annotation can be quoted.
+    if annot.startswith(("'", '"')) and annot.endswith(("'", '"')):
+        annot = annot[1:-1]
+
+    return annot.startswith(_classvar_prefixes)
 
 
 def _has_own_attribute(cls, attrib_name):

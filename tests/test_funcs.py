@@ -552,7 +552,7 @@ class TestEvolve(object):
         else:
             expected = "__init__() got an unexpected keyword argument 'aaaa'"
 
-        assert (expected,) == e.value.args
+        assert e.value.args[0].endswith(expected)
 
     def test_validator_failure(self):
         """
