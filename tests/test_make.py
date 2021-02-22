@@ -29,7 +29,8 @@ from attr._make import (
     _Attributes,
     _ClassBuilder,
     _CountingAttr,
-    _determine_eq_order,
+    _determine_attrib_eq_order,
+    _determine_attrs_eq_order,
     _determine_whether_to_implement,
     _transform_attrs,
     and_,
@@ -222,7 +223,8 @@ class TestTransformAttrs(object):
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
             "(name='y', default=NOTHING, validator=None, repr=True, "
-            "eq=True, order=True, hash=None, init=True, "
+            "eq=True, eq_key=None, order=True, order_key=None, "
+            "hash=None, init=True, "
             "metadata=mappingproxy({}), type=None, converter=None, "
             "kw_only=False, inherited=False, on_setattr=None)",
         ) == e.value.args
@@ -1809,19 +1811,19 @@ class TestMakeOrder:
                 a > b
 
 
-class TestDetermineEqOrder(object):
+class TestDetermineAttrsEqOrder(object):
     def test_default(self):
         """
         If all are set to None, set both eq and order to the passed default.
         """
-        assert (42, 42) == _determine_eq_order(None, None, None, 42)
+        assert (42, 42) == _determine_attrs_eq_order(None, None, None, 42)
 
     @pytest.mark.parametrize("eq", [True, False])
     def test_order_mirrors_eq_by_default(self, eq):
         """
         If order is None, it mirrors eq.
         """
-        assert (eq, eq) == _determine_eq_order(None, eq, None, True)
+        assert (eq, eq) == _determine_attrs_eq_order(None, eq, None, True)
 
     def test_order_without_eq(self):
         """
@@ -1830,7 +1832,7 @@ class TestDetermineEqOrder(object):
         with pytest.raises(
             ValueError, match="`order` can only be True if `eq` is True too."
         ):
-            _determine_eq_order(None, False, True, True)
+            _determine_attrs_eq_order(None, False, True, True)
 
     @given(cmp=booleans(), eq=optional_bool, order=optional_bool)
     def test_mix(self, cmp, eq, order):
@@ -1842,7 +1844,7 @@ class TestDetermineEqOrder(object):
         with pytest.raises(
             ValueError, match="Don't mix `cmp` with `eq' and `order`."
         ):
-            _determine_eq_order(cmp, eq, order, True)
+            _determine_attrs_eq_order(cmp, eq, order, True)
 
     def test_cmp_deprecated(self):
         """
@@ -1853,6 +1855,133 @@ class TestDetermineEqOrder(object):
             @attr.s(cmp=True)
             class C(object):
                 pass
+
+        (w,) = dc.list
+
+        assert (
+            "The usage of `cmp` is deprecated and will be removed on or after "
+            "2021-06-01.  Please use `eq` and `order` instead."
+            == w.message.args[0]
+        )
+
+
+class TestDetermineAttribEqOrder(object):
+    def test_default(self):
+        """
+        If all are set to None, set both eq and order to the passed default.
+        """
+        assert (42, None, 42, None) == _determine_attrib_eq_order(
+            None, None, None, 42
+        )
+
+    def test_eq_callable_order_boolean(self):
+        """
+        eq=callable or order=callable need to transformed into eq/eq_key
+        or order/order_key.
+        """
+        assert (True, str.lower, False, None) == _determine_attrib_eq_order(
+            None, str.lower, False, True
+        )
+
+    def test_eq_callable_order_callable(self):
+        """
+        eq=callable or order=callable need to transformed into eq/eq_key
+        or order/order_key.
+        """
+        assert (True, str.lower, True, abs) == _determine_attrib_eq_order(
+            None, str.lower, abs, True
+        )
+
+    def test_eq_boolean_order_callable(self):
+        """
+        eq=callable or order=callable need to transformed into eq/eq_key
+        or order/order_key.
+        """
+        assert (True, None, True, str.lower) == _determine_attrib_eq_order(
+            None, True, str.lower, True
+        )
+
+    @pytest.mark.parametrize("eq", [True, False])
+    def test_order_mirrors_eq_by_default(self, eq):
+        """
+        If order is None, it mirrors eq.
+        """
+        assert (eq, None, eq, None) == _determine_attrib_eq_order(
+            None, eq, None, True
+        )
+
+    def test_order_missing_and_custom_eq(self):
+        """
+        If eq is customized and order is missing, order mirrors eq
+        but a warning is raised.
+        """
+        with pytest.warns(None) as wr:
+
+            assert (
+                True,
+                str.lower,
+                True,
+                str.lower,
+            ) == _determine_attrib_eq_order(None, str.lower, None, True)
+
+        (w,) = wr.list
+
+        assert (
+            "You have customized the behaviour of `eq` but not of `order`.  "
+            "This is probably a bug." == w.message.args[0]
+        )
+
+    def test_order_without_eq(self):
+        """
+        eq=False, order=True raises a meaningful ValueError.
+        """
+        with pytest.raises(
+            ValueError, match="`order` can only be True if `eq` is True too."
+        ):
+            _determine_attrib_eq_order(None, False, True, True)
+
+    @given(cmp=booleans(), eq=optional_bool, order=optional_bool)
+    def test_mix(self, cmp, eq, order):
+        """
+        If cmp is not None, eq and order must be None and vice versa.
+        """
+        assume(eq is not None or order is not None)
+
+        with pytest.raises(
+            ValueError, match="Don't mix `cmp` with `eq' and `order`."
+        ):
+            _determine_attrib_eq_order(cmp, eq, order, True)
+
+    def test_boolean_cmp_deprecated(self):
+        """
+        Passing a cmp that is not None raises a DeprecationWarning.
+        """
+        with pytest.deprecated_call() as dc:
+
+            assert (True, None, True, None) == _determine_attrib_eq_order(
+                True, None, None, True
+            )
+
+        (w,) = dc.list
+
+        assert (
+            "The usage of `cmp` is deprecated and will be removed on or after "
+            "2021-06-01.  Please use `eq` and `order` instead."
+            == w.message.args[0]
+        )
+
+    def test_callable_cmp_deprecated(self):
+        """
+        Passing a cmp that is not None raises a DeprecationWarning.
+        """
+        with pytest.deprecated_call() as dc:
+
+            assert (
+                True,
+                str.lower,
+                True,
+                str.lower,
+            ) == _determine_attrib_eq_order(str.lower, None, None, True)
 
         (w,) = dc.list
 

@@ -37,6 +37,7 @@ __copyright__: str
 _T = TypeVar("_T")
 _C = TypeVar("_C", bound=type)
 
+_EqOrderType = Union[bool, Callable[[Any], Any]]
 _ValidatorType = Callable[[Any, Attribute[_T], _T], Any]
 _ConverterType = Callable[[Any], Any]
 _FilterType = Callable[[Attribute[_T], _T], bool]
@@ -72,9 +73,9 @@ class Attribute(Generic[_T]):
     default: Optional[_T]
     validator: Optional[_ValidatorType[_T]]
     repr: _ReprArgType
-    cmp: bool
-    eq: bool
-    order: bool
+    cmp: _EqOrderType
+    eq: _EqOrderType
+    order: _EqOrderType
     hash: Optional[bool]
     init: bool
     converter: Optional[_ConverterType]
@@ -114,7 +115,7 @@ def attrib(
     default: None = ...,
     validator: None = ...,
     repr: _ReprArgType = ...,
-    cmp: Optional[bool] = ...,
+    cmp: Optional[_EqOrderType] = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
     metadata: Optional[Mapping[Any, Any]] = ...,
@@ -122,8 +123,8 @@ def attrib(
     converter: None = ...,
     factory: None = ...,
     kw_only: bool = ...,
-    eq: Optional[bool] = ...,
-    order: Optional[bool] = ...,
+    eq: Optional[_EqOrderType] = ...,
+    order: Optional[_EqOrderType] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
 ) -> Any: ...
 
@@ -134,7 +135,7 @@ def attrib(
     default: None = ...,
     validator: Optional[_ValidatorArgType[_T]] = ...,
     repr: _ReprArgType = ...,
-    cmp: Optional[bool] = ...,
+    cmp: Optional[_EqOrderType] = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
     metadata: Optional[Mapping[Any, Any]] = ...,
@@ -142,8 +143,8 @@ def attrib(
     converter: Optional[_ConverterType] = ...,
     factory: Optional[Callable[[], _T]] = ...,
     kw_only: bool = ...,
-    eq: Optional[bool] = ...,
-    order: Optional[bool] = ...,
+    eq: Optional[_EqOrderType] = ...,
+    order: Optional[_EqOrderType] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
 ) -> _T: ...
 
@@ -153,7 +154,7 @@ def attrib(
     default: _T,
     validator: Optional[_ValidatorArgType[_T]] = ...,
     repr: _ReprArgType = ...,
-    cmp: Optional[bool] = ...,
+    cmp: Optional[_EqOrderType] = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
     metadata: Optional[Mapping[Any, Any]] = ...,
@@ -161,8 +162,8 @@ def attrib(
     converter: Optional[_ConverterType] = ...,
     factory: Optional[Callable[[], _T]] = ...,
     kw_only: bool = ...,
-    eq: Optional[bool] = ...,
-    order: Optional[bool] = ...,
+    eq: Optional[_EqOrderType] = ...,
+    order: Optional[_EqOrderType] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
 ) -> _T: ...
 
@@ -172,7 +173,7 @@ def attrib(
     default: Optional[_T] = ...,
     validator: Optional[_ValidatorArgType[_T]] = ...,
     repr: _ReprArgType = ...,
-    cmp: Optional[bool] = ...,
+    cmp: Optional[_EqOrderType] = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
     metadata: Optional[Mapping[Any, Any]] = ...,
@@ -180,8 +181,8 @@ def attrib(
     converter: Optional[_ConverterType] = ...,
     factory: Optional[Callable[[], _T]] = ...,
     kw_only: bool = ...,
-    eq: Optional[bool] = ...,
-    order: Optional[bool] = ...,
+    eq: Optional[_EqOrderType] = ...,
+    order: Optional[_EqOrderType] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
 ) -> Any: ...
 @overload
@@ -215,8 +216,8 @@ def field(
     converter: Optional[_ConverterType] = ...,
     factory: Optional[Callable[[], _T]] = ...,
     kw_only: bool = ...,
-    eq: Optional[bool] = ...,
-    order: Optional[bool] = ...,
+    eq: Optional[_EqOrderType] = ...,
+    order: Optional[_EqOrderType] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
 ) -> _T: ...
 
@@ -233,8 +234,8 @@ def field(
     converter: Optional[_ConverterType] = ...,
     factory: Optional[Callable[[], _T]] = ...,
     kw_only: bool = ...,
-    eq: Optional[bool] = ...,
-    order: Optional[bool] = ...,
+    eq: Optional[_EqOrderType] = ...,
+    order: Optional[_EqOrderType] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
 ) -> _T: ...
 
@@ -251,8 +252,8 @@ def field(
     converter: Optional[_ConverterType] = ...,
     factory: Optional[Callable[[], _T]] = ...,
     kw_only: bool = ...,
-    eq: Optional[bool] = ...,
-    order: Optional[bool] = ...,
+    eq: Optional[_EqOrderType] = ...,
+    order: Optional[_EqOrderType] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
 ) -> Any: ...
 @overload
@@ -261,7 +262,7 @@ def attrs(
     these: Optional[Dict[str, Any]] = ...,
     repr_ns: Optional[str] = ...,
     repr: bool = ...,
-    cmp: Optional[bool] = ...,
+    cmp: Optional[_EqOrderType] = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
     slots: bool = ...,
@@ -272,8 +273,8 @@ def attrs(
     kw_only: bool = ...,
     cache_hash: bool = ...,
     auto_exc: bool = ...,
-    eq: Optional[bool] = ...,
-    order: Optional[bool] = ...,
+    eq: Optional[_EqOrderType] = ...,
+    order: Optional[_EqOrderType] = ...,
     auto_detect: bool = ...,
     collect_by_mro: bool = ...,
     getstate_setstate: Optional[bool] = ...,
@@ -286,7 +287,7 @@ def attrs(
     these: Optional[Dict[str, Any]] = ...,
     repr_ns: Optional[str] = ...,
     repr: bool = ...,
-    cmp: Optional[bool] = ...,
+    cmp: Optional[_EqOrderType] = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
     slots: bool = ...,
@@ -297,8 +298,8 @@ def attrs(
     kw_only: bool = ...,
     cache_hash: bool = ...,
     auto_exc: bool = ...,
-    eq: Optional[bool] = ...,
-    order: Optional[bool] = ...,
+    eq: Optional[_EqOrderType] = ...,
+    order: Optional[_EqOrderType] = ...,
     auto_detect: bool = ...,
     collect_by_mro: bool = ...,
     getstate_setstate: Optional[bool] = ...,
@@ -377,7 +378,7 @@ def make_class(
     bases: Tuple[type, ...] = ...,
     repr_ns: Optional[str] = ...,
     repr: bool = ...,
-    cmp: Optional[bool] = ...,
+    cmp: Optional[_EqOrderType] = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
     slots: bool = ...,
@@ -388,8 +389,8 @@ def make_class(
     kw_only: bool = ...,
     cache_hash: bool = ...,
     auto_exc: bool = ...,
-    eq: Optional[bool] = ...,
-    order: Optional[bool] = ...,
+    eq: Optional[_EqOrderType] = ...,
+    order: Optional[_EqOrderType] = ...,
     collect_by_mro: bool = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
     field_transformer: Optional[_FieldTransformer] = ...,

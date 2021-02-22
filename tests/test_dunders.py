@@ -36,6 +36,31 @@ OrderCSlots = simple_class(order=True, slots=True)
 ReprC = simple_class(repr=True)
 ReprCSlots = simple_class(repr=True, slots=True)
 
+
+@attr.s(eq=True)
+class EqCallableC(object):
+    a = attr.ib(eq=str.lower, order=False)
+    b = attr.ib(eq=True)
+
+
+@attr.s(eq=True, slots=True)
+class EqCallableCSlots(object):
+    a = attr.ib(eq=str.lower, order=False)
+    b = attr.ib(eq=True)
+
+
+@attr.s(order=True)
+class OrderCallableC(object):
+    a = attr.ib(eq=True, order=str.lower)
+    b = attr.ib(order=True)
+
+
+@attr.s(order=True, slots=True)
+class OrderCallableCSlots(object):
+    a = attr.ib(eq=True, order=str.lower)
+    b = attr.ib(order=True)
+
+
 # HashC is hashable by explicit definition while HashCSlots is hashable
 # implicitly.  The "Cached" versions are the same, except with hash code
 # caching enabled
@@ -106,6 +131,16 @@ class TestEqOrder(object):
         assert cls(1, 2) == cls(1, 2)
         assert not (cls(1, 2) != cls(1, 2))
 
+    @pytest.mark.parametrize("cls", [EqCallableC, EqCallableCSlots])
+    def test_equal_callable(self, cls):
+        """
+        Equal objects are detected as equal.
+        """
+        assert cls("Test", 1) == cls("test", 1)
+        assert cls("Test", 1) != cls("test", 2)
+        assert not (cls("Test", 1) != cls("test", 1))
+        assert not (cls("Test", 1) == cls("test", 2))
+
     @pytest.mark.parametrize("cls", [EqC, EqCSlots])
     def test_unequal_same_class(self, cls):
         """
@@ -114,7 +149,17 @@ class TestEqOrder(object):
         assert cls(1, 2) != cls(2, 1)
         assert not (cls(1, 2) == cls(2, 1))
 
-    @pytest.mark.parametrize("cls", [EqC, EqCSlots])
+    @pytest.mark.parametrize("cls", [EqCallableC, EqCallableCSlots])
+    def test_unequal_same_class_callable(self, cls):
+        """
+        Unequal objects of correct type are detected as unequal.
+        """
+        assert cls("Test", 1) != cls("foo", 2)
+        assert not (cls("Test", 1) == cls("foo", 2))
+
+    @pytest.mark.parametrize(
+        "cls", [EqC, EqCSlots, EqCallableC, EqCallableCSlots]
+    )
     def test_unequal_different_class(self, cls):
         """
         Unequal objects of different type are detected even if their attributes
@@ -140,7 +185,21 @@ class TestEqOrder(object):
         ]:
             assert cls(*a) < cls(*b)
 
-    @pytest.mark.parametrize("cls", [OrderC, OrderCSlots])
+    @pytest.mark.parametrize("cls", [OrderCallableC, OrderCallableCSlots])
+    def test_lt_callable(self, cls):
+        """
+        __lt__ compares objects as tuples of attribute values.
+        """
+        # Note: "A" < "a"
+        for a, b in [
+            (("test1", 1), ("Test1", 2)),
+            (("test0", 1), ("Test1", 1)),
+        ]:
+            assert cls(*a) < cls(*b)
+
+    @pytest.mark.parametrize(
+        "cls", [OrderC, OrderCSlots, OrderCallableC, OrderCallableCSlots]
+    )
     def test_lt_unordable(self, cls):
         """
         __lt__ returns NotImplemented if classes differ.
@@ -161,7 +220,23 @@ class TestEqOrder(object):
         ]:
             assert cls(*a) <= cls(*b)
 
-    @pytest.mark.parametrize("cls", [OrderC, OrderCSlots])
+    @pytest.mark.parametrize("cls", [OrderCallableC, OrderCallableCSlots])
+    def test_le_callable(self, cls):
+        """
+        __le__ compares objects as tuples of attribute values.
+        """
+        # Note: "A" < "a"
+        for a, b in [
+            (("test1", 1), ("Test1", 1)),
+            (("test1", 1), ("Test1", 2)),
+            (("test0", 1), ("Test1", 1)),
+            (("test0", 2), ("Test1", 1)),
+        ]:
+            assert cls(*a) <= cls(*b)
+
+    @pytest.mark.parametrize(
+        "cls", [OrderC, OrderCSlots, OrderCallableC, OrderCallableCSlots]
+    )
     def test_le_unordable(self, cls):
         """
         __le__ returns NotImplemented if classes differ.
@@ -180,7 +255,21 @@ class TestEqOrder(object):
         ]:
             assert cls(*a) > cls(*b)
 
-    @pytest.mark.parametrize("cls", [OrderC, OrderCSlots])
+    @pytest.mark.parametrize("cls", [OrderCallableC, OrderCallableCSlots])
+    def test_gt_callable(self, cls):
+        """
+        __gt__ compares objects as tuples of attribute values.
+        """
+        # Note: "A" < "a"
+        for a, b in [
+            (("Test1", 2), ("test1", 1)),
+            (("Test1", 1), ("test0", 1)),
+        ]:
+            assert cls(*a) > cls(*b)
+
+    @pytest.mark.parametrize(
+        "cls", [OrderC, OrderCSlots, OrderCallableC, OrderCallableCSlots]
+    )
     def test_gt_unordable(self, cls):
         """
         __gt__ returns NotImplemented if classes differ.
@@ -201,7 +290,23 @@ class TestEqOrder(object):
         ]:
             assert cls(*a) >= cls(*b)
 
-    @pytest.mark.parametrize("cls", [OrderC, OrderCSlots])
+    @pytest.mark.parametrize("cls", [OrderCallableC, OrderCallableCSlots])
+    def test_ge_callable(self, cls):
+        """
+        __ge__ compares objects as tuples of attribute values.
+        """
+        # Note: "A" < "a"
+        for a, b in [
+            (("Test1", 1), ("test1", 1)),
+            (("Test1", 2), ("test1", 1)),
+            (("Test1", 1), ("test0", 1)),
+            (("Test1", 1), ("test0", 2)),
+        ]:
+            assert cls(*a) >= cls(*b)
+
+    @pytest.mark.parametrize(
+        "cls", [OrderC, OrderCSlots, OrderCallableC, OrderCallableCSlots]
+    )
     def test_ge_unordable(self, cls):
         """
         __ge__ returns NotImplemented if classes differ.
