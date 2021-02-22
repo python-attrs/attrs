@@ -1061,7 +1061,7 @@ _CMP_DEPRECATION = (
 )
 
 _EQ_ORDER_CUSTOMIZATION = (
-    "You have customized the behaviour of `eq` but not of `order`.  "
+    "You have customized the behavior of `eq` but not of `order`.  "
     "This is probably a bug."
 )
 
@@ -2484,7 +2484,7 @@ class Attribute(object):
     .. versionadded:: 20.1.0 *on_setattr*
     .. versionchanged:: 20.2.0 *inherited* is not taken into account for
         equality checks and hashing anymore.
-    .. versionadded:: 20.X.Y *eq_key* and *order_key*
+    .. versionadded:: 21.1.0 *eq_key* and *order_key*
 
     For the full version history of the fields, see `attr.ib`.
     """
@@ -2660,9 +2660,7 @@ _a = [
         repr=True,
         cmp=None,
         eq=True,
-        # eq_key=None,
         order=False,
-        # order_key=None,
         hash=(name != "metadata"),
         init=True,
         inherited=False,

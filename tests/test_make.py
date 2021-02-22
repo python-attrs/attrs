@@ -1927,7 +1927,7 @@ class TestDetermineAttribEqOrder(object):
         (w,) = wr.list
 
         assert (
-            "You have customized the behaviour of `eq` but not of `order`.  "
+            "You have customized the behavior of `eq` but not of `order`.  "
             "This is probably a bug." == w.message.args[0]
         )
 
