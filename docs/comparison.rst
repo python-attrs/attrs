@@ -22,8 +22,10 @@ As with other features, you can exclude attributes from being involved in compar
    >>> C(1, 2) == C(1, 3)
    True
 
-Additionally you can also pass a *callable* instead of a bool to both ``eq`` and ``order``.
+Additionally you can also pass a *callable* instead of a bool to both ``eq`` and ``order``
 It is then used as a key function like you may know from `sorted`:
+
+.. doctest::
 
    >>> import attr
    >>> @attr.s
@@ -34,3 +36,5 @@ It is then used as a key function like you may know from `sorted`:
 
 This is especially useful when you have fields with objects that have untypical comparison properties.
 A common example being `NumPy arrays <https://github.com/python-attrs/attrs/issues/435>`_.
+
+Please note that they are set *independently* because *order* is `False` by default in `modern APIs <prov>`.
