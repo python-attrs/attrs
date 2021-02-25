@@ -362,7 +362,7 @@ If you need to set attributes on a frozen class, you'll have to resort to the `s
    >>> Frozen(1)
    Frozen(x=1, y=2)
 
-Note that you *must not* access the hash code of the object in ``__attrs_post__init__`` if ``cache_hash=True``.
+Note that you *must not* access the hash code of the object in ``__attrs_post_init__`` if ``cache_hash=True``.
 
 
 Order of Execution
