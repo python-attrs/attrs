@@ -27,9 +27,3 @@ if sys.version_info[:2] < (3, 6):
     )
 if not PY310:
     collect_ignore.extend(["tests/test_pattern_matching.py"])
-if PY310:
-    collect_ignore.extend(
-        [
-            "tests/test_mypy.yml",
-        ]
-    )
