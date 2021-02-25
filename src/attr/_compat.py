@@ -34,6 +34,9 @@ if PY2:
     def iteritems(d):
         return d.iteritems()
 
+    def new_class(name, bases, body):
+        return type(name, bases, body)
+
     # Python 2 is bereft of a read-only dict proxy, so we make one!
     class ReadOnlyDict(IterableUserDict):
         """
@@ -121,6 +124,9 @@ else:  # Python 3 and later.
 
     def iteritems(d):
         return d.items()
+
+    def new_class(name, bases, body):
+        return types.new_class(name, bases, exec_body=lambda ns: body)
 
     def metadata_proxy(d):
         return types.MappingProxyType(dict(d))
