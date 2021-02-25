@@ -22,12 +22,17 @@ As with other features, you can exclude attributes from being involved in compar
    >>> C(1, 2) == C(1, 3)
    True
 
-Additionally you can also pass a *callable* instead of a bool to both ``eq`` and ``order``
+Additionally you can also pass a *callable* instead of a bool to both *eq* and *order*.
 It is then used as a key function like you may know from `sorted`:
 
 .. doctest::
 
    >>> import attr
+   >>> @attr.s
+   ... class S(object):
+   ...     x = attr.ib(eq=str.lower)
+   >>> S("foo") == S("FOO")
+   True
    >>> @attr.s
    ... class C(object):
    ...     x = attr.ib(order=int)
