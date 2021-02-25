@@ -4,13 +4,13 @@ Comparison
 By default, two instances of ``attrs`` classes are equal, if all their fields are equal.
 For that, ``attrs`` writes ``__eq__`` and ``__ne__`` methods for you.
 
-Additionally, if you pass ``order=True`` (default if you use the `attr.s` decorator), ``attrs`` will also create a full set of ordering methods that are based on the defined attributes: ``__le__``, ``__lt__``, ``__ge__``, and ``__gt__``.
+Additionally, if you pass ``order=True`` (which is the default if you use the `attr.s` decorator), ``attrs`` will also create a full set of ordering methods that are based on the defined fields: ``__le__``, ``__lt__``, ``__ge__``, and ``__gt__``.
 
 
 Customization
 -------------
 
-As with other features, you can exclude attributes from being involved in comparison operations:
+As with other features, you can exclude fields from being involved in comparison operations:
 
 .. doctest::
 
