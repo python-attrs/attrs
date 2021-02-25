@@ -28,14 +28,13 @@ if PY2:
     def isclass(klass):
         return isinstance(klass, (type, types.ClassType))
 
+    new_class = type
+
     # TYPE is used in exceptions, repr(int) is different on Python 2 and 3.
     TYPE = "type"
 
     def iteritems(d):
         return d.iteritems()
-
-    def new_class(name, bases, body):
-        return type(name, bases, body)
 
     # Python 2 is bereft of a read-only dict proxy, so we make one!
     class ReadOnlyDict(IterableUserDict):
@@ -126,7 +125,7 @@ else:  # Python 3 and later.
         return d.items()
 
     def new_class(name, bases, body):
-        return types.new_class(name, bases, exec_body=lambda ns: body)
+        return types.new_class(name, bases, {}, lambda ns: ns.update(body))
 
     def metadata_proxy(d):
         return types.MappingProxyType(dict(d))
