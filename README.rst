@@ -10,10 +10,10 @@
           <img src="https://readthedocs.org/projects/attrs/badge/?version=stable" alt="Documentation Status" />
       </a>
       <a href="https://github.com/python-attrs/attrs/actions?workflow=CI">
-          <img src="https://github.com/python-attrs/attrs/workflows/CI/badge.svg?branch=master" alt="CI Status" />
+          <img src="https://github.com/python-attrs/attrs/workflows/CI/badge.svg?branch=main" alt="CI Status" />
       </a>
       <a href="https://codecov.io/github/python-attrs/attrs">
-          <img src="https://codecov.io/github/python-attrs/attrs/branch/master/graph/badge.svg" alt="Test Coverage" />
+          <img src="https://codecov.io/github/python-attrs/attrs/branch/main/graph/badge.svg" alt="Test Coverage" />
       </a>
       <a href="https://github.com/psf/black">
           <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code style: black" />

@@ -4,7 +4,7 @@ Changelog
 Versions follow `CalVer <https://calver.org>`_ with a strict backwards compatibility policy.
 The third digit is only for regressions.
 
-Changes for the upcoming release can be found in the `"changelog.d" directory <https://github.com/python-attrs/attrs/tree/master/changelog.d>`_ in our repository.
+Changes for the upcoming release can be found in the `"changelog.d" directory <https://github.com/python-attrs/attrs/tree/main/changelog.d>`_ in our repository.
 
 ..
    Do *NOT* add changelog entries here!
