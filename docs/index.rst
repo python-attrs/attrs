@@ -41,6 +41,8 @@ Day-to-Day Usage
 - Instance initialization is one of ``attrs`` key feature areas.
   Our goal is to relieve you from writing as much code as possible.
   `init` gives you an overview what ``attrs`` has to offer and explains some related philosophies we believe in.
+- Comparing and ordering objects is a common task.
+  `comparison` shows you how ``attrs`` helps you with that and how you can customize it.
 - If you want to put objects into sets or use them as keys in dictionaries, they have to be hashable.
   The simplest way to do that is to use frozen classes, but the topic is more complex than it seems and `hashing` will give you a primer on what to look out for.
 - Once you're comfortable with the concepts, our `api` contains all information you need to use ``attrs`` to its fullest.
@@ -67,6 +69,7 @@ Full Table of Contents
    examples
    types
    init
+   comparison
    hashing
    api
    extending
