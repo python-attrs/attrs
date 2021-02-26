@@ -40,6 +40,6 @@ It is then used as a key function like you may know from `sorted`:
    True
 
 This is especially useful when you have fields with objects that have atypical comparison properties.
-A common example being `NumPy arrays <https://github.com/python-attrs/attrs/issues/435>`_.
+Common examples of such objects are `NumPy arrays <https://github.com/python-attrs/attrs/issues/435>`_.
 
 Please note that they are set *independently* because *order* is `False` by default in `modern APIs <prov>`.
