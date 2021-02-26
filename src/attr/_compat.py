@@ -28,7 +28,14 @@ if PY2:
     def isclass(klass):
         return isinstance(klass, (type, types.ClassType))
 
-    new_class = type
+    def new_class(name, bases, kwds, exec_body):
+        """
+        A minimal stub of types.new_class that we need for make_class.
+        """
+        ns = {}
+        exec_body(ns)
+
+        return type(name, bases, ns)
 
     # TYPE is used in exceptions, repr(int) is different on Python 2 and 3.
     TYPE = "type"
@@ -124,8 +131,7 @@ else:  # Python 3 and later.
     def iteritems(d):
         return d.items()
 
-    def new_class(name, bases, body):
-        return types.new_class(name, bases, {}, lambda ns: ns.update(body))
+    new_class = types.new_class
 
     def metadata_proxy(d):
         return types.MappingProxyType(dict(d))
