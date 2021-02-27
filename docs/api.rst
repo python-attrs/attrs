@@ -653,6 +653,4 @@ It behaves similarly to `sys.version_info` and is an instance of `VersionInfo`:
 The serious business aliases used to be called ``attr.attributes`` and ``attr.attr``.
 There are no plans to remove them but they shouldn't be used in new code.
 
-The ``cmp`` argument to both `attr.s` and `attr.ib` has been deprecated in 19.2 and shouldn't be used.
-
 .. autofunction:: assoc
