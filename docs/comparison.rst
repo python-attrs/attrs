@@ -1,7 +1,7 @@
 Comparison
 ==========
 
-By default, two instances of ``attrs`` classes are equal, if all their fields are equal.
+By default, two instances of ``attrs`` classes are equal if all their fields are equal.
 For that, ``attrs`` writes ``__eq__`` and ``__ne__`` methods for you.
 
 Additionally, if you pass ``order=True`` (which is the default if you use the `attr.s` decorator), ``attrs`` will also create a full set of ordering methods that are based on the defined fields: ``__le__``, ``__lt__``, ``__ge__``, and ``__gt__``.
@@ -39,7 +39,7 @@ It is then used as a key function like you may know from `sorted`:
    >>> C("10") > C("2")
    True
 
-This is especially useful when you have fields with objects that have untypical comparison properties.
-A common example being `NumPy arrays <https://github.com/python-attrs/attrs/issues/435>`_.
+This is especially useful when you have fields with objects that have atypical comparison properties.
+Common examples of such objects are `NumPy arrays <https://github.com/python-attrs/attrs/issues/435>`_.
 
-Please note that they are set *independently* because *order* is `False` by default in `modern APIs <prov>`.
+Please note that *eq* and *order* are set *independently*, because *order* is `False` by default in `modern APIs <prov>`.

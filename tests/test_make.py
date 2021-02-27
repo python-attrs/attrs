@@ -1118,6 +1118,22 @@ class TestMakeClass(object):
 
         assert "C(a=1, b=2)" == repr(C())
 
+    @pytest.mark.skipif(PY2, reason="Python 3-only")
+    def test_generic_dynamic_class(self):
+        """
+        make_class can create generic dynamic classes.
+
+        https://github.com/python-attrs/attrs/issues/756
+        https://bugs.python.org/issue33188
+        """
+        from types import new_class
+        from typing import Generic, TypeVar
+
+        MyTypeVar = TypeVar("MyTypeVar")
+        MyParent = new_class("MyParent", (Generic[MyTypeVar],), {})
+
+        attr.make_class("test", {"id": attr.ib(type=str)}, (MyParent[int],))
+
 
 class TestFields(object):
     """
