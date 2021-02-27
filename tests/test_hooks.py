@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Dict, List
+from typing import Dict, List, get_type_hints
 
 import attr
 
@@ -12,21 +12,32 @@ class TestTransformHook:
     def test_hook_applied(self):
         """
         The transform hook is applied to all attributes.  Types can be missing,
-        explicitly set, or annotated.
+        explicitly set, annotated, or string annotations.
         """
         results = []
 
         def hook(cls, attribs):
-            results[:] = [(a.name, a.type) for a in attribs]
+            hints = get_type_hints(cls)
+            results[:] = [
+                (a.name, hints.get(a.name) or a.type) for a in attribs
+            ]
+
             return attribs
 
+        @attr.resolve_types
         @attr.s(field_transformer=hook)
         class C:
             x = attr.ib()
             y = attr.ib(type=int)
             z: float = attr.ib()
+            zz: "float" = attr.ib()
 
-        assert results == [("x", None), ("y", int), ("z", float)]
+        assert results == [
+            ("x", None),
+            ("y", int),
+            ("z", float),
+            ("zz", float),
+        ]
 
     def test_hook_applied_auto_attrib(self):
         """
@@ -36,9 +47,14 @@ class TestTransformHook:
         results = []
 
         def hook(cls, attribs):
-            results[:] = [(a.name, a.type) for a in attribs]
+            hints = get_type_hints(cls)
+            results[:] = [
+                (a.name, hints.get(a.name) or a.type) for a in attribs
+            ]
+
             return attribs
 
+        @attr.resolve_types
         @attr.s(auto_attribs=True, field_transformer=hook)
         class C:
             x: int
@@ -52,7 +68,9 @@ class TestTransformHook:
         """
 
         def hook(cls, attribs):
-            return [a.evolve(converter=a.type) for a in attribs]
+            hints = get_type_hints(cls)
+
+            return [a.evolve(converter=hints[a.name]) for a in attribs]
 
         @attr.s(auto_attribs=True, field_transformer=hook)
         class C:
@@ -68,7 +86,9 @@ class TestTransformHook:
         """
 
         def hook(cls, attribs):
-            return [a for a in attribs if a.type is not int]
+            hints = get_type_hints(cls)
+
+            return [a for a in attribs if hints[a.name] is not int]
 
         @attr.s(auto_attribs=True, field_transformer=hook)
         class C:
