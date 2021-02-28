@@ -1,1 +1,7 @@
-``cmp`` has been undeprecated and will continue to be supported as syntactic sugar to set ``eq`` and ``order`` in one go.
+The *cmp* argument to ``attr.s()`` and `attr.ib()` has been **undeprecated**
+It will continue to be supported as syntactic sugar to set *eq* and *order* in one go.
+
+I'm terribly sorry for the hassle around this argument!
+The reason we're bringing it back is it's usefulness regarding customization of equality/ordering.
+
+The ``cmp`` attribute and argument on ``attr.Attribute`` remains deprecated and will be removed later this year.
