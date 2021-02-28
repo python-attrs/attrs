@@ -1062,6 +1062,11 @@ class _ClassBuilder(object):
         return method
 
 
+_CMP_DEPRECATION = (
+    "The usage of `cmp` is deprecated and will be removed on or after "
+    "2021-06-01.  Please use `eq` and `order` instead."
+)
+
 _EQ_ORDER_CUSTOMIZATION = (
     "You have customized the behavior of `eq` but not of `order`.  "
     "This is probably a bug."
@@ -2481,7 +2486,6 @@ class Attribute(object):
     .. versionchanged:: 20.2.0 *inherited* is not taken into account for
         equality checks and hashing anymore.
     .. versionadded:: 21.1.0 *eq_key* and *order_key*
-    .. versionadded:: 21.1.0 *cmp* undeprecated
 
     For the full version history of the fields, see `attr.ib`.
     """
@@ -2511,7 +2515,7 @@ class Attribute(object):
         default,
         validator,
         repr,
-        cmp,
+        cmp,  # XXX: unused, remove along with other cmp code.
         hash,
         init,
         inherited,
@@ -2595,8 +2599,10 @@ class Attribute(object):
     @property
     def cmp(self):
         """
-        Simulate the presence of a cmp attribute.
+        Simulate the presence of a cmp attribute and warn.
         """
+        warnings.warn(_CMP_DEPRECATION, DeprecationWarning, stacklevel=2)
+
         return self.eq and self.order
 
     # Don't use attr.evolve since fields(Attribute) doesn't work

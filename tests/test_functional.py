@@ -672,8 +672,18 @@ class TestFunctional(object):
                 "Unexpected state: cmp=%r eq=%r order=%r" % (cmp, eq, order)
             )
 
-        @attr.s
-        class C(object):
-            x = attr.ib(cmp=cmp, eq=eq, order=order)
+        with pytest.deprecated_call() as dc:
 
-        assert rv == attr.fields(C).x.cmp
+            @attr.s
+            class C(object):
+                x = attr.ib(cmp=cmp, eq=eq, order=order)
+
+            assert rv == attr.fields(C).x.cmp
+
+        (w,) = dc.list
+
+        assert (
+            "The usage of `cmp` is deprecated and will be removed on or after "
+            "2021-06-01.  Please use `eq` and `order` instead."
+            == w.message.args[0]
+        )
