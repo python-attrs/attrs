@@ -194,9 +194,8 @@ def attrib(
         to be ordered.
     :type order: a `bool` or a `callable`.
 
-    :param cmp: Setting to ``True`` is equivalent to setting ``eq=True,
-        order=True``. Can also be set to a ``callable``.
-        Deprecated in favor of *eq* and *order*.
+    :param cmp: Setting *cmp* is equivalent to setting *eq* and *order* to the
+        same value. Must not be mixed with *eq* or *order*.
     :type cmp: a `bool` or a `callable`.
 
     :param Optional[bool] hash: Include this attribute in the generated
@@ -252,7 +251,9 @@ def attrib(
     .. versionadded:: 19.2.0 *eq* and *order*
     .. versionadded:: 20.1.0 *on_setattr*
     .. versionchanged:: 20.3.0 *kw_only* backported to Python 2
-    .. versionchanged:: 21.1.0 *eq* and *order* also accept a custom callable.
+    .. versionchanged:: 21.1.0
+       *eq*, *order*, and *cmp* also accept a custom callable
+    .. versionchanged:: 21.1.0 *cmp* undeprecated
     """
     eq, eq_key, order, order_key = _determine_attrib_eq_order(
         cmp, eq, order, True
@@ -1083,8 +1084,6 @@ def _determine_attrs_eq_order(cmp, eq, order, default_eq):
 
     # cmp takes precedence due to bw-compatibility.
     if cmp is not None:
-        warnings.warn(_CMP_DEPRECATION, DeprecationWarning, stacklevel=3)
-
         return cmp, cmp
 
     # If left None, equality is set to the specified default and ordering
@@ -1121,8 +1120,6 @@ def _determine_attrib_eq_order(cmp, eq, order, default_eq):
 
     # cmp takes precedence due to bw-compatibility.
     if cmp is not None:
-        warnings.warn(_CMP_DEPRECATION, DeprecationWarning, stacklevel=3)
-
         cmp, cmp_key = decide_callable_or_boolean(cmp)
         return cmp, cmp_key, cmp, cmp_key
 
@@ -1262,10 +1259,8 @@ def attrs(
         ``__gt__``, and ``__ge__`` methods that behave like *eq* above and
         allow instances to be ordered. If ``None`` (default) mirror value of
         *eq*.
-    :param Optional[bool] cmp: Setting to ``True`` is equivalent to setting
-        ``eq=True, order=True``. Deprecated in favor of *eq* and *order*, has
-        precedence over them for backward-compatibility though. Must not be
-        mixed with *eq* or *order*.
+    :param Optional[bool] cmp: Setting *cmp* is equivalent to setting *eq*
+        and *order* to the same value. Must not be mixed with *eq* or *order*.
     :param Optional[bool] hash: If ``None`` (default), the ``__hash__`` method
         is generated according how *eq* and *frozen* are set.
 
@@ -1438,7 +1433,7 @@ def attrs(
     .. versionchanged:: 21.1.0
        ``init=False`` injects ``__attrs_init__``
     .. versionchanged:: 21.1.0 Support for ``__attrs_pre_init__``
-
+    .. versionchanged:: 21.1.0 *cmp* undeprecated
     """
     if auto_detect and PY2:
         raise PythonTooOldError(
@@ -2762,7 +2757,7 @@ class _CountingAttr(object):
         default,
         validator,
         repr,
-        cmp,  # XXX: unused, remove along with cmp
+        cmp,
         hash,
         init,
         converter,
