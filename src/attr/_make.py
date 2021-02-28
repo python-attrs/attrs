@@ -194,8 +194,8 @@ def attrib(
         to be ordered.
     :type order: a `bool` or a `callable`.
 
-    :param cmp: Setting to ``True`` is equivalent to setting ``eq=True,
-        order=True``. Can also be set to a ``callable``.
+    :param cmp: Setting *cmp* is equivalent to setting *eq* and *order* to the
+        same value. Must not be mixed with *eq* or *order*.
     :type cmp: a `bool` or a `callable`.
 
     :param Optional[bool] hash: Include this attribute in the generated
@@ -251,7 +251,8 @@ def attrib(
     .. versionadded:: 19.2.0 *eq* and *order*
     .. versionadded:: 20.1.0 *on_setattr*
     .. versionchanged:: 20.3.0 *kw_only* backported to Python 2
-    .. versionchanged:: 21.1.0 *eq* and *order* also accept a custom callable
+    .. versionchanged:: 21.1.0
+       *eq*, *order*, and *cmp* also accept a custom callable
     .. versionchanged:: 21.1.0 *cmp* undeprecated
     """
     eq, eq_key, order, order_key = _determine_attrib_eq_order(
@@ -1258,8 +1259,8 @@ def attrs(
         ``__gt__``, and ``__ge__`` methods that behave like *eq* above and
         allow instances to be ordered. If ``None`` (default) mirror value of
         *eq*.
-    :param Optional[bool] cmp: Setting to ``True`` is equivalent to setting
-        ``eq=True, order=True``. Must not be mixed with *eq* or *order*.
+    :param Optional[bool] cmp: Setting *cmp* is equivalent to setting *eq*
+        and *order* to the same value. Must not be mixed with *eq* or *order*.
     :param Optional[bool] hash: If ``None`` (default), the ``__hash__`` method
         is generated according how *eq* and *frozen* are set.
 

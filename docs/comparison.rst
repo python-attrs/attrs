@@ -43,3 +43,4 @@ This is especially useful when you have fields with objects that have atypical c
 Common examples of such objects are `NumPy arrays <https://github.com/python-attrs/attrs/issues/435>`_.
 
 Please note that *eq* and *order* are set *independently*, because *order* is `False` by default in `modern APIs <prov>`.
+You can set both at once by using the *cmp* argument that we've undeprecated just for this use-case.
