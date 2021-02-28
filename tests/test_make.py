@@ -1862,24 +1862,6 @@ class TestDetermineAttrsEqOrder(object):
         ):
             _determine_attrs_eq_order(cmp, eq, order, True)
 
-    def test_cmp_deprecated(self):
-        """
-        Passing a cmp that is not None raises a DeprecationWarning.
-        """
-        with pytest.deprecated_call() as dc:
-
-            @attr.s(cmp=True)
-            class C(object):
-                pass
-
-        (w,) = dc.list
-
-        assert (
-            "The usage of `cmp` is deprecated and will be removed on or after "
-            "2021-06-01.  Please use `eq` and `order` instead."
-            == w.message.args[0]
-        )
-
 
 class TestDetermineAttribEqOrder(object):
     def test_default(self):
@@ -1967,45 +1949,6 @@ class TestDetermineAttribEqOrder(object):
             ValueError, match="Don't mix `cmp` with `eq' and `order`."
         ):
             _determine_attrib_eq_order(cmp, eq, order, True)
-
-    def test_boolean_cmp_deprecated(self):
-        """
-        Passing a cmp that is not None raises a DeprecationWarning.
-        """
-        with pytest.deprecated_call() as dc:
-
-            assert (True, None, True, None) == _determine_attrib_eq_order(
-                True, None, None, True
-            )
-
-        (w,) = dc.list
-
-        assert (
-            "The usage of `cmp` is deprecated and will be removed on or after "
-            "2021-06-01.  Please use `eq` and `order` instead."
-            == w.message.args[0]
-        )
-
-    def test_callable_cmp_deprecated(self):
-        """
-        Passing a cmp that is not None raises a DeprecationWarning.
-        """
-        with pytest.deprecated_call() as dc:
-
-            assert (
-                True,
-                str.lower,
-                True,
-                str.lower,
-            ) == _determine_attrib_eq_order(str.lower, None, None, True)
-
-        (w,) = dc.list
-
-        assert (
-            "The usage of `cmp` is deprecated and will be removed on or after "
-            "2021-06-01.  Please use `eq` and `order` instead."
-            == w.message.args[0]
-        )
 
 
 class TestDocs:
@@ -2301,7 +2244,7 @@ class TestAutoDetect:
             (None, None, True),
         ],
     )
-    def test_override_order(self, slots, frozen, eq, order, cmp, recwarn):
+    def test_override_order(self, slots, frozen, eq, order, cmp):
         """
         If order=True is passed, ignore __le__, __lt__, __gt__, __ge__.
 
@@ -2327,11 +2270,6 @@ class TestAutoDetect:
         assert C(1) <= C(2)
         assert C(2) > C(1)
         assert C(2) >= C(1)
-
-        if cmp:
-            assert 1 == len(recwarn.list)
-        else:
-            assert 0 == len(recwarn.list)
 
     @pytest.mark.parametrize("slots", [True, False])
     @pytest.mark.parametrize("first", [True, False])

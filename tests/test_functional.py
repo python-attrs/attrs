@@ -680,10 +680,6 @@ class TestFunctional(object):
 
             assert rv == attr.fields(C).x.cmp
 
-        if cmp is not None:
-            # Remove warning from creating the attribute if cmp is not None.
-            dc.pop()
-
         (w,) = dc.list
 
         assert (

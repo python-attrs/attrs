@@ -1,0 +1,1 @@
+``cmp`` has been undeprecated and will continue to be supported as syntactic sugar to set ``eq`` and ``order`` in one go.
