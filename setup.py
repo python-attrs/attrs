@@ -15,6 +15,7 @@ META_PATH = os.path.join("src", "attr", "__init__.py")
 KEYWORDS = ["class", "attribute", "boilerplate"]
 PROJECT_URLS = {
     "Documentation": "https://www.attrs.org/",
+    "Changelog": "https://www.attrs.org/en/stable/changelog.html",
     "Bug Tracker": "https://github.com/python-attrs/attrs/issues",
     "Source Code": "https://github.com/python-attrs/attrs",
     "Funding": "https://github.com/sponsors/hynek",
