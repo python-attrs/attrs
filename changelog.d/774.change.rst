@@ -1,0 +1,1 @@
+``attr.resolve_types()`` now takes an optional *attrib* argument to work inside a ``field_transformer``.

@@ -380,7 +380,7 @@ def resolve_types(cls, globalns=None, localns=None, attribs=None):
         the decorator has to come in the line **before** `attr.s`.
 
     ..  versionadded:: 20.1.0
-    ..  versionadded:: 20.4.0 *attribs*
+    ..  versionadded:: 21.1.0 *attribs*
 
     """
     try:
