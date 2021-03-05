@@ -38,6 +38,7 @@ class TestTransformHook:
 
         def hook(cls, attribs):
             attr.resolve_types(cls, attribs=attribs)
+
             results[:] = [(a.name, a.type) for a in attribs]
             return attribs
 
