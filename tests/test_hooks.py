@@ -17,6 +17,7 @@ class TestTransformHook:
         results = []
 
         def hook(cls, attribs):
+            attr.resolve_types(cls, attribs=attribs)
             results[:] = [(a.name, a.type) for a in attribs]
             return attribs
 
@@ -36,6 +37,7 @@ class TestTransformHook:
         results = []
 
         def hook(cls, attribs):
+            attr.resolve_types(cls, attribs=attribs)
             results[:] = [(a.name, a.type) for a in attribs]
             return attribs
 
@@ -52,6 +54,7 @@ class TestTransformHook:
         """
 
         def hook(cls, attribs):
+            attr.resolve_types(cls, attribs=attribs)
             return [a.evolve(converter=a.type) for a in attribs]
 
         @attr.s(auto_attribs=True, field_transformer=hook)
@@ -68,6 +71,7 @@ class TestTransformHook:
         """
 
         def hook(cls, attribs):
+            attr.resolve_types(cls, attribs=attribs)
             return [a for a in attribs if a.type is not int]
 
         @attr.s(auto_attribs=True, field_transformer=hook)
