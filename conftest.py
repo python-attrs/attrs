@@ -27,6 +27,5 @@ if sys.version_info[:2] >= (3, 10):
     collect_ignore.extend(
         [
             "tests/test_mypy.yml",
-            "tests/test_hooks.py",
         ]
     )

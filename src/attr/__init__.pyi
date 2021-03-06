@@ -367,6 +367,7 @@ def resolve_types(
     cls: _C,
     globalns: Optional[Dict[str, Any]] = ...,
     localns: Optional[Dict[str, Any]] = ...,
+    attribs: Optional[List[Attribute]] = ...,
 ) -> _C: ...
 
 # TODO: add support for returning a proper attrs class from the mypy plugin
