@@ -4,6 +4,7 @@ from typing import (
     Dict,
     Generic,
     List,
+    Literal,
     Mapping,
     Optional,
     Sequence,
@@ -64,9 +65,15 @@ NOTHING: object
 def Factory(factory: Callable[[], _T]) -> _T: ...
 @overload
 def Factory(
-    factory: Union[Callable[[Any], _T], Callable[[], _T]],
-    takes_self: bool = ...,
+    factory: Callable[[Any], _T],
+    takes_self: Literal[True],
 ) -> _T: ...
+@overload
+def Factory(
+    factory: Callable[[], _T],
+    takes_self: Literal[False],
+) -> _T: ...
+
 
 class Attribute(Generic[_T]):
     name: str
