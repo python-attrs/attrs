@@ -41,7 +41,12 @@ _init_factory_pat = "__attr_factory_{}"
 _tuple_property_pat = (
     "    {attr_name} = _attrs_property(_attrs_itemgetter({index}))"
 )
-_classvar_prefixes = ("typing.ClassVar", "t.ClassVar", "ClassVar")
+_classvar_prefixes = (
+    "typing.ClassVar",
+    "t.ClassVar",
+    "ClassVar",
+    "typing_extensions.ClassVar",
+)
 # we don't use a double-underscore prefix because that triggers
 # name mangling when trying to create a slot for the field
 # (when slots=True)
