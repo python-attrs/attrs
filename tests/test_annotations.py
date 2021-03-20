@@ -418,6 +418,18 @@ class TestAnnotations:
             foo=typing.Optional[typing.Any],
         )
 
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_typing_extensions_classvar(self, slots):
+        """
+        If ClassVar is coming from typing_extensions, it is recognized too.
+        """
+
+        @attr.s(auto_attribs=True, slots=slots)
+        class C:
+            cls_var: "typing_extensions.ClassVar" = 23  # noqa
+
+        assert_init_annotations(C)
+
     def test_keyword_only_auto_attribs(self):
         """
         `kw_only` propagates to attributes defined via `auto_attribs`.
