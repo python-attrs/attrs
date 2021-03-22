@@ -1,10 +1,10 @@
+import sys
 from typing import (
     Any,
     Callable,
     Dict,
     Generic,
     List,
-    Literal,
     Mapping,
     Optional,
     Sequence,
@@ -61,18 +61,29 @@ NOTHING: object
 # NOTE: Factory lies about its return type to make this possible:
 # `x: List[int] # = Factory(list)`
 # Work around mypy issue #4554 in the common case by using an overload.
-@overload
-def Factory(factory: Callable[[], _T]) -> _T: ...
-@overload
-def Factory(
-    factory: Callable[[Any], _T],
-    takes_self: Literal[True],
-) -> _T: ...
-@overload
-def Factory(
-    factory: Callable[[], _T],
-    takes_self: Literal[False],
-) -> _T: ...
+if sys.version_info >= (3, 8):
+    from typing import Literal
+
+    @overload
+    def Factory(factory: Callable[[], _T]) -> _T: ...
+    @overload
+    def Factory(
+        factory: Callable[[Any], _T],
+        takes_self: Literal[True],
+    ) -> _T: ...
+    @overload
+    def Factory(
+        factory: Callable[[], _T],
+        takes_self: Literal[False],
+    ) -> _T: ...
+else:
+    @overload
+    def Factory(factory: Callable[[], _T]) -> _T: ...
+    @overload
+    def Factory(
+        factory: Union[Callable[[Any], _T], Callable[[], _T]],
+        takes_self: bool = ...,
+    ) -> _T: ...
 
 
 class Attribute(Generic[_T]):
