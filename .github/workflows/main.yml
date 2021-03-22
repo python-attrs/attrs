@@ -18,6 +18,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["2.7", "3.5", "3.6", "3.7", "3.8", "3.9", "3.10.0-alpha - 3.10", "pypy2", "pypy3"]
+        fail-fast: false
 
     steps:
       - uses: "actions/checkout@v2"
@@ -34,7 +35,6 @@ jobs:
 
       - name: "Run tox targets for ${{ matrix.python-version }}"
         run: "python -m tox"
-        continue-on-error: true
 
       # We always use a modern Python version for combining coverage to prevent
       # parsing errors in older versions for modern code.
