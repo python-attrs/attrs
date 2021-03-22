@@ -16,6 +16,7 @@ jobs:
       USING_COVERAGE: "2.7,3.7,3.8"
 
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["2.7", "3.5", "3.6", "3.7", "3.8", "3.9", "3.10.0-alpha - 3.10", "pypy2", "pypy3"]
 
