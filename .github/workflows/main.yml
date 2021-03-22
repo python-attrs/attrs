@@ -34,6 +34,7 @@ jobs:
 
       - name: "Run tox targets for ${{ matrix.python-version }}"
         run: "python -m tox"
+        continue-on-error: true
 
       # We always use a modern Python version for combining coverage to prevent
       # parsing errors in older versions for modern code.
