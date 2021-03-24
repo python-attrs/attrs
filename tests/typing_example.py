@@ -250,3 +250,10 @@ a.evolve(repr=False)
 @attr.s(collect_by_mro=True)
 class MRO:
     pass
+
+
+@attr.s
+class FactoryTest:
+    a: List[int] = attr.ib(default=attr.Factory(list))
+    b: List[Any] = attr.ib(default=attr.Factory(list, False))
+    c: List[int] = attr.ib(default=attr.Factory((lambda s: s.a), True))
