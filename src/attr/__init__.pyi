@@ -49,7 +49,7 @@ _OnSetAttrType = Callable[[Any, Attribute[Any], Any], Any]
 _OnSetAttrArgType = Union[
     _OnSetAttrType, List[_OnSetAttrType], setters._NoOpType
 ]
-_FieldTransformer = Callable[[type, List[Attribute]], List[Attribute]]
+_FieldTransformer = Callable[[type, List[Attribute[Any]]], List[Attribute[Any]]]
 # FIXME: in reality, if multiple validators are passed they must be in a list
 # or tuple, but those are invariant and so would prevent subtypes of
 # _ValidatorType from working when passed in a list or tuple.
@@ -103,7 +103,7 @@ class Attribute(Generic[_T]):
     kw_only: bool
     on_setattr: _OnSetAttrType
 
-    def evolve(self, **changes: Any) -> "Attribute": ...
+    def evolve(self, **changes: Any) -> "Attribute[Any]": ...
 
 # NOTE: We had several choices for the annotation to use for type arg:
 # 1) Type[_T]
@@ -386,7 +386,7 @@ def resolve_types(
     cls: _C,
     globalns: Optional[Dict[str, Any]] = ...,
     localns: Optional[Dict[str, Any]] = ...,
-    attribs: Optional[List[Attribute]] = ...,
+    attribs: Optional[List[Attribute[Any]]] = ...,
 ) -> _C: ...
 
 # TODO: add support for returning a proper attrs class from the mypy plugin
@@ -429,7 +429,7 @@ def asdict(
     filter: Optional[_FilterType[Any]] = ...,
     dict_factory: Type[Mapping[Any, Any]] = ...,
     retain_collection_types: bool = ...,
-    value_serializer: Optional[Callable[[type, Attribute, Any], Any]] = ...,
+    value_serializer: Optional[Callable[[type, Attribute[Any], Any], Any]] = ...,
 ) -> Dict[str, Any]: ...
 
 # TODO: add support for returning NamedTuple from the mypy plugin
