@@ -34,10 +34,10 @@ For similar reasons, we strongly discourage from patterns like::
 
    pt = Point(**row.attributes)
 
-which couples your classes to the data model.
+which couples your classes to the database data model.
 Try to design your classes in a way that is clean and convenient to use -- not based on your database format.
 The database format can change anytime and you're stuck with a bad class design that is hard to change.
-Embrace classmethods as a filter between reality and what's best for you to work with.
+Embrace functions and classmethods as a filter between reality and what's best for you to work with.
 
 If you look for object serialization, there's a bunch of projects listed on our ``attrs`` extensions `Wiki page`_.
 Some of them even support nested schemas.
@@ -315,13 +315,62 @@ A converter will override an explicit type annotation or ``type`` argument.
    {'return': None, 'x': <class 'str'>}
 
 
-Post-Init Hook
---------------
+Hooking Yourself Into Initialization
+------------------------------------
 
 Generally speaking, the moment you think that you need finer control over how your class is instantiated than what ``attrs`` offers, it's usually best to use a classmethod factory or to apply the `builder pattern <https://en.wikipedia.org/wiki/Builder_pattern>`_.
 
-However, sometimes you need to do that one quick thing after your class is initialized.
-And for that ``attrs`` offers the ``__attrs_post_init__`` hook that is automatically detected and run after ``attrs`` is done initializing your instance:
+However, sometimes you need to do that one quick thing before or after your class is initialized.
+And for that ``attrs`` offers three means:
+
+- ``__attrs_pre_init__`` is automatically detected and run *before* ``attrs`` starts initializing.
+  This is useful if you need to inject a call to ``super().__init__()``.
+- ``__attrs_post_init__`` is automatically detected and run *after* ``attrs`` is done initializing your instance.
+  This is useful if you want to derive some attribute from others or perform some kind of validation over the whole instance.
+- ``__attrs_init__`` is written and attached to your class *instead* of ``__init__``, if ``attrs`` is told to not write one (i.e. ``init=False`` or a combination of ``auto_detect=True`` and a custom ``__init__``).
+  This is useful if you want full control over the initialization process, but don't want to set the attributes by hand.
+
+
+Pre Init
+~~~~~~~~
+
+The sole reason for the existance of ``__attrs_pre_init__`` is to give users the chance to call ``super().__init__()``, because some subclassing-based APIs require that.
+
+.. doctest::
+
+   >>> @attr.s
+   ... class C(object):
+   ...     x = attr.ib()
+   ...     def __attrs_pre_init__(self):
+   ...         super().__init__()
+   >>> C(42)
+   C(x=42)
+
+If you need more control, use the custom init approach described next.
+
+
+Custom Init
+~~~~~~~~~~~
+
+If you tell ``attrs`` to not write an ``__init__``, it will write an ``__attrs_init__`` instead, with the same code that it would have used for ``__init__``.
+You have full control over the initialization, but also have to type out the types of your arguments etc.
+Here's an example of a manual default value:
+
+.. doctest::
+
+   >>> from typing import Optional
+   >>> @attr.s(auto_detect=True)  # or init=False
+   ... class C(object):
+   ...     x = attr.ib()
+   ...
+   ...     def __init__(self, x: int = 42):
+   ...         self.__attrs_init__(x)
+   >>> C()
+   C(x=42)
+
+
+Post Init
+~~~~~~~~~
 
 .. doctest::
 
@@ -370,13 +419,14 @@ Order of Execution
 
 If present, the hooks are executed in the following order:
 
-1. For each attribute, in the order it was declared:
+1. ``__attrs_pre_init__`` (if present on *current* class)
+2. For each attribute, in the order it was declared:
 
    a. default factory
    b. converter
 
-2. *all* validators
-3. ``__attrs_post_init__``
+3. *all* validators
+4. ``__attrs_post_init__`` (if present on *current* class)
 
 Notably this means, that you can access all attributes from within your validators, but your converters have to deal with invalid values and have to return a valid value.
 
