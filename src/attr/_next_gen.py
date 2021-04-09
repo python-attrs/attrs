@@ -1,8 +1,6 @@
 """
-This is a Python 3.6 and later-only, keyword-only, and **provisional** API that
-calls `attr.s` with different default values.
-
-Provisional APIs that shall become "import attrs" one glorious day.
+These are Python 3.6+-only and keyword-only APIs that call `attr.s` and
+`attr.ib` with different default values.
 """
 
 from functools import partial

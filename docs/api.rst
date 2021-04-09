@@ -17,10 +17,14 @@ Core
 ----
 
 
-.. warning::
-   As of ``attrs`` 20.1.0, it also ships with a bunch of provisional APIs that are intended to become the main way of defining classes in the future.
+.. note::
 
-   Please have a look at :ref:`prov`.
+   ``attrs`` 20.1.0 added a bunch of nicer APIs (sometimes referred to as next generation -- or NG -- APIs) that were intended to become the main way of defining classes in the future.
+   As of 21.1.0, they are not provisional anymore and are the **recommended** way to use ``attrs``!
+   The next step will be adding an importable ``attrs`` namespace.
+   The documentation will be updated successively.
+
+   Please have a look at :ref:`next-gen`!
 
 .. autodata:: attr.NOTHING
 
@@ -578,12 +582,12 @@ These are helpers that you can use together with `attr.s`'s and `attr.ib`'s ``on
    N.B. Please use `attr.s`'s *frozen* argument to freeze whole classes; it is more efficient.
 
 
-.. _prov:
+.. _next-gen:
 
-Provisional APIs
-----------------
+Next Generation APIs
+--------------------
 
-These are Python 3.6 and later-only, keyword-only, and **provisional** APIs that call `attr.s` with different default values.
+These are Python 3.6 and later-only, and keyword-only APIs that call `attr.s` with different default values.
 
 The most notable differences are:
 
@@ -597,14 +601,9 @@ The most notable differences are:
 
 Please note that these are *defaults* and you're free to override them, just like before.
 
-----
-
-Their behavior is scheduled to become part of the upcoming ``import attrs`` that will introduce a new namespace  with nicer names and nicer defaults (see  `#408 <https://github.com/python-attrs/attrs/issues/408>`_ and `#487 <https://github.com/python-attrs/attrs/issues/487>`_).
-
-Therefore your constructive feedback in the linked issues above is strongly encouraged!
+Since the Python ecosystem has settled on the term ``field`` for defining attributes, we have also added `attr.field` as a substitute for `attr.ib`.
 
 .. note::
-   Provisional doesn't mean we will remove it (although it will be deprecated once the final form is released), but that it might change if we receive relevant feedback.
 
    `attr.s` and `attr.ib` (and their serious business cousins) aren't going anywhere.
    The new APIs build on top of them.
