@@ -5,6 +5,7 @@ import sys
 from functools import partial
 
 from . import converters, exceptions, filters, setters, validators
+from ._cmp import cmp_using
 from ._config import get_run_validators, set_run_validators
 from ._funcs import asdict, assoc, astuple, evolve, has, resolve_types
 from ._make import (
@@ -52,6 +53,7 @@ __all__ = [
     "attrib",
     "attributes",
     "attrs",
+    "cmp_using",
     "converters",
     "evolve",
     "exceptions",
