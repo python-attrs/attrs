@@ -1341,6 +1341,15 @@ def attrs(
         Attributes annotated as `typing.ClassVar`, and attributes that are
         neither annotated nor set to an `attr.ib` are **ignored**.
 
+        .. warning::
+           For features that use the attribute name to create decorators (e.g.
+           `validators <validators>`), you still *must* assign `attr.ib` to
+           them. Otherwise Python will either not find the name or try to use
+           the default value to call e.g. ``validator`` on it.
+
+           These errors can be quite confusing and probably the most common bug
+           report on our bug tracker.
+
         .. _`PEP 526`: https://www.python.org/dev/peps/pep-0526/
     :param bool kw_only: Make all attributes keyword-only (Python 3+)
         in the generated ``__init__`` (if ``init`` is ``False``, this
