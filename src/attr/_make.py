@@ -1336,7 +1336,7 @@ def attrs(
         If you assign a value to those attributes (e.g. ``x: int = 42``), that
         value becomes the default value like if it were passed using
         ``attr.ib(default=42)``.  Passing an instance of `Factory` also
-        works as expected.
+        works as expected in most cases (see warning below).
 
         Attributes annotated as `typing.ClassVar`, and attributes that are
         neither annotated nor set to an `attr.ib` are **ignored**.
