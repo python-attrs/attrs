@@ -21,6 +21,7 @@ PROJECT_URLS = {
     "Funding": "https://github.com/sponsors/hynek",
     "Tidelift": "https://tidelift.com/subscription/pkg/pypi-attrs?"
     "utm_source=pypi-attrs&utm_medium=pypi",
+    "Ko-fi": "https://ko-fi.com/the_hynek",
 }
 CLASSIFIERS = [
     "Development Status :: 5 - Production/Stable",
