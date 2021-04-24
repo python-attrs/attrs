@@ -126,11 +126,12 @@ class TestEqOrder(object):
         """
         Less-than values of different types are detected appropriately.
         """
-        if requires_same_type and not PY2:
+        if requires_same_type:
             # Unlike __eq__, NotImplemented will cause an exception to be
             # raised from __lt__.
-            with pytest.raises(TypeError):
-                cls(1) < cls(2.0)
+            if not PY2:
+                with pytest.raises(TypeError):
+                    cls(1) < cls(2.0)
         else:
             assert cls(1) < cls(2.0)
             assert not (cls(2) < cls(1.0))
@@ -176,11 +177,12 @@ class TestEqOrder(object):
         """
         Less-than-or-equal values of diff. types are detected appropriately.
         """
-        if requires_same_type and not PY2:
+        if requires_same_type:
             # Unlike __eq__, NotImplemented will cause an exception to be
             # raised from __le__.
-            with pytest.raises(TypeError):
-                cls(1) <= cls(2.0)
+            if not PY2:
+                with pytest.raises(TypeError):
+                    cls(1) <= cls(2.0)
         else:
             assert cls(1) <= cls(2.0)
             assert cls(1) <= cls(1.0)
@@ -225,11 +227,12 @@ class TestEqOrder(object):
         """
         Greater-than values of different types are detected appropriately.
         """
-        if requires_same_type and not PY2:
+        if requires_same_type:
             # Unlike __eq__, NotImplemented will cause an exception to be
             # raised from __gt__.
-            with pytest.raises(TypeError):
-                cls(2) > cls(1.0)
+            if not PY2:
+                with pytest.raises(TypeError):
+                    cls(2) > cls(1.0)
         else:
             assert cls(2) > cls(1.0)
             assert not (cls(1) > cls(2.0))
@@ -275,11 +278,12 @@ class TestEqOrder(object):
         """
         Greater-than-or-equal values of diff. types are detected appropriately.
         """
-        if requires_same_type and not PY2:
+        if requires_same_type:
             # Unlike __eq__, NotImplemented will cause an exception to be
             # raised from __ge__.
-            with pytest.raises(TypeError):
-                cls(2) >= cls(1.0)
+            if not PY2:
+                with pytest.raises(TypeError):
+                    cls(2) >= cls(1.0)
         else:
             assert cls(2) >= cls(2.0)
             assert cls(2) >= cls(1.0)
