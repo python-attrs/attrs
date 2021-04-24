@@ -52,7 +52,7 @@ def cmp_using(
     }
 
     # Add operations.
-    num_order_fucntions = 0
+    num_order_functions = 0
     has_eq_function = False
 
     if eq is not None:
@@ -61,19 +61,19 @@ def cmp_using(
         body["__ne__"] = _make_ne()
 
     if lt is not None:
-        num_order_fucntions += 1
+        num_order_functions += 1
         body["__lt__"] = _make_operator("lt", lt)
 
     if le is not None:
-        num_order_fucntions += 1
+        num_order_functions += 1
         body["__le__"] = _make_operator("le", le)
 
     if gt is not None:
-        num_order_fucntions += 1
+        num_order_functions += 1
         body["__gt__"] = _make_operator("gt", gt)
 
     if ge is not None:
-        num_order_fucntions += 1
+        num_order_functions += 1
         body["__ge__"] = _make_operator("ge", ge)
 
     type_ = new_class(class_name, (object,), {}, lambda ns: ns.update(body))
@@ -83,7 +83,7 @@ def cmp_using(
         type_._requirements.append(_check_same_type)
 
     # Add total ordering if at least one operation was defined.
-    if 0 < num_order_fucntions < 4:
+    if 0 < num_order_functions < 4:
         if not has_eq_function:
             # functools.total_ordering requires __eq__ to be defined,
             # so raise early error here to keep a nice stack.
