@@ -302,7 +302,6 @@ class TestDundersUnnamedClass(object):
         method = self.cls.__eq__
         assert method.__doc__.strip() == "Return a == b.  Computed by attrs."
         assert method.__name__ == "__eq__"
-        assert method.__qualname__ == "Comparable.__eq__"
 
     def test_ne(self):
         """
@@ -314,7 +313,6 @@ class TestDundersUnnamedClass(object):
             "        return the result negated."
         )
         assert method.__name__ == "__ne__"
-        assert method.__qualname__ == "Comparable.__ne__"
 
 
 class TestDundersPartialOrdering(object):
@@ -338,7 +336,6 @@ class TestDundersPartialOrdering(object):
         method = self.cls.__eq__
         assert method.__doc__.strip() == "Return a == b.  Computed by attrs."
         assert method.__name__ == "__eq__"
-        assert method.__qualname__ == "PartialOrderCSameType.__eq__"
 
     def test_ne(self):
         """
@@ -350,7 +347,6 @@ class TestDundersPartialOrdering(object):
             "        return the result negated."
         )
         assert method.__name__ == "__ne__"
-        assert method.__qualname__ == "PartialOrderCSameType.__ne__"
 
     def test_lt(self):
         """
@@ -359,7 +355,6 @@ class TestDundersPartialOrdering(object):
         method = self.cls.__lt__
         assert method.__doc__.strip() == "Return a < b.  Computed by attrs."
         assert method.__name__ == "__lt__"
-        assert method.__qualname__ == "PartialOrderCSameType.__lt__"
 
     def test_le(self):
         """
@@ -370,7 +365,6 @@ class TestDundersPartialOrdering(object):
             "Return a <= b.  Computed by @total_ordering from"
         )
         assert method.__name__ == "__le__"
-        assert method.__qualname__ == "PartialOrderCSameType.__le__"
 
     def test_gt(self):
         """
@@ -381,7 +375,6 @@ class TestDundersPartialOrdering(object):
             "Return a > b.  Computed by @total_ordering from"
         )
         assert method.__name__ == "__gt__"
-        assert method.__qualname__ == "PartialOrderCSameType.__gt__"
 
     def test_ge(self):
         """
@@ -389,10 +382,9 @@ class TestDundersPartialOrdering(object):
         """
         method = self.cls.__ge__
         assert method.__doc__.strip().startswith(
-            "Return a <= b.  Computed by @total_ordering from"
+            "Return a >= b.  Computed by @total_ordering from"
         )
         assert method.__name__ == "__ge__"
-        assert method.__qualname__ == "PartialOrderCSameType.__ge__"
 
 
 class TestDundersFullOrdering(object):
@@ -416,7 +408,6 @@ class TestDundersFullOrdering(object):
         method = self.cls.__eq__
         assert method.__doc__.strip() == "Return a == b.  Computed by attrs."
         assert method.__name__ == "__eq__"
-        assert method.__qualname__ == "FullOrderCSameType.__eq__"
 
     def test_ne(self):
         """
@@ -428,7 +419,6 @@ class TestDundersFullOrdering(object):
             "        return the result negated."
         )
         assert method.__name__ == "__ne__"
-        assert method.__qualname__ == "FullOrderCSameType.__ne__"
 
     def test_lt(self):
         """
@@ -437,7 +427,6 @@ class TestDundersFullOrdering(object):
         method = self.cls.__lt__
         assert method.__doc__.strip() == "Return a < b.  Computed by attrs."
         assert method.__name__ == "__lt__"
-        assert method.__qualname__ == "FullOrderCSameType.__lt__"
 
     def test_le(self):
         """
@@ -446,7 +435,6 @@ class TestDundersFullOrdering(object):
         method = self.cls.__le__
         assert method.__doc__.strip() == "Return a <= b.  Computed by attrs."
         assert method.__name__ == "__le__"
-        assert method.__qualname__ == "FullOrderCSameType.__le__"
 
     def test_gt(self):
         """
@@ -455,7 +443,6 @@ class TestDundersFullOrdering(object):
         method = self.cls.__gt__
         assert method.__doc__.strip() == "Return a > b.  Computed by attrs."
         assert method.__name__ == "__gt__"
-        assert method.__qualname__ == "FullOrderCSameType.__gt__"
 
     def test_ge(self):
         """
@@ -464,4 +451,3 @@ class TestDundersFullOrdering(object):
         method = self.cls.__ge__
         assert method.__doc__.strip() == "Return a >= b.  Computed by attrs."
         assert method.__name__ == "__ge__"
-        assert method.__qualname__ == "FullOrderCSameType.__ge__"
