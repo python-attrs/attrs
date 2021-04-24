@@ -49,11 +49,7 @@ _OnSetAttrType = Callable[[Any, Attribute[Any], Any], Any]
 _OnSetAttrArgType = Union[
     _OnSetAttrType, List[_OnSetAttrType], setters._NoOpType
 ]
-_FieldTransformer = Callable[
-    [type, List[Attribute[Any]]], List[Attribute[Any]]
-]
-_CompareWithType = Callable[[Any, Any], bool]
-
+_FieldTransformer = Callable[[type, List[Attribute[Any]]], List[Attribute[Any]]]
 # FIXME: in reality, if multiple validators are passed they must be in a list
 # or tuple, but those are invariant and so would prevent subtypes of
 # _ValidatorType from working when passed in a list or tuple.
@@ -68,6 +64,7 @@ NOTHING: object
 # Work around mypy issue #4554 in the common case by using an overload.
 if sys.version_info >= (3, 8):
     from typing import Literal
+
     @overload
     def Factory(factory: Callable[[], _T]) -> _T: ...
     @overload
@@ -80,7 +77,6 @@ if sys.version_info >= (3, 8):
         factory: Callable[[], _T],
         takes_self: Literal[False],
     ) -> _T: ...
-
 else:
     @overload
     def Factory(factory: Callable[[], _T]) -> _T: ...
@@ -89,6 +85,7 @@ else:
         factory: Union[Callable[[Any], _T], Callable[[], _T]],
         takes_self: bool = ...,
     ) -> _T: ...
+
 
 class Attribute(Generic[_T]):
     name: str
@@ -105,6 +102,7 @@ class Attribute(Generic[_T]):
     type: Optional[Type[_T]]
     kw_only: bool
     on_setattr: _OnSetAttrType
+
     def evolve(self, **changes: Any) -> "Attribute[Any]": ...
 
 # NOTE: We had several choices for the annotation to use for type arg:
@@ -431,9 +429,7 @@ def asdict(
     filter: Optional[_FilterType[Any]] = ...,
     dict_factory: Type[Mapping[Any, Any]] = ...,
     retain_collection_types: bool = ...,
-    value_serializer: Optional[
-        Callable[[type, Attribute[Any], Any], Any]
-    ] = ...,
+    value_serializer: Optional[Callable[[type, Attribute[Any], Any], Any]] = ...,
 ) -> Dict[str, Any]: ...
 
 # TODO: add support for returning NamedTuple from the mypy plugin
