@@ -325,6 +325,40 @@ class TestDundersUnnamedClass(object):
         assert method.__name__ == "__ne__"
 
 
+class TestTotalOrderingException(object):
+    """
+    Test for exceptions related to total ordering.
+    """
+
+    def test_eq_must_specified(self):
+        """
+        `total_ordering` requires `__eq__` to be specified.
+        """
+        with pytest.raises(ValueError) as ei:
+            cmp_using(lt=lambda a, b: a < b)
+
+        assert ei.value.args[0] == (
+            "eq must be define is order to complete ordering from "
+            "lt, le, gt, ge."
+        )
+
+
+class TestNotImplementedIsPropagated(object):
+    """
+    Test related to functions that return NotImplemented.
+    """
+
+    def test_not_implemented_is_propagated(self):
+        """
+        If the comparison function returns NotImplemented,
+        the dunder method should too.
+        """
+        C = cmp_using(eq=lambda a, b: NotImplemented if a == 1 else a == b)
+
+        assert C(2) == C(2)
+        assert C(1) != C(1)
+
+
 class TestDundersPartialOrdering(object):
     """
     Tests for dunder attributes of classes with partial ordering.
