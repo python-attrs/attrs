@@ -7,6 +7,7 @@ from __future__ import absolute_import, division, print_function
 import pytest
 
 from attr._cmp import cmp_using
+from attr._compat import PY2
 
 
 # Test parameters.
@@ -89,6 +90,7 @@ class TestEqOrder(object):
     #########
     # lt
     #########
+    @pytest.mark.skipif(PY2, reason="PY2 does not raise TypeError")
     @pytest.mark.parametrize("cls, requires_same_type", eq_data, ids=eq_ids)
     def test_lt_unorderable(self, cls, requires_same_type):
         """
@@ -124,7 +126,7 @@ class TestEqOrder(object):
         """
         Less-than values of different types are detected appropriately.
         """
-        if requires_same_type:
+        if requires_same_type and not PY2:
             # Unlike __eq__, NotImplemented will cause an exception to be
             # raised from __lt__.
             with pytest.raises(TypeError):
@@ -136,6 +138,7 @@ class TestEqOrder(object):
     #########
     # le
     #########
+    @pytest.mark.skipif(PY2, reason="PY2 does not raise TypeError")
     @pytest.mark.parametrize("cls, requires_same_type", eq_data, ids=eq_ids)
     def test_le_unorderable(self, cls, requires_same_type):
         """
@@ -173,7 +176,7 @@ class TestEqOrder(object):
         """
         Less-than-or-equal values of diff. types are detected appropriately.
         """
-        if requires_same_type:
+        if requires_same_type and not PY2:
             # Unlike __eq__, NotImplemented will cause an exception to be
             # raised from __le__.
             with pytest.raises(TypeError):
@@ -186,6 +189,7 @@ class TestEqOrder(object):
     #########
     # gt
     #########
+    @pytest.mark.skipif(PY2, reason="PY2 does not raise TypeError")
     @pytest.mark.parametrize("cls, requires_same_type", eq_data, ids=eq_ids)
     def test_gt_unorderable(self, cls, requires_same_type):
         """
@@ -221,7 +225,7 @@ class TestEqOrder(object):
         """
         Greater-than values of different types are detected appropriately.
         """
-        if requires_same_type:
+        if requires_same_type and not PY2:
             # Unlike __eq__, NotImplemented will cause an exception to be
             # raised from __gt__.
             with pytest.raises(TypeError):
@@ -233,6 +237,7 @@ class TestEqOrder(object):
     #########
     # ge
     #########
+    @pytest.mark.skipif(PY2, reason="PY2 does not raise TypeError")
     @pytest.mark.parametrize("cls, requires_same_type", eq_data, ids=eq_ids)
     def test_ge_unorderable(self, cls, requires_same_type):
         """
@@ -270,7 +275,7 @@ class TestEqOrder(object):
         """
         Greater-than-or-equal values of diff. types are detected appropriately.
         """
-        if requires_same_type:
+        if requires_same_type and not PY2:
             # Unlike __eq__, NotImplemented will cause an exception to be
             # raised from __ge__.
             with pytest.raises(TypeError):
