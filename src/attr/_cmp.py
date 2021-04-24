@@ -16,7 +16,7 @@ def cmp_using(
     gt=None,
     ge=None,
     require_same_type=True,
-    class_name=None,
+    class_name="Comparable",
 ):
     """
     Utility function that creates a class with customized equality and
@@ -76,9 +76,7 @@ def cmp_using(
         num_order_fucntions += 1
         body["__ge__"] = _make_operator("ge", ge)
 
-    type_ = new_class(
-        class_name or "Comparable", (object,), {}, lambda ns: ns.update(body)
-    )
+    type_ = new_class(class_name, (object,), {}, lambda ns: ns.update(body))
 
     # Add same type requirement.
     if require_same_type:

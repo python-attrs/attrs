@@ -10,5 +10,5 @@ def cmp_using(
     gt: Optional[_CompareWithType],
     ge: Optional[_CompareWithType],
     require_same_type: bool,
-    class_name: Optional[str],
+    class_name: str,
 ) -> Type: ...
