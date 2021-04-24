@@ -302,7 +302,8 @@ class TestDundersUnnamedClass(object):
         Class name and qualified name should be well behaved.
         """
         assert self.cls.__name__ == "Comparable"
-        assert self.cls.__qualname__ == "Comparable"
+        if not PY2:
+            assert self.cls.__qualname__ == "Comparable"
 
     def test_eq(self):
         """
@@ -336,7 +337,8 @@ class TestDundersPartialOrdering(object):
         Class name and qualified name should be well behaved.
         """
         assert self.cls.__name__ == "PartialOrderCSameType"
-        assert self.cls.__qualname__ == "PartialOrderCSameType"
+        if not PY2:
+            assert self.cls.__qualname__ == "PartialOrderCSameType"
 
     def test_eq(self):
         """
@@ -370,9 +372,12 @@ class TestDundersPartialOrdering(object):
         __le__ docstring and qualified name should be well behaved.
         """
         method = self.cls.__le__
-        assert method.__doc__.strip().startswith(
-            "Return a <= b.  Computed by @total_ordering from"
-        )
+        if PY2:
+            assert method.__doc__ == "x.__le__(y) <==> x<=y"
+        else:
+            assert method.__doc__.strip().startswith(
+                "Return a <= b.  Computed by @total_ordering from"
+            )
         assert method.__name__ == "__le__"
 
     def test_gt(self):
@@ -380,9 +385,12 @@ class TestDundersPartialOrdering(object):
         __gt__ docstring and qualified name should be well behaved.
         """
         method = self.cls.__gt__
-        assert method.__doc__.strip().startswith(
-            "Return a > b.  Computed by @total_ordering from"
-        )
+        if PY2:
+            assert method.__doc__ == "x.__gt__(y) <==> x>y"
+        else:
+            assert method.__doc__.strip().startswith(
+                "Return a > b.  Computed by @total_ordering from"
+            )
         assert method.__name__ == "__gt__"
 
     def test_ge(self):
@@ -390,9 +398,12 @@ class TestDundersPartialOrdering(object):
         __ge__ docstring and qualified name should be well behaved.
         """
         method = self.cls.__ge__
-        assert method.__doc__.strip().startswith(
-            "Return a >= b.  Computed by @total_ordering from"
-        )
+        if PY2:
+            assert method.__doc__ == "x.__ge__(y) <==> x>=y"
+        else:
+            assert method.__doc__.strip().startswith(
+                "Return a >= b.  Computed by @total_ordering from"
+            )
         assert method.__name__ == "__ge__"
 
 
@@ -408,7 +419,8 @@ class TestDundersFullOrdering(object):
         Class name and qualified name should be well behaved.
         """
         assert self.cls.__name__ == "FullOrderCSameType"
-        assert self.cls.__qualname__ == "FullOrderCSameType"
+        if not PY2:
+            assert self.cls.__qualname__ == "FullOrderCSameType"
 
     def test_eq(self):
         """
