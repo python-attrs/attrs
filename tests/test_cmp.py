@@ -79,7 +79,7 @@ class TestEqOrder(object):
         assert not (cls(1) == cls(2))
 
     @pytest.mark.parametrize("cls, requires_same_type", cmp_data, ids=cmp_ids)
-    def test_equal_different_type(self, cls, requires_same_type: bool):
+    def test_equal_different_type(self, cls, requires_same_type):
         """
         Equal values of different types are detected appropriately.
         """
