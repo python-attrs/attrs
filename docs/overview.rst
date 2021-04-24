@@ -23,7 +23,7 @@ Philosophy
    The end.
    It doesn't add metaclasses.
    It doesn't add classes you've never heard of to your inheritance tree.
-   An ``attrs`` class in runtime is indistiguishable from a regular class: because it *is* a regular class with a few boilerplate-y methods attached.
+   An ``attrs`` class in runtime is indistinguishable from a regular class: because it *is* a regular class with a few boilerplate-y methods attached.
 
 **Be light on API impact.**
    As convenient as it seems at first, ``attrs`` will *not* tack on any methods to your classes save the dunder ones.
