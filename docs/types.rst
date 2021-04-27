@@ -41,7 +41,7 @@ Also, starting in Python 3.10 (:pep:`526`) **all** annotations will be string li
 When this happens, ``attrs`` will simply put these string literals into the ``type`` attributes.
 If you need to resolve these to real types, you can call `attr.resolve_types` which will update the attribute in place.
 
-In practice though, types show their biggest usefulness in combination with tools like mypy_ or pytype_ that both have dedicated support for ``attrs`` classes.
+In practice though, types show their biggest usefulness in combination with tools like mypy_, pytype_ or pyright_ that have dedicated support for ``attrs`` classes.
 
 
 mypy
@@ -69,6 +69,28 @@ To mypy, this code is equivalent to the one above:
       a_number = attr.ib(default=42)  # type: int
       list_of_numbers = attr.ib(factory=list, type=typing.List[int])
 
+
+pyright
+----
+
+``attrs`` provides support for pyright_ though the ``dataclass_transform`` specification.
+This provides static type inference for a subset of ``attrs`` equivalent to standard-library ``dataclasses``,
+and requires explicit type annotations using the :ref:`next-gen` or ``@attr.s(auto_attribs=True)`` APIs.
+Given the following definition, ``pyright`` will generate static type signatures for ``SomeClass``,
+``SomeClass`` properties, ``SomeClass.__init__``, and ``SomeClass`` comparision methods.
+
+.. code-block:: python
+
+  @attr.define
+  class SomeClass(object):
+      a_number: int = 42
+      list_of_numbers: typing.List[int] = attr.field(factory=list)
+
+.. note::
+
+   ``dataclass_transform``-based types is supported provisionally as of ``pyright`` 1.1.135 and ``attrs`` 21.1.
+
+
 *****
 
 The addition of static types is certainly one of the most exciting features in the Python ecosystem and helps you writing *correct* and *verified self-documenting* code.
@@ -78,3 +100,5 @@ If you don't know where to start, Carl Meyer gave a great talk on `Type-checked 
 
 .. _mypy: http://mypy-lang.org
 .. _pytype: https://google.github.io/pytype/
+.. _pyright: https://github.com/microsoft/pyright
+.. _dataclass_transform: https://github.com/microsoft/pyright/blob/1.1.135/specs/dataclass_transforms.md
