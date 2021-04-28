@@ -71,7 +71,7 @@ To mypy, this code is equivalent to the one above:
 
 
 pyright
-----
+-------
 
 ``attrs`` provides support for pyright_ though the ``dataclass_transform`` specification.
 This provides static type inference for a subset of ``attrs`` equivalent to standard-library ``dataclasses``,
