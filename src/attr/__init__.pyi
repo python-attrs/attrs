@@ -89,6 +89,11 @@ else:
 # Static type inference support via __dataclass_transform__ implemented as per:
 # https://github.com/microsoft/pyright/blob/1.1.135/specs/dataclass_transforms.md
 # This annotation must be applied to all overloads of "define" and "attrs"
+#
+# NOTE: This is a typing construct and does not exist at runtime.  Extensions
+# wrapping attrs decorators should declare a separate __dataclass_transform__
+# signature in the extension module using the specification linked above to
+# provide pyright support.
 def __dataclass_transform__(
     *,
     eq_default: bool = True,
