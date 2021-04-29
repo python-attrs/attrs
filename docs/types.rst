@@ -73,9 +73,9 @@ To mypy, this code is equivalent to the one above:
 pyright
 -------
 
-``attrs`` provides support for pyright_ though the ``dataclass_transform`` specification.
+``attrs`` provides support for pyright_ though the dataclass_transform_ specification.
 This provides static type inference for a subset of ``attrs`` equivalent to standard-library ``dataclasses``,
-and requires explicit type annotations using the :ref:`next-gen` or ``@attr.s(auto_attribs=True)`` APIs.
+and requires explicit type annotations using the :ref:`next-gen` ``attr.define` or ``@attr.s(auto_attribs=True)`` APIs.
 Given the following definition, ``pyright`` will generate static type signatures for ``SomeClass``,
 ``SomeClass`` properties, ``SomeClass.__init__``, and ``SomeClass`` comparision methods.
 
@@ -89,7 +89,15 @@ Given the following definition, ``pyright`` will generate static type signatures
 .. note::
 
    ``dataclass_transform``-based types is supported provisionally as of ``pyright`` 1.1.135 and ``attrs`` 21.1.
+   Both the `pyright` dataclass_transform_ specification and ``attrs`` implementation may changed in future versions.
 
+   The `pyright` inferred types are a subset of those supported by `mypy`, including:
+
+   The generated `__init__` signature only includes the attribute type annotations,
+   and does not include attribute `converter` types.
+
+   The `attr.frozen` decorator is not typed with frozen attributes,
+   and which are properly typed via `attr.define(frozen=True)`.
 
 *****
 
