@@ -88,7 +88,7 @@ Given the following definition, ``pyright`` will generate static type signatures
 
 .. note::
 
-   ``dataclass_transform``-based types is supported provisionally as of ``pyright`` 1.1.135 and ``attrs`` 21.1.
+   ``dataclass_transform``-based types are supported provisionally as of ``pyright`` 1.1.135 and ``attrs`` 21.1.
    Both the `pyright` dataclass_transform_ specification and ``attrs`` implementation may changed in future versions.
 
    The `pyright` inferred types are a subset of those supported by `mypy`, including:
