@@ -38,11 +38,13 @@ def test_pyright_baseline():
     expected_diagnostics = {
         PyrightDiagnostic(
             severity="information",
-            message='Type of "Define.__init__" is "(self: Define, a: str, b: int) -> None"',
+            message='Type of "Define.__init__" is'
+            ' "(self: Define, a: str, b: int) -> None"',
         ),
         PyrightDiagnostic(
             severity="information",
-            message='Type of "DefineConverter.__init__" is "(self: DefineConverter, with_converter: int) -> None"',
+            message='Type of "DefineConverter.__init__" is '
+            '"(self: DefineConverter, with_converter: int) -> None"',
         ),
         PyrightDiagnostic(
             severity="information",
@@ -50,7 +52,8 @@ def test_pyright_baseline():
         ),
         PyrightDiagnostic(
             severity="error",
-            message='Cannot assign member "a" for type "FrozenDefine"\n\xa0\xa0"FrozenDefine" is frozen',
+            message='Cannot assign member "a" for type '
+            '"FrozenDefine"\n\xa0\xa0"FrozenDefine" is frozen',
         ),
         PyrightDiagnostic(
             severity="information",

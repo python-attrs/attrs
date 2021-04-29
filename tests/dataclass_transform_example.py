@@ -1,5 +1,3 @@
-from typing import Optional
-
 import attr
 
 
@@ -9,7 +7,7 @@ class Define:
     b: int
 
 
-reveal_type(Define.__init__)
+reveal_type(Define.__init__)  # noqa
 
 
 @attr.define()
@@ -18,7 +16,7 @@ class DefineConverter:
     with_converter: int = attr.field(converter=int)
 
 
-reveal_type(DefineConverter.__init__)
+reveal_type(DefineConverter.__init__)  # noqa
 
 
 # mypy plugin supports attr.frozen, pyright does not
@@ -30,7 +28,8 @@ class Frozen:
 d = Frozen("a")
 d.a = "new"
 
-reveal_type(d.a)
+reveal_type(d.a)  # noqa
+
 
 # but pyright supports attr.define(frozen)
 @attr.define(frozen=True)
@@ -41,4 +40,4 @@ class FrozenDefine:
 d2 = FrozenDefine("a")
 d2.a = "new"
 
-reveal_type(d2.a)
+reveal_type(d2.a)  # noqa
