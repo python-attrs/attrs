@@ -1,5 +1,5 @@
 import json
-import pathlib
+import os.path
 import shutil
 import subprocess
 import sys
@@ -15,17 +15,15 @@ else:
     _found_pyright = shutil.which("pyright")
 
 
-@attr.define(frozen=True)
-class PyrightDiagnostic:
-    severity: str
-    message: str
+@attr.s(frozen=True)
+class PyrightDiagnostic(object):
+    severity = attr.ib()
+    message = attr.ib()
 
 
 @pytest.mark.skipif(not _found_pyright, reason="Requires pyright.")
 def test_pyright_baseline():
-    test_file = (
-        pathlib.Path(__file__).parent / "dataclass_transform_example.py"
-    )
+    test_file = os.path.dirname(__file__) + "/dataclass_transform_example.py"
 
     pyright = subprocess.run(
         ["pyright", "--outputjson", str(test_file)], capture_output=True
