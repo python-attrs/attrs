@@ -94,12 +94,12 @@ Pyright
 
 Generic decorator wrapping is supported in pyright via the provisional `dataclass_transform <https://github.com/microsoft/pyright/blob/1.1.135/specs/dataclass_transforms.md>`_ specification.
 For a custom wrapping of the form::
-   
+
     def custom_define(f):
         return attr.define(f)
 
 This is implemented via a `__dataclass_transform__ <https://github.com/microsoft/pyright/blob/master/specs/dataclass_transforms.md#applying-to-attrs>`_ type decorator in .pyi via::
-   
+
     @__dataclass_transform__(field_descriptors=(attr.attrib, attr.field))
     def custom_define(f): ...
 
