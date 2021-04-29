@@ -89,15 +89,17 @@ Given the following definition, ``pyright`` will generate static type signatures
 .. note::
 
    ``dataclass_transform``-based types are supported provisionally as of ``pyright`` 1.1.135 and ``attrs`` 21.1.
-   Both the `pyright` dataclass_transform_ specification and ``attrs`` implementation may changed in future versions.
+   Both the ``pyright`` dataclass_transform_ specification and ``attrs`` implementation may changed in future versions.
 
-   The `pyright` inferred types are a subset of those supported by `mypy`, including:
+   The ``pyright`` inferred types are a subset of those supported by ``mypy``, including:
 
-   The generated `__init__` signature only includes the attribute type annotations,
-   and does not include attribute `converter` types.
+   The generated ``__init__`` signature only includes the attribute type annotations,
+   and does not include attribute ``converter`` types.
 
-   The `attr.frozen` decorator is not typed with frozen attributes,
-   and which are properly typed via `attr.define(frozen=True)`.
+   The ``attr.frozen`` decorator is not typed with frozen attributes,
+   and which are properly typed via ``attr.define(frozen=True)``.
+
+   Your constructive feedback is welcome in both `attrs#795 <https://github.com/python-attrs/attrs/issues/795>`_ and `pyright#1782 <https://github.com/microsoft/pyright/discussions/1782>`_.
 
 *****
 
