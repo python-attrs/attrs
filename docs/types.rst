@@ -43,6 +43,9 @@ If you need to resolve these to real types, you can call `attr.resolve_types` wh
 
 In practice though, types show their biggest usefulness in combination with tools like mypy_, pytype_ or pyright_ that have dedicated support for ``attrs`` classes.
 
+The addition of static types is certainly one of the most exciting features in the Python ecosystem and helps you writing *correct* and *verified self-documenting* code.
+
+If you don't know where to start, Carl Meyer gave a great talk on `Type-checked Python in the Real World <https://www.youtube.com/watch?v=pMgmKJyWKn8>`_ at PyCon US 2018 that will help you to get started in no time.
 
 mypy
 ----
@@ -75,11 +78,9 @@ pyright
 
 ``attrs`` provides support for pyright_ though the dataclass_transform_ specification.
 This provides static type inference for a subset of ``attrs`` equivalent to standard-library ``dataclasses``,
-and requires explicit type annotations using the :ref:`next-gen` ``attr.define` or ``@attr.s(auto_attribs=True)`` APIs.
-Given the following definition, ``pyright`` will generate static type signatures for ``SomeClass``,
-``SomeClass`` properties, ``SomeClass.__init__``, and ``SomeClass`` comparision methods.
+and requires explicit type annotations using the :ref:`next-gen` or ``@attr.s(auto_attribs=True)`` API.
 
-.. code-block:: python
+Given the following definition, ``pyright`` will generate static type signatures for ``SomeClass`` attribute access, ``__init__``, ``__eq__``, and comparison methods::
 
   @attr.define
   class SomeClass(object):
@@ -93,20 +94,14 @@ Given the following definition, ``pyright`` will generate static type signatures
 
    The ``pyright`` inferred types are a subset of those supported by ``mypy``, including:
 
-   The generated ``__init__`` signature only includes the attribute type annotations,
-   and does not include attribute ``converter`` types.
+   - The generated ``__init__`` signature only includes the attribute type annotations,
+     and does not include attribute ``converter`` types.
 
-   The ``attr.frozen`` decorator is not typed with frozen attributes,
-   and which are properly typed via ``attr.define(frozen=True)``.
+   - The ``attr.frozen`` decorator is not typed with frozen attributes, which are properly typed via ``attr.define(frozen=True)``.
 
    Your constructive feedback is welcome in both `attrs#795 <https://github.com/python-attrs/attrs/issues/795>`_ and `pyright#1782 <https://github.com/microsoft/pyright/discussions/1782>`_.
 
 *****
-
-The addition of static types is certainly one of the most exciting features in the Python ecosystem and helps you writing *correct* and *verified self-documenting* code.
-
-If you don't know where to start, Carl Meyer gave a great talk on `Type-checked Python in the Real World <https://www.youtube.com/watch?v=pMgmKJyWKn8>`_ at PyCon US 2018 that will help you to get started in no time.
-
 
 .. _mypy: http://mypy-lang.org
 .. _pytype: https://google.github.io/pytype/

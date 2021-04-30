@@ -92,17 +92,31 @@ Then tell mypy about your plugin using your project's ``mypy.ini``:
 Pyright
 *************
 
-Generic decorator wrapping is supported in pyright via the provisional `dataclass_transform <https://github.com/microsoft/pyright/blob/1.1.135/specs/dataclass_transforms.md>`_ specification.
+Generic decorator wrapping is supported in ``pyright`` via the provisional dataclass_transform_ specification.
+
 For a custom wrapping of the form::
 
     def custom_define(f):
         return attr.define(f)
 
-This is implemented via a `__dataclass_transform__ <https://github.com/microsoft/pyright/blob/master/specs/dataclass_transforms.md#applying-to-attrs>`_ type decorator in .pyi via::
+This is implemented via a ``__dataclass_transform__`` type decorator in the custom extension's ``.pyi`` of the form::
+
+    def __dataclass_transform__(
+        *,
+        eq_default: bool = True,
+        order_default: bool = False,
+        kw_only_default: bool = False,
+        field_descriptors: Tuple[Union[type, Callable[..., Any]], ...] = (()),
+    ) -> Callable[[_T], _T]: ...
 
     @__dataclass_transform__(field_descriptors=(attr.attrib, attr.field))
     def custom_define(f): ...
 
+.. note::
+
+   ``dataclass_transform`` is supported provisionally as of ``pyright`` 1.1.135.
+
+   Both the ``pyright`` dataclass_transform_ specification and ``attrs`` implementation may changed in future versions.
 
 Types
 -----
@@ -289,3 +303,7 @@ It has the signature
    {'dt': '2020-05-04T13:37:00'}
    >>> json.dumps(data)
    '{"dt": "2020-05-04T13:37:00"}'
+
+*****
+
+.. _dataclass_transform: https://github.com/microsoft/pyright/blob/1.1.135/specs/dataclass_transforms.md
