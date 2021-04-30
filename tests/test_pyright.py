@@ -23,6 +23,10 @@ class PyrightDiagnostic(object):
 
 @pytest.mark.skipif(not _found_pyright, reason="Requires pyright.")
 def test_pyright_baseline():
+    """The __dataclass_transform__ decorator allows pyright to determine
+    attrs decorated class types.
+    """
+
     test_file = os.path.dirname(__file__) + "/dataclass_transform_example.py"
 
     pyright = subprocess.run(
@@ -35,6 +39,7 @@ def test_pyright_baseline():
         for d in pyright_result["generalDiagnostics"]
     )
 
+    # Expected diagnostics as per pyright 1.1.135
     expected_diagnostics = {
         PyrightDiagnostic(
             severity="information",
