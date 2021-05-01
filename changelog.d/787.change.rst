@@ -1,0 +1,1 @@
+To make it easier to customize attribute comparison (#435), add the ``attr.cmp_with()`` helper.
