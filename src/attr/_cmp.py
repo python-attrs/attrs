@@ -19,8 +19,8 @@ def cmp_using(
     class_name="Comparable",
 ):
     """
-    Utility function that creates a class with customized equality and
-    ordering methods.
+    Create a class that can be passed into `attr.ib`'s ``eq``, ``order``, and
+    ``cmp`` arguments to customize field comparison.
 
     The resulting class will have a full set of ordering methods if
     at least one of ``{lt, le, gt, ge}`` and ``eq``  are provided.
@@ -40,6 +40,8 @@ def cmp_using(
         will return `NotImplemented` if objects are not of the same type.
 
     :param Optional[str] class_name: Name of class. Defaults to 'Comparable'.
+
+    See `comparison` for more details.
 
     .. versionadded:: 21.1.0
     """
