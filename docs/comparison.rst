@@ -42,5 +42,17 @@ It is then used as a key function like you may know from `sorted`:
 This is especially useful when you have fields with objects that have atypical comparison properties.
 Common examples of such objects are `NumPy arrays <https://github.com/python-attrs/attrs/issues/435>`_.
 
-Please note that *eq* and *order* are set *independently*, because *order* is `False` by default in `modern APIs <next-gen>`.
-You can set both at once by using the *cmp* argument that we've undeprecated just for this use-case.
+To save you unnecessary boilerplate, ``attrs`` comes with the `attr.cmp_using` helper to create such functions.
+For NumPy arrays it would look like this::
+
+   import numpy as np
+
+   @attr.s(order=False)
+   class C:
+      an_array = attr.ib(eq=attr.cmp_using(eq=np.array_equal))
+
+
+.. warning::
+
+   Please note that *eq* and *order* are set *independently*, because *order* is `False` by default in `modern APIs <next-gen>`.
+   You can set both at once by using the *cmp* argument that we've undeprecated just for this use-case.
