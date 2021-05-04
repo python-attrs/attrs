@@ -1908,27 +1908,6 @@ class TestDetermineAttribEqOrder(object):
             None, eq, None, True
         )
 
-    def test_order_missing_and_custom_eq(self):
-        """
-        If eq is customized and order is missing, order mirrors eq
-        but a warning is raised.
-        """
-        with pytest.warns(None) as wr:
-
-            assert (
-                True,
-                str.lower,
-                True,
-                str.lower,
-            ) == _determine_attrib_eq_order(None, str.lower, None, True)
-
-        (w,) = wr.list
-
-        assert (
-            "You have customized the behavior of `eq` but not of `order`.  "
-            "This is probably a bug." == w.message.args[0]
-        )
-
     def test_order_without_eq(self):
         """
         eq=False, order=True raises a meaningful ValueError.
