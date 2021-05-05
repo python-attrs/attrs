@@ -173,6 +173,8 @@ Helpers
 
 ``attrs`` comes with a bunch of helper methods that make working with it easier:
 
+.. autofunction:: attr.cmp_using
+
 .. autofunction:: attr.fields
 
    For example:

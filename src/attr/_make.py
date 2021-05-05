@@ -1073,11 +1073,6 @@ _CMP_DEPRECATION = (
     "2021-06-01.  Please use `eq` and `order` instead."
 )
 
-_EQ_ORDER_CUSTOMIZATION = (
-    "You have customized the behavior of `eq` but not of `order`.  "
-    "This is probably a bug."
-)
-
 
 def _determine_attrs_eq_order(cmp, eq, order, default_eq):
     """
@@ -1136,9 +1131,6 @@ def _determine_attrib_eq_order(cmp, eq, order, default_eq):
         eq, eq_key = decide_callable_or_boolean(eq)
 
     if order is None:
-        if eq_key is not None:
-            warnings.warn(_EQ_ORDER_CUSTOMIZATION, SyntaxWarning, stacklevel=3)
-
         order, order_key = eq, eq_key
     else:
         order, order_key = decide_callable_or_boolean(order)
