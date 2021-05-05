@@ -1,0 +1,4 @@
+``attrs`` has added provisional support for static typing in ``pyright`` version 1.1.135 via the `dataclass_transforms specification <https://github.com/microsoft/pyright/blob/1.1.135/specs/dataclass_transforms.md>`.
+Both the ``pyright`` specification and ``attrs`` implementation may change in future versions of both projects.
+
+Your constructive feedback is welcome in both `attrs#795 <https://github.com/python-attrs/attrs/issues/795>`_ and `pyright#1782 <https://github.com/microsoft/pyright/discussions/1782>`_.
