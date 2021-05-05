@@ -45,11 +45,11 @@ Common examples of such objects are `NumPy arrays <https://github.com/python-att
 To save you unnecessary boilerplate, ``attrs`` comes with the `attr.cmp_using` helper to create such functions.
 For NumPy arrays it would look like this::
 
-   import numpy as np
+   import numpy
 
    @attr.s(order=False)
    class C:
-      an_array = attr.ib(eq=attr.cmp_using(eq=np.array_equal))
+      an_array = attr.ib(eq=attr.cmp_using(eq=numpy.array_equal))
 
 
 .. warning::
