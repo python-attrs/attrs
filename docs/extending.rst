@@ -47,7 +47,7 @@ An example for that is the package `environ-config <https://github.com/hynek/env
 Another common use case is to overwrite ``attrs``'s defaults.
 
 Mypy
-************
+^^^^
 
 Unfortunately, decorator wrapping currently `confuses <https://github.com/python/mypy/issues/5406>`_ mypy's ``attrs`` plugin.
 At the moment, the best workaround is to hold your nose, write a fake mypy plugin, and mutate a bunch of global variables::
@@ -90,9 +90,9 @@ Then tell mypy about your plugin using your project's ``mypy.ini``:
    You can only use this trick to tell mypy that a class is actually an ``attrs`` class.
 
 Pyright
-*************
+^^^^^^^
 
-Generic decorator wrapping is supported in ``pyright`` via the provisional dataclass_transform_ specification.
+Generic decorator wrapping is supported in `pyright <https://github.com/microsoft/pyright>`_ via their dataclass_transform_ specification.
 
 For a custom wrapping of the form::
 
@@ -112,11 +112,12 @@ This is implemented via a ``__dataclass_transform__`` type decorator in the cust
     @__dataclass_transform__(field_descriptors=(attr.attrib, attr.field))
     def custom_define(f): ...
 
-.. note::
+.. warning::
 
-   ``dataclass_transform`` is supported provisionally as of ``pyright`` 1.1.135.
+   ``dataclass_transform`` is supported **provisionally** as of ``pyright`` 1.1.135.
 
-   Both the ``pyright`` dataclass_transform_ specification and ``attrs`` implementation may changed in future versions.
+   Both the ``pyright`` dataclass_transform_ specification and ``attrs`` implementation may change in future versions.
+
 
 Types
 -----
@@ -306,4 +307,4 @@ It has the signature
 
 *****
 
-.. _dataclass_transform: https://github.com/microsoft/pyright/blob/1.1.135/specs/dataclass_transforms.md
+.. _dataclass_transform: https://github.com/microsoft/pyright/blob/master/specs/dataclass_transforms.md

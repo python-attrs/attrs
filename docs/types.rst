@@ -41,11 +41,12 @@ Also, starting in Python 3.10 (:pep:`526`) **all** annotations will be string li
 When this happens, ``attrs`` will simply put these string literals into the ``type`` attributes.
 If you need to resolve these to real types, you can call `attr.resolve_types` which will update the attribute in place.
 
-In practice though, types show their biggest usefulness in combination with tools like mypy_, pytype_ or pyright_ that have dedicated support for ``attrs`` classes.
+In practice though, types show their biggest usefulness in combination with tools like mypy_, pytype_, or pyright_ that have dedicated support for ``attrs`` classes.
 
 The addition of static types is certainly one of the most exciting features in the Python ecosystem and helps you writing *correct* and *verified self-documenting* code.
 
 If you don't know where to start, Carl Meyer gave a great talk on `Type-checked Python in the Real World <https://www.youtube.com/watch?v=pMgmKJyWKn8>`_ at PyCon US 2018 that will help you to get started in no time.
+
 
 mypy
 ----
@@ -83,27 +84,26 @@ and requires explicit type annotations using the :ref:`next-gen` or ``@attr.s(au
 Given the following definition, ``pyright`` will generate static type signatures for ``SomeClass`` attribute access, ``__init__``, ``__eq__``, and comparison methods::
 
   @attr.define
-  class SomeClass(object):
+  class SomeClass:
       a_number: int = 42
       list_of_numbers: typing.List[int] = attr.field(factory=list)
 
-.. note::
+.. warning::
 
    ``dataclass_transform``-based types are supported provisionally as of ``pyright`` 1.1.135 and ``attrs`` 21.1.
    Both the ``pyright`` dataclass_transform_ specification and ``attrs`` implementation may changed in future versions.
 
    The ``pyright`` inferred types are a subset of those supported by ``mypy``, including:
 
-   - The generated ``__init__`` signature only includes the attribute type annotations,
-     and does not include attribute ``converter`` types.
+   - The generated ``__init__`` signature only includes the attribute type annotations.
+     It currently does not include attribute ``converter`` types.
 
    - The ``attr.frozen`` decorator is not typed with frozen attributes, which are properly typed via ``attr.define(frozen=True)``.
 
    Your constructive feedback is welcome in both `attrs#795 <https://github.com/python-attrs/attrs/issues/795>`_ and `pyright#1782 <https://github.com/microsoft/pyright/discussions/1782>`_.
 
-*****
 
 .. _mypy: http://mypy-lang.org
 .. _pytype: https://google.github.io/pytype/
 .. _pyright: https://github.com/microsoft/pyright
-.. _dataclass_transform: https://github.com/microsoft/pyright/blob/1.1.135/specs/dataclass_transforms.md
+.. _dataclass_transform: https://github.com/microsoft/pyright/blob/master/specs/dataclass_transforms.md
