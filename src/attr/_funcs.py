@@ -319,8 +319,7 @@ def evolve(inst, **changes):
     Create a new instance, based on *inst* with *changes* applied.
 
     :param inst: Instance of a class with ``attrs`` attributes.
-    :param changes: Keyword changes in the new copy.  Nested ``attrs`` classes
-       can be updated by passing (nested) dicts of values.
+    :param changes: Keyword changes in the new copy.
 
     :return: A copy of inst with *changes* incorporated.
 
@@ -338,13 +337,8 @@ def evolve(inst, **changes):
             continue
         attr_name = a.name  # To deal with private attributes.
         init_name = attr_name if attr_name[0] != "_" else attr_name[1:]
-        value = getattr(inst, attr_name)
         if init_name not in changes:
-            # Add original value to changes
-            changes[init_name] = value
-        elif has(value):
-            # Evolve nested attrs classes
-            changes[init_name] = evolve(value, **changes[init_name])
+            changes[init_name] = getattr(inst, attr_name)
 
     return cls(**changes)
 
