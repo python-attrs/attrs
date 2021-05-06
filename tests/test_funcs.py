@@ -597,3 +597,27 @@ class TestEvolve(object):
             b = attr.ib(init=False, default=0)
 
         assert evolve(C(1), a=2).a == 2
+
+    def test_regression(self):
+        """
+        evolve() can evolve fields that are instances of attrs classes.
+
+        Regression test for #804
+        """
+
+        @attr.s
+        class Cls1:
+            param1 = attr.ib()
+
+        @attr.s
+        class Cls2:
+            param2 = attr.ib()
+
+        obj2a = Cls2(param2="a")
+        obj2b = Cls2(param2="b")
+
+        obj1a = Cls1(param1=obj2a)
+
+        assert Cls1(param1=Cls2(param2="b")) == attr.evolve(
+            obj1a, param1=obj2b
+        )
