@@ -1,8 +1,0 @@
-The long-awaited, much-talked-about, little-delivered ``import attrs`` is finally upon us!
-
-Since the NG APIs have now been proclaimed stable, the **next** release of ``attrs`` will allow you to actually ``import attrs``.
-We're taking this opportunity to replace some defaults in our APIs that made sense in 2015, but don't in 2021.
-
-So please, if you have any pet peeves about defaults in ``attrs``'s APIs, *now* is the time to air your grievances in #487!
-We're not gonna get such a chance for a second time, without breaking our backward-compatibility guarantees, or long deprecation cycles.
-Therefore, speak now or forever hold you peace!

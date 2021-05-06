@@ -1,1 +1,0 @@
-Added forgotten ``attr.Attribute.evolve()`` to type stubs.

@@ -1,1 +1,0 @@
-``ClassVar``\ s are now also detected if they come from `typing-extensions <https://pypi.org/project/typing-extensions/>`_.

@@ -1,3 +1,0 @@
-To make it easier to customize attribute comparison (#435), we have added the ``attr.cmp_with()`` helper.
-
-See the `new docs on comparison <https://www.attrs.org/en/stable/comparison.html>`_ for more details.

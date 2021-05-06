@@ -1,1 +1,0 @@
-It's now possible to customize the behavior of ``eq`` and ``order`` by passing in a callable.

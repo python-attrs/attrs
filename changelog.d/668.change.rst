@@ -1,5 +1,0 @@
-The instant favorite `next-generation APIs <https://www.attrs.org/en/stable/api.html#next-gen>`_ are not provisional anymore!
-
-They are also officially supported by Mypy as of their `0.800 release <https://mypy-lang.blogspot.com/2021/01/mypy-0800-released.html>`_.
-
-We hope the next release will already contain an (additional) importable package called ``attrs``.

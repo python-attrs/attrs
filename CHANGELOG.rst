@@ -4,16 +4,87 @@ Changelog
 Versions follow `CalVer <https://calver.org>`_ with a strict backwards compatibility policy.
 The third digit is only for regressions.
 
-Changes for the upcoming release can be found in the `"changelog.d" directory <https://github.com/python-attrs/attrs/tree/main/changelog.d>`_ in our repository.
-
-..
-   Do *NOT* add changelog entries here!
-
-   This changelog is managed by towncrier and is compiled at release time.
-
-   See https://www.attrs.org/en/latest/contributing.html#changelog for details.
-
 .. towncrier release notes start
+
+21.1.0 (2021-05-06)
+-------------------
+
+Deprecations
+^^^^^^^^^^^^
+
+- The long-awaited, much-talked-about, little-delivered ``import attrs`` is finally upon us!
+
+  Since the NG APIs have now been proclaimed stable, the **next** release of ``attrs`` will allow you to actually ``import attrs``.
+  We're taking this opportunity to replace some defaults in our APIs that made sense in 2015, but don't in 2021.
+
+  So please, if you have any pet peeves about defaults in ``attrs``'s APIs, *now* is the time to air your grievances in #487!
+  We're not gonna get such a chance for a second time, without breaking our backward-compatibility guarantees, or long deprecation cycles.
+  Therefore, speak now or forever hold you peace!
+  `#487 <https://github.com/python-attrs/attrs/issues/487>`_
+- The *cmp* argument to ``attr.s()`` and `attr.ib()` has been **undeprecated**
+  It will continue to be supported as syntactic sugar to set *eq* and *order* in one go.
+
+  I'm terribly sorry for the hassle around this argument!
+  The reason we're bringing it back is it's usefulness regarding customization of equality/ordering.
+
+  The ``cmp`` attribute and argument on ``attr.Attribute`` remains deprecated and will be removed later this year.
+  `#773 <https://github.com/python-attrs/attrs/issues/773>`_
+
+
+Changes
+^^^^^^^
+
+- It's now possible to customize the behavior of ``eq`` and ``order`` by passing in a callable.
+  `#435 <https://github.com/python-attrs/attrs/issues/435>`_,
+  `#627 <https://github.com/python-attrs/attrs/issues/627>`_
+- The instant favorite `next-generation APIs <https://www.attrs.org/en/stable/api.html#next-gen>`_ are not provisional anymore!
+
+  They are also officially supported by Mypy as of their `0.800 release <https://mypy-lang.blogspot.com/2021/01/mypy-0800-released.html>`_.
+
+  We hope the next release will already contain an (additional) importable package called ``attrs``.
+  `#668 <https://github.com/python-attrs/attrs/issues/668>`_,
+  `#786 <https://github.com/python-attrs/attrs/issues/786>`_
+- If an attribute defines a converter, the type of its parameter is used as type annotation for its corresponding ``__init__`` parameter.
+
+  If an ``attr.converters.pipe`` is used, the first one's is used.
+  `#710 <https://github.com/python-attrs/attrs/issues/710>`_
+- Fixed the creation of an extra slot for an ``attr.ib`` when the parent class already has a slot with the same name.
+  `#718 <https://github.com/python-attrs/attrs/issues/718>`_
+- ``__attrs__init__()`` will now be injected if ``init=False``, or if ``auto_detect=True`` and a user-defined ``__init__()`` exists.
+
+  This enables users to do "pre-init" work in their ``__init__()`` (such as ``super().__init__()``).
+
+  ``__init__()`` can then delegate constructor argument processing to ``self.__attrs_init__(*args, **kwargs)``.
+  `#731 <https://github.com/python-attrs/attrs/issues/731>`_
+- ``bool(attr.NOTHING)`` is now ``False``.
+  `#732 <https://github.com/python-attrs/attrs/issues/732>`_
+- It's now possible to use ``super()`` inside of properties of slotted classes.
+  `#747 <https://github.com/python-attrs/attrs/issues/747>`_
+- Allow for a ``__attrs_pre_init__()`` method that -- if defined -- will get called at the beginning of the ``attrs``-generated ``__init__()`` method.
+  `#750 <https://github.com/python-attrs/attrs/issues/750>`_
+- Added forgotten ``attr.Attribute.evolve()`` to type stubs.
+  `#752 <https://github.com/python-attrs/attrs/issues/752>`_
+- ``attrs.evolve()`` now works recursively with nested ``attrs`` classes.
+  `#759 <https://github.com/python-attrs/attrs/issues/759>`_
+- Python 3.10 is now officially supported.
+  `#763 <https://github.com/python-attrs/attrs/issues/763>`_
+- ``attr.resolve_types()`` now takes an optional *attrib* argument to work inside a ``field_transformer``.
+  `#774 <https://github.com/python-attrs/attrs/issues/774>`_
+- ``ClassVar``\ s are now also detected if they come from `typing-extensions <https://pypi.org/project/typing-extensions/>`_.
+  `#782 <https://github.com/python-attrs/attrs/issues/782>`_
+- To make it easier to customize attribute comparison (#435), we have added the ``attr.cmp_with()`` helper.
+
+  See the `new docs on comparison <https://www.attrs.org/en/stable/comparison.html>`_ for more details.
+  `#787 <https://github.com/python-attrs/attrs/issues/787>`_
+- Added **provisional** support for static typing in ``pyright`` via the `dataclass_transforms specification <https://github.com/microsoft/pyright/blob/master/specs/dataclass_transforms.md>`_.
+  Both the ``pyright`` specification and ``attrs`` implementation may change in future versions of both projects.
+
+  Your constructive feedback is welcome in both `attrs#795 <https://github.com/python-attrs/attrs/issues/795>`_ and `pyright#1782 <https://github.com/microsoft/pyright/discussions/1782>`_.
+  `#796 <https://github.com/python-attrs/attrs/issues/796>`_
+
+
+----
+
 
 20.3.0 (2020-11-05)
 -------------------

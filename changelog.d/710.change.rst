@@ -1,3 +1,0 @@
-If an attribute defines a converter, the type of its parameter is used as type annotation for its corresponding ``__init__`` parameter.
-
-If an ``attr.converters.pipe`` is used, the first one's is used.
