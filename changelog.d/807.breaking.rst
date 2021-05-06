@@ -1,0 +1,1 @@
+Python 3.4 is now blocked using packaging metadata because ``attrs`` can't be imported on it anymore.
