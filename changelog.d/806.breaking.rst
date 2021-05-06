@@ -1,0 +1,1 @@
+We had to revert the recursive feature for ``attr.evolve()`` because it broke some use-cases -- sorry!
