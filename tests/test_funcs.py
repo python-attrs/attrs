@@ -598,43 +598,50 @@ class TestEvolve(object):
 
         assert evolve(C(1), a=2).a == 2
 
-    def test_recursive(self):
+    def test_regression_attrs_classes(self):
         """
-        evolve() recursively evolves nested attrs classes when a dict is
-        passed for an attribute.
-        """
+        evolve() can evolve fields that are instances of attrs classes.
 
-        @attr.s
-        class N2(object):
-            e = attr.ib(type=int)
-
-        @attr.s
-        class N1(object):
-            c = attr.ib(type=N2)
-            d = attr.ib(type=int)
-
-        @attr.s
-        class C(object):
-            a = attr.ib(type=N1)
-            b = attr.ib(type=int)
-
-        c1 = C(N1(N2(1), 2), 3)
-        c2 = evolve(c1, a={"c": {"e": 23}}, b=42)
-
-        assert c2 == C(N1(N2(23), 2), 42)
-
-    def test_recursive_dict_val(self):
-        """
-        evolve() only attempts recursion when the current value is an ``attrs``
-        class.  Dictionaries as values can be replaced like any other value.
+        Regression test for #804
         """
 
         @attr.s
-        class C(object):
-            a = attr.ib(type=dict)
-            b = attr.ib(type=int)
+        class Cls1(object):
+            param1 = attr.ib()
 
-        c1 = C({"spam": 1}, 2)
-        c2 = evolve(c1, a={"eggs": 2}, b=42)
+        @attr.s
+        class Cls2(object):
+            param2 = attr.ib()
 
-        assert c2 == C({"eggs": 2}, 42)
+        obj2a = Cls2(param2="a")
+        obj2b = Cls2(param2="b")
+
+        obj1a = Cls1(param1=obj2a)
+
+        assert Cls1(param1=Cls2(param2="b")) == attr.evolve(
+            obj1a, param1=obj2b
+        )
+
+    def test_dicts(self):
+        """
+        evolve() can replace an attrs class instance with a dict.
+
+        See #806
+        """
+
+        @attr.s
+        class Cls1(object):
+            param1 = attr.ib()
+
+        @attr.s
+        class Cls2(object):
+            param2 = attr.ib()
+
+        obj2a = Cls2(param2="a")
+        obj2b = {"foo": 42, "param2": 42}
+
+        obj1a = Cls1(param1=obj2a)
+
+        assert Cls1({"foo": 42, "param2": 42}) == attr.evolve(
+            obj1a, param1=obj2b
+        )
