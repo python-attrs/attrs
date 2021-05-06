@@ -606,11 +606,11 @@ class TestEvolve(object):
         """
 
         @attr.s
-        class Cls1:
+        class Cls1(object):
             param1 = attr.ib()
 
         @attr.s
-        class Cls2:
+        class Cls2(object):
             param2 = attr.ib()
 
         obj2a = Cls2(param2="a")
