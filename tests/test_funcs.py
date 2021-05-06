@@ -638,3 +638,20 @@ class TestEvolve(object):
         c2 = evolve(c1, a={"eggs": 2}, b=42)
 
         assert c2 == C({"eggs": 2}, 42)
+
+    def test_recursive_attrs(self):
+        @attr.s
+        class Cls1(object):
+            param1 = attr.ib()
+
+        @attr.s
+        class Cls2(object):
+            param2 = attr.ib()
+
+        obj2a = Cls2(param2="a")
+        obj2b = Cls2(param2="b")
+
+        obj1a = Cls1(param1=obj2a)
+        obj1b = attr.evolve(obj1a, param1=obj2b)
+
+        assert obj1b.param1 == obj2b

@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 import copy
 
-from ._compat import iteritems
+from ._compat import Mapping, iteritems
 from ._make import NOTHING, _obj_setattr, fields
 from .exceptions import AttrsAttributeNotFoundError
 
@@ -342,7 +342,7 @@ def evolve(inst, **changes):
         if init_name not in changes:
             # Add original value to changes
             changes[init_name] = value
-        elif has(value):
+        elif has(value) and isinstance(changes[init_name], Mapping):
             # Evolve nested attrs classes
             changes[init_name] = evolve(value, **changes[init_name])
 
