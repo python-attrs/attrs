@@ -4,16 +4,24 @@ Changelog
 Versions follow `CalVer <https://calver.org>`_ with a strict backwards compatibility policy.
 The third digit is only for regressions.
 
-Changes for the upcoming release can be found in the `"changelog.d" directory <https://github.com/python-attrs/attrs/tree/main/changelog.d>`_ in our repository.
-
-..
-   Do *NOT* add changelog entries here!
-
-   This changelog is managed by towncrier and is compiled at release time.
-
-   See https://www.attrs.org/en/latest/contributing.html#changelog for details.
-
 .. towncrier release notes start
+
+21.2.0 (2021-05-07)
+-------------------
+
+Backward-incompatible Changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- We had to revert the recursive feature for ``attr.evolve()`` because it broke some use-cases -- sorry!
+  `#806 <https://github.com/python-attrs/attrs/issues/806>`_
+- Python 3.4 is now blocked using packaging metadata because ``attrs`` can't be imported on it anymore.
+  To ensure that 3.4 users can keep installing  ``attrs`` easily, we will `yank <https://pypi.org/help/#yanked>`_ 21.1.0 from PyPI.
+  This has **no** consequences if you pin ``attrs`` to 21.1.0.
+  `#807 <https://github.com/python-attrs/attrs/issues/807>`_
+
+
+----
+
 
 21.1.0 (2021-05-06)
 -------------------
