@@ -1,3 +1,3 @@
 Python 3.4 is now blocked using packaging metadata because ``attrs`` can't be imported on it anymore.
 To ensure that 3.4 users can keep installing  ``attrs`` easily, we will `yank <https://pypi.org/help/#yanked>`_ 21.1.0 from PyPI.
-This has **no** consequences, if you pin ``attrs`` to 21.1.0.
+This has **no** consequences if you pin ``attrs`` to 21.1.0.
