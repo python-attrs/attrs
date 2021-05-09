@@ -1369,7 +1369,7 @@ def attrs(
     :param bool collect_by_mro: Setting this to `True` fixes the way ``attrs``
        collects attributes from base classes.  The default behavior is
        incorrect in certain cases of multiple inheritance.  It should be on by
-       default but is kept off for backward-compatability.
+       default but is kept off for backward-compatibility.
 
        See issue `#428 <https://github.com/python-attrs/attrs/issues/428>`_ for
        more details.
