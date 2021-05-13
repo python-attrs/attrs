@@ -966,6 +966,13 @@ class _ClassBuilder(object):
 
         return self
 
+    def add_match_args(self):
+        self._cls_dict["__match_args__"] = tuple(
+            field.name
+            for field in self._attrs
+            if field.init and not field.kw_only
+        )
+
     def add_attrs_init(self):
         self._cls_dict["__attrs_init__"] = self._add_method_dunders(
             _make_init(
@@ -1192,6 +1199,7 @@ def attrs(
     getstate_setstate=None,
     on_setattr=None,
     field_transformer=None,
+    match_args=True,
 ):
     r"""
     A class decorator that adds `dunder
@@ -1407,6 +1415,10 @@ def attrs(
         this, e.g., to automatically add converters or validators to
         fields based on their types.  See `transform-fields` for more details.
 
+    :param bool match_args:
+        If `True` it sets __match_args__ in the class to support PEP 634. It is a
+        tuple of __init__ parameter names that are only positional arguments.
+
     .. versionadded:: 16.0.0 *slots*
     .. versionadded:: 16.1.0 *frozen*
     .. versionadded:: 16.3.0 *str*
@@ -1555,6 +1567,9 @@ def attrs(
                     "Invalid value for cache_hash.  To use hash caching,"
                     " init must be True."
                 )
+
+        if match_args and "__match_args__" not in cls.__dict__:
+            builder.add_match_args()
 
         return builder.build_class()
 
