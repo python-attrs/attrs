@@ -1452,6 +1452,7 @@ def attrs(
        ``init=False`` injects ``__attrs_init__``
     .. versionchanged:: 21.1.0 Support for ``__attrs_pre_init__``
     .. versionchanged:: 21.1.0 *cmp* undeprecated
+    .. versionadded:: 21.3.0 *match_args*
     """
     if auto_detect and PY2:
         raise PythonTooOldError(
