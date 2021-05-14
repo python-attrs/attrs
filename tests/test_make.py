@@ -2332,7 +2332,7 @@ class TestAutoDetect:
 class TestMatchArgs:
     def test_match_args(self):
         @attr.s()
-        class C:
+        class C(object):
             a = attr.ib()
 
         assert C.__match_args__ == ("a",)
@@ -2341,7 +2341,7 @@ class TestMatchArgs:
         ma = ()
 
         @attr.s()
-        class C:
+        class C(object):
             a = attr.ib()
             __match_args__ = ma
 
@@ -2350,7 +2350,7 @@ class TestMatchArgs:
     @pytest.mark.parametrize("match_args", [True, False])
     def test_match_args_attr_set(self, match_args):
         @attr.s(match_args=match_args)
-        class C:
+        class C(object):
             a = attr.ib()
 
         if match_args:
@@ -2360,14 +2360,14 @@ class TestMatchArgs:
 
     def test_match_args_kw_only(self):
         @attr.s()
-        class C:
+        class C(object):
             a = attr.ib(kw_only=True)
             b = attr.ib()
 
         assert C.__match_args__ == ("b",)
 
         @attr.s(match_args=True, kw_only=True)
-        class C:
+        class C(object):
             a = attr.ib()
             b = attr.ib()
 
@@ -2375,13 +2375,13 @@ class TestMatchArgs:
 
     def test_match_args_argument(self):
         @attr.s(match_args=False)
-        class X:
+        class X(object):
             a = attr.ib()
 
         assert "__match_args__" not in X.__dict__
 
         @attr.s(match_args=False)
-        class Y:
+        class Y(object):
             a = attr.ib()
             __match_args__ = ("b",)
 
@@ -2394,7 +2394,7 @@ class TestMatchArgs:
         assert Z.__match_args__ == ("b",)
 
         @attr.s()
-        class A:
+        class A(object):
             a = attr.ib()
             z = attr.ib()
 
