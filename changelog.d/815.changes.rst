@@ -1,0 +1,2 @@
+Add ``__match_args__`` to generated class to support match case destructuring
+in Python 3.10. This can be controlled by ``match_args`` argument to ``@attrib.s``.

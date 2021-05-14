@@ -257,3 +257,10 @@ class FactoryTest:
     a: List[int] = attr.ib(default=attr.Factory(list))
     b: List[Any] = attr.ib(default=attr.Factory(list, False))
     c: List[int] = attr.ib(default=attr.Factory((lambda s: s.a), True))
+
+
+# Check match_args stub
+@attr.s(match_args=False)
+class MatchArgs:
+    a: int = attr.ib()
+    b: int = attr.ib()
