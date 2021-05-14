@@ -1416,8 +1416,8 @@ def attrs(
         fields based on their types.  See `transform-fields` for more details.
 
     :param bool match_args:
-        If `True` it sets __match_args__ in the class to support PEP 634. It 
-        is a tuple of __init__ parameter names that are only positional 
+        If `True` it sets __match_args__ in the class to support PEP 634. It
+        is a tuple of __init__ parameter names that are only positional
         arguments.
 
     .. versionadded:: 16.0.0 *slots*
