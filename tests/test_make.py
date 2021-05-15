@@ -2329,8 +2329,16 @@ class TestAutoDetect:
         assert None is getattr(C(), "__getstate__", None)
 
 
-class TestMatchArgs:
+class TestMatchArgs(object):
+    """
+    Tests for match_args and __match_args__ generation.
+    """
+
     def test_match_args(self):
+        """
+        Test __match_args__ generation
+        """
+
         @attr.s()
         class C(object):
             a = attr.ib()
@@ -2338,6 +2346,10 @@ class TestMatchArgs:
         assert C.__match_args__ == ("a",)
 
     def test_explicit_match_args(self):
+        """
+        Test __match_args__ manually set is not overriden.
+        """
+
         ma = ()
 
         @attr.s()
@@ -2349,6 +2361,10 @@ class TestMatchArgs:
 
     @pytest.mark.parametrize("match_args", [True, False])
     def test_match_args_attr_set(self, match_args):
+        """
+        Test __match_args__ being set depending on match_args.
+        """
+
         @attr.s(match_args=match_args)
         class C(object):
             a = attr.ib()
@@ -2359,6 +2375,11 @@ class TestMatchArgs:
             assert not hasattr(C, "__match_args__")
 
     def test_match_args_kw_only(self):
+        """
+        Test kw_only being set doesn't generate __match_args__
+        Test kw_only field is not included in __match_args__
+        """
+
         @attr.s()
         class C(object):
             a = attr.ib(kw_only=True)
@@ -2374,6 +2395,10 @@ class TestMatchArgs:
         assert C.__match_args__ == ()
 
     def test_match_args_argument(self):
+        """
+        Test match_args being False with inheritance.
+        """
+
         @attr.s(match_args=False)
         class X(object):
             a = attr.ib()
@@ -2405,6 +2430,10 @@ class TestMatchArgs:
         assert B.__match_args__ == ("a", "z")
 
     def test_make_class(self):
+        """
+        Test match_args generation with make_class.
+        """
+
         C1 = make_class("C1", ["a", "b"])
         assert C1.__match_args__ == ("a", "b")
 
