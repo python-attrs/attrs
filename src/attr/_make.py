@@ -654,7 +654,7 @@ class _ClassBuilder(object):
         "_on_setattr",
         "_slots",
         "_weakref_slot",
-        "_has_own_setattr",
+        "_wrote_own_setattr",
         "_has_custom_setattr",
     )
 
@@ -701,7 +701,7 @@ class _ClassBuilder(object):
         self._on_setattr = on_setattr
 
         self._has_custom_setattr = has_custom_setattr
-        self._has_own_setattr = False
+        self._wrote_own_setattr = False
 
         self._cls_dict["__attrs_attrs__"] = self._attrs
 
@@ -709,7 +709,15 @@ class _ClassBuilder(object):
             self._cls_dict["__setattr__"] = _frozen_setattrs
             self._cls_dict["__delattr__"] = _frozen_delattrs
 
-            self._has_own_setattr = True
+            self._wrote_own_setattr = True
+        elif on_setattr == setters.validate:
+            for a in attrs:
+                if a.validator is not None:
+                    break
+            else:
+                # If class-level on_setattr is set to validating, but there's
+                # no field to validate, pretend like there's no on_setattr.
+                self._on_setattr = None
 
         if getstate_setstate:
             (
@@ -759,7 +767,7 @@ class _ClassBuilder(object):
 
         # If we've inherited an attrs __setattr__ and don't write our own,
         # reset it to object's.
-        if not self._has_own_setattr and getattr(
+        if not self._wrote_own_setattr and getattr(
             cls, "__attrs_own_setattr__", False
         ):
             cls.__attrs_own_setattr__ = False
@@ -787,7 +795,7 @@ class _ClassBuilder(object):
         # XXX: a non-attrs class and subclass the resulting class with an attrs
         # XXX: class.  See `test_slotted_confused` for details.  For now that's
         # XXX: OK with us.
-        if not self._has_own_setattr:
+        if not self._wrote_own_setattr:
             cd["__attrs_own_setattr__"] = False
 
             if not self._has_custom_setattr:
@@ -958,8 +966,7 @@ class _ClassBuilder(object):
                 self._cache_hash,
                 self._base_attr_map,
                 self._is_exc,
-                self._on_setattr is not None
-                and self._on_setattr is not setters.NO_OP,
+                self._on_setattr,
                 attrs_init=False,
             )
         )
@@ -978,8 +985,7 @@ class _ClassBuilder(object):
                 self._cache_hash,
                 self._base_attr_map,
                 self._is_exc,
-                self._on_setattr is not None
-                and self._on_setattr is not setters.NO_OP,
+                self._on_setattr,
                 attrs_init=True,
             )
         )
@@ -1038,7 +1044,7 @@ class _ClassBuilder(object):
 
         self._cls_dict["__attrs_own_setattr__"] = True
         self._cls_dict["__setattr__"] = self._add_method_dunders(__setattr__)
-        self._has_own_setattr = True
+        self._wrote_own_setattr = True
 
         return self
 
@@ -2008,10 +2014,14 @@ def _make_init(
     cache_hash,
     base_attr_map,
     is_exc,
-    has_global_on_setattr,
+    cls_on_setattr,
     attrs_init,
 ):
-    if frozen and has_global_on_setattr:
+    has_cls_on_setattr = (
+        cls_on_setattr is not None and cls_on_setattr is not setters.NO_OP
+    )
+
+    if frozen and has_cls_on_setattr:
         raise ValueError("Frozen classes can't use on_setattr.")
 
     needs_cached_setattr = cache_hash or frozen
@@ -2030,7 +2040,7 @@ def _make_init(
 
             needs_cached_setattr = True
         elif (
-            has_global_on_setattr and a.on_setattr is not setters.NO_OP
+            has_cls_on_setattr and a.on_setattr is not setters.NO_OP
         ) or _is_slot_attr(a.name, base_attr_map):
             needs_cached_setattr = True
 
@@ -2046,7 +2056,7 @@ def _make_init(
         base_attr_map,
         is_exc,
         needs_cached_setattr,
-        has_global_on_setattr,
+        has_cls_on_setattr,
         attrs_init,
     )
     if cls.__module__ in sys.modules:
@@ -2183,7 +2193,7 @@ def _attrs_to_init_script(
     base_attr_map,
     is_exc,
     needs_cached_setattr,
-    has_global_on_setattr,
+    has_cls_on_setattr,
     attrs_init,
 ):
     """
@@ -2257,7 +2267,7 @@ def _attrs_to_init_script(
 
         attr_name = a.name
         has_on_setattr = a.on_setattr is not None or (
-            a.on_setattr is not setters.NO_OP and has_global_on_setattr
+            a.on_setattr is not setters.NO_OP and has_cls_on_setattr
         )
         arg_name = a.name.lstrip("_")
 
