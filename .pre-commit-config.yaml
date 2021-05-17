@@ -17,7 +17,7 @@ repos:
     rev: 3.8.4
     hooks:
       - id: flake8
-        language_version: python3.8
+        language_version: python3.10
 
   - repo: https://github.com/econchick/interrogate
     rev: 1.3.2
