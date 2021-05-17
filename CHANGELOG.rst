@@ -15,13 +15,6 @@ Changes for the upcoming release can be found in the `"changelog.d" directory <h
 
 .. towncrier release notes start
 
-21.3.0.dev0 (2021-05-14)
-No significant changes.
-
-
-----
-
-
 21.2.0 (2021-05-07)
 -------------------
 
