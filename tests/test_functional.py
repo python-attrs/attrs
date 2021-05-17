@@ -4,6 +4,7 @@ End-to-end tests.
 
 from __future__ import absolute_import, division, print_function
 
+import inspect
 import pickle
 
 from copy import deepcopy
@@ -687,3 +688,48 @@ class TestFunctional(object):
             "2021-06-01.  Please use `eq` and `order` instead."
             == w.message.args[0]
         )
+
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_no_setattr_if_validate_without_validators(self, slots):
+        """
+        If a class has on_setattr=attr.setters.validate (default in NG APIs)
+        but sets no validators, don't use the (slower) setattr in __init__.
+
+        Regression test for #816.
+        """
+
+        @attr.s(on_setattr=attr.setters.validate)
+        class C(object):
+            x = attr.ib()
+
+        @attr.s(on_setattr=attr.setters.validate)
+        class D(C):
+            y = attr.ib()
+
+        src = inspect.getsource(D.__init__)
+
+        assert "setattr" not in src
+        assert "self.x = x" in src
+        assert "self.y = y" in src
+        assert object.__setattr__ == D.__setattr__
+
+    def test_on_setattr_detect_inherited_validators(self):
+        """
+        _make_init detects the presence of a validator even if the field is
+        inherited.
+        """
+
+        @attr.s(on_setattr=attr.setters.validate)
+        class C(object):
+            x = attr.ib(validator=42)
+
+        @attr.s(on_setattr=attr.setters.validate)
+        class D(C):
+            y = attr.ib()
+
+        src = inspect.getsource(D.__init__)
+
+        assert "_setattr = _cached_setattr" in src
+        assert "_setattr('x', x)" in src
+        assert "_setattr('y', y)" in src
+        assert object.__setattr__ != D.__setattr__

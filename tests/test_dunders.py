@@ -94,7 +94,7 @@ def _add_init(cls, frozen):
         cache_hash=False,
         base_attr_map={},
         is_exc=False,
-        has_global_on_setattr=False,
+        cls_on_setattr=None,
         attrs_init=False,
     )
     return cls
