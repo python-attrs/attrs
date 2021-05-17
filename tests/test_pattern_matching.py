@@ -3,6 +3,7 @@
 import pytest
 
 import attr
+
 from attr._make import make_class
 
 
