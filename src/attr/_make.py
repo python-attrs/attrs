@@ -1570,7 +1570,7 @@ def attrs(
                     " init must be True."
                 )
 
-        if match_args and "__match_args__" not in cls.__dict__:
+        if match_args and not _has_own_attribute(cls, "__match_args__"):
             builder.add_match_args()
 
         return builder.build_class()
