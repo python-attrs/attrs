@@ -12,11 +12,11 @@
       <a href="https://github.com/python-attrs/attrs/actions?workflow=CI">
           <img src="https://github.com/python-attrs/attrs/workflows/CI/badge.svg?branch=main" alt="CI Status" />
       </a>
-      <a href="https://codecov.io/github/python-attrs/attrs">
-          <img src="https://codecov.io/github/python-attrs/attrs/branch/main/graph/badge.svg" alt="Test Coverage" />
-      </a>
       <a href="https://github.com/psf/black">
           <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code style: black" />
+      </a>
+      <a href="https://pepy.tech/project/attrs">
+         <img src="https://static.pepy.tech/personalized-badge/attrs?period=month&units=international_system&left_color=black&right_color=blue&left_text=Downloads%20/%20Month" alt="Downloads per month" />
       </a>
    </p>
 
