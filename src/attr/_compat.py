@@ -8,6 +8,7 @@ import warnings
 
 PY2 = sys.version_info[0] == 2
 PYPY = platform.python_implementation() == "PyPy"
+PY310 = sys.version_info[:2] >= (3, 10)
 
 
 if PYPY or sys.version_info[:2] >= (3, 6):
