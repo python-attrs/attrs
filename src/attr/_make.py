@@ -973,6 +973,13 @@ class _ClassBuilder(object):
 
         return self
 
+    def add_match_args(self):
+        self._cls_dict["__match_args__"] = tuple(
+            field.name
+            for field in self._attrs
+            if field.init and not field.kw_only
+        )
+
     def add_attrs_init(self):
         self._cls_dict["__attrs_init__"] = self._add_method_dunders(
             _make_init(
@@ -1198,6 +1205,7 @@ def attrs(
     getstate_setstate=None,
     on_setattr=None,
     field_transformer=None,
+    match_args=True,
 ):
     r"""
     A class decorator that adds `dunder
@@ -1413,6 +1421,12 @@ def attrs(
         this, e.g., to automatically add converters or validators to
         fields based on their types.  See `transform-fields` for more details.
 
+    :param bool match_args:
+        If `True`, set ``__match_args__`` on the class to support `PEP 634
+        <https://www.python.org/dev/peps/pep-0634/>`_ (Structural Pattern
+        Matching). It is a tuple of all positional-only ``__init__`` parameter
+        names.
+
     .. versionadded:: 16.0.0 *slots*
     .. versionadded:: 16.1.0 *frozen*
     .. versionadded:: 16.3.0 *str*
@@ -1446,6 +1460,7 @@ def attrs(
        ``init=False`` injects ``__attrs_init__``
     .. versionchanged:: 21.1.0 Support for ``__attrs_pre_init__``
     .. versionchanged:: 21.1.0 *cmp* undeprecated
+    .. versionadded:: 21.3.0 *match_args*
     """
     if auto_detect and PY2:
         raise PythonTooOldError(
@@ -1561,6 +1576,9 @@ def attrs(
                     "Invalid value for cache_hash.  To use hash caching,"
                     " init must be True."
                 )
+
+        if match_args and not _has_own_attribute(cls, "__match_args__"):
+            builder.add_match_args()
 
         return builder.build_class()
 

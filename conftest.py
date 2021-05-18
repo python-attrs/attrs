@@ -23,6 +23,8 @@ if sys.version_info[:2] < (3, 6):
             "tests/test_next_gen.py",
         ]
     )
+if sys.version_info[:2] < (3, 10):
+    collect_ignore.extend(["tests/test_pattern_matching.py"])
 if sys.version_info[:2] >= (3, 10):
     collect_ignore.extend(
         [

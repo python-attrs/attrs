@@ -2327,3 +2327,121 @@ class TestAutoDetect:
 
         assert True is i.called
         assert None is getattr(C(), "__getstate__", None)
+
+
+class TestMatchArgs(object):
+    """
+    Tests for match_args and __match_args__ generation.
+    """
+
+    def test_match_args(self):
+        """
+        __match_args__ generation
+        """
+
+        @attr.s()
+        class C(object):
+            a = attr.ib()
+
+        assert C.__match_args__ == ("a",)
+
+    def test_explicit_match_args(self):
+        """
+        __match_args__ manually set is not overriden.
+        """
+
+        ma = ()
+
+        @attr.s()
+        class C(object):
+            a = attr.ib()
+            __match_args__ = ma
+
+        assert C(42).__match_args__ is ma
+
+    @pytest.mark.parametrize("match_args", [True, False])
+    def test_match_args_attr_set(self, match_args):
+        """
+        __match_args__ being set depending on match_args.
+        """
+
+        @attr.s(match_args=match_args)
+        class C(object):
+            a = attr.ib()
+
+        if match_args:
+            assert hasattr(C, "__match_args__")
+        else:
+            assert not hasattr(C, "__match_args__")
+
+    def test_match_args_kw_only(self):
+        """
+        kw_only being set doesn't generate __match_args__
+        kw_only field is not included in __match_args__
+        """
+
+        @attr.s()
+        class C(object):
+            a = attr.ib(kw_only=True)
+            b = attr.ib()
+
+        assert C.__match_args__ == ("b",)
+
+        @attr.s(match_args=True, kw_only=True)
+        class C(object):
+            a = attr.ib()
+            b = attr.ib()
+
+        assert C.__match_args__ == ()
+
+    def test_match_args_argument(self):
+        """
+        match_args being False with inheritance.
+        """
+
+        @attr.s(match_args=False)
+        class X(object):
+            a = attr.ib()
+
+        assert "__match_args__" not in X.__dict__
+
+        @attr.s(match_args=False)
+        class Y(object):
+            a = attr.ib()
+            __match_args__ = ("b",)
+
+        assert Y.__match_args__ == ("b",)
+
+        @attr.s(match_args=False)
+        class Z(Y):
+            z = attr.ib()
+
+        assert Z.__match_args__ == ("b",)
+
+        @attr.s()
+        class A(object):
+            a = attr.ib()
+            z = attr.ib()
+
+        @attr.s(match_args=False)
+        class B(A):
+            b = attr.ib()
+
+        assert B.__match_args__ == ("a", "z")
+
+    def test_make_class(self):
+        """
+        match_args generation with make_class.
+        """
+
+        C1 = make_class("C1", ["a", "b"])
+        assert C1.__match_args__ == ("a", "b")
+
+        C1 = make_class("C1", ["a", "b"], match_args=False)
+        assert not hasattr(C1, "__match_args__")
+
+        C1 = make_class("C1", ["a", "b"], kw_only=True)
+        assert C1.__match_args__ == ()
+
+        C1 = make_class("C1", {"a": attr.ib(kw_only=True), "b": attr.ib()})
+        assert C1.__match_args__ == ("b",)
