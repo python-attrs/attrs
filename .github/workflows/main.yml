@@ -13,10 +13,14 @@ jobs:
     name: "Python ${{ matrix.python-version }}"
     runs-on: "ubuntu-latest"
     env:
-      USING_COVERAGE: [
-        "2.7", "3.7", "3.8",
-        "3.10.0-beta.1", "3.10.0-beta.2", "3.10.0-beta.3", "3.10.0-beta.4"
-      ]
+      USING_COVERAGE:
+        - "2.7"
+        - "3.7"
+        - "3.8"
+        - "3.10.0-beta.1"
+        - "3.10.0-beta.2
+        - "3.10.0-beta.3"
+        - "3.10.0-beta.4"
 
     strategy:
       fail-fast: false
