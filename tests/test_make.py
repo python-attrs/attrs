@@ -21,7 +21,7 @@ from hypothesis.strategies import booleans, integers, lists, sampled_from, text
 import attr
 
 from attr import _config
-from attr._compat import PY2, ordered_dict
+from attr._compat import PY2, PY310, ordered_dict
 from attr._make import (
     Attribute,
     Factory,
@@ -2328,7 +2328,20 @@ class TestAutoDetect:
         assert True is i.called
         assert None is getattr(C(), "__getstate__", None)
 
+    @pytest.mark.skipif(PY310, reason="Pre-3.10 only.")
+    def test_match_args_pre_310(self):
+        """
+        __match_args__ is not created on Python versions older than 3.10.
+        """
 
+        @attr.s
+        class C(object):
+            a = attr.ib()
+
+        assert None is getattr(C, "__match_args__", None)
+
+
+@pytest.mark.skipif(not PY310, reason="Structural pattern matching is 3.10+")
 class TestMatchArgs(object):
     """
     Tests for match_args and __match_args__ generation.
@@ -2336,25 +2349,25 @@ class TestMatchArgs(object):
 
     def test_match_args(self):
         """
-        __match_args__ generation
+        __match_args__ is created by default on Python 3.10.
         """
 
-        @attr.s()
-        class C(object):
-            a = attr.ib()
+        @attr.define
+        class C:
+            a = attr.field()
 
-        assert C.__match_args__ == ("a",)
+        assert ("a",) == C.__match_args__
 
     def test_explicit_match_args(self):
         """
-        __match_args__ manually set is not overriden.
+        A custom __match_args__ set is not overwritten.
         """
 
         ma = ()
 
-        @attr.s()
-        class C(object):
-            a = attr.ib()
+        @attr.define
+        class C:
+            a = attr.field()
             __match_args__ = ma
 
         assert C(42).__match_args__ is ma
@@ -2362,12 +2375,12 @@ class TestMatchArgs(object):
     @pytest.mark.parametrize("match_args", [True, False])
     def test_match_args_attr_set(self, match_args):
         """
-        __match_args__ being set depending on match_args.
+        __match_args__ is set depending on match_args.
         """
 
-        @attr.s(match_args=match_args)
-        class C(object):
-            a = attr.ib()
+        @attr.define(match_args=match_args)
+        class C:
+            a = attr.field()
 
         if match_args:
             assert hasattr(C, "__match_args__")
@@ -2376,21 +2389,21 @@ class TestMatchArgs(object):
 
     def test_match_args_kw_only(self):
         """
-        kw_only being set doesn't generate __match_args__
-        kw_only field is not included in __match_args__
+        kw_only classes don't generate __match_args__.
+        kw_only fields are not included in __match_args__.
         """
 
-        @attr.s()
-        class C(object):
-            a = attr.ib(kw_only=True)
-            b = attr.ib()
+        @attr.define
+        class C:
+            a = attr.field(kw_only=True)
+            b = attr.field()
 
         assert C.__match_args__ == ("b",)
 
-        @attr.s(match_args=True, kw_only=True)
-        class C(object):
-            a = attr.ib()
-            b = attr.ib()
+        @attr.define(kw_only=True)
+        class C:
+            a = attr.field()
+            b = attr.field()
 
         assert C.__match_args__ == ()
 
@@ -2399,33 +2412,33 @@ class TestMatchArgs(object):
         match_args being False with inheritance.
         """
 
-        @attr.s(match_args=False)
-        class X(object):
-            a = attr.ib()
+        @attr.define(match_args=False)
+        class X:
+            a = attr.field()
 
         assert "__match_args__" not in X.__dict__
 
-        @attr.s(match_args=False)
-        class Y(object):
-            a = attr.ib()
+        @attr.define(match_args=False)
+        class Y:
+            a = attr.field()
             __match_args__ = ("b",)
 
         assert Y.__match_args__ == ("b",)
 
-        @attr.s(match_args=False)
+        @attr.define(match_args=False)
         class Z(Y):
-            z = attr.ib()
+            z = attr.field()
 
         assert Z.__match_args__ == ("b",)
 
-        @attr.s()
-        class A(object):
-            a = attr.ib()
-            z = attr.ib()
+        @attr.define
+        class A:
+            a = attr.field()
+            z = attr.field()
 
-        @attr.s(match_args=False)
+        @attr.define(match_args=False)
         class B(A):
-            b = attr.ib()
+            b = attr.field()
 
         assert B.__match_args__ == ("a", "z")
 
@@ -2435,13 +2448,13 @@ class TestMatchArgs(object):
         """
 
         C1 = make_class("C1", ["a", "b"])
-        assert C1.__match_args__ == ("a", "b")
+        assert ("a", "b") == C1.__match_args__
 
         C1 = make_class("C1", ["a", "b"], match_args=False)
         assert not hasattr(C1, "__match_args__")
 
         C1 = make_class("C1", ["a", "b"], kw_only=True)
-        assert C1.__match_args__ == ()
+        assert () == C1.__match_args__
 
         C1 = make_class("C1", {"a": attr.ib(kw_only=True), "b": attr.ib()})
-        assert C1.__match_args__ == ("b",)
+        assert ("b",) == C1.__match_args__

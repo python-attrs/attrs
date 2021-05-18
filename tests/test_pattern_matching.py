@@ -1,27 +1,30 @@
 # flake8: noqa
-# Python 3.10 issue in flake8 : https://github.com/PyCQA/pyflakes/issues/634
+# Python 3.10 issue in flake8: https://github.com/PyCQA/pyflakes/issues/634
+# Keep this file SHORT, until Black and flake8 can handle it.
 import pytest
 
 import attr
 
-from attr._make import make_class
+from attr import make_class
 
 
-class TestPatternMatching(object):
+class TestPatternMatching:
     """
     Pattern matching syntax test cases.
     """
 
-    def test_simple_match_case(self):
+    @pytest.mark.parametrize("dec", [attr.s, attr.define, attr.frozen])
+    def test_simple_match_case(self, dec):
         """
-        Simple match case statement
+        Simple match case statement works as expected with all class
+        decorators.
         """
 
-        @attr.s()
+        @dec
         class C(object):
             a = attr.ib()
 
-        assert C.__match_args__ == ("a",)
+        assert ("a",) == C.__match_args__
 
         matched = False
         c = C(a=1)
@@ -33,14 +36,14 @@ class TestPatternMatching(object):
 
     def test_explicit_match_args(self):
         """
-        Manually set empty __match_args__ will not match.
+        Does not overwrite a manually set empty __match_args__.
         """
 
         ma = ()
 
-        @attr.s()
-        class C(object):
-            a = attr.ib()
+        @attr.define
+        class C:
+            a = attr.field()
             __match_args__ = ma
 
         c = C(a=1)
@@ -53,16 +56,16 @@ class TestPatternMatching(object):
 
     def test_match_args_kw_only(self):
         """
-        kw_only being set doesn't generate __match_args__
-        kw_only field is not included in __match_args__
+        kw_only classes don't generate __match_args__.
+        kw_only fields are not included in __match_args__.
         """
 
-        @attr.s()
-        class C(object):
-            a = attr.ib(kw_only=True)
-            b = attr.ib()
+        @attr.define
+        class C:
+            a = attr.field(kw_only=True)
+            b = attr.field()
 
-        assert C.__match_args__ == ("b",)
+        assert ("b",) == C.__match_args__
 
         c = C(a=1, b=1)
         msg = r"C\(\) accepts 1 positional sub-pattern \(2 given\)"
@@ -78,10 +81,10 @@ class TestPatternMatching(object):
 
         assert found
 
-        @attr.s(match_args=True, kw_only=True)
-        class C(object):
-            a = attr.ib()
-            b = attr.ib()
+        @attr.define(kw_only=True)
+        class C:
+            a = attr.field()
+            b = attr.field()
 
         c = C(a=1, b=1)
         msg = r"C\(\) accepts 0 positional sub-patterns \(2 given\)"

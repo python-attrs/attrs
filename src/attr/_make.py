@@ -13,6 +13,7 @@ from operator import itemgetter
 from . import _config, setters
 from ._compat import (
     PY2,
+    PY310,
     PYPY,
     isclass,
     iteritems,
@@ -1422,10 +1423,11 @@ def attrs(
         fields based on their types.  See `transform-fields` for more details.
 
     :param bool match_args:
-        If `True`, set ``__match_args__`` on the class to support `PEP 634
-        <https://www.python.org/dev/peps/pep-0634/>`_ (Structural Pattern
-        Matching). It is a tuple of all positional-only ``__init__`` parameter
-        names.
+        If `True` (default), set ``__match_args__`` on the class to support
+        `PEP 634 <https://www.python.org/dev/peps/pep-0634/>`_ (Structural
+        Pattern Matching). It is a tuple of all positional-only ``__init__``
+        parameter names on Python 3.10 and later. Ignored on older Python
+        versions.
 
     .. versionadded:: 16.0.0 *slots*
     .. versionadded:: 16.1.0 *frozen*
@@ -1577,7 +1579,11 @@ def attrs(
                     " init must be True."
                 )
 
-        if match_args and not _has_own_attribute(cls, "__match_args__"):
+        if (
+            PY310
+            and match_args
+            and not _has_own_attribute(cls, "__match_args__")
+        ):
             builder.add_match_args()
 
         return builder.build_class()
