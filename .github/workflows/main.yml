@@ -13,7 +13,7 @@ jobs:
     name: "Python ${{ matrix.python-version }}"
     runs-on: "ubuntu-latest"
     env:
-      USING_COVERAGE: "2.7,3.7,3.8"
+      USING_COVERAGE: "2.7,3.7,3.8,3.10"
 
     strategy:
       fail-fast: false
@@ -40,7 +40,7 @@ jobs:
       # parsing errors in older versions for modern code.
       - uses: "actions/setup-python@v2"
         with:
-          python-version: "3.9"
+          python-version: "3.10.0-alpha - 3.10"
 
       - name: "Combine coverage"
         run: |
