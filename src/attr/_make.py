@@ -889,7 +889,7 @@ class _ClassBuilder(object):
 
     def add_repr(self, ns):
         self._cls_dict["__repr__"] = self._add_method_dunders(
-            _make_repr(self._attrs, ns=ns, cls=self._cls)
+            _make_repr(self._attrs, ns, self._cls)
         )
         return self
 
