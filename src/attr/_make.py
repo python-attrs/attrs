@@ -12,6 +12,7 @@ from operator import itemgetter
 
 from . import _config, setters
 from ._compat import (
+    HAS_F_STRINGS,
     PY2,
     PY310,
     PYPY,
@@ -888,7 +889,7 @@ class _ClassBuilder(object):
 
     def add_repr(self, ns):
         self._cls_dict["__repr__"] = self._add_method_dunders(
-            _make_repr(self._attrs, ns=ns)
+            _make_repr(self._attrs, ns=ns, cls=self._cls)
         )
         return self
 
@@ -1873,64 +1874,128 @@ def _add_eq(cls, attrs=None):
 
 _already_repring = threading.local()
 
+if HAS_F_STRINGS:
 
-def _make_repr(attrs, ns):
-    """
-    Make a repr method that includes relevant *attrs*, adding *ns* to the full
-    name.
-    """
+    def _make_repr(attrs, ns, cls):
+        unique_filename = "repr"
+        # Figure out which attributes to include, and which function to use to
+        # format them. The a.repr value can be either bool or a custom callable.
+        attr_names_with_reprs = tuple(
+            (a.name, repr if a.repr is True else a.repr, a.init)
+            for a in attrs
+            if a.repr is not False
+        )
+        globs = {
+            f"{name}_repr": r
+            for name, r, _ in attr_names_with_reprs
+            if r != repr
+        }
+        globs["_already_repring"] = _already_repring
+        globs["AttributeError"] = AttributeError
+        globs["NOTHING"] = NOTHING
+        attribute_fragments = []
+        for name, r, i in attr_names_with_reprs:
+            accessor = (
+                f"self.{name}" if i else f'getattr(self, "{name}", NOTHING)'
+            )
+            fragment = (
+                f"{name}={{{accessor}!r}}"
+                if r == repr
+                else f"{name}={{{name}_repr({accessor})}}"
+            )
+            attribute_fragments.append(fragment)
+        repr_fragment = ", ".join(attribute_fragments)
 
-    # Figure out which attributes to include, and which function to use to
-    # format them. The a.repr value can be either bool or a custom callable.
-    attr_names_with_reprs = tuple(
-        (a.name, repr if a.repr is True else a.repr)
-        for a in attrs
-        if a.repr is not False
-    )
-
-    def __repr__(self):
-        """
-        Automatically created by attrs.
-        """
-        try:
-            working_set = _already_repring.working_set
-        except AttributeError:
-            working_set = set()
-            _already_repring.working_set = working_set
-
-        if id(self) in working_set:
-            return "..."
-        real_cls = self.__class__
         if ns is None:
-            qualname = getattr(real_cls, "__qualname__", None)
+            qualname = getattr(cls, "__qualname__", None)
             if qualname is not None:
-                class_name = qualname.rsplit(">.", 1)[-1]
-            else:
-                class_name = real_cls.__name__
-        else:
-            class_name = ns + "." + real_cls.__name__
-
-        # Since 'self' remains on the stack (i.e.: strongly referenced) for the
-        # duration of this call, it's safe to depend on id(...) stability, and
-        # not need to track the instance and therefore worry about properties
-        # like weakref- or hash-ability.
-        working_set.add(id(self))
-        try:
-            result = [class_name, "("]
-            first = True
-            for name, attr_repr in attr_names_with_reprs:
-                if first:
-                    first = False
-                else:
-                    result.append(", ")
-                result.extend(
-                    (name, "=", attr_repr(getattr(self, name, NOTHING)))
+                cls_name_fragment = (
+                    '{self.__class__.__qualname__.rsplit(">.", 1)[-1]}'
                 )
-            return "".join(result) + ")"
-        finally:
-            working_set.remove(id(self))
+            else:
+                cls_name_fragment = "{self.__class__.__name__}"
+        else:
+            cls_name_fragment = f"{ns}.{{self.__class__.__name__}}"
 
-    return __repr__
+        lines = []
+        lines.append("def __repr__(self):")
+        lines.append("  try:")
+        lines.append("    working_set = _already_repring.working_set")
+        lines.append("  except AttributeError:")
+        lines.append("    working_set = {id(self),}")
+        lines.append("    _already_repring.working_set = working_set")
+        lines.append("  else:")
+        lines.append("    if id(self) in working_set:")
+        lines.append("      return '...'")
+        lines.append("    else:")
+        lines.append("      working_set.add(id(self))")
+        lines.append("  try:")
+        lines.append(f"    return f'{cls_name_fragment}({repr_fragment})'")
+        lines.append("  finally:")
+        lines.append("    working_set.remove(id(self))")
+        script = "\n".join(lines)
+        return _make_method("__repr__", script, unique_filename, globs=globs)
+
+
+else:
+
+    def _make_repr(attrs, ns, _):
+        """
+        Make a repr method that includes relevant *attrs*, adding *ns* to the full
+        name.
+        """
+
+        # Figure out which attributes to include, and which function to use to
+        # format them. The a.repr value can be either bool or a custom callable.
+        attr_names_with_reprs = tuple(
+            (a.name, repr if a.repr is True else a.repr)
+            for a in attrs
+            if a.repr is not False
+        )
+
+        def __repr__(self):
+            """
+            Automatically created by attrs.
+            """
+            try:
+                working_set = _already_repring.working_set
+            except AttributeError:
+                working_set = set()
+                _already_repring.working_set = working_set
+
+            if id(self) in working_set:
+                return "..."
+            real_cls = self.__class__
+            if ns is None:
+                qualname = getattr(real_cls, "__qualname__", None)
+                if qualname is not None:
+                    class_name = qualname.rsplit(">.", 1)[-1]
+                else:
+                    class_name = real_cls.__name__
+            else:
+                class_name = ns + "." + real_cls.__name__
+
+            # Since 'self' remains on the stack (i.e.: strongly referenced) for the
+            # duration of this call, it's safe to depend on id(...) stability, and
+            # not need to track the instance and therefore worry about properties
+            # like weakref- or hash-ability.
+            working_set.add(id(self))
+            try:
+                result = [class_name, "("]
+                first = True
+                for name, attr_repr in attr_names_with_reprs:
+                    if first:
+                        first = False
+                    else:
+                        result.append(", ")
+                    result.extend(
+                        (name, "=", attr_repr(getattr(self, name, NOTHING)))
+                    )
+                return "".join(result) + ")"
+            finally:
+                working_set.remove(id(self))
+
+        return __repr__
 
 
 def _add_repr(cls, ns=None, attrs=None):
@@ -1940,7 +2005,7 @@ def _add_repr(cls, ns=None, attrs=None):
     if attrs is None:
         attrs = cls.__attrs_attrs__
 
-    cls.__repr__ = _make_repr(attrs, ns)
+    cls.__repr__ = _make_repr(attrs, ns, cls)
     return cls
 
 
@@ -2634,7 +2699,7 @@ class Attribute(object):
             type=type,
             cmp=None,
             inherited=False,
-            **inst_dict
+            **inst_dict,
         )
 
     @property
