@@ -1,26 +1,28 @@
 ---
 repos:
   - repo: https://github.com/psf/black
-    rev: 20.8b1
+    rev: 21.5b1
     hooks:
       - id: black
         exclude: tests/test_pattern_matching.py
         language_version: python3.8
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.7.0
+    rev: 5.8.0
     hooks:
       - id: isort
         additional_dependencies: [toml]
+        files: \.py$
+        language_version: python3.10
 
   - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.8.4
+    rev: 3.9.2
     hooks:
       - id: flake8
         language_version: python3.10
 
   - repo: https://github.com/econchick/interrogate
-    rev: 1.3.2
+    rev: 1.4.0
     hooks:
       - id: interrogate
         exclude: tests/test_pattern_matching.py
@@ -28,7 +30,7 @@ repos:
         language_version: python3.10
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.4.0
+    rev: v4.0.1
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
