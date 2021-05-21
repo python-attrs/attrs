@@ -1879,7 +1879,8 @@ if HAS_F_STRINGS:
     def _make_repr(attrs, ns, cls):
         unique_filename = "repr"
         # Figure out which attributes to include, and which function to use to
-        # format them. The a.repr value can be either bool or a custom callable.
+        # format them. The a.repr value can be either bool or a custom
+        # callable.
         attr_names_with_reprs = tuple(
             (a.name, repr if a.repr is True else a.repr, a.init)
             for a in attrs
@@ -1947,12 +1948,13 @@ else:
 
     def _make_repr(attrs, ns, _):
         """
-        Make a repr method that includes relevant *attrs*, adding *ns* to the full
-        name.
+        Make a repr method that includes relevant *attrs*, adding *ns* to the
+        full name.
         """
 
         # Figure out which attributes to include, and which function to use to
-        # format them. The a.repr value can be either bool or a custom callable.
+        # format them. The a.repr value can be either bool or a custom
+        # callable.
         attr_names_with_reprs = tuple(
             (a.name, repr if a.repr is True else a.repr)
             for a in attrs
@@ -1981,10 +1983,10 @@ else:
             else:
                 class_name = ns + "." + real_cls.__name__
 
-            # Since 'self' remains on the stack (i.e.: strongly referenced) for the
-            # duration of this call, it's safe to depend on id(...) stability, and
-            # not need to track the instance and therefore worry about properties
-            # like weakref- or hash-ability.
+            # Since 'self' remains on the stack (i.e.: strongly referenced)
+            # for the duration of this call, it's safe to depend on id(...)
+            # stability, and not need to track the instance and therefore
+            # worry about properties like weakref- or hash-ability.
             working_set.add(id(self))
             try:
                 result = [class_name, "("]
