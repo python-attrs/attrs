@@ -1886,7 +1886,7 @@ if HAS_F_STRINGS:
             if a.repr is not False
         )
         globs = {
-            f"{name}_repr": r
+            name + "_repr": r
             for name, r, _ in attr_names_with_reprs
             if r != repr
         }
@@ -1896,12 +1896,16 @@ if HAS_F_STRINGS:
         attribute_fragments = []
         for name, r, i in attr_names_with_reprs:
             accessor = (
-                f"self.{name}" if i else f'getattr(self, "{name}", NOTHING)'
+                "self." + name
+                if i
+                else 'getattr(self, "' + name + '", NOTHING)'
             )
             fragment = (
-                f"{name}={{{accessor}!r}}"
+                "{name}={{{accessor}!r}}".format(name=name, accessor=accessor)
                 if r == repr
-                else f"{name}={{{name}_repr({accessor})}}"
+                else "{name}={{{name}_repr({accessor})}}".format(
+                    name=name, accessor=accessor
+                )
             )
             attribute_fragments.append(fragment)
         repr_fragment = ", ".join(attribute_fragments)
@@ -1915,7 +1919,7 @@ if HAS_F_STRINGS:
             else:
                 cls_name_fragment = "{self.__class__.__name__}"
         else:
-            cls_name_fragment = f"{ns}.{{self.__class__.__name__}}"
+            cls_name_fragment = ns + ".{self.__class__.__name__}"
 
         lines = []
         lines.append("def __repr__(self):")
@@ -1930,7 +1934,9 @@ if HAS_F_STRINGS:
         lines.append("    else:")
         lines.append("      working_set.add(id(self))")
         lines.append("  try:")
-        lines.append(f"    return f'{cls_name_fragment}({repr_fragment})'")
+        lines.append(
+            "    return f'{}({})'".format(cls_name_fragment, repr_fragment)
+        )
         lines.append("  finally:")
         lines.append("    working_set.remove(id(self))")
         script = "\n".join(lines)
