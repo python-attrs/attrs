@@ -2705,7 +2705,7 @@ class Attribute(object):
             type=type,
             cmp=None,
             inherited=False,
-            **inst_dict,
+            **inst_dict
         )
 
     @property
