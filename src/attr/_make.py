@@ -1912,13 +1912,9 @@ if HAS_F_STRINGS:
         repr_fragment = ", ".join(attribute_fragments)
 
         if ns is None:
-            qualname = getattr(cls, "__qualname__", None)
-            if qualname is not None:
-                cls_name_fragment = (
-                    '{self.__class__.__qualname__.rsplit(">.", 1)[-1]}'
-                )
-            else:
-                cls_name_fragment = "{self.__class__.__name__}"
+            cls_name_fragment = (
+                '{self.__class__.__qualname__.rsplit(">.", 1)[-1]}'
+            )
         else:
             cls_name_fragment = ns + ".{self.__class__.__name__}"
 
