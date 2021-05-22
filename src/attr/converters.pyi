@@ -2,7 +2,6 @@ from typing import Callable, Optional, TypeVar, overload
 
 from . import _ConverterType
 
-
 _T = TypeVar("_T")
 
 def pipe(*validators: _ConverterType) -> _ConverterType: ...
