@@ -1971,7 +1971,11 @@ else:
                 return "..."
             real_cls = self.__class__
             if ns is None:
-                class_name = real_cls.__name__
+                qualname = getattr(real_cls, "__qualname__", None)
+                if qualname is not None:
+                    class_name = qualname.rsplit(">.", 1)[-1]
+                else:
+                    class_name = real_cls.__name__
             else:
                 class_name = ns + "." + real_cls.__name__
 
