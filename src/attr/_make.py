@@ -1904,8 +1904,7 @@ if HAS_F_STRINGS:
             fragment = (
                 "%s={%s!r}" % (name, accessor)
                 if r == repr
-                else "{name}={{{name}_repr({accessor})}}".format(
-                    name=name, accessor=accessor
+                else "%s={%s_repr(%s)}" % (name, name, accessor)
                 )
             )
             attribute_fragments.append(fragment)
