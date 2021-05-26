@@ -1902,7 +1902,7 @@ if HAS_F_STRINGS:
                 else 'getattr(self, "' + name + '", NOTHING)'
             )
             fragment = (
-                "{name}={{{accessor}!r}}".format(name=name, accessor=accessor)
+                "%s={%s!r}" % (name, accessor)
                 if r == repr
                 else "{name}={{{name}_repr({accessor})}}".format(
                     name=name, accessor=accessor
