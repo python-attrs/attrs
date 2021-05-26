@@ -1905,7 +1905,6 @@ if HAS_F_STRINGS:
                 "%s={%s!r}" % (name, accessor)
                 if r == repr
                 else "%s={%s_repr(%s)}" % (name, name, accessor)
-                )
             )
             attribute_fragments.append(fragment)
         repr_fragment = ", ".join(attribute_fragments)
