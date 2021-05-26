@@ -1931,7 +1931,7 @@ if HAS_F_STRINGS:
         lines.append("      working_set.add(id(self))")
         lines.append("  try:")
         lines.append(
-            "    return f'{}({})'".format(cls_name_fragment, repr_fragment)
+            "    return f'%s(%s)'" % (cls_name_fragment, repr_fragment)
         )
         lines.append("  finally:")
         lines.append("    working_set.remove(id(self))")
