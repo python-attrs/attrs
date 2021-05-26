@@ -1935,8 +1935,10 @@ if HAS_F_STRINGS:
         )
         lines.append("  finally:")
         lines.append("    working_set.remove(id(self))")
-        script = "\n".join(lines)
-        return _make_method("__repr__", script, unique_filename, globs=globs)
+
+        return _make_method(
+            "__repr__", "\n".join(lines), unique_filename, globs=globs
+        )
 
 
 else:
