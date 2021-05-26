@@ -1882,7 +1882,7 @@ if HAS_F_STRINGS:
         # format them. The a.repr value can be either bool or a custom
         # callable.
         attr_names_with_reprs = tuple(
-            (a.name, repr if a.repr is True else a.repr, a.init)
+            (a.name, (repr if a.repr is True else a.repr), a.init)
             for a in attrs
             if a.repr is not False
         )
