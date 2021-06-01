@@ -7,13 +7,10 @@
    </p>
    <p align="center">
       <a href="https://www.attrs.org/en/stable/?badge=stable">
-          <img src="https://readthedocs.org/projects/attrs/badge/?version=stable" alt="Documentation Status" />
+          <img src="https://img.shields.io/badge/Docs-Read%20The%20Docs-black" alt="Documentation" />
       </a>
-      <a href="https://github.com/python-attrs/attrs/actions?workflow=CI">
-          <img src="https://github.com/python-attrs/attrs/workflows/CI/badge.svg?branch=main" alt="CI Status" />
-      </a>
-      <a href="https://github.com/psf/black">
-          <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code style: black" />
+      <a href="https://pypi.org/project/attrs/">
+         <img src="https://img.shields.io/pypi/v/attrs" />
       </a>
       <a href="https://pepy.tech/project/attrs">
          <img src="https://static.pepy.tech/personalized-badge/attrs?period=month&units=international_system&left_color=black&right_color=blue&left_text=Downloads%20/%20Month" alt="Downloads per month" />
