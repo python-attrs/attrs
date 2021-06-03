@@ -1,7 +1,7 @@
 ---
 repos:
   - repo: https://github.com/psf/black
-    rev: 21.5b1
+    rev: 21.5b2
     hooks:
       - id: black
         exclude: tests/test_pattern_matching.py
