@@ -7,7 +7,6 @@ from __future__ import absolute_import
 import sys
 
 from datetime import datetime, timedelta, timezone
-from distutils.util import strtobool
 
 import pytest
 
@@ -120,7 +119,7 @@ class TestPipe(object):
         """
         Succeeds if all wrapped converters succeed.
         """
-        c = pipe(str, strtobool, bool)
+        c = pipe(str, to_bool, bool)
 
         assert True is c("True") is c(True)
 
@@ -128,7 +127,7 @@ class TestPipe(object):
         """
         Fails if any wrapped converter fails.
         """
-        c = pipe(str, strtobool)
+        c = pipe(str, to_bool)
 
         # First wrapped converter fails:
         with pytest.raises(ValueError):
@@ -145,8 +144,8 @@ class TestPipe(object):
 
         @attr.s
         class C(object):
-            a1 = attrib(default="True", converter=pipe(str, strtobool, bool))
-            a2 = attrib(default=True, converter=[str, strtobool, bool])
+            a1 = attrib(default="True", converter=pipe(str, to_bool, bool))
+            a2 = attrib(default=True, converter=[str, to_bool, bool])
 
         c = C()
         assert True is c.a1 is c.a2
