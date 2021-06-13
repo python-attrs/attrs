@@ -599,7 +599,7 @@ def _transform_attrs(
             had_default = True
 
     if field_transformer is not None:
-        attrs = field_transformer(cls, attrs)
+        attrs = AttrsClass(field_transformer(cls, attrs))
     return _Attributes((attrs, base_attrs, base_attr_map))
 
 
