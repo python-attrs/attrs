@@ -601,8 +601,7 @@ def _transform_attrs(
     if field_transformer is not None:
         attrs = field_transformer(cls, attrs)
 
-    attrs = AttrsClass(attrs)
-    return _Attributes((attrs, base_attrs, base_attr_map))
+    return _Attributes((AttrsClass(attrs), base_attrs, base_attr_map))
 
 
 if PYPY:
