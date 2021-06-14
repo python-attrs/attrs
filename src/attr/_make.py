@@ -573,10 +573,6 @@ def _transform_attrs(
             cls, {a.name for a in own_attrs}
         )
 
-    attr_names = [a.name for a in base_attrs + own_attrs]
-
-    AttrsClass = _make_attr_tuple_class(cls.__name__, attr_names)
-
     if kw_only:
         own_attrs = [a.evolve(kw_only=True) for a in own_attrs]
         base_attrs = [a.evolve(kw_only=True) for a in base_attrs]
@@ -600,6 +596,11 @@ def _transform_attrs(
 
     if field_transformer is not None:
         attrs = field_transformer(cls, attrs)
+
+    # Create AttrsClass *after* applying the field_transformer since it may
+    # add or remove attributes!
+    attr_names = [a.name for a in attrs]
+    AttrsClass = _make_attr_tuple_class(cls.__name__, attr_names)
 
     return _Attributes((AttrsClass(attrs), base_attrs, base_attr_map))
 
