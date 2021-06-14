@@ -35,7 +35,7 @@
 
         def foo(self):
             return self.a
-    reveal_type(A)  # N: Revealed type is 'def (a: Any, b: Any, c: Any =, d: Any =) -> main.A'
+    reveal_type(A)  # N: Revealed type is "def (a: Any, b: Any, c: Any =, d: Any =) -> main.A"
     A(1, [2])
     A(1, [2], '3', 4)
     A(1, 2, 3, 4)
@@ -53,7 +53,7 @@
         _d: int = attr.ib(validator=None, default=18)
         E = 7
         F: ClassVar[int] = 22
-    reveal_type(A)  # N: Revealed type is 'def (a: builtins.int, b: builtins.list[builtins.int], c: builtins.str =, d: builtins.int =) -> main.A'
+    reveal_type(A)  # N: Revealed type is "def (a: builtins.int, b: builtins.list[builtins.int], c: builtins.str =, d: builtins.int =) -> main.A"
     A(1, [2])
     A(1, [2], '3', 4)
     A(1, 2, 3, 4)  # E: Argument 2 to "A" has incompatible type "int"; expected "List[int]" # E: Argument 3 to "A" has incompatible type "int"; expected "str"
@@ -71,7 +71,7 @@
         _d = attr.ib(validator=None, default=18) # type: int
         E = 7
         F: ClassVar[int] = 22
-    reveal_type(A)  # N: Revealed type is 'def (a: builtins.int, b: builtins.list[builtins.int], c: builtins.str =, d: builtins.int =) -> main.A'
+    reveal_type(A)  # N: Revealed type is "def (a: builtins.int, b: builtins.list[builtins.int], c: builtins.str =, d: builtins.int =) -> main.A"
     A(1, [2])
     A(1, [2], '3', 4)
     A(1, 2, 3, 4)  # E: Argument 2 to "A" has incompatible type "int"; expected "List[int]" # E: Argument 3 to "A" has incompatible type "int"; expected "str"
@@ -89,7 +89,7 @@
         _d: int = attr.ib(validator=None, default=18)
         E = 7
         F: ClassVar[int] = 22
-    reveal_type(A)  # N: Revealed type is 'def (a: builtins.int, b: builtins.list[builtins.int], c: builtins.str =, d: builtins.int =) -> main.A'
+    reveal_type(A)  # N: Revealed type is "def (a: builtins.int, b: builtins.list[builtins.int], c: builtins.str =, d: builtins.int =) -> main.A"
     A(1, [2])
     A(1, [2], '3', 4)
     A(1, 2, 3, 4)  # E: Argument 2 to "A" has incompatible type "int"; expected "List[int]" # E: Argument 3 to "A" has incompatible type "int"; expected "str"
@@ -102,10 +102,10 @@
     import attr
     @attr.s
     class A:
-        a = attr.ib()  # E: Need type annotation for 'a'
-        _b = attr.ib()  # E: Need type annotation for '_b'
-        c = attr.ib(18)  # E: Need type annotation for 'c'
-        _d = attr.ib(validator=None, default=18)   # E: Need type annotation for '_d'
+        a = attr.ib()  # E: Need type annotation for "a"
+        _b = attr.ib()  # E: Need type annotation for "_b"
+        c = attr.ib(18)  # E: Need type annotation for "c"
+        _d = attr.ib(validator=None, default=18)   # E: Need type annotation for "_d"
         E = 18
 
 - case: testAttrsWrongReturnValue
@@ -143,7 +143,7 @@
         c = attrib(18)
         _d = attrib(validator=None, default=18)
         CLASS_VAR = 18
-    reveal_type(A)  # N: Revealed type is 'def (a: Any, b: builtins.list[builtins.int], c: Any =, d: Any =) -> main.A'
+    reveal_type(A)  # N: Revealed type is "def (a: Any, b: builtins.list[builtins.int], c: Any =, d: Any =) -> main.A"
     A(1, [2])
     A(1, [2], '3', 4)
     A(1, 2, 3, 4)  # E: Argument 2 to "A" has incompatible type "int"; expected "List[int]"
@@ -190,7 +190,7 @@
         _b: int
         c: int = 18
         _d: int = attrib(validator=None, default=18)
-    reveal_type(A)  # N: Revealed type is 'def () -> main.A'
+    reveal_type(A)  # N: Revealed type is "def () -> main.A"
     A()
     A(1, [2])  # E: Too many arguments for "A"
     A(1, [2], '3', 4)  # E: Too many arguments for "A"
@@ -202,7 +202,7 @@
     class A:
         a = attrib(init=False)
         b = attrib()
-    reveal_type(A)  # N: Revealed type is 'def (b: Any) -> main.A'
+    reveal_type(A)  # N: Revealed type is "def (b: Any) -> main.A"
 
 - case: testAttrsCmpTrue
   main: |
@@ -210,11 +210,11 @@
     @attrs(auto_attribs=True)
     class A:
         a: int
-    reveal_type(A)  # N: Revealed type is 'def (a: builtins.int) -> main.A'
-    reveal_type(A.__lt__)  # N: Revealed type is 'def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool'
-    reveal_type(A.__le__)  # N: Revealed type is 'def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool'
-    reveal_type(A.__gt__)  # N: Revealed type is 'def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool'
-    reveal_type(A.__ge__)  # N: Revealed type is 'def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool'
+    reveal_type(A)  # N: Revealed type is "def (a: builtins.int) -> main.A"
+    reveal_type(A.__lt__)  # N: Revealed type is "def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool"
+    reveal_type(A.__le__)  # N: Revealed type is "def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool"
+    reveal_type(A.__gt__)  # N: Revealed type is "def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool"
+    reveal_type(A.__ge__)  # N: Revealed type is "def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool"
 
     A(1) < A(2)
     A(1) <= A(2)
@@ -243,9 +243,9 @@
     @attrs(auto_attribs=True, eq=False)
     class A:
         a: int
-    reveal_type(A)  # N: Revealed type is 'def (a: builtins.int) -> main.A'
-    reveal_type(A.__eq__)  # N: Revealed type is 'def (builtins.object, builtins.object) -> builtins.bool'
-    reveal_type(A.__ne__)  # N: Revealed type is 'def (builtins.object, builtins.object) -> builtins.bool'
+    reveal_type(A)  # N: Revealed type is "def (a: builtins.int) -> main.A"
+    reveal_type(A.__eq__)  # N: Revealed type is "def (builtins.object, builtins.object) -> builtins.bool"
+    reveal_type(A.__ne__)  # N: Revealed type is "def (builtins.object, builtins.object) -> builtins.bool"
 
     A(1) < A(2)  # E: Unsupported left operand type for < ("A")
     A(1) <= A(2)  # E: Unsupported left operand type for <= ("A")
@@ -274,7 +274,7 @@
     @attrs(auto_attribs=True, order=False)
     class A:
         a: int
-    reveal_type(A)  # N: Revealed type is 'def (a: builtins.int) -> main.A'
+    reveal_type(A)  # N: Revealed type is "def (a: builtins.int) -> main.A"
 
     A(1) < A(2)  # E: Unsupported left operand type for < ("A")
     A(1) <= A(2)  # E: Unsupported left operand type for <= ("A")
@@ -308,7 +308,7 @@
     class DeprecatedFalse:
        ...
 
-    @attrs(cmp=False, eq=True)  # E: Don't mix `cmp` with `eq' and `order`
+    @attrs(cmp=False, eq=True)  # E: Don't mix "cmp" with "eq" and "order"
     class Mixed:
        ...
 
@@ -329,7 +329,7 @@
     @attr.s
     class C(A, B):
         c: bool = attr.ib()
-    reveal_type(C)  # N: Revealed type is 'def (a: builtins.int, b: builtins.str, c: builtins.bool) -> main.C'
+    reveal_type(C)  # N: Revealed type is "def (a: builtins.int, b: builtins.str, c: builtins.bool) -> main.C"
 
 - case: testAttrsNestedInClasses
   main: |
@@ -340,8 +340,8 @@
         @attr.s
         class D:
             x: int = attr.ib()
-    reveal_type(C)  # N: Revealed type is 'def (y: Any) -> main.C'
-    reveal_type(C.D)  # N: Revealed type is 'def (x: builtins.int) -> main.C.D'
+    reveal_type(C)  # N: Revealed type is "def (y: Any) -> main.C"
+    reveal_type(C.D)  # N: Revealed type is "def (x: builtins.int) -> main.C.D"
 
 - case: testAttrsInheritanceOverride
   main: |
@@ -362,9 +362,9 @@
         c: bool = attr.ib()  # No error here because the x below overwrites the x above.
         x: int = attr.ib()
 
-    reveal_type(A)  # N: Revealed type is 'def (a: builtins.int, x: builtins.int) -> main.A'
-    reveal_type(B)  # N: Revealed type is 'def (a: builtins.int, b: builtins.str, x: builtins.int =) -> main.B'
-    reveal_type(C)  # N: Revealed type is 'def (a: builtins.int, b: builtins.str, c: builtins.bool, x: builtins.int) -> main.C'
+    reveal_type(A)  # N: Revealed type is "def (a: builtins.int, x: builtins.int) -> main.A"
+    reveal_type(B)  # N: Revealed type is "def (a: builtins.int, b: builtins.str, x: builtins.int =) -> main.B"
+    reveal_type(C)  # N: Revealed type is "def (a: builtins.int, b: builtins.str, c: builtins.bool, x: builtins.int) -> main.C"
 
 - case: testAttrsTypeEquals
   main: |
@@ -374,7 +374,7 @@
     class A:
         a = attr.ib(type=int)
         b = attr.ib(18, type=int)
-    reveal_type(A) # N: Revealed type is 'def (a: builtins.int, b: builtins.int =) -> main.A'
+    reveal_type(A) # N: Revealed type is "def (a: builtins.int, b: builtins.int =) -> main.A"
 
 - case: testAttrsFrozen
   main: |
@@ -420,10 +420,10 @@
         b = field()
 
     # TODO: Next Gen hasn't shipped with mypy yet so the following are wrong
-    reveal_type(A) # N: Revealed type is 'def (a: Any) -> main.A'
-    reveal_type(B) # N: Revealed type is 'def (a: builtins.int) -> main.B'
-    reveal_type(C) # N: Revealed type is 'def (a: builtins.int, b: Any) -> main.C'
-    reveal_type(D) # N: Revealed type is 'def (b: Any) -> main.D'
+    reveal_type(A) # N: Revealed type is "def (a: Any) -> main.A"
+    reveal_type(B) # N: Revealed type is "def (a: builtins.int) -> main.B"
+    reveal_type(C) # N: Revealed type is "def (a: builtins.int, b: Any) -> main.C"
+    reveal_type(D) # N: Revealed type is "def (b: Any) -> main.D"
 
 - case: testAttrsDataClass
   main: |
@@ -437,7 +437,7 @@
         _d: int = attr.ib(validator=None, default=18)
         E = 7
         F: ClassVar[int] = 22
-    reveal_type(A)  # N: Revealed type is 'def (a: builtins.int, b: builtins.list[builtins.str], c: builtins.str =, d: builtins.int =) -> main.A'
+    reveal_type(A)  # N: Revealed type is "def (a: builtins.int, b: builtins.list[builtins.str], c: builtins.str =, d: builtins.int =) -> main.A"
     A(1, ['2'])
 
 - case: testAttrsTypeAlias
@@ -450,7 +450,7 @@
         Alias2 = List[str]
         x: Alias
         y: Alias2 = attr.ib()
-    reveal_type(A) # N: Revealed type is 'def (x: builtins.list[builtins.int], y: builtins.list[builtins.str]) -> main.A'
+    reveal_type(A) # N: Revealed type is "def (x: builtins.list[builtins.int], y: builtins.list[builtins.str]) -> main.A"
 
 - case: testAttrsGeneric
   main: |
@@ -467,11 +467,11 @@
             return self.x[0]
         def problem(self) -> T:
             return self.x  # E: Incompatible return value type (got "List[T]", expected "T")
-    reveal_type(A) # N: Revealed type is 'def [T] (x: builtins.list[T`1], y: T`1) -> main.A[T`1]'
+    reveal_type(A) # N: Revealed type is "def [T] (x: builtins.list[T`1], y: T`1) -> main.A[T`1]"
     a = A([1], 2)
-    reveal_type(a)  # N: Revealed type is 'main.A[builtins.int*]'
-    reveal_type(a.x)  # N: Revealed type is 'builtins.list[builtins.int*]'
-    reveal_type(a.y)  # N: Revealed type is 'builtins.int*'
+    reveal_type(a)  # N: Revealed type is "main.A[builtins.int*]"
+    reveal_type(a.x)  # N: Revealed type is "builtins.list[builtins.int*]"
+    reveal_type(a.y)  # N: Revealed type is "builtins.int*"
 
     A(['str'], 7)  # E: Cannot infer type argument 1 of "A"
     A([1], '2')  # E: Cannot infer type argument 1 of "A"
@@ -493,8 +493,8 @@
         pass
 
     sub = Sub(attr=1)
-    reveal_type(sub)  # N: Revealed type is 'main.Sub'
-    reveal_type(sub.attr)  # N: Revealed type is 'Any'
+    reveal_type(sub)  # N: Revealed type is "main.Sub"
+    reveal_type(sub.attr)  # N: Revealed type is "Any"
   skip: True # Need to investigate why this is broken
 
 - case: testAttrsGenericInheritance
@@ -514,12 +514,12 @@
         pass
 
     sub_int = Sub[int](attr=1)
-    reveal_type(sub_int)  # N: Revealed type is 'main.Sub[builtins.int*]'
-    reveal_type(sub_int.attr)  # N: Revealed type is 'builtins.int*'
+    reveal_type(sub_int)  # N: Revealed type is "main.Sub[builtins.int*]"
+    reveal_type(sub_int.attr)  # N: Revealed type is "builtins.int*"
 
     sub_str = Sub[str](attr='ok')
-    reveal_type(sub_str)  # N: Revealed type is 'main.Sub[builtins.str*]'
-    reveal_type(sub_str.attr)  # N: Revealed type is 'builtins.str*'
+    reveal_type(sub_str)  # N: Revealed type is "main.Sub[builtins.str*]"
+    reveal_type(sub_str.attr)  # N: Revealed type is "builtins.str*"
 
 - case: testAttrsGenericInheritance2
   main: |
@@ -541,10 +541,10 @@
         pass
 
     sub = Sub(one=1, two='ok', three=3.14)
-    reveal_type(sub)  # N: Revealed type is 'main.Sub'
-    reveal_type(sub.one)  # N: Revealed type is 'builtins.int*'
-    reveal_type(sub.two)  # N: Revealed type is 'builtins.str*'
-    reveal_type(sub.three)  # N: Revealed type is 'builtins.float*'
+    reveal_type(sub)  # N: Revealed type is "main.Sub"
+    reveal_type(sub.one)  # N: Revealed type is "builtins.int*"
+    reveal_type(sub.two)  # N: Revealed type is "builtins.str*"
+    reveal_type(sub.three)  # N: Revealed type is "builtins.float*"
   skip: True # Need to investigate why this is broken
 
 - case: testAttrsMultiGenericInheritance
@@ -571,9 +571,9 @@
     reveal_type(Sub.__init__)
 
     sub = Sub(base_attr=1, middle_attr='ok')
-    reveal_type(sub)  # N: Revealed type is 'main.Sub'
-    reveal_type(sub.base_attr)  # N: Revealed type is 'builtins.int*'
-    reveal_type(sub.middle_attr)  # N: Revealed type is 'builtins.str*'
+    reveal_type(sub)  # N: Revealed type is "main.Sub"
+    reveal_type(sub.base_attr)  # N: Revealed type is "builtins.int*"
+    reveal_type(sub.middle_attr)  # N: Revealed type is "builtins.str*"
   skip: True # Need to investigate why this is broken
 
 - case: testAttrsGenericClassmethod
@@ -586,7 +586,7 @@
         x: Optional[T]
         @classmethod
         def clsmeth(cls) -> None:
-           reveal_type(cls)  # N: Revealed type is 'Type[main.A[T`1]]'
+           reveal_type(cls)  # N: Revealed type is "Type[main.A[T`1]]"
 
 - case: testAttrsForwardReference
   main: |
@@ -600,8 +600,8 @@
     class B:
         parent: Optional[A]
 
-    reveal_type(A) # N: Revealed type is 'def (parent: main.B) -> main.A'
-    reveal_type(B) # N: Revealed type is 'def (parent: Union[main.A, None]) -> main.B'
+    reveal_type(A) # N: Revealed type is "def (parent: main.B) -> main.A"
+    reveal_type(B) # N: Revealed type is "def (parent: Union[main.A, None]) -> main.B"
     A(B(None))
 
 - case: testAttrsForwardReferenceInClass
@@ -616,14 +616,14 @@
         class B:
             parent: Optional[A]
 
-    reveal_type(A) # N: Revealed type is 'def (parent: main.A.B) -> main.A'
-    reveal_type(A.B) # N: Revealed type is 'def (parent: Union[main.A, None]) -> main.A.B'
+    reveal_type(A) # N: Revealed type is "def (parent: main.A.B) -> main.A"
+    reveal_type(A.B) # N: Revealed type is "def (parent: Union[main.A, None]) -> main.A.B"
     A(A.B(None))
 
 - case: testAttrsImporting
   main: |
     from helper import A
-    reveal_type(A)  # N: Revealed type is 'def (a: builtins.int, b: builtins.str) -> helper.A'
+    reveal_type(A)  # N: Revealed type is "def (a: builtins.int, b: builtins.str) -> helper.A"
   files:
     - path: helper.py
       content: |
@@ -642,16 +642,16 @@
         b: str = attr.ib()
         @classmethod
         def new(cls) -> A:
-           reveal_type(cls)  # N: Revealed type is 'Type[main.A]'
+           reveal_type(cls)  # N: Revealed type is "Type[main.A]"
            return cls(6, 'hello')
         @classmethod
         def bad(cls) -> A:
             return cls(17)  # E: Missing positional argument "b" in call to "A"
         def foo(self) -> int:
            return self.a
-    reveal_type(A)  # N: Revealed type is 'def (a: builtins.int, b: builtins.str) -> main.A'
+    reveal_type(A)  # N: Revealed type is "def (a: builtins.int, b: builtins.str) -> main.A"
     a = A.new()
-    reveal_type(a.foo) # N: Revealed type is 'def () -> builtins.int'
+    reveal_type(a.foo) # N: Revealed type is "def () -> builtins.int"
 
 - case: testAttrsOtherOverloads
   main: |
@@ -677,12 +677,12 @@
 
         @classmethod
         def foo(cls, x: Union[int, str]) -> Union[int, str]:
-            reveal_type(cls)            # N: Revealed type is 'Type[main.A]'
-            reveal_type(cls.other())    # N: Revealed type is 'builtins.str'
+            reveal_type(cls)            # N: Revealed type is "Type[main.A]"
+            reveal_type(cls.other())    # N: Revealed type is "builtins.str"
             return x
 
-    reveal_type(A.foo(3))      # N: Revealed type is 'builtins.int'
-    reveal_type(A.foo("foo"))  # N: Revealed type is 'builtins.str'
+    reveal_type(A.foo(3))      # N: Revealed type is "builtins.int"
+    reveal_type(A.foo("foo"))  # N: Revealed type is "builtins.str"
 
 - case: testAttrsDefaultDecorator
   main: |
@@ -736,8 +736,8 @@
 
     AOrB = Union[A, B]
 
-    reveal_type(A)  # N: Revealed type is 'def (frob: builtins.list[Union[main.A, main.B]]) -> main.A'
-    reveal_type(B)  # N: Revealed type is 'def () -> main.B'
+    reveal_type(A)  # N: Revealed type is "def (frob: builtins.list[Union[main.A, main.B]]) -> main.A"
+    reveal_type(B)  # N: Revealed type is "def () -> main.B"
 
     A([B()])
 
@@ -755,8 +755,8 @@
         y: str = attr.ib(converter=converter2)
 
     # Because of the converter the __init__ takes an int, but the variable is a str.
-    reveal_type(C)  # N: Revealed type is 'def (x: builtins.int, y: builtins.int) -> main.C'
-    reveal_type(C(15, 16).x)  # N: Revealed type is 'builtins.str'
+    reveal_type(C)  # N: Revealed type is "def (x: builtins.int, y: builtins.int) -> main.C"
+    reveal_type(C(15, 16).x)  # N: Revealed type is "builtins.str"
   files:
     - path: helper.py
       content: |
@@ -789,7 +789,7 @@
     main:15: error: Argument "converter" has incompatible type "Callable[[], str]"; expected "Callable[[Any], Any]"
     main:16: error: Cannot determine __init__ type from converter
     main:16: error: Argument "converter" has incompatible type overloaded function; expected "Callable[[Any], Any]"
-    main:17: note: Revealed type is 'def (bad: Any, bad_overloaded: Any) -> main.A'
+    main:17: note: Revealed type is "def (bad: Any, bad_overloaded: Any) -> main.A"
 
 - case: testAttrsUsingBadConverterReprocess
   mypy_config:
@@ -818,7 +818,7 @@
     main:16: error: Argument "converter" has incompatible type "Callable[[], str]"; expected "Callable[[Any], Any]"
     main:17: error: Cannot determine __init__ type from converter
     main:17: error: Argument "converter" has incompatible type overloaded function; expected "Callable[[Any], Any]"
-    main:18: note: Revealed type is 'def (bad: Any, bad_overloaded: Any) -> main.A'
+    main:18: note: Revealed type is "def (bad: Any, bad_overloaded: Any) -> main.A"
 
 - case: testAttrsUsingUnsupportedConverter
   main: |
@@ -834,7 +834,7 @@
         x: str = attr.ib(converter=thing.do_it)  # E: Unsupported converter, only named functions and types are currently supported
         y: str = attr.ib(converter=lambda x: x)  # E: Unsupported converter, only named functions and types are currently supported
         z: str = attr.ib(converter=factory(8))   # E: Unsupported converter, only named functions and types are currently supported
-    reveal_type(C)  # N: Revealed type is 'def (x: Any, y: Any, z: Any) -> main.C'
+    reveal_type(C)  # N: Revealed type is "def (x: Any, y: Any, z: Any) -> main.C"
 
 - case: testAttrsUsingConverterAndSubclass
   main: |
@@ -852,8 +852,8 @@
         pass
 
     # Because of the convert the __init__ takes an int, but the variable is a str.
-    reveal_type(A)  # N: Revealed type is 'def (x: builtins.int) -> main.A'
-    reveal_type(A(15).x)  # N: Revealed type is 'builtins.str'
+    reveal_type(A)  # N: Revealed type is "def (x: builtins.int) -> main.A"
+    reveal_type(A(15).x)  # N: Revealed type is "builtins.str"
 
 - case: testAttrsUsingConverterWithTypes
   main: |
@@ -885,10 +885,10 @@
     @attr.s
     class D(A): pass
 
-    reveal_type(A.__lt__)  # N: Revealed type is 'def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool'
-    reveal_type(B.__lt__)  # N: Revealed type is 'def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool'
-    reveal_type(C.__lt__)  # N: Revealed type is 'def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool'
-    reveal_type(D.__lt__)  # N: Revealed type is 'def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool'
+    reveal_type(A.__lt__)  # N: Revealed type is "def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool"
+    reveal_type(B.__lt__)  # N: Revealed type is "def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool"
+    reveal_type(C.__lt__)  # N: Revealed type is "def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool"
+    reveal_type(D.__lt__)  # N: Revealed type is "def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool"
 
     A() < A()
     B() < B()
@@ -922,8 +922,8 @@
     @attr.s
     class A(C):
         z: int = attr.ib(default=18)
-    reveal_type(C)  # N: Revealed type is 'def (x: builtins.int =, y: builtins.int =) -> main.C'
-    reveal_type(A)  # N: Revealed type is 'def (x: builtins.int =, y: builtins.int =, z: builtins.int =) -> main.A'
+    reveal_type(C)  # N: Revealed type is "def (x: builtins.int =, y: builtins.int =) -> main.C"
+    reveal_type(A)  # N: Revealed type is "def (x: builtins.int =, y: builtins.int =, z: builtins.int =) -> main.A"
 
 - case: testAttrsMultiAssign
   main: |
@@ -931,7 +931,7 @@
     @attr.s
     class A:
        x, y, z = attr.ib(), attr.ib(type=int), attr.ib(default=17)
-    reveal_type(A) # N: Revealed type is 'def (x: Any, y: builtins.int, z: Any =) -> main.A'
+    reveal_type(A) # N: Revealed type is "def (x: Any, y: builtins.int, z: Any =) -> main.A"
 
 - case: testAttrsMultiAssign2
   main: |
@@ -957,9 +957,9 @@
        a: int
        b = 17
        # The following forms are not allowed with auto_attribs=True
-       c = attr.ib()  # E: Need type annotation for 'c'
-       d, e = attr.ib(), attr.ib() # E: Need type annotation for 'd' # E: Need type annotation for 'e'
-       f = g = attr.ib()  # E: Need type annotation for 'f' # E: Need type annotation for 'g'
+       c = attr.ib()  # E: Need type annotation for "c"
+       d, e = attr.ib(), attr.ib() # E: Need type annotation for "d" # E: Need type annotation for "e"
+       f = g = attr.ib()  # E: Need type annotation for "f" # E: Need type annotation for "g"
 
 - case: testAttrsRepeatedName
   main: |
@@ -969,19 +969,19 @@
        a = attr.ib(default=8)
        b = attr.ib()
        a = attr.ib()
-    reveal_type(A)  # N: Revealed type is 'def (b: Any, a: Any) -> main.A'
+    reveal_type(A)  # N: Revealed type is "def (b: Any, a: Any) -> main.A"
     @attr.s
     class B:
        a: int = attr.ib(default=8)
        b: int = attr.ib()
-       a: int = attr.ib()  # E: Name 'a' already defined on line 10
-    reveal_type(B)  # N: Revealed type is 'def (b: builtins.int, a: builtins.int) -> main.B'
+       a: int = attr.ib()  # E: Name "a" already defined on line 10
+    reveal_type(B)  # N: Revealed type is "def (b: builtins.int, a: builtins.int) -> main.B"
     @attr.s(auto_attribs=True)
     class C:
        a: int = 8
        b: int
-       a: int = attr.ib()  # E: Name 'a' already defined on line 16
-    reveal_type(C)  # N: Revealed type is 'def (a: builtins.int, b: builtins.int) -> main.C'
+       a: int = attr.ib()  # E: Name "a" already defined on line 16
+    reveal_type(C)  # N: Revealed type is "def (a: builtins.int, b: builtins.int) -> main.C"
 
 - case: testAttrsNewStyleClassPy2
   mypy_config:
@@ -1088,7 +1088,7 @@
     import attr
     @attr.s
     class A:
-        x: int = attr.ib(factory=int, default=7)  # E: Can't pass both `default` and `factory`.
+        x: int = attr.ib(factory=int, default=7)  # E: Can't pass both "default" and "factory".
 
 - case: testAttrsFactoryBadReturn
   main: |
@@ -1244,7 +1244,7 @@
     class C(List[C]):
         pass
 
-    reveal_type(B)  # N: Revealed type is 'def (x: main.C) -> main.B'
+    reveal_type(B)  # N: Revealed type is "def (x: main.C) -> main.B"
 
 - case: testDisallowUntypedWorksForwardBad
   mypy_config:
@@ -1254,9 +1254,9 @@
 
     @attr.s
     class B:
-        x = attr.ib()  # E: Need type annotation for 'x'
+        x = attr.ib()  # E: Need type annotation for "x"
 
-    reveal_type(B)  # N: Revealed type is 'def (x: Any) -> main.B'
+    reveal_type(B)  # N: Revealed type is "def (x: Any) -> main.B"
 
 - case: testAttrsDefaultDecoratorDeferred
   main: |
@@ -1296,7 +1296,7 @@
 
     @attr.s
     class C:
-        total = attr.ib(type=Bad)  # E: Name 'Bad' is not defined
+        total = attr.ib(type=Bad)  # E: Name "Bad" is not defined
 
 - case: testTypeInAttrForwardInRuntime
   main: |
@@ -1306,7 +1306,7 @@
     class C:
         total = attr.ib(type=Forward)
 
-    reveal_type(C.total)  # N: Revealed type is 'main.Forward'
+    reveal_type(C.total)  # N: Revealed type is "main.Forward"
     C('no')  # E: Argument 1 to "C" has incompatible type "str"; expected "Forward"
     class Forward: ...
 
@@ -1330,7 +1330,7 @@
 
     @attr.s(frozen=True)
     class C:
-        total = attr.ib(type=Bad)  # E: Name 'Bad' is not defined
+        total = attr.ib(type=Bad)  # E: Name "Bad" is not defined
 
     C(0).total = 1  # E: Property "total" defined in "C" is read-only
 
@@ -1392,4 +1392,4 @@
     class B(A):
         foo = x
 
-    reveal_type(B)  # N: Revealed type is 'def (foo: builtins.int) -> main.B'
+    reveal_type(B)  # N: Revealed type is "def (foo: builtins.int) -> main.B"
