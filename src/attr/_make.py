@@ -581,7 +581,7 @@ def _transform_attrs(
         own_attrs = [a.evolve(kw_only=True) for a in own_attrs]
         base_attrs = [a.evolve(kw_only=True) for a in base_attrs]
 
-    attrs = AttrsClass(base_attrs + own_attrs)
+    attrs = base_attrs + own_attrs
 
     # Mandatory vs non-mandatory attr order only matters when they are part of
     # the __init__ signature and when they aren't kw_only (which are moved to
@@ -599,7 +599,9 @@ def _transform_attrs(
             had_default = True
 
     if field_transformer is not None:
-        attrs = AttrsClass(field_transformer(cls, attrs))
+        attrs = field_transformer(cls, attrs)
+
+    attrs = AttrsClass(attrs)
     return _Attributes((attrs, base_attrs, base_attr_map))
 
 
