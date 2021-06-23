@@ -5,7 +5,6 @@ import inspect
 import linecache
 import sys
 import threading
-import uuid
 import warnings
 
 from operator import itemgetter
