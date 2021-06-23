@@ -936,6 +936,16 @@ class C(object):
     pass
 
 
+CopyC = C
+
+
+@attr.s(hash=True, order=True)
+class C(object):
+    """A different class, to generate different methods."""
+
+    a = attr.ib()
+
+
 class TestFilenames(object):
     def test_filenames(self):
         """
@@ -954,14 +964,26 @@ class TestFilenames(object):
             == "<attrs generated hash tests.test_dunders.C>"
         )
         assert (
+            CopyC.__init__.__code__.co_filename
+            == "<attrs generated init tests.test_dunders.C>"
+        )
+        assert (
+            CopyC.__eq__.__code__.co_filename
+            == "<attrs generated eq tests.test_dunders.C>"
+        )
+        assert (
+            CopyC.__hash__.__code__.co_filename
+            == "<attrs generated hash tests.test_dunders.C>"
+        )
+        assert (
             C.__init__.__code__.co_filename
-            == "<attrs generated init tests.test_dunders.C-2>"
+            == "<attrs generated init tests.test_dunders.C-1>"
         )
         assert (
             C.__eq__.__code__.co_filename
-            == "<attrs generated eq tests.test_dunders.C-2>"
+            == "<attrs generated eq tests.test_dunders.C-1>"
         )
         assert (
             C.__hash__.__code__.co_filename
-            == "<attrs generated hash tests.test_dunders.C-2>"
+            == "<attrs generated hash tests.test_dunders.C-1>"
         )
