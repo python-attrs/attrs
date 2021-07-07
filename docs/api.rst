@@ -551,6 +551,28 @@ Converters
       C(x='')
 
 
+.. autofunction:: attr.converters.to_bool
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib(
+      ...         converter=attr.converters.to_bool
+      ...     )
+      >>> C("yes")
+      C(x=True)
+      >>> C(0)
+      C(x=False)
+      >>> C("foo")
+      Traceback (most recent call last):
+         File "<stdin>", line 1, in <module>
+      ValueError: Cannot convert value to bool: foo
+
+
+
 .. _api_setters:
 
 Setters

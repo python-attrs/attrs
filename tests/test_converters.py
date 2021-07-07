@@ -4,14 +4,12 @@ Tests for `attr.converters`.
 
 from __future__ import absolute_import
 
-from distutils.util import strtobool
-
 import pytest
 
 import attr
 
 from attr import Factory, attrib
-from attr.converters import default_if_none, optional, pipe
+from attr.converters import default_if_none, optional, pipe, to_bool
 
 
 class TestOptional(object):
@@ -106,7 +104,7 @@ class TestPipe(object):
         """
         Succeeds if all wrapped converters succeed.
         """
-        c = pipe(str, strtobool, bool)
+        c = pipe(str, to_bool, bool)
 
         assert True is c("True") is c(True)
 
@@ -114,7 +112,7 @@ class TestPipe(object):
         """
         Fails if any wrapped converter fails.
         """
-        c = pipe(str, strtobool)
+        c = pipe(str, to_bool)
 
         # First wrapped converter fails:
         with pytest.raises(ValueError):
@@ -131,8 +129,8 @@ class TestPipe(object):
 
         @attr.s
         class C(object):
-            a1 = attrib(default="True", converter=pipe(str, strtobool, bool))
-            a2 = attrib(default=True, converter=[str, strtobool, bool])
+            a1 = attrib(default="True", converter=pipe(str, to_bool, bool))
+            a2 = attrib(default=True, converter=[str, to_bool, bool])
 
         c = C()
         assert True is c.a1 is c.a2
