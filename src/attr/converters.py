@@ -133,7 +133,7 @@ def to_bool(val):
     - :code:`"0"`
     - :code:`0`
 
-    Raise :exc:`ValueError` for any other value.
+    :raises ValueError: for any other value.
 
     .. versionadded:: 21.3.0
     """
