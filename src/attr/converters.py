@@ -149,4 +149,4 @@ def to_bool(val):
     except TypeError:
         # Raised when "val" is not hashable (e.g., lists)
         pass
-    raise ValueError(f"Cannot convert value to bool: {val}")
+    raise ValueError("Cannot convert value to bool: {}".format(val))
