@@ -1,6 +1,6 @@
 import re
 
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import attr
 
@@ -257,6 +257,10 @@ class FactoryTest:
     a: List[int] = attr.ib(default=attr.Factory(list))
     b: List[Any] = attr.ib(default=attr.Factory(list, False))
     c: List[int] = attr.ib(default=attr.Factory((lambda s: s.a), True))
+
+    d: Optional[attr.Factory] = attr.Factory(list)
+    if isinstance(d, attr.Factory):
+        d.takes_self
 
 
 # Check match_args stub

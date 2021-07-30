@@ -65,27 +65,36 @@ NOTHING: object
 # Work around mypy issue #4554 in the common case by using an overload.
 if sys.version_info >= (3, 8):
     from typing import Literal
-    @overload
-    def Factory(factory: Callable[[], _T]) -> _T: ...
-    @overload
-    def Factory(
-        factory: Callable[[Any], _T],
-        takes_self: Literal[True],
-    ) -> _T: ...
-    @overload
-    def Factory(
-        factory: Callable[[], _T],
-        takes_self: Literal[False],
-    ) -> _T: ...
+    class Factory(object):
+        factory: Any
+        takes_self: bool
+        @overload
+        def __init__(self, factory: Callable[[], _T]) -> None: ...
+        @overload
+        def __init__(
+            self,
+            factory: Callable[[Any], _T],
+            takes_self: Literal[True],
+        ) -> None: ...
+        @overload
+        def __init__(
+            self,
+            factory: Callable[[], _T],
+            takes_self: Literal[False],
+        ) -> None: ...
 
 else:
-    @overload
-    def Factory(factory: Callable[[], _T]) -> _T: ...
-    @overload
-    def Factory(
-        factory: Union[Callable[[Any], _T], Callable[[], _T]],
-        takes_self: bool = ...,
-    ) -> _T: ...
+    class Factory(object):
+        factory: Any
+        takes_self: bool
+        @overload
+        def __init__(self, factory: Callable[[], _T]) -> _T: ...
+        @overload
+        def __init__(
+            self,
+            factory: Union[Callable[[Any], _T], Callable[[], _T]],
+            takes_self: bool = ...,
+        ) -> _T: ...
 
 # Static type inference support via __dataclass_transform__ implemented as per:
 # https://github.com/microsoft/pyright/blob/1.1.135/specs/dataclass_transforms.md
