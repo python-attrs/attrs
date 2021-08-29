@@ -118,6 +118,20 @@ except Error as e:
 # ConvCDefaultIfNone(None)
 
 
+# @attr.s
+# class ConvCToBool:
+#     x: int = attr.ib(converter=attr.converters.to_bool)
+
+
+# ConvCToBool(1)
+# ConvCToBool(True)
+# ConvCToBool("on")
+# ConvCToBool("yes")
+# ConvCToBool(0)
+# ConvCToBool(False)
+# ConvCToBool("n")
+
+
 # Validators
 @attr.s
 class Validated:
