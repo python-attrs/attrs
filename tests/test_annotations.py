@@ -637,6 +637,21 @@ class TestAnnotations:
         assert int == attr.fields(A).n.type
         assert int == attr.fields(B).n.type
 
+    def test_resolve_twice(self):
+        """
+        You can call resolve_types as many times as you like.
+
+        This test is here mostly for coverage.
+        """
+        @attr.define()
+        class A:
+            n: "int"
+
+        attr.resolve_types(A)
+        assert int == attr.fields(A).n.type
+        attr.resolve_types(A)
+        assert int == attr.fields(A).n.type
+
 
 @pytest.mark.parametrize(
     "annot",
