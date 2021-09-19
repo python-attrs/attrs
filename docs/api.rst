@@ -345,6 +345,17 @@ Validators
 ``attrs`` comes with some common validators in the ``attrs.validators`` module:
 
 
+.. autofunction:: attr.validators.lt
+
+.. autofunction:: attr.validators.le
+
+.. autofunction:: attr.validators.ge
+
+.. autofunction:: attr.validators.gt
+
+.. autofunction:: attr.validators.maxlen
+
+
 .. autofunction:: attr.validators.instance_of
 
 
