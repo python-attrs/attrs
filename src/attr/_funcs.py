@@ -387,8 +387,8 @@ def resolve_types(cls, globalns=None, localns=None, attribs=None):
             if field.name in hints:
                 # Since fields have been frozen we must work around it.
                 _obj_setattr(field, "type", hints[field.name])
-        # We store the class we resolved so that subclasses know they haven't been
-        # resolved.
+        # We store the class we resolved so that subclasses know they haven't
+        # been resolved.
         cls.__attrs_types_resolved__ = cls
 
     # Return the class so you can use it as a decorator too.
