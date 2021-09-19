@@ -618,6 +618,25 @@ class TestAnnotations:
         with pytest.raises(NameError):
             typing.get_type_hints(C.__init__)
 
+    def test_inheritance(self):
+        """
+        Subclasses can be resolved after the parent is resolved.
+        """
+
+        @attr.define()
+        class A:
+            n: "int"
+
+        @attr.define()
+        class B(A):
+            pass
+
+        attr.resolve_types(A)
+        attr.resolve_types(B)
+
+        assert int == attr.fields(A).n.type
+        assert int == attr.fields(B).n.type
+
 
 @pytest.mark.parametrize(
     "annot",
