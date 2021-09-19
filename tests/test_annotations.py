@@ -640,9 +640,9 @@ class TestAnnotations:
     def test_resolve_twice(self):
         """
         You can call resolve_types as many times as you like.
-
         This test is here mostly for coverage.
         """
+
         @attr.define()
         class A:
             n: "int"
