@@ -386,7 +386,7 @@ def deep_mapping(key_validator, value_validator, mapping_validator=None):
 
 
 @attrs(repr=False, frozen=True, slots=True)
-class _NumberValidator:
+class _NumberValidator(object):
     bound = attrib()
     compare_op = attrib()
     compare_func = attrib()
@@ -452,7 +452,7 @@ def gt(val):
 
 
 @attrs(repr=False, frozen=True, slots=True)
-class _MaxLengthValidator:
+class _MaxLengthValidator(object):
     max_length = attrib()
 
     def __call__(self, inst, attr, value):
