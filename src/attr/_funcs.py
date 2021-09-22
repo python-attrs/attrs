@@ -377,11 +377,9 @@ def resolve_types(cls, globalns=None, localns=None, attribs=None):
     ..  versionadded:: 21.1.0 *attribs*
 
     """
-    try:
-        # Since calling get_type_hints is expensive we cache whether we've
-        # done it already.
-        cls.__attrs_types_resolved__
-    except AttributeError:
+    # Since calling get_type_hints is expensive we cache whether we've
+    # done it already.
+    if getattr(cls, "__attrs_types_resolved__", None) != cls:
         import typing
 
         hints = typing.get_type_hints(cls, globalns=globalns, localns=localns)
@@ -389,7 +387,9 @@ def resolve_types(cls, globalns=None, localns=None, attribs=None):
             if field.name in hints:
                 # Since fields have been frozen we must work around it.
                 _obj_setattr(field, "type", hints[field.name])
-        cls.__attrs_types_resolved__ = True
+        # We store the class we resolved so that subclasses know they haven't
+        # been resolved.
+        cls.__attrs_types_resolved__ = cls
 
     # Return the class so you can use it as a decorator too.
     return cls
