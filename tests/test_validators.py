@@ -739,7 +739,7 @@ class TestLtLeGeGt:
         """
 
         @attr.s
-        class Tester:
+        class Tester(object):
             value = attr.ib(validator=v(self.BOUND))
 
         assert fields(Tester).value.validator.bound == self.BOUND
@@ -759,7 +759,7 @@ class TestLtLeGeGt:
         """Silent if value {op} bound."""
 
         @attr.s
-        class Tester:
+        class Tester(object):
             value = attr.ib(validator=v(self.BOUND))
 
         Tester(value)  # shouldn't raise exceptions
@@ -777,7 +777,7 @@ class TestLtLeGeGt:
         """Raise ValueError if value {op} bound."""
 
         @attr.s
-        class Tester:
+        class Tester(object):
             value = attr.ib(validator=v(self.BOUND))
 
         with pytest.raises(ValueError):
@@ -813,7 +813,7 @@ class TestMaxlen:
         """
 
         @attr.s
-        class Tester:
+        class Tester(object):
             value = attr.ib(validator=maxlen(self.MAX_LENGTH))
 
         assert fields(Tester).value.validator.max_length == self.MAX_LENGTH
@@ -836,7 +836,7 @@ class TestMaxlen:
         """
 
         @attr.s
-        class Tester:
+        class Tester(object):
             value = attr.ib(validator=maxlen(self.MAX_LENGTH))
 
         Tester(value)  # shouldn't raise exceptions
@@ -854,7 +854,7 @@ class TestMaxlen:
         """
 
         @attr.s
-        class Tester:
+        class Tester(object):
             value = attr.ib(validator=maxlen(self.MAX_LENGTH))
 
         with pytest.raises(ValueError):
