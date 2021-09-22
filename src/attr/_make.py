@@ -581,15 +581,11 @@ def _transform_attrs(
             cls, {a.name for a in own_attrs}
         )
 
-    attr_names = [a.name for a in base_attrs + own_attrs]
-
-    AttrsClass = _make_attr_tuple_class(cls.__name__, attr_names)
-
     if kw_only:
         own_attrs = [a.evolve(kw_only=True) for a in own_attrs]
         base_attrs = [a.evolve(kw_only=True) for a in base_attrs]
 
-    attrs = AttrsClass(base_attrs + own_attrs)
+    attrs = base_attrs + own_attrs
 
     # Mandatory vs non-mandatory attr order only matters when they are part of
     # the __init__ signature and when they aren't kw_only (which are moved to
@@ -608,7 +604,13 @@ def _transform_attrs(
 
     if field_transformer is not None:
         attrs = field_transformer(cls, attrs)
-    return _Attributes((attrs, base_attrs, base_attr_map))
+
+    # Create AttrsClass *after* applying the field_transformer since it may
+    # add or remove attributes!
+    attr_names = [a.name for a in attrs]
+    AttrsClass = _make_attr_tuple_class(cls.__name__, attr_names)
+
+    return _Attributes((AttrsClass(attrs), base_attrs, base_attr_map))
 
 
 if PYPY:
