@@ -1,0 +1,1 @@
+Attributes transformed via ``field_transformer`` are wrapped with ``AttrsClass`` again.

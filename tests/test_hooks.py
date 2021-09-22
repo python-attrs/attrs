@@ -117,6 +117,22 @@ class TestTransformHook:
 
         assert attr.asdict(Sub(2)) == {"y": 2}
 
+    def test_attrs_attrclass(self):
+        """
+        The list of attrs returned by a field_transformer is converted to
+        "AttrsClass" again.
+
+        Regression test for #821.
+        """
+
+        @attr.s(auto_attribs=True, field_transformer=lambda c, a: list(a))
+        class C:
+            x: int
+
+        fields_type = type(attr.fields(C))
+        assert fields_type.__name__ == "CAttributes"
+        assert issubclass(fields_type, tuple)
+
 
 class TestAsDictHook:
     def test_asdict(self):
