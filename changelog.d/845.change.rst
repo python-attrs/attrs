@@ -1,0 +1,1 @@
+Added new validators: ``lt(val)`` (< val), ``le(va)`` (≤ val), ``ge(val)`` (≥ val), ``gt(val)`` (> val), and `maxlen(n)`.
