@@ -25,7 +25,7 @@ from attr.validators import (
     le,
     lt,
     matches_re,
-    maxlen,
+    max_len,
     optional,
     provides,
 )
@@ -718,7 +718,7 @@ def test_hashability():
 
 class TestLtLeGeGt:
     """
-    Tests for `maxlen`.
+    Tests for `max_len`.
     """
 
     BOUND = 4
@@ -794,9 +794,9 @@ class TestLtLeGeGt:
         )
 
 
-class TestMaxlen:
+class TestMaxLen:
     """
-    Tests for `maxlen`.
+    Tests for `max_len`.
     """
 
     MAX_LENGTH = 4
@@ -805,16 +805,16 @@ class TestMaxlen:
         """
         validator is in ``__all__``.
         """
-        assert maxlen.__name__ in validator_module.__all__
+        assert max_len.__name__ in validator_module.__all__
 
-    def test_retrieve_maxlen(self):
+    def test_retrieve_max_len(self):
         """
         The configured max. length can be extracted from the Attribute
         """
 
         @attr.s
         class Tester(object):
-            value = attr.ib(validator=maxlen(self.MAX_LENGTH))
+            value = attr.ib(validator=max_len(self.MAX_LENGTH))
 
         assert fields(Tester).value.validator.max_length == self.MAX_LENGTH
 
@@ -831,13 +831,13 @@ class TestMaxlen:
     )
     def test_check_valid(self, value):
         """
-        Silent if len(value) <= maxlen.
+        Silent if len(value) <= max_len.
         Values can be strings and other iterables.
         """
 
         @attr.s
         class Tester(object):
-            value = attr.ib(validator=maxlen(self.MAX_LENGTH))
+            value = attr.ib(validator=max_len(self.MAX_LENGTH))
 
         Tester(value)  # shouldn't raise exceptions
 
@@ -850,12 +850,12 @@ class TestMaxlen:
     )
     def test_check_invalid(self, value):
         """
-        Raise ValueError if len(value) > maxlen.
+        Raise ValueError if len(value) > max_len.
         """
 
         @attr.s
         class Tester(object):
-            value = attr.ib(validator=maxlen(self.MAX_LENGTH))
+            value = attr.ib(validator=max_len(self.MAX_LENGTH))
 
         with pytest.raises(ValueError):
             Tester(value)
@@ -864,4 +864,4 @@ class TestMaxlen:
         """
         __repr__ is meaningful.
         """
-        assert repr(maxlen(23)) == "<maxlen validator for 23>"
+        assert repr(max_len(23)) == "<max_len validator for 23>"

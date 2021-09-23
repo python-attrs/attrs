@@ -23,7 +23,7 @@ __all__ = [
     "le",
     "lt",
     "matches_re",
-    "maxlen",
+    "max_len",
     "optional",
     "provides",
 ]
@@ -475,10 +475,10 @@ class _MaxLengthValidator(object):
             )
 
     def __repr__(self):
-        return "<maxlen validator for {max}>".format(max=self.max_length)
+        return "<max_len validator for {max}>".format(max=self.max_length)
 
 
-def maxlen(length):
+def max_len(length):
     """
     A validator that raises `ValueError` if the initializer is called
     with a string or iterable that is longer than *length*.
