@@ -345,6 +345,86 @@ Validators
 ``attrs`` comes with some common validators in the ``attrs.validators`` module:
 
 
+.. autofunction:: attr.validators.lt
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib(validator=attr.validators.lt(42))
+      >>> C(41)
+      C(x=41)
+      >>> C(42)
+      Traceback (most recent call last):
+         ...
+      ValueError: ("'x' must be < 42: 42")
+
+.. autofunction:: attr.validators.le
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib(validator=attr.validators.le(42))
+      >>> C(42)
+      C(x=42)
+      >>> C(43)
+      Traceback (most recent call last):
+         ...
+      ValueError: ("'x' must be <= 42: 43")
+
+.. autofunction:: attr.validators.ge
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib(validator=attr.validators.ge(42))
+      >>> C(42)
+      C(x=42)
+      >>> C(41)
+      Traceback (most recent call last):
+         ...
+      ValueError: ("'x' must be => 42: 41")
+
+.. autofunction:: attr.validators.gt
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib(validator=attr.validators.gt(42))
+      >>> C(43)
+      C(x=43)
+      >>> C(42)
+      Traceback (most recent call last):
+         ...
+      ValueError: ("'x' must be > 42: 42")
+
+.. autofunction:: attr.validators.max_len
+
+   For example:
+
+   .. doctest::
+
+      >>> @attr.s
+      ... class C(object):
+      ...     x = attr.ib(validator=attr.validators.max_len(4))
+      >>> C("spam")
+      C(x='spam')
+      >>> C("bacon")
+      Traceback (most recent call last):
+         ...
+      ValueError: ("Length of 'x' must be <= 4: 5")
+
 .. autofunction:: attr.validators.instance_of
 
 
