@@ -1,28 +1,28 @@
 ---
 repos:
   - repo: https://github.com/psf/black
-    rev: 21.5b2
+    rev: 21.9b0
     hooks:
       - id: black
         exclude: tests/test_pattern_matching.py
         language_version: python3.8
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.8.0
+    rev: 5.9.3
     hooks:
       - id: isort
         additional_dependencies: [toml]
         files: \.py$
         language_version: python3.10
 
-  - repo: https://gitlab.com/pycqa/flake8
+  - repo: https://gitlab.com/PyCQA/flake8
     rev: 3.9.2
     hooks:
       - id: flake8
         language_version: python3.10
 
   - repo: https://github.com/econchick/interrogate
-    rev: 1.4.0
+    rev: 1.5.0
     hooks:
       - id: interrogate
         exclude: tests/test_pattern_matching.py
