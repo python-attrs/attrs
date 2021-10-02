@@ -2573,19 +2573,26 @@ class Attribute(object):
     """
     *Read-only* representation of an attribute.
 
+    The class has *all* arguments of `attr.ib` (except for ``factory``
+    which is only syntactic sugar for ``default=Factory(...)`` plus the
+    following:
+
+    - ``name`` (`str`): The name of the attribute.
+    - ``inherited`` (`bool`): Whether or not that attribute has been inherited
+      from a base class.
+    - ``eq_key`` and ``order_key`` (`typing.Callable` or `None`): The callables
+      that are used for comparing and ordering objects by this attribute,
+      respectively. These are set by passing a callable to `attr.ib`'s ``eq``,
+      ``order``, or ``cmp`` arguments. See also :ref:`comparison customization
+      <custom-comparison>`.
+
     Instances of this class are frequently used for introspection purposes
     like:
 
     - `fields` returns a tuple of them.
     - Validators get them passed as the first argument.
-    - The *field transformer* hook receives a list of them.
-
-    :attribute name: The name of the attribute.
-    :attribute inherited: Whether or not that attribute has been inherited from
-        a base class.
-
-    Plus *all* arguments of `attr.ib` (except for ``factory``
-    which is only syntactic sugar for ``default=Factory(...)``.
+    - The :ref:`field transformer <transform-fields>` hook receives a list of
+      them.
 
     .. versionadded:: 20.1.0 *inherited*
     .. versionadded:: 20.1.0 *on_setattr*
