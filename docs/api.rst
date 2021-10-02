@@ -99,6 +99,8 @@ Core
 .. autoclass:: attr.Attribute
    :members: evolve
 
+   For example:
+
    .. doctest::
 
       >>> import attr
