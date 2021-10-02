@@ -75,4 +75,4 @@ __all__ = [
 if sys.version_info[:2] >= (3, 6):
     from ._next_gen import define, field, frozen, mutable
 
-    __all__.extend((define, field, frozen, mutable))
+    __all__.extend(("define", "field", "frozen", "mutable"))
