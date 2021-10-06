@@ -7,6 +7,8 @@ For that, ``attrs`` writes ``__eq__`` and ``__ne__`` methods for you.
 Additionally, if you pass ``order=True`` (which is the default if you use the `attr.s` decorator), ``attrs`` will also create a full set of ordering methods that are based on the defined fields: ``__le__``, ``__lt__``, ``__ge__``, and ``__gt__``.
 
 
+.. _custom-comparison:
+
 Customization
 -------------
 
