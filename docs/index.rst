@@ -1,5 +1,6 @@
 .. module:: attr
 .. module:: attrs
+
 ======================================
 ``attrs``: Classes Without Boilerplate
 ======================================
