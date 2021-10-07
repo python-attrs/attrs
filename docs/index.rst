@@ -1,3 +1,5 @@
+:mod:`attr`
+:mod:`attrs`
 ======================================
 ``attrs``: Classes Without Boilerplate
 ======================================
