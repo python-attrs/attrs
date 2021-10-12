@@ -715,13 +715,13 @@ Since the Python ecosystem has settled on the term ``field`` for defining attrib
    The new APIs build on top of them.
 
 .. autofunction:: attr.define
-.. function:: attr.mutable(same_as_define)
+.. function:: mutable(same_as_define)
 
    Alias for `attr.define`.
 
    .. versionadded:: 20.1.0
 
-.. function:: attr.frozen(same_as_define)
+.. function:: frozen(same_as_define)
 
    Behaves the same as `attr.define` but sets *frozen=True* and *on_setattr=None*.
 
