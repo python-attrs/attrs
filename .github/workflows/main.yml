@@ -51,7 +51,7 @@ jobs:
         if: "contains(env.USING_COVERAGE, matrix.python-version)"
       - name: "Upload coverage to Codecov"
         if: "contains(env.USING_COVERAGE, matrix.python-version)"
-        uses: "codecov/codecov-action@v1"
+        uses: "codecov/codecov-action@v2"
         with:
           fail_ci_if_error: true
 
