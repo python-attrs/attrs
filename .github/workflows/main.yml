@@ -65,7 +65,7 @@ jobs:
         with:
           python-version: "3.9"
 
-      - name: "Install build, check-wheel-content, and twine"
+      - name: "Install build, check-wheel-contents, and twine"
         run: "python -m pip install build twine check-wheel-contents"
       - name: "Build package"
         run: "python -m build --sdist --wheel ."
