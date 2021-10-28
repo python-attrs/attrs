@@ -440,6 +440,9 @@ Therefore if you use ``@attr.s(auto_attribs=True)``, it is *not* enough to decor
       ...
    TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, factory=NOTHING, validator=<instance_of validator for type <type 'int'>>, type=None, kw_only=False), <type 'int'>, '42')
 
+Please note that if you use `attr.s` (and not `attr.define`) to define your class, validators only run on initialization by default.
+This behavior can be changed using the ``on_setattr`` argument.
+
 Check out `validators` for more details.
 
 
@@ -457,6 +460,8 @@ This can be useful for doing type-conversions on values that you don't want to f
     >>> o = C("1")
     >>> o.x
     1
+
+Please note that converters only run on initialization.
 
 Check out `converters` for more details.
 
