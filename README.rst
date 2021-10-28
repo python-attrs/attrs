@@ -90,7 +90,7 @@ Never again violate the `single responsibility principle <https://en.wikipedia.o
 Getting Help
 ============
 
-Please use the ``python-attrs`` tag on `StackOverflow <https://stackoverflow.com/questions/tagged/python-attrs>`_ to get help.
+Please use the ``python-attrs`` tag on `Stack Overflow <https://stackoverflow.com/questions/tagged/python-attrs>`_ to get help.
 
 Answering questions of your fellow developers is also a great way to help the project!
 
