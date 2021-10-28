@@ -1,7 +1,7 @@
 Python 2 Statement
 ==================
 
-While ``attrs`` has always been a Python 3-first package, we the maintainers are aware that Python 2 will not magically disappear in 2020.
+While ``attrs`` has always been a Python 3-first package, we the maintainers are aware that Python 2 has not magically disappeared in 2020.
 We are also aware that ``attrs`` is an important building block in many people's systems and livelihoods.
 
 As such, we do **not** have any immediate plans to drop Python 2 support in ``attrs``.
