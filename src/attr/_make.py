@@ -1864,6 +1864,14 @@ def _add_eq(cls, attrs=None):
     return cls
 
 
+# Thread-local global to track attrs instances which are already being repr'd.
+# This is needed because there is no other (thread-safe) way to pass info
+# about the instances that are already being repr'd through the call stack
+# in order to ensure we don't perform infinite recursion.
+#
+# For instance, if an instance contains a dict which contains that instance,
+# we need to know that we're already repr'ing the outside instance from within
+# the dict's repr() call.
 _already_repring = threading.local()
 
 if HAS_F_STRINGS:

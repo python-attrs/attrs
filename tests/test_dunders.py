@@ -364,8 +364,10 @@ class TestAddRepr(object):
             cycle = attr.ib(default=None)
 
         cycle = Cycle()
-        cycle.cycle = cycle
-        assert "Cycle(value=7, cycle=...)" == repr(cycle)
+        # Ensure that the reference cycle passes through a non-attrs object.
+        # This demonstrates the need for a thread-local "global" ID tracker.
+        cycle.cycle = [cycle]
+        assert "Cycle(value=7, cycle=[...])" == repr(cycle)
 
     def test_underscores(self):
         """
