@@ -47,6 +47,8 @@ INSTALL_REQUIRES = []
 EXTRAS_REQUIRE = {
     "docs": ["furo", "sphinx", "zope.interface", "sphinx-notfound-page"],
     "tests_no_zope": [
+        # For regression test to ensure cloudpickle compat doesn't break.
+        "cloudpickle",
         # 5.0 introduced toml; parallel was broken until 5.0.2
         "coverage[toml]>=5.0.2",
         "hypothesis",
