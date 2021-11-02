@@ -8,15 +8,12 @@ import warnings
 
 PY2 = sys.version_info[0] == 2
 PYPY = platform.python_implementation() == "PyPy"
-HAS_F_STRINGS = (
-    sys.version_info[:2] >= (3, 7)
-    if not PYPY
-    else sys.version_info[:2] >= (3, 6)
-)
+PY36 = sys.version_info[:2] >= (3, 6)
+HAS_F_STRINGS = PY36
 PY310 = sys.version_info[:2] >= (3, 10)
 
 
-if PYPY or sys.version_info[:2] >= (3, 6):
+if PYPY or PY36:
     ordered_dict = dict
 else:
     from collections import OrderedDict
