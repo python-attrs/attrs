@@ -1,0 +1,1 @@
+Added new context manager ``no_run_validators()`` as safer alternative to ``set_run_validators()``.

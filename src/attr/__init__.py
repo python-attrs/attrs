@@ -6,7 +6,7 @@ from functools import partial
 
 from . import converters, exceptions, filters, setters, validators
 from ._cmp import cmp_using
-from ._config import get_run_validators, set_run_validators
+from ._config import get_run_validators, no_run_validators, set_run_validators
 from ._funcs import asdict, assoc, astuple, evolve, has, resolve_types
 from ._make import (
     NOTHING,
@@ -64,6 +64,7 @@ __all__ = [
     "has",
     "ib",
     "make_class",
+    "no_run_validators",
     "resolve_types",
     "s",
     "set_run_validators",

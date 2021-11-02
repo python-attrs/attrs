@@ -338,6 +338,8 @@ Validators can be globally disabled if you want to run them only in development 
 
 .. autofunction:: get_run_validators
 
+.. autofunction:: no_run_validators
+
 
 .. _api_validators:
 

@@ -41,3 +41,24 @@ class TestConfig(object):
         with pytest.raises(TypeError) as e:
             _config.set_run_validators("False")
         assert "'run' must be bool." == e.value.args[0]
+
+    def test_no_run_validators(self):
+        """
+        The `no_run_validators` context manager disables running validators,
+        but only within its context.
+        """
+        assert _config._run_validators is True
+        with _config.no_run_validators():
+            assert _config._run_validators is False
+        assert _config._run_validators is True
+
+    def test_no_run_validators_with_errors(self):
+        """
+        Running validators is re-enabled even if an error is raised.
+        """
+        assert _config._run_validators is True
+        with pytest.raises(ValueError):
+            with _config.no_run_validators():
+                assert _config._run_validators is False
+                raise ValueError("haha!")
+        assert _config._run_validators is True
