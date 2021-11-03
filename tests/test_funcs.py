@@ -645,3 +645,50 @@ class TestEvolve(object):
         assert Cls1({"foo": 42, "param2": 42}) == attr.evolve(
             obj1a, param1=obj2b
         )
+
+    def test_recursive(self):
+        """
+        evolve() recursively evolves nested attrs classes when a dict is
+        passed for an attribute.
+        """
+
+        @attr.s
+        class N2(object):
+            e = attr.ib(type=int)
+
+        @attr.s
+        class N1(object):
+            c = attr.ib(type=N2)
+            d = attr.ib(type=int)
+
+        @attr.s
+        class C(object):
+            a = attr.ib(type=N1)
+            b = attr.ib(type=int)
+
+        c1 = C(N1(N2(1), 2), 3)
+        c2 = evolve(c1, a={"c": {"e": 23}}, b=42)
+
+        assert c2 == C(N1(N2(23), 2), 42)
+
+    def test_recursive_attrs_classes(self):
+        """
+        evolve() can evolve fields that are instances of attrs classes.
+        """
+
+        @attr.s
+        class Child(object):
+            param2 = attr.ib()
+
+        @attr.s
+        class Parent(object):
+            param1 = attr.ib(type=Child)
+
+        obj2a = Child(param2="a")
+        obj2b = Child(param2="b")
+
+        obj1a = Parent(param1=obj2a)
+
+        assert Parent(param1=Child(param2="b")) == attr.evolve(
+            obj1a, param1=obj2b
+        )

@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function
 
 import copy
 
-from ._compat import iteritems
+from ._compat import Mapping, iteritems
 from ._make import NOTHING, _obj_setattr, fields
 from .exceptions import AttrsAttributeNotFoundError
 
@@ -321,6 +321,11 @@ def evolve(inst, **changes):
     :param inst: Instance of a class with ``attrs`` attributes.
     :param changes: Keyword changes in the new copy.
 
+        Nested ``attrs`` classes can be updated by passing (nested) dicts of
+        values.  This only works if the parent class uses type annotations or
+        passes the child class as ``type`` to
+        :func:`attr.ib()`/:func:`attr.field()`.
+
     :return: A copy of inst with *changes* incorporated.
 
     :raise TypeError: If *attr_name* couldn't be found in the class
@@ -328,7 +333,8 @@ def evolve(inst, **changes):
     :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
         class.
 
-    ..  versionadded:: 17.1.0
+    .. versionadded:: 17.1.0
+    .. versionchanged:: 21.3.0
     """
     cls = inst.__class__
     attrs = fields(cls)
@@ -337,8 +343,13 @@ def evolve(inst, **changes):
             continue
         attr_name = a.name  # To deal with private attributes.
         init_name = attr_name if attr_name[0] != "_" else attr_name[1:]
+        old_value = getattr(inst, attr_name)
         if init_name not in changes:
-            changes[init_name] = getattr(inst, attr_name)
+            # Add original value to changes
+            changes[init_name] = old_value
+        elif has(a.type) and isinstance(changes[init_name], Mapping):
+            # Evolve nested attrs classes
+            changes[init_name] = evolve(old_value, **changes[init_name])
 
     return cls(**changes)
 
