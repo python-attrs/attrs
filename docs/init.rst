@@ -242,10 +242,10 @@ If you define validators both ways for an attribute, they are both ran:
 
 And finally you can disable validators globally:
 
-   >>> attr.set_run_validators(False)
+   >>> attr.validators.set_disabled(True)
    >>> C("128")
    C(x='128')
-   >>> attr.set_run_validators(True)
+   >>> attr.validators.set_disabled(False)
    >>> C("128")
    Traceback (most recent call last):
       ...
@@ -253,7 +253,7 @@ And finally you can disable validators globally:
 
 You can achieve the same by using the context manager:
 
-   >>> with attr.no_run_validators():
+   >>> with attr.validators.disabled():
    ...     C("128")
    C(x='128')
    >>> C("128")

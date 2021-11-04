@@ -338,8 +338,6 @@ Validators can be globally disabled if you want to run them only in development 
 
 .. autofunction:: get_run_validators
 
-.. autofunction:: no_run_validators
-
 
 .. _api_validators:
 
@@ -591,6 +589,14 @@ Validators
         Traceback (most recent call last):
             ...
         TypeError: ("'x' must be <class 'str'> (got 7 that is a <class 'int'>).", Attribute(name='x', default=NOTHING, validator=<deep_mapping validator for objects mapping <instance_of validator for type <class 'str'>> to <instance_of validator for type <class 'int'>>>, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False), <class 'str'>, 7)
+
+Validators can be globally disabled if you want to run them only in development and tests but not in production because you fear their performance impact:
+
+.. autofunction:: attr.validators.set_disabled
+
+.. autofunction:: attr.validators.get_disabled
+
+.. autofunction:: attr.validators.disabled
 
 
 Converters
