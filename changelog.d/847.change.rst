@@ -1,2 +1,1 @@
-Attrs classes are now fully compatible with cloudpickle.
-`#847 <https://github.com/python-attrs/attrs/issues/847>`_
+``attrs`` classes are now fully compatible with `cloudpickle <https://github.com/cloudpipe/cloudpickle>`_ (no need to disabled ``repr`` anymore).
