@@ -1,0 +1,2 @@
+Attrs classes are now fully compatible with cloudpickle.
+`#847 <https://github.com/python-attrs/attrs/issues/847>`_
