@@ -86,7 +86,7 @@ Never again violate the `single responsibility principle <https://en.wikipedia.o
 ----
 
 In case you're wondering: this example uses ``attrs``'s `modern APIs <https://www.attrs.org/en/stable/api.html#next-generation-apis>`_ that have been introduced in version 20.1.0.
-The old APIs (``@attr.s``, ``attr.ib``) will remain indefinitely.
+The classic APIs (``@attr.s``, ``attr.ib``, ``@attr.attrs``, and ``attr.attrib``) will remain indefinitely.
 `Type annotations <https://www.attrs.org/en/latest/types.html>`_ will also stay entirely **optional** forever.
 
 .. -getting-help-
