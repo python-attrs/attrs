@@ -35,12 +35,13 @@ For that, it gives you a class decorator and a way to declaratively define the a
 
 .. code-block:: pycon
 
+   >>> from typing import List
    >>> import attr
 
-   >>> @attr.s
-   ... class SomeClass(object):
-   ...     a_number = attr.ib(default=42)
-   ...     list_of_numbers = attr.ib(factory=list)
+   >>> @attr.define
+   ... class SomeClass:
+   ...     a_number: int = 42
+   ...     list_of_numbers: List[int] = attr.Factory(list)
    ...
    ...     def hard_math(self, another_number):
    ...         return self.a_number + sum(self.list_of_numbers) * another_number
@@ -78,12 +79,15 @@ After *declaring* your attributes ``attrs`` gives you:
 
 *without* writing dull boilerplate code again and again and *without* runtime performance penalties.
 
-On Python 3.6 and later, you can often even drop the calls to ``attr.ib()`` by using `type annotations <https://www.attrs.org/en/latest/types.html>`_.
-
 This gives you the power to use actual classes with actual types in your code instead of confusing ``tuple``\ s or `confusingly behaving <https://www.attrs.org/en/stable/why.html#namedtuples>`_ ``namedtuple``\ s.
 Which in turn encourages you to write *small classes* that do `one thing well <https://www.destroyallsoftware.com/talks/boundaries>`_.
 Never again violate the `single responsibility principle <https://en.wikipedia.org/wiki/Single_responsibility_principle>`_ just because implementing ``__init__`` et al is a painful drag.
 
+----
+
+In case you're wondering: this example uses ``attrs``'s `modern APIs <https://www.attrs.org/en/stable/api.html#next-generation-apis>`_ that have been introduced in version 20.1.0.
+The old APIs (``@attr.s``, ``attr.ib``) will remain indefinitely.
+`Type annotations <https://www.attrs.org/en/latest/types.html>`_ will also stay entirely **optional** forever.
 
 .. -getting-help-
 
