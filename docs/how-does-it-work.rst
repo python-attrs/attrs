@@ -24,10 +24,11 @@ To be very clear: if you define a class with a single attribute without a defaul
 
 .. doctest::
 
-   >>> import attr, inspect
-   >>> @attr.s
-   ... class C(object):
-   ...     x = attr.ib()
+   >>> import inspect
+   >>> from attr import define
+   >>> @define
+   ... class C:
+   ...     x: int
    >>> print(inspect.getsource(C.__init__))
    def __init__(self, x):
        self.x = x
@@ -102,6 +103,6 @@ Pick what's more important to you.
 Summary
 +++++++
 
-You should avoid instantiating lots of frozen slotted classes (i.e. ``@attr.s(slots=True, frozen=True)``) in performance-critical code.
+You should avoid instantiating lots of frozen slotted classes (i.e. ``@frozen``) in performance-critical code.
 
 Frozen dict classes have barely a performance impact, unfrozen slotted classes are even *faster* than unfrozen dict classes (i.e. regular classes).

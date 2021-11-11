@@ -22,11 +22,11 @@ Glossary
 
         .. doctest::
 
-          >>> import attr
-          >>> @attr.s(slots=True)
-          ... class Coordinates(object):
-          ...     x = attr.ib()
-          ...     y = attr.ib()
+          >>> from attr import define
+          >>> @define
+          ... class Coordinates:
+          ...     x: int
+          ...     y: int
           ...
           >>> c = Coordinates(x=1, y=2)
           >>> c.z = 3
@@ -47,9 +47,9 @@ Glossary
         .. doctest::
 
            >>> import attr, unittest.mock
-           >>> @attr.s(slots=True)
-           ... class Slotted(object):
-           ...     x = attr.ib()
+           >>> @define
+           ... class Slotted:
+           ...     x: int
            ...
            ...     def method(self):
            ...         return self.x
@@ -61,7 +61,7 @@ Glossary
            Traceback (most recent call last):
               ...
            AttributeError: 'Slotted' object attribute 'method' is read-only
-           >>> @attr.s  # implies 'slots=False'
+           >>> @define(slots=False)
            ... class Dicted(Slotted):
            ...     pass
            >>> d = Dicted(42)

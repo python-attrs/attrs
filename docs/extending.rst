@@ -8,20 +8,20 @@ So it is fairly simple to build your own decorators on top of ``attrs``:
 
 .. doctest::
 
-   >>> import attr
+   >>> from attr import define
    >>> def print_attrs(cls):
    ...     print(cls.__attrs_attrs__)
    ...     return cls
    >>> @print_attrs
-   ... @attr.s
-   ... class C(object):
-   ...     a = attr.ib()
-   (Attribute(name='a', default=NOTHING, validator=None, repr=True, eq=True, eq_key=None, order=True, order_key=None, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False, on_setattr=None),)
+   ... @define
+   ... class C:
+   ...     a: int
+   (Attribute(name='a', default=NOTHING, validator=None, repr=True, eq=True, eq_key=None, order=True, order_key=None, hash=None, init=True, metadata=mappingproxy({}), type=int, converter=None, kw_only=False, inherited=False, on_setattr=None),)
 
 
 .. warning::
 
-   The `attr.s` decorator **must** be applied first because it puts ``__attrs_attrs__`` in place!
+   The `define`/`attr.s` decorator **must** be applied first because it puts ``__attrs_attrs__`` in place!
    That means that is has to come *after* your decorator because::
 
       @a
@@ -131,11 +131,11 @@ This information is available to you:
 
 .. doctest::
 
-   >>> import attr
-   >>> @attr.s
-   ... class C(object):
-   ...     x: int = attr.ib()
-   ...     y = attr.ib(type=str)
+   >>> from attr import define, field
+   >>> @define
+   ... class C:
+   ...     x: int
+   ...     y = field(type=str)
    >>> attr.fields(C).x.type
    <class 'int'>
    >>> attr.fields(C).y.type
@@ -160,13 +160,13 @@ Here are some tips for effective use of metadata:
 
     from mylib import MY_METADATA_KEY
 
-    @attr.s
-    class C(object):
-      x = attr.ib(metadata={MY_METADATA_KEY: 1})
+    @define
+    class C:
+      x = field(metadata={MY_METADATA_KEY: 1})
 
   Metadata should be composable, so consider supporting this approach even if you decide implementing your metadata in one of the following ways.
 
-- Expose ``attr.ib`` wrappers for your specific metadata.
+- Expose ``field`` wrappers for your specific metadata.
   This is a more graceful approach if your users don't require metadata from other libraries.
 
   .. doctest::
@@ -180,14 +180,14 @@ Here are some tips for effective use of metadata:
     ... ):
     ...     metadata = dict() if not metadata else metadata
     ...     metadata[MY_TYPE_METADATA] = cls
-    ...     return attr.ib(
+    ...     return field(
     ...         default=default, validator=validator, repr=repr,
     ...         eq=eq, order=order, hash=hash, init=init,
     ...         metadata=metadata, type=type, converter=converter
     ...     )
     >>>
-    >>> @attr.s
-    ... class C(object):
+    >>> @define
+    ... class C:
     ...     x = typed(int, default=1, init=False)
     >>> attr.fields(C).x.metadata[MY_TYPE_METADATA]
     <class 'int'>
@@ -204,7 +204,7 @@ Its main purpose is to automatically add converters to attributes based on their
 
 This hook must have the following signature:
 
-.. function:: your_hook(cls: type, fields: List[attr.Attribute]) -> List[attr.Attribute]
+.. function:: your_hook(cls: type, fields: list[attr.Attribute]) -> list[attr.Attribute]
    :noindex:
 
 - *cls* is your class right *before* it is being converted into an attrs class.
@@ -221,7 +221,7 @@ For example, let's assume that you really don't like floats:
    >>> def drop_floats(cls, fields):
    ...     return [f for f in fields if f.type not in {float, 'float'}]
    ...
-   >>> @attr.frozen(field_transformer=drop_floats)
+   >>> @frozen(field_transformer=drop_floats)
    ... class Data:
    ...     a: int
    ...     b: float
@@ -249,7 +249,7 @@ A more realistic example would be to automatically convert data that you, e.g., 
    ...         results.append(field.evolve(converter=converter))
    ...     return results
    ...
-   >>> @attr.frozen(field_transformer=auto_convert)
+   >>> @frozen(field_transformer=auto_convert)
    ... class Data:
    ...     a: int
    ...     b: str
@@ -271,7 +271,7 @@ However, the result can not always be serialized since most data types will rema
    >>> import json
    >>> import datetime
    >>>
-   >>> @attr.frozen
+   >>> @frozen
    ... class Data:
    ...    dt: datetime.datetime
    ...
