@@ -4,12 +4,13 @@ import copy
 import inspect
 import linecache
 import sys
-import threading
 import warnings
 
 from operator import itemgetter
 
-from . import _config, setters
+# We need to import _compat itself in addition to the _compat members to avoid
+# having the thread-local in the globals here.
+from . import _compat, _config, setters
 from ._compat import (
     HAS_F_STRINGS,
     PY2,
@@ -1864,8 +1865,6 @@ def _add_eq(cls, attrs=None):
     return cls
 
 
-_already_repring = threading.local()
-
 if HAS_F_STRINGS:
 
     def _make_repr(attrs, ns, cls):
@@ -1883,7 +1882,7 @@ if HAS_F_STRINGS:
             for name, r, _ in attr_names_with_reprs
             if r != repr
         }
-        globs["_already_repring"] = _already_repring
+        globs["_compat"] = _compat
         globs["AttributeError"] = AttributeError
         globs["NOTHING"] = NOTHING
         attribute_fragments = []
@@ -1908,24 +1907,23 @@ if HAS_F_STRINGS:
         else:
             cls_name_fragment = ns + ".{self.__class__.__name__}"
 
-        lines = []
-        lines.append("def __repr__(self):")
-        lines.append("  try:")
-        lines.append("    working_set = _already_repring.working_set")
-        lines.append("  except AttributeError:")
-        lines.append("    working_set = {id(self),}")
-        lines.append("    _already_repring.working_set = working_set")
-        lines.append("  else:")
-        lines.append("    if id(self) in working_set:")
-        lines.append("      return '...'")
-        lines.append("    else:")
-        lines.append("      working_set.add(id(self))")
-        lines.append("  try:")
-        lines.append(
-            "    return f'%s(%s)'" % (cls_name_fragment, repr_fragment)
-        )
-        lines.append("  finally:")
-        lines.append("    working_set.remove(id(self))")
+        lines = [
+            "def __repr__(self):",
+            "  try:",
+            "    already_repring = _compat.repr_context.already_repring",
+            "  except AttributeError:",
+            "    already_repring = {id(self),}",
+            "    _compat.repr_context.already_repring = already_repring",
+            "  else:",
+            "    if id(self) in already_repring:",
+            "      return '...'",
+            "    else:",
+            "      already_repring.add(id(self))",
+            "  try:",
+            "    return f'%s(%s)'" % (cls_name_fragment, repr_fragment),
+            "  finally:",
+            "    already_repring.remove(id(self))",
+        ]
 
         return _make_method(
             "__repr__", "\n".join(lines), unique_filename, globs=globs
@@ -1954,12 +1952,12 @@ else:
             Automatically created by attrs.
             """
             try:
-                working_set = _already_repring.working_set
+                already_repring = _compat.repr_context.already_repring
             except AttributeError:
-                working_set = set()
-                _already_repring.working_set = working_set
+                already_repring = set()
+                _compat.repr_context.already_repring = already_repring
 
-            if id(self) in working_set:
+            if id(self) in already_repring:
                 return "..."
             real_cls = self.__class__
             if ns is None:
@@ -1979,7 +1977,7 @@ else:
             # for the duration of this call, it's safe to depend on id(...)
             # stability, and not need to track the instance and therefore
             # worry about properties like weakref- or hash-ability.
-            working_set.add(id(self))
+            already_repring.add(id(self))
             try:
                 result = [class_name, "("]
                 first = True
@@ -1993,7 +1991,7 @@ else:
                     )
                 return "".join(result) + ")"
             finally:
-                working_set.remove(id(self))
+                already_repring.remove(id(self))
 
         return __repr__
 
