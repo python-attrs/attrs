@@ -367,6 +367,23 @@ class TestAddRepr(object):
         cycle.cycle = cycle
         assert "Cycle(value=7, cycle=...)" == repr(cycle)
 
+    def test_infinite_recursion_long_cycle(self):
+        """
+        A cyclic graph can pass through other non-attrs objects, and repr will
+        still emit an ellipsis and not raise an exception.
+        """
+
+        @attr.s
+        class LongCycle(object):
+            value = attr.ib(default=14)
+            cycle = attr.ib(default=None)
+
+        cycle = LongCycle()
+        # Ensure that the reference cycle passes through a non-attrs object.
+        # This demonstrates the need for a thread-local "global" ID tracker.
+        cycle.cycle = {"cycle": [cycle]}
+        assert "LongCycle(value=14, cycle={'cycle': [...]})" == repr(cycle)
+
     def test_underscores(self):
         """
         repr does not strip underscores.
