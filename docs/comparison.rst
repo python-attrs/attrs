@@ -42,7 +42,7 @@ It is then used as a key function like you may know from `sorted`:
 
    >>> @define
    ... class C:
-   ...     x: str = attr.ib(order=int)
+   ...     x: str = field(order=int)
 
    >>> C("10") > C("2")
    True
