@@ -1,5 +1,7 @@
 ---
 version: 2
+formats: all
+
 python:
   # Keep version in sync with tox.ini (docs and gh-actions).
   version: 3.8
