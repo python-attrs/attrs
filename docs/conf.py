@@ -159,7 +159,7 @@ texinfo_documents = [
         u"attrs Documentation",
         u"Hynek Schlawack",
         "attrs",
-        "One line description of project.",
+        "Python Clases Without Boilerplate",
         "Miscellaneous",
     )
 ]
