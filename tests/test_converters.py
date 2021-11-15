@@ -148,14 +148,24 @@ class TestToBool(object):
         """
         Fails if truthy values are incorrectly converted.
         """
+        assert to_bool("true")
+        assert to_bool("True")
         assert to_bool("t")
+        assert to_bool("T")
         assert to_bool("yes")
+        assert to_bool("Yes")
         assert to_bool("on")
+        assert to_bool("On")
 
     def test_falsy(self):
         """
         Fails if falsy values are incorrectly converted.
         """
+        assert not to_bool("false")
+        assert not to_bool("False")
         assert not to_bool("f")
+        assert not to_bool("F")
         assert not to_bool("no")
+        assert not to_bool("No")
         assert not to_bool("off")
+        assert not to_bool("Off")
