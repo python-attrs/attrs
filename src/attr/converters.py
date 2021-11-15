@@ -118,18 +118,18 @@ def to_bool(val):
     Values mapping to :code:`True`:
 
     - :code:`True`
-    - :code:`"true"` / :code:`"t"`
-    - :code:`"yes"` / :code:`"y"`
-    - :code:`"on"`
+    - :code:`"true"` / :code:`"t"` / :code:`"True"` / :code:`"T"`
+    - :code:`"yes"` / :code:`"y"` / :code:`"Yes"` / :code:`"T"`
+    - :code:`"on"` / :code:`"On"`
     - :code:`"1"`
     - :code:`1`
 
     Values mapping to :code:`False`:
 
     - :code:`False`
-    - :code:`"false"` / :code:`"f"`
-    - :code:`"no"` / :code:`"n"`
-    - :code:`"off"`
+    - :code:`"false"` / :code:`"f"` / :code:`"False"` / :code:`"F"`
+    - :code:`"no"` / :code:`"n"` / :code:`"No"` / :code:`"N"`
+    - :code:`"off"` / :code:`"Off"`
     - :code:`"0"`
     - :code:`0`
 
@@ -139,8 +139,8 @@ def to_bool(val):
     """
     if isinstance(val, str):
         val = val.lower()
-    truthy = {True, "true", "t", "yes", "y", "on", "1", 1}
-    falsy = {False, "false", "f", "no", "n", "off", "0", 0}
+    truthy = {True, "true", "True", "t", "T", "yes", "Yes", "y", "Y", "on", "On", "1", 1}
+    falsy = {False, "false", "False", "f", "F", "no", "No", "n", "N", "off", "Off", "0", 0}
     try:
         if val in truthy:
             return True
