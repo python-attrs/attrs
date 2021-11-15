@@ -3,7 +3,6 @@ import sys
 from typing import (
     Any,
     Callable,
-    ContextManager,
     Dict,
     Generic,
     List,
@@ -474,7 +473,6 @@ def evolve(inst: _T, **changes: Any) -> _T: ...
 
 def set_run_validators(run: bool) -> None: ...
 def get_run_validators() -> bool: ...
-def no_run_validators() -> ContextManager[None]: ...
 
 # aliases --
 

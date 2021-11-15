@@ -183,6 +183,22 @@ class Validated:
     )
 
 
+@attr.define
+class Validated2:
+    num: int = attr.field(validator=attr.validators.ge(0))
+
+
+with attr.validators.disabled():
+    Validated2(num=-1)
+
+try:
+    attr.validators.set_disabled(True)
+    Validated2(num=-1)
+    assert attr.validators.get_disabled() is True
+finally:
+    attr.validators.set_disabled(False)
+
+
 # Custom repr()
 @attr.s
 class WithCustomRepr:

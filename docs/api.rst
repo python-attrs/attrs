@@ -590,7 +590,7 @@ Validators
             ...
         TypeError: ("'x' must be <class 'str'> (got 7 that is a <class 'int'>).", Attribute(name='x', default=NOTHING, validator=<deep_mapping validator for objects mapping <instance_of validator for type <class 'str'>> to <instance_of validator for type <class 'int'>>>, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False), <class 'str'>, 7)
 
-Validators can be globally disabled if you want to run them only in development and tests but not in production because you fear their performance impact:
+Validators can be both globally and locally disabled:
 
 .. autofunction:: attr.validators.set_disabled
 
