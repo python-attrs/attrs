@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import codecs
 import os
 import re
@@ -66,8 +64,8 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = u"attrs"
-copyright = u"2015, Hynek Schlawack"
+project = "attrs"
+copyright = "2015, Hynek Schlawack"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -75,7 +73,7 @@ copyright = u"2015, Hynek Schlawack"
 #
 # The short X.Y version.
 release = find_version("../src/attr/__init__.py")
-version = release.rsplit(u".", 1)[0]
+version = release.rsplit(".", 1)[0]
 # The full version, including alpha/beta/rc tags.
 
 # List of patterns, relative to source directory, that match files and
@@ -142,9 +140,7 @@ htmlhelp_basename = "attrsdoc"
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    ("index", "attrs", u"attrs Documentation", [u"Hynek Schlawack"], 1)
-]
+man_pages = [("index", "attrs", "attrs Documentation", ["Hynek Schlawack"], 1)]
 
 
 # -- Options for Texinfo output -------------------------------------------
@@ -156,8 +152,8 @@ texinfo_documents = [
     (
         "index",
         "attrs",
-        u"attrs Documentation",
-        u"Hynek Schlawack",
+        "attrs Documentation",
+        "Hynek Schlawack",
         "attrs",
         "Python Clases Without Boilerplate",
         "Miscellaneous",
