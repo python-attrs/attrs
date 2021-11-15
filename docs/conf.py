@@ -65,7 +65,8 @@ master_doc = "index"
 
 # General information about the project.
 project = "attrs"
-copyright = "2015, Hynek Schlawack"
+author = "Hynek Schlawack"
+copyright = f"2015, {author}"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -159,6 +160,8 @@ texinfo_documents = [
         "Miscellaneous",
     )
 ]
+
+epub_description = "Python Clases Without Boilerplate"
 
 intersphinx_mapping = {
     "https://docs.python.org/3": None,
