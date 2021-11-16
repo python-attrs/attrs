@@ -53,8 +53,8 @@ If playful naming turns you off, ``attrs`` comes with serious-business aliases:
    >>> from attr import attrs, attrib, fields
    >>> @attrs
    ... class SeriousCoordinates:
-   ...     x = attrib()
-   ...     y = attrib()
+   ...     x: int = attrib()
+   ...     y: int = attrib()
    >>> SeriousCoordinates(1, 2)
    SeriousCoordinates(x=1, y=2)
    >>> fields(Coordinates) == fields(SeriousCoordinates)
@@ -73,7 +73,7 @@ For private attributes, ``attrs`` will strip the leading underscores for keyword
 If you want to initialize your private attributes yourself, you can do that too:
 
 .. doctest::
-
+   >>> from attr import field
    >>> @define
    ... class C:
    ...     _x: int = field(init=False, default=42)
@@ -104,16 +104,16 @@ This is useful in times when you want to enhance classes that are not yours (nic
 
 .. doctest::
 
-   >>> @define
+   >>> @define(slots=False)
    ... class A:
    ...     a: int
    ...     def get_a(self):
    ...         return self.a
-   >>> @define
+   >>> @define(slots=False)
    ... class B:
    ...     b: int
-   >>> @define
-   ... class C(A, B):
+   >>> @define(slots=False)
+   ... class C(B, A):
    ...     c: int
    >>> i = C(1, 2, 3)
    >>> i
@@ -123,25 +123,9 @@ This is useful in times when you want to enhance classes that are not yours (nic
    >>> i.get_a()
    1
 
+Slot classes, which are default for the new APIs, don't play well with multiple inheritance so we don't use them in the example.
+
 The order of the attributes is defined by the `MRO <https://www.python.org/download/releases/2.3/mro/>`_.
-
-In Python 3, classes defined within other classes are `detected <https://www.python.org/dev/peps/pep-3155/>`_ and reflected in the ``__repr__``.
-In Python 2 though, it's impossible.
-Therefore ``@define`` comes with the ``repr_ns`` option to set it manually:
-
-.. doctest::
-
-   >>> @define
-   ... class C:
-   ...     @define(repr_ns="C")
-   ...     class D:
-   ...         pass
-   >>> C.D()
-   C.D()
-
-``repr_ns`` works on both Python 2 and 3.
-On Python 3 it overrides the implicit detection.
-
 
 Keyword-only Attributes
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -219,7 +203,9 @@ When you have a class with data, it often is very convenient to transform that c
 
 .. doctest::
 
-   >>> attr.asdict(Coordinates(x=1, y=2))
+   >>> from attr import asdict
+
+   >>> asdict(Coordinates(x=1, y=2))
    {'x': 1, 'y': 2}
 
 Some fields cannot or should not be transformed.
@@ -227,23 +213,28 @@ For that, `attr.asdict` offers a callback that decides whether an attribute shou
 
 .. doctest::
 
-   >>> @define
-   ... class UserList:
-   ...     users: List
+   >>> from typing import List
+   >>> from attr import asdict
 
    >>> @define
    ... class User(object):
    ...     email: str
    ...     password: str
 
-   >>> attr.asdict(UserList([User("jane@doe.invalid", "s33kred"),
-   ...                       User("joe@doe.invalid", "p4ssw0rd")]),
-   ...             filter=lambda attr, value: attr.name != "password")
+   >>> @define
+   ... class UserList:
+   ...     users: List[User]
+
+   >>> asdict(UserList([User("jane@doe.invalid", "s33kred"),
+   ...                  User("joe@doe.invalid", "p4ssw0rd")]),
+   ...        filter=lambda attr, value: attr.name != "password")
    {'users': [{'email': 'jane@doe.invalid'}, {'email': 'joe@doe.invalid'}]}
 
 For the common case where you want to `include <attr.filters.include>` or `exclude <attr.filters.exclude>` certain types or attributes, ``attrs`` ships with a few helpers:
 
 .. doctest::
+
+   >>> from attr import asdict, filters, fields
 
    >>> @define
    ... class User:
@@ -251,9 +242,9 @@ For the common case where you want to `include <attr.filters.include>` or `exclu
    ...     password: str
    ...     id: int
 
-   >>> attr.asdict(
+   >>> asdict(
    ...     User("jane", "s33kred", 42),
-   ...     filter=attr.filters.exclude(attr.fields(User).password, int))
+   ...     filter=filters.exclude(fields(User).password, int))
    {'login': 'jane'}
 
    >>> @define
@@ -262,8 +253,8 @@ For the common case where you want to `include <attr.filters.include>` or `exclu
    ...     y: str
    ...     z: int
 
-   >>> attr.asdict(C("foo", "2", 3),
-   ...             filter=attr.filters.include(int, attr.fields(C).x))
+   >>> asdict(C("foo", "2", 3),
+   ...        filter=filters.include(int, fields(C).x))
    {'x': 'foo', 'z': 3}
 
 Other times, all you want is a tuple and ``attrs`` won't let you down:
@@ -491,18 +482,23 @@ If you're the author of a third-party library with ``attrs`` integration, please
 Types
 -----
 
-``attrs`` also allows you to associate a type with an attribute using either the *type* argument to `attr.ib` or -- as of Python 3.6 -- using `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_-annotations:
+``attrs`` also allows you to associate a type with an attribute using either the *type* argument to `attr.ib`/`attrib` or -- as of Python 3.6 -- using `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_-annotations:
 
 
 .. doctest::
 
+   >>> from attr import attrib, fields
+
    >>> @define
    ... class C:
-   ...     x = field(type=int)
-   ...     y: int
-   >>> attr.fields(C).x.type
+   ...     x: int
+   >>> fields(C).x.type
    <class 'int'>
-   >>> attr.fields(C).y.type
+
+   >>> @define
+   ... class C:
+   ...     x = attrib(type=int)
+   >>> fields(C).x.type
    <class 'int'>
 
 If you don't mind annotating *all* attributes, you can even drop the `field` and assign default values instead:

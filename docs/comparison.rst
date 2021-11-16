@@ -40,7 +40,7 @@ It is then used as a key function like you may know from `sorted`:
    >>> S("foo") == S("FOO")
    True
 
-   >>> @define
+   >>> @define(order=True)
    ... class C:
    ...     x: str = field(order=int)
 

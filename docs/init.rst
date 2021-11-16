@@ -57,7 +57,7 @@ One thing people tend to find confusing is the treatment of private attributes t
    ... class C:
    ...    _x: int
    >>> inspect.signature(C.__init__)
-   <Signature (self, x) -> None>
+   <Signature (self, x: int) -> None>
 
 There really isn't a right or wrong, it's a matter of taste.
 But it's important to be aware of it because it can lead to surprising syntax errors:
@@ -88,7 +88,7 @@ This is when default values come into play:
    >>> @define
    ... class C:
    ...     a: int = 42
-   ...     b: list = field(factory=Factory(list))
+   ...     b: list = field(factory=list)
    ...     c: list = Factory(list)  # syntactic sugar for above
    ...     d: dict = field()
    ...     @d.default
@@ -150,7 +150,7 @@ If the value does not pass the validator's standards, it just raises an appropri
 
    >>> @define
    ... class C:
-   ...     x: int
+   ...     x: int = field()
    ...     @x.validator
    ...     def _check_x(self, attribute, value):
    ...         if value > 42:
@@ -172,7 +172,7 @@ If you want to re-use your validators, you should have a look at the ``validator
 
 It takes either a callable or a list of callables (usually functions) and treats them as validators that receive the same arguments as with the decorator approach.
 
-Since the validators runs *after* the instance is initialized, you can refer to other attributes while validating:
+Since the validators run *after* the instance is initialized, you can refer to other attributes while validating:
 
 .. doctest::
 
@@ -194,12 +194,12 @@ Since the validators runs *after* the instance is initialized, you can refer to 
 This example also shows of some syntactic sugar for using the `attr.validators.and_` validator: if you pass a list, all validators have to pass.
 
 ``attrs`` won't intercept your changes to those attributes but you can always call `attr.validate` on any instance to verify that it's still valid:
+When using `define` or `frozen`, ``attrs`` will run the validators even when setting the attribute.
 
 .. doctest::
 
    >>> i = C(4, 5)
-   >>> i.x = 5  # works, no magic here
-   >>> attr.validate(i)
+   >>> i.x = 5
    Traceback (most recent call last):
       ...
    ValueError: 'x' has to be smaller than 'y'!

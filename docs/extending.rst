@@ -16,7 +16,7 @@ So it is fairly simple to build your own decorators on top of ``attrs``:
    ... @define
    ... class C:
    ...     a: int
-   (Attribute(name='a', default=NOTHING, validator=None, repr=True, eq=True, eq_key=None, order=True, order_key=None, hash=None, init=True, metadata=mappingproxy({}), type=int, converter=None, kw_only=False, inherited=False, on_setattr=None),)
+   (Attribute(name='a', default=NOTHING, validator=None, repr=True, eq=True, eq_key=None, order=True, order_key=None, hash=None, init=True, metadata=mappingproxy({}), type=<class 'int'>, converter=None, kw_only=False, inherited=False, on_setattr=None),)
 
 
 .. warning::
@@ -125,20 +125,20 @@ Types
 ``attrs`` offers two ways of attaching type information to attributes:
 
 - `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_ annotations on Python 3.6 and later,
-- and the *type* argument to `attr.ib`.
+- and the *type* argument to `attr.ib`/`attrib`.
 
 This information is available to you:
 
 .. doctest::
 
-   >>> from attr import define, field
+   >>> from attr import attrib, define, field, fields
    >>> @define
    ... class C:
-   ...     x: int
-   ...     y = field(type=str)
-   >>> attr.fields(C).x.type
+   ...     x: int = field()
+   ...     y = attrib(type=str)
+   >>> fields(C).x.type
    <class 'int'>
-   >>> attr.fields(C).y.type
+   >>> fields(C).y.type
    <class 'str'>
 
 Currently, ``attrs`` doesn't do anything with this information but it's very useful if you'd like to write your own validators or serializers!
@@ -171,25 +171,26 @@ Here are some tips for effective use of metadata:
 
   .. doctest::
 
+    >>> from attr import fields, NOTHING
     >>> MY_TYPE_METADATA = '__my_type_metadata'
     >>>
     >>> def typed(
-    ...     cls, default=attr.NOTHING, validator=None, repr=True,
+    ...     cls, default=NOTHING, validator=None, repr=True,
     ...     eq=True, order=None, hash=None, init=True, metadata={},
-    ...     type=None, converter=None
+    ...     converter=None
     ... ):
     ...     metadata = dict() if not metadata else metadata
     ...     metadata[MY_TYPE_METADATA] = cls
     ...     return field(
     ...         default=default, validator=validator, repr=repr,
     ...         eq=eq, order=order, hash=hash, init=init,
-    ...         metadata=metadata, type=type, converter=converter
+    ...         metadata=metadata, converter=converter
     ...     )
     >>>
     >>> @define
     ... class C:
-    ...     x = typed(int, default=1, init=False)
-    >>> attr.fields(C).x.metadata[MY_TYPE_METADATA]
+    ...     x: int = typed(int, default=1, init=False)
+    >>> fields(C).x.metadata[MY_TYPE_METADATA]
     <class 'int'>
 
 
@@ -270,12 +271,13 @@ However, the result can not always be serialized since most data types will rema
 
    >>> import json
    >>> import datetime
+   >>> from attr import asdict
    >>>
    >>> @frozen
    ... class Data:
    ...    dt: datetime.datetime
    ...
-   >>> data = attr.asdict(Data(datetime.datetime(2020, 5, 4, 13, 37)))
+   >>> data = asdict(Data(datetime.datetime(2020, 5, 4, 13, 37)))
    >>> data
    {'dt': datetime.datetime(2020, 5, 4, 13, 37)}
    >>> json.dumps(data)
@@ -291,12 +293,13 @@ It has the signature
 
 .. doctest::
 
+   >>> from attr import asdict
    >>> def serialize(inst, field, value):
    ...     if isinstance(value, datetime.datetime):
    ...         return value.isoformat()
    ...     return value
    ...
-   >>> data = attr.asdict(
+   >>> data = asdict(
    ...     Data(datetime.datetime(2020, 5, 4, 13, 37)),
    ...     value_serializer=serialize,
    ... )
