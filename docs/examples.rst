@@ -50,14 +50,14 @@ If playful naming turns you off, ``attrs`` comes with serious-business aliases:
 
 .. doctest::
 
-   >>> from attr import attrs, attrib
+   >>> from attr import attrs, attrib, fields
    >>> @attrs
    ... class SeriousCoordinates:
    ...     x = attrib()
    ...     y = attrib()
    >>> SeriousCoordinates(1, 2)
    SeriousCoordinates(x=1, y=2)
-   >>> attr.fields(Coordinates) == attr.fields(SeriousCoordinates)
+   >>> fields(Coordinates) == fields(SeriousCoordinates)
    True
 
 For private attributes, ``attrs`` will strip the leading underscores for keyword arguments:
