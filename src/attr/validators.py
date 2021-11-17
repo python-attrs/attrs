@@ -7,6 +7,9 @@ from __future__ import absolute_import, division, print_function
 import operator
 import re
 
+from contextlib import contextmanager
+
+from ._config import get_run_validators, set_run_validators
 from ._make import _AndValidator, and_, attrib, attrs
 from .exceptions import NotCallableError
 
@@ -15,7 +18,9 @@ __all__ = [
     "and_",
     "deep_iterable",
     "deep_mapping",
+    "disabled",
     "ge",
+    "get_disabled",
     "gt",
     "in_",
     "instance_of",
@@ -26,7 +31,56 @@ __all__ = [
     "max_len",
     "optional",
     "provides",
+    "set_disabled",
 ]
+
+
+def set_disabled(disabled):
+    """
+    Globally disable or enable running validators.
+
+    By default, they are run.
+
+    :param disabled: If ``True``, disable running all validators.
+    :type disabled: bool
+
+    .. warning::
+
+        This function is not thread-safe!
+
+    .. versionadded:: 21.3.0
+    """
+    set_run_validators(not disabled)
+
+
+def get_disabled():
+    """
+    Return a bool indicating whether validators are currently disabled or not.
+
+    :return: ``True`` if validators are currently disabled.
+    :rtype: bool
+
+    .. versionadded:: 21.3.0
+    """
+    return not get_run_validators()
+
+
+@contextmanager
+def disabled():
+    """
+    Context manager that disables running validators within its context.
+
+    .. warning::
+
+        This context manager is not thread-safe!
+
+    .. versionadded:: 21.3.0
+    """
+    set_run_validators(False)
+    try:
+        yield
+    finally:
+        set_run_validators(True)
 
 
 @attrs(repr=False, slots=True, hash=True)

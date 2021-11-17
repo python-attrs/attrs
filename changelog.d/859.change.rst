@@ -1,0 +1,4 @@
+Added new context manager ``attr.validators.disabled()`` and functions ``attr.validators.(set|get)_disabled()``.
+They deprecate ``attr.(set|get)_run_validators()``.
+All functions are interoperable and modify the same internal state.
+They are not – and never were – thread-safe, though.

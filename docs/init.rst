@@ -242,10 +242,20 @@ If you define validators both ways for an attribute, they are both ran:
 
 And finally you can disable validators globally:
 
-   >>> attr.set_run_validators(False)
+   >>> attr.validators.set_disabled(True)
    >>> C("128")
    C(x='128')
-   >>> attr.set_run_validators(True)
+   >>> attr.validators.set_disabled(False)
+   >>> C("128")
+   Traceback (most recent call last):
+      ...
+   TypeError: ("'x' must be <class 'int'> (got '128' that is a <class 'str'>).", Attribute(name='x', default=NOTHING, validator=[<instance_of validator for type <class 'int'>>, <function fits_byte at 0x10fd7a0d0>], repr=True, cmp=True, hash=True, init=True, metadata=mappingproxy({}), type=None, converter=None), <class 'int'>, '128')
+
+You can achieve the same by using the context manager:
+
+   >>> with attr.validators.disabled():
+   ...     C("128")
+   C(x='128')
    >>> C("128")
    Traceback (most recent call last):
       ...

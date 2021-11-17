@@ -10,7 +10,7 @@ import pytest
 
 import attr
 
-from attr import fields, has
+from attr import _config, fields, has
 from attr import validators as validator_module
 from attr._compat import PY2, TYPE
 from attr.validators import (
@@ -44,6 +44,66 @@ def zope_interface():
         )
 
     return zope.interface
+
+
+class TestDisableValidators(object):
+    @pytest.fixture(autouse=True)
+    def reset_default(self):
+        """
+        Make sure validators are always enabled after a test.
+        """
+        yield
+        _config._run_validators = True
+
+    def test_default(self):
+        """
+        Run validators by default.
+        """
+        assert _config._run_validators is True
+
+    @pytest.mark.parametrize("value, expected", [(True, False), (False, True)])
+    def test_set_validators_diabled(self, value, expected):
+        """
+        Sets `_run_validators`.
+        """
+        validator_module.set_disabled(value)
+
+        assert _config._run_validators is expected
+
+    @pytest.mark.parametrize("value, expected", [(True, False), (False, True)])
+    def test_disabled(self, value, expected):
+        """
+        Returns `_run_validators`.
+        """
+        _config._run_validators = value
+
+        assert validator_module.get_disabled() is expected
+
+    def test_disabled_ctx(self):
+        """
+        The `disabled` context manager disables running validators,
+        but only within its context.
+        """
+        assert _config._run_validators is True
+
+        with validator_module.disabled():
+            assert _config._run_validators is False
+
+        assert _config._run_validators is True
+
+    def test_disabled_ctx_with_errors(self):
+        """
+        Running validators is re-enabled even if an error is raised.
+        """
+        assert _config._run_validators is True
+
+        with pytest.raises(ValueError):
+            with validator_module.disabled():
+                assert _config._run_validators is False
+
+                raise ValueError("haha!")
+
+        assert _config._run_validators is True
 
 
 class TestInstanceOf(object):
