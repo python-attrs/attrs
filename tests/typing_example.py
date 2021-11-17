@@ -194,7 +194,6 @@ with attr.validators.disabled():
 try:
     attr.validators.set_disabled(True)
     Validated2(num=-1)
-    assert attr.validators.get_disabled() is True
 finally:
     attr.validators.set_disabled(False)
 

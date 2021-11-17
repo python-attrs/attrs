@@ -50,8 +50,6 @@ def set_disabled(disabled):
 
     .. versionadded:: 21.3.0
     """
-    if not isinstance(disabled, bool):
-        raise TypeError("'disabled' must be bool.")
     set_run_validators(not disabled)
 
 
