@@ -50,7 +50,7 @@ class TestDisableValidators(object):
     @pytest.fixture(autouse=True)
     def reset_default(self):
         """
-        Make sure, validators are always enabled after a test!
+        Make sure validators are always enabled after a test.
         """
         yield
         _config._run_validators = True
