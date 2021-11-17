@@ -194,7 +194,7 @@ Since the validators run *after* the instance is initialized, you can refer to o
 This example also shows of some syntactic sugar for using the `attr.validators.and_` validator: if you pass a list, all validators have to pass.
 
 ``attrs`` won't intercept your changes to those attributes but you can always call `attr.validate` on any instance to verify that it's still valid:
-When using `define` or `frozen`, ``attrs`` will run the validators even when setting the attribute.
+When using `define` or :func:`~attr.frozen`, ``attrs`` will run the validators even when setting the attribute.
 
 .. doctest::
 
