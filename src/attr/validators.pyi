@@ -3,6 +3,7 @@ from typing import (
     AnyStr,
     Callable,
     Container,
+    ContextManager,
     Iterable,
     List,
     Mapping,
@@ -25,6 +26,10 @@ _I = TypeVar("_I", bound=Iterable)
 _K = TypeVar("_K")
 _V = TypeVar("_V")
 _M = TypeVar("_M", bound=Mapping)
+
+def set_disabled(run: bool) -> None: ...
+def get_disabled() -> bool: ...
+def disabled() -> ContextManager[None]: ...
 
 # To be more precise on instance_of use some overloads.
 # If there are more than 3 items in the tuple then we fall back to Any
