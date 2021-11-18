@@ -35,7 +35,8 @@ For that, it gives you a class decorator and a way to declaratively define the a
 
 .. code-block:: pycon
 
-   >>> from attr import define, Factory
+   >>> from typing import List
+   >>> from attr import asdict, define, make_class, Factory
 
    >>> @define
    ... class SomeClass:
@@ -57,13 +58,13 @@ For that, it gives you a class decorator and a way to declaratively define the a
    >>> sc != SomeClass(2, [3, 2, 1])
    True
 
-   >>> attr.asdict(sc)
+   >>> asdict(sc)
    {'a_number': 1, 'list_of_numbers': [1, 2, 3]}
 
    >>> SomeClass()
    SomeClass(a_number=42, list_of_numbers=[])
 
-   >>> C = attr.make_class("C", ["a", "b"])
+   >>> C = make_class("C", ["a", "b"])
    >>> C("foo", "bar")
    C(a='foo', b='bar')
 
