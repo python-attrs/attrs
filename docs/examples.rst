@@ -73,7 +73,7 @@ For private attributes, ``attrs`` will strip the leading underscores for keyword
 If you want to initialize your private attributes yourself, you can do that too:
 
 .. doctest::
-   >>> from attr import field
+
    >>> @define
    ... class C:
    ...     _x: int = field(init=False, default=42)
