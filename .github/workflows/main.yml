@@ -8,6 +8,11 @@ on:
     branches: ["main"]
   workflow_dispatch:
 
+env:
+  FORCE_COLOR: "1"  # Make tools pretty.
+  TOX_TESTENV_PASSENV: "FORCE_COLOR"
+
+
 jobs:
   tests:
     name: "tox on ${{ matrix.python-version }}"
@@ -36,24 +41,41 @@ jobs:
       - name: "Run tox targets for ${{ matrix.python-version }}"
         run: "python -m tox"
 
-      # We always use a modern Python version for combining coverage to prevent
-      # parsing errors in older versions for modern code.
-      - uses: "actions/setup-python@v2"
+      - name: Upload coverage data
+        uses: "actions/upload-artifact@v2"
         with:
-          python-version: "3.10"
+          name: coverage-data
+          path: ".coverage.*"
+          if-no-files-found: ignore
 
-      - name: "Combine coverage"
-        run: |
-          set -xe
-          python -m pip install coverage[toml]
-          python -m coverage combine
-          python -m coverage xml
-        if: "contains(env.USING_COVERAGE, matrix.python-version)"
-      - name: "Upload coverage to Codecov"
-        if: "contains(env.USING_COVERAGE, matrix.python-version)"
-        uses: "codecov/codecov-action@v2"
+
+  coverage:
+    runs-on: "ubuntu-latest"
+    needs: tests
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
         with:
-          fail_ci_if_error: true
+          python-version: "3.10"  # Use latest, so it understands all syntax.
+
+      - run: "python -m pip install --upgrade coverage[toml]"
+
+      - name: "Download coverage data"
+        uses: actions/download-artifact@v2
+        with:
+          name: coverage-data
+
+      - run: python -m coverage combine
+      - run: python -m coverage html --skip-covered --skip-empty
+
+      - name: "Upload coverage report"
+        uses: "actions/upload-artifact@v2"
+        with:
+          name: html-report
+          path: htmlcov
+
+      - run: python -m coverage report --fail-under=100
 
   package:
     name: "Build & verify package"
