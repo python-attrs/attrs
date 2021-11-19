@@ -8,9 +8,14 @@ on:
     branches: ["main"]
   workflow_dispatch:
 
+env:
+  FORCE_COLOR: "1"  # Make tools pretty.
+  TOX_TESTENV_PASSENV: "FORCE_COLOR"
+
+
 jobs:
   tests:
-    name: "Python ${{ matrix.python-version }}"
+    name: "tox on ${{ matrix.python-version }}"
     runs-on: "ubuntu-latest"
     env:
       USING_COVERAGE: "2.7,3.7,3.8,3.10"
@@ -18,16 +23,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["2.7", "3.5", "3.6", "3.7", "3.8", "3.9", "3.10", "pypy2", "pypy3"]
+        python-version: ["2.7", "3.5", "3.6", "3.7", "3.8", "3.9", "3.10", "pypy-2.7", "pypy-3.7"]
 
     steps:
       - uses: "actions/checkout@v2"
       - uses: "actions/setup-python@v2"
         with:
           python-version: "${{ matrix.python-version }}"
+
       - name: "Install dependencies"
         run: |
-          set -xe
           python -VV
           python -m site
           python -m pip install --upgrade pip setuptools wheel
@@ -36,24 +41,41 @@ jobs:
       - name: "Run tox targets for ${{ matrix.python-version }}"
         run: "python -m tox"
 
-      # We always use a modern Python version for combining coverage to prevent
-      # parsing errors in older versions for modern code.
-      - uses: "actions/setup-python@v2"
+      - name: Upload coverage data
+        uses: "actions/upload-artifact@v2"
         with:
-          python-version: "3.10"
+          name: coverage-data
+          path: ".coverage.*"
+          if-no-files-found: ignore
 
-      - name: "Combine coverage"
-        run: |
-          set -xe
-          python -m pip install coverage[toml]
-          python -m coverage combine
-          python -m coverage xml
-        if: "contains(env.USING_COVERAGE, matrix.python-version)"
-      - name: "Upload coverage to Codecov"
-        if: "contains(env.USING_COVERAGE, matrix.python-version)"
-        uses: "codecov/codecov-action@v2"
+
+  coverage:
+    runs-on: "ubuntu-latest"
+    needs: tests
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
         with:
-          fail_ci_if_error: true
+          python-version: "3.10"  # Use latest, so it understands all syntax.
+
+      - run: "python -m pip install --upgrade coverage[toml]"
+
+      - name: "Download coverage data"
+        uses: actions/download-artifact@v2
+        with:
+          name: coverage-data
+
+      - run: python -m coverage combine
+      - run: python -m coverage html --skip-covered --skip-empty
+
+      - name: "Upload coverage report"
+        uses: "actions/upload-artifact@v2"
+        with:
+          name: html-report
+          path: htmlcov
+
+      - run: python -m coverage report --fail-under=100
 
   package:
     name: "Build & verify package"
@@ -63,32 +85,28 @@ jobs:
       - uses: "actions/checkout@v2"
       - uses: "actions/setup-python@v2"
         with:
-          python-version: "3.9"
+          python-version: "3.10"
 
-      - name: "Install build, check-wheel-contents, and twine"
+      - name: "Install build and lint tools"
         run: "python -m pip install build twine check-wheel-contents"
-      - name: "Build package"
-        run: "python -m build --sdist --wheel ."
-      - name: "List result"
-        run: "ls -l dist"
-      - name: "Check wheel contents"
-        run: "check-wheel-contents dist/*.whl"
+      - run: "python -m build --sdist --wheel ."
+      - run: "ls -l dist"
+      - run: "check-wheel-contents dist/*.whl"
       - name: "Check long_description"
         run: "python -m twine check dist/*"
 
   install-dev:
+    name: "Verify dev env"
+    runs-on: "${{ matrix.os }}"
     strategy:
       matrix:
         os: ["ubuntu-latest", "windows-latest", "macos-latest"]
-
-    name: "Verify dev env"
-    runs-on: "${{ matrix.os }}"
 
     steps:
       - uses: "actions/checkout@v2"
       - uses: "actions/setup-python@v2"
         with:
-          python-version: "3.9"
+          python-version: "3.10"
       - name: "Install in dev mode"
         run: "python -m pip install -e .[dev]"
       - name: "Import package"
