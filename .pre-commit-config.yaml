@@ -15,8 +15,8 @@ repos:
         files: \.py$
         language_version: python3.10
 
-  - repo: https://gitlab.com/PyCQA/flake8
-    rev: 3.9.2
+  - repo: https://github.com/PyCQA/flake8
+    rev: 4.0.1
     hooks:
       - id: flake8
         language_version: python3.10
