@@ -123,7 +123,7 @@ This is useful in times when you want to enhance classes that are not yours (nic
    >>> i.get_a()
    1
 
-Slot classes, which are default for the new APIs, don't play well with multiple inheritance so we don't use them in the example.
+:term:`Slotted classes <slotted classes>`, which are the default for the new APIs, don't play well with multiple inheritance, so we don't use them in the example.
 
 The order of the attributes is defined by the `MRO <https://www.python.org/download/releases/2.3/mro/>`_.
 
