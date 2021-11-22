@@ -85,6 +85,7 @@ This is when default values come into play:
 .. doctest::
 
    >>> from attr import define, field, Factory
+
    >>> @define
    ... class C:
    ...     a: int = 42
@@ -98,7 +99,6 @@ This is when default values come into play:
    C(a=42, b=[], c=[], d={})
 
 It's important that the decorated method -- or any other method or property! -- doesn't have the same name as the attribute, otherwise it would overwrite the attribute definition.
-You also cannot use type annotations to elide the `attr.ib` call for ``d`` as explained in `types`.
 
 Please note that as with function and method signatures, ``default=[]`` will *not* do what you may think it might do:
 
@@ -162,7 +162,7 @@ If the value does not pass the validator's standards, it just raises an appropri
       ...
    ValueError: x must be smaller or equal to 42
 
-Again, it's important that the decorated method doesn't have the same name as the attribute and that you can't elide the call to `attr.ib`.
+Again, it's important that the decorated method doesn't have the same name as the attribute and that the `field()` helper is used.
 
 
 Callables
@@ -370,8 +370,9 @@ Here's an example of a manual default value:
 .. doctest::
 
    >>> from typing import Optional
+   
    >>> @define
-   ... class C(object):
+   ... class C:
    ...     x: int
    ...
    ...     def __init__(self, x: int = 42):
