@@ -266,7 +266,7 @@ Other times, all you want is a tuple and ``attrs`` won't let you down:
    >>> foo == foo2
    True
 
-For more advanced transformations and conversions, we recommend you look at a companion library (such as `cattrs <https://github.com/python-attrs/cattrs>`).
+For more advanced transformations and conversions, we recommend you look at a companion library (such as `cattrs <https://github.com/python-attrs/cattrs>`_).
 
 Defaults
 --------
