@@ -16,11 +16,13 @@ As with other features, you can exclude fields from being involved in comparison
 
 .. doctest::
 
-   >>> import attr
-   >>> @attr.s
-   ... class C(object):
-   ...     x = attr.ib()
-   ...     y = attr.ib(eq=False)
+   >>> from attr import define, field
+
+   >>> @define
+   ... class C:
+   ...     x: int
+   ...     y: int = field(eq=False)
+
    >>> C(1, 2) == C(1, 3)
    True
 
@@ -29,15 +31,19 @@ It is then used as a key function like you may know from `sorted`:
 
 .. doctest::
 
-   >>> import attr
-   >>> @attr.s
-   ... class S(object):
-   ...     x = attr.ib(eq=str.lower)
+   >>> from attr import define, field
+
+   >>> @define
+   ... class S:
+   ...     x: str = field(eq=str.lower)
+
    >>> S("foo") == S("FOO")
    True
-   >>> @attr.s
-   ... class C(object):
-   ...     x = attr.ib(order=int)
+
+   >>> @define(order=True)
+   ... class C:
+   ...     x: str = field(order=int)
+
    >>> C("10") > C("2")
    True
 
@@ -49,9 +55,9 @@ For NumPy arrays it would look like this::
 
    import numpy
 
-   @attr.s(order=False)
+   @define(order=False)
    class C:
-      an_array = attr.ib(eq=attr.cmp_using(eq=numpy.array_equal))
+      an_array = field(eq=attr.cmp_using(eq=numpy.array_equal))
 
 
 .. warning::

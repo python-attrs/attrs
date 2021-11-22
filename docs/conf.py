@@ -29,6 +29,10 @@ def find_version(*file_paths):
 
 # -- General configuration ------------------------------------------------
 
+doctest_global_setup = """
+from attr import define, frozen, field, validators, Factory
+"""
+
 linkcheck_ignore = [
     r"https://github.com/.*/(issues|pull)/\d+",
 ]

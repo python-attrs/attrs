@@ -9,9 +9,9 @@ The simplest possible usage is:
 
 .. doctest::
 
-   >>> import attr
-   >>> @attr.s
-   ... class Empty(object):
+   >>> from attr import define
+   >>> @define
+   ... class Empty:
    ...     pass
    >>> Empty()
    Empty()
@@ -26,10 +26,10 @@ But you'll usually want some data on your classes, so let's add some:
 
 .. doctest::
 
-   >>> @attr.s
-   ... class Coordinates(object):
-   ...     x = attr.ib()
-   ...     y = attr.ib()
+   >>> @define
+   ... class Coordinates:
+   ...     x: int
+   ...     y: int
 
 By default, all features are added, so you immediately have a fully functional data class with a nice ``repr`` string and comparison methods.
 
@@ -46,27 +46,13 @@ By default, all features are added, so you immediately have a fully functional d
 
 As shown, the generated ``__init__`` method allows for both positional and keyword arguments.
 
-If playful naming turns you off, ``attrs`` comes with serious-business aliases:
-
-.. doctest::
-
-   >>> from attr import attrs, attrib
-   >>> @attrs
-   ... class SeriousCoordinates(object):
-   ...     x = attrib()
-   ...     y = attrib()
-   >>> SeriousCoordinates(1, 2)
-   SeriousCoordinates(x=1, y=2)
-   >>> attr.fields(Coordinates) == attr.fields(SeriousCoordinates)
-   True
-
 For private attributes, ``attrs`` will strip the leading underscores for keyword arguments:
 
 .. doctest::
 
-   >>> @attr.s
-   ... class C(object):
-   ...     _x = attr.ib()
+   >>> @define
+   ... class C:
+   ...     _x: int
    >>> C(x=1)
    C(_x=1)
 
@@ -74,9 +60,9 @@ If you want to initialize your private attributes yourself, you can do that too:
 
 .. doctest::
 
-   >>> @attr.s
-   ... class C(object):
-   ...     _x = attr.ib(init=False, default=42)
+   >>> @define
+   ... class C:
+   ...     _x: int = field(init=False, default=42)
    >>> C()
    C(_x=42)
    >>> C(23)
@@ -89,12 +75,12 @@ This is useful in times when you want to enhance classes that are not yours (nic
 
 .. doctest::
 
-   >>> class SomethingFromSomeoneElse(object):
+   >>> class SomethingFromSomeoneElse:
    ...     def __init__(self, x):
    ...         self.x = x
-   >>> SomethingFromSomeoneElse = attr.s(
+   >>> SomethingFromSomeoneElse = define(
    ...     these={
-   ...         "x": attr.ib()
+   ...         "x": field()
    ...     }, init=False)(SomethingFromSomeoneElse)
    >>> SomethingFromSomeoneElse(1)
    SomethingFromSomeoneElse(x=1)
@@ -104,17 +90,17 @@ This is useful in times when you want to enhance classes that are not yours (nic
 
 .. doctest::
 
-   >>> @attr.s
-   ... class A(object):
-   ...     a = attr.ib()
+   >>> @define(slots=False)
+   ... class A:
+   ...     a: int
    ...     def get_a(self):
    ...         return self.a
-   >>> @attr.s
-   ... class B(object):
-   ...     b = attr.ib()
-   >>> @attr.s
-   ... class C(A, B):
-   ...     c = attr.ib()
+   >>> @define(slots=False)
+   ... class B:
+   ...     b: int
+   >>> @define(slots=False)
+   ... class C(B, A):
+   ...     c: int
    >>> i = C(1, 2, 3)
    >>> i
    C(a=1, b=2, c=3)
@@ -123,25 +109,9 @@ This is useful in times when you want to enhance classes that are not yours (nic
    >>> i.get_a()
    1
 
+:term:`Slotted classes <slotted classes>`, which are the default for the new APIs, don't play well with multiple inheritance so we don't use them in the example.
+
 The order of the attributes is defined by the `MRO <https://www.python.org/download/releases/2.3/mro/>`_.
-
-In Python 3, classes defined within other classes are `detected <https://www.python.org/dev/peps/pep-3155/>`_ and reflected in the ``__repr__``.
-In Python 2 though, it's impossible.
-Therefore ``@attr.s`` comes with the ``repr_ns`` option to set it manually:
-
-.. doctest::
-
-   >>> @attr.s
-   ... class C(object):
-   ...     @attr.s(repr_ns="C")
-   ...     class D(object):
-   ...         pass
-   >>> C.D()
-   C.D()
-
-``repr_ns`` works on both Python 2 and 3.
-On Python 3 it overrides the implicit detection.
-
 
 Keyword-only Attributes
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -150,9 +120,9 @@ You can also add `keyword-only <https://docs.python.org/3/glossary.html#keyword-
 
 .. doctest::
 
-    >>> @attr.s
+    >>> @define
     ... class A:
-    ...     a = attr.ib(kw_only=True)
+    ...     a: int = field(kw_only=True)
     >>> A()
     Traceback (most recent call last):
       ...
@@ -160,14 +130,14 @@ You can also add `keyword-only <https://docs.python.org/3/glossary.html#keyword-
     >>> A(a=1)
     A(a=1)
 
-``kw_only`` may also be specified at via ``attr.s``, and will apply to all attributes:
+``kw_only`` may also be specified at via ``define``, and will apply to all attributes:
 
 .. doctest::
 
-    >>> @attr.s(kw_only=True)
+    >>> @define(kw_only=True)
     ... class A:
-    ...     a = attr.ib()
-    ...     b = attr.ib()
+    ...     a: int
+    ...     b: int
     >>> A(1, 2)
     Traceback (most recent call last):
       ...
@@ -183,12 +153,12 @@ Keyword-only attributes allow subclasses to add attributes without default value
 
 .. doctest::
 
-    >>> @attr.s
+    >>> @define
     ... class A:
-    ...     a = attr.ib(default=0)
-    >>> @attr.s
+    ...     a: int = 0
+    >>> @define
     ... class B(A):
-    ...     b = attr.ib(kw_only=True)
+    ...     b: int = field(kw_only=True)
     >>> B(b=1)
     B(a=0, b=1)
     >>> B()
@@ -200,15 +170,15 @@ If you don't set ``kw_only=True``, then there's is no valid attribute ordering a
 
 .. doctest::
 
-    >>> @attr.s
+    >>> @define
     ... class A:
-    ...     a = attr.ib(default=0)
-    >>> @attr.s
+    ...     a: int = 0
+    >>> @define
     ... class B(A):
-    ...     b = attr.ib()
+    ...     b: int
     Traceback (most recent call last):
       ...
-    ValueError: No mandatory attributes allowed after an attribute with a default value or factory.  Attribute in question: Attribute(name='b', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, converter=None, metadata=mappingproxy({}), type=None, kw_only=False)
+    ValueError: No mandatory attributes allowed after an attribute with a default value or factory.  Attribute in question: Attribute(name='b', default=NOTHING, validator=None, repr=True, cmp=True, hash=None, init=True, converter=None, metadata=mappingproxy({}), type=int, kw_only=False)
 
 .. _asdict:
 
@@ -219,7 +189,9 @@ When you have a class with data, it often is very convenient to transform that c
 
 .. doctest::
 
-   >>> attr.asdict(Coordinates(x=1, y=2))
+   >>> from attr import asdict
+
+   >>> asdict(Coordinates(x=1, y=2))
    {'x': 1, 'y': 2}
 
 Some fields cannot or should not be transformed.
@@ -227,38 +199,48 @@ For that, `attr.asdict` offers a callback that decides whether an attribute shou
 
 .. doctest::
 
-   >>> @attr.s
-   ... class UserList(object):
-   ...     users = attr.ib()
-   >>> @attr.s
+   >>> from typing import List
+   >>> from attr import asdict
+
+   >>> @define
    ... class User(object):
-   ...     email = attr.ib()
-   ...     password = attr.ib()
-   >>> attr.asdict(UserList([User("jane@doe.invalid", "s33kred"),
-   ...                       User("joe@doe.invalid", "p4ssw0rd")]),
-   ...             filter=lambda attr, value: attr.name != "password")
+   ...     email: str
+   ...     password: str
+
+   >>> @define
+   ... class UserList:
+   ...     users: List[User]
+
+   >>> asdict(UserList([User("jane@doe.invalid", "s33kred"),
+   ...                  User("joe@doe.invalid", "p4ssw0rd")]),
+   ...        filter=lambda attr, value: attr.name != "password")
    {'users': [{'email': 'jane@doe.invalid'}, {'email': 'joe@doe.invalid'}]}
 
 For the common case where you want to `include <attr.filters.include>` or `exclude <attr.filters.exclude>` certain types or attributes, ``attrs`` ships with a few helpers:
 
 .. doctest::
 
-   >>> @attr.s
-   ... class User(object):
-   ...     login = attr.ib()
-   ...     password = attr.ib()
-   ...     id = attr.ib()
-   >>> attr.asdict(
+   >>> from attr import asdict, filters, fields
+
+   >>> @define
+   ... class User:
+   ...     login: str
+   ...     password: str
+   ...     id: int
+
+   >>> asdict(
    ...     User("jane", "s33kred", 42),
-   ...     filter=attr.filters.exclude(attr.fields(User).password, int))
+   ...     filter=filters.exclude(fields(User).password, int))
    {'login': 'jane'}
-   >>> @attr.s
-   ... class C(object):
-   ...     x = attr.ib()
-   ...     y = attr.ib()
-   ...     z = attr.ib()
-   >>> attr.asdict(C("foo", "2", 3),
-   ...             filter=attr.filters.include(int, attr.fields(C).x))
+
+   >>> @define
+   ... class C:
+   ...     x: str
+   ...     y: str
+   ...     z: int
+
+   >>> asdict(C("foo", "2", 3),
+   ...        filter=filters.include(int, fields(C).x))
    {'x': 'foo', 'z': 3}
 
 Other times, all you want is a tuple and ``attrs`` won't let you down:
@@ -266,45 +248,50 @@ Other times, all you want is a tuple and ``attrs`` won't let you down:
 .. doctest::
 
    >>> import sqlite3
-   >>> import attr
-   >>> @attr.s
+   >>> from attr import astuple
+
+   >>> @define
    ... class Foo:
-   ...    a = attr.ib()
-   ...    b = attr.ib()
+   ...    a: int
+   ...    b: int
+
    >>> foo = Foo(2, 3)
    >>> with sqlite3.connect(":memory:") as conn:
    ...    c = conn.cursor()
    ...    c.execute("CREATE TABLE foo (x INTEGER PRIMARY KEY ASC, y)") #doctest: +ELLIPSIS
-   ...    c.execute("INSERT INTO foo VALUES (?, ?)", attr.astuple(foo)) #doctest: +ELLIPSIS
+   ...    c.execute("INSERT INTO foo VALUES (?, ?)", astuple(foo)) #doctest: +ELLIPSIS
    ...    foo2 = Foo(*c.execute("SELECT x, y FROM foo").fetchone())
    <sqlite3.Cursor object at ...>
    <sqlite3.Cursor object at ...>
    >>> foo == foo2
    True
 
+For more advanced transformations and conversions, we recommend you look at a companion library (such as `cattrs <https://github.com/python-attrs/cattrs>`_).
 
 Defaults
 --------
 
 Sometimes you want to have default values for your initializer.
-And sometimes you even want mutable objects as default values (ever used accidentally ``def f(arg=[])``?).
+And sometimes you even want mutable objects as default values (ever accidentally used ``def f(arg=[])``?).
 ``attrs`` has you covered in both cases:
 
 .. doctest::
 
    >>> import collections
-   >>> @attr.s
-   ... class Connection(object):
-   ...     socket = attr.ib()
+
+   >>> @define
+   ... class Connection:
+   ...     socket: int
    ...     @classmethod
    ...     def connect(cls, db_string):
    ...        # ... connect somehow to db_string ...
    ...        return cls(socket=42)
-   >>> @attr.s
-   ... class ConnectionPool(object):
-   ...     db_string = attr.ib()
-   ...     pool = attr.ib(default=attr.Factory(collections.deque))
-   ...     debug = attr.ib(default=False)
+
+   >>> @define
+   ... class ConnectionPool:
+   ...     db_string: str
+   ...     pool: collections.deque = Factory(collections.deque)
+   ...     debug: bool = False
    ...     def get_connection(self):
    ...         try:
    ...             return self.pool.pop()
@@ -329,31 +316,22 @@ And sometimes you even want mutable objects as default values (ever used acciden
 
 More information on why class methods for constructing objects are awesome can be found in this insightful `blog post <https://as.ynchrono.us/2014/12/asynchronous-object-initialization.html>`_.
 
-Default factories can also be set using a decorator.
+Default factories can also be set using the ``factory`` argument to ``field``, and using a decorator.
 The method receives the partially initialized instance which enables you to base a default value on other attributes:
 
 .. doctest::
 
-   >>> @attr.s
-   ... class C(object):
-   ...     x = attr.ib(default=1)
-   ...     y = attr.ib()
+   >>> @define
+   ... class C:
+   ...     x: int = 1
+   ...     y: int = field()
    ...     @y.default
    ...     def _any_name_except_a_name_of_an_attribute(self):
    ...         return self.x + 1
+   ...     z: list = field(factory=list)
    >>> C()
-   C(x=1, y=2)
+   C(x=1, y=2, z=[])
 
-
-And since the case of ``attr.ib(default=attr.Factory(f))`` is so common, ``attrs`` also comes with syntactic sugar for it:
-
-.. doctest::
-
-   >>> @attr.s
-   ... class C(object):
-   ...     x = attr.ib(factory=list)
-   >>> C()
-   C(x=[])
 
 .. _examples_validators:
 
@@ -368,9 +346,9 @@ You can use a decorator:
 
 .. doctest::
 
-   >>> @attr.s
-   ... class C(object):
-   ...     x = attr.ib()
+   >>> @define
+   ... class C:
+   ...     x: int = field()
    ...     @x.validator
    ...     def check(self, attribute, value):
    ...         if value > 42:
@@ -386,14 +364,16 @@ You can use a decorator:
 
 .. doctest::
 
+   >>> from attr import validators
+
    >>> def x_smaller_than_y(instance, attribute, value):
    ...     if value >= instance.y:
    ...         raise ValueError("'x' has to be smaller than 'y'!")
-   >>> @attr.s
-   ... class C(object):
-   ...     x = attr.ib(validator=[attr.validators.instance_of(int),
-   ...                            x_smaller_than_y])
-   ...     y = attr.ib()
+   >>> @define
+   ... class C:
+   ...     x: int = field(validator=[validators.instance_of(int),
+   ...                               x_smaller_than_y])
+   ...     y: int
    >>> C(x=3, y=4)
    C(x=3, y=4)
    >>> C(x=4, y=3)
@@ -405,9 +385,9 @@ You can use a decorator:
 
 .. doctest::
 
-   >>> @attr.s
-   ... class C(object):
-   ...     x = attr.ib(validator=attr.validators.instance_of(int))
+   >>> @define
+   ... class C:
+   ...     x: int = field(validator=validators.instance_of(int))
    ...     @x.validator
    ...     def fits_byte(self, attribute, value):
    ...         if not 0 <= value < 256:
@@ -417,22 +397,22 @@ You can use a decorator:
    >>> C("128")
    Traceback (most recent call last):
       ...
-   TypeError: ("'x' must be <class 'int'> (got '128' that is a <class 'str'>).", Attribute(name='x', default=NOTHING, validator=[<instance_of validator for type <class 'int'>>, <function fits_byte at 0x10fd7a0d0>], repr=True, cmp=True, hash=True, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False), <class 'int'>, '128')
+   TypeError: ("'x' must be <class 'int'> (got '128' that is a <class 'str'>).", Attribute(name='x', default=NOTHING, validator=[<instance_of validator for type <class 'int'>>, <function fits_byte at 0x10fd7a0d0>], repr=True, cmp=True, hash=True, init=True, metadata=mappingproxy({}), type=int, converter=None, kw_only=False), <class 'int'>, '128')
    >>> C(256)
    Traceback (most recent call last):
       ...
    ValueError: value out of bounds
 
-Please note that the decorator approach only works if -- and only if! -- the attribute in question has an ``attr.ib`` assigned.
-Therefore if you use ``@attr.s(auto_attribs=True)``, it is *not* enough to decorate said attribute with a type.
+Please note that the decorator approach only works if -- and only if! -- the attribute in question has a ``field`` assigned.
+Therefore if you use ``@default``, it is *not* enough to annotate said attribute with a type.
 
 ``attrs`` ships with a bunch of validators, make sure to `check them out <api_validators>` before writing your own:
 
 .. doctest::
 
-   >>> @attr.s
-   ... class C(object):
-   ...     x = attr.ib(validator=attr.validators.instance_of(int))
+   >>> @define
+   ... class C:
+   ...     x: int = field(validator=validators.instance_of(int))
    >>> C(42)
    C(x=42)
    >>> C("42")
@@ -440,7 +420,7 @@ Therefore if you use ``@attr.s(auto_attribs=True)``, it is *not* enough to decor
       ...
    TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, factory=NOTHING, validator=<instance_of validator for type <type 'int'>>, type=None, kw_only=False), <type 'int'>, '42')
 
-Please note that if you use `attr.s` (and not `attr.define`) to define your class, validators only run on initialization by default.
+Please note that if you use `attr.s` (and not `define`) to define your class, validators only run on initialization by default.
 This behavior can be changed using the ``on_setattr`` argument.
 
 Check out `validators` for more details.
@@ -454,9 +434,9 @@ This can be useful for doing type-conversions on values that you don't want to f
 
 .. doctest::
 
-    >>> @attr.s
-    ... class C(object):
-    ...     x = attr.ib(converter=int)
+    >>> @define
+    ... class C:
+    ...     x: int = field(converter=int)
     >>> o = C("1")
     >>> o.x
     1
@@ -475,12 +455,14 @@ All ``attrs`` attributes may include arbitrary metadata in the form of a read-on
 
 .. doctest::
 
-    >>> @attr.s
-    ... class C(object):
-    ...    x = attr.ib(metadata={'my_metadata': 1})
-    >>> attr.fields(C).x.metadata
+    >>> from attr import fields
+
+    >>> @define
+    ... class C:
+    ...    x = field(metadata={'my_metadata': 1})
+    >>> fields(C).x.metadata
     mappingproxy({'my_metadata': 1})
-    >>> attr.fields(C).x.metadata['my_metadata']
+    >>> fields(C).x.metadata['my_metadata']
     1
 
 Metadata is not used by ``attrs``, and is meant to enable rich functionality in third-party libraries.
@@ -497,36 +479,41 @@ Types
 
 .. doctest::
 
-   >>> @attr.s
+   >>> from attr import attrib, fields
+
+   >>> @define
    ... class C:
-   ...     x = attr.ib(type=int)
-   ...     y: int = attr.ib()
-   >>> attr.fields(C).x.type
-   <class 'int'>
-   >>> attr.fields(C).y.type
+   ...     x: int
+   >>> fields(C).x.type
    <class 'int'>
 
-If you don't mind annotating *all* attributes, you can even drop the `attr.ib` and assign default values instead:
+   >>> @define
+   ... class C:
+   ...     x = attrib(type=int)
+   >>> fields(C).x.type
+   <class 'int'>
+
+If you don't mind annotating *all* attributes, you can even drop the `field` and assign default values instead:
 
 .. doctest::
 
    >>> import typing
-   >>> @attr.s(auto_attribs=True)
+   >>> from attr import fields
+
+   >>> @define
    ... class AutoC:
    ...     cls_var: typing.ClassVar[int] = 5  # this one is ignored
-   ...     l: typing.List[int] = attr.Factory(list)
+   ...     l: typing.List[int] = Factory(list)
    ...     x: int = 1
-   ...     foo: str = attr.ib(
-   ...          default="every attrib needs a type if auto_attribs=True"
-   ...     )
+   ...     foo: str = "every attrib needs a type if auto_attribs=True"
    ...     bar: typing.Any = None
-   >>> attr.fields(AutoC).l.type
+   >>> fields(AutoC).l.type
    typing.List[int]
-   >>> attr.fields(AutoC).x.type
+   >>> fields(AutoC).x.type
    <class 'int'>
-   >>> attr.fields(AutoC).foo.type
+   >>> fields(AutoC).foo.type
    <class 'str'>
-   >>> attr.fields(AutoC).bar.type
+   >>> fields(AutoC).bar.type
    typing.Any
    >>> AutoC()
    AutoC(l=[], x=1, foo='every attrib needs a type if auto_attribs=True', bar=None)
@@ -542,24 +529,26 @@ This will replace the *type* attribute in the respective fields.
 .. doctest::
 
     >>> import typing
-    >>> @attr.s(auto_attribs=True)
+    >>> from attr import fields, resolve_types
+
+    >>> @define
     ... class A:
     ...     a: typing.List['A']
     ...     b: 'B'
     ...
-    >>> @attr.s(auto_attribs=True)
+    >>> @define
     ... class B:
     ...     a: A
     ...
-    >>> attr.fields(A).a.type
+    >>> fields(A).a.type
     typing.List[ForwardRef('A')]
-    >>> attr.fields(A).b.type
+    >>> fields(A).b.type
     'B'
-    >>> attr.resolve_types(A, globals(), locals())
+    >>> resolve_types(A, globals(), locals())
     <class 'A'>
-    >>> attr.fields(A).a.type
+    >>> fields(A).a.type
     typing.List[A]
-    >>> attr.fields(A).b.type
+    >>> fields(A).b.type
     <class 'B'>
 
 .. warning::
@@ -572,14 +561,16 @@ Slots
 -----
 
 :term:`Slotted classes <slotted classes>` have several advantages on CPython.
-Defining ``__slots__`` by hand is tedious, in ``attrs`` it's just a matter of passing ``slots=True``:
+Defining ``__slots__`` by hand is tedious, in ``attrs`` it's just a matter of using `define` or passing ``slots=True`` to `attr.s`:
 
 .. doctest::
 
+   >>> import attr
+
    >>> @attr.s(slots=True)
-   ... class Coordinates(object):
-   ...     x = attr.ib()
-   ...     y = attr.ib()
+   ... class Coordinates:
+   ...     x: int
+   ...     y: int
 
 
 Immutability
@@ -591,9 +582,9 @@ If you'd like to enforce it, ``attrs`` will try to help:
 
 .. doctest::
 
-   >>> @attr.s(frozen=True)
-   ... class C(object):
-   ...     x = attr.ib()
+   >>> @frozen
+   ... class C:
+   ...     x: int
    >>> i = C(1)
    >>> i.x = 2
    Traceback (most recent call last):
@@ -610,14 +601,16 @@ In Clojure that function is called `assoc <https://clojuredocs.org/clojure.core/
 
 .. doctest::
 
-   >>> @attr.s(frozen=True)
-   ... class C(object):
-   ...     x = attr.ib()
-   ...     y = attr.ib()
+   >>> from attr import evolve
+
+   >>> @frozen
+   ... class C:
+   ...     x: int
+   ...     y: int
    >>> i1 = C(1, 2)
    >>> i1
    C(x=1, y=2)
-   >>> i2 = attr.evolve(i1, y=3)
+   >>> i2 = evolve(i1, y=3)
    >>> i2
    C(x=1, y=3)
    >>> i1 == i2
@@ -632,21 +625,24 @@ Sometimes you may want to create a class programmatically.
 
 .. doctest::
 
-   >>> @attr.s
-   ... class C1(object):
-   ...     x = attr.ib()
-   ...     y = attr.ib()
-   >>> C2 = attr.make_class("C2", ["x", "y"])
-   >>> attr.fields(C1) == attr.fields(C2)
+   >>> from attr import fields, make_class
+   >>> @define
+   ... class C1:
+   ...     x = field()
+   ...     y = field()
+   >>> C2 = make_class("C2", ["x", "y"])
+   >>> fields(C1) == fields(C2)
    True
 
-You can still have power over the attributes if you pass a dictionary of name: ``attr.ib`` mappings and can pass arguments to ``@attr.s``:
+You can still have power over the attributes if you pass a dictionary of name: ``field`` mappings and can pass arguments to ``@attr.s``:
 
 .. doctest::
 
-   >>> C = attr.make_class("C", {"x": attr.ib(default=42),
-   ...                           "y": attr.ib(default=attr.Factory(list))},
-   ...                     repr=False)
+   >>> from attr import make_class
+
+   >>> C = make_class("C", {"x": field(default=42),
+   ...                      "y": field(default=Factory(list))},
+   ...                repr=False)
    >>> i = C()
    >>> i  # no repr added!
    <__main__.C object at ...>
@@ -659,26 +655,28 @@ If you need to dynamically make a class with `attr.make_class` and it needs to b
 
 .. doctest::
 
-  >>> class D(object):
-  ...    def __eq__(self, other):
-  ...        return True  # arbitrary example
-  >>> C = attr.make_class("C", {}, bases=(D,), cmp=False)
-  >>> isinstance(C(), D)
-  True
+   >>> from attr import make_class
+
+   >>> class D:
+   ...    def __eq__(self, other):
+   ...        return True  # arbitrary example
+   >>> C = make_class("C", {}, bases=(D,), cmp=False)
+   >>> isinstance(C(), D)
+   True
 
 Sometimes, you want to have your class's ``__init__`` method do more than just
 the initialization, validation, etc. that gets done for you automatically when
-using ``@attr.s``.
+using ``@define``.
 To do this, just define a ``__attrs_post_init__`` method in your class.
 It will get called at the end of the generated ``__init__`` method.
 
 .. doctest::
 
-   >>> @attr.s
-   ... class C(object):
-   ...     x = attr.ib()
-   ...     y = attr.ib()
-   ...     z = attr.ib(init=False)
+   >>> @define
+   ... class C:
+   ...     x: int
+   ...     y: int
+   ...     z: int = field(init=False)
    ...
    ...     def __attrs_post_init__(self):
    ...         self.z = self.x + self.y
@@ -690,10 +688,10 @@ You can exclude single attributes from certain methods:
 
 .. doctest::
 
-   >>> @attr.s
-   ... class C(object):
-   ...     user = attr.ib()
-   ...     password = attr.ib(repr=False)
+   >>> @define
+   ... class C:
+   ...     user: str
+   ...     password: str = field(repr=False)
    >>> C("me", "s3kr3t")
    C(user='me')
 
@@ -701,9 +699,9 @@ Alternatively, to influence how the generated ``__repr__()`` method formats a sp
 
 .. doctest::
 
-   >>> @attr.s
-   ... class C(object):
-   ...     user = attr.ib()
-   ...     password = attr.ib(repr=lambda value: '***')
+   >>> @define
+   ... class C:
+   ...     user: str
+   ...     password: str = field(repr=lambda value: '***')
    >>> C("me", "s3kr3t")
    C(user='me', password=***)

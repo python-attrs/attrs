@@ -17,10 +17,10 @@ So assuming you use an ORM and want to extract 2D points from a row object, do n
 
 Instead, write a `classmethod` that will extract it for you::
 
-   @attr.s
-   class Point(object):
-       x = attr.ib()
-       y = attr.ib()
+   @define
+   class Point:
+       x: float
+       y: float
 
        @classmethod
        def from_row(cls, row):
@@ -52,20 +52,21 @@ One thing people tend to find confusing is the treatment of private attributes t
 .. doctest::
 
    >>> import inspect, attr
-   >>> @attr.s
-   ... class C(object):
-   ...    _x = attr.ib()
+   >>> from attr import define
+   >>> @define
+   ... class C:
+   ...    _x: int
    >>> inspect.signature(C.__init__)
-   <Signature (self, x) -> None>
+   <Signature (self, x: int) -> None>
 
 There really isn't a right or wrong, it's a matter of taste.
 But it's important to be aware of it because it can lead to surprising syntax errors:
 
 .. doctest::
 
-   >>> @attr.s
-   ... class C(object):
-   ...    _1 = attr.ib()
+   >>> @define
+   ... class C:
+   ...    _1: int
    Traceback (most recent call last):
       ...
    SyntaxError: invalid syntax
@@ -83,13 +84,14 @@ This is when default values come into play:
 
 .. doctest::
 
-   >>> import attr
-   >>> @attr.s
-   ... class C(object):
-   ...     a = attr.ib(default=42)
-   ...     b = attr.ib(default=attr.Factory(list))
-   ...     c = attr.ib(factory=list)  # syntactic sugar for above
-   ...     d = attr.ib()
+   >>> from attr import define, field, Factory
+
+   >>> @define
+   ... class C:
+   ...     a: int = 42
+   ...     b: list = field(factory=list)
+   ...     c: list = Factory(list)  # syntactic sugar for above
+   ...     d: dict = field()
    ...     @d.default
    ...     def _any_name_except_a_name_of_an_attribute(self):
    ...        return {}
@@ -97,15 +99,14 @@ This is when default values come into play:
    C(a=42, b=[], c=[], d={})
 
 It's important that the decorated method -- or any other method or property! -- doesn't have the same name as the attribute, otherwise it would overwrite the attribute definition.
-You also cannot use type annotations to elide the `attr.ib` call for ``d`` as explained in `types`.
 
 Please note that as with function and method signatures, ``default=[]`` will *not* do what you may think it might do:
 
 .. doctest::
 
-   >>> @attr.s
-   ... class C(object):
-   ...     x = attr.ib(default=[])
+   >>> @define
+   ... class C:
+   ...     x = []
    >>> i = C()
    >>> k = C()
    >>> i.x.append(42)
@@ -147,9 +148,9 @@ The method has to accept three arguments:
 
 If the value does not pass the validator's standards, it just raises an appropriate exception.
 
-   >>> @attr.s
-   ... class C(object):
-   ...     x = attr.ib()
+   >>> @define
+   ... class C:
+   ...     x: int = field()
    ...     @x.validator
    ...     def _check_x(self, attribute, value):
    ...         if value > 42:
@@ -161,28 +162,28 @@ If the value does not pass the validator's standards, it just raises an appropri
       ...
    ValueError: x must be smaller or equal to 42
 
-Again, it's important that the decorated method doesn't have the same name as the attribute and that you can't elide the call to `attr.ib`.
+Again, it's important that the decorated method doesn't have the same name as the attribute and that the `field()` helper is used.
 
 
 Callables
 ~~~~~~~~~
 
-If you want to re-use your validators, you should have a look at the ``validator`` argument to `attr.ib`.
+If you want to re-use your validators, you should have a look at the ``validator`` argument to `field`.
 
 It takes either a callable or a list of callables (usually functions) and treats them as validators that receive the same arguments as with the decorator approach.
 
-Since the validators runs *after* the instance is initialized, you can refer to other attributes while validating:
+Since the validators run *after* the instance is initialized, you can refer to other attributes while validating:
 
 .. doctest::
 
    >>> def x_smaller_than_y(instance, attribute, value):
    ...     if value >= instance.y:
    ...         raise ValueError("'x' has to be smaller than 'y'!")
-   >>> @attr.s
-   ... class C(object):
-   ...     x = attr.ib(validator=[attr.validators.instance_of(int),
-   ...                            x_smaller_than_y])
-   ...     y = attr.ib()
+   >>> @define
+   ... class C:
+   ...     x = field(validator=[attr.validators.instance_of(int),
+   ...                          x_smaller_than_y])
+   ...     y = field()
    >>> C(x=3, y=4)
    C(x=3, y=4)
    >>> C(x=4, y=3)
@@ -193,12 +194,12 @@ Since the validators runs *after* the instance is initialized, you can refer to 
 This example also shows of some syntactic sugar for using the `attr.validators.and_` validator: if you pass a list, all validators have to pass.
 
 ``attrs`` won't intercept your changes to those attributes but you can always call `attr.validate` on any instance to verify that it's still valid:
+When using `define` or :func:`~attr.frozen`, ``attrs`` will run the validators even when setting the attribute.
 
 .. doctest::
 
    >>> i = C(4, 5)
-   >>> i.x = 5  # works, no magic here
-   >>> attr.validate(i)
+   >>> i.x = 5
    Traceback (most recent call last):
       ...
    ValueError: 'x' has to be smaller than 'y'!
@@ -207,9 +208,9 @@ This example also shows of some syntactic sugar for using the `attr.validators.a
 
 .. doctest::
 
-   >>> @attr.s
-   ... class C(object):
-   ...     x = attr.ib(validator=attr.validators.instance_of(int))
+   >>> @define
+   ... class C:
+   ...     x = field(validator=attr.validators.instance_of(int))
    >>> C(42)
    C(x=42)
    >>> C("42")
@@ -222,9 +223,9 @@ If you define validators both ways for an attribute, they are both ran:
 
 .. doctest::
 
-   >>> @attr.s
-   ... class C(object):
-   ...     x = attr.ib(validator=attr.validators.instance_of(int))
+   >>> @define
+   ... class C:
+   ...     x = field(validator=attr.validators.instance_of(int))
    ...     @x.validator
    ...     def fits_byte(self, attribute, value):
    ...         if not 0 <= value < 256:
@@ -275,9 +276,9 @@ This can be useful for doing type-conversions on values that you don't want to f
 
 .. doctest::
 
-    >>> @attr.s
-    ... class C(object):
-    ...     x = attr.ib(converter=int)
+    >>> @define
+    ... class C:
+    ...     x = field(converter=int)
     >>> o = C("1")
     >>> o.x
     1
@@ -289,9 +290,9 @@ Converters are run *before* validators, so you can use validators to check the f
     >>> def validate_x(instance, attribute, value):
     ...     if value < 0:
     ...         raise ValueError("x must be at least 0.")
-    >>> @attr.s
-    ... class C(object):
-    ...     x = attr.ib(converter=int, validator=validate_x)
+    >>> @define
+    ... class C:
+    ...     x = field(converter=int, validator=validate_x)
     >>> o = C("0")
     >>> o.x
     0
@@ -318,9 +319,9 @@ A converter will override an explicit type annotation or ``type`` argument.
 
    >>> def str2int(x: str) -> int:
    ...     return int(x)
-   >>> @attr.s
-   ... class C(object):
-   ...     x = attr.ib(converter=str2int)
+   >>> @define
+   ... class C:
+   ...     x = field(converter=str2int)
    >>> C.__init__.__annotations__
    {'return': None, 'x': <class 'str'>}
 
@@ -348,9 +349,9 @@ The sole reason for the existance of ``__attrs_pre_init__`` is to give users the
 
 .. doctest::
 
-   >>> @attr.s
-   ... class C(object):
-   ...     x = attr.ib()
+   >>> @define
+   ... class C:
+   ...     x: int
    ...     def __attrs_pre_init__(self):
    ...         super().__init__()
    >>> C(42)
@@ -369,9 +370,10 @@ Here's an example of a manual default value:
 .. doctest::
 
    >>> from typing import Optional
-   >>> @attr.s(auto_detect=True)  # or init=False
-   ... class C(object):
-   ...     x = attr.ib()
+
+   >>> @define
+   ... class C:
+   ...     x: int
    ...
    ...     def __init__(self, x: int = 42):
    ...         self.__attrs_init__(x)
@@ -384,10 +386,10 @@ Post Init
 
 .. doctest::
 
-   >>> @attr.s
-   ... class C(object):
-   ...     x = attr.ib()
-   ...     y = attr.ib(init=False)
+   >>> @define
+   ... class C:
+   ...     x: int
+   ...     y: int = field(init=False)
    ...     def __attrs_post_init__(self):
    ...         self.y = self.x + 1
    >>> C(1)
@@ -397,10 +399,10 @@ Please note that you can't directly set attributes on frozen classes:
 
 .. doctest::
 
-   >>> @attr.s(frozen=True)
-   ... class FrozenBroken(object):
-   ...     x = attr.ib()
-   ...     y = attr.ib(init=False)
+   >>> @frozen
+   ... class FrozenBroken:
+   ...     x: int
+   ...     y: int = field(init=False)
    ...     def __attrs_post_init__(self):
    ...         self.y = self.x + 1
    >>> FrozenBroken(1)
@@ -412,10 +414,10 @@ If you need to set attributes on a frozen class, you'll have to resort to the `s
 
 .. doctest::
 
-   >>> @attr.s(frozen=True)
-   ... class Frozen(object):
-   ...     x = attr.ib()
-   ...     y = attr.ib(init=False)
+   >>> @define
+   ... class Frozen:
+   ...     x: int
+   ...     y: int = field(init=False)
    ...     def __attrs_post_init__(self):
    ...         object.__setattr__(self, "y", self.x + 1)
    >>> Frozen(1)

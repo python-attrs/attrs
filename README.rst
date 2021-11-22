@@ -36,12 +36,12 @@ For that, it gives you a class decorator and a way to declaratively define the a
 .. code-block:: pycon
 
    >>> from typing import List
-   >>> import attr
+   >>> from attr import asdict, define, make_class, Factory
 
-   >>> @attr.define
+   >>> @define
    ... class SomeClass:
    ...     a_number: int = 42
-   ...     list_of_numbers: List[int] = attr.Factory(list)
+   ...     list_of_numbers: List[int] = Factory(list)
    ...
    ...     def hard_math(self, another_number):
    ...         return self.a_number + sum(self.list_of_numbers) * another_number
@@ -58,13 +58,13 @@ For that, it gives you a class decorator and a way to declaratively define the a
    >>> sc != SomeClass(2, [3, 2, 1])
    True
 
-   >>> attr.asdict(sc)
+   >>> asdict(sc)
    {'a_number': 1, 'list_of_numbers': [1, 2, 3]}
 
    >>> SomeClass()
    SomeClass(a_number=42, list_of_numbers=[])
 
-   >>> C = attr.make_class("C", ["a", "b"])
+   >>> C = make_class("C", ["a", "b"])
    >>> C("foo", "bar")
    C(a='foo', b='bar')
 
