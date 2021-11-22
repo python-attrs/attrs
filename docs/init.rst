@@ -370,7 +370,7 @@ Here's an example of a manual default value:
 .. doctest::
 
    >>> from typing import Optional
-   
+
    >>> @define
    ... class C:
    ...     x: int
