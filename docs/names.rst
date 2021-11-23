@@ -43,7 +43,7 @@ At this point the plan was not to make ``attrs`` what it is now -- a flexible cl
 All we wanted was an ergonomic little library to succinctly define classes with attributes.
 
 Under the impression of of the unwieldy ``characteristic`` name, we went to the other side and decided to make the package name part of the API, and keep the API functions very short.
-This led to the infamous `attr.s` and `attr.ib` which some found confusing and pronounced it as "attr dot s" or used a singular `@s` as the decorator.
+This led to the infamous `attr.s` and `attr.ib` which some found confusing and pronounced it as "attr dot s" or used a singular ``@s`` as the decorator.
 But it was really just a way to say ``attrs`` and ``attrib``\ [#attr]_.
 
 Some people hated this cutey API from day one, which is why we added aliases for them that we called *serious business*: ``@attr.attrs`` and ``attr.attrib()``.
