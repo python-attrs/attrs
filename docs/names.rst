@@ -55,7 +55,7 @@ But overall, ``attrs`` in this shape was a **huge** success -- especially after 
 Being able to just write::
 
    @attr.s
-   class Point:
+   class Point(object):
        x = attr.ib()
        y = attr.ib()
 
@@ -103,7 +103,12 @@ These APIs proved to be vastly popular, so we've finally changed the documentati
 All of this took way too long, of course.
 One reason is the COVID-19 pandemic, but also our fear to fumble this historic chance to fix our APIs.
 
-We hope you'll like them.
+We hope you'll like them::
+
+   @define
+   class Point:
+       x: int
+       y: int
 
 
 .. [#attr] We considered calling the package just ``attr`` too, but it was already taken byt a `ostensibly inactive package on PyPI <https://pypi.org/project/attr/#history>`_.
