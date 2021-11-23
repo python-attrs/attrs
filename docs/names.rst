@@ -103,7 +103,7 @@ These APIs proved to be vastly popular, so we've finally changed the documentati
 All of this took way too long, of course.
 One reason is the COVID-19 pandemic, but also our fear to fumble this historic chance to fix our APIs.
 
-We hope you like them::
+We hope you like the result::
 
    @define
    class Point:
