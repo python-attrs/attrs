@@ -314,7 +314,7 @@ And sometimes you even want mutable objects as default values (ever accidentally
    >>> cp
    ConnectionPool(db_string='postgres://localhost', pool=deque([Connection(socket=42)]), debug=False)
 
-More information on why class methods for constructing objects are awesome can be found in this insightful `blog post <https://as.ynchrono.us/2014/12/asynchronous-object-initialization.html>`_.
+More information on why class methods for constructing objects are awesome can be found in this insightful `blog post <https://web.archive.org/web/20210130220433/http://as.ynchrono.us/2014/12/asynchronous-object-initialization.html>`_.
 
 Default factories can also be set using the ``factory`` argument to ``field``, and using a decorator.
 The method receives the partially initialized instance which enables you to base a default value on other attributes:

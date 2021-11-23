@@ -868,7 +868,7 @@ class _ClassBuilder(object):
         cls = type(self._cls)(self._cls.__name__, self._cls.__bases__, cd)
 
         # The following is a fix for
-        # https://github.com/python-attrs/attrs/issues/102.  On Python 3,
+        # <https://github.com/python-attrs/attrs/issues/102>.  On Python 3,
         # if a method mentions `__class__` or uses the no-arg super(), the
         # compiler will bake a reference to the class in the method itself
         # as `method.__closure__`.  Since we replace the class with a
