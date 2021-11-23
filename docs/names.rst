@@ -40,7 +40,7 @@ But ``attrs`` history goes even a bit further back, to the now-forgotten `charac
 
 In the wake of all of that, `glyph <https://twitter.com/glyph>`_ and `Hynek <https://twitter.com/hynek>`_ came together on IRC and brainstormed how to take the good ideas of ``characteristic``, but make them easier to use and read.
 At this point the plan was not to make ``attrs`` what it is now -- a flexible class building kit.
-All we wanted was an ergonomic little library to succintly define classes with attributes.
+All we wanted was an ergonomic little library to succinctly define classes with attributes.
 
 Under the impression of of the unwieldy ``characteristic`` name, we went to the other side and decided to make the package name part of the API, and keep the API functions very short.
 This led to the infamous `attr.s` and `attr.ib` which some found confusing and even pronounced it as "attr dot s".
