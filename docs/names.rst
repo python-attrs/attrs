@@ -87,10 +87,10 @@ We're determined to serve both.
 ``attrs`` TNG
 ^^^^^^^^^^^^^
 
-Over its existance, ``attrs`` never stood still.
+Over its existence, ``attrs`` never stood still.
 But since we also greatly care about backward compatibility and not breaking our users's code, many features and niceties have to be manually activated.
 
-That is not only annoying, it also leads to the problem that many of ``attrs``'s users don't even know what it can.
+That is not only annoying, it also leads to the problem that many of ``attrs``'s users don't even know what it can do for them.
 We've spent years alone explaining that defining attributes using type annotations is in no way unique to `dataclasses`.
 
 Finally we've decided to take the `Go route <https://go.dev/blog/module-compatibility>`_:
