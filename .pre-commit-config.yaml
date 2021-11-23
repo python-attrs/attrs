@@ -1,4 +1,7 @@
 ---
+ci:
+  autoupdate_schedule: monthly
+
 repos:
   - repo: https://github.com/psf/black
     rev: 21.11b1
