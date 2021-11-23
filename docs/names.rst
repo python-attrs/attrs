@@ -111,6 +111,6 @@ We hope you like them::
        y: int
 
 
-.. [#attr] We considered calling the package just ``attr`` too, but it was already taken byt a `ostensibly inactive package on PyPI <https://pypi.org/project/attr/#history>`_.
+.. [#attr] We considered calling the PyPI package just ``attr`` too, but the name was already taken by an *ostensibly* inactive `package on PyPI <https://pypi.org/project/attr/#history>`_.
 .. [#stdlib] The highly readable PEP also explains why ``attrs`` wasn't just added to the standard library.
    Don't believe the myths and rumors.
