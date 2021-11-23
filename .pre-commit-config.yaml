@@ -8,7 +8,7 @@ repos:
     hooks:
       - id: black
         exclude: tests/test_pattern_matching.py
-        language_version: python3.8
+        language_version: python3.10
 
   - repo: https://github.com/PyCQA/isort
     rev: 5.10.1

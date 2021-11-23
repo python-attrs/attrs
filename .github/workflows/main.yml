@@ -17,8 +17,6 @@ jobs:
   tests:
     name: "tox on ${{ matrix.python-version }}"
     runs-on: "ubuntu-latest"
-    env:
-      USING_COVERAGE: "2.7,3.7,3.8,3.10"
 
     strategy:
       fail-fast: false
@@ -77,6 +75,7 @@ jobs:
 
       - run: python -m coverage report --fail-under=100
 
+
   package:
     name: "Build & verify package"
     runs-on: "ubuntu-latest"
@@ -94,6 +93,7 @@ jobs:
       - run: "check-wheel-contents dist/*.whl"
       - name: "Check long_description"
         run: "python -m twine check dist/*"
+
 
   install-dev:
     name: "Verify dev env"
