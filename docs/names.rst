@@ -11,7 +11,7 @@ And what even is ``attr.dataclass`` that's not documented but commonly used!?
 TL;DR
 -----
 
-We recommend using our modern APIs for new code:
+We recommend our modern APIs for new code:
 
 - `define()` to define a new class,
 - `mutable()` is an alias for `define()`,
