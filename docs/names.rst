@@ -18,7 +18,7 @@ We recommend our modern APIs for new code:
 - :func:`~attr.frozen` is an alias for ``define(frozen=True)``
 - and `field()` to define an attribute.
 
-They have been added in ``attrs`` 20.1.0, they are expressive, and they have modern defaults like slots and type annotation awareness.
+They have been added in ``attrs`` 20.1.0, they are expressive, and they have modern defaults like slots and type annotation awareness switched on by default.
 They are only available in Python 3.6 and later.
 Sometimes they're referred to as *next-generation* or *NG* APIs.
 
@@ -32,7 +32,7 @@ A Short History Lesson
 
 At this point, ``attrs`` is an old project.
 It had its first release in April 2015 -- back when most Python code was on Python 2.7 and Python 3.4 was the first Python 3 release that showed promise.
-``attrs`` was always Python 3-first, but `type annotations <https://www.python.org/dev/peps/pep-0484/>`_ came only into Python 3.5 that was released in September 2015.
+``attrs`` was always Python 3-first, but `type annotations <https://www.python.org/dev/peps/pep-0484/>`_ came only into Python 3.5 that was released in September 2015 and were largely ignored until years later.
 
 At this time, if you didn't want to implement all the :term:`dunder methods`, the most common way to create a class with some attributes on it was to subclass a `collections.namedtuple`, or one of the many hacks that allowed you to access dictionary keys using attribute lookup.
 
