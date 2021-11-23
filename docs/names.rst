@@ -48,7 +48,8 @@ But it was really just a way to say ``attrs`` and ``attrib``\ [#attr]_.
 
 Some people hated this cutey API from day one, which is why we added aliases for them that we called *serious business*: ``@attr.attrs`` and ``attr.attrib()``.
 Fans of them usually imported the names and didn't use the package name in the first place.
-Unfortunately, the ``attr`` package name also started creaking the moment we added `attr.Factory`.
+Unfortunately, the ``attr`` package name started creaking the moment we added `attr.Factory`, since it couldn’t be morphed into something meaningful in any way.
+A problem that grew worse over time, as more APIs and even modules were added.
 
 But overall, ``attrs`` in this shape was a **huge** success -- especially after glyph's blog post `The One Python Library Everyone Needs <https://glyph.twistedmatrix.com/2016/08/attrs.html>`_ in August 2016 and `pytest <https://docs.pytest.org/>`_ adopting it.
 
