@@ -28,7 +28,7 @@ The next three steps should bring you up and running in no time:
   Afterwards, you can start writing your own classes and understand what drives ``attrs``'s design.
 - `examples` will give you a comprehensive tour of ``attrs``'s features.
   After reading, you will know about our advanced features and how to use them.
-- If you're confused by all the ``attr.s``, ``attr.ib``, ``attrs``, ``attrib``, ``define``, ``frozen``, and ``field``, head over to `names` for a very brief history lesson.
+- If you're confused by all the ``attr.s``, ``attr.ib``, ``attrs``, ``attrib``, ``define``, ``frozen``, and ``field``, head over to `names` for a very short explanation, and optionally a quick history lesson.
 - Finally `why` gives you a rundown of potential alternatives and why we think ``attrs`` is superior.
   Yes, we've heard about ``namedtuple``\ s and Data Classes!
 - If at any point you get confused by some terminology, please check out our `glossary`.
