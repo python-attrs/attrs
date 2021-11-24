@@ -91,6 +91,17 @@ The classic APIs (``@attr.s``, ``attr.ib``, ``@attr.attrs``, ``attr.attrib``, an
 
 Please check out `On The Core API Names <https://www.attrs.org/en/latest/names.html>`_ for a more in-depth explanation.
 
+
+Data Classes
+============
+
+On the tin, ``attrs`` might remind you of ``dataclasses`` (and indeed, ``dataclasses`` are a descendant of ``attrs``).
+In practice it does a lot more more and is more flexible.
+For instance it allows you to define `special handling of NumPy arrays for equality checks <https://www.attrs.org/en/stable/comparison.html#customization>`_, or allows more ways to `plug into the initialization process <https://www.attrs.org/en/stable/init.html#hooking-yourself-into-initialization>`_.
+
+For more details, please refer to our `comparison page <https://www.attrs.org/en/stable/why.html#data-classes>`_.
+
+
 .. -getting-help-
 
 Getting Help
