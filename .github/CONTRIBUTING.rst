@@ -232,7 +232,7 @@ Thank you for considering contributing to ``attrs``!
 .. _`PEP 8`: https://www.python.org/dev/peps/pep-0008/
 .. _`PEP 257`: https://www.python.org/dev/peps/pep-0257/
 .. _`good test docstrings`: https://jml.io/pages/test-docstrings.html
-.. _`Code of Conduct`: https://github.com/python-attrs/attrs/blob/main/.github/CODE_OF_CONDUCT.rst
+.. _`Code of Conduct`: https://github.com/python-attrs/attrs/blob/main/.github/CODE_OF_CONDUCT.md
 .. _changelog: https://github.com/python-attrs/attrs/blob/main/CHANGELOG.rst
 .. _`backward compatibility`: https://www.attrs.org/en/latest/backward-compatibility.html
 .. _tox: https://tox.readthedocs.io/
