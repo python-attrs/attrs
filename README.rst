@@ -22,7 +22,7 @@
 
 .. teaser-begin
 
-``attrs`` is the Python package that will bring back the **joy** of **writing classes** by relieving you from the drudgery of implementing object protocols (aka `dunder <https://nedbatchelder.com/blog/200605/dunder.html>`_ methods).
+``attrs`` is the Python package that will bring back the **joy** of **writing classes** by relieving you from the drudgery of implementing object protocols (aka `dunder methods <https://www.attrs.org/en/latest/glossary.html#term-dunder-methods>`_).
 `Trusted by NASA <https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/customizing-your-profile/personalizing-your-profile#list-of-qualifying-repositories-for-mars-2020-helicopter-contributor-badge>`_ for Mars missions since 2020!
 
 Its main goal is to help you to write **concise** and **correct** software without slowing down your code.
@@ -86,8 +86,10 @@ Never again violate the `single responsibility principle <https://en.wikipedia.o
 ----
 
 In case you're wondering: this example uses ``attrs``'s `modern APIs <https://www.attrs.org/en/stable/api.html#next-generation-apis>`_ that have been introduced in version 20.1.0.
-The classic APIs (``@attr.s``, ``attr.ib``, ``@attr.attrs``, and ``attr.attrib``) will remain indefinitely.
+The classic APIs (``@attr.s``, ``attr.ib``, ``@attr.attrs``, ``attr.attrib``, and ``attr.dataclass``) will remain indefinitely.
 `Type annotations <https://www.attrs.org/en/latest/types.html>`_ will also stay entirely **optional** forever.
+
+Please check out `On The Core API Names <https://www.attrs.org/en/latest/names.html>`_ for a more in-depth explanation.
 
 .. -getting-help-
 

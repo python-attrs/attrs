@@ -3,14 +3,11 @@ API Reference
 
 .. currentmodule:: attr
 
-``attrs`` works by decorating a class using `attr.s` and then optionally defining attributes on the class using `attr.ib`.
+``attrs`` works by decorating a class using `attr.define` or `attr.s` and then optionally defining attributes on the class using `attr.field`, `attr.ib`, or a type annotation.
 
-.. note::
-
-   When this documentation speaks about "``attrs`` attributes" it means those attributes that are defined using `attr.ib` in the class body.
+If you're confused by the many names, please check out `names` for clarification.
 
 What follows is the API explanation, if you'd like a more hands-on introduction, have a look at `examples`.
-
 
 
 Core

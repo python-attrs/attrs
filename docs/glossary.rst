@@ -3,6 +3,15 @@ Glossary
 
 .. glossary::
 
+   dunder methods
+      "Dunder" is a contraction of "double underscore".
+
+      It's methods like ``__init__`` or ``__eq__`` that are sometimes also called *magic methods* or it's said that they implement an *object protocol*.
+
+      In spoken form, you'd call ``__init__`` just "dunder init".
+
+      Its first documented use is a `mailing list posting <https://mail.python.org/pipermail/python-list/2002-September/155836.html>`_ by Mark Jackson from 2002.
+
    dict classes
       A regular class whose attributes are stored in the `object.__dict__` attribute of every single instance.
       This is quite wasteful especially for objects with very few data attributes and the space consumption can become significant when creating large numbers of instances.

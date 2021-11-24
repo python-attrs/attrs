@@ -15,9 +15,9 @@ Internally they're a representation of the data passed into ``attr.ib`` along wi
 
 In order to ensure that subclassing works as you'd expect it to work, ``attrs`` also walks the class hierarchy and collects the attributes of all base classes.
 Please note that ``attrs`` does *not* call ``super()`` *ever*.
-It will write dunder methods to work on *all* of those attributes which also has performance benefits due to fewer function calls.
+It will write :term:`dunder methods` to work on *all* of those attributes which also has performance benefits due to fewer function calls.
 
-Once ``attrs`` knows what attributes it has to work on, it writes the requested dunder methods and -- depending on whether you wish to have a :term:`dict <dict classes>` or :term:`slotted <slotted classes>` class -- creates a new class for you (``slots=True``) or attaches them to the original class (``slots=False``).
+Once ``attrs`` knows what attributes it has to work on, it writes the requested :term:`dunder methods` and -- depending on whether you wish to have a :term:`dict <dict classes>` or :term:`slotted <slotted classes>` class -- creates a new class for you (``slots=True``) or attaches them to the original class (``slots=False``).
 While creating new classes is more elegant, we've run into several edge cases surrounding metaclasses that make it impossible to go this route unconditionally.
 
 To be very clear: if you define a class with a single attribute without a default value, the generated ``__init__`` will look *exactly* how you'd expect:
