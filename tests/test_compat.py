@@ -44,7 +44,7 @@ class TestMetadataProxy:
             mp.pop("x")
 
         with pytest.raises(AttributeError, match="no attribute 'popitem'"):
-            mp.popitem("x")
+            mp.popitem()
 
         with pytest.raises(AttributeError, match="no attribute 'setdefault'"):
             mp.setdefault("x")
