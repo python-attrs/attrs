@@ -115,7 +115,7 @@ It’s rigorously tested on Python 2.7, 3.5+, and PyPy.
 We collect information on **third-party extensions** in our `wiki <https://github.com/python-attrs/attrs/wiki/Extensions-to-attrs>`_.
 Feel free to browse and add your own!
 
-If you'd like to contribute to ``attrs`` you're most welcome and we've written `a little guide <https://www.attrs.org/en/latest/contributing.html>`_ to get you started!
+If you'd like to contribute to ``attrs`` you're most welcome and we've written `a little guide <https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md>`_ to get you started!
 
 
 ``attrs`` for Enterprise
