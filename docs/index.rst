@@ -91,7 +91,6 @@ Full Table of Contents
    license
    backward-compatibility
    python-2
-   contributing
    changelog
 
 
