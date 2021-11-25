@@ -191,7 +191,7 @@ $ make html
 
 The built documentation can then be found in `docs/_build/html/`.
 
-To avoid committing code that violates our style guide, we strongly advise you to install [*pre-commit*][^dev] hooks:
+To avoid committing code that violates our style guide, we strongly advise you to install [*pre-commit*] [^dev] hooks:
 
 ```console
 $ pre-commit install
@@ -203,7 +203,8 @@ You can also run them anytime (as our tox does) using:
 $ pre-commit run --all-files
 ```
 
-[^dev]: *pre-commit* should have been installed into your virtualenv automatically when you ran `pip install -e '.[dev]'` above. If pre-commit is missing, it may be that you need to re-run `pip install -e '.[dev]'`.
+[^dev]: *pre-commit* should have been installed into your virtualenv automatically when you ran `pip install -e '.[dev]'` above.
+        If *pre-commit* is missing, your probably need to run `pip install -e '.[dev]'` again.
 
 
 Governance
