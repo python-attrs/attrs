@@ -11,7 +11,7 @@ Changes for the upcoming release can be found in the `"changelog.d" directory <h
 
    This changelog is managed by towncrier and is compiled at release time.
 
-   See https://www.attrs.org/en/latest/contributing.html#changelog for details.
+   See https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md#changelog for details.
 
 .. towncrier release notes start
 
