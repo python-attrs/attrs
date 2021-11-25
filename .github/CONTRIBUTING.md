@@ -68,7 +68,7 @@ The official tag is `python-attrs` and helping out in support frees us up to imp
 
 - To run the test suite, all you need is a recent [*tox*].
   It will ensure the test suite runs with all dependencies against all Python versions just as it will in our [CI].
-  If you lack some Python versions, you can can always limit the environments like `tox -e py27,py38` or make it a non-failure using `tox --skip-missing-interpreters`.
+  If you lack some Python versions, you can can always limit the environments like `tox -e py27,py38`, or make it a non-failure using `tox --skip-missing-interpreters`.
 
   In that case you should look into [*asdf*](https://asdf-vm.com) or [*pyenv*](https://github.com/pyenv/pyenv), which make it very easy to install many different Python versions in parallel.
 - Write [good test docstrings](https://jml.io/pages/test-docstrings.html).
@@ -156,13 +156,13 @@ We highly recommend to develop using the latest Python release because `attrs` t
 First create a [virtual environment](https://virtualenv.pypa.io/) so you don't break your system-wide Python installation.
 It’s out of scope for this document to list all the ways to manage virtual environments in Python, but if you don’t already have a pet way, take some time to look at tools like [*direnv*](https://github.com/direnv/direnv/wiki/Python), [*virtualfish*](https://virtualfish.readthedocs.io/), and [*virtualenvwrapper*](https://virtualenvwrapper.readthedocs.io/).
 
-Next, get an up to date checkout of the ``attrs`` repository:
+Next, get an up to date checkout of the `attrs` repository:
 
 ```console
 $ git clone git@github.com:python-attrs/attrs.git
 ```
 
-or if you want to use git via ``https``:
+or if you want to use git via `https`:
 
 ```console
 $ git clone https://github.com/python-attrs/attrs.git
