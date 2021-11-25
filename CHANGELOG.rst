@@ -4,6 +4,16 @@ Changelog
 Versions follow `CalVer <https://calver.org>`_ with a strict backwards compatibility policy.
 The third digit is only for regressions.
 
+Put simply, you shouldn't ever be afraid to upgrade ``attrs`` if you're only using its public APIs.
+Whenever there is a need to break compatibility, it is announced here in the changelog, and raises a ``DeprecationWarning`` for a year (if possible) before it's finally really broken.
+
+.. warning::
+
+   The structure of the `attr.Attribute` class is exempt from this rule.
+   It *will* change in the future, but since it should be considered read-only, that shouldn't matter.
+
+   However if you intend to build extensions on top of ``attrs`` you have to anticipate that.
+
 Changes for the upcoming release can be found in the `"changelog.d" directory <https://github.com/python-attrs/attrs/tree/main/changelog.d>`_ in our repository.
 
 ..

@@ -31,7 +31,7 @@ The official tag is `python-attrs` and helping out in support frees us up to imp
 - Make sure your changes pass our [CI].
   You won't get any feedback until it's green unless you ask for it.
 - Once you've addressed review feedback, make sure to bump the pull request with a short note, so we know you're done.
-- Don’t break [backward compatibility](https://www.attrs.org/en/latest/backward-compatibility.html).
+- Don’t break backwards compatibility.
 
 
 ## Code
@@ -151,7 +151,7 @@ or:
 
 You can (and should) run our test suite using [*tox*].
 However, you’ll probably want a more traditional environment as well.
-We highly recommend to develop using the latest Python release because `attrs` tries to take advantage of modern features whenever possible.
+We highly recommend to develop using the latest Python release because we try to take advantage of modern features whenever possible.
 
 First create a [virtual environment](https://virtualenv.pypa.io/) so you don't break your system-wide Python installation.
 It’s out of scope for this document to list all the ways to manage virtual environments in Python, but if you don’t already have a pet way, take some time to look at tools like [*direnv*](https://github.com/direnv/direnv/wiki/Python), [*virtualfish*](https://virtualfish.readthedocs.io/), and [*virtualenvwrapper*](https://virtualenvwrapper.readthedocs.io/).

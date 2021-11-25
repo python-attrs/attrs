@@ -89,7 +89,6 @@ Full Table of Contents
    :maxdepth: 1
 
    license
-   backward-compatibility
    python-2
    changelog
 
