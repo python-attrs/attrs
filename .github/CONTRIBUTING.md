@@ -51,8 +51,8 @@ The official tag is `python-attrs` and helping out in support frees us up to imp
   ```
 - If you add or change public APIs, tag the docstring using `..  versionadded:: 16.0.0 WHAT` or `..  versionchanged:: 16.2.0 WHAT`.
 - We use [*isort*](https://github.com/PyCQA/isort) to sort our imports, and we use [*Black*](https://github.com/psf/black) with line length of 79 characters to format our code.
-  As long as you run our full [*tox*] suite before committing, or install our [*pre-commit*] hooks (ideally you'll do both -- see [*Local Development Environment*](#local-development-environment) below), you won't have to spend any time on formatting your code at all.
-  If you don't, [CI] will catch it for you -- but that seems like a waste of your time!
+  As long as you run our full [*tox*] suite before committing, or install our [*pre-commit*] hooks (ideally you'll do both – see [*Local Development Environment*](#local-development-environment) below), you won't have to spend any time on formatting your code at all.
+  If you don't, [CI] will catch it for you – but that seems like a waste of your time!
 
 
 ## Tests
@@ -108,7 +108,7 @@ The official tag is `python-attrs` and helping out in support frees us up to imp
 If your change is noteworthy, there needs to be a changelog entry so our users can learn about it!
 
 To avoid merge conflicts, we use the [*towncrier*](https://pypi.org/project/towncrier) package to manage our changelog.
-*towncrier* uses independent files for each pull request -- so called *news fragments* -- instead of one monolithic changelog file.
+*towncrier* uses independent files for each pull request – so called *news fragments* – instead of one monolithic changelog file.
 On release, those news fragments are compiled into our [`CHANGELOG.rst`](https://github.com/python-attrs/attrs/blob/main/CHANGELOG.rst).
 
 You don't need to install *towncrier* yourself, you just have to abide by a few simple rules:
@@ -142,7 +142,7 @@ or:
   The bug really *was* nasty.
   ```
 
-----
+---
 
 ``tox -e changelog`` will render the current changelog to the terminal if you have any doubts.
 
@@ -207,8 +207,7 @@ $ pre-commit run --all-files
         If *pre-commit* is missing, your probably need to run `pip install -e '.[dev]'` again.
 
 
-Governance
-----------
+## Governance
 
 `attrs` is maintained by [team of volunteers](https://github.com/python-attrs) that is always open to new members that share our vision of a fast, lean, and magic-free library that empowers programmers to write better code with less effort.
 If you'd like to join, just get a pull request merged and ask to be added in the very same pull request!
