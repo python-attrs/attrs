@@ -31,7 +31,7 @@ The official tag is `python-attrs` and helping out in support frees us up to imp
 - Make sure your changes pass our [CI].
   You won't get any feedback until it's green unless you ask for it.
 - Once you've addressed review feedback, make sure to bump the pull request with a short note, so we know you're done.
-- Don’t break [backward compatibility](https://www.attrs.org/en/latest/backward-compatibility.html).
+- Don’t break backwards compatibility.
 
 
 ## Code
@@ -68,7 +68,7 @@ The official tag is `python-attrs` and helping out in support frees us up to imp
 
 - To run the test suite, all you need is a recent [*tox*].
   It will ensure the test suite runs with all dependencies against all Python versions just as it will in our [CI].
-  If you lack some Python versions, you can can always limit the environments like `tox -e py27,py38` or make it a non-failure using `tox --skip-missing-interpreters`.
+  If you lack some Python versions, you can can always limit the environments like `tox -e py27,py38`, or make it a non-failure using `tox --skip-missing-interpreters`.
 
   In that case you should look into [*asdf*](https://asdf-vm.com) or [*pyenv*](https://github.com/pyenv/pyenv), which make it very easy to install many different Python versions in parallel.
 - Write [good test docstrings](https://jml.io/pages/test-docstrings.html).
@@ -117,8 +117,10 @@ You don't need to install *towncrier* yourself, you just have to abide by a few 
   For example, `changelog.d/42.change.rst` for a non-breaking change that is proposed in pull request #42.
 - As with other docs, please use [semantic newlines] within news fragments.
 - Wrap symbols like modules, functions, or classes into double backticks so they are rendered in a `monospace font`.
-- Wrap arguments into asterisks like in docstrings: *these* or *attributes*.
-- If you mention functions or other callables, add parentheses at the end of their names: `attr.func()` or `attr.Class.method()`.
+- Wrap arguments into asterisks like in docstrings:
+  `Added new argument *an_argument*.`
+- If you mention functions or other callables, add parentheses at the end of their names:
+  `attr.func()` or `attr.Class.method()`.
   This makes the changelog a lot more readable.
 - Prefer simple past tense or constructions with "now".
   For example:
@@ -151,18 +153,18 @@ or:
 
 You can (and should) run our test suite using [*tox*].
 However, you’ll probably want a more traditional environment as well.
-We highly recommend to develop using the latest Python release because `attrs` tries to take advantage of modern features whenever possible.
+We highly recommend to develop using the latest Python release because we try to take advantage of modern features whenever possible.
 
 First create a [virtual environment](https://virtualenv.pypa.io/) so you don't break your system-wide Python installation.
-It’s out of scope for this document to list all the ways to manage virtual environments in Python, but if you don’t already have a pet way, take some time to look at tools like [*direnv*](https://github.com/direnv/direnv/wiki/Python), [*virtualfish*](https://virtualfish.readthedocs.io/), and [*virtualenvwrapper*](https://virtualenvwrapper.readthedocs.io/).
+It’s out of scope for this document to list all the ways to manage virtual environments in Python, but if you don’t already have a pet way, take some time to look at tools like [*direnv*](https://hynek.me/til/python-project-local-venvs/), [*virtualfish*](https://virtualfish.readthedocs.io/), and [*virtualenvwrapper*](https://virtualenvwrapper.readthedocs.io/).
 
-Next, get an up to date checkout of the ``attrs`` repository:
+Next, get an up to date checkout of the `attrs` repository:
 
 ```console
 $ git clone git@github.com:python-attrs/attrs.git
 ```
 
-or if you want to use git via ``https``:
+or if you want to use git via `https`:
 
 ```console
 $ git clone https://github.com/python-attrs/attrs.git
