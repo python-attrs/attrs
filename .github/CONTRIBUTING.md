@@ -117,8 +117,10 @@ You don't need to install *towncrier* yourself, you just have to abide by a few 
   For example, `changelog.d/42.change.rst` for a non-breaking change that is proposed in pull request #42.
 - As with other docs, please use [semantic newlines] within news fragments.
 - Wrap symbols like modules, functions, or classes into double backticks so they are rendered in a `monospace font`.
-- Wrap arguments into asterisks like in docstrings: *these* or *attributes*.
-- If you mention functions or other callables, add parentheses at the end of their names: `attr.func()` or `attr.Class.method()`.
+- Wrap arguments into asterisks like in docstrings:
+  `Added new argument *an_argument*.`
+- If you mention functions or other callables, add parentheses at the end of their names:
+  `attr.func()` or `attr.Class.method()`.
   This makes the changelog a lot more readable.
 - Prefer simple past tense or constructions with "now".
   For example:
