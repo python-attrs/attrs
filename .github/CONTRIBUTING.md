@@ -154,7 +154,7 @@ However, you’ll probably want a more traditional environment as well.
 We highly recommend to develop using the latest Python release because we try to take advantage of modern features whenever possible.
 
 First create a [virtual environment](https://virtualenv.pypa.io/) so you don't break your system-wide Python installation.
-It’s out of scope for this document to list all the ways to manage virtual environments in Python, but if you don’t already have a pet way, take some time to look at tools like [*direnv*](https://github.com/direnv/direnv/wiki/Python), [*virtualfish*](https://virtualfish.readthedocs.io/), and [*virtualenvwrapper*](https://virtualenvwrapper.readthedocs.io/).
+It’s out of scope for this document to list all the ways to manage virtual environments in Python, but if you don’t already have a pet way, take some time to look at tools like [*direnv*](https://hynek.me/til/python-project-local-venvs/), [*virtualfish*](https://virtualfish.readthedocs.io/), and [*virtualenvwrapper*](https://virtualenvwrapper.readthedocs.io/).
 
 Next, get an up to date checkout of the `attrs` repository:
 
