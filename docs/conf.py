@@ -1,30 +1,4 @@
-import codecs
-import os
-import re
-
-
-def read(*parts):
-    """
-    Build an absolute path from *parts* and and return the contents of the
-    resulting file.  Assume UTF-8 encoding.
-    """
-    here = os.path.abspath(os.path.dirname(__file__))
-    with codecs.open(os.path.join(here, *parts), "rb", "utf-8") as f:
-        return f.read()
-
-
-def find_version(*file_paths):
-    """
-    Build a path from *file_paths* and search for a ``__version__``
-    string inside.
-    """
-    version_file = read(*file_paths)
-    version_match = re.search(
-        r"^__version__ = ['\"]([^'\"]*)['\"]", version_file, re.M
-    )
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError("Unable to find version string.")
+from importlib import metadata
 
 
 # -- General configuration ------------------------------------------------
@@ -75,11 +49,11 @@ copyright = f"2015, {author}"
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
-#
-# The short X.Y version.
-release = find_version("../src/attr/__init__.py")
-version = release.rsplit(".", 1)[0]
+
 # The full version, including alpha/beta/rc tags.
+release = metadata.version("attrs")
+# The short X.Y version.
+version = release.rsplit(".", 1)[0]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
