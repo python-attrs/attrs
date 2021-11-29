@@ -49,7 +49,7 @@ class TestInclude(object):
     )
     def test_allow(self, incl, value):
         """
-        Return True if a class or attribute is whitelisted.
+        Return True if a class or attribute is included.
         """
         i = include(*incl)
         assert i(fields(C).a, value) is True
@@ -65,7 +65,7 @@ class TestInclude(object):
     )
     def test_drop_class(self, incl, value):
         """
-        Return False on non-whitelisted classes and attributes.
+        Return False on non-included classes and attributes.
         """
         i = include(*incl)
         assert i(fields(C).a, value) is False
@@ -87,7 +87,7 @@ class TestExclude(object):
     )
     def test_allow(self, excl, value):
         """
-        Return True if class or attribute is not blacklisted.
+        Return True if class or attribute is not excluded.
         """
         e = exclude(*excl)
         assert e(fields(C).a, value) is True
@@ -103,7 +103,7 @@ class TestExclude(object):
     )
     def test_drop_class(self, excl, value):
         """
-        Return True on non-blacklisted classes and attributes.
+        Return True on non-excluded classes and attributes.
         """
         e = exclude(*excl)
         assert e(fields(C).a, value) is False
