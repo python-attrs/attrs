@@ -443,6 +443,47 @@ If present, the hooks are executed in the following order:
 Notably this means, that you can access all attributes from within your validators, but your converters have to deal with invalid values and have to return a valid value.
 
 
+Derived Attributes
+------------------
+
+One of the most common ``attrs`` questions on *Stack Overflow* is how to have attributes that depend on other attributes.
+For example if you have an API token and want to instantiate a web client that uses it for authentication.
+Based on the previous sections, there's two approaches.
+
+The simpler one is using ``__attrs_post_init__``::
+
+   @define
+   class APIClient:
+       token: str
+       client: WebClient = field(init=False)
+
+       def __attrs_post_init__(self):
+           self.client = WebClient(self.token)
+
+The second one is using a decorator-based default::
+
+   @define
+   class APIClient:
+       token: str
+       client: WebClient = field()  # needed! attr.ib works too
+
+        @client.default
+        def _client_factory(self):
+            return WebClient(self.token)
+
+That said, and as pointed out in the beginning of the chapter, a better approach would be to have a factory class method::
+
+   @define
+   class APIClient:
+       client: WebClient
+
+       @classmethod
+       def from_token(cls, token: str) -> SomeClass:
+           return cls(client=WebClient(token))
+
+This makes the class more testable.
+
+
 .. _`Wiki page`: https://github.com/python-attrs/attrs/wiki/Extensions-to-attrs
 .. _`get confused`: https://github.com/python-attrs/attrs/issues/289
 .. _`there is no such thing as a private argument`: https://github.com/hynek/characteristic/issues/6
