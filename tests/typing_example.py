@@ -167,7 +167,7 @@ class Validated:
             attr.validators.instance_of(C), attr.validators.instance_of(D)
         ),
     )
-    e: str = attr.ib(validator=attr.validators.matches_re(r"foo"))
+    e: str = attr.ib(validator=attr.validators.matches_re(re.compile(r"foo")))
     f: str = attr.ib(
         validator=attr.validators.matches_re(r"foo", flags=42, func=re.search)
     )
