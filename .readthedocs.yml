@@ -4,7 +4,7 @@ formats: all
 
 python:
   # Keep version in sync with tox.ini (docs and gh-actions).
-  version: 3.10
+  version: "3.10"
 
   install:
     - method: pip
