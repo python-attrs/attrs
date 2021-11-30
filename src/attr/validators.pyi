@@ -9,6 +9,7 @@ from typing import (
     Mapping,
     Match,
     Optional,
+    Pattern,
     Tuple,
     Type,
     TypeVar,
@@ -54,7 +55,7 @@ def optional(
 def in_(options: Container[_T]) -> _ValidatorType[_T]: ...
 def and_(*validators: _ValidatorType[_T]) -> _ValidatorType[_T]: ...
 def matches_re(
-    regex: AnyStr,
+    regex: Union[Pattern[AnyStr], AnyStr],
     flags: int = ...,
     func: Optional[
         Callable[[AnyStr, AnyStr, int], Optional[Match[AnyStr]]]

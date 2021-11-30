@@ -14,6 +14,12 @@ from ._make import _AndValidator, and_, attrib, attrs
 from .exceptions import NotCallableError
 
 
+try:
+    Pattern = re.Pattern
+except AttributeError:  # Python <3.7 lacks a Pattern type.
+    Pattern = type(re.compile(""))
+
+
 __all__ = [
     "and_",
     "deep_iterable",
@@ -129,8 +135,7 @@ def instance_of(type):
 
 @attrs(repr=False, frozen=True, slots=True)
 class _MatchesReValidator(object):
-    regex = attrib()
-    flags = attrib()
+    pattern = attrib()
     match_func = attrib()
 
     def __call__(self, inst, attr, value):
@@ -139,18 +144,18 @@ class _MatchesReValidator(object):
         """
         if not self.match_func(value):
             raise ValueError(
-                "'{name}' must match regex {regex!r}"
+                "'{name}' must match regex {pattern!r}"
                 " ({value!r} doesn't)".format(
-                    name=attr.name, regex=self.regex.pattern, value=value
+                    name=attr.name, pattern=self.pattern.pattern, value=value
                 ),
                 attr,
-                self.regex,
+                self.pattern,
                 value,
             )
 
     def __repr__(self):
-        return "<matches_re validator for pattern {regex!r}>".format(
-            regex=self.regex
+        return "<matches_re validator for pattern {pattern!r}>".format(
+            pattern=self.pattern
         )
 
 
@@ -159,7 +164,7 @@ def matches_re(regex, flags=0, func=None):
     A validator that raises `ValueError` if the initializer is called
     with a string that doesn't match *regex*.
 
-    :param str regex: a regex string to match against
+    :param regex: a regex string or precompiled pattern to match against
     :param int flags: flags that will be passed to the underlying re function
         (default 0)
     :param callable func: which underlying `re` function to call (options
@@ -169,34 +174,44 @@ def matches_re(regex, flags=0, func=None):
         but on a pre-`re.compile`\ ed pattern.
 
     .. versionadded:: 19.2.0
+    .. versionchanged:: 21.3.0 *regex* can be a pre-compiled pattern.
     """
     fullmatch = getattr(re, "fullmatch", None)
     valid_funcs = (fullmatch, None, re.search, re.match)
     if func not in valid_funcs:
         raise ValueError(
-            "'func' must be one of %s."
-            % (
+            "'func' must be one of {}.".format(
                 ", ".join(
                     sorted(
                         e and e.__name__ or "None" for e in set(valid_funcs)
                     )
-                ),
+                )
             )
         )
 
-    pattern = re.compile(regex, flags)
+    if isinstance(regex, Pattern):
+        if flags:
+            raise TypeError(
+                "'flags' can only be used with a string pattern; "
+                "pass flags to re.compile() instead"
+            )
+        pattern = regex
+    else:
+        pattern = re.compile(regex, flags)
+
     if func is re.match:
         match_func = pattern.match
     elif func is re.search:
         match_func = pattern.search
-    else:
-        if fullmatch:
-            match_func = pattern.fullmatch
-        else:
-            pattern = re.compile(r"(?:{})\Z".format(regex), flags)
-            match_func = pattern.match
+    elif fullmatch:
+        match_func = pattern.fullmatch
+    else:  # Python 2 fullmatch emulation (https://bugs.python.org/issue16203)
+        pattern = re.compile(
+            r"(?:{})\Z".format(pattern.pattern), pattern.flags
+        )
+        match_func = pattern.match
 
-    return _MatchesReValidator(pattern, flags, match_func)
+    return _MatchesReValidator(pattern, match_func)
 
 
 @attrs(repr=False, slots=True, hash=True)

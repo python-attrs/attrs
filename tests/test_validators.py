@@ -176,9 +176,9 @@ class TestMatchesRe(object):
 
         @attr.s
         class ReTester(object):
-            str_match = attr.ib(validator=matches_re("a"))
+            str_match = attr.ib(validator=matches_re("a|ab"))
 
-        ReTester("a")  # shouldn't raise exceptions
+        ReTester("ab")  # shouldn't raise exceptions
         with pytest.raises(TypeError):
             ReTester(1)
         with pytest.raises(ValueError):
@@ -196,6 +196,29 @@ class TestMatchesRe(object):
             val = attr.ib(validator=matches_re("a", re.IGNORECASE, re.match))
 
         MatchTester("A1")  # test flags and using re.match
+
+    def test_precompiled_pattern(self):
+        """
+        Pre-compiled patterns are accepted.
+        """
+        pattern = re.compile("a")
+
+        @attr.s
+        class RePatternTester(object):
+            val = attr.ib(validator=matches_re(pattern))
+
+        RePatternTester("a")
+
+    def test_precompiled_pattern_no_flags(self):
+        """
+        A pre-compiled pattern cannot be combined with a 'flags' argument.
+        """
+        pattern = re.compile("")
+
+        with pytest.raises(
+            TypeError, match="can only be used with a string pattern"
+        ):
+            matches_re(pattern, flags=re.IGNORECASE)
 
     def test_different_func(self):
         """
