@@ -71,7 +71,7 @@ A big change happened in May 2017 when Hynek sat down with `Guido van Rossum <ht
 Type annotations for class attributes have `just landed <https://www.python.org/dev/peps/pep-0526/>`_ in Python 3.6 and Guido felt like it would be a good mechanic to introduce something similar to ``attrs`` to the Python standard library.
 The result, of course, was `PEP 557 <https://www.python.org/dev/peps/pep-0557/>`_\ [#stdlib]_ which eventually became the `dataclasses` module in Python 3.7.
 
-``attrs`` at this point was lucky to have several people on board who were also very excited about type annotations and helped implementing it; including a `Mypy plugin <https://github.com/python/mypy/blob/master/mypy/plugins/attrs.py>`_.
+``attrs`` at this point was lucky to have several people on board who were also very excited about type annotations and helped implementing it; including a `Mypy plugin <https://medium.com/@Pilot-EPD-Blog/mypy-and-attrs-e1b0225e9ac6>`_.
 And so it happened that ``attrs`` `shipped <https://www.attrs.org/en/17.3.0.post2/changelog.html>`_ the new method of defining classes more than half a year before Python 3.7 -- and thus `dataclasses` -- were released.
 
 -----
