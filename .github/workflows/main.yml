@@ -35,7 +35,7 @@ jobs:
           python -VV
           python -m site
           python -m pip install --upgrade pip setuptools wheel
-          python -m pip install --upgrade coverage[toml] virtualenv tox tox-gh-actions
+          python -m pip install --upgrade virtualenv tox tox-gh-actions
 
       - name: "Run tox targets for ${{ matrix.python-version }}"
         run: "python -m tox"
@@ -56,25 +56,29 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
-          python-version: ${{env.PYTHON_LATEST}}  # Use latest, so it understands all syntax.
+          # Use latest Python, so it understands all syntax.
+          python-version: ${{env.PYTHON_LATEST}}
 
-      - run: "python -m pip install --upgrade coverage[toml]"
+      - name: Install Coverage.py
+        run: python -m pip install --upgrade coverage[toml]
 
-      - name: "Download coverage data"
+      - name: Download coverage data
         uses: actions/download-artifact@v2
         with:
           name: coverage-data
 
-      - run: python -m coverage combine
-      - run: python -m coverage html --skip-covered --skip-empty
+      - name: Combine coverage and fail if it's <100%
+        run: |
+          python -m coverage combine
+          python -m coverage html --skip-covered --skip-empty
+          python -m coverage report --fail-under=100
 
-      - name: "Upload coverage report"
-        uses: "actions/upload-artifact@v2"
+      - name: Upload HTML report for failed check
+        uses: actions/upload-artifact@v2
         with:
           name: html-report
           path: htmlcov
-
-      - run: python -m coverage report --fail-under=100
+        if: ${{ failure() }}
 
 
   package:
@@ -87,8 +91,7 @@ jobs:
         with:
           python-version: ${{env.PYTHON_LATEST}}
 
-      - name: "Install build and lint tools"
-        run: "python -m pip install build twine check-wheel-contents"
+      - run: "python -m pip install build twine check-wheel-contents"
       - run: "python -m build --sdist --wheel ."
       - run: "ls -l dist"
       - run: "check-wheel-contents dist/*.whl"
@@ -108,7 +111,6 @@ jobs:
       - uses: "actions/setup-python@v2"
         with:
           python-version: ${{env.PYTHON_LATEST}}
-      - name: "Install in dev mode"
-        run: "python -m pip install -e .[dev]"
+      - run: "python -m pip install -e .[dev]"
       - name: "Import package"
         run: "python -c 'import attr; print(attr.__version__)'"
