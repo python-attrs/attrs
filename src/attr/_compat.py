@@ -110,7 +110,6 @@ if PY2:
         consequences of not setting the cell on Python 2.
         """
 
-
 else:  # Python 3 and later.
     from collections.abc import Mapping, Sequence  # noqa
 

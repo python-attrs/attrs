@@ -629,7 +629,6 @@ if PYPY:
 
         raise FrozenInstanceError()
 
-
 else:
 
     def _frozen_setattrs(self, name, value):
@@ -1628,7 +1627,6 @@ if PY2:
             and cls.__setattr__.__name__ == _frozen_setattrs.__name__
         )
 
-
 else:
 
     def _has_frozen_base_class(cls):
@@ -1928,7 +1926,6 @@ if HAS_F_STRINGS:
         return _make_method(
             "__repr__", "\n".join(lines), unique_filename, globs=globs
         )
-
 
 else:
 
