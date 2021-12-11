@@ -199,7 +199,6 @@ For that, `attr.asdict` offers a callback that decides whether an attribute shou
 
 .. doctest::
 
-   >>> from typing import List
    >>> from attr import asdict
 
    >>> @define
@@ -209,7 +208,7 @@ For that, `attr.asdict` offers a callback that decides whether an attribute shou
 
    >>> @define
    ... class UserList:
-   ...     users: List[User]
+   ...     users: list[User]
 
    >>> asdict(UserList([User("jane@doe.invalid", "s33kred"),
    ...                  User("joe@doe.invalid", "p4ssw0rd")]),
@@ -503,12 +502,12 @@ If you don't mind annotating *all* attributes, you can even drop the `field` and
    >>> @define
    ... class AutoC:
    ...     cls_var: typing.ClassVar[int] = 5  # this one is ignored
-   ...     l: typing.List[int] = Factory(list)
+   ...     l: list[int] = Factory(list)
    ...     x: int = 1
    ...     foo: str = "every attrib needs a type if auto_attribs=True"
    ...     bar: typing.Any = None
    >>> fields(AutoC).l.type
-   typing.List[int]
+   list[int]
    >>> fields(AutoC).x.type
    <class 'int'>
    >>> fields(AutoC).foo.type
@@ -528,12 +527,11 @@ This will replace the *type* attribute in the respective fields.
 
 .. doctest::
 
-    >>> import typing
     >>> from attr import fields, resolve_types
 
     >>> @define
     ... class A:
-    ...     a: typing.List['A']
+    ...     a: list['A']
     ...     b: 'B'
     ...
     >>> @define
@@ -541,13 +539,13 @@ This will replace the *type* attribute in the respective fields.
     ...     a: A
     ...
     >>> fields(A).a.type
-    typing.List[ForwardRef('A')]
+    list['A']
     >>> fields(A).b.type
     'B'
     >>> resolve_types(A, globals(), locals())
     <class 'A'>
     >>> fields(A).a.type
-    typing.List[A]
+    list[A]
     >>> fields(A).b.type
     <class 'B'>
 

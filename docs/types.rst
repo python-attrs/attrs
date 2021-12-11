@@ -10,12 +10,11 @@ That means that on modern Python versions, the declaration part of the example f
 .. doctest::
 
    >>> import attr
-   >>> import typing
 
    >>> @attr.s(auto_attribs=True)
    ... class SomeClass:
    ...     a_number: int = 42
-   ...     list_of_numbers: typing.List[int] = attr.Factory(list)
+   ...     list_of_numbers: list[int] = attr.Factory(list)
 
    >>> sc = SomeClass(1, [1, 2, 3])
    >>> sc
@@ -71,7 +70,7 @@ To mypy, this code is equivalent to the one above:
   @attr.s
   class SomeClass(object):
       a_number = attr.ib(default=42)  # type: int
-      list_of_numbers = attr.ib(factory=list, type=typing.List[int])
+      list_of_numbers = attr.ib(factory=list, type=list[int])
 
 
 pyright
@@ -86,7 +85,7 @@ Given the following definition, ``pyright`` will generate static type signatures
   @attr.define
   class SomeClass:
       a_number: int = 42
-      list_of_numbers: typing.List[int] = attr.field(factory=list)
+      list_of_numbers: list[int] = attr.field(factory=list)
 
 .. warning::
 
