@@ -531,7 +531,7 @@ This will replace the *type* attribute in the respective fields.
 
     >>> @define
     ... class A:
-    ...     a: list['A']
+    ...     a: 'list[A]'
     ...     b: 'B'
     ...
     >>> @define
@@ -539,7 +539,7 @@ This will replace the *type* attribute in the respective fields.
     ...     a: A
     ...
     >>> fields(A).a.type
-    list['A']
+    'list[A]'
     >>> fields(A).b.type
     'B'
     >>> resolve_types(A, globals(), locals())
