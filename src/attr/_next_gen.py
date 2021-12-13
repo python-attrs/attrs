@@ -8,7 +8,13 @@ from functools import partial
 from attr.exceptions import UnannotatedAttributeError
 
 from . import setters
-from ._make import NOTHING, _frozen_setattrs, attrib, attrs
+from ._make import (
+    NOTHING,
+    _frozen_setattrs,
+    _ng_default_on_setattr,
+    attrib,
+    attrs,
+)
 
 
 def define(
@@ -92,7 +98,7 @@ def define(
 
         # By default, mutable classes convert & validate on setattr.
         if frozen is False and on_setattr is None:
-            on_setattr = [setters.convert, setters.validate]
+            on_setattr = _ng_default_on_setattr
 
         # However, if we subclass a frozen class, we inherit the immutability
         # and disable on_setattr.

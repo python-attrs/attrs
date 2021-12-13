@@ -59,6 +59,8 @@ _empty_metadata_singleton = metadata_proxy({})
 # Unique object for unequivocal getattr() defaults.
 _sentinel = object()
 
+_ng_default_on_setattr = setters.pipe(setters.convert, setters.validate)
+
 
 class _Nothing(object):
     """
@@ -722,13 +724,16 @@ class _ClassBuilder(object):
             self._cls_dict["__delattr__"] = _frozen_delattrs
 
             self._wrote_own_setattr = True
-        elif on_setattr == setters.validate:
+        elif on_setattr == _ng_default_on_setattr:
             for a in attrs:
                 if a.validator is not None:
                     break
+                if a.converter is not None:
+                    break
             else:
-                # If class-level on_setattr is set to validating, but there's
-                # no field to validate, pretend like there's no on_setattr.
+                # If class-level on_setattr is set to convert + validate, but
+                # there's no field to convert or validate, pretend like there's
+                # no on_setattr.
                 self._on_setattr = None
 
         if getstate_setstate:
