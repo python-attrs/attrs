@@ -714,6 +714,28 @@ class TestFunctional(object):
         assert "self.y = y" in src
         assert object.__setattr__ == D.__setattr__
 
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_no_setattr_if_convert_without_converters(self, slots):
+        """
+        If a class has on_setattr=attr.setters.convert but sets no validators,
+        don't use the (slower) setattr in __init__.
+        """
+
+        @attr.s(on_setattr=attr.setters.convert)
+        class C(object):
+            x = attr.ib()
+
+        @attr.s(on_setattr=attr.setters.convert)
+        class D(C):
+            y = attr.ib()
+
+        src = inspect.getsource(D.__init__)
+
+        assert "setattr" not in src
+        assert "self.x = x" in src
+        assert "self.y = y" in src
+        assert object.__setattr__ == D.__setattr__
+
     @pytest.mark.skipif(not PY36, reason="NG APIs are 3.6+")
     @pytest.mark.parametrize("slots", [True, False])
     def test_no_setattr_with_ng_defaults(self, slots):
