@@ -692,8 +692,9 @@ class TestFunctional(object):
     @pytest.mark.parametrize("slots", [True, False])
     def test_no_setattr_if_validate_without_validators(self, slots):
         """
-        If a class has on_setattr=attr.setters.validate (default in NG APIs)
-        but sets no validators, don't use the (slower) setattr in __init__.
+        If a class has on_setattr=attr.setters.validate (former default in NG
+        APIs) but sets no validators, don't use the (slower) setattr in
+        __init__.
 
         Regression test for #816.
         """
@@ -703,6 +704,36 @@ class TestFunctional(object):
             x = attr.ib()
 
         @attr.s(on_setattr=attr.setters.validate)
+        class D(C):
+            y = attr.ib()
+
+        src = inspect.getsource(D.__init__)
+
+        assert "setattr" not in src
+        assert "self.x = x" in src
+        assert "self.y = y" in src
+        assert object.__setattr__ == D.__setattr__
+
+    @pytest.mark.skipif(PY2, reason="NG APIs are 3+")
+    @pytest.mark.parametrize("slots", [True, False])
+    def test_no_setattr_with_ng_defaults(self, slots):
+        """
+        If a class has the NG default on_setattr=[convert, validate] but sets
+        no validators or converters, don't use the (slower) setattr in
+        __init__.
+        """
+
+        @attr.define
+        class C(object):
+            x = attr.ib()
+
+        src = inspect.getsource(C.__init__)
+
+        assert "setattr" not in src
+        assert "self.x = x" in src
+        assert object.__setattr__ == C.__setattr__
+
+        @attr.define
         class D(C):
             y = attr.ib()
 
