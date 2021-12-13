@@ -17,7 +17,7 @@ from hypothesis.strategies import booleans
 
 import attr
 
-from attr._compat import PY2, TYPE
+from attr._compat import PY2, PY36, TYPE
 from attr._make import NOTHING, Attribute
 from attr.exceptions import FrozenInstanceError
 
@@ -714,7 +714,7 @@ class TestFunctional(object):
         assert "self.y = y" in src
         assert object.__setattr__ == D.__setattr__
 
-    @pytest.mark.skipif(PY2, reason="NG APIs are 3+")
+    @pytest.mark.skipif(not PY36, reason="NG APIs are 3.6+")
     @pytest.mark.parametrize("slots", [True, False])
     def test_no_setattr_with_ng_defaults(self, slots):
         """
