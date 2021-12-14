@@ -8,7 +8,13 @@ from functools import partial
 from attr.exceptions import UnannotatedAttributeError
 
 from . import setters
-from ._make import NOTHING, _frozen_setattrs, attrib, attrs
+from ._make import (
+    NOTHING,
+    _frozen_setattrs,
+    _ng_default_on_setattr,
+    attrib,
+    attrs,
+)
 
 
 def define(
@@ -35,8 +41,10 @@ def define(
     match_args=True,
 ):
     r"""
-    The only behavioral differences are the handling of the *auto_attribs*
-    option:
+    Define an ``attrs`` class.
+
+    The behavioral differences to `attr.s` are the handling of the
+    *auto_attribs* option:
 
     :param Optional[bool] auto_attribs: If set to `True` or `False`, it behaves
        exactly like `attr.s`. If left `None`, `attr.s` will try to guess:
@@ -46,9 +54,11 @@ def define(
        2. Otherwise it assumes *auto_attribs=False* and tries to collect
           `attr.ib`\ s.
 
-    and that mutable classes (``frozen=False``) validate on ``__setattr__``.
+    and that mutable classes (``frozen=False``) convert and validate on
+    ``__setattr__``.
 
     .. versionadded:: 20.1.0
+    .. versionchanged:: 21.3.0 Converters are also run ``on_setattr``.
     """
 
     def do_it(cls, auto_attribs):
@@ -86,9 +96,9 @@ def define(
 
         had_on_setattr = on_setattr not in (None, setters.NO_OP)
 
-        # By default, mutable classes validate on setattr.
+        # By default, mutable classes convert & validate on setattr.
         if frozen is False and on_setattr is None:
-            on_setattr = setters.validate
+            on_setattr = _ng_default_on_setattr
 
         # However, if we subclass a frozen class, we inherit the immutability
         # and disable on_setattr.
