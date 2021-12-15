@@ -551,10 +551,8 @@ This will replace the *type* attribute in the respective fields.
 
 .. note::
 
-   If you find yourself using string type annotations to handle forward references,
-   wrap the entire type annotation in quotes instead of only the type you need
-   a forward reference to (so ``'list[A]'`` instead of ``list['A']``). This
-   is a limitation of the Python typing system.
+   If you find yourself using string type annotations to handle forward references, wrap the entire type annotation in quotes instead of only the type you need a forward reference to (so ``'list[A]'`` instead of ``list['A']``).
+   This is a limitation of the Python typing system.
 
 .. warning::
 
