@@ -368,3 +368,13 @@ class TestNextGen:
         d = D()
 
         assert d.x == d.xx()
+
+
+class TestAsTuple:
+    def test_smoke(self):
+        """
+        `attrs.astuple` only changes defaults, so we just call it and compare.
+        """
+        inst = C("foo", 42)
+
+        assert attrs.astuple(inst) == _attr.astuple(inst)
