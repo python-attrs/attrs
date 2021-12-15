@@ -521,7 +521,7 @@ If you don't mind annotating *all* attributes, you can even drop the `field` and
 
 The generated ``__init__`` method will have an attribute called ``__annotations__`` that contains this type information.
 
-If your annotations contain strings (e.g. forward references),
+If your annotations contain forward references,
 you can resolve these after all references have been defined by using :func:`attr.resolve_types`.
 This will replace the *type* attribute in the respective fields.
 
@@ -548,6 +548,13 @@ This will replace the *type* attribute in the respective fields.
     list[A]
     >>> fields(A).b.type
     <class 'B'>
+
+.. note::
+
+   If you find yourself using string type annotations to handle forward references,
+   wrap the entire type annotation in quotes instead of only the type you need
+   a forward reference to (so ``'list[A]'`` instead of ``list['A']``). This
+   is a limitation of the Python typing system.
 
 .. warning::
 
