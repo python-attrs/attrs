@@ -21,7 +21,7 @@ from hypothesis.strategies import booleans, integers, lists, sampled_from, text
 import attr
 
 from attr import _config
-from attr._compat import PY2, PY36, PY310, ordered_dict
+from attr._compat import PY2, PY310, ordered_dict
 from attr._make import (
     Attribute,
     Factory,
@@ -422,41 +422,6 @@ class TestTransformAttrs(object):
                 return 50
 
         @attr.s(collect_by_mro=True)
-        class D(B, C):
-            pass
-
-        d = D()
-
-        assert d.x == d.xx()
-
-    @pytest.mark.skipif(not PY36, reason="NG is 3.6+-only")
-    def test_mro_ng(self):
-        """
-        Attributes and methods are looked up the same way in NG by default.
-
-        See #428
-        """
-
-        @attr.define
-        class A:
-
-            x: int = 10
-
-            def xx(self):
-                return 10
-
-        @attr.define
-        class B(A):
-            y: int = 20
-
-        @attr.define
-        class C(A):
-            x: int = 50
-
-            def xx(self):
-                return 50
-
-        @attr.define
         class D(B, C):
             pass
 

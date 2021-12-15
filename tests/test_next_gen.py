@@ -333,3 +333,37 @@ class TestNextGen:
         # Validates
         with pytest.raises(ValueError, match="must be >=10"):
             inst.x = "9"
+
+    def test_mro_ng(self):
+        """
+        Attributes and methods are looked up the same way in NG by default.
+
+        See #428
+        """
+
+        @attr.define
+        class A:
+
+            x: int = 10
+
+            def xx(self):
+                return 10
+
+        @attr.define
+        class B(A):
+            y: int = 20
+
+        @attr.define
+        class C(A):
+            x: int = 50
+
+            def xx(self):
+                return 50
+
+        @attr.define
+        class D(B, C):
+            pass
+
+        d = D()
+
+        assert d.x == d.xx()
