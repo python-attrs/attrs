@@ -378,3 +378,15 @@ class TestAsTuple:
         inst = C("foo", 42)
 
         assert attrs.astuple(inst) == _attr.astuple(inst)
+
+
+class TestAsDict:
+    def test_smoke(self):
+        """
+        `attrs.asdict` only changes defaults, so we just call it and compare.
+        """
+        inst = C("foo", {(1,): 42})
+
+        assert attrs.asdict(inst) == _attr.asdict(
+            inst, retain_collection_types=True
+        )
