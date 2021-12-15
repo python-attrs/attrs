@@ -26,7 +26,7 @@ SEQUENCE_TYPES = (list, tuple)
 
 
 @pytest.fixture(scope="session", name="C")
-def fixture_C():
+def _C():
     """
     Return a simple but fully featured attrs class with an x and a y attribute.
     """
@@ -198,6 +198,29 @@ class TestAsDict(object):
         dict_instance = asdict(instance, dict_factory=ordered_dict)
 
         assert [a.name for a in fields(cls)] == list(dict_instance.keys())
+
+    def test_tuple_keys(self):
+        """
+        If a key is collection type, retain_collection_types is False,
+        and tuple_keys is True, the key is serialized as a tuple.
+
+        See #646
+        """
+
+        @attr.s
+        class A(object):
+            a = attr.ib()
+
+        instance = A({(1,): 1})
+        attr.asdict(instance, tuple_keys=True)
+
+    def test_tuple_keys_retain_caught(self, C):
+        """
+        retain_collection_types and tuple_keys are mutually exclusive and raise
+        a ValueError if both are True.
+        """
+        with pytest.raises(ValueError, match="mutually exclusive"):
+            attr.asdict(C(1, 2), retain_collection_types=True, tuple_keys=True)
 
 
 class TestAsTuple(object):
