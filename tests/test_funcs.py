@@ -199,6 +199,21 @@ class TestAsDict(object):
 
         assert [a.name for a in fields(cls)] == list(dict_instance.keys())
 
+    def test_retain_tuple_key(self):
+        """
+        retain_collect_types also retains keys.
+        """
+
+        @attr.s
+        class A(object):
+            a = attr.ib()
+
+        instance = A({(1,): 1})
+
+        assert {"a": {(1,): 1}} == attr.asdict(
+            instance, retain_collection_types=True
+        )
+
     def test_tuple_keys(self):
         """
         If a key is collection type, retain_collection_types is False,
@@ -212,7 +227,8 @@ class TestAsDict(object):
             a = attr.ib()
 
         instance = A({(1,): 1})
-        attr.asdict(instance, tuple_keys=True)
+
+        assert {"a": {(1,): 1}} == attr.asdict(instance, tuple_keys=True)
 
     def test_tuple_keys_retain_caught(self, C):
         """
