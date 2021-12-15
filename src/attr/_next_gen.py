@@ -3,6 +3,7 @@ These are Python 3.6+-only and keyword-only APIs that call `attr.s` and
 `attr.ib` with different default values.
 """
 
+
 from functools import partial
 
 from . import setters
@@ -194,4 +195,6 @@ def astuple(inst, *, recurse=True, filter=None):
 
     .. versionadded:: 21.3.0
     """
-    return _astuple(inst=inst, recurse=recurse, filter=filter)
+    return _astuple(
+        inst=inst, recurse=recurse, filter=filter, retain_collection_types=True
+    )

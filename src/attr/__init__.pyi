@@ -447,6 +447,7 @@ def make_class(
 # these:
 # https://github.com/python/mypy/issues/4236
 # https://github.com/python/typing/issues/253
+# XXX: remember to fix attrs.asdict/astuple too!
 def asdict(
     inst: Any,
     recurse: bool = ...,

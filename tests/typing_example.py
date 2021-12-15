@@ -385,3 +385,8 @@ attr.asdict(FactoryTest(), retain_collection_types=False)
 class MatchArgs2:
     a: int
     b: int
+
+
+# NG versions of asdict/astuple
+attrs.asdict(MatchArgs2(1, 2))
+attrs.astuple(MatchArgs2(1, 2))
