@@ -5,9 +5,9 @@ These are Python 3.6+-only and keyword-only APIs that call `attr.s` and
 
 from functools import partial
 
-from attr.exceptions import UnannotatedAttributeError
-
 from . import setters
+from ._funcs import asdict as _asdict
+from ._funcs import astuple as _astuple
 from ._make import (
     NOTHING,
     _frozen_setattrs,
@@ -15,6 +15,7 @@ from ._make import (
     attrib,
     attrs,
 )
+from .exceptions import UnannotatedAttributeError
 
 
 def define(
@@ -168,3 +169,29 @@ def field(
         order=order,
         on_setattr=on_setattr,
     )
+
+
+def asdict(inst, *, recurse=True, filter=None, value_serializer=None):
+    """
+    Same as `attr.asdict`, except that collections types are always retained
+    and dict is always used as the dict_factory.
+
+    .. versionadded:: 21.3.0
+    """
+    return _asdict(
+        inst=inst,
+        recurse=recurse,
+        filter=filter,
+        value_serializer=value_serializer,
+        retain_collection_types=True,
+    )
+
+
+def astuple(inst, *, recurse=True, filter=None):
+    """
+    Same as `attr.astuple`, except that collections types are always retained
+    and `tuple`` is always used as the tuple_factory.
+
+    .. versionadded:: 21.3.0
+    """
+    return _astuple(inst=inst, recurse=recurse, filter=filter)

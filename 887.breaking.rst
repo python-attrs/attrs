@@ -1,0 +1,6 @@
+``import attrs`` has finally landed!
+As of this release, you can finally import ``attrs`` using its proper name.
+
+Not all names from the ``attr`` namespace have been transferred; most notably ``attr.s`` and ``attr.ib`` are missing.
+
+This feature is at least for one release **provisional**.
