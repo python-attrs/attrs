@@ -51,7 +51,7 @@ One thing people tend to find confusing is the treatment of private attributes t
 
 .. doctest::
 
-   >>> import inspect, attr
+   >>> import inspect, attr, attrs
    >>> from attr import define
    >>> @define
    ... class C:
@@ -162,13 +162,13 @@ If the value does not pass the validator's standards, it just raises an appropri
       ...
    ValueError: x must be smaller or equal to 42
 
-Again, it's important that the decorated method doesn't have the same name as the attribute and that the `field()` helper is used.
+Again, it's important that the decorated method doesn't have the same name as the attribute and that the `attrs.field()` helper is used.
 
 
 Callables
 ~~~~~~~~~
 
-If you want to re-use your validators, you should have a look at the ``validator`` argument to `field`.
+If you want to re-use your validators, you should have a look at the ``validator`` argument to `attrs.field`.
 
 It takes either a callable or a list of callables (usually functions) and treats them as validators that receive the same arguments as with the decorator approach.
 
@@ -181,7 +181,7 @@ Since the validators run *after* the instance is initialized, you can refer to o
    ...         raise ValueError("'x' has to be smaller than 'y'!")
    >>> @define
    ... class C:
-   ...     x = field(validator=[attr.validators.instance_of(int),
+   ...     x = field(validator=[attrs.validators.instance_of(int),
    ...                          x_smaller_than_y])
    ...     y = field()
    >>> C(x=3, y=4)
@@ -191,10 +191,10 @@ Since the validators run *after* the instance is initialized, you can refer to o
       ...
    ValueError: 'x' has to be smaller than 'y'!
 
-This example also shows of some syntactic sugar for using the `attr.validators.and_` validator: if you pass a list, all validators have to pass.
+This example also shows of some syntactic sugar for using the `attrs.validators.and_` validator: if you pass a list, all validators have to pass.
 
-``attrs`` won't intercept your changes to those attributes but you can always call `attr.validate` on any instance to verify that it's still valid:
-When using `define` or :func:`~attr.frozen`, ``attrs`` will run the validators even when setting the attribute.
+``attrs`` won't intercept your changes to those attributes but you can always call `attrs.validate` on any instance to verify that it's still valid:
+When using `attrs.define` or `attrs.frozen`, ``attrs`` will run the validators even when setting the attribute.
 
 .. doctest::
 
@@ -210,7 +210,7 @@ When using `define` or :func:`~attr.frozen`, ``attrs`` will run the validators e
 
    >>> @define
    ... class C:
-   ...     x = field(validator=attr.validators.instance_of(int))
+   ...     x = field(validator=attrs.validators.instance_of(int))
    >>> C(42)
    C(x=42)
    >>> C("42")
@@ -225,7 +225,7 @@ If you define validators both ways for an attribute, they are both ran:
 
    >>> @define
    ... class C:
-   ...     x = field(validator=attr.validators.instance_of(int))
+   ...     x = field(validator=attrs.validators.instance_of(int))
    ...     @x.validator
    ...     def fits_byte(self, attribute, value):
    ...         if not 0 <= value < 256:
@@ -243,10 +243,10 @@ If you define validators both ways for an attribute, they are both ran:
 
 And finally you can disable validators globally:
 
-   >>> attr.validators.set_disabled(True)
+   >>> attrs.validators.set_disabled(True)
    >>> C("128")
    C(x='128')
-   >>> attr.validators.set_disabled(False)
+   >>> attrs.validators.set_disabled(False)
    >>> C("128")
    Traceback (most recent call last):
       ...
@@ -254,7 +254,7 @@ And finally you can disable validators globally:
 
 You can achieve the same by using the context manager:
 
-   >>> with attr.validators.disabled():
+   >>> with attrs.validators.disabled():
    ...     C("128")
    C(x='128')
    >>> C("128")
@@ -408,7 +408,7 @@ Please note that you can't directly set attributes on frozen classes:
    >>> FrozenBroken(1)
    Traceback (most recent call last):
       ...
-   attr.exceptions.FrozenInstanceError: can't set attribute
+   attrs.exceptions.FrozenInstanceError: can't set attribute
 
 If you need to set attributes on a frozen class, you'll have to resort to the `same trick <how-frozen>` as ``attrs`` and use :meth:`object.__setattr__`:
 

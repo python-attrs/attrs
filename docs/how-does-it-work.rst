@@ -10,8 +10,9 @@ Boilerplate
 ``attrs`` certainly isn't the first library that aims to simplify class definition in Python.
 But its **declarative** approach combined with **no runtime overhead** lets it stand out.
 
-Once you apply the ``@attr.s`` decorator to a class, ``attrs`` searches the class object for instances of ``attr.ib``\ s.
+Once you apply the ``@attrs.define`` (or ``@attr.s``) decorator to a class, ``attrs`` searches the class object for instances of ``attr.ib``\ s.
 Internally they're a representation of the data passed into ``attr.ib`` along with a counter to preserve the order of the attributes.
+Alternatively, it's possible to define them using :doc:`types`.
 
 In order to ensure that subclassing works as you'd expect it to work, ``attrs`` also walks the class hierarchy and collects the attributes of all base classes.
 Please note that ``attrs`` does *not* call ``super()`` *ever*.
@@ -41,7 +42,7 @@ No magic, no meta programming, no expensive introspection at runtime.
 Everything until this point happens exactly *once* when the class is defined.
 As soon as a class is done, it's done.
 And it's just a regular Python class like any other, except for a single ``__attrs_attrs__`` attribute that ``attrs`` uses internally.
-Much of the information is accessible via `attr.fields` and other functions which can be used for introspection or for writing your own tools and decorators on top of ``attrs`` (like `attr.asdict`).
+Much of the information is accessible via `attrs.fields` and other functions which can be used for introspection or for writing your own tools and decorators on top of ``attrs`` (like `attrs.asdict`).
 
 And once you start instantiating your classes, ``attrs`` is out of your way completely.
 
@@ -53,11 +54,11 @@ This **static** approach was very much a design goal of ``attrs`` and what I str
 Immutability
 ------------
 
-In order to give you immutability, ``attrs`` will attach a ``__setattr__`` method to your class that raises an `attr.exceptions.FrozenInstanceError` whenever anyone tries to set an attribute.
+In order to give you immutability, ``attrs`` will attach a ``__setattr__`` method to your class that raises an `attrs.exceptions.FrozenInstanceError` whenever anyone tries to set an attribute.
 
-The same is true if you choose to freeze individual attributes using the `attr.setters.frozen` *on_setattr* hook -- except that the exception becomes `attr.exceptions.FrozenAttributeError`.
+The same is true if you choose to freeze individual attributes using the `attrs.setters.frozen` *on_setattr* hook -- except that the exception becomes `attrs.exceptions.FrozenAttributeError`.
 
-Both errors subclass `attr.exceptions.FrozenError`.
+Both errors subclass `attrs.exceptions.FrozenError`.
 
 -----
 

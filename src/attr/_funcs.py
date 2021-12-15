@@ -25,7 +25,7 @@ def asdict(
         ``attrs``-decorated.
     :param callable filter: A callable whose return code determines whether an
         attribute or element is included (``True``) or dropped (``False``).  Is
-        called with the `attr.Attribute` as the first argument and the
+        called with the `attrs.Attribute` as the first argument and the
         value as the second argument.
     :param callable dict_factory: A callable to produce dictionaries from.  For
         example, to produce ordered dictionaries instead of normal Python
@@ -204,7 +204,7 @@ def astuple(
         ``attrs``-decorated.
     :param callable filter: A callable whose return code determines whether an
         attribute or element is included (``True``) or dropped (``False``).  Is
-        called with the `attr.Attribute` as the first argument and the
+        called with the `attrs.Attribute` as the first argument and the
         value as the second argument.
     :param callable tuple_factory: A callable to produce tuples from.  For
         example, to produce lists instead of tuples.
@@ -314,7 +314,9 @@ def assoc(inst, **changes):
         class.
 
     ..  deprecated:: 17.1.0
-        Use `evolve` instead.
+        Use `attrs.evolve` instead if you can.
+        This function will not be removed du to the slightly different approach
+        compared to `attrs.evolve`.
     """
     import warnings
 
@@ -393,8 +395,8 @@ def resolve_types(cls, globalns=None, localns=None, attribs=None):
     :raise NameError: If types cannot be resolved because of missing variables.
 
     :returns: *cls* so you can use this function also as a class decorator.
-        Please note that you have to apply it **after** `attr.s`. That means
-        the decorator has to come in the line **before** `attr.s`.
+        Please note that you have to apply it **after** `attrs.define`. That
+        means the decorator has to come in the line **before** `attrs.define`.
 
     ..  versionadded:: 20.1.0
     ..  versionadded:: 21.1.0 *attribs*

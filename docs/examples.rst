@@ -419,7 +419,7 @@ Therefore if you use ``@default``, it is *not* enough to annotate said attribute
       ...
    TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, factory=NOTHING, validator=<instance_of validator for type <type 'int'>>, type=None, kw_only=False), <type 'int'>, '42')
 
-Please note that if you use `attr.s` (and not `define`) to define your class, validators only run on initialization by default.
+Please note that if you use `attr.s` (and not `attrs.define`) to define your class, validators only run on initialization by default.
 This behavior can be changed using the ``on_setattr`` argument.
 
 Check out `validators` for more details.
@@ -492,7 +492,7 @@ Types
    >>> fields(C).x.type
    <class 'int'>
 
-If you don't mind annotating *all* attributes, you can even drop the `field` and assign default values instead:
+If you don't mind annotating *all* attributes, you can even drop the `attrs.field` and assign default values instead:
 
 .. doctest::
 
@@ -521,8 +521,8 @@ If you don't mind annotating *all* attributes, you can even drop the `field` and
 
 The generated ``__init__`` method will have an attribute called ``__annotations__`` that contains this type information.
 
-If your annotations contain forward references,
-you can resolve these after all references have been defined by using :func:`attr.resolve_types`.
+If your annotations contain strings (e.g. forward references),
+you can resolve these after all references have been defined by using :func:`attrs.resolve_types`.
 This will replace the *type* attribute in the respective fields.
 
 .. doctest::
@@ -564,7 +564,7 @@ Slots
 -----
 
 :term:`Slotted classes <slotted classes>` have several advantages on CPython.
-Defining ``__slots__`` by hand is tedious, in ``attrs`` it's just a matter of using `define` or passing ``slots=True`` to `attr.s`:
+Defining ``__slots__`` by hand is tedious, in ``attrs`` it's just a matter of using `attrs.define` or passing ``slots=True`` to `attr.s`:
 
 .. doctest::
 
@@ -624,11 +624,11 @@ Other Goodies
 -------------
 
 Sometimes you may want to create a class programmatically.
-``attrs`` won't let you down and gives you `attr.make_class` :
+``attrs`` won't let you down and gives you `attrs.make_class` :
 
 .. doctest::
 
-   >>> from attr import fields, make_class
+   >>> from attrs import fields, make_class
    >>> @define
    ... class C1:
    ...     x = field()
@@ -654,7 +654,7 @@ You can still have power over the attributes if you pass a dictionary of name: `
    >>> i.y
    []
 
-If you need to dynamically make a class with `attr.make_class` and it needs to be a subclass of something else than ``object``, use the ``bases`` argument:
+If you need to dynamically make a class with `attrs.make_class` and it needs to be a subclass of something else than ``object``, use the ``bases`` argument:
 
 .. doctest::
 

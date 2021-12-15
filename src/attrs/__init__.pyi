@@ -26,6 +26,7 @@ from attr import Attribute as Attribute
 from attr import define as define
 from attr import evolve as evolve
 from attr import Factory as Factory
+from attr import exceptions as exceptions
 from attr import field as field
 from attr import fields as fields
 from attr import fields_dict as fields_dict

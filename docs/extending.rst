@@ -2,7 +2,7 @@ Extending
 =========
 
 Each ``attrs``-decorated class has a ``__attrs_attrs__`` class attribute.
-It is a tuple of `attr.Attribute` carrying meta-data about each attribute.
+It is a tuple of `attrs.Attribute` carrying meta-data about each attribute.
 
 So it is fairly simple to build your own decorators on top of ``attrs``:
 
@@ -21,7 +21,7 @@ So it is fairly simple to build your own decorators on top of ``attrs``:
 
 .. warning::
 
-   The `define`/`attr.s` decorator **must** be applied first because it puts ``__attrs_attrs__`` in place!
+   The `attrs.define`/`attr.s` decorator **must** be applied first because it puts ``__attrs_attrs__`` in place!
    That means that is has to come *after* your decorator because::
 
       @a
@@ -205,13 +205,13 @@ Its main purpose is to automatically add converters to attributes based on their
 
 This hook must have the following signature:
 
-.. function:: your_hook(cls: type, fields: list[attr.Attribute]) -> list[attr.Attribute]
+.. function:: your_hook(cls: type, fields: list[attrs.Attribute]) -> list[attrs.Attribute]
    :noindex:
 
 - *cls* is your class right *before* it is being converted into an attrs class.
   This means it does not yet have the ``__attrs_attrs__`` attribute.
 
-- *fields* is a list of all :class:`attr.Attribute` instances that will later be set to ``__attrs_attrs__``.
+- *fields* is a list of all `attrs.Attribute` instances that will later be set to ``__attrs_attrs__``.
   You can modify these attributes any way you want:
   You can add converters, change types, and even remove attributes completely or create new ones!
 
@@ -288,7 +288,7 @@ However, the result can not always be serialized since most data types will rema
 To help you with this, `attr.asdict` allows you to pass a *value_serializer* hook.
 It has the signature
 
-.. function:: your_hook(inst: type, field: attr.Attribute, value: typing.Any) -> typing.Any
+.. function:: your_hook(inst: type, field: attrs.Attribute, value: typing.Any) -> typing.Any
    :noindex:
 
 .. doctest::

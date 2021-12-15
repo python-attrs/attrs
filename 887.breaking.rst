@@ -7,3 +7,8 @@ A more elaborate explanation can be found `On The Core API Names <https://www.at
 
 This feature is at least for one release **provisional**.
 We don't *plan* on changing anything, but such a big change is unlikely to go perfectly on the first strike.
+
+The API docs have been mostly updated, but it will be an ongoing effort to change everything to the new APIs.
+Please note that we have **not** moved -- or even removed -- anything from ``attr``!
+
+Please do report any bugs or documentation inconsistencies!
