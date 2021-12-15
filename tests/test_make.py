@@ -402,7 +402,7 @@ class TestTransformAttrs(object):
         See #428
         """
 
-        @attr.s
+        @attr.s(collect_by_mro=True)
         class A(object):
 
             x = attr.ib(10)
@@ -410,11 +410,11 @@ class TestTransformAttrs(object):
             def xx(self):
                 return 10
 
-        @attr.s
+        @attr.s(collect_by_mro=True)
         class B(A):
             y = attr.ib(20)
 
-        @attr.s
+        @attr.s(collect_by_mro=True)
         class C(A):
             x = attr.ib(50)
 

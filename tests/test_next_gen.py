@@ -308,3 +308,62 @@ class TestNextGen:
 
         assert "foo" == ei.value.x
         assert ei.value.__cause__ is None
+
+    def test_converts_and_validates_by_default(self):
+        """
+        If no on_setattr is set, assume setters.convert, setters.validate.
+        """
+
+        @attr.define
+        class C:
+            x: int = attr.field(converter=int)
+
+            @x.validator
+            def _v(self, _, value):
+                if value < 10:
+                    raise ValueError("must be >=10")
+
+        inst = C(10)
+
+        # Converts
+        inst.x = "11"
+
+        assert 11 == inst.x
+
+        # Validates
+        with pytest.raises(ValueError, match="must be >=10"):
+            inst.x = "9"
+
+    def test_mro_ng(self):
+        """
+        Attributes and methods are looked up the same way in NG by default.
+
+        See #428
+        """
+
+        @attr.define
+        class A:
+
+            x: int = 10
+
+            def xx(self):
+                return 10
+
+        @attr.define
+        class B(A):
+            y: int = 20
+
+        @attr.define
+        class C(A):
+            x: int = 50
+
+            def xx(self):
+                return 50
+
+        @attr.define
+        class D(B, C):
+            pass
+
+        d = D()
+
+        assert d.x == d.xx()

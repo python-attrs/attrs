@@ -59,6 +59,8 @@ _empty_metadata_singleton = metadata_proxy({})
 # Unique object for unequivocal getattr() defaults.
 _sentinel = object()
 
+_ng_default_on_setattr = setters.pipe(setters.convert, setters.validate)
+
 
 class _Nothing(object):
     """
@@ -722,13 +724,31 @@ class _ClassBuilder(object):
             self._cls_dict["__delattr__"] = _frozen_delattrs
 
             self._wrote_own_setattr = True
-        elif on_setattr == setters.validate:
+        elif on_setattr in (
+            _ng_default_on_setattr,
+            setters.validate,
+            setters.convert,
+        ):
+            has_validator = has_converter = False
             for a in attrs:
                 if a.validator is not None:
+                    has_validator = True
+                if a.converter is not None:
+                    has_converter = True
+
+                if has_validator and has_converter:
                     break
-            else:
-                # If class-level on_setattr is set to validating, but there's
-                # no field to validate, pretend like there's no on_setattr.
+            if (
+                (
+                    on_setattr == _ng_default_on_setattr
+                    and not (has_validator or has_converter)
+                )
+                or (on_setattr == setters.validate and not has_validator)
+                or (on_setattr == setters.convert and not has_converter)
+            ):
+                # If class-level on_setattr is set to convert + validate, but
+                # there's no field to convert or validate, pretend like there's
+                # no on_setattr.
                 self._on_setattr = None
 
         if getstate_setstate:
@@ -2123,9 +2143,7 @@ def _make_init(
                 raise ValueError("Frozen classes can't use on_setattr.")
 
             needs_cached_setattr = True
-        elif (
-            has_cls_on_setattr and a.on_setattr is not setters.NO_OP
-        ) or _is_slot_attr(a.name, base_attr_map):
+        elif has_cls_on_setattr and a.on_setattr is not setters.NO_OP:
             needs_cached_setattr = True
 
     unique_filename = _generate_unique_filename(cls, "init")

@@ -707,12 +707,14 @@ The most notable differences are:
 - *auto_exc=True*
 - *auto_detect=True*
 - *eq=True*, but *order=False*
-- Validators run when you set an attribute (*on_setattr=attr.setters.validate*).
+- Converters and validators are run when you set an attribute (*on_setattr=[attr.setters.convert, attr.setters.validate*]).
 - Some options that aren't relevant to Python 3 have been dropped.
 
 Please note that these are *defaults* and you're free to override them, just like before.
 
 Since the Python ecosystem has settled on the term ``field`` for defining attributes, we have also added `attr.field` as a substitute for `attr.ib`.
+
+.. versionchanged:: 21.3.0 Converters are also run ``on_setattr``.
 
 .. note::
 
