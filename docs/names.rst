@@ -1,7 +1,7 @@
 On The Core API Names
 =====================
 
-You may be surprised seeing ``attrs`` classes being created using `attr.define` and with type annotated fields, instead of `attr.s` and `attr.ib()`.
+You may be surprised seeing ``attrs`` classes being created using `attrs.define` and with type annotated fields, instead of `attr.s` and `attr.ib()`.
 
 Or, you wonder why the web and talks are full of this weird `attr.s` and `attr.ib` -- including people having strong opinions about it and using ``attr.attrs`` and ``attr.attrib`` instead.
 
@@ -21,6 +21,7 @@ We recommend our modern APIs for new code:
 They have been added in ``attrs`` 20.1.0, they are expressive, and they have modern defaults like slots and type annotation awareness switched on by default.
 They are only available in Python 3.6 and later.
 Sometimes they're referred to as *next-generation* or *NG* APIs.
+As of ``attrs`` 21.3.0 you can also import them from the ``attrs`` package namespace.
 
 The traditional APIs `attr.s` / `attr.ib`, their serious business aliases ``attr.attrs`` / ``attr.attrib``, and the never-documented, but popular ``attr.dataclass`` easter egg will stay **forever**.
 
@@ -104,7 +105,11 @@ These APIs proved to be vastly popular, so we've finally changed the documentati
 All of this took way too long, of course.
 One reason is the COVID-19 pandemic, but also our fear to fumble this historic chance to fix our APIs.
 
+Finally, in December 2021, we've added the ``attrs`` package namespace.
+
 We hope you like the result::
+
+   from attrs import define
 
    @define
    class Point:
