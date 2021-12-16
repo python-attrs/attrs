@@ -1,7 +1,7 @@
 Changelog
 =========
 
-Versions follow `CalVer <https://calver.org>`_ with a strict backwards compatibility policy.
+Versions follow `CalVer <https://calver.org>`_ with a strict backwards-compatibility policy.
 
 The **first digit** of the version is the year.
 The **second digit** is incremented with each release, starting at 1 for each year.
