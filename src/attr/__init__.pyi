@@ -456,6 +456,7 @@ def asdict(
     value_serializer: Optional[
         Callable[[type, Attribute[Any], Any], Any]
     ] = ...,
+    tuple_keys: Optional[bool] = ...,
 ) -> Dict[str, Any]: ...
 
 # TODO: add support for returning NamedTuple from the mypy plugin

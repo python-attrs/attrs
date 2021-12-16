@@ -46,6 +46,8 @@ def asdict(
     ..  versionadded:: 16.0.0 *dict_factory*
     ..  versionadded:: 16.1.0 *retain_collection_types*
     ..  versionadded:: 20.3.0 *value_serializer*
+    ..  versionadded:: 21.3.0 If a dict has a collection for a key, it is
+        serialized as a tuple.
     """
     attrs = fields(inst.__class__)
     rv = dict_factory()
@@ -61,11 +63,11 @@ def asdict(
             if has(v.__class__):
                 rv[a.name] = asdict(
                     v,
-                    True,
-                    filter,
-                    dict_factory,
-                    retain_collection_types,
-                    value_serializer,
+                    recurse=True,
+                    filter=filter,
+                    dict_factory=dict_factory,
+                    retain_collection_types=retain_collection_types,
+                    value_serializer=value_serializer,
                 )
             elif isinstance(v, (tuple, list, set, frozenset)):
                 cf = v.__class__ if retain_collection_types is True else list
@@ -73,10 +75,11 @@ def asdict(
                     [
                         _asdict_anything(
                             i,
-                            filter,
-                            dict_factory,
-                            retain_collection_types,
-                            value_serializer,
+                            is_key=False,
+                            filter=filter,
+                            dict_factory=dict_factory,
+                            retain_collection_types=retain_collection_types,
+                            value_serializer=value_serializer,
                         )
                         for i in v
                     ]
@@ -87,17 +90,19 @@ def asdict(
                     (
                         _asdict_anything(
                             kk,
-                            filter,
-                            df,
-                            retain_collection_types,
-                            value_serializer,
+                            is_key=True,
+                            filter=filter,
+                            dict_factory=df,
+                            retain_collection_types=retain_collection_types,
+                            value_serializer=value_serializer,
                         ),
                         _asdict_anything(
                             vv,
-                            filter,
-                            df,
-                            retain_collection_types,
-                            value_serializer,
+                            is_key=False,
+                            filter=filter,
+                            dict_factory=df,
+                            retain_collection_types=retain_collection_types,
+                            value_serializer=value_serializer,
                         ),
                     )
                     for kk, vv in iteritems(v)
@@ -111,6 +116,7 @@ def asdict(
 
 def _asdict_anything(
     val,
+    is_key,
     filter,
     dict_factory,
     retain_collection_types,
@@ -123,22 +129,29 @@ def _asdict_anything(
         # Attrs class.
         rv = asdict(
             val,
-            True,
-            filter,
-            dict_factory,
-            retain_collection_types,
-            value_serializer,
+            recurse=True,
+            filter=filter,
+            dict_factory=dict_factory,
+            retain_collection_types=retain_collection_types,
+            value_serializer=value_serializer,
         )
     elif isinstance(val, (tuple, list, set, frozenset)):
-        cf = val.__class__ if retain_collection_types is True else list
+        if retain_collection_types is True:
+            cf = val.__class__
+        elif is_key:
+            cf = tuple
+        else:
+            cf = list
+
         rv = cf(
             [
                 _asdict_anything(
                     i,
-                    filter,
-                    dict_factory,
-                    retain_collection_types,
-                    value_serializer,
+                    is_key=False,
+                    filter=filter,
+                    dict_factory=dict_factory,
+                    retain_collection_types=retain_collection_types,
+                    value_serializer=value_serializer,
                 )
                 for i in val
             ]
@@ -148,10 +161,20 @@ def _asdict_anything(
         rv = df(
             (
                 _asdict_anything(
-                    kk, filter, df, retain_collection_types, value_serializer
+                    kk,
+                    is_key=True,
+                    filter=filter,
+                    dict_factory=df,
+                    retain_collection_types=retain_collection_types,
+                    value_serializer=value_serializer,
                 ),
                 _asdict_anything(
-                    vv, filter, df, retain_collection_types, value_serializer
+                    vv,
+                    is_key=False,
+                    filter=filter,
+                    dict_factory=df,
+                    retain_collection_types=retain_collection_types,
+                    value_serializer=value_serializer,
                 ),
             )
             for kk, vv in iteritems(val)

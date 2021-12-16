@@ -293,3 +293,7 @@ class FactoryTest:
 class MatchArgs:
     a: int = attr.ib()
     b: int = attr.ib()
+
+
+attr.asdict(FactoryTest())
+attr.asdict(FactoryTest(), retain_collection_types=False)
