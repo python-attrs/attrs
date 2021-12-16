@@ -199,7 +199,7 @@ class TestAsDict(object):
 
         assert [a.name for a in fields(cls)] == list(dict_instance.keys())
 
-    def test_retain_tuple_key(self):
+    def test_retain_keys_are_tuples(self):
         """
         retain_collect_types also retains keys.
         """
@@ -217,8 +217,7 @@ class TestAsDict(object):
     def test_tuple_keys(self):
         """
         If a key is collection type, retain_collection_types is False,
-        and tuple_keys is True, the key is serialized as a tuple. It's True
-        by default if retain_collection_types is False.
+         the key is serialized as a tuple.
 
         See #646
         """
@@ -230,15 +229,6 @@ class TestAsDict(object):
         instance = A({(1,): 1})
 
         assert {"a": {(1,): 1}} == attr.asdict(instance)
-        assert {"a": {(1,): 1}} == attr.asdict(instance, tuple_keys=True)
-
-    def test_tuple_keys_retain_caught(self, C):
-        """
-        retain_collection_types and tuple_keys are mutually exclusive and raise
-        a ValueError if both are True.
-        """
-        with pytest.raises(ValueError, match="mutually exclusive"):
-            attr.asdict(C(1, 2), retain_collection_types=True, tuple_keys=True)
 
 
 class TestAsTuple(object):

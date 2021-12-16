@@ -14,7 +14,6 @@ def asdict(
     dict_factory=dict,
     retain_collection_types=False,
     value_serializer=None,
-    tuple_keys=None,
 ):
     """
     Return the ``attrs`` attribute values of *inst* as a dict.
@@ -38,30 +37,18 @@ def asdict(
         attribute or dict key/value.  It receives the current instance, field
         and value and must return the (updated) value.  The hook is run *after*
         the optional *filter* has been applied.
-    :param Optional[bool] tuple_keys: If *retain_collection_types* is False,
-        make collection-esque dictionary serialize to tuples. True by default
-        if *retain_collection_types* is False.
 
     :rtype: return type of *dict_factory*
 
     :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
         class.
-    :raise ValueError: if *retain_collection_types* and *tuple_keys* are both
-        True.
 
     ..  versionadded:: 16.0.0 *dict_factory*
     ..  versionadded:: 16.1.0 *retain_collection_types*
     ..  versionadded:: 20.3.0 *value_serializer*
-    ..  versionadded:: 21.3.0 *tuple_keys*
+    ..  versionadded:: 21.3.0 If a dict has a collection for a key, it is
+        serialized as a tuple.
     """
-    if retain_collection_types and tuple_keys:
-        raise ValueError(
-            "`retain_collection_types and `tuple_keys` are mutually exclusive."
-        )
-
-    if not retain_collection_types and tuple_keys is None:
-        tuple_keys = True
-
     attrs = fields(inst.__class__)
     rv = dict_factory()
     for a in attrs:
@@ -81,7 +68,6 @@ def asdict(
                     dict_factory=dict_factory,
                     retain_collection_types=retain_collection_types,
                     value_serializer=value_serializer,
-                    tuple_keys=tuple_keys,
                 )
             elif isinstance(v, (tuple, list, set, frozenset)):
                 cf = v.__class__ if retain_collection_types is True else list
@@ -90,7 +76,6 @@ def asdict(
                         _asdict_anything(
                             i,
                             is_key=False,
-                            tuple_keys=tuple_keys,
                             filter=filter,
                             dict_factory=dict_factory,
                             retain_collection_types=retain_collection_types,
@@ -106,7 +91,6 @@ def asdict(
                         _asdict_anything(
                             kk,
                             is_key=True,
-                            tuple_keys=tuple_keys,
                             filter=filter,
                             dict_factory=df,
                             retain_collection_types=retain_collection_types,
@@ -115,7 +99,6 @@ def asdict(
                         _asdict_anything(
                             vv,
                             is_key=False,
-                            tuple_keys=tuple_keys,
                             filter=filter,
                             dict_factory=df,
                             retain_collection_types=retain_collection_types,
@@ -134,7 +117,6 @@ def asdict(
 def _asdict_anything(
     val,
     is_key,
-    tuple_keys,
     filter,
     dict_factory,
     retain_collection_types,
@@ -156,7 +138,7 @@ def _asdict_anything(
     elif isinstance(val, (tuple, list, set, frozenset)):
         if retain_collection_types is True:
             cf = val.__class__
-        elif tuple_keys:
+        elif is_key:
             cf = tuple
         else:
             cf = list
@@ -165,8 +147,7 @@ def _asdict_anything(
             [
                 _asdict_anything(
                     i,
-                    is_key=is_key,
-                    tuple_keys=tuple_keys,
+                    is_key=False,
                     filter=filter,
                     dict_factory=dict_factory,
                     retain_collection_types=retain_collection_types,
@@ -182,7 +163,6 @@ def _asdict_anything(
                 _asdict_anything(
                     kk,
                     is_key=True,
-                    tuple_keys=tuple_keys,
                     filter=filter,
                     dict_factory=df,
                     retain_collection_types=retain_collection_types,
@@ -191,7 +171,6 @@ def _asdict_anything(
                 _asdict_anything(
                     vv,
                     is_key=False,
-                    tuple_keys=tuple_keys,
                     filter=filter,
                     dict_factory=df,
                     retain_collection_types=retain_collection_types,

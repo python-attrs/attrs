@@ -296,5 +296,4 @@ class MatchArgs:
 
 
 attr.asdict(FactoryTest())
-attr.asdict(FactoryTest(), tuple_keys=True)
-attr.asdict(FactoryTest(), tuple_keys=None)
+attr.asdict(FactoryTest(), retain_collection_types=False)

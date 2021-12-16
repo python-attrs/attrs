@@ -1,1 +1,1 @@
-Added a *tuple_keys* argument to ``attr.asdict()``.
+``attr.asdict(retain_collection_types=False)`` (default) dumps collection-esque keys as tuples.
