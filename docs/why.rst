@@ -144,8 +144,13 @@ To that end, ``attrs`` and its developers were involved in the PEP process and w
 Nevertheless, there are still reasons to prefer ``attrs`` over Data Classes whose relevancy depends on your circumstances:
 
 - ``attrs`` supports all mainstream Python versions, including CPython 2.7 and PyPy.
-- Data Classes are intentionally less powerful than ``attrs``.
-  There is a long list of features that were sacrificed for the sake of simplicity and while the most obvious ones are validators, converters, and ``__slots__``, it permeates throughout all APIs.
+- ``attrs`` doesn't force type annotations on you, if you don't like them.
+- While Data Classes are implementing features from ``attrs`` every now and then, their presence is dependent on the Python version, not the package version.
+  For example, support for ``__slots__`` has only been added in Python 3.10.
+  That is especially painful in PyPI packages that support multiple Python versions.
+  This includes possible implementation bugs.
+- Data Classes are *intentionally* less powerful than ``attrs``.
+  There is a long list of features that were sacrificed for the sake of simplicity and while the most obvious ones are validators, converters, field hooks, or equality customization, it permeates throughout all APIs.
 
   On the other hand, Data Classes currently do not offer any significant feature that ``attrs`` doesn't already have.
 - ``attrs`` can and will move faster.
@@ -153,6 +158,8 @@ Nevertheless, there are still reasons to prefer ``attrs`` over Data Classes whos
 
   One of the `reasons <https://www.python.org/dev/peps/pep-0557/#why-not-just-use-attrs>`_ to not vendor ``attrs`` in the standard library was to not impede ``attrs``'s future development.
 
+One way to think about ``attrs`` vs Data Classes is that ``attrs`` is a fully-fledged toolkit to write powerful classes while Data Classes are an easy way to get a class with some attributes.
+Basically what ``attrs`` was in 2015.
 
 
 …dicts?
