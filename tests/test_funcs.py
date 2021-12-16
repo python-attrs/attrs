@@ -217,7 +217,8 @@ class TestAsDict(object):
     def test_tuple_keys(self):
         """
         If a key is collection type, retain_collection_types is False,
-        and tuple_keys is True, the key is serialized as a tuple.
+        and tuple_keys is True, the key is serialized as a tuple. It's True
+        by default if retain_collection_types is False.
 
         See #646
         """
@@ -228,6 +229,7 @@ class TestAsDict(object):
 
         instance = A({(1,): 1})
 
+        assert {"a": {(1,): 1}} == attr.asdict(instance)
         assert {"a": {(1,): 1}} == attr.asdict(instance, tuple_keys=True)
 
     def test_tuple_keys_retain_caught(self, C):
