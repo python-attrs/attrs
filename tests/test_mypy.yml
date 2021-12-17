@@ -316,7 +316,6 @@
     class Confused:
        ...
 
-
 - case: testAttrsInheritance
   main: |
     import attr
@@ -1393,3 +1392,15 @@
         foo = x
 
     reveal_type(B)  # N: Revealed type is "def (foo: builtins.int) -> main.B"
+
+- case: testFields
+  main: |
+    from attr import define, fields
+
+    @define
+    class A:
+      a: int
+      b: str
+
+    reveal_type(fields(A))  # N: Revealed type is "Tuple[attr.Attribute[builtins.int], attr.Attribute[builtins.str]]"
+    fields(A).a

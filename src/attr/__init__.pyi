@@ -8,6 +8,7 @@ from typing import (
     List,
     Mapping,
     Optional,
+    Protocol,
     Sequence,
     Tuple,
     Type,
@@ -56,6 +57,10 @@ _CompareWithType = Callable[[Any, Any], bool]
 # or tuple, but those are invariant and so would prevent subtypes of
 # _ValidatorType from working when passed in a list or tuple.
 _ValidatorArgType = Union[_ValidatorType[_T], Sequence[_ValidatorType[_T]]]
+
+# A protocol to be able to statically accept an attrs class.
+class AttrsClass(Protocol[_T]):
+    __attrs_attrs__: _T
 
 # _make --
 
@@ -399,11 +404,7 @@ def define(
 mutable = define
 frozen = define  # they differ only in their defaults
 
-# TODO: add support for returning NamedTuple from the mypy plugin
-class _Fields(Tuple[Attribute[Any], ...]):
-    def __getattr__(self, name: str) -> Attribute[Any]: ...
-
-def fields(cls: type) -> _Fields: ...
+def fields(cls: type[AttrsClass[_T]]) -> _T: ...
 def fields_dict(cls: type) -> Dict[str, Attribute[Any]]: ...
 def validate(inst: Any) -> None: ...
 def resolve_types(
