@@ -390,3 +390,49 @@ class TestAsDict:
         assert attrs.asdict(inst) == _attr.asdict(
             inst, retain_collection_types=True
         )
+
+
+class TestImports:
+    """
+    Verify our re-imports and mirroring works.
+    """
+
+    def test_converters(self):
+        """
+        Importing from attrs.converters works.
+        """
+        from attrs.converters import optional
+
+        assert optional is _attr.converters.optional
+
+    def test_exceptions(self):
+        """
+        Importing from attrs.exceptions works.
+        """
+        from attrs.exceptions import FrozenError
+
+        assert FrozenError is _attr.exceptions.FrozenError
+
+    def test_filters(self):
+        """
+        Importing from attrs.filters works.
+        """
+        from attrs.filters import include
+
+        assert include is _attr.filters.include
+
+    def test_setters(self):
+        """
+        Importing from attrs.setters works.
+        """
+        from attrs.setters import pipe
+
+        assert pipe is _attr.setters.pipe
+
+    def test_validators(self):
+        """
+        Importing from attrs.validators works.
+        """
+        from attrs.validators import and_
+
+        assert and_ is _attr.validators.and_

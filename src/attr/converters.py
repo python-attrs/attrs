@@ -14,9 +14,10 @@ if not PY2:
 
 
 __all__ = [
-    "pipe",
-    "optional",
     "default_if_none",
+    "optional",
+    "pipe",
+    "to_bool",
 ]
 
 

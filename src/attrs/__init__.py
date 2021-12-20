@@ -14,24 +14,21 @@ from attr import (
     __version_info__,
     assoc,
     cmp_using,
-    converters,
     define,
     evolve,
-    exceptions,
     field,
     fields,
     fields_dict,
-    filters,
     frozen,
     has,
     make_class,
     mutable,
     resolve_types,
-    setters,
     validate,
-    validators,
 )
 from attr._next_gen import asdict, astuple
+
+from . import converters, exceptions, filters, setters, validators
 
 
 __all__ = [
