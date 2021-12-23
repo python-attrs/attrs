@@ -41,8 +41,8 @@ Basically what ``attrs`` was in 2015.
 *pydantic* is first an foremost a *data validation library*.
 As such, it is a capable complement to class building libraries like ``attrs`` (or Data Classes!) for parsing and validating untrusted data.
 
-However as convenient as it is, using it for your business layer `is problematic in many ways <https://threeofwands.com/why-i-use-attrs-instead-of-pydantic/>`_.
-In the parlance of `Form, Command, and Model Validation <https://verraes.net/2015/02/form-command-model-validation/>`_, *pydantic* is the right tools for *Commands*.
+However, as convenient as it might be, using it for your business or data layer `is problematic in many ways <https://threeofwands.com/why-i-use-attrs-instead-of-pydantic/>`_.
+In the parlance of `Form, Command, and Model Validation <https://verraes.net/2015/02/form-command-model-validation/>`_, *pydantic* is the right tool for *Commands*.
 
 `Separation of concerns <https://en.wikipedia.org/wiki/Separation_of_concerns>`_ feels tedious at times, but it's one of those things that you get to appreciate once you've shot your own foot often enough.
 
