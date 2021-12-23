@@ -145,6 +145,7 @@ Nevertheless, there are still reasons to prefer ``attrs`` over Data Classes whos
 
 - ``attrs`` supports all mainstream Python versions, including CPython 2.7 and PyPy.
 - ``attrs`` doesn't force type annotations on you, if you don't like them.
+- But since it **does** support typing, it's the best way to embrace type hints *gradually*, too.
 - While Data Classes are implementing features from ``attrs`` every now and then, their presence is dependent on the Python version, not the package version.
   For example, support for ``__slots__`` has only been added in Python 3.10.
   That is especially painful in PyPI packages that support multiple Python versions.
