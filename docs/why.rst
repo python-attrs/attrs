@@ -13,7 +13,8 @@ If you'd like third party's account why ``attrs`` is great, have a look at Glyph
 They are the result of the Python community's `wish <https://mail.python.org/pipermail/python-ideas/2017-May/045618.html>`_ to have an easier way to write classes in the standard library that doesn't carry the problems of ``namedtuple``\ s.
 To that end, ``attrs`` and its developers were involved in the PEP process and while we may disagree with some minor decisions that have been made, it's a fine library and if it stops you from abusing ``namedtuple``\ s, they are a huge win.
 
-Nevertheless, there are still reasons to prefer ``attrs`` over Data Classes whose relevancy depends on your circumstances:
+Nevertheless, there are still reasons to prefer ``attrs`` over Data Classes.
+Whether they're relevant to *you* depends on your circumstances:
 
 - Data Classes are *intentionally* less powerful than ``attrs``.
   There is a long list of features that were sacrificed for the sake of simplicity and while the most obvious ones are validators, converters, :ref:`equality customization <custom-comparison>`, or :doc:`extensibility <extending>` in general, it permeates throughout all APIs.
