@@ -82,9 +82,13 @@ Never again violate the `single responsibility principle <https://en.wikipedia.o
 
 ----
 
+**Hate type annotations**!?
+No problem!
+With ``attrs`` types are entirely **optional**.
+Simply assign `field()` to the attributes instead of annotating them with types.
+
 In case you're wondering: this example uses ``attrs``'s `modern APIs <https://www.attrs.org/en/stable/api.html#next-generation-apis>`_ that have been introduced in version 20.1.0.
 The classic APIs (``@attr.s``, ``attr.ib``, ``@attr.attrs``, ``attr.attrib``, and ``attr.dataclass``) will remain indefinitely.
-`Type annotations <https://www.attrs.org/en/latest/types.html>`_ will also stay entirely **optional** forever.
 
 Please check out `On The Core API Names <https://www.attrs.org/en/latest/names.html>`_ for a more in-depth explanation.
 
