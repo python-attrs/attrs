@@ -41,7 +41,7 @@ Day-to-Day Usage
 ================
 
 - `types` help you to write *correct* and *self-documenting* code.
-  ``attrs`` has first class support for them and even allows you to drop the calls to `attr.ib` on modern Python versions!
+  ``attrs`` has first class support for them, yet keeps them optional if you’re not convinced!
 - Instance initialization is one of ``attrs`` key feature areas.
   Our goal is to relieve you from writing as much code as possible.
   `init` gives you an overview what ``attrs`` has to offer and explains some related philosophies we believe in.
