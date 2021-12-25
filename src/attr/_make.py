@@ -147,11 +147,11 @@ def attrib(
         is used and no value is passed while instantiating or the attribute is
         excluded using ``init=False``.
 
-        If the value is an instance of `Factory`, its callable will be
+        If the value is an instance of `attrs.Factory`, its callable will be
         used to construct a new value (useful for mutable data types like lists
         or dicts).
 
-        If a default is not set (or set manually to `attr.NOTHING`), a value
+        If a default is not set (or set manually to `attrs.NOTHING`), a value
         *must* be supplied when instantiating; otherwise a `TypeError`
         will be raised.
 
@@ -164,7 +164,7 @@ def attrib(
 
     :param validator: `callable` that is called by ``attrs``-generated
         ``__init__`` methods after the instance has been initialized.  They
-        receive the initialized instance, the `Attribute`, and the
+        receive the initialized instance, the :func:`~attrs.Attribute`, and the
         passed value.
 
         The return value is *not* inspected so the validator has to throw an
@@ -237,10 +237,10 @@ def attrib(
         parameter is ignored).
     :param on_setattr: Allows to overwrite the *on_setattr* setting from
         `attr.s`. If left `None`, the *on_setattr* value from `attr.s` is used.
-        Set to `attr.setters.NO_OP` to run **no** `setattr` hooks for this
+        Set to `attrs.setters.NO_OP` to run **no** `setattr` hooks for this
         attribute -- regardless of the setting in `attr.s`.
     :type on_setattr: `callable`, or a list of callables, or `None`, or
-        `attr.setters.NO_OP`
+        `attrs.setters.NO_OP`
 
     .. versionadded:: 15.2.0 *convert*
     .. versionadded:: 16.3.0 *metadata*
@@ -1286,7 +1286,7 @@ def attrs(
         *cmp*, or *hash* overrides whatever *auto_detect* would determine.
 
         *auto_detect* requires Python 3. Setting it ``True`` on Python 2 raises
-        a `PythonTooOldError`.
+        an `attrs.exceptions.PythonTooOldError`.
 
     :param bool repr: Create a ``__repr__`` method with a human readable
         representation of ``attrs`` attributes..
@@ -1373,7 +1373,7 @@ def attrs(
 
         If you assign a value to those attributes (e.g. ``x: int = 42``), that
         value becomes the default value like if it were passed using
-        ``attr.ib(default=42)``.  Passing an instance of `Factory` also
+        ``attr.ib(default=42)``.  Passing an instance of `attrs.Factory` also
         works as expected in most cases (see warning below).
 
         Attributes annotated as `typing.ClassVar`, and attributes that are
@@ -1445,7 +1445,7 @@ def attrs(
         the callable.
 
         If a list of callables is passed, they're automatically wrapped in an
-        `attr.setters.pipe`.
+        `attrs.setters.pipe`.
 
     :param Optional[callable] field_transformer:
         A function that is called with the original class object and all
@@ -2037,7 +2037,7 @@ def fields(cls):
     :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
         class.
 
-    :rtype: tuple (with name accessors) of `attr.Attribute`
+    :rtype: tuple (with name accessors) of `attrs.Attribute`
 
     ..  versionchanged:: 16.2.0 Returned tuple allows accessing the fields
         by name.
@@ -2064,7 +2064,7 @@ def fields_dict(cls):
         class.
 
     :rtype: an ordered dict where keys are attribute names and values are
-        `attr.Attribute`\\ s. This will be a `dict` if it's
+        `attrs.Attribute`\\ s. This will be a `dict` if it's
         naturally ordered like on Python 3.6+ or an
         :class:`~collections.OrderedDict` otherwise.
 
@@ -2951,7 +2951,7 @@ class Factory(object):
     """
     Stores a factory callable.
 
-    If passed as the default value to `attr.ib`, the factory is used to
+    If passed as the default value to `attrs.field`, the factory is used to
     generate a new value.
 
     :param callable factory: A callable that takes either none or exactly one

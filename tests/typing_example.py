@@ -3,6 +3,7 @@ import re
 from typing import Any, Dict, List, Tuple, Union
 
 import attr
+import attrs
 
 
 # Typing via "type" Argument ---
@@ -59,6 +60,14 @@ class FF:
     z: Any = attr.ib()
 
 
+@attrs.define
+class FFF:
+    z: int
+
+
+FFF(1)
+
+
 # Inheritance --
 
 
@@ -90,6 +99,19 @@ class Error(Exception):
 
 try:
     raise Error(1)
+except Error as e:
+    e.x
+    e.args
+    str(e)
+
+
+@attrs.define
+class Error2(Exception):
+    x: int
+
+
+try:
+    raise Error2(1)
 except Error as e:
     e.x
     e.args
@@ -179,7 +201,7 @@ class Validated:
         validator=attr.validators.instance_of((int, str))
     )
     k: Union[int, str, C] = attr.ib(
-        validator=attr.validators.instance_of((int, C, str))
+        validator=attrs.validators.instance_of((int, C, str))
     )
 
 
@@ -188,8 +210,16 @@ class Validated2:
     num: int = attr.field(validator=attr.validators.ge(0))
 
 
+@attrs.define
+class Validated3:
+    num: int = attr.field(validator=attr.validators.ge(0))
+
+
 with attr.validators.disabled():
     Validated2(num=-1)
+
+with attrs.validators.disabled():
+    Validated3(num=-1)
 
 try:
     attr.validators.set_disabled(True)
@@ -205,6 +235,14 @@ class WithCustomRepr:
     b: str = attr.ib(repr=False)
     c: str = attr.ib(repr=lambda value: "c is for cookie")
     d: bool = attr.ib(repr=str)
+
+
+@attrs.define
+class WithCustomRepr2:
+    a: int = attrs.field(repr=True)
+    b: str = attrs.field(repr=False)
+    c: str = attrs.field(repr=lambda value: "c is for cookie")
+    d: bool = attrs.field(repr=str)
 
 
 # Check some of our own types
@@ -228,13 +266,40 @@ class ValidatedSetter:
     )
 
 
+@attrs.define(on_setattr=attr.setters.validate)
+class ValidatedSetter2:
+    a: int
+    b: str = attrs.field(on_setattr=attrs.setters.NO_OP)
+    c: bool = attrs.field(on_setattr=attrs.setters.frozen)
+    d: int = attrs.field(
+        on_setattr=[attrs.setters.convert, attrs.setters.validate]
+    )
+    e: bool = attrs.field(
+        on_setattr=attrs.setters.pipe(
+            attrs.setters.convert, attrs.setters.validate
+        )
+    )
+
+
 # field_transformer
 def ft_hook(cls: type, attribs: List[attr.Attribute]) -> List[attr.Attribute]:
     return attribs
 
 
+# field_transformer
+def ft_hook2(
+    cls: type, attribs: List[attrs.Attribute]
+) -> List[attrs.Attribute]:
+    return attribs
+
+
 @attr.s(field_transformer=ft_hook)
 class TransformedAttrs:
+    x: int
+
+
+@attrs.define(field_transformer=ft_hook2)
+class TransformedAttrs2:
     x: int
 
 
@@ -276,6 +341,11 @@ a = attr.fields(NGFrozen).x
 a.evolve(repr=False)
 
 
+attrs.fields(NGFrozen).x.evolve(eq=False)
+a = attrs.fields(NGFrozen).x
+a.evolve(repr=False)
+
+
 @attr.s(collect_by_mro=True)
 class MRO:
     pass
@@ -288,6 +358,17 @@ class FactoryTest:
     c: List[int] = attr.ib(default=attr.Factory((lambda s: s.a), True))
 
 
+@attrs.define
+class FactoryTest2:
+    a: List[int] = attrs.field(default=attrs.Factory(list))
+    b: List[Any] = attrs.field(default=attrs.Factory(list, False))
+    c: List[int] = attrs.field(default=attrs.Factory((lambda s: s.a), True))
+
+
+attrs.asdict(FactoryTest2())
+attr.asdict(FactoryTest(), tuple_keys=True)
+
+
 # Check match_args stub
 @attr.s(match_args=False)
 class MatchArgs:
@@ -297,3 +378,41 @@ class MatchArgs:
 
 attr.asdict(FactoryTest())
 attr.asdict(FactoryTest(), retain_collection_types=False)
+
+
+# Check match_args stub
+@attrs.define(match_args=False)
+class MatchArgs2:
+    a: int
+    b: int
+
+
+# NG versions of asdict/astuple
+attrs.asdict(MatchArgs2(1, 2))
+attrs.astuple(MatchArgs2(1, 2))
+
+
+def importing_from_attr() -> None:
+    """
+    Use a function to keep the ns clean.
+    """
+    from attr.converters import optional
+    from attr.exceptions import FrozenError
+    from attr.filters import include
+    from attr.setters import frozen
+    from attr.validators import and_
+
+    assert optional and FrozenError and include and frozen and and_
+
+
+def importing_from_attrs() -> None:
+    """
+    Use a function to keep the ns clean.
+    """
+    from attrs.converters import optional
+    from attrs.exceptions import FrozenError
+    from attrs.filters import include
+    from attrs.setters import frozen
+    from attrs.validators import and_
+
+    assert optional and FrozenError and include and frozen and and_

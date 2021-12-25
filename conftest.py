@@ -1,10 +1,8 @@
 from __future__ import absolute_import, division, print_function
 
-import sys
-
 from hypothesis import HealthCheck, settings
 
-from attr._compat import PY310
+from attr._compat import PY36, PY310
 
 
 def pytest_configure(config):
@@ -16,7 +14,7 @@ def pytest_configure(config):
 
 
 collect_ignore = []
-if sys.version_info[:2] < (3, 6):
+if not PY36:
     collect_ignore.extend(
         [
             "tests/test_annotations.py",

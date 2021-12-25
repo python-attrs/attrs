@@ -62,5 +62,5 @@ For NumPy arrays it would look like this::
 
 .. warning::
 
-   Please note that *eq* and *order* are set *independently*, because *order* is `False` by default in `modern APIs <next-gen>`.
+   Please note that *eq* and *order* are set *independently*, because *order* is `False` by default in `attrs.define` (but not in `attr.s`).
    You can set both at once by using the *cmp* argument that we've undeprecated just for this use-case.

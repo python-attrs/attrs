@@ -32,13 +32,12 @@ For that, it gives you a class decorator and a way to declaratively define the a
 
 .. code-block:: pycon
 
-   >>> from typing import List
-   >>> from attr import asdict, define, make_class, Factory
+   >>> from attrs import asdict, define, make_class, Factory
 
    >>> @define
    ... class SomeClass:
    ...     a_number: int = 42
-   ...     list_of_numbers: List[int] = Factory(list)
+   ...     list_of_numbers: list[int] = Factory(list)
    ...
    ...     def hard_math(self, another_number):
    ...         return self.a_number + sum(self.list_of_numbers) * another_number
@@ -85,7 +84,7 @@ Never again violate the `single responsibility principle <https://en.wikipedia.o
 **Hate type annotations**!?
 No problem!
 Types are entirely **optional** with ``attrs``.
-Simply assign ``attr.field()`` to the attributes instead of annotating them with types.
+Simply assign ``attrs.field()`` to the attributes instead of annotating them with types.
 
 This example uses ``attrs``'s `modern APIs <https://www.attrs.org/en/stable/api.html#next-generation-apis>`_ that have been introduced in version 20.1.0.
 The classic APIs (``@attr.s``, ``attr.ib``, ``@attr.attrs``, ``attr.attrib``, and ``attr.dataclass``) will remain indefinitely.

@@ -2,8 +2,8 @@ include LICENSE *.rst *.toml *.yml *.yaml *.ini
 graft .github
 
 # Stubs
-include src/attr/py.typed
 recursive-include src *.pyi
+recursive-include src py.typed
 
 # Tests
 include tox.ini conftest.py

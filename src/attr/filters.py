@@ -23,7 +23,7 @@ def include(*what):
     Include *what*.
 
     :param what: What to include.
-    :type what: `list` of `type` or `attr.Attribute`\\ s
+    :type what: `list` of `type` or `attrs.Attribute`\\ s
 
     :rtype: `callable`
     """
@@ -40,7 +40,7 @@ def exclude(*what):
     Exclude *what*.
 
     :param what: What to exclude.
-    :type what: `list` of classes or `attr.Attribute`\\ s.
+    :type what: `list` of classes or `attrs.Attribute`\\ s.
 
     :rtype: `callable`
     """

@@ -8,10 +8,11 @@ from functools import partial
 
 import pytest
 
-import attr
+import attr as _attr  # don't use it by accident
+import attrs
 
 
-@attr.define
+@attrs.define
 class C:
     x: str
     y: int
@@ -29,7 +30,7 @@ class TestNextGen:
         slots can be deactivated.
         """
 
-        @attr.define(slots=False)
+        @attrs.define(slots=False)
         class NoSlots:
             x: int
 
@@ -42,9 +43,9 @@ class TestNextGen:
         Validators at __init__ and __setattr__ work.
         """
 
-        @attr.define
+        @attrs.define
         class Validated:
-            x: int = attr.field(validator=attr.validators.instance_of(int))
+            x: int = attrs.field(validator=attrs.validators.instance_of(int))
 
         v = Validated(1)
 
@@ -61,7 +62,7 @@ class TestNextGen:
         with pytest.raises(TypeError):
             C("1", 2) < C("2", 3)
 
-        @attr.define(order=True)
+        @attrs.define(order=True)
         class Ordered:
             x: int
 
@@ -71,23 +72,23 @@ class TestNextGen:
         """
         Don't guess if auto_attrib is set explicitly.
 
-        Having an unannotated attr.ib/attr.field fails.
+        Having an unannotated attrs.ib/attrs.field fails.
         """
-        with pytest.raises(attr.exceptions.UnannotatedAttributeError):
+        with pytest.raises(attrs.exceptions.UnannotatedAttributeError):
 
-            @attr.define(auto_attribs=True)
+            @attrs.define(auto_attribs=True)
             class ThisFails:
-                x = attr.field()
+                x = attrs.field()
                 y: int
 
     def test_override_auto_attribs_false(self):
         """
         Don't guess if auto_attrib is set explicitly.
 
-        Annotated fields that don't carry an attr.ib are ignored.
+        Annotated fields that don't carry an attrs.ib are ignored.
         """
 
-        @attr.define(auto_attribs=False)
+        @attrs.define(auto_attribs=False)
         class NoFields:
             x: int
             y: int
@@ -99,16 +100,16 @@ class TestNextGen:
         define correctly detects if a class lacks type annotations.
         """
 
-        @attr.define
+        @attrs.define
         class OldSchool:
-            x = attr.field()
+            x = attrs.field()
 
         assert OldSchool(1) == OldSchool(1)
 
         # Test with maybe_cls = None
-        @attr.define()
+        @attrs.define()
         class OldSchool2:
-            x = attr.field()
+            x = attrs.field()
 
         assert OldSchool2(1) == OldSchool2(1)
 
@@ -117,10 +118,10 @@ class TestNextGen:
         define infers auto_attribs=True if fields have type annotations
         """
 
-        @attr.define
+        @attrs.define
         class NewSchool:
             x: int
-            y: list = attr.field()
+            y: list = attrs.field()
 
             @y.validator
             def _validate_y(self, attribute, value):
@@ -130,14 +131,14 @@ class TestNextGen:
         assert NewSchool(1, 1) == NewSchool(1, 1)
         with pytest.raises(ValueError):
             NewSchool(1, -1)
-        assert list(attr.fields_dict(NewSchool).keys()) == ["x", "y"]
+        assert list(attrs.fields_dict(NewSchool).keys()) == ["x", "y"]
 
     def test_auto_attribs_partially_annotated(self):
         """
         define infers auto_attribs=True if any type annotations are found
         """
 
-        @attr.define
+        @attrs.define
         class NewSchool:
             x: int
             y: list
@@ -145,7 +146,7 @@ class TestNextGen:
 
         # fields are defined for any annotated attributes
         assert NewSchool(1, []) == NewSchool(1, [])
-        assert list(attr.fields_dict(NewSchool).keys()) == ["x", "y"]
+        assert list(attrs.fields_dict(NewSchool).keys()) == ["x", "y"]
 
         # while the unannotated attributes are left as class vars
         assert NewSchool.z == 10
@@ -156,14 +157,14 @@ class TestNextGen:
         define correctly detects if a class has type annotations.
         """
 
-        @attr.define
+        @attrs.define
         class NewSchool:
             x: int
 
         assert NewSchool(1) == NewSchool(1)
 
         # Test with maybe_cls = None
-        @attr.define()
+        @attrs.define()
         class NewSchool2:
             x: int
 
@@ -174,7 +175,7 @@ class TestNextGen:
         Exceptions are detected and correctly handled.
         """
 
-        @attr.define
+        @attrs.define
         class E(Exception):
             msg: str
             other: int
@@ -190,16 +191,16 @@ class TestNextGen:
 
     def test_frozen(self):
         """
-        attr.frozen freezes classes.
+        attrs.frozen freezes classes.
         """
 
-        @attr.frozen
+        @attrs.frozen
         class F:
             x: str
 
         f = F(1)
 
-        with pytest.raises(attr.exceptions.FrozenInstanceError):
+        with pytest.raises(attrs.exceptions.FrozenInstanceError):
             f.x = 2
 
     def test_auto_detect_eq(self):
@@ -209,7 +210,7 @@ class TestNextGen:
         Regression test for #670.
         """
 
-        @attr.define
+        @attrs.define
         class C:
             def __eq__(self, o):
                 raise ValueError()
@@ -219,35 +220,35 @@ class TestNextGen:
 
     def test_subclass_frozen(self):
         """
-        It's possible to subclass an `attr.frozen` class and the frozen-ness is
-        inherited.
+        It's possible to subclass an `attrs.frozen` class and the frozen-ness
+        is inherited.
         """
 
-        @attr.frozen
+        @attrs.frozen
         class A:
             a: int
 
-        @attr.frozen
+        @attrs.frozen
         class B(A):
             b: int
 
-        @attr.define(on_setattr=attr.setters.NO_OP)
+        @attrs.define(on_setattr=attrs.setters.NO_OP)
         class C(B):
             c: int
 
         assert B(1, 2) == B(1, 2)
         assert C(1, 2, 3) == C(1, 2, 3)
 
-        with pytest.raises(attr.exceptions.FrozenInstanceError):
+        with pytest.raises(attrs.exceptions.FrozenInstanceError):
             A(1).a = 1
 
-        with pytest.raises(attr.exceptions.FrozenInstanceError):
+        with pytest.raises(attrs.exceptions.FrozenInstanceError):
             B(1, 2).a = 1
 
-        with pytest.raises(attr.exceptions.FrozenInstanceError):
+        with pytest.raises(attrs.exceptions.FrozenInstanceError):
             B(1, 2).b = 2
 
-        with pytest.raises(attr.exceptions.FrozenInstanceError):
+        with pytest.raises(attrs.exceptions.FrozenInstanceError):
             C(1, 2, 3).c = 3
 
     def test_catches_frozen_on_setattr(self):
@@ -256,7 +257,7 @@ class TestNextGen:
         immutability is inherited.
         """
 
-        @attr.define(frozen=True)
+        @attrs.define(frozen=True)
         class A:
             pass
 
@@ -264,7 +265,7 @@ class TestNextGen:
             ValueError, match="Frozen classes can't use on_setattr."
         ):
 
-            @attr.define(frozen=True, on_setattr=attr.setters.validate)
+            @attrs.define(frozen=True, on_setattr=attrs.setters.validate)
             class B:
                 pass
 
@@ -276,17 +277,17 @@ class TestNextGen:
             ),
         ):
 
-            @attr.define(on_setattr=attr.setters.validate)
+            @attrs.define(on_setattr=attrs.setters.validate)
             class C(A):
                 pass
 
     @pytest.mark.parametrize(
         "decorator",
         [
-            partial(attr.s, frozen=True, slots=True, auto_exc=True),
-            attr.frozen,
-            attr.define,
-            attr.mutable,
+            partial(_attr.s, frozen=True, slots=True, auto_exc=True),
+            attrs.frozen,
+            attrs.define,
+            attrs.mutable,
         ],
     )
     def test_discard_context(self, decorator):
@@ -298,7 +299,7 @@ class TestNextGen:
 
         @decorator
         class MyException(Exception):
-            x: str = attr.ib()
+            x: str = attrs.field()
 
         with pytest.raises(MyException) as ei:
             try:
@@ -314,9 +315,9 @@ class TestNextGen:
         If no on_setattr is set, assume setters.convert, setters.validate.
         """
 
-        @attr.define
+        @attrs.define
         class C:
-            x: int = attr.field(converter=int)
+            x: int = attrs.field(converter=int)
 
             @x.validator
             def _v(self, _, value):
@@ -341,7 +342,7 @@ class TestNextGen:
         See #428
         """
 
-        @attr.define
+        @attrs.define
         class A:
 
             x: int = 10
@@ -349,21 +350,89 @@ class TestNextGen:
             def xx(self):
                 return 10
 
-        @attr.define
+        @attrs.define
         class B(A):
             y: int = 20
 
-        @attr.define
+        @attrs.define
         class C(A):
             x: int = 50
 
             def xx(self):
                 return 50
 
-        @attr.define
+        @attrs.define
         class D(B, C):
             pass
 
         d = D()
 
         assert d.x == d.xx()
+
+
+class TestAsTuple:
+    def test_smoke(self):
+        """
+        `attrs.astuple` only changes defaults, so we just call it and compare.
+        """
+        inst = C("foo", 42)
+
+        assert attrs.astuple(inst) == _attr.astuple(inst)
+
+
+class TestAsDict:
+    def test_smoke(self):
+        """
+        `attrs.asdict` only changes defaults, so we just call it and compare.
+        """
+        inst = C("foo", {(1,): 42})
+
+        assert attrs.asdict(inst) == _attr.asdict(
+            inst, retain_collection_types=True
+        )
+
+
+class TestImports:
+    """
+    Verify our re-imports and mirroring works.
+    """
+
+    def test_converters(self):
+        """
+        Importing from attrs.converters works.
+        """
+        from attrs.converters import optional
+
+        assert optional is _attr.converters.optional
+
+    def test_exceptions(self):
+        """
+        Importing from attrs.exceptions works.
+        """
+        from attrs.exceptions import FrozenError
+
+        assert FrozenError is _attr.exceptions.FrozenError
+
+    def test_filters(self):
+        """
+        Importing from attrs.filters works.
+        """
+        from attrs.filters import include
+
+        assert include is _attr.filters.include
+
+    def test_setters(self):
+        """
+        Importing from attrs.setters works.
+        """
+        from attrs.setters import pipe
+
+        assert pipe is _attr.setters.pipe
+
+    def test_validators(self):
+        """
+        Importing from attrs.validators works.
+        """
+        from attrs.validators import and_
+
+        assert and_ is _attr.validators.and_

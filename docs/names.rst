@@ -1,7 +1,7 @@
 On The Core API Names
 =====================
 
-You may be surprised seeing ``attrs`` classes being created using `attr.define` and with type annotated fields, instead of `attr.s` and `attr.ib()`.
+You may be surprised seeing ``attrs`` classes being created using `attrs.define` and with type annotated fields, instead of `attr.s` and `attr.ib()`.
 
 Or, you wonder why the web and talks are full of this weird `attr.s` and `attr.ib` -- including people having strong opinions about it and using ``attr.attrs`` and ``attr.attrib`` instead.
 
@@ -13,14 +13,15 @@ TL;DR
 
 We recommend our modern APIs for new code:
 
-- `define()` to define a new class,
-- `mutable()` is an alias for `define()`,
-- :func:`~attr.frozen` is an alias for ``define(frozen=True)``
-- and `field()` to define an attribute.
+- `attrs.define()` to define a new class,
+- `attrs.mutable()` is an alias for `attrs.define()`,
+- `attrs.frozen()` is an alias for ``define(frozen=True)``
+- and `attrs.field()` to define an attribute.
 
 They have been added in ``attrs`` 20.1.0, they are expressive, and they have modern defaults like slots and type annotation awareness switched on by default.
 They are only available in Python 3.6 and later.
 Sometimes they're referred to as *next-generation* or *NG* APIs.
+As of ``attrs`` 21.3.0 you can also import them from the ``attrs`` package namespace.
 
 The traditional APIs `attr.s` / `attr.ib`, their serious business aliases ``attr.attrs`` / ``attr.attrib``, and the never-documented, but popular ``attr.dataclass`` easter egg will stay **forever**.
 
@@ -48,7 +49,7 @@ But it was really just a way to say ``attrs`` and ``attrib``\ [#attr]_.
 
 Some people hated this cutey API from day one, which is why we added aliases for them that we called *serious business*: ``@attr.attrs`` and ``attr.attrib()``.
 Fans of them usually imported the names and didn't use the package name in the first place.
-Unfortunately, the ``attr`` package name started creaking the moment we added `attr.Factory`, since it couldn’t be morphed into something meaningful in any way.
+Unfortunately, the ``attr`` package name started creaking the moment we added ``attr.Factory``, since it couldn’t be morphed into something meaningful in any way.
 A problem that grew worse over time, as more APIs and even modules were added.
 
 But overall, ``attrs`` in this shape was a **huge** success -- especially after glyph's blog post `The One Python Library Everyone Needs <https://glyph.twistedmatrix.com/2016/08/attrs.html>`_ in August 2016 and `pytest <https://docs.pytest.org/>`_ adopting it.
@@ -96,7 +97,7 @@ We've spent years alone explaining that defining attributes using type annotatio
 
 Finally we've decided to take the `Go route <https://go.dev/blog/module-compatibility>`_:
 instead of fiddling with the old APIs -- whose names felt anachronistic anyway -- we'd define new ones, with better defaults.
-So in July 2018, we `looked for better names <https://github.com/python-attrs/attrs/issues/408>`_ and came up with `define`, `field`, and friends.
+So in July 2018, we `looked for better names <https://github.com/python-attrs/attrs/issues/408>`_ and came up with `attr.define`, `attr.field`, and friends.
 Then in January 2019, we `started looking for inconvenient defaults <https://github.com/python-attrs/attrs/issues/487>`_ that we now could fix without any repercussions.
 
 These APIs proved to be vastly popular, so we've finally changed the documentation to them in November of 2021.
@@ -104,7 +105,11 @@ These APIs proved to be vastly popular, so we've finally changed the documentati
 All of this took way too long, of course.
 One reason is the COVID-19 pandemic, but also our fear to fumble this historic chance to fix our APIs.
 
+Finally, in December 2021, we've added the ``attrs`` package namespace.
+
 We hope you like the result::
+
+   from attrs import define
 
    @define
    class Point:

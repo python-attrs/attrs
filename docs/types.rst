@@ -78,7 +78,7 @@ pyright
 
 ``attrs`` provides support for pyright_ though the dataclass_transform_ specification.
 This provides static type inference for a subset of ``attrs`` equivalent to standard-library ``dataclasses``,
-and requires explicit type annotations using the :ref:`next-gen` or ``@attr.s(auto_attribs=True)`` API.
+and requires explicit type annotations using the `attrs.define` or ``@attr.s(auto_attribs=True)`` API.
 
 Given the following definition, ``pyright`` will generate static type signatures for ``SomeClass`` attribute access, ``__init__``, ``__eq__``, and comparison methods::
 
