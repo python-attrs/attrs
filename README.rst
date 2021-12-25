@@ -84,7 +84,7 @@ Never again violate the `single responsibility principle <https://en.wikipedia.o
 
 **Hate type annotations**!?
 No problem!
-With ``attrs`` types are entirely **optional**.
+Types are entirely **optional** with ``attrs``.
 Simply assign ``attr.field()`` to the attributes instead of annotating them with types.
 
 This example uses ``attrs``'s `modern APIs <https://www.attrs.org/en/stable/api.html#next-generation-apis>`_ that have been introduced in version 20.1.0.
