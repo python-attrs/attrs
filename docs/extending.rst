@@ -2,7 +2,7 @@ Extending
 =========
 
 Each ``attrs``-decorated class has a ``__attrs_attrs__`` class attribute.
-It is a tuple of `attrs.Attribute` carrying meta-data about each attribute.
+It's a tuple of `attrs.Attribute` carrying metadata about each attribute.
 
 So it is fairly simple to build your own decorators on top of ``attrs``:
 
@@ -264,14 +264,14 @@ A more realistic example would be to automatically convert data that you, e.g., 
 Customize Value Serialization in ``asdict()``
 ---------------------------------------------
 
-``attrs`` allows you to serialize instances of ``attrs`` classes to dicts using the `attr.asdict` function.
+``attrs`` allows you to serialize instances of ``attrs`` classes to dicts using the `attrs.asdict` function.
 However, the result can not always be serialized since most data types will remain as they are:
 
 .. doctest::
 
    >>> import json
    >>> import datetime
-   >>> from attr import asdict
+   >>> from attrs import asdict
    >>>
    >>> @frozen
    ... class Data:

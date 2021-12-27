@@ -16,7 +16,7 @@ As of version 21.3.0, ``attrs`` consists of **two** to-level package names:
   Additionally it offers some ``attr`` APIs with nicer defaults (e.g. `attrs.asdict`).
   Using this namespace requires Python 3.6 or later.
 
-The ``attrs`` namespace is built *on top of* the ``attr`` which will *never* go away.
+The ``attrs`` namespace is built *on top of* ``attr`` which will *never* go away.
 
 
 Core
