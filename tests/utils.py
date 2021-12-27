@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """
 Common helper functions for tests.
 """

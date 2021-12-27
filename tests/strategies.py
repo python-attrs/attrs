@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """
 Testing strategies for Hypothesis-based tests.
 """

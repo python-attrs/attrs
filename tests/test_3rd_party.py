@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """
 Tests for compatibility against other Python modules.
 """

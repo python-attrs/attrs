@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """
 Python 3-only integration tests for provisional next generation APIs.
 """

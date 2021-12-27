@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """
 These are Python 3.6+-only and keyword-only APIs that call `attr.s` and
 `attr.ib` with different default values.

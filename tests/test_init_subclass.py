@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """
 Tests for `__init_subclass__` related tests.
 

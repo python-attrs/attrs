@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 from importlib import metadata
 
 

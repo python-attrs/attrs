@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 import re
 
 from typing import Any, Dict, List, Tuple, Union

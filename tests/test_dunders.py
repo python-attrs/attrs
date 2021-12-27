@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """
 Tests for dunder methods from `attrib._make`.
 """

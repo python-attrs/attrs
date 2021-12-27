@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 """
 Commonly useful filters for `attr.asdict`.
 """

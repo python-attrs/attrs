@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 import codecs
 import os
 import platform

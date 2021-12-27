@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 # flake8: noqa
 # Python 3.10 issue in flake8: https://github.com/PyCQA/pyflakes/issues/634
 # Keep this file SHORT, until Black and flake8 can handle it.
