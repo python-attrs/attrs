@@ -1,13 +1,9 @@
 # SPDX-License-Identifier: MIT
 
-# flake8: noqa
-# Python 3.10 issue in flake8: https://github.com/PyCQA/pyflakes/issues/634
-# Keep this file SHORT, until Black and flake8 can handle it.
+# Keep this file SHORT, until Black can handle it.
 import pytest
 
 import attr
-
-from attr import make_class
 
 
 class TestPatternMatching:
@@ -35,6 +31,7 @@ class TestPatternMatching:
                 matched = True
 
         assert matched
+        assert 1 == a
 
     def test_explicit_match_args(self):
         """
@@ -53,7 +50,7 @@ class TestPatternMatching:
         msg = r"C\(\) accepts 0 positional sub-patterns \(1 given\)"
         with pytest.raises(TypeError, match=msg):
             match c:
-                case C(a):
+                case C(_):
                     pass
 
     def test_match_args_kw_only(self):
@@ -101,3 +98,4 @@ class TestPatternMatching:
                 found = True
 
         assert found
+        assert (1, 1) == (a, b)
