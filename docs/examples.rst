@@ -9,7 +9,7 @@ The simplest possible usage is:
 
 .. doctest::
 
-   >>> from attr import define
+   >>> from attrs import define
    >>> @define
    ... class Empty:
    ...     pass
@@ -189,17 +189,15 @@ When you have a class with data, it often is very convenient to transform that c
 
 .. doctest::
 
-   >>> from attr import asdict
+   >>> from attrs import asdict
 
    >>> asdict(Coordinates(x=1, y=2))
    {'x': 1, 'y': 2}
 
 Some fields cannot or should not be transformed.
-For that, `attr.asdict` offers a callback that decides whether an attribute should be included:
+For that, `attrs.asdict` offers a callback that decides whether an attribute should be included:
 
 .. doctest::
-
-   >>> from attr import asdict
 
    >>> @define
    ... class User(object):
@@ -219,7 +217,7 @@ For the common case where you want to `include <attr.filters.include>` or `exclu
 
 .. doctest::
 
-   >>> from attr import asdict, filters, fields
+   >>> from attrs import asdict, filters, fields
 
    >>> @define
    ... class User:
@@ -247,7 +245,7 @@ Other times, all you want is a tuple and ``attrs`` won't let you down:
 .. doctest::
 
    >>> import sqlite3
-   >>> from attr import astuple
+   >>> from attrs import astuple
 
    >>> @define
    ... class Foo:
@@ -363,7 +361,7 @@ You can use a decorator:
 
 .. doctest::
 
-   >>> from attr import validators
+   >>> from attrs import validators
 
    >>> def x_smaller_than_y(instance, attribute, value):
    ...     if value >= instance.y:
@@ -454,7 +452,7 @@ All ``attrs`` attributes may include arbitrary metadata in the form of a read-on
 
 .. doctest::
 
-    >>> from attr import fields
+    >>> from attrs import fields
 
     >>> @define
     ... class C:
@@ -478,7 +476,7 @@ Types
 
 .. doctest::
 
-   >>> from attr import attrib, fields
+   >>> from attrs import attrib, fields
 
    >>> @define
    ... class C:
@@ -497,7 +495,7 @@ If you don't mind annotating *all* attributes, you can even drop the `attrs.fiel
 .. doctest::
 
    >>> import typing
-   >>> from attr import fields
+   >>> from attrs import fields
 
    >>> @define
    ... class AutoC:
@@ -527,7 +525,7 @@ This will replace the *type* attribute in the respective fields.
 
 .. doctest::
 
-    >>> from attr import fields, resolve_types
+    >>> from attrs import fields, resolve_types
 
     >>> @define
     ... class A:
@@ -604,7 +602,7 @@ In Clojure that function is called `assoc <https://clojuredocs.org/clojure.core/
 
 .. doctest::
 
-   >>> from attr import evolve
+   >>> from attrs import evolve
 
    >>> @frozen
    ... class C:
@@ -641,7 +639,7 @@ You can still have power over the attributes if you pass a dictionary of name: `
 
 .. doctest::
 
-   >>> from attr import make_class
+   >>> from attrs import make_class
 
    >>> C = make_class("C", {"x": field(default=42),
    ...                      "y": field(default=Factory(list))},
@@ -658,7 +656,7 @@ If you need to dynamically make a class with `attrs.make_class` and it needs to 
 
 .. doctest::
 
-   >>> from attr import make_class
+   >>> from attrs import make_class
 
    >>> class D:
    ...    def __eq__(self, other):
