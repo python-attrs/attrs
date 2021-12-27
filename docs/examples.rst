@@ -476,7 +476,7 @@ Types
 
 .. doctest::
 
-   >>> from attrs import attrib, fields
+   >>> from attrs import fields
 
    >>> @define
    ... class C:
@@ -484,9 +484,10 @@ Types
    >>> fields(C).x.type
    <class 'int'>
 
-   >>> @define
-   ... class C:
-   ...     x = attrib(type=int)
+   >>> import attr
+   >>> @attr.s
+   ... class C(object):
+   ...     x = attr.ib(type=int)
    >>> fields(C).x.type
    <class 'int'>
 
