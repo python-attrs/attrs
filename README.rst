@@ -82,7 +82,7 @@ No problem!
 Types are entirely **optional** with ``attrs``.
 Simply assign ``attrs.field()`` to the attributes instead of annotating them with types.
 
-This example uses ``attrs``'s `modern APIs <https://www.attrs.org/en/stable/api.html#next-generation-apis>`_ that have been introduced in version 20.1.0.
+This example uses ``attrs``'s `modern APIs <https://www.attrs.org/en/stable/api.html#next-generation-apis>`_ that have been introduced in version 20.1.0, and the ``attrs`` import namespace that has been added in version 21.3.0.
 The classic APIs (``@attr.s``, ``attr.ib``, and their serious business aliases) will remain indefinitely.
 
 Please check out `On The Core API Names <https://www.attrs.org/en/latest/names.html>`_ for a more in-depth explanation.
