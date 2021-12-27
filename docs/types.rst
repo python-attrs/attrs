@@ -96,7 +96,7 @@ Given the following definition, ``pyright`` will generate static type signatures
 
    - The ``attr.frozen`` decorator is not typed with frozen attributes, which are properly typed via ``attr.define(frozen=True)``.
 
-     A `full list <https://github.com/microsoft/pyright/blob/main/specs/dataclass_transforms.md#attrs>`_ of limitations and incompatibilities can be found in pyright's repository.
+     A `full list <https://github.com/microsoft/pyright/blob/main/specs/dataclass_transforms.md#Attrs>`_ of limitations and incompatibilities can be found in pyright's repository.
 
    Your constructive feedback is welcome in both `attrs#795 <https://github.com/python-attrs/attrs/issues/795>`_ and `pyright#1782 <https://github.com/microsoft/pyright/discussions/1782>`_.
    Generally speaking, the decision on improving ``attrs`` support in pyright is entirely Microsoft's prerogative though.
@@ -105,4 +105,4 @@ Given the following definition, ``pyright`` will generate static type signatures
 .. _mypy: http://mypy-lang.org
 .. _pytype: https://google.github.io/pytype/
 .. _pyright: https://github.com/microsoft/pyright
-.. _dataclass_transform: https://github.com/microsoft/pyright/blob/master/specs/dataclass_transforms.md
+.. _dataclass_transform: https://github.com/microsoft/pyright/blob/main/specs/dataclass_transforms.md
