@@ -3,30 +3,30 @@ Type Annotations
 
 ``attrs`` comes with first class support for type annotations for both Python 3.6 (:pep:`526`) and legacy syntax.
 
-On Python 3.6 and later, you can even drop the `attr.ib`\ s if you're willing to annotate *all* attributes.
-That means that on modern Python versions, the declaration part of the example from the README can be simplified to:
-
+However they will forever remain *optional*, therefore the example from the README could also be written as:
 
 .. doctest::
 
-   >>> import attr
+   >>> from attrs import define, field
 
-   >>> @attr.s(auto_attribs=True)
+   >>> @define
    ... class SomeClass:
-   ...     a_number: int = 42
-   ...     list_of_numbers: list[int] = attr.Factory(list)
+   ...     a_number = field(default=42)
+   ...     list_of_numbers = field(factory=list)
 
    >>> sc = SomeClass(1, [1, 2, 3])
    >>> sc
    SomeClass(a_number=1, list_of_numbers=[1, 2, 3])
-   >>> attr.fields(SomeClass).a_number.type
-   <class 'int'>
 
-You will still need `attr.ib` for advanced features, but not for the common cases.
+You can choose freely between the approaches, but please remember that if you choose to use type annotations, you **must** annotate **all** attributes!
+
+----
+
+Even when going all-in an type annotations, you will need `attr.field` for some advanced features though.
 
 One of those features are the decorator-based features like defaults.
 It's important to remember that ``attrs`` doesn't do any magic behind your back.
-All the decorators are implemented using an object that is returned by the call to `attr.ib`.
+All the decorators are implemented using an object that is returned by the call to `attrs.field`.
 
 Attributes that only carry a class annotation do not have that object so trying to call a method on it will inevitably fail.
 
@@ -35,10 +35,10 @@ Attributes that only carry a class annotation do not have that object so trying 
 Please note that types -- however added -- are *only metadata* that can be queried from the class and they aren't used for anything out of the box!
 
 Because Python does not allow references to a class object before the class is defined,
-types may be defined as string literals, so-called *forward references*.
-Also, starting in Python 3.10 (:pep:`526`) **all** annotations will be string literals.
-When this happens, ``attrs`` will simply put these string literals into the ``type`` attributes.
-If you need to resolve these to real types, you can call `attr.resolve_types` which will update the attribute in place.
+types may be defined as string literals, so-called *forward references* (:pep:`526`).
+You can enable this automatically for a whole module by using ``from __future__ import annotations`` (:pep:`563`) as of Python 3.7.
+In this case ``attrs`` simply puts these string literals into the ``type`` attributes.
+If you need to resolve these to real types, you can call `attrs.resolve_types` which will update the attribute in place.
 
 In practice though, types show their biggest usefulness in combination with tools like mypy_, pytype_, or pyright_ that have dedicated support for ``attrs`` classes.
 
