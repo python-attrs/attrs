@@ -234,7 +234,7 @@ Deprecations
   Please check out the linked issue for more details.
 
   These new APIs have been added *provisionally* as part of #666 so you can try them out today and provide feedback.
-  Learn more in the `API docs <https://www.attrs.org/en/stable/api.html#provisional-apis>`_.
+  Learn more in the `API docs <https://www.attrs.org/en/stable/api.html>`_.
   `#408 <https://github.com/python-attrs/attrs/issues/408>`_
 
 
