@@ -75,10 +75,6 @@ After *declaring* your attributes ``attrs`` gives you:
 
 *without* writing dull boilerplate code again and again and *without* runtime performance penalties.
 
-This gives you the power to use actual classes with actual types in your code instead of confusing ``tuple``\ s or `confusingly behaving <https://www.attrs.org/en/stable/why.html#namedtuples>`_ ``namedtuple``\ s.
-Which in turn encourages you to write *small classes* that do `one thing well <https://www.destroyallsoftware.com/talks/boundaries>`_.
-Never again violate the `single responsibility principle <https://en.wikipedia.org/wiki/Single_responsibility_principle>`_ just because implementing ``__init__`` et al is a painful drag.
-
 ----
 
 **Hate type annotations**!?
