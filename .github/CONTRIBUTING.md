@@ -30,6 +30,9 @@ The official tag is `python-attrs` and helping out in support frees us up to imp
   This is a hard rule; patches with missing tests or documentation can't be merged.
 - Make sure your changes pass our [CI].
   You won't get any feedback until it's green unless you ask for it.
+- For the CI to pass, the coverage must be 100%.
+  If you have problems to test something, open anyway and ask for advice.
+  In some situations, we may agree to add an `# pragma: no cover`.
 - Once you've addressed review feedback, make sure to bump the pull request with a short note, so we know you're done.
 - Don’t break backwards compatibility.
 
@@ -120,27 +123,27 @@ You don't need to install *towncrier* yourself, you just have to abide by a few 
 - Wrap arguments into asterisks like in docstrings:
   `Added new argument *an_argument*.`
 - If you mention functions or other callables, add parentheses at the end of their names:
-  `attr.func()` or `attr.Class.method()`.
+  `attrs.func()` or `attrs.Class.method()`.
   This makes the changelog a lot more readable.
 - Prefer simple past tense or constructions with "now".
   For example:
 
-  + Added `attr.validators.func()`.
-  + `attr.func()` now doesn't crash the Large Hadron Collider anymore when passed the *foobar* argument.
+  + Added `attrs.validators.func()`.
+  + `attrs.func()` now doesn't crash the Large Hadron Collider anymore when passed the *foobar* argument.
 - If you want to reference multiple issues, copy the news fragment to another filename.
   *towncrier* will merge all news fragments with identical contents into one entry with multiple links to the respective pull requests.
 
 Example entries:
 
   ```rst
-  Added ``attr.validators.func()``.
+  Added ``attrs.validators.func()``.
   The feature really *is* awesome.
   ```
 
 or:
 
   ```rst
-  ``attr.func()`` now doesn't crash the Large Hadron Collider anymore when passed the *foobar* argument.
+  ``attrs.func()`` now doesn't crash the Large Hadron Collider anymore when passed the *foobar* argument.
   The bug really *was* nasty.
   ```
 
