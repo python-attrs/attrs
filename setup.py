@@ -99,12 +99,16 @@ def find_meta(meta):
     raise RuntimeError("Unable to find __{meta}__ string.".format(meta=meta))
 
 
+LOGO = """
+.. image:: https://www.attrs.org/en/stable/_static/attrs_logo.png
+   :alt: attrs logo
+   :align: center
+"""  # noqa
+
 VERSION = find_meta("version")
 URL = find_meta("url")
 LONG = (
-    "======================================\n"
-    "``attrs``: Classes Without Boilerplate\n"
-    "======================================\n"
+    LOGO
     + read("README.rst").split(".. teaser-begin")[1]
     + "\n\n"
     + "Release Information\n"
