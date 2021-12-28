@@ -115,7 +115,7 @@ Changes
 
   See the `new docs on comparison <https://www.attrs.org/en/stable/comparison.html>`_ for more details.
   `#787 <https://github.com/python-attrs/attrs/issues/787>`_
-- Added **provisional** support for static typing in ``pyright`` via the `dataclass_transforms specification <https://github.com/microsoft/pyright/blob/master/specs/dataclass_transforms.md>`_.
+- Added **provisional** support for static typing in ``pyright`` via the `dataclass_transforms specification <https://github.com/microsoft/pyright/blob/main/specs/dataclass_transforms.md>`_.
   Both the ``pyright`` specification and ``attrs`` implementation may change in future versions of both projects.
 
   Your constructive feedback is welcome in both `attrs#795 <https://github.com/python-attrs/attrs/issues/795>`_ and `pyright#1782 <https://github.com/microsoft/pyright/discussions/1782>`_.

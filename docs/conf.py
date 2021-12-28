@@ -10,7 +10,11 @@ from attr import define, frozen, field, validators, Factory
 """
 
 linkcheck_ignore = [
+    # We run into GitHub's rate limits.
     r"https://github.com/.*/(issues|pull)/\d+",
+    # It never finds the anchor even though it's there.
+    "https://github.com/microsoft/pyright/blob/main/specs/"
+    "dataclass_transforms.md#attrs",
 ]
 
 # In nitpick mode (-n), still ignore any of the following "broken" references
