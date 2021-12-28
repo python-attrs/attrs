@@ -1,1 +1,0 @@
-If the class-level *on_setattr* is set to ``attrs.setters.validate`` (default in ``@define`` and ``@mutable``) but no field defines a validator, pretend that it's not set.

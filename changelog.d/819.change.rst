@@ -1,1 +1,0 @@
-The generated ``__repr__`` is significantly faster on Pythons with f-strings.

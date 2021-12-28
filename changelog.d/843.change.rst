@@ -1,2 +1,0 @@
-``attrs.resolve_types()`` now resolves types of subclasses after the parents are resolved.
-`#842 <https://github.com/python-attrs/attrs/issues/842>`_

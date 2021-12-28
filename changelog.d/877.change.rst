@@ -1,1 +1,0 @@
-``attrs.validators.matches_re()`` now accepts pre-compiled regular expressions in addition to pattern strings.

@@ -1,1 +1,0 @@
-Added ``attrs.converters.to_bool()``.

@@ -1,4 +1,0 @@
-When using ``@define``, converters are now run by default when setting an attribute on an instance -- additionally to validators.
-I.e. the new default is ``on_setattr=[attrs.setters.convert, attrs.setters.validate]``.
-
-This is unfortunately a breaking change, but it was an oversight, impossible to raise a ``DeprecationWarning`` about, and it's better to fix it now while the APIs are very fresh with few users.

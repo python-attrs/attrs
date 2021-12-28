@@ -1,4 +1,0 @@
-``__match_args__`` are now generated to support Python 3.10's
-`Structural Pattern Matching <https://docs.python.org/3.10/whatsnew/3.10.html#pep-634-structural-pattern-matching>`_.
-This can be controlled by the ``match_args`` argument to the class decorators on Python 3.10 and later.
-On older versions, it is never added and the argument is ignored.
