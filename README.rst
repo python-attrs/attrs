@@ -92,7 +92,7 @@ Data Classes
 ============
 
 On the tin, ``attrs`` might remind you of ``dataclasses`` (and indeed, ``dataclasses`` are a descendant of ``attrs``).
-In practice it does a lot more more and is more flexible.
+In practice it does a lot more and is more flexible.
 For instance it allows you to define `special handling of NumPy arrays for equality checks <https://www.attrs.org/en/stable/comparison.html#customization>`_, or allows more ways to `plug into the initialization process <https://www.attrs.org/en/stable/init.html#hooking-yourself-into-initialization>`_.
 
 For more details, please refer to our `comparison page <https://www.attrs.org/en/stable/why.html#data-classes>`_.
