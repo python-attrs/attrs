@@ -24,7 +24,7 @@ Core
 
 .. note::
 
-  Please not that the ``attrs`` namespace has been added in version 21.3.0.
+  Please note that the ``attrs`` namespace has been added in version 21.3.0.
   Most of the objects are simply re-imported from ``attr``.
   Therefore if a class, method, or function claims that it has been added in an older version, it is only available in the ``attr`` namespace.
 
