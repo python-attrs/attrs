@@ -1,1 +1,1 @@
-``attrs`` classes are now fully compatible with `cloudpickle <https://github.com/cloudpipe/cloudpickle>`_ (no need to disabled ``repr`` anymore).
+``attrs`` classes are now fully compatible with `cloudpickle <https://github.com/cloudpipe/cloudpickle>`_ (no need to disable ``repr`` anymore).

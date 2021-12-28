@@ -1,1 +1,1 @@
-Added ``attr.converters.to_bool()``.
+Added ``attrs.converters.to_bool()``.
