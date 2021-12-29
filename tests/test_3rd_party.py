@@ -4,11 +4,14 @@
 Tests for compatibility against other Python modules.
 """
 
-import cloudpickle
+import pytest
 
 from hypothesis import given
 
 from .strategies import simple_classes
+
+
+cloudpickle = pytest.importorskip("cloudpickle")
 
 
 class TestCloudpickleCompat(object):
