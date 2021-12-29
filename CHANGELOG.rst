@@ -3,9 +3,9 @@ Changelog
 
 Versions follow `CalVer <https://calver.org>`_ with a strict backwards-compatibility policy.
 
-The **first digit** of the version is the year.
-The **second digit** is incremented with each release, starting at 1 for each year.
-The **third digit** is when we need to start branches for older releases (only for emergencies).
+The **first number** of the version is the year.
+The **second number** is incremented with each release, starting at 1 for each year.
+The **third number** is when we need to start branches for older releases (only for emergencies).
 
 Put simply, you shouldn't ever be afraid to upgrade ``attrs`` if you're only using its public APIs.
 Whenever there is a need to break compatibility, it is announced here in the changelog, and raises a ``DeprecationWarning`` for a year (if possible) before it's finally really broken.
