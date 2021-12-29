@@ -1,1 +1,1 @@
-Fix ``coverage report`` for projects who use ``attrs`` and don't set a ``--source``.
+Fixed ``coverage report`` for projects that use ``attrs`` and don't set a ``--source``.

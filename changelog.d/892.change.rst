@@ -1,1 +1,1 @@
-Fixed the test suite on PyPy3.8 where cloudpickle does not work.
+Fixed the test suite on PyPy3.8 where ``cloudpickle`` does not work.
