@@ -17,6 +17,15 @@ Whenever there is a need to break compatibility, it is announced here in the cha
 
    However if you intend to build extensions on top of ``attrs`` you have to anticipate that.
 
+Changes for the upcoming release can be found in the `"changelog.d" directory <https://github.com/python-attrs/attrs/tree/main/changelog.d>`_ in our repository.
+
+..
+   Do *NOT* add changelog entries here!
+
+   This changelog is managed by towncrier and is compiled at release time.
+
+   See https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md#changelog for details.
+
 .. towncrier release notes start
 
 21.4.0 (2021-12-29)
