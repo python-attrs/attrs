@@ -100,7 +100,7 @@ instead of fiddling with the old APIs -- whose names felt anachronistic anyway -
 So in July 2018, we `looked for better names <https://github.com/python-attrs/attrs/issues/408>`_ and came up with `attr.define`, `attr.field`, and friends.
 Then in January 2019, we `started looking for inconvenient defaults <https://github.com/python-attrs/attrs/issues/487>`_ that we now could fix without any repercussions.
 
-These APIs proved to be vastly popular, so we've finally changed the documentation to them in November of 2021.
+These APIs proved to be very popular, so we've finally changed the documentation to them in November of 2021.
 
 All of this took way too long, of course.
 One reason is the COVID-19 pandemic, but also our fear to fumble this historic chance to fix our APIs.
