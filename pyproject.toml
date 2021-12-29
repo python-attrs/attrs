@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 [tool.coverage.run]
 parallel = true
 branch = true
-source = ["attr"]
+source = ["attr", "attrs"]
 
 [tool.coverage.paths]
 source = ["src", ".tox/*/site-packages"]
