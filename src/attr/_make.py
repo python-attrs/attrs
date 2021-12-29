@@ -1888,7 +1888,7 @@ def _add_eq(cls, attrs=None):
 if HAS_F_STRINGS:
 
     def _make_repr(attrs, ns, cls):
-        unique_filename = "repr"
+        unique_filename = _generate_unique_filename(cls, "repr")
         # Figure out which attributes to include, and which function to use to
         # format them. The a.repr value can be either bool or a custom
         # callable.
