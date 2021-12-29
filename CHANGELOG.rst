@@ -145,7 +145,7 @@ Changes
 - It's now possible to customize the behavior of ``eq`` and ``order`` by passing in a callable.
   `#435 <https://github.com/python-attrs/attrs/issues/435>`_,
   `#627 <https://github.com/python-attrs/attrs/issues/627>`_
-- The instant favorite `next-generation APIs <https://www.attrs.org/en/stable/api.html#next-gen>`_ are not provisional anymore!
+- The instant favorite next-generation APIs are not provisional anymore!
 
   They are also officially supported by Mypy as of their `0.800 release <https://mypy-lang.blogspot.com/2021/01/mypy-0800-released.html>`_.
 
