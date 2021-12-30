@@ -807,7 +807,7 @@ class _ClassBuilder(object):
             cls.__attrs_own_setattr__ = False
 
             if not self._has_custom_setattr:
-                cls.__setattr__ = object.__setattr__
+                cls.__setattr__ = _obj_setattr
 
         return cls
 
@@ -835,7 +835,7 @@ class _ClassBuilder(object):
             if not self._has_custom_setattr:
                 for base_cls in self._cls.__bases__:
                     if base_cls.__dict__.get("__attrs_own_setattr__", False):
-                        cd["__setattr__"] = object.__setattr__
+                        cd["__setattr__"] = _obj_setattr
                         break
 
         # Traverse the MRO to collect existing slots
@@ -2159,7 +2159,6 @@ def _make_init(
         cache_hash,
         base_attr_map,
         is_exc,
-        needs_cached_setattr,
         has_cls_on_setattr,
         attrs_init,
     )
@@ -2172,7 +2171,7 @@ def _make_init(
     if needs_cached_setattr:
         # Save the lookup overhead in __init__ if we need to circumvent
         # setattr hooks.
-        globs["_cached_setattr"] = _obj_setattr
+        globs["_setattr"] = _obj_setattr
 
     init = _make_method(
         "__attrs_init__" if attrs_init else "__init__",
@@ -2189,7 +2188,7 @@ def _setattr(attr_name, value_var, has_on_setattr):
     """
     Use the cached object.setattr to set *attr_name* to *value_var*.
     """
-    return "_setattr('%s', %s)" % (attr_name, value_var)
+    return "_setattr(self, '%s', %s)" % (attr_name, value_var)
 
 
 def _setattr_with_converter(attr_name, value_var, has_on_setattr):
@@ -2197,7 +2196,7 @@ def _setattr_with_converter(attr_name, value_var, has_on_setattr):
     Use the cached object.setattr to set *attr_name* to *value_var*, but run
     its converter first.
     """
-    return "_setattr('%s', %s(%s))" % (
+    return "_setattr(self, '%s', %s(%s))" % (
         attr_name,
         _init_converter_pat % (attr_name,),
         value_var,
@@ -2296,7 +2295,6 @@ def _attrs_to_init_script(
     cache_hash,
     base_attr_map,
     is_exc,
-    needs_cached_setattr,
     has_cls_on_setattr,
     attrs_init,
 ):
@@ -2311,14 +2309,6 @@ def _attrs_to_init_script(
     lines = []
     if pre_init:
         lines.append("self.__attrs_pre_init__()")
-
-    if needs_cached_setattr:
-        lines.append(
-            # Circumvent the __setattr__ descriptor to save one lookup per
-            # assignment.
-            # Note _setattr will be used again below if cache_hash is True
-            "_setattr = _cached_setattr.__get__(self, self.__class__)"
-        )
 
     if frozen is True:
         if slots is True:
@@ -2535,7 +2525,7 @@ def _attrs_to_init_script(
     if post_init:
         lines.append("self.__attrs_post_init__()")
 
-    # because this is set only after __attrs_post_init is called, a crash
+    # because this is set only after __attrs_post_init__ is called, a crash
     # will result if post-init tries to access the hash code.  This seemed
     # preferable to setting this beforehand, in which case alteration to
     # field values during post-init combined with post-init accessing the
@@ -2544,7 +2534,7 @@ def _attrs_to_init_script(
         if frozen:
             if slots:
                 # if frozen and slots, then _setattr defined above
-                init_hash_cache = "_setattr('%s', %s)"
+                init_hash_cache = "_setattr(self, '%s', %s)"
             else:
                 # if frozen and not slots, then _inst_dict defined above
                 init_hash_cache = "_inst_dict['%s'] = %s"
