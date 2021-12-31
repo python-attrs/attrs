@@ -490,7 +490,7 @@ class TestClosureCellRewriting(object):
     def test_code_hack_failure(self, monkeypatch):
         """
         Keeps working if function/code object introspection doesn't work
-        on this (nonstandard) interpeter.
+        on this (nonstandard) interpreter.
 
         A warning is emitted that points to the actual code.
         """
