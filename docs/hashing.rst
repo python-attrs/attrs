@@ -54,7 +54,7 @@ Because according to the definition_ from the official Python docs, the returned
 
 #. The hash of an object **must not** change.
 
-   If you create a class with ``@attr.s(frozen=True)`` this is fullfilled by definition, therefore ``attrs`` will write a ``__hash__`` function for you automatically.
+   If you create a class with ``@attr.s(frozen=True)`` this is fulfilled by definition, therefore ``attrs`` will write a ``__hash__`` function for you automatically.
    You can also force it to write one with ``hash=True`` but then it's *your* responsibility to make sure that the object is not mutated.
 
    This point is the reason why mutable structures like lists, dictionaries, or sets aren't hashable while immutable ones like tuples or frozensets are:

@@ -868,7 +868,7 @@ class _ClassBuilder(object):
         slot_names = [name for name in names if name not in base_names]
         # There are slots for attributes from current class
         # that are defined in parent classes.
-        # As their descriptors may be overriden by a child class,
+        # As their descriptors may be overridden by a child class,
         # we collect them here and update the class dict
         reused_slots = {
             slot: slot_descriptor
