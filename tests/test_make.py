@@ -235,7 +235,7 @@ class TestTransformAttrs(object):
         """
         Converts all attributes, including base class' attributes, if `kw_only`
         is provided. Therefore, `kw_only` allows attributes with defaults to
-        preceed mandatory attributes.
+        precede mandatory attributes.
 
         Updates in the subclass *don't* affect the base class attributes.
         """

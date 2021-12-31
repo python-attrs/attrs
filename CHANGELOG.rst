@@ -596,7 +596,7 @@ Changes
   `#349 <https://github.com/python-attrs/attrs/issues/349>`_
 - The order of attributes that are passed into ``attr.make_class()`` or the *these* argument of ``@attr.s()`` is now retained if the dictionary is ordered (i.e. ``dict`` on Python 3.6 and later, ``collections.OrderedDict`` otherwise).
 
-  Before, the order was always determined by the order in which the attributes have been defined which may not be desirable when creating classes programatically.
+  Before, the order was always determined by the order in which the attributes have been defined which may not be desirable when creating classes programmatically.
 
   `#300 <https://github.com/python-attrs/attrs/issues/300>`_,
   `#339 <https://github.com/python-attrs/attrs/issues/339>`_,
@@ -608,7 +608,7 @@ Changes
 - Setting the cell type is now completely best effort.
   This fixes ``attrs`` on Jython.
 
-  We cannot make any guarantees regarding Jython though, because our test suite cannot run due to dependency incompatabilities.
+  We cannot make any guarantees regarding Jython though, because our test suite cannot run due to dependency incompatibilities.
 
   `#321 <https://github.com/python-attrs/attrs/issues/321>`_,
   `#334 <https://github.com/python-attrs/attrs/issues/334>`_
