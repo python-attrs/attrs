@@ -91,7 +91,7 @@ Please check out `On The Core API Names <https://www.attrs.org/en/latest/names.h
 Data Classes
 ============
 
-On the tin, ``attrs`` might remind you of ``dataclasses`` (and indeed, ``dataclasses`` are a descendant of ``attrs``).
+On the tin, ``attrs`` might remind you of ``dataclasses`` (and indeed, ``dataclasses`` `are a descendant <https://hynek.me/articles/import-attrs/>`_ of ``attrs``).
 In practice it does a lot more and is more flexible.
 For instance it allows you to define `special handling of NumPy arrays for equality checks <https://www.attrs.org/en/stable/comparison.html#customization>`_, or allows more ways to `plug into the initialization process <https://www.attrs.org/en/stable/init.html#hooking-yourself-into-initialization>`_.
 
