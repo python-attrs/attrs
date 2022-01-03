@@ -784,7 +784,6 @@ class TestFunctional(object):
 
         src = inspect.getsource(D.__init__)
 
-        assert "_setattr = _cached_setattr" in src
-        assert "_setattr('x', x)" in src
-        assert "_setattr('y', y)" in src
+        assert "_setattr(self, 'x', x)" in src
+        assert "_setattr(self, 'y', y)" in src
         assert object.__setattr__ != D.__setattr__
