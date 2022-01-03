@@ -345,7 +345,7 @@ And for that ``attrs`` offers three means:
 Pre Init
 ~~~~~~~~
 
-The sole reason for the existance of ``__attrs_pre_init__`` is to give users the chance to call ``super().__init__()``, because some subclassing-based APIs require that.
+The sole reason for the existence of ``__attrs_pre_init__`` is to give users the chance to call ``super().__init__()``, because some subclassing-based APIs require that.
 
 .. doctest::
 
