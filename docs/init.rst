@@ -448,7 +448,7 @@ Derived Attributes
 
 One of the most common ``attrs`` questions on *Stack Overflow* is how to have attributes that depend on other attributes.
 For example if you have an API token and want to instantiate a web client that uses it for authentication.
-Based on the previous sections, there's two approaches.
+Based on the previous sections, there are two approaches.
 
 The simpler one is using ``__attrs_post_init__``::
 
