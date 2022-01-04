@@ -22,7 +22,7 @@ You can choose freely between the approaches, but please remember that if you ch
 
 ----
 
-Even when going all-in an type annotations, you will need `attr.field` for some advanced features though.
+Even when going all-in on type annotations, you will need `attr.field` for some advanced features though.
 
 One of those features are the decorator-based features like defaults.
 It's important to remember that ``attrs`` doesn't do any magic behind your back.
@@ -42,7 +42,7 @@ If you need to resolve these to real types, you can call `attrs.resolve_types` w
 
 In practice though, types show their biggest usefulness in combination with tools like mypy_, pytype_, or pyright_ that have dedicated support for ``attrs`` classes.
 
-The addition of static types is certainly one of the most exciting features in the Python ecosystem and helps you writing *correct* and *verified self-documenting* code.
+The addition of static types is certainly one of the most exciting features in the Python ecosystem and helps you write *correct* and *verified self-documenting* code.
 
 If you don't know where to start, Carl Meyer gave a great talk on `Type-checked Python in the Real World <https://www.youtube.com/watch?v=pMgmKJyWKn8>`_ at PyCon US 2018 that will help you to get started in no time.
 

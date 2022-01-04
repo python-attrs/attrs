@@ -39,7 +39,7 @@ Basically what ``attrs`` was in 2015.
 …pydantic?
 ----------
 
-*pydantic* is first an foremost a *data validation library*.
+*pydantic* is first and foremost a *data validation library*.
 As such, it is a capable complement to class building libraries like ``attrs`` (or Data Classes!) for parsing and validating untrusted data.
 
 However, as convenient as it might be, using it for your business or data layer `is problematic in several ways <https://threeofwands.com/why-i-use-attrs-instead-of-pydantic/>`_:
@@ -89,7 +89,7 @@ Other often surprising behaviors include:
 - Iterability also implies that it's easy to accidentally unpack a ``namedtuple`` which leads to hard-to-find bugs. [#iter]_
 - ``namedtuple``\ s have their methods *on your instances* whether you like it or not. [#pollution]_
 - ``namedtuple``\ s are *always* immutable.
-  Not only does that mean that you can't decide for yourself whether your instances should be immutable or not, it also means that if you want to influence your class' initialization (validation?  default values?), you have to implement :meth:`__new__() <object.__new__>` which is a particularly hacky and error-prone requirement for a very common problem. [#immutable]_
+  Not only does that mean that you can't decide for yourself whether your instances should be immutable or not, it also means that if you want to influence your class' initialization (validation? default values?), you have to implement :meth:`__new__() <object.__new__>` which is a particularly hacky and error-prone requirement for a very common problem. [#immutable]_
 - To attach methods to a ``namedtuple`` you have to subclass it.
   And if you follow the standard library documentation's recommendation of::
 

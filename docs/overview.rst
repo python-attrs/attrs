@@ -49,7 +49,7 @@ What ``attrs`` Is Not
 
 All ``attrs`` does is:
 
-1. take your declaration,
+1. Take your declaration,
 2. write :term:`dunder methods` based on that information,
 3. and attach them to your class.
 

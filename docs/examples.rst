@@ -166,7 +166,7 @@ Keyword-only attributes allow subclasses to add attributes without default value
       ...
     TypeError: B() missing 1 required keyword-only argument: 'b'
 
-If you don't set ``kw_only=True``, then there's is no valid attribute ordering and you'll get an error:
+If you don't set ``kw_only=True``, then there is no valid attribute ordering, and you'll get an error:
 
 .. doctest::
 
