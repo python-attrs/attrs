@@ -12,7 +12,7 @@ Feasibility in this case means:
 1. Possibility to run the tests on our development computers,
 2. and **free** CI options.
 
-This can mean that we will have to run our tests on PyPy, whose maintainters have unequivocally declared that they do not intend to stop the development and maintenance of their Python 2-compatible line at all.
+This can mean that we will have to run our tests on PyPy, whose maintainers have unequivocally declared that they do not intend to stop the development and maintenance of their Python 2-compatible line at all.
 And this can mean that at some point, a sponsor will have to step up and pay for bespoke CI setups.
 
 **However**: there is no promise of new features coming to ``attrs`` running under Python 2.

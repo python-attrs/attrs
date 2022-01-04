@@ -47,7 +47,7 @@ Because according to the definition_ from the official Python docs, the returned
 
       The easiest way to reset ``__hash__`` on a class is adding ``__hash__ = object.__hash__`` in the class body.
 
-#. If two object are not equal, their hash **should** be different.
+#. If two objects are not equal, their hash **should** be different.
 
    While this isn't a requirement from a standpoint of correctness, sets and dicts become less effective if there are a lot of identical hashes.
    The worst case is when all objects have the same hash which turns a set into a list.
@@ -80,7 +80,7 @@ If such objects are to be stored in hash-based collections, it can be useful to 
 To enable caching of hash codes, pass ``cache_hash=True`` to ``@attrs``.
 This may only be done if ``attrs`` is already generating a hash function for the object.
 
-.. [#fn1] The hash is computed by hashing a tuple that consists of an unique id for the class plus all attribute values.
+.. [#fn1] The hash is computed by hashing a tuple that consists of a unique id for the class plus all attribute values.
 
 .. _definition: https://docs.python.org/3/glossary.html#term-hashable
 .. _`Python Hashes and Equality`: https://hynek.me/articles/hashes-and-equality/
