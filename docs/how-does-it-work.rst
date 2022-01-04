@@ -87,16 +87,16 @@ This is (still) slower than a plain assignment:
   $ pyperf timeit --rigorous \
         -s "import attr; C = attr.make_class('C', ['x', 'y', 'z'], slots=True)" \
         "C(1, 2, 3)"
-  ........................................
-  Median +- std dev: 378 ns +- 12 ns
+  .........................................
+  Mean +- std dev: 228 ns +- 18 ns
 
   $ pyperf timeit --rigorous \
         -s "import attr; C = attr.make_class('C', ['x', 'y', 'z'], slots=True, frozen=True)" \
         "C(1, 2, 3)"
-  ........................................
-  Median +- std dev: 676 ns +- 16 ns
+  .........................................
+  Mean +- std dev: 450 ns +- 26 ns
 
-So on a laptop computer the difference is about 300 nanoseconds (1 second is 1,000,000,000 nanoseconds).
+So on a laptop computer the difference is about 230 nanoseconds (1 second is 1,000,000,000 nanoseconds).
 It's certainly something you'll feel in a hot loop but shouldn't matter in normal code.
 Pick what's more important to you.
 
