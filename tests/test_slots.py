@@ -717,7 +717,7 @@ def test_slots_super_property_get():
 
 
 @pytest.mark.skipif(PY2, reason="shortcut super() is PY3-only.")
-def test_slots_super_property_get_shurtcut():
+def test_slots_super_property_get_shortcut():
     """
     On Python 3, the `super()` shortcut is allowed.
     """
