@@ -310,7 +310,7 @@ class TestTransformAttrs(object):
 
     def test_multiple_inheritance_old(self):
         """
-        Old multiple inheritance attributre collection behavior is retained.
+        Old multiple inheritance attribute collection behavior is retained.
 
         See #285
         """

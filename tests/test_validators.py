@@ -64,7 +64,7 @@ class TestDisableValidators(object):
         assert _config._run_validators is True
 
     @pytest.mark.parametrize("value, expected", [(True, False), (False, True)])
-    def test_set_validators_diabled(self, value, expected):
+    def test_set_validators_disabled(self, value, expected):
         """
         Sets `_run_validators`.
         """
