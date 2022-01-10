@@ -478,7 +478,7 @@ That said, and as pointed out in the beginning of the chapter, a better approach
        client: WebClient
 
        @classmethod
-       def from_token(cls, token: str) -> SomeClass:
+       def from_token(cls, token: str) -> "APIClient":
            return cls(client=WebClient(token))
 
 This makes the class more testable.
