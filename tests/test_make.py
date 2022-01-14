@@ -2071,7 +2071,7 @@ class TestAutoDetect:
 
         @attr.s(slots=slots, frozen=frozen, hash=True)
         class D(object):
-            x = attr.ib(eq=str)
+            x = attr.ib()
 
         # These hashes should be the same because 1 is turned into
         # string before hashing.
