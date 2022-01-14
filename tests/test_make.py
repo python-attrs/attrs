@@ -2064,13 +2064,14 @@ class TestAutoDetect:
         If eq is passed in, then __hash__ should use the eq callable
         to generate the hash code.
         """
+
         @attr.s(slots=slots, frozen=frozen, hash=True)
         class C(object):
             x = attr.ib(eq=str)
+
         # These hashes should be the same because 1 is turned into
         # string before hashing.
         assert hash(C("1")) == hash(C(1))
-
 
     @pytest.mark.parametrize("slots", [True, False])
     @pytest.mark.parametrize("frozen", [True, False])

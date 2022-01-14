@@ -1719,7 +1719,9 @@ def _make_hash(cls, attrs, frozen, cache_hash):
             if a.eq_key:
                 cmp_name = "_%s_key" % (a.name,)
                 globs[cmp_name] = a.eq_key
-                method_lines.append(indent + "        %s(self.%s)," % (cmp_name, a.name))
+                method_lines.append(
+                    indent + "        %s(self.%s)," % (cmp_name, a.name)
+                )
             else:
                 method_lines.append(indent + "        self.%s," % a.name)
 
