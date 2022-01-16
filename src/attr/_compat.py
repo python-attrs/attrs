@@ -211,15 +211,22 @@ def make_set_closure_cell():
             )
             set_first_freevar_code = types.CodeType(*args)
 
-        def set_closure_cell(cell, value):
-            # Create a function using the set_first_freevar_code,
-            # whose first closure cell is `cell`. Calling it will
-            # change the value of that cell.
-            setter = types.FunctionType(
-                set_first_freevar_code, {}, "setter", (), (cell,)
-            )
-            # And call it to set the cell.
-            setter(value)
+        if sys.version_info >= (3, 11):
+
+            def set_closure_cell(cell, value):
+                cell.cell_contents = value
+
+        else:
+
+            def set_closure_cell(cell, value):
+                # Create a function using the set_first_freevar_code,
+                # whose first closure cell is `cell`. Calling it will
+                # change the value of that cell.
+                setter = types.FunctionType(
+                    set_first_freevar_code, {}, "setter", (), (cell,)
+                )
+                # And call it to set the cell.
+                setter(value)
 
         # Make sure it works on this interpreter:
         def make_func_with_cell():
