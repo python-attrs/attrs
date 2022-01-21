@@ -441,7 +441,7 @@ Validators
 ----------
 
 ``attrs`` comes with some common validators in the ``attrs.validators`` module.
-All objects from ``attrs.converters`` are also available from ``attr.converters``.
+All objects from ``attrs.validators`` are also available from ``attr.validators``.
 
 
 .. autofunction:: attrs.validators.lt
