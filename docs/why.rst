@@ -24,9 +24,9 @@ Whether they're relevant to *you* depends on your circumstances:
 - ``attrs`` doesn't force type annotations on you if you don't like them.
 - But since it **also** supports typing, it's the best way to embrace type hints *gradually*, too.
 - While Data Classes are implementing features from ``attrs`` every now and then, their presence is dependent on the Python version, not the package version.
-  For example, support for ``__slots__`` has only been added in Python 3.10.
-  That is especially painful for PyPI packages that support multiple Python versions.
-  This includes possible implementation bugs.
+  For example, support for ``__slots__`` has only been added in Python 3.10, but it doesn’t do cell rewriting and therefore doesn’t support bare calls to ``super()``.
+  This may or may not be fixed in later Python releases, but handling all these differences is especially painful for PyPI packages that support multiple Python versions.
+  And of course, this includes possible implementation bugs.
 - ``attrs`` can and will move faster.
   We are not bound to any release schedules and we have a clear deprecation policy.
 
