@@ -2,7 +2,7 @@ Why not…
 ========
 
 
-If you'd like third party's account why ``attrs`` is great, have a look at Glyph's `The One Python Library Everyone Needs <https://glyph.twistedmatrix.com/2016/08/attrs.html>`_!
+If you'd like third party's account why ``attrs`` is great, have a look at Glyph's `The One Python Library Everyone Needs <https://glyph.twistedmatrix.com/2016/08/attrs.html>`_. It predates type annotations and hence Data Classes, but it masterfully illustrates the appeal of class-building packages.
 
 
 …Data Classes?
