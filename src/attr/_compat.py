@@ -175,6 +175,9 @@ else:  # Python 3 and later.
                 self.sig = None
 
         def get_first_param_type(self):
+            """
+            Return the type annotation of the first argument if it's not empty.
+            """
             if not self.sig:
                 return None
 
@@ -185,6 +188,9 @@ else:  # Python 3 and later.
             return None
 
         def get_return_type(self):
+            """
+            Return the return type if it's not empty.
+            """
             if (
                 self.sig
                 and self.sig.return_annotation is not inspect.Signature.empty
