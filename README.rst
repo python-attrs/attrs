@@ -49,7 +49,7 @@ For that, it gives you a class decorator and a way to declaratively define the a
 
 
 blah
-
+xxx
 
    >>> sc.hard_math(3)
    19
