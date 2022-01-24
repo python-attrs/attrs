@@ -114,11 +114,14 @@ if PY2:
 
     class _AnnotationExtractor:
         """
-        Always return None, allows to keep if PY2s from code.
+        Always return None, allows to keep ``if PY2``s from code.
         """
 
+        __slots__ = ["sig"]
+        sig = None
+
         def __init__(self, callable):
-            self.sig = None
+            pass
 
         def get_first_param_type(self):
             return None
@@ -162,6 +165,8 @@ else:  # Python 3 and later.
         Extract type annotations from a callable, returning None whenever there
         is none.
         """
+
+        __slots__ = ["sig"]
 
         def __init__(self, callable):
             try:
