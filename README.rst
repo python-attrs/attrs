@@ -47,6 +47,10 @@ For that, it gives you a class decorator and a way to declaratively define the a
    >>> sc
    SomeClass(a_number=1, list_of_numbers=[1, 2, 3])
 
+
+blah
+
+
    >>> sc.hard_math(3)
    19
    >>> sc == SomeClass(1, [1, 2, 3])
