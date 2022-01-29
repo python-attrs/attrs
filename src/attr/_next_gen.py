@@ -58,7 +58,6 @@ def define(
     - *auto_exc=True*
     - *auto_detect=True*
     - *order=False*
-    - *match_args=True*
     - Some options that were only relevant on Python 2 or were kept around for
       backwards-compatibility have been removed.
 
