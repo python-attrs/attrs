@@ -1,2 +1,1 @@
 Speedup instantiation of frozen slotted classes.
-If an eq key is defined, it is also used before hashing the attribute.
