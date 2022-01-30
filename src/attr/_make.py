@@ -325,13 +325,11 @@ def _compile_and_eval(script, globs, locs=None, filename=""):
     eval(bytecode, globs, locs)
 
 
-def _make_method(name, script, filename, globs=None):
+def _make_method(name, script, filename, globs):
     """
     Create the method with the script given and return the method object.
     """
     locs = {}
-    if globs is None:
-        globs = {}
 
     # In order of debuggers like PDB being able to step through the code,
     # we add a fake linecache entry.
