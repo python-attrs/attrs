@@ -2059,6 +2059,27 @@ class TestAutoDetect:
 
     @pytest.mark.parametrize("slots", [True, False])
     @pytest.mark.parametrize("frozen", [True, False])
+    def test_hash_uses_eq(self, slots, frozen):
+        """
+        If eq is passed in, then __hash__ should use the eq callable
+        to generate the hash code.
+        """
+
+        @attr.s(slots=slots, frozen=frozen, hash=True)
+        class C(object):
+            x = attr.ib(eq=str)
+
+        @attr.s(slots=slots, frozen=frozen, hash=True)
+        class D(object):
+            x = attr.ib()
+
+        # These hashes should be the same because 1 is turned into
+        # string before hashing.
+        assert hash(C("1")) == hash(C(1))
+        assert hash(D("1")) != hash(D(1))
+
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("frozen", [True, False])
     def test_detect_auto_hash(self, slots, frozen):
         """
         If auto_detect=True and an __hash__ exists, don't write one.
