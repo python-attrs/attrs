@@ -69,11 +69,6 @@ def convert(instance, attrib, new_value):
     return new_value
 
 
+# Sentinel for disabling class-wide *on_setattr* hooks for certain attributes.
+# autodata stopped working, so the docstring is inlined in the API docs.
 NO_OP = object()
-"""
-Sentinel for disabling class-wide *on_setattr* hooks for certain attributes.
-
-Does not work in `pipe` or within lists.
-
-.. versionadded:: 20.1.0
-"""

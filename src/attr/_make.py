@@ -325,13 +325,11 @@ def _compile_and_eval(script, globs, locs=None, filename=""):
     eval(bytecode, globs, locs)
 
 
-def _make_method(name, script, filename, globs=None):
+def _make_method(name, script, filename, globs):
     """
     Create the method with the script given and return the method object.
     """
     locs = {}
-    if globs is None:
-        globs = {}
 
     # In order of debuggers like PDB being able to step through the code,
     # we add a fake linecache entry.
@@ -1448,6 +1446,8 @@ def attrs(
 
         If a list of callables is passed, they're automatically wrapped in an
         `attrs.setters.pipe`.
+    :type on_setattr: `callable`, or a list of callables, or `None`, or
+        `attrs.setters.NO_OP`
 
     :param Optional[callable] field_transformer:
         A function that is called with the original class object and all
@@ -1680,6 +1680,8 @@ def _make_hash(cls, attrs, frozen, cache_hash):
 
     unique_filename = _generate_unique_filename(cls, "hash")
     type_hash = hash(unique_filename)
+    # If eq is custom generated, we need to include the functions in globs
+    globs = {}
 
     hash_def = "def __hash__(self"
     hash_func = "hash(("
@@ -1714,7 +1716,14 @@ def _make_hash(cls, attrs, frozen, cache_hash):
         )
 
         for a in attrs:
-            method_lines.append(indent + "        self.%s," % a.name)
+            if a.eq_key:
+                cmp_name = "_%s_key" % (a.name,)
+                globs[cmp_name] = a.eq_key
+                method_lines.append(
+                    indent + "        %s(self.%s)," % (cmp_name, a.name)
+                )
+            else:
+                method_lines.append(indent + "        self.%s," % a.name)
 
         method_lines.append(indent + "    " + closing_braces)
 
@@ -1734,7 +1743,7 @@ def _make_hash(cls, attrs, frozen, cache_hash):
         append_hash_computation_lines("return ", tab)
 
     script = "\n".join(method_lines)
-    return _make_method("__hash__", script, unique_filename)
+    return _make_method("__hash__", script, unique_filename, globs)
 
 
 def _add_hash(cls, attrs):
