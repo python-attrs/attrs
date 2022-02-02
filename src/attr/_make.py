@@ -1446,6 +1446,8 @@ def attrs(
 
         If a list of callables is passed, they're automatically wrapped in an
         `attrs.setters.pipe`.
+    :type on_setattr: `callable`, or a list of callables, or `None`, or
+        `attrs.setters.NO_OP`
 
     :param Optional[callable] field_transformer:
         A function that is called with the original class object and all
