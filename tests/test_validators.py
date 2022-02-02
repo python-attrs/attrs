@@ -28,6 +28,7 @@ from attr.validators import (
     lt,
     matches_re,
     max_len,
+    min_len,
     optional,
     provides,
 )
@@ -950,3 +951,74 @@ class TestMaxLen:
         __repr__ is meaningful.
         """
         assert repr(max_len(23)) == "<max_len validator for 23>"
+
+
+class TestMinLen:
+    """
+    Tests for `min_len`.
+    """
+
+    MIN_LENGTH = 2
+
+    def test_in_all(self):
+        """
+        validator is in ``__all__``.
+        """
+        assert min_len.__name__ in validator_module.__all__
+
+    def test_retrieve_min_len(self):
+        """
+        The configured min. length can be extracted from the Attribute
+        """
+
+        @attr.s
+        class Tester(object):
+            value = attr.ib(validator=min_len(self.MIN_LENGTH))
+
+        assert fields(Tester).value.validator.min_length == self.MIN_LENGTH
+
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "foo",
+            "spam",
+            list(range(MIN_LENGTH)),
+            {"spam": 3, "eggs": 4},
+        ],
+    )
+    def test_check_valid(self, value):
+        """
+        Silent if len(value) => min_len.
+        Values can be strings and other iterables.
+        """
+
+        @attr.s
+        class Tester(object):
+            value = attr.ib(validator=min_len(self.MIN_LENGTH))
+
+        Tester(value)  # shouldn't raise exceptions
+
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "",
+            list(range(1)),
+        ],
+    )
+    def test_check_invalid(self, value):
+        """
+        Raise ValueError if len(value) < min_len.
+        """
+
+        @attr.s
+        class Tester(object):
+            value = attr.ib(validator=min_len(self.MIN_LENGTH))
+
+        with pytest.raises(ValueError):
+            Tester(value)
+
+    def test_repr(self):
+        """
+        __repr__ is meaningful.
+        """
+        assert repr(min_len(23)) == "<min_len validator for 23>"
