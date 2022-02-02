@@ -588,6 +588,6 @@ def min_len(length):
 
     :param int length: Minimum length of the string or iterable
 
-    .. versionadded:: 21.5.0
+    .. versionadded:: 22.1.0
     """
     return _MinLengthValidator(length)
