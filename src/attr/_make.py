@@ -1458,7 +1458,7 @@ def attrs(
     :param bool match_args:
         If `True` (default), set ``__match_args__`` on the class to support
         `PEP 634 <https://www.python.org/dev/peps/pep-0634/>`_ (Structural
-        Pattern Matching). It is a tuple of all positional-only ``__init__``
+        Pattern Matching). It is a tuple of all non-keyword-only ``__init__``
         parameter names on Python 3.10 and later. Ignored on older Python
         versions.
 
