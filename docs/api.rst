@@ -773,7 +773,13 @@ All setters in ``attrs.setters`` are also available from ``attr.setters``.
 .. autofunction:: attrs.setters.validate
 .. autofunction:: attrs.setters.convert
 .. autofunction:: attrs.setters.pipe
-.. autodata:: attrs.setters.NO_OP
+.. data:: attrs.setters.NO_OP
+
+   Sentinel for disabling class-wide *on_setattr* hooks for certain attributes.
+
+   Does not work in `attrs.setters.pipe` or within lists.
+
+   .. versionadded:: 20.1.0
 
    For example, only ``x`` is frozen here:
 
