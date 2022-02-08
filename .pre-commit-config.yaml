@@ -25,7 +25,6 @@ repos:
     rev: 1.5.0
     hooks:
       - id: interrogate
-        exclude: tests/test_pattern_matching.py
         args: [tests]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
