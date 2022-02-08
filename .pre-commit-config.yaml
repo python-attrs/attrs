@@ -26,6 +26,7 @@ repos:
     hooks:
       - id: interrogate
         args: [tests]
+        language_version: python3.10  # needed for match
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.1.0
@@ -33,5 +34,6 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: debug-statements
+        language_version: python3.10  # needed for match
       - id: check-toml
       - id: check-yaml
