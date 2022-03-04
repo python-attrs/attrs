@@ -415,6 +415,10 @@ def deep_iterable(member_validator, iterable_validator=None):
 
     :raises TypeError: if any sub-validators fail
     """
+    if isinstance(member_validator, list):
+        member_validator = _AndValidator(member_validator)
+    if iterable_validator and isinstance(iterable_validator, list):
+        iterable_validator = _AndValidator(iterable_validator)
     return _DeepIterable(member_validator, iterable_validator)
 
 
