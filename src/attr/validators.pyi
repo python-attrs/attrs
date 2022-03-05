@@ -62,7 +62,7 @@ def matches_re(
     ] = ...,
 ) -> _ValidatorType[AnyStr]: ...
 def deep_iterable(
-    member_validator: _ValidatorType[_T],
+    member_validator: Union[_ValidatorType[_T], List[_ValidatorType[_T]]],
     iterable_validator: Optional[_ValidatorType[_I]] = ...,
 ) -> _ValidatorType[_I]: ...
 def deep_mapping(
