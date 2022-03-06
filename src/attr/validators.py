@@ -408,7 +408,7 @@ def deep_iterable(member_validator, iterable_validator=None):
     A validator that performs deep validation of an iterable.
 
     :param member_validator: Validator(s) to apply to iterable members
-    :param iterable_validator: Validator(s) to apply to iterable itself
+    :param iterable_validator: Validator to apply to iterable itself
         (optional)
 
     .. versionadded:: 19.1.0
@@ -417,8 +417,6 @@ def deep_iterable(member_validator, iterable_validator=None):
     """
     if isinstance(member_validator, list):
         member_validator = _AndValidator(member_validator)
-    if iterable_validator and isinstance(iterable_validator, list):
-        iterable_validator = _AndValidator(iterable_validator)
     return _DeepIterable(member_validator, iterable_validator)
 
 
