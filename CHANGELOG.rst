@@ -542,7 +542,7 @@ Deprecations
 Changes
 ^^^^^^^
 
-- ``attrs`` now ships its own `PEP 484 <https://www.python.org/dev/peps/pep-0484/>`_ type hints.
+- ``attrs`` now ships its own `PEP 484 <https://peps.python.org/pep-0484/>`_ type hints.
   Together with `mypy <http://mypy-lang.org>`_'s ``attrs`` plugin, you've got all you need for writing statically typed code in both Python 2 and 3!
 
   At that occasion, we've also added `narrative docs <https://www.attrs.org/en/stable/types.html>`_ about type annotations in ``attrs``.
@@ -748,7 +748,7 @@ Changes
 
   This change paves the way for automatic type checking and serialization (though as of this release ``attrs`` does not make use of it).
   In Python 3.6 or higher, the value of ``attr.Attribute.type`` can alternately be set using variable type annotations
-  (see `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_).
+  (see `PEP 526 <https://peps.python.org/pep-0526/>`_).
   (`#151 <https://github.com/python-attrs/attrs/issues/151>`_, `#214 <https://github.com/python-attrs/attrs/issues/214>`_, `#215 <https://github.com/python-attrs/attrs/issues/215>`_, `#239 <https://github.com/python-attrs/attrs/issues/239>`_)
 - The combination of ``str=True`` and ``slots=True`` now works on Python 2.
   (`#198 <https://github.com/python-attrs/attrs/issues/198>`_)
