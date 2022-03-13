@@ -226,7 +226,7 @@ def attrib(
         components.  See `extending_metadata`.
     :param type: The type of the attribute.  In Python 3.6 or greater, the
         preferred method to specify the type is using a variable annotation
-        (see `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_).
+        (see :pep:`526`).
         This argument is provided for backward compatibility.
         Regardless of the approach used, the type will be stored on
         ``Attribute.type``.
@@ -1362,7 +1362,7 @@ def attrs(
 
     :param bool weakref_slot: Make instances weak-referenceable.  This has no
         effect unless ``slots`` is also enabled.
-    :param bool auto_attribs: If ``True``, collect `PEP 526`_-annotated
+    :param bool auto_attribs: If ``True``, collect :pep:`526`-annotated
         attributes (Python 3.6 and later only) from the class body.
 
         In this case, you **must** annotate every field.  If ``attrs``
@@ -1388,7 +1388,6 @@ def attrs(
            These errors can be quite confusing and probably the most common bug
            report on our bug tracker.
 
-        .. _`PEP 526`: https://www.python.org/dev/peps/pep-0526/
     :param bool kw_only: Make all attributes keyword-only (Python 3+)
         in the generated ``__init__`` (if ``init`` is ``False``, this
         parameter is ignored).
@@ -1457,10 +1456,9 @@ def attrs(
 
     :param bool match_args:
         If `True` (default), set ``__match_args__`` on the class to support
-        `PEP 634 <https://www.python.org/dev/peps/pep-0634/>`_ (Structural
-        Pattern Matching). It is a tuple of all non-keyword-only ``__init__``
-        parameter names on Python 3.10 and later. Ignored on older Python
-        versions.
+        :pep:`634` (Structural Pattern Matching). It is a tuple of all
+        non-keyword-only ``__init__`` parameter names on Python 3.10 and later.
+        Ignored on older Python versions.
 
     .. versionadded:: 16.0.0 *slots*
     .. versionadded:: 16.1.0 *frozen*
