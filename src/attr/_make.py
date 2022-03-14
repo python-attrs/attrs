@@ -3,7 +3,6 @@
 from __future__ import absolute_import, division, print_function
 
 import copy
-import inspect
 import linecache
 import sys
 import warnings
@@ -18,6 +17,7 @@ from ._compat import (
     PY2,
     PY310,
     PYPY,
+    _AnnotationExtractor,
     isclass,
     iteritems,
     metadata_proxy,
@@ -2501,21 +2501,11 @@ def _attrs_to_init_script(
         if a.init is True:
             if a.type is not None and a.converter is None:
                 annotations[arg_name] = a.type
-            elif a.converter is not None and not PY2:
+            elif a.converter is not None:
                 # Try to get the type from the converter.
-                sig = None
-                try:
-                    sig = inspect.signature(a.converter)
-                except (ValueError, TypeError):  # inspect failed
-                    pass
-                if sig:
-                    sig_params = list(sig.parameters.values())
-                    if (
-                        sig_params
-                        and sig_params[0].annotation
-                        is not inspect.Parameter.empty
-                    ):
-                        annotations[arg_name] = sig_params[0].annotation
+                t = _AnnotationExtractor(a.converter).get_first_param_type()
+                if t:
+                    annotations[arg_name] = t
 
     if attrs_to_validate:  # we can skip this if there are no validators.
         names_for_globals["_config"] = _config
@@ -3135,36 +3125,20 @@ def pipe(*converters):
 
         return val
 
-    if not PY2:
-        if not converters:
+    if not converters:
+        if not PY2:
             # If the converter list is empty, pipe_converter is the identity.
             A = typing.TypeVar("A")
             pipe_converter.__annotations__ = {"val": A, "return": A}
-        else:
-            # Get parameter type.
-            sig = None
-            try:
-                sig = inspect.signature(converters[0])
-            except (ValueError, TypeError):  # inspect failed
-                pass
-            if sig:
-                params = list(sig.parameters.values())
-                if (
-                    params
-                    and params[0].annotation is not inspect.Parameter.empty
-                ):
-                    pipe_converter.__annotations__["val"] = params[
-                        0
-                    ].annotation
-            # Get return type.
-            sig = None
-            try:
-                sig = inspect.signature(converters[-1])
-            except (ValueError, TypeError):  # inspect failed
-                pass
-            if sig and sig.return_annotation is not inspect.Signature().empty:
-                pipe_converter.__annotations__[
-                    "return"
-                ] = sig.return_annotation
+    else:
+        # Get parameter type from first converter.
+        t = _AnnotationExtractor(converters[0]).get_first_param_type()
+        if t:
+            pipe_converter.__annotations__["val"] = t
+
+        # Get return type from last converter.
+        rt = _AnnotationExtractor(converters[-1]).get_return_type()
+        if rt:
+            pipe_converter.__annotations__["return"] = rt
 
     return pipe_converter
