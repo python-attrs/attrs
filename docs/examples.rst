@@ -9,7 +9,7 @@ The simplest possible usage is:
 
 .. doctest::
 
-   >>> from attrs import define
+   >>> from attrs import define, field
    >>> @define
    ... class Empty:
    ...     pass
