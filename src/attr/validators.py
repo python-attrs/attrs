@@ -37,6 +37,7 @@ __all__ = [
     "lt",
     "matches_re",
     "max_len",
+    "min_len",
     "optional",
     "provides",
     "set_disabled",
@@ -559,3 +560,34 @@ def max_len(length):
     .. versionadded:: 21.3.0
     """
     return _MaxLengthValidator(length)
+
+
+@attrs(repr=False, frozen=True, slots=True)
+class _MinLengthValidator(object):
+    min_length = attrib()
+
+    def __call__(self, inst, attr, value):
+        """
+        We use a callable class to be able to change the ``__repr__``.
+        """
+        if len(value) < self.min_length:
+            raise ValueError(
+                "Length of '{name}' must be => {min}: {len}".format(
+                    name=attr.name, min=self.min_length, len=len(value)
+                )
+            )
+
+    def __repr__(self):
+        return "<min_len validator for {min}>".format(min=self.min_length)
+
+
+def min_len(length):
+    """
+    A validator that raises `ValueError` if the initializer is called
+    with a string or iterable that is shorter than *length*.
+
+    :param int length: Minimum length of the string or iterable
+
+    .. versionadded:: 22.1.0
+    """
+    return _MinLengthValidator(length)

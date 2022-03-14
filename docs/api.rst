@@ -524,6 +524,22 @@ All objects from ``attrs.validators`` are also available from ``attr.validators`
          ...
       ValueError: ("Length of 'x' must be <= 4: 5")
 
+.. autofunction:: attrs.validators.min_len
+
+   For example:
+
+   .. doctest::
+
+      >>> @attrs.define
+      ... class C:
+      ...     x = attrs.field(validator=attrs.validators.min_len(1))
+      >>> C("bacon")
+      C(x='bacon')
+      >>> C("")
+      Traceback (most recent call last):
+         ...
+      ValueError: ("Length of 'x' must be => 1: 0")
+
 .. autofunction:: attrs.validators.instance_of
 
    For example:

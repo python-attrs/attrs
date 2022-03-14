@@ -23,10 +23,6 @@ exclude_lines = [
 
 [tool.black]
 line-length = 79
-extend-exclude = '''
-# Exclude pattern matching test till black gains Python 3.10 support
-.*test_pattern_matching.*
-'''
 
 
 [tool.interrogate]
