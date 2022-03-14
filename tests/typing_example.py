@@ -394,27 +394,23 @@ attrs.asdict(MatchArgs2(1, 2))
 attrs.astuple(MatchArgs2(1, 2))
 
 
-def importing_from_attr() -> None:
+def accessing_from_attr() -> None:
     """
     Use a function to keep the ns clean.
     """
-    from attr.converters import optional
-    from attr.exceptions import FrozenError
-    from attr.filters import include
-    from attr.setters import frozen
-    from attr.validators import and_
-
-    assert optional and FrozenError and include and frozen and and_
+    attr.converters.optional
+    attr.exceptions.FrozenError
+    attr.filters.include
+    attr.setters.frozen
+    attr.validators.and_
 
 
-def importing_from_attrs() -> None:
+def accessing_from_attrs() -> None:
     """
     Use a function to keep the ns clean.
     """
-    from attrs.converters import optional
-    from attrs.exceptions import FrozenError
-    from attrs.filters import include
-    from attrs.setters import frozen
-    from attrs.validators import and_
-
-    assert optional and FrozenError and include and frozen and and_
+    attrs.converters.optional
+    attrs.exceptions.FrozenError
+    attrs.filters.include
+    attrs.setters.frozen
+    attrs.validators.and_
