@@ -124,7 +124,7 @@ Types
 
 ``attrs`` offers two ways of attaching type information to attributes:
 
-- `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_ annotations on Python 3.6 and later,
+- :pep:`526` annotations on Python 3.6 and later,
 - and the *type* argument to `attr.ib`.
 
 This information is available to you:

@@ -30,7 +30,7 @@ Whether they're relevant to *you* depends on your circumstances:
 - ``attrs`` can and will move faster.
   We are not bound to any release schedules and we have a clear deprecation policy.
 
-  One of the `reasons <https://www.python.org/dev/peps/pep-0557/#why-not-just-use-attrs>`_ to not vendor ``attrs`` in the standard library was to not impede ``attrs``'s future development.
+  One of the `reasons <https://peps.python.org/pep-0557/#why-not-just-use-attrs>`_ to not vendor ``attrs`` in the standard library was to not impede ``attrs``'s future development.
 
 One way to think about ``attrs`` vs Data Classes is that ``attrs`` is a fully-fledged toolkit to write powerful classes while Data Classes are an easy way to get a class with some attributes.
 Basically what ``attrs`` was in 2015.

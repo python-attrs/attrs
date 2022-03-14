@@ -3,7 +3,6 @@
 from __future__ import absolute_import, division, print_function
 
 import copy
-import inspect
 import linecache
 import sys
 import warnings
@@ -18,6 +17,7 @@ from ._compat import (
     PY2,
     PY310,
     PYPY,
+    _AnnotationExtractor,
     isclass,
     iteritems,
     metadata_proxy,
@@ -226,7 +226,7 @@ def attrib(
         components.  See `extending_metadata`.
     :param type: The type of the attribute.  In Python 3.6 or greater, the
         preferred method to specify the type is using a variable annotation
-        (see `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_).
+        (see :pep:`526`).
         This argument is provided for backward compatibility.
         Regardless of the approach used, the type will be stored on
         ``Attribute.type``.
@@ -1362,7 +1362,7 @@ def attrs(
 
     :param bool weakref_slot: Make instances weak-referenceable.  This has no
         effect unless ``slots`` is also enabled.
-    :param bool auto_attribs: If ``True``, collect `PEP 526`_-annotated
+    :param bool auto_attribs: If ``True``, collect :pep:`526`-annotated
         attributes (Python 3.6 and later only) from the class body.
 
         In this case, you **must** annotate every field.  If ``attrs``
@@ -1388,7 +1388,6 @@ def attrs(
            These errors can be quite confusing and probably the most common bug
            report on our bug tracker.
 
-        .. _`PEP 526`: https://www.python.org/dev/peps/pep-0526/
     :param bool kw_only: Make all attributes keyword-only (Python 3+)
         in the generated ``__init__`` (if ``init`` is ``False``, this
         parameter is ignored).
@@ -1457,10 +1456,9 @@ def attrs(
 
     :param bool match_args:
         If `True` (default), set ``__match_args__`` on the class to support
-        `PEP 634 <https://www.python.org/dev/peps/pep-0634/>`_ (Structural
-        Pattern Matching). It is a tuple of all non-keyword-only ``__init__``
-        parameter names on Python 3.10 and later. Ignored on older Python
-        versions.
+        :pep:`634` (Structural Pattern Matching). It is a tuple of all
+        non-keyword-only ``__init__`` parameter names on Python 3.10 and later.
+        Ignored on older Python versions.
 
     .. versionadded:: 16.0.0 *slots*
     .. versionadded:: 16.1.0 *frozen*
@@ -2503,21 +2501,11 @@ def _attrs_to_init_script(
         if a.init is True:
             if a.type is not None and a.converter is None:
                 annotations[arg_name] = a.type
-            elif a.converter is not None and not PY2:
+            elif a.converter is not None:
                 # Try to get the type from the converter.
-                sig = None
-                try:
-                    sig = inspect.signature(a.converter)
-                except (ValueError, TypeError):  # inspect failed
-                    pass
-                if sig:
-                    sig_params = list(sig.parameters.values())
-                    if (
-                        sig_params
-                        and sig_params[0].annotation
-                        is not inspect.Parameter.empty
-                    ):
-                        annotations[arg_name] = sig_params[0].annotation
+                t = _AnnotationExtractor(a.converter).get_first_param_type()
+                if t:
+                    annotations[arg_name] = t
 
     if attrs_to_validate:  # we can skip this if there are no validators.
         names_for_globals["_config"] = _config
@@ -3137,36 +3125,20 @@ def pipe(*converters):
 
         return val
 
-    if not PY2:
-        if not converters:
+    if not converters:
+        if not PY2:
             # If the converter list is empty, pipe_converter is the identity.
             A = typing.TypeVar("A")
             pipe_converter.__annotations__ = {"val": A, "return": A}
-        else:
-            # Get parameter type.
-            sig = None
-            try:
-                sig = inspect.signature(converters[0])
-            except (ValueError, TypeError):  # inspect failed
-                pass
-            if sig:
-                params = list(sig.parameters.values())
-                if (
-                    params
-                    and params[0].annotation is not inspect.Parameter.empty
-                ):
-                    pipe_converter.__annotations__["val"] = params[
-                        0
-                    ].annotation
-            # Get return type.
-            sig = None
-            try:
-                sig = inspect.signature(converters[-1])
-            except (ValueError, TypeError):  # inspect failed
-                pass
-            if sig and sig.return_annotation is not inspect.Signature().empty:
-                pipe_converter.__annotations__[
-                    "return"
-                ] = sig.return_annotation
+    else:
+        # Get parameter type from first converter.
+        t = _AnnotationExtractor(converters[0]).get_first_param_type()
+        if t:
+            pipe_converter.__annotations__["val"] = t
+
+        # Get return type from last converter.
+        rt = _AnnotationExtractor(converters[-1]).get_return_type()
+        if rt:
+            pipe_converter.__annotations__["return"] = rt
 
     return pipe_converter

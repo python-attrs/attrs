@@ -112,7 +112,26 @@ if PY2:
         consequences of not setting the cell on Python 2.
         """
 
+    class _AnnotationExtractor:
+        """
+        Always return None, allows to keep ``if PY2``s from code.
+        """
+
+        __slots__ = ["sig"]
+        sig = None
+
+        def __init__(self, callable):
+            pass
+
+        def get_first_param_type(self):
+            return None
+
+        def get_return_type(self):
+            return None
+
 else:  # Python 3 and later.
+    import inspect
+
     from collections.abc import Mapping, Sequence  # noqa
 
     def just_warn(*args, **kw):
@@ -140,6 +159,45 @@ else:  # Python 3 and later.
 
     def metadata_proxy(d):
         return types.MappingProxyType(dict(d))
+
+    class _AnnotationExtractor:
+        """
+        Extract type annotations from a callable, returning None whenever there
+        is none.
+        """
+
+        __slots__ = ["sig"]
+
+        def __init__(self, callable):
+            try:
+                self.sig = inspect.signature(callable)
+            except (ValueError, TypeError):  # inspect failed
+                self.sig = None
+
+        def get_first_param_type(self):
+            """
+            Return the type annotation of the first argument if it's not empty.
+            """
+            if not self.sig:
+                return None
+
+            params = list(self.sig.parameters.values())
+            if params and params[0].annotation is not inspect.Parameter.empty:
+                return params[0].annotation
+
+            return None
+
+        def get_return_type(self):
+            """
+            Return the return type if it's not empty.
+            """
+            if (
+                self.sig
+                and self.sig.return_annotation is not inspect.Signature.empty
+            ):
+                return self.sig.return_annotation
+
+            return None
 
 
 def make_set_closure_cell():

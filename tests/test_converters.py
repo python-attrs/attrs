@@ -137,6 +137,14 @@ class TestPipe(object):
         c = C()
         assert True is c.a1 is c.a2
 
+    def test_empty(self):
+        """
+        Empty pipe returns same value.
+        """
+        o = object()
+
+        assert o is pipe()(o)
+
 
 class TestToBool(object):
     def test_unhashable(self):
