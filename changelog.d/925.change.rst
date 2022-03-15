@@ -1,0 +1,1 @@
+Allow the `member_validator` of the `deep_iterable` validator to accept a list of validators
