@@ -605,22 +605,32 @@ class TestDeepIterable(object):
         with pytest.raises(TypeError):
             v(None, a, [42, "42"])
 
-    def test_repr_member_only(self, member_validator):
+    def test_repr_member_only(self):
         """
         Returned validator has a useful `__repr__`
         when only member validator is set.
         """
-        if isinstance(member_validator, list):
-            member_repr = (
-                "_AndValidator(_validators=[{func}, "
-                "<instance_of validator for type <{type} 'int'>>])"
-            ).format(func=repr(always_pass), type=TYPE)
-        else:
-            member_repr = (
-                "<instance_of validator for type <{type} 'int'>>".format(
-                    type=TYPE
-                )
-            )
+        member_validator = instance_of(int)
+        member_repr = "<instance_of validator for type <{type} 'int'>>".format(
+            type=TYPE
+        )
+        v = deep_iterable(member_validator)
+        expected_repr = (
+            "<deep_iterable validator for iterables of {member_repr}>"
+        ).format(member_repr=member_repr)
+        assert ((expected_repr)) == repr(v)
+
+    def test_repr_member_only_sequence(self):
+        """
+        Returned validator has a useful `__repr__`
+        when only member validator is set and the member validator is a list of
+        validators
+        """
+        member_validator = [always_pass, instance_of(int)]
+        member_repr = (
+            "_AndValidator(_validators=[{func}, "
+            "<instance_of validator for type <{type} 'int'>>])"
+        ).format(func=repr(always_pass), type=TYPE)
         v = deep_iterable(member_validator)
         expected_repr = (
             "<deep_iterable validator for iterables of {member_repr}>"
