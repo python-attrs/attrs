@@ -677,6 +677,7 @@ class TestDeepIterable(object):
             "<deep_iterable validator for"
             " {iterable_repr} iterables of {member_repr}>"
         ).format(iterable_repr=iterable_repr, member_repr=member_repr)
+
         assert expected_repr == repr(v)
 
 
