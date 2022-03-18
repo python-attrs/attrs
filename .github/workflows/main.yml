@@ -26,8 +26,8 @@ jobs:
         python-version: ["2.7", "3.5", "3.6", "3.7", "3.8", "3.9", "3.10", "pypy-2.7", "pypy-3.7", "pypy-3.8"]
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -41,7 +41,7 @@ jobs:
       - run: "python -m tox"
 
       - name: Upload coverage data
-        uses: "actions/upload-artifact@v2"
+        uses: actions/upload-artifact@v3
         with:
           name: coverage-data
           path: ".coverage.*"
@@ -53,8 +53,8 @@ jobs:
     needs: tests
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
         with:
           # Use latest Python, so it understands all syntax.
           python-version: ${{env.PYTHON_LATEST}}
@@ -62,7 +62,7 @@ jobs:
       - run: python -m pip install --upgrade coverage[toml]
 
       - name: Download coverage data
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: coverage-data
 
@@ -73,7 +73,7 @@ jobs:
           python -m coverage report --fail-under=100
 
       - name: Upload HTML report if check failed.
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: html-report
           path: htmlcov
@@ -85,8 +85,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
         with:
           python-version: ${{env.PYTHON_LATEST}}
 
@@ -106,8 +106,8 @@ jobs:
         os: ["ubuntu-latest", "windows-latest"]
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
         with:
           python-version: ${{env.PYTHON_LATEST}}
       - run: python -m pip install -e .[dev]
