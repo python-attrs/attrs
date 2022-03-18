@@ -618,7 +618,7 @@ class TestDeepIterable(object):
         expected_repr = (
             "<deep_iterable validator for iterables of {member_repr}>"
         ).format(member_repr=member_repr)
-        assert ((expected_repr)) == repr(v)
+        assert expected_repr == repr(v)
 
     def test_repr_member_only_sequence(self):
         """
@@ -635,7 +635,7 @@ class TestDeepIterable(object):
         expected_repr = (
             "<deep_iterable validator for iterables of {member_repr}>"
         ).format(member_repr=member_repr)
-        assert ((expected_repr)) == repr(v)
+        assert expected_repr == repr(v)
 
     def test_repr_member_and_iterable(self):
         """
