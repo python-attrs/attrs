@@ -178,8 +178,7 @@ def matches_re(regex, flags=0, func=None):
     .. versionadded:: 19.2.0
     .. versionchanged:: 21.3.0 *regex* can be a pre-compiled pattern.
     """
-    fullmatch = getattr(re, "fullmatch", None)
-    valid_funcs = (fullmatch, None, re.search, re.match)
+    valid_funcs = (re.fullmatch, None, re.search, re.match)
     if func not in valid_funcs:
         raise ValueError(
             "'func' must be one of {}.".format(
@@ -205,13 +204,8 @@ def matches_re(regex, flags=0, func=None):
         match_func = pattern.match
     elif func is re.search:
         match_func = pattern.search
-    elif fullmatch:
+    else:
         match_func = pattern.fullmatch
-    else:  # Python 2 fullmatch emulation (https://bugs.python.org/issue16203)
-        pattern = re.compile(
-            r"(?:{})\Z".format(pattern.pattern), pattern.flags
-        )
-        match_func = pattern.match
 
     return _MatchesReValidator(pattern, match_func)
 
