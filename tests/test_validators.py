@@ -506,7 +506,11 @@ class TestIn_(object):
 
 @pytest.fixture(
     name="member_validator",
-    params=(instance_of(int), [always_pass, instance_of(int)]),
+    params=(
+        instance_of(int),
+        [always_pass, instance_of(int)],
+        (always_pass, instance_of(int)),
+    ),
     scope="module",
 )
 def _member_validator(request):
