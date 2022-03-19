@@ -627,7 +627,7 @@ def test_slots_empty_cell():
         field = attr.ib()
 
         def f(self, a):
-            super().__init__()
+            super(C, self).__init__()
 
     C(field=1)
 
