@@ -1943,11 +1943,8 @@ else:
             real_cls = self.__class__
             if ns is None:
                 qualname = getattr(real_cls, "__qualname__", None)
-                if qualname is not None:  # pragma: no cover
-                    # This case only happens on Python 3.5 and 3.6. We exclude
-                    # it from coverage, because we don't want to slow down our
-                    # test suite by running them under coverage too for this
-                    # one line.
+                if qualname is not None:
+                    # This case only happens on Python 3.5 and 3.6.
                     class_name = qualname.rsplit(">.", 1)[-1]
                 else:
                     class_name = real_cls.__name__
