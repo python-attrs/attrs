@@ -80,9 +80,6 @@ class _Nothing:
     def __bool__(self):
         return False
 
-    def __len__(self):
-        return 0  # __bool__ for Python 2
-
 
 NOTHING = _Nothing()
 """
@@ -1182,8 +1179,6 @@ def _determine_whether_to_implement(
     whose presence signal that the user has implemented it themselves.
 
     Return *default* if no reason for either for or against is found.
-
-    auto_detect must be False on Python 2.
     """
     if flag is True or flag is False:
         return flag
@@ -1487,10 +1482,6 @@ def attrs(
         on_setattr = setters.pipe(*on_setattr)
 
     def wrap(cls):
-
-        if getattr(cls, "__class__", None) is None:
-            raise TypeError("attrs only works with new-style classes.")
-
         is_frozen = frozen or _has_frozen_base_class(cls)
         is_exc = auto_exc is True and issubclass(cls, BaseException)
         has_own_setattr = auto_detect and _has_own_attribute(
