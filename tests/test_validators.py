@@ -628,8 +628,8 @@ class TestDeepIterable(object):
         """
         member_validator = [always_pass, instance_of(int)]
         member_repr = (
-            "_AndValidator(_validators=[{func}, "
-            "<instance_of validator for type <{type} 'int'>>])"
+            "_AndValidator(_validators=({func}, "
+            "<instance_of validator for type <{type} 'int'>>))"
         ).format(func=repr(always_pass), type=TYPE)
         v = deep_iterable(member_validator)
         expected_repr = (
@@ -665,8 +665,8 @@ class TestDeepIterable(object):
         """
         member_validator = [always_pass, instance_of(int)]
         member_repr = (
-            "_AndValidator(_validators=[{func}, "
-            "<instance_of validator for type <{type} 'int'>>])"
+            "_AndValidator(_validators=({func}, "
+            "<instance_of validator for type <{type} 'int'>>))"
         ).format(func=repr(always_pass), type=TYPE)
         iterable_validator = instance_of(list)
         iterable_repr = (
