@@ -4,7 +4,6 @@
 Commonly useful validators.
 """
 
-from __future__ import absolute_import, division, print_function
 
 import operator
 import re
@@ -93,7 +92,7 @@ def disabled():
 
 
 @attrs(repr=False, slots=True, hash=True)
-class _InstanceOfValidator(object):
+class _InstanceOfValidator:
     type = attrib()
 
     def __call__(self, inst, attr, value):
@@ -137,7 +136,7 @@ def instance_of(type):
 
 
 @attrs(repr=False, frozen=True, slots=True)
-class _MatchesReValidator(object):
+class _MatchesReValidator:
     pattern = attrib()
     match_func = attrib()
 
@@ -218,7 +217,7 @@ def matches_re(regex, flags=0, func=None):
 
 
 @attrs(repr=False, slots=True, hash=True)
-class _ProvidesValidator(object):
+class _ProvidesValidator:
     interface = attrib()
 
     def __call__(self, inst, attr, value):
@@ -260,7 +259,7 @@ def provides(interface):
 
 
 @attrs(repr=False, slots=True, hash=True)
-class _OptionalValidator(object):
+class _OptionalValidator:
     validator = attrib()
 
     def __call__(self, inst, attr, value):
@@ -294,7 +293,7 @@ def optional(validator):
 
 
 @attrs(repr=False, slots=True, hash=True)
-class _InValidator(object):
+class _InValidator:
     options = attrib()
 
     def __call__(self, inst, attr, value):
@@ -335,7 +334,7 @@ def in_(options):
 
 
 @attrs(repr=False, slots=False, hash=True)
-class _IsCallableValidator(object):
+class _IsCallableValidator:
     def __call__(self, inst, attr, value):
         """
         We use a callable class to be able to change the ``__repr__``.
@@ -372,7 +371,7 @@ def is_callable():
 
 
 @attrs(repr=False, slots=True, hash=True)
-class _DeepIterable(object):
+class _DeepIterable:
     member_validator = attrib(validator=is_callable())
     iterable_validator = attrib(
         default=None, validator=optional(is_callable())
@@ -421,7 +420,7 @@ def deep_iterable(member_validator, iterable_validator=None):
 
 
 @attrs(repr=False, slots=True, hash=True)
-class _DeepMapping(object):
+class _DeepMapping:
     key_validator = attrib(validator=is_callable())
     value_validator = attrib(validator=is_callable())
     mapping_validator = attrib(default=None, validator=optional(is_callable()))
@@ -460,7 +459,7 @@ def deep_mapping(key_validator, value_validator, mapping_validator=None):
 
 
 @attrs(repr=False, frozen=True, slots=True)
-class _NumberValidator(object):
+class _NumberValidator:
     bound = attrib()
     compare_op = attrib()
     compare_func = attrib()
@@ -534,7 +533,7 @@ def gt(val):
 
 
 @attrs(repr=False, frozen=True, slots=True)
-class _MaxLengthValidator(object):
+class _MaxLengthValidator:
     max_length = attrib()
 
     def __call__(self, inst, attr, value):
@@ -565,7 +564,7 @@ def max_len(length):
 
 
 @attrs(repr=False, frozen=True, slots=True)
-class _MinLengthValidator(object):
+class _MinLengthValidator:
     min_length = attrib()
 
     def __call__(self, inst, attr, value):

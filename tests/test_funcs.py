@@ -4,7 +4,6 @@
 Tests for `attr._funcs`.
 """
 
-from __future__ import absolute_import, division, print_function
 
 from collections import OrderedDict
 
@@ -35,14 +34,14 @@ def _C():
     import attr
 
     @attr.s
-    class C(object):
+    class C:
         x = attr.ib()
         y = attr.ib()
 
     return C
 
 
-class TestAsDict(object):
+class TestAsDict:
     """
     Tests for `asdict`.
     """
@@ -207,7 +206,7 @@ class TestAsDict(object):
         """
 
         @attr.s
-        class A(object):
+        class A:
             a = attr.ib()
 
         instance = A({(1,): 1})
@@ -225,7 +224,7 @@ class TestAsDict(object):
         """
 
         @attr.s
-        class A(object):
+        class A:
             a = attr.ib()
 
         instance = A({(1,): 1})
@@ -233,7 +232,7 @@ class TestAsDict(object):
         assert {"a": {(1,): 1}} == attr.asdict(instance)
 
 
-class TestAsTuple(object):
+class TestAsTuple:
     """
     Tests for `astuple`.
     """
@@ -391,7 +390,7 @@ class TestAsTuple(object):
         assert (1, [1, 2, 3]) == d
 
 
-class TestHas(object):
+class TestHas:
     """
     Tests for `has`.
     """
@@ -408,7 +407,7 @@ class TestHas(object):
         """
 
         @attr.s
-        class D(object):
+        class D:
             pass
 
         assert has(D)
@@ -420,7 +419,7 @@ class TestHas(object):
         assert not has(object)
 
 
-class TestAssoc(object):
+class TestAssoc:
     """
     Tests for `assoc`.
     """
@@ -432,7 +431,7 @@ class TestAssoc(object):
         """
 
         @attr.s(slots=slots, frozen=frozen)
-        class C(object):
+        class C:
             pass
 
         i1 = C()
@@ -494,7 +493,7 @@ class TestAssoc(object):
         """
 
         @attr.s(frozen=True)
-        class C(object):
+        class C:
             x = attr.ib()
             y = attr.ib()
 
@@ -507,7 +506,7 @@ class TestAssoc(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             x = attr.ib()
 
         with pytest.warns(DeprecationWarning) as wi:
@@ -516,7 +515,7 @@ class TestAssoc(object):
         assert __file__ == wi.list[0].filename
 
 
-class TestEvolve(object):
+class TestEvolve:
     """
     Tests for `evolve`.
     """
@@ -528,7 +527,7 @@ class TestEvolve(object):
         """
 
         @attr.s(slots=slots, frozen=frozen)
-        class C(object):
+        class C:
             pass
 
         i1 = C()
@@ -593,7 +592,7 @@ class TestEvolve(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             a = attr.ib(validator=instance_of(int))
 
         with pytest.raises(TypeError) as e:
@@ -608,7 +607,7 @@ class TestEvolve(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             _a = attr.ib()
 
         assert evolve(C(1), a=2)._a == 2
@@ -625,7 +624,7 @@ class TestEvolve(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             a = attr.ib()
             b = attr.ib(init=False, default=0)
 
@@ -639,11 +638,11 @@ class TestEvolve(object):
         """
 
         @attr.s
-        class Cls1(object):
+        class Cls1:
             param1 = attr.ib()
 
         @attr.s
-        class Cls2(object):
+        class Cls2:
             param2 = attr.ib()
 
         obj2a = Cls2(param2="a")
@@ -663,11 +662,11 @@ class TestEvolve(object):
         """
 
         @attr.s
-        class Cls1(object):
+        class Cls1:
             param1 = attr.ib()
 
         @attr.s
-        class Cls2(object):
+        class Cls2:
             param2 = attr.ib()
 
         obj2a = Cls2(param2="a")

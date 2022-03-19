@@ -4,7 +4,6 @@
 Commonly useful filters for `attr.asdict`.
 """
 
-from __future__ import absolute_import, division, print_function
 
 from ._compat import isclass
 from ._make import Attribute

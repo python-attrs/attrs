@@ -18,7 +18,7 @@ else:
 
 
 @attr.s(frozen=True)
-class PyrightDiagnostic(object):
+class PyrightDiagnostic:
     severity = attr.ib()
     message = attr.ib()
 
@@ -36,10 +36,10 @@ def test_pyright_baseline():
     )
     pyright_result = json.loads(pyright.stdout)
 
-    diagnostics = set(
+    diagnostics = {
         PyrightDiagnostic(d["severity"], d["message"])
         for d in pyright_result["generalDiagnostics"]
-    )
+    }
 
     # Expected diagnostics as per pyright 1.1.135
     expected_diagnostics = {

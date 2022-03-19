@@ -4,7 +4,6 @@
 Tests for `attr.converters`.
 """
 
-from __future__ import absolute_import
 
 import pytest
 
@@ -14,7 +13,7 @@ from attr import Factory, attrib
 from attr.converters import default_if_none, optional, pipe, to_bool
 
 
-class TestOptional(object):
+class TestOptional:
     """
     Tests for `optional`.
     """
@@ -45,7 +44,7 @@ class TestOptional(object):
             c("not_an_int")
 
 
-class TestDefaultIfNone(object):
+class TestDefaultIfNone:
     def test_missing_default(self):
         """
         Raises TypeError if neither default nor factory have been passed.
@@ -101,7 +100,7 @@ class TestDefaultIfNone(object):
         assert [] == c(None)
 
 
-class TestPipe(object):
+class TestPipe:
     def test_success(self):
         """
         Succeeds if all wrapped converters succeed.
@@ -130,7 +129,7 @@ class TestPipe(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             a1 = attrib(default="True", converter=pipe(str, to_bool, bool))
             a2 = attrib(default=True, converter=[str, to_bool, bool])
 
@@ -146,7 +145,7 @@ class TestPipe(object):
         assert o is pipe()(o)
 
 
-class TestToBool(object):
+class TestToBool:
     def test_unhashable(self):
         """
         Fails if value is unhashable.

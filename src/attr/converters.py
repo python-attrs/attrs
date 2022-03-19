@@ -4,14 +4,11 @@
 Commonly useful converters.
 """
 
-from __future__ import absolute_import, division, print_function
 
-from ._compat import PY2, _AnnotationExtractor
+import typing
+
+from ._compat import _AnnotationExtractor
 from ._make import NOTHING, Factory, pipe
-
-
-if not PY2:
-    import typing
 
 
 __all__ = [

@@ -4,7 +4,6 @@
 Commonly used hooks for on_setattr.
 """
 
-from __future__ import absolute_import, division, print_function
 
 from . import _config
 from .exceptions import FrozenAttributeError
