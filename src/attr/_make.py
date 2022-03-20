@@ -861,9 +861,7 @@ class _ClassBuilder:
             slot_names.append(_hash_cache_field)
         cd["__slots__"] = tuple(slot_names)
 
-        qualname = getattr(self._cls, "__qualname__", None)
-        if qualname is not None:
-            cd["__qualname__"] = qualname
+        cd["__qualname__"] = self._cls.__qualname__
 
         # Create new class based on old class and our methods.
         cls = type(self._cls)(self._cls.__name__, self._cls.__bases__, cd)
@@ -1942,12 +1940,7 @@ else:
                 return "..."
             real_cls = self.__class__
             if ns is None:
-                qualname = getattr(real_cls, "__qualname__", None)
-                if qualname is not None:
-                    # This case only happens on Python 3.5 and 3.6.
-                    class_name = qualname.rsplit(">.", 1)[-1]
-                else:
-                    class_name = real_cls.__name__
+                class_name = real_cls.__qualname__.rsplit(">.", 1)[-1]
             else:
                 class_name = ns + "." + real_cls.__name__
 
