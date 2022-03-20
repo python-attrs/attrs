@@ -504,6 +504,22 @@ class TestIn_(object):
         assert (("<in_ validator with options [3, 4, 5]>")) == repr(v)
 
 
+@pytest.fixture(
+    name="member_validator",
+    params=(
+        instance_of(int),
+        [always_pass, instance_of(int)],
+        (always_pass, instance_of(int)),
+    ),
+    scope="module",
+)
+def _member_validator(request):
+    """
+    Provides sample `member_validator`s for some tests in `TestDeepIterable`
+    """
+    return request.param
+
+
 class TestDeepIterable(object):
     """
     Tests for `deep_iterable`.
@@ -515,21 +531,19 @@ class TestDeepIterable(object):
         """
         assert deep_iterable.__name__ in validator_module.__all__
 
-    def test_success_member_only(self):
+    def test_success_member_only(self, member_validator):
         """
         If the member validator succeeds and the iterable validator is not set,
         nothing happens.
         """
-        member_validator = instance_of(int)
         v = deep_iterable(member_validator)
         a = simple_attr("test")
         v(None, a, [42])
 
-    def test_success_member_and_iterable(self):
+    def test_success_member_and_iterable(self, member_validator):
         """
         If both the member and iterable validators succeed, nothing happens.
         """
-        member_validator = instance_of(int)
         iterable_validator = instance_of(list)
         v = deep_iterable(member_validator, iterable_validator)
         a = simple_attr("test")
@@ -542,6 +556,8 @@ class TestDeepIterable(object):
             (42, instance_of(list)),
             (42, 42),
             (42, None),
+            ([instance_of(int), 42], 42),
+            ([42, instance_of(int)], 42),
         ),
     )
     def test_noncallable_validators(
@@ -562,17 +578,16 @@ class TestDeepIterable(object):
         assert message in e.value.msg
         assert value == e.value.value
 
-    def test_fail_invalid_member(self):
+    def test_fail_invalid_member(self, member_validator):
         """
         Raise member validator error if an invalid member is found.
         """
-        member_validator = instance_of(int)
         v = deep_iterable(member_validator)
         a = simple_attr("test")
         with pytest.raises(TypeError):
             v(None, a, [42, "42"])
 
-    def test_fail_invalid_iterable(self):
+    def test_fail_invalid_iterable(self, member_validator):
         """
         Raise iterable validator error if an invalid iterable is found.
         """
@@ -583,12 +598,11 @@ class TestDeepIterable(object):
         with pytest.raises(TypeError):
             v(None, a, [42])
 
-    def test_fail_invalid_member_and_iterable(self):
+    def test_fail_invalid_member_and_iterable(self, member_validator):
         """
         Raise iterable validator error if both the iterable
         and a member are invalid.
         """
-        member_validator = instance_of(int)
         iterable_validator = instance_of(tuple)
         v = deep_iterable(member_validator, iterable_validator)
         a = simple_attr("test")
@@ -608,7 +622,24 @@ class TestDeepIterable(object):
         expected_repr = (
             "<deep_iterable validator for iterables of {member_repr}>"
         ).format(member_repr=member_repr)
-        assert ((expected_repr)) == repr(v)
+        assert expected_repr == repr(v)
+
+    def test_repr_member_only_sequence(self):
+        """
+        Returned validator has a useful `__repr__`
+        when only member validator is set and the member validator is a list of
+        validators
+        """
+        member_validator = [always_pass, instance_of(int)]
+        member_repr = (
+            "_AndValidator(_validators=({func}, "
+            "<instance_of validator for type <{type} 'int'>>))"
+        ).format(func=repr(always_pass), type=TYPE)
+        v = deep_iterable(member_validator)
+        expected_repr = (
+            "<deep_iterable validator for iterables of {member_repr}>"
+        ).format(member_repr=member_repr)
+        assert expected_repr == repr(v)
 
     def test_repr_member_and_iterable(self):
         """
@@ -628,6 +659,29 @@ class TestDeepIterable(object):
             "<deep_iterable validator for"
             " {iterable_repr} iterables of {member_repr}>"
         ).format(iterable_repr=iterable_repr, member_repr=member_repr)
+        assert expected_repr == repr(v)
+
+    def test_repr_sequence_member_and_iterable(self):
+        """
+        Returned validator has a useful `__repr__` when both member
+        and iterable validators are set and the member validator is a list of
+        validators
+        """
+        member_validator = [always_pass, instance_of(int)]
+        member_repr = (
+            "_AndValidator(_validators=({func}, "
+            "<instance_of validator for type <{type} 'int'>>))"
+        ).format(func=repr(always_pass), type=TYPE)
+        iterable_validator = instance_of(list)
+        iterable_repr = (
+            "<instance_of validator for type <{type} 'list'>>"
+        ).format(type=TYPE)
+        v = deep_iterable(member_validator, iterable_validator)
+        expected_repr = (
+            "<deep_iterable validator for"
+            " {iterable_repr} iterables of {member_repr}>"
+        ).format(iterable_repr=iterable_repr, member_repr=member_repr)
+
         assert expected_repr == repr(v)
 
 
@@ -804,7 +858,7 @@ def test_hashability():
 
 class TestLtLeGeGt:
     """
-    Tests for `max_len`.
+    Tests for `Lt, Le, Ge, Gt`.
     """
 
     BOUND = 4
