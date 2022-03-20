@@ -12,7 +12,7 @@ import re
 from contextlib import contextmanager
 
 from ._config import get_run_validators, set_run_validators
-from ._make import _AndValidator, and_, attrib, attrs
+from ._make import and_, attrib, attrs
 from .exceptions import NotCallableError
 
 
@@ -281,15 +281,15 @@ def optional(validator):
     which can be set to ``None`` in addition to satisfying the requirements of
     the sub-validator.
 
-    :param validator: A validator (or a list of validators) that is used for
-        non-``None`` values.
+    :param validator: A validator (or a list/tuple of validators) that is used
+    for non-``None`` values.
     :type validator: callable or `list` of callables.
 
     .. versionadded:: 15.1.0
     .. versionchanged:: 17.1.0 *validator* can be a list of validators.
     """
-    if isinstance(validator, list):
-        return _OptionalValidator(_AndValidator(validator))
+    if isinstance(validator, (list, tuple)):
+        validator = and_(*validator)
     return _OptionalValidator(validator)
 
 

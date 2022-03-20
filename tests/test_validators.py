@@ -392,39 +392,52 @@ class TestProvides(object):
         ) == repr(v)
 
 
-@pytest.mark.parametrize(
-    "validator", [instance_of(int), [always_pass, instance_of(int)]]
+@pytest.fixture(
+    name="optional_validator",
+    params=(
+        instance_of(int),
+        [always_pass, instance_of(int)],
+        (always_pass, instance_of(int)),
+    ),
+    scope="module",
 )
+def _optional_validator(request):
+    """
+    Provides sample `member_validator`s for some tests in `TestDeepIterable`
+    """
+    return request.param
+
+
 class TestOptional(object):
     """
     Tests for `optional`.
     """
 
-    def test_in_all(self, validator):
+    def test_in_all(self):
         """
         Verify that this validator is in ``__all__``.
         """
         assert optional.__name__ in validator_module.__all__
 
-    def test_success(self, validator):
+    def test_success(self, optional_validator):
         """
         Nothing happens if validator succeeds.
         """
-        v = optional(validator)
+        v = optional(optional_validator)
         v(None, simple_attr("test"), 42)
 
-    def test_success_with_none(self, validator):
+    def test_success_with_none(self, optional_validator):
         """
         Nothing happens if None.
         """
-        v = optional(validator)
+        v = optional(optional_validator)
         v(None, simple_attr("test"), None)
 
-    def test_fail(self, validator):
+    def test_fail(self, optional_validator):
         """
         Raises `TypeError` on wrong types.
         """
-        v = optional(validator)
+        v = optional(optional_validator)
         a = simple_attr("test")
         with pytest.raises(TypeError) as e:
             v(None, a, "42")
@@ -436,22 +449,41 @@ class TestOptional(object):
             "42",
         ) == e.value.args
 
-    def test_repr(self, validator):
+    def test_repr(self):
         """
         Returned validator has a useful `__repr__`.
         """
-        v = optional(validator)
+        v = optional(instance_of(int))
+        repr_s = (
+            "<optional validator for <instance_of validator for type "
+            "<{type} 'int'>> or None>"
+        ).format(type=TYPE)
 
-        if isinstance(validator, list):
-            repr_s = (
-                "<optional validator for _AndValidator(_validators=[{func}, "
-                "<instance_of validator for type <{type} 'int'>>]) or None>"
-            ).format(func=repr(always_pass), type=TYPE)
-        else:
-            repr_s = (
-                "<optional validator for <instance_of validator for type "
-                "<{type} 'int'>> or None>"
-            ).format(type=TYPE)
+        assert repr_s == repr(v)
+
+    def test_repr_list_validators(self):
+        """
+        Same as `test_repr` but for a list of validators
+        """
+        v = optional([always_pass, instance_of(int)])
+
+        repr_s = (
+            "<optional validator for _AndValidator(_validators=({func}, "
+            "<instance_of validator for type <{type} 'int'>>)) or None>"
+        ).format(func=repr(always_pass), type=TYPE)
+
+        assert repr_s == repr(v)
+
+    def test_repr_tuple_validators(self):
+        """
+        Same as `test_repr` but for a tuple of validators
+        """
+        v = optional((always_pass, instance_of(int)))
+
+        repr_s = (
+            "<optional validator for _AndValidator(_validators=({func}, "
+            "<instance_of validator for type <{type} 'int'>>)) or None>"
+        ).format(func=repr(always_pass), type=TYPE)
 
         assert repr_s == repr(v)
 
