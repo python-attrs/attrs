@@ -282,7 +282,7 @@ def optional(validator):
     the sub-validator.
 
     :param validator: A validator (or a list/tuple of validators) that is used
-    for non-``None`` values.
+        for non-``None`` values.
     :type validator: callable or `list` of callables.
 
     .. versionadded:: 15.1.0
