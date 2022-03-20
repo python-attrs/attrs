@@ -474,7 +474,7 @@ Changes
   That callable must return a string and is then used for formatting the attribute by the generated ``__repr__()`` method.
   `#568 <https://github.com/python-attrs/attrs/issues/568>`_
 - Added ``attr.__version_info__`` that can be used to reliably check the version of ``attrs`` and write forward- and backward-compatible code.
-  Please check out the `section on deprecated APIs <http://www.attrs.org/en/stable/api.html#deprecated-apis>`_ on how to use it.
+  Please check out the `section on deprecated APIs <https://www.attrs.org/en/stable/api.html#deprecated-apis>`_ on how to use it.
   `#580 <https://github.com/python-attrs/attrs/issues/580>`_
 
  .. _`#425`: https://github.com/python-attrs/attrs/issues/425
@@ -542,7 +542,7 @@ Deprecations
 Changes
 ^^^^^^^
 
-- ``attrs`` now ships its own `PEP 484 <https://www.python.org/dev/peps/pep-0484/>`_ type hints.
+- ``attrs`` now ships its own `PEP 484 <https://peps.python.org/pep-0484/>`_ type hints.
   Together with `mypy <http://mypy-lang.org>`_'s ``attrs`` plugin, you've got all you need for writing statically typed code in both Python 2 and 3!
 
   At that occasion, we've also added `narrative docs <https://www.attrs.org/en/stable/types.html>`_ about type annotations in ``attrs``.
@@ -748,7 +748,7 @@ Changes
 
   This change paves the way for automatic type checking and serialization (though as of this release ``attrs`` does not make use of it).
   In Python 3.6 or higher, the value of ``attr.Attribute.type`` can alternately be set using variable type annotations
-  (see `PEP 526 <https://www.python.org/dev/peps/pep-0526/>`_).
+  (see `PEP 526 <https://peps.python.org/pep-0526/>`_).
   (`#151 <https://github.com/python-attrs/attrs/issues/151>`_, `#214 <https://github.com/python-attrs/attrs/issues/214>`_, `#215 <https://github.com/python-attrs/attrs/issues/215>`_, `#239 <https://github.com/python-attrs/attrs/issues/239>`_)
 - The combination of ``str=True`` and ``slots=True`` now works on Python 2.
   (`#198 <https://github.com/python-attrs/attrs/issues/198>`_)
@@ -848,7 +848,7 @@ Changes:
 - Accordingly, ``attr.validators.optional()`` now can take a list of validators too.
   `#161 <https://github.com/python-attrs/attrs/issues/161>`_
 - Validators can now be defined conveniently inline by using the attribute as a decorator.
-  Check out the `validator examples <http://www.attrs.org/en/stable/init.html#decorator>`_ to see it in action!
+  Check out the `validator examples <https://www.attrs.org/en/stable/init.html#decorator>`_ to see it in action!
   `#143 <https://github.com/python-attrs/attrs/issues/143>`_
 - ``attr.Factory()`` now has a *takes_self* argument that makes the initializer to pass the partially initialized instance into the factory.
   In other words you can define attribute defaults based on other attributes.

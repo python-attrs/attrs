@@ -39,7 +39,7 @@ The official tag is `python-attrs` and helping out in support frees us up to imp
 
 ## Code
 
-- Obey [PEP 8](https://www.python.org/dev/peps/pep-0008/) and [PEP 257](https://www.python.org/dev/peps/pep-0257/).
+- Obey [PEP 8](https://peps.python.org/pep-0008/) and [PEP 257](https://peps.python.org/pep-0257/).
   We use the `"""`-on-separate-lines style for docstrings:
 
   ```python
