@@ -513,7 +513,7 @@ def _member_validator(request):
     return request.param
 
 
-class TestDeepIterable(object):
+class TestDeepIterable:
     """
     Tests for `deep_iterable`.
     """
