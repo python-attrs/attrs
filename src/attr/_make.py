@@ -16,7 +16,6 @@ from ._compat import (
     PYPY,
     _AnnotationExtractor,
     isclass,
-    iteritems,
     metadata_proxy,
     new_class,
     ordered_dict,
@@ -504,7 +503,7 @@ def _transform_attrs(
     anns = _get_annotations(cls)
 
     if these is not None:
-        ca_list = [(name, ca) for name, ca in iteritems(these)]
+        ca_list = [(name, ca) for name, ca in these.items()]
 
         if not isinstance(these, ordered_dict):
             ca_list.sort(key=_counter_getter)
@@ -795,7 +794,7 @@ class _ClassBuilder:
         """
         cd = {
             k: v
-            for k, v in iteritems(self._cls_dict)
+            for k, v in self._cls_dict.items()
             if k not in tuple(self._attr_names) + ("__dict__", "__weakref__")
         }
 
@@ -850,7 +849,7 @@ class _ClassBuilder:
         # we collect them here and update the class dict
         reused_slots = {
             slot: slot_descriptor
-            for slot, slot_descriptor in iteritems(existing_slots)
+            for slot, slot_descriptor in existing_slots.items()
             if slot in slot_names
         }
         slot_names = [name for name in slot_names if name not in reused_slots]

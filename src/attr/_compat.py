@@ -46,10 +46,6 @@ def isclass(klass):
 TYPE = "class"
 
 
-def iteritems(d):
-    return d.items()
-
-
 new_class = types.new_class
 
 
