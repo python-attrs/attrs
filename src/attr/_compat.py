@@ -39,9 +39,6 @@ def just_warn(*args, **kw):
     )
 
 
-new_class = types.new_class
-
-
 def metadata_proxy(d):
     return types.MappingProxyType(dict(d))
 

@@ -3,6 +3,7 @@
 import copy
 import linecache
 import sys
+import types
 import typing
 
 from operator import itemgetter
@@ -16,7 +17,6 @@ from ._compat import (
     PYPY,
     _AnnotationExtractor,
     metadata_proxy,
-    new_class,
     ordered_dict,
     set_closure_cell,
 )
@@ -2902,7 +2902,7 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
     if user_init is not None:
         body["__init__"] = user_init
 
-    type_ = new_class(name, bases, {}, lambda ns: ns.update(body))
+    type_ = types.new_class(name, bases, {}, lambda ns: ns.update(body))
 
     # For pickling to work, the __module__ variable needs to be set to the
     # frame where the class is created.  Bypass this step in environments where
