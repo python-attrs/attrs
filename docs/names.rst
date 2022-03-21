@@ -57,7 +57,7 @@ But overall, ``attrs`` in this shape was a **huge** success -- especially after 
 Being able to just write::
 
    @attr.s
-   class Point(object):
+   class Point:
        x = attr.ib()
        y = attr.ib()
 
