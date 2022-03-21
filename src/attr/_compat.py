@@ -43,9 +43,6 @@ def isclass(klass):
     return isinstance(klass, type)
 
 
-TYPE = "class"
-
-
 new_class = types.new_class
 
 
