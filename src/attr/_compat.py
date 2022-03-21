@@ -26,10 +26,6 @@ else:
 
 
 def just_warn(*args, **kw):
-    """
-    We only warn on Python 3 because we are not aware of any concrete
-    consequences of not setting the cell on Python 2.
-    """
     warnings.warn(
         "Running interpreter doesn't sufficiently support code object "
         "introspection.  Some features like bare super() or accessing "

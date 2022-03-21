@@ -32,7 +32,7 @@ Because according to the definition_ from the official Python docs, the returned
    It follows that the moment you (or ``attrs``) change the way equality is handled by implementing ``__eq__`` which is based on attribute values, this constraint is broken.
    For that reason Python 3 will make a class that has customized equality unhashable.
    Python 2 on the other hand will happily let you shoot your foot off.
-   Unfortunately ``attrs`` currently mimics Python 2's behavior for backward compatibility reasons if you set ``hash=False``.
+   Unfortunately, ``attrs`` still mimics (otherwise unsupported) Python 2's behavior for backward compatibility reasons if you set ``hash=False``.
 
    The *correct way* to achieve hashing by id is to set ``@attr.s(eq=False)``.
    Setting ``@attr.s(hash=False)`` (which implies ``eq=True``) is almost certainly a *bug*.
