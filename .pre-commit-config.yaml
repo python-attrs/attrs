@@ -8,12 +8,20 @@ repos:
     hooks:
       - id: black
 
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.31.1
+    hooks:
+      - id: pyupgrade
+        args: [--py3-plus, --keep-percent-format]
+        exclude: "tests/test_slots.py"
+
   - repo: https://github.com/PyCQA/isort
     rev: 5.10.1
     hooks:
       - id: isort
         additional_dependencies: [toml]
         files: \.py$
+        language_version: python3.10  # needed for match
 
   - repo: https://github.com/PyCQA/flake8
     rev: 4.0.1

@@ -4,7 +4,6 @@
 Tests for `attr._make`.
 """
 
-from __future__ import absolute_import, division, print_function
 
 import copy
 import functools
@@ -23,7 +22,7 @@ from hypothesis.strategies import booleans, integers, lists, sampled_from, text
 import attr
 
 from attr import _config
-from attr._compat import PY2, PY310, ordered_dict
+from attr._compat import PY310, ordered_dict
 from attr._make import (
     Attribute,
     Factory,
@@ -41,11 +40,7 @@ from attr._make import (
     make_class,
     validate,
 )
-from attr.exceptions import (
-    DefaultAlreadySetError,
-    NotAnAttrsClassError,
-    PythonTooOldError,
-)
+from attr.exceptions import DefaultAlreadySetError, NotAnAttrsClassError
 
 from .strategies import (
     gen_attr_names,
@@ -62,7 +57,7 @@ from .utils import simple_attr
 attrs_st = simple_attrs.map(lambda c: Attribute.from_counting_attr("name", c))
 
 
-class TestCountingAttr(object):
+class TestCountingAttr:
     """
     Tests for `attr`.
     """
@@ -151,7 +146,7 @@ class TestCountingAttr(object):
 
 
 def make_tc():
-    class TransformC(object):
+    class TransformC:
         z = attr.ib()
         y = attr.ib()
         x = attr.ib()
@@ -160,7 +155,7 @@ def make_tc():
     return TransformC
 
 
-class TestTransformAttrs(object):
+class TestTransformAttrs:
     """
     Tests for `_transform_attrs`.
     """
@@ -189,7 +184,7 @@ class TestTransformAttrs(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             pass
 
         assert _Attributes(((), [], {})) == _transform_attrs(
@@ -215,7 +210,7 @@ class TestTransformAttrs(object):
         mandatory attributes.
         """
 
-        class C(object):
+        class C:
             x = attr.ib(default=None)
             y = attr.ib()
 
@@ -241,7 +236,7 @@ class TestTransformAttrs(object):
         """
 
         @attr.s
-        class B(object):
+        class B:
             b = attr.ib()
 
         for b_a in B.__attrs_attrs__:
@@ -269,7 +264,7 @@ class TestTransformAttrs(object):
         If these is passed, use it and ignore body and base classes.
         """
 
-        class Base(object):
+        class Base:
             z = attr.ib()
 
         class C(Base):
@@ -288,7 +283,7 @@ class TestTransformAttrs(object):
         """
 
         @attr.s(init=False, these={"x": attr.ib()})
-        class C(object):
+        class C:
             x = 5
 
         assert 5 == C().x
@@ -303,7 +298,7 @@ class TestTransformAttrs(object):
         a = attr.ib(default=1)
 
         @attr.s(these=ordered_dict([("a", a), ("b", b)]))
-        class C(object):
+        class C:
             pass
 
         assert "C(a=1, b=2)" == repr(C())
@@ -316,7 +311,7 @@ class TestTransformAttrs(object):
         """
 
         @attr.s
-        class A(object):
+        class A:
             a1 = attr.ib(default="a1")
             a2 = attr.ib(default="a2")
 
@@ -351,7 +346,7 @@ class TestTransformAttrs(object):
         """
 
         @attr.s(collect_by_mro=True)
-        class C(object):
+        class C:
             x = attr.ib(default=1)
 
         @attr.s(collect_by_mro=True)
@@ -368,7 +363,7 @@ class TestTransformAttrs(object):
         """
 
         @attr.s
-        class A(object):
+        class A:
             a1 = attr.ib(default="a1")
             a2 = attr.ib(default="a2")
 
@@ -405,7 +400,7 @@ class TestTransformAttrs(object):
         """
 
         @attr.s(collect_by_mro=True)
-        class A(object):
+        class A:
 
             x = attr.ib(10)
 
@@ -437,7 +432,7 @@ class TestTransformAttrs(object):
         """
 
         @attr.s
-        class A(object):
+        class A:
             a = attr.ib()
 
         @attr.s
@@ -461,23 +456,10 @@ class TestTransformAttrs(object):
         assert False is f(C).c.inherited
 
 
-class TestAttributes(object):
+class TestAttributes:
     """
     Tests for the `attrs`/`attr.s` class decorator.
     """
-
-    @pytest.mark.skipif(not PY2, reason="No old-style classes in Py3")
-    def test_catches_old_style(self):
-        """
-        Raises TypeError on old-style classes.
-        """
-        with pytest.raises(TypeError) as e:
-
-            @attr.s
-            class C:
-                pass
-
-        assert ("attrs only works with new-style classes.",) == e.value.args
 
     def test_sets_attrs(self):
         """
@@ -485,7 +467,7 @@ class TestAttributes(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             x = attr.ib()
 
         assert "x" == C.__attrs_attrs__[0].name
@@ -497,7 +479,7 @@ class TestAttributes(object):
         """
 
         @attr.s
-        class C3(object):
+        class C3:
             pass
 
         assert "C3()" == repr(C3())
@@ -523,7 +505,7 @@ class TestAttributes(object):
         # overwritten afterwards.
         sentinel = object()
 
-        class C(object):
+        class C:
             x = attr.ib()
 
         setattr(C, method_name, sentinel)
@@ -564,7 +546,7 @@ class TestAttributes(object):
         if arg_name == "eq":
             am_args["order"] = False
 
-        class C(object):
+        class C:
             x = attr.ib()
 
         setattr(C, method_name, sentinel)
@@ -580,13 +562,12 @@ class TestAttributes(object):
         Otherwise, it does not.
         """
 
-        class C(object):
+        class C:
             x = attr.ib()
 
         C = attr.s(init=init)(C)
         assert hasattr(C, "__attrs_init__") != init
 
-    @pytest.mark.skipif(PY2, reason="__qualname__ is PY3-only.")
     @given(slots_outer=booleans(), slots_inner=booleans())
     def test_repr_qualname(self, slots_outer, slots_inner):
         """
@@ -594,9 +575,9 @@ class TestAttributes(object):
         """
 
         @attr.s(slots=slots_outer)
-        class C(object):
+        class C:
             @attr.s(slots=slots_inner)
-            class D(object):
+            class D:
                 pass
 
         assert "C.D()" == repr(C.D())
@@ -609,14 +590,13 @@ class TestAttributes(object):
         """
 
         @attr.s(slots=slots_outer)
-        class C(object):
+        class C:
             @attr.s(repr_ns="C", slots=slots_inner)
-            class D(object):
+            class D:
                 pass
 
         assert "C.D()" == repr(C.D())
 
-    @pytest.mark.skipif(PY2, reason="__qualname__ is PY3-only.")
     @given(slots_outer=booleans(), slots_inner=booleans())
     def test_name_not_overridden(self, slots_outer, slots_inner):
         """
@@ -624,9 +604,9 @@ class TestAttributes(object):
         """
 
         @attr.s(slots=slots_outer)
-        class C(object):
+        class C:
             @attr.s(slots=slots_inner)
-            class D(object):
+            class D:
                 pass
 
         assert C.D.__name__ == "D"
@@ -640,7 +620,7 @@ class TestAttributes(object):
         monkeypatch.setattr(_config, "_run_validators", with_validation)
 
         @attr.s
-        class C(object):
+        class C:
             def __attrs_pre_init__(self2):
                 self2.z = 30
 
@@ -656,7 +636,7 @@ class TestAttributes(object):
         monkeypatch.setattr(_config, "_run_validators", with_validation)
 
         @attr.s
-        class C(object):
+        class C:
             x = attr.ib()
             y = attr.ib()
 
@@ -675,7 +655,7 @@ class TestAttributes(object):
         monkeypatch.setattr(_config, "_run_validators", with_validation)
 
         @attr.s
-        class C(object):
+        class C:
             x = attr.ib()
 
             def __attrs_pre_init__(self2):
@@ -694,7 +674,7 @@ class TestAttributes(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             x = attr.ib(type=int)
             y = attr.ib(type=str)
             z = attr.ib()
@@ -710,7 +690,7 @@ class TestAttributes(object):
         """
 
         @attr.s(slots=slots)
-        class C(object):
+        class C:
             x = attr.ib()
 
         x = getattr(C, "x", None)
@@ -723,7 +703,7 @@ class TestAttributes(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             x = attr.ib(factory=list)
 
         assert Factory(list) == attr.fields(C).x.default
@@ -735,7 +715,7 @@ class TestAttributes(object):
         with pytest.raises(ValueError, match="mutually exclusive"):
 
             @attr.s
-            class C(object):
+            class C:
                 x = attr.ib(factory=list, default=Factory(list))
 
     def test_sugar_callable(self):
@@ -746,7 +726,7 @@ class TestAttributes(object):
         with pytest.raises(ValueError, match="must be a callable"):
 
             @attr.s
-            class C(object):
+            class C:
                 x = attr.ib(factory=Factory(list))
 
     def test_inherited_does_not_affect_hashing_and_equality(self):
@@ -756,7 +736,7 @@ class TestAttributes(object):
         """
 
         @attr.s
-        class BaseClass(object):
+        class BaseClass:
             x = attr.ib()
 
         @attr.s
@@ -770,7 +750,7 @@ class TestAttributes(object):
         assert hash(ba) == hash(sa)
 
 
-class TestKeywordOnlyAttributes(object):
+class TestKeywordOnlyAttributes:
     """
     Tests for keyword-only attributes.
     """
@@ -781,7 +761,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             a = attr.ib()
             b = attr.ib(default=2, kw_only=True)
             c = attr.ib(kw_only=True)
@@ -800,7 +780,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             x = attr.ib(init=False, default=0, kw_only=True)
             y = attr.ib()
 
@@ -816,20 +796,15 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             x = attr.ib(kw_only=True)
 
         with pytest.raises(TypeError) as e:
             C()
 
-        if PY2:
-            assert (
-                "missing required keyword-only argument: 'x'"
-            ) in e.value.args[0]
-        else:
-            assert (
-                "missing 1 required keyword-only argument: 'x'"
-            ) in e.value.args[0]
+        assert (
+            "missing 1 required keyword-only argument: 'x'"
+        ) in e.value.args[0]
 
     def test_keyword_only_attributes_unexpected(self):
         """
@@ -837,7 +812,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             x = attr.ib(kw_only=True)
 
         with pytest.raises(TypeError) as e:
@@ -854,7 +829,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             a = attr.ib(kw_only=True)
             b = attr.ib(kw_only=True, default="b")
             c = attr.ib(kw_only=True)
@@ -883,7 +858,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class Base(object):
+        class Base:
             x = attr.ib(default=0)
 
         @attr.s
@@ -902,7 +877,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s(kw_only=True)
-        class C(object):
+        class C:
             x = attr.ib()
             y = attr.ib(kw_only=True)
 
@@ -921,7 +896,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class Base(object):
+        class Base:
             x = attr.ib(default=0)
 
         @attr.s(kw_only=True)
@@ -944,7 +919,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class KwArgBeforeInitFalse(object):
+        class KwArgBeforeInitFalse:
             kwarg = attr.ib(kw_only=True)
             non_init_function_default = attr.ib(init=False)
             non_init_keyword_default = attr.ib(
@@ -972,7 +947,7 @@ class TestKeywordOnlyAttributes(object):
         """
 
         @attr.s
-        class KwArgBeforeInitFalseParent(object):
+        class KwArgBeforeInitFalseParent:
             kwarg = attr.ib(kw_only=True)
 
         @attr.s
@@ -993,34 +968,14 @@ class TestKeywordOnlyAttributes(object):
         assert c.non_init_keyword_default == "default-by-keyword"
 
 
-@pytest.mark.skipif(not PY2, reason="PY2-specific keyword-only error behavior")
-class TestKeywordOnlyAttributesOnPy2(object):
-    """
-    Tests for keyword-only attribute behavior on py2.
-    """
-
-    def test_no_init(self):
-        """
-        Keyworld-only is a no-op, not any error, if ``init=false``.
-        """
-
-        @attr.s(kw_only=True, init=False)
-        class ClassLevel(object):
-            a = attr.ib()
-
-        @attr.s(init=False)
-        class AttrLevel(object):
-            a = attr.ib(kw_only=True)
-
-
 @attr.s
-class GC(object):
+class GC:
     @attr.s
-    class D(object):
+    class D:
         pass
 
 
-class TestMakeClass(object):
+class TestMakeClass:
     """
     Tests for `make_class`.
     """
@@ -1033,7 +988,7 @@ class TestMakeClass(object):
         C1 = make_class("C1", ls(["a", "b"]))
 
         @attr.s
-        class C2(object):
+        class C2:
             a = attr.ib()
             b = attr.ib()
 
@@ -1048,7 +1003,7 @@ class TestMakeClass(object):
         )
 
         @attr.s
-        class C2(object):
+        class C2:
             a = attr.ib(default=42)
             b = attr.ib(default=None)
 
@@ -1076,7 +1031,7 @@ class TestMakeClass(object):
         Parameter bases default to (object,) and subclasses correctly
         """
 
-        class D(object):
+        class D:
             pass
 
         cls = make_class("C", {})
@@ -1120,7 +1075,6 @@ class TestMakeClass(object):
 
         assert "C(a=1, b=2)" == repr(C())
 
-    @pytest.mark.skipif(PY2, reason="Python 3-only")
     def test_generic_dynamic_class(self):
         """
         make_class can create generic dynamic classes.
@@ -1137,7 +1091,7 @@ class TestMakeClass(object):
         attr.make_class("test", {"id": attr.ib(type=str)}, (MyParent[int],))
 
 
-class TestFields(object):
+class TestFields:
     """
     Tests for `fields`.
     """
@@ -1179,7 +1133,7 @@ class TestFields(object):
             assert getattr(fields(C), attribute.name) is attribute
 
 
-class TestFieldsDict(object):
+class TestFieldsDict:
     """
     Tests for `fields_dict`.
     """
@@ -1217,7 +1171,7 @@ class TestFieldsDict(object):
         assert [a.name for a in fields(C)] == [field_name for field_name in d]
 
 
-class TestConverter(object):
+class TestConverter:
     """
     Tests for attribute conversion.
     """
@@ -1330,7 +1284,7 @@ class TestConverter(object):
         C("1")
 
 
-class TestValidate(object):
+class TestValidate:
     """
     Tests for `validate`.
     """
@@ -1428,7 +1382,7 @@ sorted_lists_of_attrs = list_of_attrs.map(
 )
 
 
-class TestMetadata(object):
+class TestMetadata:
     """
     Tests for metadata handling.
     """
@@ -1523,7 +1477,7 @@ class TestMetadata(object):
         assert md is a.metadata
 
 
-class TestClassBuilder(object):
+class TestClassBuilder:
     """
     Tests for `_ClassBuilder`.
     """
@@ -1545,7 +1499,7 @@ class TestClassBuilder(object):
         repr of builder itself makes sense.
         """
 
-        class C(object):
+        class C:
             pass
 
         b = _ClassBuilder(
@@ -1572,7 +1526,7 @@ class TestClassBuilder(object):
         All methods return the builder for chaining.
         """
 
-        class C(object):
+        class C:
             x = attr.ib()
 
         b = _ClassBuilder(
@@ -1627,12 +1581,12 @@ class TestClassBuilder(object):
         """
 
         @attr.s(hash=True, str=True)
-        class C(object):
+        class C:
             def organic(self):
                 pass
 
         @attr.s(hash=True, str=True)
-        class D(object):
+        class D:
             pass
 
         meth_C = getattr(C, meth_name)
@@ -1640,11 +1594,10 @@ class TestClassBuilder(object):
 
         assert meth_name == meth_C.__name__ == meth_D.__name__
         assert C.organic.__module__ == meth_C.__module__ == meth_D.__module__
-        if not PY2:
-            # This is assertion that would fail if a single __ne__ instance
-            # was reused across multiple _make_eq calls.
-            organic_prefix = C.organic.__qualname__.rsplit(".", 1)[0]
-            assert organic_prefix + "." + meth_name == meth_C.__qualname__
+        # This is assertion that would fail if a single __ne__ instance
+        # was reused across multiple _make_eq calls.
+        organic_prefix = C.organic.__qualname__.rsplit(".", 1)[0]
+        assert organic_prefix + "." + meth_name == meth_C.__qualname__
 
     def test_handles_missing_meta_on_class(self):
         """
@@ -1652,7 +1605,7 @@ class TestClassBuilder(object):
         either.
         """
 
-        class C(object):
+        class C:
             pass
 
         b = _ClassBuilder(
@@ -1691,7 +1644,7 @@ class TestClassBuilder(object):
         """
 
         @attr.s(slots=True)
-        class C(object):
+        class C:
             __weakref__ = attr.ib(
                 init=False, hash=False, repr=False, eq=False, order=False
             )
@@ -1705,7 +1658,7 @@ class TestClassBuilder(object):
         """
 
         @attr.s(slots=True)
-        class C(object):
+        class C:
             pass
 
         @attr.s(slots=True)
@@ -1748,7 +1701,7 @@ class TestClassBuilder(object):
         """
 
         @attr.s(eq=True, **kwargs)
-        class C(object):
+        class C:
             x = attr.ib()
 
         a = C(1)
@@ -1763,7 +1716,7 @@ class TestClassBuilder(object):
         """
 
         @attr.s(eq=True, **kwargs)
-        class C(object):
+        class C:
             x = attr.ib()
 
             def __getstate__(self):
@@ -1792,7 +1745,7 @@ class TestMakeOrder:
         """
 
         @attr.s
-        class A(object):
+        class A:
             a = attr.ib()
 
         @attr.s
@@ -1815,21 +1768,20 @@ class TestMakeOrder:
             == a.__ge__(b)
         )
 
-        if not PY2:
-            with pytest.raises(TypeError):
-                a <= b
+        with pytest.raises(TypeError):
+            a <= b
 
-            with pytest.raises(TypeError):
-                a >= b
+        with pytest.raises(TypeError):
+            a >= b
 
-            with pytest.raises(TypeError):
-                a < b
+        with pytest.raises(TypeError):
+            a < b
 
-            with pytest.raises(TypeError):
-                a > b
+        with pytest.raises(TypeError):
+            a > b
 
 
-class TestDetermineAttrsEqOrder(object):
+class TestDetermineAttrsEqOrder:
     def test_default(self):
         """
         If all are set to None, set both eq and order to the passed default.
@@ -1865,7 +1817,7 @@ class TestDetermineAttrsEqOrder(object):
             _determine_attrs_eq_order(cmp, eq, order, True)
 
 
-class TestDetermineAttribEqOrder(object):
+class TestDetermineAttribEqOrder:
     def test_default(self):
         """
         If all are set to None, set both eq and order to the passed default.
@@ -1953,7 +1905,7 @@ class TestDocs:
         """
 
         @attr.s
-        class A(object):
+        class A:
             pass
 
         if hasattr(A, "__qualname__"):
@@ -1964,24 +1916,14 @@ class TestDocs:
             assert expected == method.__doc__
 
 
-@pytest.mark.skipif(not PY2, reason="Needs to be only caught on Python 2.")
-def test_auto_detect_raises_on_py2():
-    """
-    Trying to pass auto_detect=True to attr.s raises PythonTooOldError.
-    """
-    with pytest.raises(PythonTooOldError):
-        attr.s(auto_detect=True)
-
-
-class BareC(object):
+class BareC:
     pass
 
 
-class BareSlottedC(object):
+class BareSlottedC:
     __slots__ = ()
 
 
-@pytest.mark.skipif(PY2, reason="Auto-detection is Python 3-only.")
 class TestAutoDetect:
     @pytest.mark.parametrize("C", (BareC, BareSlottedC))
     def test_determine_detects_non_presence_correctly(self, C):
@@ -2010,7 +1952,7 @@ class TestAutoDetect:
         """
 
         @attr.s(auto_detect=True, slots=slots, frozen=frozen)
-        class C(object):
+        class C:
             x = attr.ib()
 
         i = C(1)
@@ -2033,7 +1975,7 @@ class TestAutoDetect:
         """
 
         @attr.s(auto_detect=True, slots=slots, frozen=frozen)
-        class CI(object):
+        class CI:
             x = attr.ib()
 
             def __init__(self):
@@ -2049,7 +1991,7 @@ class TestAutoDetect:
         """
 
         @attr.s(auto_detect=True, slots=slots, frozen=frozen)
-        class C(object):
+        class C:
             x = attr.ib()
 
             def __repr__(self):
@@ -2066,11 +2008,11 @@ class TestAutoDetect:
         """
 
         @attr.s(slots=slots, frozen=frozen, hash=True)
-        class C(object):
+        class C:
             x = attr.ib(eq=str)
 
         @attr.s(slots=slots, frozen=frozen, hash=True)
-        class D(object):
+        class D:
             x = attr.ib()
 
         # These hashes should be the same because 1 is turned into
@@ -2086,7 +2028,7 @@ class TestAutoDetect:
         """
 
         @attr.s(auto_detect=True, slots=slots, frozen=frozen)
-        class C(object):
+        class C:
             x = attr.ib()
 
             def __hash__(self):
@@ -2102,7 +2044,7 @@ class TestAutoDetect:
         """
 
         @attr.s(auto_detect=True, slots=slots, frozen=frozen)
-        class C(object):
+        class C:
             x = attr.ib()
 
             def __eq__(self, o):
@@ -2112,7 +2054,7 @@ class TestAutoDetect:
             C(1) == C(1)
 
         @attr.s(auto_detect=True, slots=slots, frozen=frozen)
-        class D(object):
+        class D:
             x = attr.ib()
 
             def __ne__(self, o):
@@ -2148,19 +2090,19 @@ class TestAutoDetect:
                 assert_not_set(cls, ex, "__" + m + "__")
 
         @attr.s(auto_detect=True, slots=slots, frozen=frozen)
-        class LE(object):
+        class LE:
             __le__ = 42
 
         @attr.s(auto_detect=True, slots=slots, frozen=frozen)
-        class LT(object):
+        class LT:
             __lt__ = 42
 
         @attr.s(auto_detect=True, slots=slots, frozen=frozen)
-        class GE(object):
+        class GE:
             __ge__ = 42
 
         @attr.s(auto_detect=True, slots=slots, frozen=frozen)
-        class GT(object):
+        class GT:
             __gt__ = 42
 
         assert_none_set(LE, "__le__")
@@ -2176,7 +2118,7 @@ class TestAutoDetect:
         """
 
         @attr.s(init=True, auto_detect=True, slots=slots, frozen=frozen)
-        class C(object):
+        class C:
             x = attr.ib()
 
             def __init__(self):
@@ -2192,7 +2134,7 @@ class TestAutoDetect:
         """
 
         @attr.s(repr=True, auto_detect=True, slots=slots, frozen=frozen)
-        class C(object):
+        class C:
             x = attr.ib()
 
             def __repr__(self):
@@ -2208,7 +2150,7 @@ class TestAutoDetect:
         """
 
         @attr.s(hash=True, auto_detect=True, slots=slots, frozen=frozen)
-        class C(object):
+        class C:
             x = attr.ib()
 
             def __hash__(self):
@@ -2224,7 +2166,7 @@ class TestAutoDetect:
         """
 
         @attr.s(eq=True, auto_detect=True, slots=slots, frozen=frozen)
-        class C(object):
+        class C:
             x = attr.ib()
 
             def __eq__(self, o):
@@ -2264,7 +2206,7 @@ class TestAutoDetect:
             slots=slots,
             frozen=frozen,
         )
-        class C(object):
+        class C:
             x = attr.ib()
             __le__ = __lt__ = __gt__ = __ge__ = meth
 
@@ -2283,7 +2225,7 @@ class TestAutoDetect:
         Ensure the order doesn't matter.
         """
 
-        class C(object):
+        class C:
             x = attr.ib()
             own_eq_called = attr.ib(default=False)
             own_le_called = attr.ib(default=False)
@@ -2329,14 +2271,14 @@ class TestAutoDetect:
         """
 
         @attr.s(slots=slots, auto_detect=True)
-        class C(object):
+        class C:
             def __getstate__(self):
                 return ("hi",)
 
         assert None is getattr(C(), "__setstate__", None)
 
         @attr.s(slots=slots, auto_detect=True)
-        class C(object):
+        class C:
             called = attr.ib(False)
 
             def __setstate__(self, state):
@@ -2358,14 +2300,14 @@ class TestAutoDetect:
         """
 
         @attr.s
-        class C(object):
+        class C:
             a = attr.ib()
 
         assert None is getattr(C, "__match_args__", None)
 
 
 @pytest.mark.skipif(not PY310, reason="Structural pattern matching is 3.10+")
-class TestMatchArgs(object):
+class TestMatchArgs:
     """
     Tests for match_args and __match_args__ generation.
     """

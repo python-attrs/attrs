@@ -89,7 +89,6 @@ Full Table of Contents
    :maxdepth: 1
 
    license
-   python-2
    changelog
 
 

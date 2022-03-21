@@ -13,7 +13,7 @@ import pytest
 
 import attr
 
-from attr._compat import PY2, PYPY, just_warn, make_set_closure_cell
+from attr._compat import PYPY, just_warn, make_set_closure_cell
 
 
 # Pympler doesn't work on PyPy.
@@ -26,7 +26,7 @@ except BaseException:  # Won't be an import error.
 
 
 @attr.s
-class C1(object):
+class C1:
     x = attr.ib(validator=attr.validators.instance_of(int))
     y = attr.ib()
 
@@ -41,18 +41,16 @@ class C1(object):
     def staticmethod():
         return "staticmethod"
 
-    if not PY2:
+    def my_class(self):
+        return __class__
 
-        def my_class(self):
-            return __class__
-
-        def my_super(self):
-            """Just to test out the no-arg super."""
-            return super().__repr__()
+    def my_super(self):
+        """Just to test out the no-arg super."""
+        return super().__repr__()
 
 
 @attr.s(slots=True, hash=True)
-class C1Slots(object):
+class C1Slots:
     x = attr.ib(validator=attr.validators.instance_of(int))
     y = attr.ib()
 
@@ -67,14 +65,12 @@ class C1Slots(object):
     def staticmethod():
         return "staticmethod"
 
-    if not PY2:
+    def my_class(self):
+        return __class__
 
-        def my_class(self):
-            return __class__
-
-        def my_super(self):
-            """Just to test out the no-arg super."""
-            return super().__repr__()
+    def my_super(self):
+        """Just to test out the no-arg super."""
+        return super().__repr__()
 
 
 def test_slots_being_used():
@@ -90,7 +86,7 @@ def test_slots_being_used():
     assert "__dict__" in dir(non_slot_instance)
     assert "__slots__" not in dir(non_slot_instance)
 
-    assert set(["__weakref__", "x", "y"]) == set(slot_instance.__slots__)
+    assert {"__weakref__", "x", "y"} == set(slot_instance.__slots__)
 
     if has_pympler:
         assert asizeof(slot_instance) < asizeof(non_slot_instance)
@@ -154,7 +150,7 @@ def test_inheritance_from_nonslots():
     assert "clsmethod" == c2.classmethod()
     assert "staticmethod" == c2.staticmethod()
 
-    assert set(["z"]) == set(C2Slots.__slots__)
+    assert {"z"} == set(C2Slots.__slots__)
 
     c3 = C2Slots(x=1, y=3, z="test")
 
@@ -178,7 +174,7 @@ def test_nonslots_these():
     This will actually *replace* the class with another one, using slots.
     """
 
-    class SimpleOrdinaryClass(object):
+    class SimpleOrdinaryClass:
         def __init__(self, x, y, z):
             self.x = x
             self.y = y
@@ -213,7 +209,7 @@ def test_nonslots_these():
     assert "clsmethod" == c2.classmethod()
     assert "staticmethod" == c2.staticmethod()
 
-    assert set(["__weakref__", "x", "y", "z"]) == set(C2Slots.__slots__)
+    assert {"__weakref__", "x", "y", "z"} == set(C2Slots.__slots__)
 
     c3 = C2Slots(x=1, y=3, z="test")
     assert c3 > c2
@@ -245,7 +241,7 @@ def test_inheritance_from_slots():
     assert 2 == c2.y
     assert "test" == c2.z
 
-    assert set(["z"]) == set(C2Slots.__slots__)
+    assert {"z"} == set(C2Slots.__slots__)
 
     assert 1 == c2.method()
     assert "clsmethod" == c2.classmethod()
@@ -275,7 +271,7 @@ def test_inheritance_from_slots_with_attribute_override():
     Inheriting from a slotted class doesn't re-create existing slots
     """
 
-    class HasXSlot(object):
+    class HasXSlot:
         __slots__ = ("x",)
 
     @attr.s(slots=True, hash=True)
@@ -311,7 +307,7 @@ def test_inherited_slot_reuses_slot_descriptor():
     We reuse slot descriptor for an attr.ib defined in a slotted attr.s
     """
 
-    class HasXSlot(object):
+    class HasXSlot:
         __slots__ = ("x",)
 
     class OverridesX(HasXSlot):
@@ -342,7 +338,7 @@ def test_bare_inheritance_from_slots():
     @attr.s(
         init=False, eq=False, order=False, hash=False, repr=False, slots=True
     )
-    class C1BareSlots(object):
+    class C1BareSlots:
         x = attr.ib(validator=attr.validators.instance_of(int))
         y = attr.ib()
 
@@ -358,7 +354,7 @@ def test_bare_inheritance_from_slots():
             return "staticmethod"
 
     @attr.s(init=False, eq=False, order=False, hash=False, repr=False)
-    class C1Bare(object):
+    class C1Bare:
         x = attr.ib(validator=attr.validators.instance_of(int))
         y = attr.ib()
 
@@ -409,8 +405,7 @@ def test_bare_inheritance_from_slots():
     assert {"x": 1, "y": 2, "z": "test"} == attr.asdict(c2)
 
 
-@pytest.mark.skipif(PY2, reason="closure cell rewriting is PY3-only.")
-class TestClosureCellRewriting(object):
+class TestClosureCellRewriting:
     def test_closure_cell_rewriting(self):
         """
         Slotted classes support proper closure cell rewriting.
@@ -520,7 +515,7 @@ def test_not_weakrefable():
     """
 
     @attr.s(slots=True, weakref_slot=False)
-    class C(object):
+    class C:
         pass
 
     c = C()
@@ -538,7 +533,7 @@ def test_implicitly_weakrefable():
     """
 
     @attr.s(slots=True, weakref_slot=False)
-    class C(object):
+    class C:
         pass
 
     c = C()
@@ -553,7 +548,7 @@ def test_weakrefable():
     """
 
     @attr.s(slots=True, weakref_slot=True)
-    class C(object):
+    class C:
         pass
 
     c = C()
@@ -568,7 +563,7 @@ def test_weakref_does_not_add_a_field():
     """
 
     @attr.s(slots=True, weakref_slot=True)
-    class C(object):
+    class C:
         field = attr.ib()
 
     assert [f.name for f in attr.fields(C)] == ["field"]
@@ -581,7 +576,7 @@ def tests_weakref_does_not_add_when_inheriting_with_weakref():
     """
 
     @attr.s(slots=True, weakref_slot=True)
-    class C(object):
+    class C:
         pass
 
     @attr.s(slots=True, weakref_slot=True)
@@ -601,7 +596,7 @@ def tests_weakref_does_not_add_with_weakref_attribute():
     """
 
     @attr.s(slots=True, weakref_slot=True)
-    class C(object):
+    class C:
         __weakref__ = attr.ib(
             init=False, hash=False, repr=False, eq=False, order=False
         )
@@ -628,7 +623,7 @@ def test_slots_empty_cell():
     """
 
     @attr.s(slots=True)
-    class C(object):
+    class C:
         field = attr.ib()
 
         def f(self, a):
@@ -638,16 +633,16 @@ def test_slots_empty_cell():
 
 
 @attr.s(getstate_setstate=True)
-class C2(object):
+class C2:
     x = attr.ib()
 
 
 @attr.s(slots=True, getstate_setstate=True)
-class C2Slots(object):
+class C2Slots:
     x = attr.ib()
 
 
-class TestPickle(object):
+class TestPickle:
     @pytest.mark.parametrize("protocol", range(pickle.HIGHEST_PROTOCOL))
     def test_pickleable_by_default(self, protocol):
         """
@@ -676,7 +671,7 @@ class TestPickle(object):
         """
 
         @attr.s(slots=True, getstate_setstate=False)
-        class C(object):
+        class C:
             x = attr.ib()
 
         i = C(42)
@@ -699,7 +694,7 @@ def test_slots_super_property_get():
     """
 
     @attr.s(slots=True)
-    class A(object):
+    class A:
         x = attr.ib()
 
         @property
@@ -710,20 +705,19 @@ def test_slots_super_property_get():
     class B(A):
         @property
         def f(self):
-            return super(B, self).f ** 2
+            return super().f ** 2
 
     assert B(11).f == 121
     assert B(17).f == 289
 
 
-@pytest.mark.skipif(PY2, reason="shortcut super() is PY3-only.")
 def test_slots_super_property_get_shortcut():
     """
     On Python 3, the `super()` shortcut is allowed.
     """
 
     @attr.s(slots=True)
-    class A(object):
+    class A:
         x = attr.ib()
 
         @property

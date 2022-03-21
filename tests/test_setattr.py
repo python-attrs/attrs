@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: MIT
 
-from __future__ import absolute_import, division, print_function
 
 import pickle
 
@@ -9,22 +8,21 @@ import pytest
 import attr
 
 from attr import setters
-from attr._compat import PY2
 from attr.exceptions import FrozenAttributeError
 from attr.validators import instance_of, matches_re
 
 
 @attr.s(frozen=True)
-class Frozen(object):
+class Frozen:
     x = attr.ib()
 
 
 @attr.s
-class WithOnSetAttrHook(object):
+class WithOnSetAttrHook:
     x = attr.ib(on_setattr=lambda *args: None)
 
 
-class TestSetAttr(object):
+class TestSetAttr:
     def test_change(self):
         """
         The return value of a hook overwrites the value. But they are not run
@@ -35,7 +33,7 @@ class TestSetAttr(object):
             return "hooked!"
 
         @attr.s
-        class Hooked(object):
+        class Hooked:
             x = attr.ib(on_setattr=hook)
             y = attr.ib()
 
@@ -56,7 +54,7 @@ class TestSetAttr(object):
         """
 
         @attr.s
-        class PartiallyFrozen(object):
+        class PartiallyFrozen:
             x = attr.ib(on_setattr=setters.frozen)
             y = attr.ib()
 
@@ -81,7 +79,7 @@ class TestSetAttr(object):
         """
 
         @attr.s(on_setattr=on_setattr)
-        class ValidatedAttribute(object):
+        class ValidatedAttribute:
             x = attr.ib()
             y = attr.ib(validator=[instance_of(str), matches_re("foo.*qux")])
 
@@ -115,7 +113,7 @@ class TestSetAttr(object):
         s = [setters.convert, lambda _, __, nv: nv + 1]
 
         @attr.s
-        class Piped(object):
+        class Piped:
             x1 = attr.ib(converter=int, on_setattr=setters.pipe(*s))
             x2 = attr.ib(converter=int, on_setattr=s)
 
@@ -147,7 +145,7 @@ class TestSetAttr(object):
         """
 
         @attr.s(on_setattr=[setters.convert, setters.validate])
-        class C(object):
+        class C:
             x = attr.ib()
 
         c = C(1)
@@ -162,7 +160,7 @@ class TestSetAttr(object):
         """
 
         @attr.s(on_setattr=setters.validate)
-        class C(object):
+        class C:
             x = attr.ib(validator=attr.validators.instance_of(int))
 
         c = C(1)
@@ -187,7 +185,7 @@ class TestSetAttr(object):
         with pytest.raises(ValueError) as ei:
 
             @attr.s(frozen=True, on_setattr=setters.validate)
-            class C(object):
+            class C:
                 x = attr.ib()
 
         assert "Frozen classes can't use on_setattr." == ei.value.args[0]
@@ -200,7 +198,7 @@ class TestSetAttr(object):
         with pytest.raises(ValueError) as ei:
 
             @attr.s(frozen=True)
-            class C(object):
+            class C:
                 x = attr.ib(on_setattr=setters.validate)
 
         assert "Frozen classes can't use on_setattr." == ei.value.args[0]
@@ -218,16 +216,14 @@ class TestSetAttr(object):
             pytest.fail("Must not be called.")
 
         @attr.s
-        class Hooked(object):
+        class Hooked:
             x = attr.ib(on_setattr=boom)
 
         @attr.s(slots=slots)
         class NoHook(WithOnSetAttrHook):
             x = attr.ib()
 
-        if not PY2:
-            assert NoHook.__setattr__ == object.__setattr__
-
+        assert NoHook.__setattr__ == object.__setattr__
         assert 1 == NoHook(1).x
         assert Hooked.__attrs_own_setattr__
         assert not NoHook.__attrs_own_setattr__
@@ -240,7 +236,7 @@ class TestSetAttr(object):
         not reset it unless necessary.
         """
 
-        class A(object):
+        class A:
             """
             Not an attrs class on purpose to prevent accidental resets that
             would render the asserts meaningless.
@@ -288,7 +284,7 @@ class TestSetAttr(object):
         """
 
         @attr.s(slots=True)
-        class A(object):
+        class A:
             def __setattr__(self, key, value):
                 raise SystemError
 
@@ -306,7 +302,7 @@ class TestSetAttr(object):
         """
 
         @attr.s(slots=True)
-        class A(object):
+        class A:
             x = attr.ib(on_setattr=setters.frozen)
 
         class B(A):
@@ -317,13 +313,6 @@ class TestSetAttr(object):
             x = attr.ib()
 
         C(1).x = 2
-
-
-@pytest.mark.skipif(PY2, reason="Python 3-only.")
-class TestSetAttrNoPy2(object):
-    """
-    __setattr__ tests for Py3+ to avoid the skip repetition.
-    """
 
     @pytest.mark.parametrize("slots", [True, False])
     def test_setattr_auto_detect_if_no_custom_setattr(self, slots):
@@ -385,7 +374,7 @@ class TestSetAttrNoPy2(object):
         ):
 
             @attr.s(auto_detect=True, slots=slots)
-            class HookAndCustomSetAttr(object):
+            class HookAndCustomSetAttr:
                 x = attr.ib(on_setattr=lambda *args: None)
 
                 def __setattr__(self, _, __):
@@ -406,7 +395,7 @@ class TestSetAttrNoPy2(object):
         """
 
         @attr.s(slots=a_slots)
-        class A(object):
+        class A:
             x = attr.ib(on_setattr=setters.frozen)
 
         @attr.s(slots=b_slots, auto_detect=True)

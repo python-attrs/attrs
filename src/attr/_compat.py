@@ -1,15 +1,16 @@
 # SPDX-License-Identifier: MIT
 
-from __future__ import absolute_import, division, print_function
 
+import inspect
 import platform
 import sys
 import threading
 import types
 import warnings
 
+from collections.abc import Mapping, Sequence  # noqa
 
-PY2 = sys.version_info[0] == 2
+
 PYPY = platform.python_implementation() == "PyPy"
 PY36 = sys.version_info[:2] >= (3, 6)
 HAS_F_STRINGS = PY36
@@ -24,180 +25,76 @@ else:
     ordered_dict = OrderedDict
 
 
-if PY2:
-    from collections import Mapping, Sequence
+def just_warn(*args, **kw):
+    """
+    We only warn on Python 3 because we are not aware of any concrete
+    consequences of not setting the cell on Python 2.
+    """
+    warnings.warn(
+        "Running interpreter doesn't sufficiently support code object "
+        "introspection.  Some features like bare super() or accessing "
+        "__class__ will not work with slotted classes.",
+        RuntimeWarning,
+        stacklevel=2,
+    )
 
-    from UserDict import IterableUserDict
 
-    # We 'bundle' isclass instead of using inspect as importing inspect is
-    # fairly expensive (order of 10-15 ms for a modern machine in 2016)
-    def isclass(klass):
-        return isinstance(klass, (type, types.ClassType))
+def isclass(klass):
+    return isinstance(klass, type)
 
-    def new_class(name, bases, kwds, exec_body):
+
+TYPE = "class"
+
+
+def iteritems(d):
+    return d.items()
+
+
+new_class = types.new_class
+
+
+def metadata_proxy(d):
+    return types.MappingProxyType(dict(d))
+
+
+class _AnnotationExtractor:
+    """
+    Extract type annotations from a callable, returning None whenever there
+    is none.
+    """
+
+    __slots__ = ["sig"]
+
+    def __init__(self, callable):
+        try:
+            self.sig = inspect.signature(callable)
+        except (ValueError, TypeError):  # inspect failed
+            self.sig = None
+
+    def get_first_param_type(self):
         """
-        A minimal stub of types.new_class that we need for make_class.
+        Return the type annotation of the first argument if it's not empty.
         """
-        ns = {}
-        exec_body(ns)
-
-        return type(name, bases, ns)
-
-    # TYPE is used in exceptions, repr(int) is different on Python 2 and 3.
-    TYPE = "type"
-
-    def iteritems(d):
-        return d.iteritems()
-
-    # Python 2 is bereft of a read-only dict proxy, so we make one!
-    class ReadOnlyDict(IterableUserDict):
-        """
-        Best-effort read-only dict wrapper.
-        """
-
-        def __setitem__(self, key, val):
-            # We gently pretend we're a Python 3 mappingproxy.
-            raise TypeError(
-                "'mappingproxy' object does not support item assignment"
-            )
-
-        def update(self, _):
-            # We gently pretend we're a Python 3 mappingproxy.
-            raise AttributeError(
-                "'mappingproxy' object has no attribute 'update'"
-            )
-
-        def __delitem__(self, _):
-            # We gently pretend we're a Python 3 mappingproxy.
-            raise TypeError(
-                "'mappingproxy' object does not support item deletion"
-            )
-
-        def clear(self):
-            # We gently pretend we're a Python 3 mappingproxy.
-            raise AttributeError(
-                "'mappingproxy' object has no attribute 'clear'"
-            )
-
-        def pop(self, key, default=None):
-            # We gently pretend we're a Python 3 mappingproxy.
-            raise AttributeError(
-                "'mappingproxy' object has no attribute 'pop'"
-            )
-
-        def popitem(self):
-            # We gently pretend we're a Python 3 mappingproxy.
-            raise AttributeError(
-                "'mappingproxy' object has no attribute 'popitem'"
-            )
-
-        def setdefault(self, key, default=None):
-            # We gently pretend we're a Python 3 mappingproxy.
-            raise AttributeError(
-                "'mappingproxy' object has no attribute 'setdefault'"
-            )
-
-        def __repr__(self):
-            # Override to be identical to the Python 3 version.
-            return "mappingproxy(" + repr(self.data) + ")"
-
-    def metadata_proxy(d):
-        res = ReadOnlyDict()
-        res.data.update(d)  # We blocked update, so we have to do it like this.
-        return res
-
-    def just_warn(*args, **kw):  # pragma: no cover
-        """
-        We only warn on Python 3 because we are not aware of any concrete
-        consequences of not setting the cell on Python 2.
-        """
-
-    class _AnnotationExtractor:
-        """
-        Always return None, allows to keep ``if PY2``s from code.
-        """
-
-        __slots__ = ["sig"]
-        sig = None
-
-        def __init__(self, callable):
-            pass
-
-        def get_first_param_type(self):
+        if not self.sig:
             return None
 
-        def get_return_type(self):
-            return None
+        params = list(self.sig.parameters.values())
+        if params and params[0].annotation is not inspect.Parameter.empty:
+            return params[0].annotation
 
-else:  # Python 3 and later.
-    import inspect
+        return None
 
-    from collections.abc import Mapping, Sequence  # noqa
-
-    def just_warn(*args, **kw):
+    def get_return_type(self):
         """
-        We only warn on Python 3 because we are not aware of any concrete
-        consequences of not setting the cell on Python 2.
+        Return the return type if it's not empty.
         """
-        warnings.warn(
-            "Running interpreter doesn't sufficiently support code object "
-            "introspection.  Some features like bare super() or accessing "
-            "__class__ will not work with slotted classes.",
-            RuntimeWarning,
-            stacklevel=2,
-        )
+        if (
+            self.sig
+            and self.sig.return_annotation is not inspect.Signature.empty
+        ):
+            return self.sig.return_annotation
 
-    def isclass(klass):
-        return isinstance(klass, type)
-
-    TYPE = "class"
-
-    def iteritems(d):
-        return d.items()
-
-    new_class = types.new_class
-
-    def metadata_proxy(d):
-        return types.MappingProxyType(dict(d))
-
-    class _AnnotationExtractor:
-        """
-        Extract type annotations from a callable, returning None whenever there
-        is none.
-        """
-
-        __slots__ = ["sig"]
-
-        def __init__(self, callable):
-            try:
-                self.sig = inspect.signature(callable)
-            except (ValueError, TypeError):  # inspect failed
-                self.sig = None
-
-        def get_first_param_type(self):
-            """
-            Return the type annotation of the first argument if it's not empty.
-            """
-            if not self.sig:
-                return None
-
-            params = list(self.sig.parameters.values())
-            if params and params[0].annotation is not inspect.Parameter.empty:
-                return params[0].annotation
-
-            return None
-
-        def get_return_type(self):
-            """
-            Return the return type if it's not empty.
-            """
-            if (
-                self.sig
-                and self.sig.return_annotation is not inspect.Signature.empty
-            ):
-                return self.sig.return_annotation
-
-            return None
+        return None
 
 
 def make_set_closure_cell():
@@ -229,10 +126,7 @@ def make_set_closure_cell():
     try:
         # Extract the code object and make sure our assumptions about
         # the closure behavior are correct.
-        if PY2:
-            co = set_first_cellvar_to.func_code
-        else:
-            co = set_first_cellvar_to.__code__
+        co = set_first_cellvar_to.__code__
         if co.co_cellvars != ("x",) or co.co_freevars != ():
             raise AssertionError  # pragma: no cover
 
@@ -247,8 +141,7 @@ def make_set_closure_cell():
             )
         else:
             args = [co.co_argcount]
-            if not PY2:
-                args.append(co.co_kwonlyargcount)
+            args.append(co.co_kwonlyargcount)
             args.extend(
                 [
                     co.co_nlocals,
@@ -288,10 +181,7 @@ def make_set_closure_cell():
 
             return func
 
-        if PY2:
-            cell = make_func_with_cell().func_closure[0]
-        else:
-            cell = make_func_with_cell().__closure__[0]
+        cell = make_func_with_cell().__closure__[0]
         set_closure_cell(cell, 100)
         if cell.cell_contents != 100:
             raise AssertionError  # pragma: no cover

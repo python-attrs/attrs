@@ -983,29 +983,6 @@
        a: int = attr.ib()  # E: Name "a" already defined on line 16
     reveal_type(C)  # N: Revealed type is "def (a: builtins.int, b: builtins.int) -> main.C"
 
-- case: testAttrsNewStyleClassPy2
-  mypy_config:
-    python_version = 2.7
-  main: |
-    import attr
-    @attr.s
-    class Good(object):
-        pass
-    @attr.s
-    class Bad:  # E: attrs only works with new-style classes
-        pass
-  skip: True # https://github.com/typeddjango/pytest-mypy-plugins/issues/47
-
-- case: testAttrsAutoAttribsPy2
-  mypy_config: |
-    python_version = 2.7
-  main: |
-    import attr
-    @attr.s(auto_attribs=True)  # E: auto_attribs is not supported in Python 2
-    class A(object):
-        x = attr.ib()
-  skip: True # https://github.com/typeddjango/pytest-mypy-plugins/issues/47
-
 - case: testAttrsFrozenSubclass
   main: |
     import attr
@@ -1217,19 +1194,6 @@
     class C:
         a = attr.ib(kw_only=True)
         b = attr.ib(15)
-
-- case: testAttrsKwOnlyPy2
-  mypy_config:
-    python_version=2.7
-  main: |
-    import attr
-    @attr.s(kw_only=True)  # E: kw_only is not supported in Python 2
-    class A(object):
-        x = attr.ib()
-    @attr.s
-    class B(object):
-        x = attr.ib(kw_only=True)  # E: kw_only is not supported in Python 2
-  skip: True # https://github.com/typeddjango/pytest-mypy-plugins/issues/47
 
 - case: testAttrsDisallowUntypedWorksForward
   main: |

@@ -4,7 +4,6 @@
 Tests for `attr.validators`.
 """
 
-from __future__ import absolute_import, division, print_function
 
 import re
 
@@ -14,7 +13,7 @@ import attr
 
 from attr import _config, fields, has
 from attr import validators as validator_module
-from attr._compat import PY2, TYPE
+from attr._compat import TYPE
 from attr.validators import (
     and_,
     deep_iterable,
@@ -49,7 +48,7 @@ def zope_interface():
     return zope.interface
 
 
-class TestDisableValidators(object):
+class TestDisableValidators:
     @pytest.fixture(autouse=True)
     def reset_default(self):
         """
@@ -109,7 +108,7 @@ class TestDisableValidators(object):
         assert _config._run_validators is True
 
 
-class TestInstanceOf(object):
+class TestInstanceOf:
     """
     Tests for `instance_of`.
     """
@@ -161,7 +160,7 @@ class TestInstanceOf(object):
         ) == repr(v)
 
 
-class TestMatchesRe(object):
+class TestMatchesRe:
     """
     Tests for `matches_re`.
     """
@@ -178,7 +177,7 @@ class TestMatchesRe(object):
         """
 
         @attr.s
-        class ReTester(object):
+        class ReTester:
             str_match = attr.ib(validator=matches_re("a|ab"))
 
         ReTester("ab")  # shouldn't raise exceptions
@@ -195,7 +194,7 @@ class TestMatchesRe(object):
         """
 
         @attr.s
-        class MatchTester(object):
+        class MatchTester:
             val = attr.ib(validator=matches_re("a", re.IGNORECASE, re.match))
 
         MatchTester("A1")  # test flags and using re.match
@@ -207,7 +206,7 @@ class TestMatchesRe(object):
         pattern = re.compile("a")
 
         @attr.s
-        class RePatternTester(object):
+        class RePatternTester:
             val = attr.ib(validator=matches_re(pattern))
 
         RePatternTester("a")
@@ -229,7 +228,7 @@ class TestMatchesRe(object):
         """
 
         @attr.s
-        class SearchTester(object):
+        class SearchTester:
             val = attr.ib(validator=matches_re("a", 0, re.search))
 
         SearchTester("bab")  # re.search will match
@@ -241,16 +240,10 @@ class TestMatchesRe(object):
         with pytest.raises(ValueError) as ei:
             matches_re("a", 0, lambda: None)
 
-        if not PY2:
-            assert (
-                "'func' must be one of None, fullmatch, match, search."
-                == ei.value.args[0]
-            )
-        else:
-            assert (
-                "'func' must be one of None, match, search."
-                == ei.value.args[0]
-            )
+        assert (
+            "'func' must be one of None, fullmatch, match, search."
+            == ei.value.args[0]
+        )
 
     @pytest.mark.parametrize(
         "func", [None, getattr(re, "fullmatch", None), re.match, re.search]
@@ -283,7 +276,7 @@ def always_fail(_, __, ___):
     0 / 0
 
 
-class TestAnd(object):
+class TestAnd:
     def test_in_all(self):
         """
         Verify that this validator is in ``__all__``.
@@ -313,7 +306,7 @@ class TestAnd(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             a1 = attr.ib("a1", validator=and_(instance_of(int)))
             a2 = attr.ib("a2", validator=[instance_of(int)])
 
@@ -337,7 +330,7 @@ def ifoo(zope_interface):
     return IFoo
 
 
-class TestProvides(object):
+class TestProvides:
     """
     Tests for `provides`.
     """
@@ -354,7 +347,7 @@ class TestProvides(object):
         """
 
         @zope_interface.implementer(ifoo)
-        class C(object):
+        class C:
             def f(self):
                 pass
 
@@ -395,7 +388,7 @@ class TestProvides(object):
 @pytest.mark.parametrize(
     "validator", [instance_of(int), [always_pass, instance_of(int)]]
 )
-class TestOptional(object):
+class TestOptional:
     """
     Tests for `optional`.
     """
@@ -456,7 +449,7 @@ class TestOptional(object):
         assert repr_s == repr(v)
 
 
-class TestIn_(object):
+class TestIn_:
     """
     Tests for `in_`.
     """
@@ -501,7 +494,7 @@ class TestIn_(object):
         Returned validator has a useful `__repr__`.
         """
         v = in_([3, 4, 5])
-        assert (("<in_ validator with options [3, 4, 5]>")) == repr(v)
+        assert ("<in_ validator with options [3, 4, 5]>") == repr(v)
 
 
 @pytest.fixture(
@@ -520,7 +513,7 @@ def _member_validator(request):
     return request.param
 
 
-class TestDeepIterable(object):
+class TestDeepIterable:
     """
     Tests for `deep_iterable`.
     """
@@ -685,7 +678,7 @@ class TestDeepIterable(object):
         assert expected_repr == repr(v)
 
 
-class TestDeepMapping(object):
+class TestDeepMapping:
     """
     Tests for `deep_mapping`.
     """
@@ -789,7 +782,7 @@ class TestDeepMapping(object):
         assert expected_repr == repr(v)
 
 
-class TestIsCallable(object):
+class TestIsCallable:
     """
     Tests for `is_callable`.
     """
@@ -879,7 +872,7 @@ class TestLtLeGeGt:
         """
 
         @attr.s
-        class Tester(object):
+        class Tester:
             value = attr.ib(validator=v(self.BOUND))
 
         assert fields(Tester).value.validator.bound == self.BOUND
@@ -899,7 +892,7 @@ class TestLtLeGeGt:
         """Silent if value {op} bound."""
 
         @attr.s
-        class Tester(object):
+        class Tester:
             value = attr.ib(validator=v(self.BOUND))
 
         Tester(value)  # shouldn't raise exceptions
@@ -917,7 +910,7 @@ class TestLtLeGeGt:
         """Raise ValueError if value {op} bound."""
 
         @attr.s
-        class Tester(object):
+        class Tester:
             value = attr.ib(validator=v(self.BOUND))
 
         with pytest.raises(ValueError):
@@ -953,7 +946,7 @@ class TestMaxLen:
         """
 
         @attr.s
-        class Tester(object):
+        class Tester:
             value = attr.ib(validator=max_len(self.MAX_LENGTH))
 
         assert fields(Tester).value.validator.max_length == self.MAX_LENGTH
@@ -976,7 +969,7 @@ class TestMaxLen:
         """
 
         @attr.s
-        class Tester(object):
+        class Tester:
             value = attr.ib(validator=max_len(self.MAX_LENGTH))
 
         Tester(value)  # shouldn't raise exceptions
@@ -994,7 +987,7 @@ class TestMaxLen:
         """
 
         @attr.s
-        class Tester(object):
+        class Tester:
             value = attr.ib(validator=max_len(self.MAX_LENGTH))
 
         with pytest.raises(ValueError):
@@ -1026,7 +1019,7 @@ class TestMinLen:
         """
 
         @attr.s
-        class Tester(object):
+        class Tester:
             value = attr.ib(validator=min_len(self.MIN_LENGTH))
 
         assert fields(Tester).value.validator.min_length == self.MIN_LENGTH
@@ -1047,7 +1040,7 @@ class TestMinLen:
         """
 
         @attr.s
-        class Tester(object):
+        class Tester:
             value = attr.ib(validator=min_len(self.MIN_LENGTH))
 
         Tester(value)  # shouldn't raise exceptions
@@ -1065,7 +1058,7 @@ class TestMinLen:
         """
 
         @attr.s
-        class Tester(object):
+        class Tester:
             value = attr.ib(validator=min_len(self.MIN_LENGTH))
 
         with pytest.raises(ValueError):

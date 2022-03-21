@@ -113,7 +113,7 @@ class TestAnnotations:
         i = C(42)
         assert "C(a=42, x=[], y=2, z=3, foo=None)" == repr(i)
 
-        attr_names = set(a.name for a in C.__attrs_attrs__)
+        attr_names = {a.name for a in C.__attrs_attrs__}
         assert "a" in attr_names  # just double check that the set works
         assert "cls_var" not in attr_names
 

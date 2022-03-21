@@ -14,7 +14,7 @@ from .strategies import simple_classes
 cloudpickle = pytest.importorskip("cloudpickle")
 
 
-class TestCloudpickleCompat(object):
+class TestCloudpickleCompat:
     """
     Tests for compatibility with ``cloudpickle``.
     """
