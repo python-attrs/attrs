@@ -17,7 +17,7 @@ from hypothesis.strategies import booleans
 
 import attr
 
-from attr._compat import PY36, TYPE
+from attr._compat import PY36
 from attr._make import NOTHING, Attribute
 from attr.exceptions import FrozenInstanceError
 
@@ -161,8 +161,7 @@ class TestFunctional:
 
         # Using C1 explicitly, since slotted classes don't support this.
         assert (
-            "'x' must be <{type} 'int'> (got '1' that is a <{type} "
-            "'str'>).".format(type=TYPE),
+            "'x' must be <class 'int'> (got '1' that is a <class 'str'>).",
             attr.fields(C1).x,
             int,
             "1",
