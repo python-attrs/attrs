@@ -39,10 +39,6 @@ def just_warn(*args, **kw):
     )
 
 
-def metadata_proxy(d):
-    return types.MappingProxyType(dict(d))
-
-
 class _AnnotationExtractor:
     """
     Extract type annotations from a callable, returning None whenever there

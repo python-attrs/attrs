@@ -16,7 +16,6 @@ from ._compat import (
     PY310,
     PYPY,
     _AnnotationExtractor,
-    metadata_proxy,
     ordered_dict,
     set_closure_cell,
 )
@@ -46,7 +45,7 @@ _classvar_prefixes = (
 # (when slots=True)
 _hash_cache_field = "_attrs_cached_hash"
 
-_empty_metadata_singleton = metadata_proxy({})
+_empty_metadata_singleton = types.MappingProxyType({})
 
 # Unique object for unequivocal getattr() defaults.
 _sentinel = object()
@@ -2540,7 +2539,7 @@ class Attribute:
         bound_setattr(
             "metadata",
             (
-                metadata_proxy(metadata)
+                types.MappingProxyType(dict(metadata))  # Shallow copy
                 if metadata
                 else _empty_metadata_singleton
             ),
@@ -2626,7 +2625,7 @@ class Attribute:
             else:
                 bound_setattr(
                     name,
-                    metadata_proxy(value)
+                    types.MappingProxyType(dict(value))
                     if value
                     else _empty_metadata_singleton,
                 )
