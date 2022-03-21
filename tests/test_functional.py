@@ -12,7 +12,7 @@ from copy import deepcopy
 
 import pytest
 
-from hypothesis import assume, given
+from hypothesis import given
 from hypothesis.strategies import booleans
 
 import attr
@@ -20,8 +20,6 @@ import attr
 from attr._compat import PY36, TYPE
 from attr._make import NOTHING, Attribute
 from attr.exceptions import FrozenInstanceError
-
-from .strategies import optional_bool
 
 
 @attr.s
@@ -643,44 +641,19 @@ class TestFunctional:
 
         assert ei.value.args[0] in possible_errors
 
-    @given(cmp=optional_bool, eq=optional_bool, order=optional_bool)
-    def test_cmp_deprecated_attribute(self, cmp, eq, order):
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("cmp", [True, False])
+    def test_attrib_cmp_shortcut(self, slots, cmp):
         """
-        Accessing Attribute.cmp raises a deprecation warning but returns True
-        if cmp is True, or eq and order are *both* effectively True.
+        Setting cmp on `attr.ib`s sets both eq and order.
         """
-        # These cases are invalid and raise a ValueError.
-        assume(cmp is None or (eq is None and order is None))
-        assume(not (eq is False and order is True))
 
-        if cmp is not None:
-            rv = cmp
-        elif eq is True or eq is None:
-            rv = order is None or order is True
-        elif cmp is None and eq is None and order is None:
-            rv = True
-        elif cmp is None or eq is None:
-            rv = False
-        else:
-            pytest.fail(
-                "Unexpected state: cmp=%r eq=%r order=%r" % (cmp, eq, order)
-            )
+        @attr.s(slots=slots)
+        class C:
+            x = attr.ib(cmp=cmp)
 
-        with pytest.deprecated_call() as dc:
-
-            @attr.s
-            class C:
-                x = attr.ib(cmp=cmp, eq=eq, order=order)
-
-            assert rv == attr.fields(C).x.cmp
-
-        (w,) = dc.list
-
-        assert (
-            "The usage of `cmp` is deprecated and will be removed on or after "
-            "2021-06-01.  Please use `eq` and `order` instead."
-            == w.message.args[0]
-        )
+        assert cmp is attr.fields(C).x.eq
+        assert cmp is attr.fields(C).x.order
 
     @pytest.mark.parametrize("slots", [True, False])
     def test_no_setattr_if_validate_without_validators(self, slots):
