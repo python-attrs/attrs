@@ -71,7 +71,7 @@ Core
 
       >>> import attr
       >>> @attr.s
-      ... class C(object):
+      ... class C:
       ...     x = attr.ib()
       >>> attr.fields(C).x
       Attribute(name='x', default=NOTHING, validator=None, repr=True, eq=True, eq_key=None, order=True, order_key=None, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False, on_setattr=None)
@@ -101,7 +101,7 @@ Core
    .. doctest::
 
       >>> @attr.s
-      ... class C(object):
+      ... class C:
       ...     x = attr.ib(default=attr.Factory(list))
       ...     y = attr.ib(default=attr.Factory(
       ...         lambda self: set(self.x),
@@ -132,11 +132,11 @@ Classic
 
       >>> import attr
       >>> @attr.s
-      ... class C(object):
+      ... class C:
       ...     _private = attr.ib()
       >>> C(private=42)
       C(_private=42)
-      >>> class D(object):
+      >>> class D:
       ...     def __init__(self, x):
       ...         self.x = x
       >>> D(1)
@@ -171,7 +171,7 @@ Classic
    .. doctest::
 
       >>> @attr.s
-      ... class C(object):
+      ... class C:
       ...     x = attr.ib()
       ...     y = attr.ib()
       ...     @x.validator
@@ -242,7 +242,7 @@ Helpers
    .. doctest::
 
       >>> @attr.s
-      ... class C(object):
+      ... class C:
       ...     x = attr.ib()
       ...     y = attr.ib()
       >>> attrs.fields(C)
@@ -263,7 +263,7 @@ Helpers
    .. doctest::
 
       >>> @attr.s
-      ... class C(object):
+      ... class C:
       ...     x = attr.ib()
       ...     y = attr.ib()
       >>> attrs.fields_dict(C)
@@ -284,7 +284,7 @@ Helpers
    .. doctest::
 
       >>> @attr.s
-      ... class C(object):
+      ... class C:
       ...     pass
       >>> attr.has(C)
       True
@@ -467,7 +467,7 @@ All objects from ``attrs.validators`` are also available from ``attr.validators`
    .. doctest::
 
       >>> @attrs.define
-      ... class C(object):
+      ... class C:
       ...     x = attrs.field(validator=attr.validators.le(42))
       >>> C(42)
       C(x=42)
@@ -732,7 +732,7 @@ All objects from ``attrs.converters`` are also available from ``attr.converters`
    .. doctest::
 
       >>> @attr.s
-      ... class C(object):
+      ... class C:
       ...     x = attr.ib(converter=attr.converters.optional(int))
       >>> C(None)
       C(x=None)
@@ -747,7 +747,7 @@ All objects from ``attrs.converters`` are also available from ``attr.converters`
    .. doctest::
 
       >>> @attr.s
-      ... class C(object):
+      ... class C:
       ...     x = attr.ib(
       ...         converter=attr.converters.default_if_none("")
       ...     )
@@ -762,7 +762,7 @@ All objects from ``attrs.converters`` are also available from ``attr.converters`
    .. doctest::
 
       >>> @attr.s
-      ... class C(object):
+      ... class C:
       ...     x = attr.ib(
       ...         converter=attr.converters.to_bool
       ...     )
@@ -836,7 +836,7 @@ It behaves similarly to `sys.version_info` and is an instance of `VersionInfo`:
    >>> cmp_off == {"eq":  False}
    True
    >>> @attr.s(**cmp_off)
-   ... class C(object):
+   ... class C:
    ...     pass
 
 

@@ -200,7 +200,7 @@ For that, `attrs.asdict` offers a callback that decides whether an attribute sho
 .. doctest::
 
    >>> @define
-   ... class User(object):
+   ... class User:
    ...     email: str
    ...     password: str
 
@@ -486,7 +486,7 @@ Types
 
    >>> import attr
    >>> @attr.s
-   ... class C(object):
+   ... class C:
    ...     x = attr.ib(type=int)
    >>> fields(C).x.type
    <class 'int'>

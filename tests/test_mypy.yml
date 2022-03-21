@@ -688,7 +688,7 @@
   main: |
     import attr
     @attr.s
-    class C(object):
+    class C:
         x: int = attr.ib(default=1)
         y: int = attr.ib()
         @y.default
@@ -700,7 +700,7 @@
   main: |
     import attr
     @attr.s
-    class C(object):
+    class C:
         x = attr.ib()
         @x.validator
         def check(self, attribute, value):
@@ -944,7 +944,7 @@
   main: |
     import attr
     @attr.s
-    class C(object):
+    class C:
         _x = attr.ib(init=False, default=42)
     C()
     C(_x=42)  # E: Unexpected keyword argument "_x" for "C"
@@ -1228,7 +1228,7 @@
 
     import attr
     @attr.s
-    class C(object):
+    class C:
         x: int = attr.ib(default=1)
         y: int = attr.ib()
         @y.default
@@ -1243,7 +1243,7 @@
 
     import attr
     @attr.s
-    class C(object):
+    class C:
         x = attr.ib()
         @x.validator
         def check(self, attribute, value):

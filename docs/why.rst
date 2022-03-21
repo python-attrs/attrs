@@ -202,7 +202,7 @@ To bring it into perspective, the equivalent of
 .. doctest::
 
    >>> @attr.s
-   ... class SmartClass(object):
+   ... class SmartClass:
    ...    a = attr.ib()
    ...    b = attr.ib()
    >>> SmartClass(1, 2)
@@ -212,7 +212,7 @@ is roughly
 
 .. doctest::
 
-   >>> class ArtisanalClass(object):
+   >>> class ArtisanalClass:
    ...     def __init__(self, a, b):
    ...         self.a = a
    ...         self.b = b
@@ -272,7 +272,7 @@ You can freely choose which features you want and disable those that you want mo
 .. doctest::
 
    >>> @attr.s(repr=False)
-   ... class SmartClass(object):
+   ... class SmartClass:
    ...    a = attr.ib()
    ...    b = attr.ib()
    ...

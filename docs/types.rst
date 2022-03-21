@@ -68,7 +68,7 @@ To mypy, this code is equivalent to the one above:
 .. code-block:: python
 
   @attr.s
-  class SomeClass(object):
+  class SomeClass:
       a_number = attr.ib(default=42)  # type: int
       list_of_numbers = attr.ib(factory=list, type=list[int])
 

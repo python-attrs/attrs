@@ -8,7 +8,7 @@ Passing complex objects into ``__init__`` and then using them to derive data for
 
 So assuming you use an ORM and want to extract 2D points from a row object, do not write code like this::
 
-    class Point(object):
+    class Point:
         def __init__(self, database_row):
             self.x = database_row.x
             self.y = database_row.y
