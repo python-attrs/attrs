@@ -1,11 +1,9 @@
 # SPDX-License-Identifier: MIT
 
-
 import copy
 import linecache
 import sys
 import typing
-import warnings
 
 from operator import itemgetter
 
@@ -1091,12 +1089,6 @@ class _ClassBuilder:
             pass
 
         return method
-
-
-_CMP_DEPRECATION = (
-    "The usage of `cmp` is deprecated and will be removed on or after "
-    "2021-06-01.  Please use `eq` and `order` instead."
-)
 
 
 def _determine_attrs_eq_order(cmp, eq, order, default_eq):
@@ -2593,15 +2585,6 @@ class Attribute:
             inherited=False,
             **inst_dict
         )
-
-    @property
-    def cmp(self):
-        """
-        Simulate the presence of a cmp attribute and warn.
-        """
-        warnings.warn(_CMP_DEPRECATION, DeprecationWarning, stacklevel=2)
-
-        return self.eq and self.order
 
     # Don't use attr.evolve since fields(Attribute) doesn't work
     def evolve(self, **changes):
