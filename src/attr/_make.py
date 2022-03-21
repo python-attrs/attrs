@@ -3,6 +3,7 @@
 import copy
 import linecache
 import sys
+import types
 import typing
 
 from operator import itemgetter
@@ -15,10 +16,6 @@ from ._compat import (
     PY310,
     PYPY,
     _AnnotationExtractor,
-    isclass,
-    iteritems,
-    metadata_proxy,
-    new_class,
     ordered_dict,
     set_closure_cell,
 )
@@ -48,7 +45,7 @@ _classvar_prefixes = (
 # (when slots=True)
 _hash_cache_field = "_attrs_cached_hash"
 
-_empty_metadata_singleton = metadata_proxy({})
+_empty_metadata_singleton = types.MappingProxyType({})
 
 # Unique object for unequivocal getattr() defaults.
 _sentinel = object()
@@ -504,7 +501,7 @@ def _transform_attrs(
     anns = _get_annotations(cls)
 
     if these is not None:
-        ca_list = [(name, ca) for name, ca in iteritems(these)]
+        ca_list = [(name, ca) for name, ca in these.items()]
 
         if not isinstance(these, ordered_dict):
             ca_list.sort(key=_counter_getter)
@@ -795,7 +792,7 @@ class _ClassBuilder:
         """
         cd = {
             k: v
-            for k, v in iteritems(self._cls_dict)
+            for k, v in self._cls_dict.items()
             if k not in tuple(self._attr_names) + ("__dict__", "__weakref__")
         }
 
@@ -850,7 +847,7 @@ class _ClassBuilder:
         # we collect them here and update the class dict
         reused_slots = {
             slot: slot_descriptor
-            for slot, slot_descriptor in iteritems(existing_slots)
+            for slot, slot_descriptor in existing_slots.items()
             if slot in slot_names
         }
         slot_names = [name for name in slot_names if name not in reused_slots]
@@ -1988,7 +1985,7 @@ def fields(cls):
     ..  versionchanged:: 16.2.0 Returned tuple allows accessing the fields
         by name.
     """
-    if not isclass(cls):
+    if not isinstance(cls, type):
         raise TypeError("Passed object must be a class.")
     attrs = getattr(cls, "__attrs_attrs__", None)
     if attrs is None:
@@ -2016,7 +2013,7 @@ def fields_dict(cls):
 
     .. versionadded:: 18.1.0
     """
-    if not isclass(cls):
+    if not isinstance(cls, type):
         raise TypeError("Passed object must be a class.")
     attrs = getattr(cls, "__attrs_attrs__", None)
     if attrs is None:
@@ -2542,7 +2539,7 @@ class Attribute:
         bound_setattr(
             "metadata",
             (
-                metadata_proxy(metadata)
+                types.MappingProxyType(dict(metadata))  # Shallow copy
                 if metadata
                 else _empty_metadata_singleton
             ),
@@ -2628,7 +2625,7 @@ class Attribute:
             else:
                 bound_setattr(
                     name,
-                    metadata_proxy(value)
+                    types.MappingProxyType(dict(value))
                     if value
                     else _empty_metadata_singleton,
                 )
@@ -2904,7 +2901,7 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
     if user_init is not None:
         body["__init__"] = user_init
 
-    type_ = new_class(name, bases, {}, lambda ns: ns.update(body))
+    type_ = types.new_class(name, bases, {}, lambda ns: ns.update(body))
 
     # For pickling to work, the __module__ variable needs to be set to the
     # frame where the class is created.  Bypass this step in environments where

@@ -2,8 +2,8 @@
 
 
 import functools
+import types
 
-from ._compat import new_class
 from ._make import _make_ne
 
 
@@ -79,7 +79,9 @@ def cmp_using(
         num_order_functions += 1
         body["__ge__"] = _make_operator("ge", ge)
 
-    type_ = new_class(class_name, (object,), {}, lambda ns: ns.update(body))
+    type_ = types.new_class(
+        class_name, (object,), {}, lambda ns: ns.update(body)
+    )
 
     # Add same type requirement.
     if require_same_type:

@@ -1,18 +1,18 @@
 # SPDX-License-Identifier: MIT
 
-import pytest
+import types
 
-from attr._compat import metadata_proxy
+import pytest
 
 
 @pytest.fixture(name="mp")
 def _mp():
-    return metadata_proxy({"x": 42, "y": "foo"})
+    return types.MappingProxyType({"x": 42, "y": "foo"})
 
 
 class TestMetadataProxy:
     """
-    Ensure properties of metadata_proxy independently of hypothesis strategies.
+    Ensure properties of metadata proxy independently of hypothesis strategies.
     """
 
     def test_repr(self, mp):

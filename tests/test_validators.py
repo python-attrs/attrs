@@ -13,7 +13,6 @@ import attr
 
 from attr import _config, fields, has
 from attr import validators as validator_module
-from attr._compat import TYPE
 from attr.validators import (
     and_,
     deep_iterable,
@@ -143,8 +142,7 @@ class TestInstanceOf:
         with pytest.raises(TypeError) as e:
             v(None, a, "42")
         assert (
-            "'test' must be <{type} 'int'> (got '42' that is a <{type} "
-            "'str'>).".format(type=TYPE),
+            "'test' must be <class 'int'> (got '42' that is a <class 'str'>).",
             a,
             int,
             "42",
@@ -155,9 +153,7 @@ class TestInstanceOf:
         Returned validator has a useful `__repr__`.
         """
         v = instance_of(int)
-        assert (
-            "<instance_of validator for type <{type} 'int'>>".format(type=TYPE)
-        ) == repr(v)
+        assert ("<instance_of validator for type <class 'int'>>") == repr(v)
 
 
 class TestMatchesRe:
@@ -422,8 +418,7 @@ class TestOptional:
         with pytest.raises(TypeError) as e:
             v(None, a, "42")
         assert (
-            "'test' must be <{type} 'int'> (got '42' that is a <{type} "
-            "'str'>).".format(type=TYPE),
+            "'test' must be <class 'int'> (got '42' that is a <class 'str'>).",
             a,
             int,
             "42",
@@ -438,13 +433,13 @@ class TestOptional:
         if isinstance(validator, list):
             repr_s = (
                 "<optional validator for _AndValidator(_validators=[{func}, "
-                "<instance_of validator for type <{type} 'int'>>]) or None>"
-            ).format(func=repr(always_pass), type=TYPE)
+                "<instance_of validator for type <class 'int'>>]) or None>"
+            ).format(func=repr(always_pass))
         else:
             repr_s = (
                 "<optional validator for <instance_of validator for type "
-                "<{type} 'int'>> or None>"
-            ).format(type=TYPE)
+                "<class 'int'>> or None>"
+            )
 
         assert repr_s == repr(v)
 
@@ -608,9 +603,7 @@ class TestDeepIterable:
         when only member validator is set.
         """
         member_validator = instance_of(int)
-        member_repr = "<instance_of validator for type <{type} 'int'>>".format(
-            type=TYPE
-        )
+        member_repr = "<instance_of validator for type <class 'int'>>"
         v = deep_iterable(member_validator)
         expected_repr = (
             "<deep_iterable validator for iterables of {member_repr}>"
@@ -626,8 +619,8 @@ class TestDeepIterable:
         member_validator = [always_pass, instance_of(int)]
         member_repr = (
             "_AndValidator(_validators=({func}, "
-            "<instance_of validator for type <{type} 'int'>>))"
-        ).format(func=repr(always_pass), type=TYPE)
+            "<instance_of validator for type <class 'int'>>))"
+        ).format(func=repr(always_pass))
         v = deep_iterable(member_validator)
         expected_repr = (
             "<deep_iterable validator for iterables of {member_repr}>"
@@ -640,13 +633,9 @@ class TestDeepIterable:
         and iterable validators are set.
         """
         member_validator = instance_of(int)
-        member_repr = "<instance_of validator for type <{type} 'int'>>".format(
-            type=TYPE
-        )
+        member_repr = "<instance_of validator for type <class 'int'>>"
         iterable_validator = instance_of(list)
-        iterable_repr = (
-            "<instance_of validator for type <{type} 'list'>>"
-        ).format(type=TYPE)
+        iterable_repr = "<instance_of validator for type <class 'list'>>"
         v = deep_iterable(member_validator, iterable_validator)
         expected_repr = (
             "<deep_iterable validator for"
@@ -663,12 +652,10 @@ class TestDeepIterable:
         member_validator = [always_pass, instance_of(int)]
         member_repr = (
             "_AndValidator(_validators=({func}, "
-            "<instance_of validator for type <{type} 'int'>>))"
-        ).format(func=repr(always_pass), type=TYPE)
+            "<instance_of validator for type <class 'int'>>))"
+        ).format(func=repr(always_pass))
         iterable_validator = instance_of(list)
-        iterable_repr = (
-            "<instance_of validator for type <{type} 'list'>>"
-        ).format(type=TYPE)
+        iterable_repr = "<instance_of validator for type <class 'list'>>"
         v = deep_iterable(member_validator, iterable_validator)
         expected_repr = (
             "<deep_iterable validator for"
@@ -767,13 +754,9 @@ class TestDeepMapping:
         Returned validator has a useful `__repr__`.
         """
         key_validator = instance_of(str)
-        key_repr = "<instance_of validator for type <{type} 'str'>>".format(
-            type=TYPE
-        )
+        key_repr = "<instance_of validator for type <class 'str'>>"
         value_validator = instance_of(int)
-        value_repr = "<instance_of validator for type <{type} 'int'>>".format(
-            type=TYPE
-        )
+        value_repr = "<instance_of validator for type <class 'int'>>"
         v = deep_mapping(key_validator, value_validator)
         expected_repr = (
             "<deep_mapping validator for objects mapping "

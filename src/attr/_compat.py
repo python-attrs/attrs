@@ -39,24 +39,6 @@ def just_warn(*args, **kw):
     )
 
 
-def isclass(klass):
-    return isinstance(klass, type)
-
-
-TYPE = "class"
-
-
-def iteritems(d):
-    return d.items()
-
-
-new_class = types.new_class
-
-
-def metadata_proxy(d):
-    return types.MappingProxyType(dict(d))
-
-
 class _AnnotationExtractor:
     """
     Extract type annotations from a callable, returning None whenever there

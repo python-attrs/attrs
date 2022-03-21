@@ -15,7 +15,7 @@ from hypothesis import strategies as st
 import attr
 
 from attr import asdict, assoc, astuple, evolve, fields, has
-from attr._compat import TYPE, Mapping, Sequence, ordered_dict
+from attr._compat import Mapping, Sequence, ordered_dict
 from attr.exceptions import AttrsAttributeNotFoundError
 from attr.validators import instance_of
 
@@ -599,7 +599,7 @@ class TestEvolve:
             evolve(C(a=1), a="some string")
         m = e.value.args[0]
 
-        assert m.startswith("'a' must be <{type} 'int'>".format(type=TYPE))
+        assert m.startswith("'a' must be <class 'int'>")
 
     def test_private(self):
         """
