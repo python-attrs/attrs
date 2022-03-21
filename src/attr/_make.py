@@ -15,7 +15,6 @@ from ._compat import (
     PY310,
     PYPY,
     _AnnotationExtractor,
-    isclass,
     metadata_proxy,
     new_class,
     ordered_dict,
@@ -1987,7 +1986,7 @@ def fields(cls):
     ..  versionchanged:: 16.2.0 Returned tuple allows accessing the fields
         by name.
     """
-    if not isclass(cls):
+    if not isinstance(cls, type):
         raise TypeError("Passed object must be a class.")
     attrs = getattr(cls, "__attrs_attrs__", None)
     if attrs is None:
@@ -2015,7 +2014,7 @@ def fields_dict(cls):
 
     .. versionadded:: 18.1.0
     """
-    if not isclass(cls):
+    if not isinstance(cls, type):
         raise TypeError("Passed object must be a class.")
     attrs = getattr(cls, "__attrs_attrs__", None)
     if attrs is None:

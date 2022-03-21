@@ -39,10 +39,6 @@ def just_warn(*args, **kw):
     )
 
 
-def isclass(klass):
-    return isinstance(klass, type)
-
-
 new_class = types.new_class
 
 
