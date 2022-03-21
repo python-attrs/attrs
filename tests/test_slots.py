@@ -690,7 +690,7 @@ class TestPickle:
 
 def test_slots_super_property_get():
     """
-    On Python 2/3: the `super(self.__class__, self)` works.
+    Both `super()` and `super(self.__class__, self)` work.
     """
 
     @attr.s(slots=True)
@@ -707,8 +707,16 @@ def test_slots_super_property_get():
         def f(self):
             return super().f ** 2
 
+    @attr.s(slots=True)
+    class C(A):
+        @property
+        def f(self):
+            return super(C, self).f ** 2
+
     assert B(11).f == 121
     assert B(17).f == 289
+    assert C(11).f == 121
+    assert C(17).f == 289
 
 
 def test_slots_super_property_get_shortcut():

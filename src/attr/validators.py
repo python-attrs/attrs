@@ -169,11 +169,10 @@ def matches_re(regex, flags=0, func=None):
     :param regex: a regex string or precompiled pattern to match against
     :param int flags: flags that will be passed to the underlying re function
         (default 0)
-    :param callable func: which underlying `re` function to call (options
-        are `re.fullmatch`, `re.search`, `re.match`, default
-        is ``None`` which means either `re.fullmatch` or an emulation of
-        it on Python 2). For performance reasons, they won't be used directly
-        but on a pre-`re.compile`\ ed pattern.
+    :param callable func: which underlying `re` function to call. Valid options
+        are `re.fullmatch`, `re.search`, and `re.match`; the default ``None``
+        means `re.fullmatch`. For performance reasons, the pattern is always
+        precompiled using `re.compile`.
 
     .. versionadded:: 19.2.0
     .. versionchanged:: 21.3.0 *regex* can be a pre-compiled pattern.

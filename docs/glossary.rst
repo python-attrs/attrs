@@ -80,7 +80,7 @@ Glossary
            ...     assert 23 == d.method()
 
       - Slotted classes must implement :meth:`__getstate__ <object.__getstate__>` and :meth:`__setstate__ <object.__setstate__>` to be serializable with `pickle` protocol 0 and 1.
-        Therefore, ``attrs`` creates these methods automatically for ``slots=True`` classes (Python 2 uses protocol 0 by default).
+        Therefore, ``attrs`` creates these methods automatically for ``slots=True`` classes.
 
         .. note::
 
