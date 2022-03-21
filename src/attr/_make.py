@@ -1608,7 +1608,7 @@ def _has_frozen_base_class(cls):
     Check whether *cls* has a frozen ancestor by looking at its
     __setattr__.
     """
-    return cls.__setattr__ == _frozen_setattrs
+    return cls.__setattr__ is _frozen_setattrs
 
 
 def _generate_unique_filename(cls, func_name):
