@@ -583,7 +583,7 @@ Immutability is especially popular in functional programming and is generally a 
 If you'd like to enforce it, ``attrs`` will try to help:
 
 .. doctest::
-   >>> from attr import frozen
+   >>> from attrs import frozen
 
    >>> @frozen
    ... class C:
