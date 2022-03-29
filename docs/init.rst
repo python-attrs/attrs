@@ -467,9 +467,9 @@ The second one is using a decorator-based default::
        token: str
        client: WebClient = field()  # needed! attr.ib works too
 
-        @client.default
-        def _client_factory(self):
-            return WebClient(self.token)
+       @client.default
+       def _client_factory(self):
+           return WebClient(self.token)
 
 That said, and as pointed out in the beginning of the chapter, a better approach would be to have a factory class method::
 

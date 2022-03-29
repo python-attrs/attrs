@@ -583,6 +583,7 @@ Immutability is especially popular in functional programming and is generally a 
 If you'd like to enforce it, ``attrs`` will try to help:
 
 .. doctest::
+   >>> from attrs import frozen
 
    >>> @frozen
    ... class C:
@@ -603,7 +604,7 @@ In Clojure that function is called `assoc <https://clojuredocs.org/clojure.core/
 
 .. doctest::
 
-   >>> from attrs import evolve
+   >>> from attrs import evolve, frozen
 
    >>> @frozen
    ... class C:
