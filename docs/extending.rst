@@ -171,7 +171,7 @@ Here are some tips for effective use of metadata:
 
   .. doctest::
 
-    >>> from attr import field, NOTHING
+    >>> from attr import fields, NOTHING
     >>> MY_TYPE_METADATA = '__my_type_metadata'
     >>>
     >>> def typed(
