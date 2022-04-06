@@ -23,6 +23,7 @@ from . import filters as filters
 from . import setters as setters
 from . import validators as validators
 from ._version_info import VersionInfo
+from ._cmp import cmp_using as cmp_using
 
 __version__: str
 __version_info__: VersionInfo
@@ -51,7 +52,6 @@ _OnSetAttrArgType = Union[
 _FieldTransformer = Callable[
     [type, List[Attribute[Any]]], List[Attribute[Any]]
 ]
-_CompareWithType = Callable[[Any, Any], bool]
 # FIXME: in reality, if multiple validators are passed they must be in a list
 # or tuple, but those are invariant and so would prevent subtypes of
 # _ValidatorType from working when passed in a list or tuple.
