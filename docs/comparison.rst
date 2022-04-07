@@ -50,7 +50,7 @@ It is then used as a key function like you may know from `sorted`:
 This is especially useful when you have fields with objects that have atypical comparison properties.
 Common examples of such objects are `NumPy arrays <https://github.com/python-attrs/attrs/issues/435>`_.
 
-To save you unnecessary boilerplate, ``attrs`` comes with the `attr.cmp_using` helper to create such functions.
+To save you unnecessary boilerplate, ``attrs`` comes with the `attrs.cmp_using` helper to create such functions.
 For NumPy arrays it would look like this::
 
    import numpy
