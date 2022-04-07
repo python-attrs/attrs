@@ -1,0 +1,1 @@
+Added missing type stub re-imports for ``attrs.converters`` and ``attrs.filters``.
