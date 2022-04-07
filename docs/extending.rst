@@ -176,10 +176,10 @@ Here are some tips for effective use of metadata:
     >>>
     >>> def typed(
     ...     cls, default=NOTHING, validator=None, repr=True,
-    ...     eq=True, order=None, hash=None, init=True, metadata={},
+    ...     eq=True, order=None, hash=None, init=True, metadata=None,
     ...     converter=None
     ... ):
-    ...     metadata = dict() if not metadata else metadata
+    ...     metadata = metadata or {}
     ...     metadata[MY_TYPE_METADATA] = cls
     ...     return field(
     ...         default=default, validator=validator, repr=repr,
