@@ -54,7 +54,7 @@ profile = "attrs"
 
     [[tool.towncrier.type]]
         directory = "breaking"
-        name = "Backward-incompatible Changes"
+        name = "Backwards-incompatible Changes"
         showcontent = true
 
     [[tool.towncrier.type]]
