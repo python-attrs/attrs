@@ -1736,6 +1736,12 @@ class TestInitAlias:
     """
 
     def test_default_and_specify(self):
+        """
+        alias is present on the Attributes returned from attr.fields.
+
+        If left unspecified, it defaults to standard private-attribute
+        handling.  If specified, it passes through the explicit alias.
+        """
 
         # alias is None by default on _CountingAttr
         default_counting = attr.ib()
@@ -1794,6 +1800,10 @@ class TestInitAlias:
         assert example.__dunder_override__ == 6
 
     def test_evolve(self):
+        """
+        attr.evolve uses Attribute.alias to determine parameter names.
+        """
+
         @attr.s
         class EvolveCase:
             _override = attr.ib(alias="_override")
