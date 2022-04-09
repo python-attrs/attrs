@@ -134,6 +134,8 @@ class Attribute(Generic[_T]):
     type: Optional[Type[_T]]
     kw_only: bool
     on_setattr: _OnSetAttrType
+    alias: str
+
     def evolve(self, **changes: Any) -> "Attribute[Any]": ...
 
 # NOTE: We had several choices for the annotation to use for type arg:
@@ -176,6 +178,7 @@ def attrib(
     eq: Optional[_EqOrderType] = ...,
     order: Optional[_EqOrderType] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
+    alias: Optional[str] = ...,
 ) -> Any: ...
 
 # This form catches an explicit None or no default and infers the type from the
@@ -196,6 +199,7 @@ def attrib(
     eq: Optional[_EqOrderType] = ...,
     order: Optional[_EqOrderType] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
+    alias: Optional[str] = ...,
 ) -> _T: ...
 
 # This form catches an explicit default argument.
@@ -215,6 +219,7 @@ def attrib(
     eq: Optional[_EqOrderType] = ...,
     order: Optional[_EqOrderType] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
+    alias: Optional[str] = ...,
 ) -> _T: ...
 
 # This form covers type=non-Type: e.g. forward references (str), Any
@@ -234,6 +239,7 @@ def attrib(
     eq: Optional[_EqOrderType] = ...,
     order: Optional[_EqOrderType] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
+    alias: Optional[str] = ...,
 ) -> Any: ...
 @overload
 def field(
@@ -250,6 +256,7 @@ def field(
     eq: Optional[bool] = ...,
     order: Optional[bool] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
+    alias: Optional[str] = ...,
 ) -> Any: ...
 
 # This form catches an explicit None or no default and infers the type from the
@@ -269,6 +276,7 @@ def field(
     eq: Optional[_EqOrderType] = ...,
     order: Optional[_EqOrderType] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
+    alias: Optional[str] = ...,
 ) -> _T: ...
 
 # This form catches an explicit default argument.
@@ -287,6 +295,7 @@ def field(
     eq: Optional[_EqOrderType] = ...,
     order: Optional[_EqOrderType] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
+    alias: Optional[str] = ...,
 ) -> _T: ...
 
 # This form covers type=non-Type: e.g. forward references (str), Any
@@ -305,7 +314,9 @@ def field(
     eq: Optional[_EqOrderType] = ...,
     order: Optional[_EqOrderType] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
+    alias: Optional[str] = ...,
 ) -> Any: ...
+
 @overload
 @__dataclass_transform__(order_default=True, field_descriptors=(attrib, field))
 def attrs(
@@ -333,6 +344,7 @@ def attrs(
     field_transformer: Optional[_FieldTransformer] = ...,
     match_args: bool = ...,
 ) -> _C: ...
+
 @overload
 @__dataclass_transform__(order_default=True, field_descriptors=(attrib, field))
 def attrs(
@@ -360,6 +372,7 @@ def attrs(
     field_transformer: Optional[_FieldTransformer] = ...,
     match_args: bool = ...,
 ) -> Callable[[_C], _C]: ...
+
 @overload
 @__dataclass_transform__(field_descriptors=(attrib, field))
 def define(
@@ -385,6 +398,7 @@ def define(
     field_transformer: Optional[_FieldTransformer] = ...,
     match_args: bool = ...,
 ) -> _C: ...
+
 @overload
 @__dataclass_transform__(field_descriptors=(attrib, field))
 def define(
