@@ -210,8 +210,8 @@ def attrib(
     :type on_setattr: `callable`, or a list of callables, or `None`, or
         `attrs.setters.NO_OP`
     :param Optional[str] alias: Override this attribute's parameter name in the
-        generated ``__init__`` method. If unspecified, default to `name` stripped
-        of leading underscores. See `private-attributes` for details.
+        generated ``__init__`` method. If unspecified, default to ``name`` stripped
+        of leading underscores. See `private_attributes`.
 
     .. versionadded:: 15.2.0 *convert*
     .. versionadded:: 16.3.0 *metadata*
