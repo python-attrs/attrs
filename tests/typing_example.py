@@ -119,6 +119,15 @@ except Error as e:
     e.args
     str(e)
 
+# Field aliases
+
+@attr.s
+class AliasExample:
+    x = attr.ib()
+    _private = attr.ib(alias="_private")
+
+attr.fields(AliasExample).x.alias
+attr.fields(AliasExample)._private.alias
 
 # Converters
 # XXX: Currently converters can only be functions so none of this works
