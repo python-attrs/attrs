@@ -16,7 +16,7 @@ So it is fairly simple to build your own decorators on top of ``attrs``:
    ... @define
    ... class C:
    ...     a: int
-   (Attribute(name='a', default=NOTHING, validator=None, repr=True, eq=True, eq_key=None, order=True, order_key=None, hash=None, init=True, metadata=mappingproxy({}), type=<class 'int'>, converter=None, kw_only=False, inherited=False, on_setattr=None),)
+   (Attribute(name='a', default=NOTHING, validator=None, repr=True, eq=True, eq_key=None, order=True, order_key=None, hash=None, init=True, metadata=mappingproxy({}), type=<class 'int'>, converter=None, kw_only=False, inherited=False, on_setattr=None, alias='a'),)
 
 
 .. warning::
@@ -261,7 +261,7 @@ A more realistic example would be to automatically convert data that you, e.g., 
    Data(a=3, b='spam', c=datetime.datetime(2020, 5, 4, 13, 37))
 
 Or, perhaps you would prefer alternative default field names.
-Noting, that ``field_transformer`` receives `attr.Attribute` instances before private-attribute handling.
+Noting, that ``field_transformer`` receives `attrs.Attribute` instances before private-attribute handling.
 
 .. doctest::
 
