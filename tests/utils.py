@@ -6,7 +6,7 @@ Common helper functions for tests.
 
 
 from attr import Attribute
-from attr._make import NOTHING, make_class
+from attr._make import NOTHING, make_class, _default_init_alias_for
 
 
 def simple_class(
@@ -64,4 +64,5 @@ def simple_attr(
         converter=converter,
         kw_only=kw_only,
         inherited=inherited,
+        alias=_default_init_alias_for(name),
     )

@@ -211,7 +211,7 @@ def attrib(
         `attrs.setters.NO_OP`
     :param Optional[str] alias: Override this attribute's parameter name in the
         generated ``__init__`` method. If unspecified, default to `name` stripped
-        of leading underscores. See `private-atributes` for details.
+        of leading underscores. See `private-attributes` for details.
 
     .. versionadded:: 15.2.0 *convert*
     .. versionadded:: 16.3.0 *metadata*
@@ -233,7 +233,6 @@ def attrib(
     .. versionchanged:: 20.3.0 *kw_only* backported to Python 2
     .. versionchanged:: 21.1.0
        *eq*, *order*, and *cmp* also accept a custom callable
-    .. versionchanged:: 21.1.0 *cmp* undeprecated
     .. versionchanged:: 21.1.0 *cmp* undeprecated
     .. versionchanged:: 21.5.0 *alias*
     """
@@ -530,14 +529,6 @@ def _transform_attrs(
             key=lambda e: e[1].counter,
         )
 
-    # TODO
-    # This is the location where we could resolve the default attribute alias,
-    # rather than the Attribute constructor.
-    #
-    # This would be required if we want to adjust the default alias behavior
-    # in the future with an `attr.s` option.
-    #
-    # However we could leave in Attribute constructor and just override here.
     own_attrs = [
         Attribute.from_counting_attr(
             name=attr_name, ca=ca, type=anns.get(attr_name)
@@ -578,10 +569,13 @@ def _transform_attrs(
     if field_transformer is not None:
         attrs = field_transformer(cls, attrs)
 
-    # TODO ...or resolve default init aliases here.
-    # This would have the advantage of leaving alias=None for field_transformer
-    # implementations, so that transformers can differentiate between explicit
-    # vs default aliases and supply their own defaults.
+    # Resolve default field alias after executing field_transformer.
+    # This allows field_transformer to differentiate between explicit vs
+    # default aliases and supply their own defaults.
+    attrs = [
+        a.evolve(alias=_default_init_alias_for(a.name)) if not a.alias else a
+        for a in attrs
+    ]
 
     # Create AttrsClass *after* applying the field_transformer since it may
     # add or remove attributes!
@@ -605,7 +599,6 @@ if PYPY:
             return
 
         raise FrozenInstanceError()
-
 
 else:
 
@@ -2186,6 +2179,7 @@ def _attrs_to_init_script(
         has_on_setattr = a.on_setattr is not None or (
             a.on_setattr is not setters.NO_OP and has_cls_on_setattr
         )
+        assert a.alias, "requires known field alias, should have been set via _ClassBuilder"
         arg_name = a.alias
 
         has_factory = isinstance(a.default, Factory)
@@ -2413,6 +2407,8 @@ class Attribute:
     - Validators get them passed as the first argument.
     - The :ref:`field transformer <transform-fields>` hook receives a list of
       them.
+    - ``alias`` exposes the __init__ parameter name of the field, including
+      with overrides or default private-attribute handling.
 
     .. versionadded:: 20.1.0 *inherited*
     .. versionadded:: 20.1.0 *on_setattr*
@@ -2497,14 +2493,7 @@ class Attribute:
         bound_setattr("kw_only", kw_only)
         bound_setattr("inherited", inherited)
         bound_setattr("on_setattr", on_setattr)
-        # TODO
-        # This location for default init aliasing feels "correct" if external
-        # users would expect to get the "default" aliasing behavior, while
-        # preserving backward compatability with any callers who ignored the
-        # big red warning and directly instantiated Attribute.
-        bound_setattr(
-            "alias", alias if alias else _default_init_alias_for(name)
-        )
+        bound_setattr("alias", alias)
 
     def __setattr__(self, name, value):
         raise FrozenInstanceError()
@@ -2600,6 +2589,7 @@ _a = [
         hash=(name != "metadata"),
         init=True,
         inherited=False,
+        alias=_default_init_alias_for(name),
     )
     for name in Attribute.__slots__
 ]
@@ -2643,6 +2633,7 @@ class _CountingAttr:
     __attrs_attrs__ = tuple(
         Attribute(
             name=name,
+            alias=_default_init_alias_for(name),
             default=NOTHING,
             validator=None,
             repr=True,
@@ -2671,6 +2662,7 @@ class _CountingAttr:
     ) + (
         Attribute(
             name="metadata",
+            alias="metadata",
             default=None,
             validator=None,
             repr=True,

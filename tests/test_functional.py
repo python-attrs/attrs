@@ -119,6 +119,7 @@ class TestFunctional:
         assert (
             Attribute(
                 name="x",
+                alias="x",
                 default=foo,
                 validator=None,
                 repr=True,
@@ -131,6 +132,7 @@ class TestFunctional:
             ),
             Attribute(
                 name="y",
+                alias="y",
                 default=attr.Factory(list),
                 validator=None,
                 repr=True,
@@ -188,6 +190,7 @@ class TestFunctional:
         assert (
             Attribute(
                 name="a",
+                alias="a",
                 default=NOTHING,
                 validator=None,
                 repr=True,
@@ -200,6 +203,7 @@ class TestFunctional:
             ),
             Attribute(
                 name="b",
+                alias="b",
                 default=NOTHING,
                 validator=None,
                 repr=True,
