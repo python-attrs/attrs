@@ -1729,6 +1729,7 @@ class TestClassBuilder:
 
         assert actual == expected
 
+
 class TestInitAlias:
     """
     Tests for Attribute alias handling.
@@ -1747,12 +1748,11 @@ class TestInitAlias:
         class Cases:
             public_default = attr.ib()
             _private_default = attr.ib()
-            __dunder_default__= attr.ib()
+            __dunder_default__ = attr.ib()
 
             public_override = attr.ib(alias="public")
             _private_override = attr.ib(alias="_private")
             __dunder_override__ = attr.ib(alias="__dunder__")
-
 
         cases = attr.fields_dict(Cases)
 
@@ -1794,7 +1794,6 @@ class TestInitAlias:
         assert example.__dunder_override__ == 6
 
     def test_evolve(self):
-
         @attr.s
         class EvolveCase:
             _override = attr.ib(alias="_override")
@@ -1810,14 +1809,14 @@ class TestInitAlias:
         # evolve uses the alias to match __init__ signature
         assert attr.evolve(
             org,
-            _override = 0,
+            _override=0,
         ) == EvolveCase(0, 2, 3)
 
         # and properly passes through dunders and mangles
         assert attr.evolve(
             org,
-            EvolveCase__mangled = 4,
-            dunder__ = 5,
+            EvolveCase__mangled=4,
+            dunder__=5,
         ) == EvolveCase(1, 4, 5)
 
 
@@ -1868,6 +1867,7 @@ class TestMakeOrder:
 
         with pytest.raises(TypeError):
             a > b
+
 
 class TestDetermineAttrsEqOrder:
     def test_default(self):

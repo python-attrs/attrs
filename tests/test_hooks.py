@@ -105,9 +105,7 @@ class TestTransformHook:
         """
 
         def use_dataclass_names(cls, attribs):
-            return [
-                a.evolve(alias=a.name) for a in attribs
-            ]
+            return [a.evolve(alias=a.name) for a in attribs]
 
         @attr.s(auto_attribs=True, field_transformer=use_dataclass_names)
         class NameCase:
@@ -115,7 +113,9 @@ class TestTransformHook:
             _private: int
             __dunder__: int
 
-        assert NameCase(public=1, _private=2, __dunder__=3) == NameCase(1, 2, 3)
+        assert NameCase(public=1, _private=2, __dunder__=3) == NameCase(
+            1, 2, 3
+        )
 
     def test_hook_with_inheritance(self):
         """

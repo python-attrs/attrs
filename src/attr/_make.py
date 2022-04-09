@@ -2179,7 +2179,9 @@ def _attrs_to_init_script(
         has_on_setattr = a.on_setattr is not None or (
             a.on_setattr is not setters.NO_OP and has_cls_on_setattr
         )
-        assert a.alias, "requires known field alias, should have been set via _ClassBuilder"
+        assert (
+            a.alias
+        ), "requires known field alias, should have been set via _ClassBuilder"
         arg_name = a.alias
 
         has_factory = isinstance(a.default, Factory)

@@ -316,7 +316,6 @@ def field(
     on_setattr: Optional[_OnSetAttrArgType] = ...,
     alias: Optional[str] = ...,
 ) -> Any: ...
-
 @overload
 @__dataclass_transform__(order_default=True, field_descriptors=(attrib, field))
 def attrs(
@@ -344,7 +343,6 @@ def attrs(
     field_transformer: Optional[_FieldTransformer] = ...,
     match_args: bool = ...,
 ) -> _C: ...
-
 @overload
 @__dataclass_transform__(order_default=True, field_descriptors=(attrib, field))
 def attrs(
@@ -372,7 +370,6 @@ def attrs(
     field_transformer: Optional[_FieldTransformer] = ...,
     match_args: bool = ...,
 ) -> Callable[[_C], _C]: ...
-
 @overload
 @__dataclass_transform__(field_descriptors=(attrib, field))
 def define(
@@ -398,7 +395,6 @@ def define(
     field_transformer: Optional[_FieldTransformer] = ...,
     match_args: bool = ...,
 ) -> _C: ...
-
 @overload
 @__dataclass_transform__(field_descriptors=(attrib, field))
 def define(
