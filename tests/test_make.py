@@ -1802,8 +1802,9 @@ class TestInitAlias:
 
         org = EvolveCase(1, 2, 3)
 
-        # Previous behavior of evolve as broken for double-underscore passthrough,
-        # and would raise here due to mis-mapping the __dunder__ alias
+        # Previous behavior of evolve as broken for double-underscore
+        # passthrough, and would raise here due to mis-mapping the __dunder__
+        # alias
         assert attr.evolve(org) == org
 
         # evolve uses the alias to match __init__ signature
