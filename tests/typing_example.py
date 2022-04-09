@@ -121,10 +121,12 @@ except Error as e:
 
 # Field aliases
 
+
 @attr.s
 class AliasExample:
     x = attr.ib()
     _private = attr.ib(alias="_private")
+
 
 attr.fields(AliasExample).x.alias
 attr.fields(AliasExample)._private.alias
