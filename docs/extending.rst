@@ -279,7 +279,7 @@ Noting, that ``field_transformer`` receives `attr.Attribute` instances before pr
    ...     _private: float
    ...
    >>> Data(public=42, _private="spam")
-   Data(public=42, _privatge='spam')
+   Data(public=42, _private='spam')
 
 
 Customize Value Serialization in ``asdict()``
