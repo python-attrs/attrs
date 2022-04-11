@@ -302,7 +302,7 @@ class _InValidator:
                 ),
                 attr,
                 self.options,
-                value
+                value,
             )
 
     def __repr__(self):
