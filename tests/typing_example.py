@@ -122,14 +122,14 @@ except Error as e:
 # Field aliases
 
 
-@attr.s
+@attrs.define
 class AliasExample:
-    x = attr.ib()
-    _private = attr.ib(alias="_private")
+    without_alias: int
+    _with_alias: int = attr.ib(alias="_with_alias")
 
 
-attr.fields(AliasExample).x.alias
-attr.fields(AliasExample)._private.alias
+attr.fields(AliasExample).without_alias.alias
+attr.fields(AliasExample)._with_alias.alias
 
 # Converters
 # XXX: Currently converters can only be functions so none of this works
