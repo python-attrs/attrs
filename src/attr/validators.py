@@ -288,6 +288,7 @@ def optional(validator):
 @attrs(repr=False, slots=True, hash=True)
 class _InValidator:
     options = attrib()
+    verbose_value_error = attrib()
 
     def __call__(self, inst, attr, value):
         try:
@@ -296,14 +297,21 @@ class _InValidator:
             in_options = False
 
         if not in_options:
-            raise ValueError(
-                "'{name}' must be in {options!r} (got {value!r})".format(
-                    name=attr.name, options=self.options, value=value
-                ),
-                attr,
-                self.options,
-                value,
-            )
+            if not self.verbose_value_error:
+                raise ValueError(
+                    "'{name}' must be in {options!r} (got {value!r})".format(
+                        name=attr.name, options=self.options, value=value
+                    ),
+                )
+            else:
+                raise ValueError(
+                    "'{name}' must be in {options!r} (got {value!r})".format(
+                        name=attr.name, options=self.options, value=value
+                    ),
+                    attr,
+                    self.options,
+                    value,
+                )
 
     def __repr__(self):
         return "<in_ validator with options {options!r}>".format(
@@ -311,7 +319,7 @@ class _InValidator:
         )
 
 
-def in_(options):
+def in_(options, verbose_value_error=False):
     """
     A validator that raises a `ValueError` if the initializer is called
     with a value that does not belong in the options provided.  The check is
@@ -319,14 +327,16 @@ def in_(options):
 
     :param options: Allowed options.
     :type options: list, tuple, `enum.Enum`, ...
+    :param verbose_value_error: Determines extent of the ValueError signature.
+    :type verbose_value_error: bool
 
-    :raises ValueError: With a human readable error message, the attribute (of
-       type `attrs.Attribute`), the expected options, and the value it
-       got.
+    :raises ValueError: With a human readable error message, and if
+       verbose_value_error is set to True, the attribute (of type
+       `attrs.Attribute`), the expected options, and the value it got.
 
     .. versionadded:: 17.1.0
     """
-    return _InValidator(options)
+    return _InValidator(options, verbose_value_error)
 
 
 @attrs(repr=False, slots=False, hash=True)
