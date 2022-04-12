@@ -471,9 +471,7 @@ class TestIn_:
         a = simple_attr("test")
         with pytest.raises(ValueError) as e:
             v(None, a, None)
-        assert (
-            "'test' must be in [1, 2, 3] (got None)",
-        ) == e.value.args
+        assert ("'test' must be in [1, 2, 3] (got None)",) == e.value.args
 
     def test_fail_verbose(self):
         """
@@ -500,9 +498,7 @@ class TestIn_:
         a = simple_attr("test")
         with pytest.raises(ValueError) as e:
             v(None, a, None)
-        assert (
-            "'test' must be in 'abc' (got None)",
-        ) == e.value.args
+        assert ("'test' must be in 'abc' (got None)",) == e.value.args
 
     def test_fail_with_string_verbose(self):
         """
