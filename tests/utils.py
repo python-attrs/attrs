@@ -4,7 +4,6 @@
 Common helper functions for tests.
 """
 
-from __future__ import absolute_import, division, print_function
 
 from attr import Attribute
 from attr._make import NOTHING, make_class
@@ -68,7 +67,7 @@ def simple_attr(
     )
 
 
-class TestSimpleClass(object):
+class TestSimpleClass:
     """
     Tests for the testing helper function `make_class`.
     """

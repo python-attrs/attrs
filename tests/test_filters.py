@@ -4,7 +4,6 @@
 Tests for `attr.filters`.
 """
 
-from __future__ import absolute_import, division, print_function
 
 import pytest
 
@@ -15,12 +14,12 @@ from attr.filters import _split_what, exclude, include
 
 
 @attr.s
-class C(object):
+class C:
     a = attr.ib()
     b = attr.ib()
 
 
-class TestSplitWhat(object):
+class TestSplitWhat:
     """
     Tests for `_split_what`.
     """
@@ -35,7 +34,7 @@ class TestSplitWhat(object):
         ) == _split_what((str, fields(C).a, int))
 
 
-class TestInclude(object):
+class TestInclude:
     """
     Tests for `include`.
     """
@@ -73,7 +72,7 @@ class TestInclude(object):
         assert i(fields(C).a, value) is False
 
 
-class TestExclude(object):
+class TestExclude:
     """
     Tests for `exclude`.
     """

@@ -4,7 +4,6 @@
 Commonly useful validators.
 """
 
-from __future__ import absolute_import, division, print_function
 
 import operator
 import re
@@ -93,7 +92,7 @@ def disabled():
 
 
 @attrs(repr=False, slots=True, hash=True)
-class _InstanceOfValidator(object):
+class _InstanceOfValidator:
     type = attrib()
 
     def __call__(self, inst, attr, value):
@@ -137,7 +136,7 @@ def instance_of(type):
 
 
 @attrs(repr=False, frozen=True, slots=True)
-class _MatchesReValidator(object):
+class _MatchesReValidator:
     pattern = attrib()
     match_func = attrib()
 
@@ -170,17 +169,15 @@ def matches_re(regex, flags=0, func=None):
     :param regex: a regex string or precompiled pattern to match against
     :param int flags: flags that will be passed to the underlying re function
         (default 0)
-    :param callable func: which underlying `re` function to call (options
-        are `re.fullmatch`, `re.search`, `re.match`, default
-        is ``None`` which means either `re.fullmatch` or an emulation of
-        it on Python 2). For performance reasons, they won't be used directly
-        but on a pre-`re.compile`\ ed pattern.
+    :param callable func: which underlying `re` function to call. Valid options
+        are `re.fullmatch`, `re.search`, and `re.match`; the default ``None``
+        means `re.fullmatch`. For performance reasons, the pattern is always
+        precompiled using `re.compile`.
 
     .. versionadded:: 19.2.0
     .. versionchanged:: 21.3.0 *regex* can be a pre-compiled pattern.
     """
-    fullmatch = getattr(re, "fullmatch", None)
-    valid_funcs = (fullmatch, None, re.search, re.match)
+    valid_funcs = (re.fullmatch, None, re.search, re.match)
     if func not in valid_funcs:
         raise ValueError(
             "'func' must be one of {}.".format(
@@ -206,19 +203,14 @@ def matches_re(regex, flags=0, func=None):
         match_func = pattern.match
     elif func is re.search:
         match_func = pattern.search
-    elif fullmatch:
+    else:
         match_func = pattern.fullmatch
-    else:  # Python 2 fullmatch emulation (https://bugs.python.org/issue16203)
-        pattern = re.compile(
-            r"(?:{})\Z".format(pattern.pattern), pattern.flags
-        )
-        match_func = pattern.match
 
     return _MatchesReValidator(pattern, match_func)
 
 
 @attrs(repr=False, slots=True, hash=True)
-class _ProvidesValidator(object):
+class _ProvidesValidator:
     interface = attrib()
 
     def __call__(self, inst, attr, value):
@@ -260,7 +252,7 @@ def provides(interface):
 
 
 @attrs(repr=False, slots=True, hash=True)
-class _OptionalValidator(object):
+class _OptionalValidator:
     validator = attrib()
 
     def __call__(self, inst, attr, value):
@@ -294,7 +286,7 @@ def optional(validator):
 
 
 @attrs(repr=False, slots=True, hash=True)
-class _InValidator(object):
+class _InValidator:
     options = attrib()
 
     def __call__(self, inst, attr, value):
@@ -335,7 +327,7 @@ def in_(options):
 
 
 @attrs(repr=False, slots=False, hash=True)
-class _IsCallableValidator(object):
+class _IsCallableValidator:
     def __call__(self, inst, attr, value):
         """
         We use a callable class to be able to change the ``__repr__``.
@@ -372,7 +364,7 @@ def is_callable():
 
 
 @attrs(repr=False, slots=True, hash=True)
-class _DeepIterable(object):
+class _DeepIterable:
     member_validator = attrib(validator=is_callable())
     iterable_validator = attrib(
         default=None, validator=optional(is_callable())
@@ -407,7 +399,7 @@ def deep_iterable(member_validator, iterable_validator=None):
     """
     A validator that performs deep validation of an iterable.
 
-    :param member_validator: Validator to apply to iterable members
+    :param member_validator: Validator(s) to apply to iterable members
     :param iterable_validator: Validator to apply to iterable itself
         (optional)
 
@@ -415,11 +407,13 @@ def deep_iterable(member_validator, iterable_validator=None):
 
     :raises TypeError: if any sub-validators fail
     """
+    if isinstance(member_validator, (list, tuple)):
+        member_validator = and_(*member_validator)
     return _DeepIterable(member_validator, iterable_validator)
 
 
 @attrs(repr=False, slots=True, hash=True)
-class _DeepMapping(object):
+class _DeepMapping:
     key_validator = attrib(validator=is_callable())
     value_validator = attrib(validator=is_callable())
     mapping_validator = attrib(default=None, validator=optional(is_callable()))
@@ -458,7 +452,7 @@ def deep_mapping(key_validator, value_validator, mapping_validator=None):
 
 
 @attrs(repr=False, frozen=True, slots=True)
-class _NumberValidator(object):
+class _NumberValidator:
     bound = attrib()
     compare_op = attrib()
     compare_func = attrib()
@@ -532,7 +526,7 @@ def gt(val):
 
 
 @attrs(repr=False, frozen=True, slots=True)
-class _MaxLengthValidator(object):
+class _MaxLengthValidator:
     max_length = attrib()
 
     def __call__(self, inst, attr, value):
@@ -563,7 +557,7 @@ def max_len(length):
 
 
 @attrs(repr=False, frozen=True, slots=True)
-class _MinLengthValidator(object):
+class _MinLengthValidator:
     min_length = attrib()
 
     def __call__(self, inst, attr, value):

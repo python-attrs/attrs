@@ -4,7 +4,6 @@
 Tests for dunder methods from `attrib._make`.
 """
 
-from __future__ import absolute_import, division, print_function
 
 import copy
 import pickle
@@ -40,25 +39,25 @@ ReprCSlots = simple_class(repr=True, slots=True)
 
 
 @attr.s(eq=True)
-class EqCallableC(object):
+class EqCallableC:
     a = attr.ib(eq=str.lower, order=False)
     b = attr.ib(eq=True)
 
 
 @attr.s(eq=True, slots=True)
-class EqCallableCSlots(object):
+class EqCallableCSlots:
     a = attr.ib(eq=str.lower, order=False)
     b = attr.ib(eq=True)
 
 
 @attr.s(order=True)
-class OrderCallableC(object):
+class OrderCallableC:
     a = attr.ib(eq=True, order=str.lower)
     b = attr.ib(order=True)
 
 
 @attr.s(order=True, slots=True)
-class OrderCallableCSlots(object):
+class OrderCallableCSlots:
     a = attr.ib(eq=True, order=str.lower)
     b = attr.ib(order=True)
 
@@ -102,14 +101,14 @@ def _add_init(cls, frozen):
     return cls
 
 
-class InitC(object):
+class InitC:
     __attrs_attrs__ = [simple_attr("a"), simple_attr("b")]
 
 
 InitC = _add_init(InitC, False)
 
 
-class TestEqOrder(object):
+class TestEqOrder:
     """
     Tests for eq and order related methods.
     """
@@ -168,7 +167,7 @@ class TestEqOrder(object):
         match.
         """
 
-        class NotEqC(object):
+        class NotEqC:
             a = 1
             b = 2
 
@@ -316,7 +315,7 @@ class TestEqOrder(object):
         assert NotImplemented == (cls(1, 2).__ge__(42))
 
 
-class TestAddRepr(object):
+class TestAddRepr:
     """
     Tests for `_add_repr`.
     """
@@ -349,7 +348,7 @@ class TestAddRepr(object):
             return "foo:" + str(value)
 
         @attr.s
-        class C(object):
+        class C:
             a = attr.ib(repr=custom_repr)
 
         assert "C(a=foo:1)" == repr(C(1))
@@ -361,7 +360,7 @@ class TestAddRepr(object):
         """
 
         @attr.s
-        class Cycle(object):
+        class Cycle:
             value = attr.ib(default=7)
             cycle = attr.ib(default=None)
 
@@ -376,7 +375,7 @@ class TestAddRepr(object):
         """
 
         @attr.s
-        class LongCycle(object):
+        class LongCycle:
             value = attr.ib(default=14)
             cycle = attr.ib(default=None)
 
@@ -391,7 +390,7 @@ class TestAddRepr(object):
         repr does not strip underscores.
         """
 
-        class C(object):
+        class C:
             __attrs_attrs__ = [simple_attr("_x")]
 
         C = _add_repr(C)
@@ -440,21 +439,21 @@ class TestAddRepr(object):
 # these are for use in TestAddHash.test_cache_hash_serialization
 # they need to be out here so they can be un-pickled
 @attr.attrs(hash=True, cache_hash=False)
-class HashCacheSerializationTestUncached(object):
+class HashCacheSerializationTestUncached:
     foo_value = attr.ib()
 
 
 @attr.attrs(hash=True, cache_hash=True)
-class HashCacheSerializationTestCached(object):
+class HashCacheSerializationTestCached:
     foo_value = attr.ib()
 
 
 @attr.attrs(slots=True, hash=True, cache_hash=True)
-class HashCacheSerializationTestCachedSlots(object):
+class HashCacheSerializationTestCachedSlots:
     foo_value = attr.ib()
 
 
-class IncrementingHasher(object):
+class IncrementingHasher:
     def __init__(self):
         self.hash_value = 100
 
@@ -464,7 +463,7 @@ class IncrementingHasher(object):
         return rv
 
 
-class TestAddHash(object):
+class TestAddHash:
     """
     Tests for `_add_hash`.
     """
@@ -661,7 +660,7 @@ class TestAddHash(object):
             kwargs["hash"] = True
 
         @attr.s(**kwargs)
-        class C(object):
+        class C:
             x = attr.ib()
 
         a = C(IncrementingHasher())
@@ -711,7 +710,7 @@ class TestAddHash(object):
         """
 
         @attr.s(frozen=frozen, cache_hash=True, hash=True)
-        class C(object):
+        class C:
             x = attr.ib()
 
             def __getstate__(self):
@@ -729,7 +728,7 @@ class TestAddHash(object):
         return pickle.loads(pickle_str)
 
 
-class TestAddInit(object):
+class TestAddInit:
     """
     Tests for `_add_init`.
     """
@@ -802,7 +801,7 @@ class TestAddInit(object):
         If a default value is present, it's used as fallback.
         """
 
-        class C(object):
+        class C:
             __attrs_attrs__ = [
                 simple_attr(name="a", default=2),
                 simple_attr(name="b", default="hallo"),
@@ -820,10 +819,10 @@ class TestAddInit(object):
         If a default factory is present, it's used as fallback.
         """
 
-        class D(object):
+        class D:
             pass
 
-        class C(object):
+        class C:
             __attrs_attrs__ = [
                 simple_attr(name="a", default=Factory(list)),
                 simple_attr(name="b", default=Factory(D)),
@@ -898,7 +897,7 @@ class TestAddInit(object):
         underscores.
         """
 
-        class C(object):
+        class C:
             __attrs_attrs__ = [simple_attr("_private")]
 
         C = _add_init(C, False)
@@ -906,7 +905,7 @@ class TestAddInit(object):
         assert 42 == i._private
 
 
-class TestNothing(object):
+class TestNothing:
     """
     Tests for `_Nothing`.
     """
@@ -942,7 +941,7 @@ class TestNothing(object):
 
 
 @attr.s(hash=True, order=True)
-class C(object):
+class C:
     pass
 
 
@@ -951,7 +950,7 @@ OriginalC = C
 
 
 @attr.s(hash=True, order=True)
-class C(object):
+class C:
     pass
 
 
@@ -959,13 +958,13 @@ CopyC = C
 
 
 @attr.s(hash=True, order=True)
-class C(object):
+class C:
     """A different class, to generate different methods."""
 
     a = attr.ib()
 
 
-class TestFilenames(object):
+class TestFilenames:
     def test_filenames(self):
         """
         The created dunder methods have a "consistent" filename.

@@ -20,7 +20,7 @@ Whether they're relevant to *you* depends on your circumstances:
   There is a long list of features that were sacrificed for the sake of simplicity and while the most obvious ones are validators, converters, :ref:`equality customization <custom-comparison>`, or :doc:`extensibility <extending>` in general, it permeates throughout all APIs.
 
   On the other hand, Data Classes currently do not offer any significant feature that ``attrs`` doesn't already have.
-- ``attrs`` supports all mainstream Python versions, including CPython 2.7 and PyPy.
+- ``attrs`` supports all mainstream Python versions including PyPy.
 - ``attrs`` doesn't force type annotations on you if you don't like them.
 - But since it **also** supports typing, it's the best way to embrace type hints *gradually*, too.
 - While Data Classes are implementing features from ``attrs`` every now and then, their presence is dependent on the Python version, not the package version.
@@ -202,7 +202,7 @@ To bring it into perspective, the equivalent of
 .. doctest::
 
    >>> @attr.s
-   ... class SmartClass(object):
+   ... class SmartClass:
    ...    a = attr.ib()
    ...    b = attr.ib()
    >>> SmartClass(1, 2)
@@ -212,7 +212,7 @@ is roughly
 
 .. doctest::
 
-   >>> class ArtisanalClass(object):
+   >>> class ArtisanalClass:
    ...     def __init__(self, a, b):
    ...         self.a = a
    ...         self.b = b
@@ -272,7 +272,7 @@ You can freely choose which features you want and disable those that you want mo
 .. doctest::
 
    >>> @attr.s(repr=False)
-   ... class SmartClass(object):
+   ... class SmartClass:
    ...    a = attr.ib()
    ...    b = attr.ib()
    ...

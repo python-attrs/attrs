@@ -4,7 +4,6 @@
 End-to-end tests.
 """
 
-from __future__ import absolute_import, division, print_function
 
 import inspect
 import pickle
@@ -12,28 +11,25 @@ import pickle
 from copy import deepcopy
 
 import pytest
-import six
 
-from hypothesis import assume, given
+from hypothesis import given
 from hypothesis.strategies import booleans
 
 import attr
 
-from attr._compat import PY2, PY36, TYPE
+from attr._compat import PY36
 from attr._make import NOTHING, Attribute
 from attr.exceptions import FrozenInstanceError
 
-from .strategies import optional_bool
-
 
 @attr.s
-class C1(object):
+class C1:
     x = attr.ib(validator=attr.validators.instance_of(int))
     y = attr.ib()
 
 
 @attr.s(slots=True)
-class C1Slots(object):
+class C1Slots:
     x = attr.ib(validator=attr.validators.instance_of(int))
     y = attr.ib()
 
@@ -42,19 +38,19 @@ foo = None
 
 
 @attr.s()
-class C2(object):
+class C2:
     x = attr.ib(default=foo)
     y = attr.ib(default=attr.Factory(list))
 
 
 @attr.s(slots=True)
-class C2Slots(object):
+class C2Slots:
     x = attr.ib(default=foo)
     y = attr.ib(default=attr.Factory(list))
 
 
 @attr.s
-class Base(object):
+class Base:
     x = attr.ib()
 
     def meth(self):
@@ -62,7 +58,7 @@ class Base(object):
 
 
 @attr.s(slots=True)
-class BaseSlots(object):
+class BaseSlots:
     x = attr.ib()
 
     def meth(self):
@@ -80,7 +76,7 @@ class SubSlots(BaseSlots):
 
 
 @attr.s(frozen=True, slots=True)
-class Frozen(object):
+class Frozen:
     x = attr.ib()
 
 
@@ -90,7 +86,7 @@ class SubFrozen(Frozen):
 
 
 @attr.s(frozen=True, slots=False)
-class FrozenNoSlots(object):
+class FrozenNoSlots:
     x = attr.ib()
 
 
@@ -99,21 +95,19 @@ class Meta(type):
 
 
 @attr.s
-@six.add_metaclass(Meta)
-class WithMeta(object):
+class WithMeta(metaclass=Meta):
     pass
 
 
 @attr.s(slots=True)
-@six.add_metaclass(Meta)
-class WithMetaSlots(object):
+class WithMetaSlots(metaclass=Meta):
     pass
 
 
 FromMakeClass = attr.make_class("FromMakeClass", ["x"])
 
 
-class TestFunctional(object):
+class TestFunctional:
     """
     Functional tests.
     """
@@ -167,8 +161,7 @@ class TestFunctional(object):
 
         # Using C1 explicitly, since slotted classes don't support this.
         assert (
-            "'x' must be <{type} 'int'> (got '1' that is a <{type} "
-            "'str'>).".format(type=TYPE),
+            "'x' must be <class 'int'> (got '1' that is a <class 'str'>).",
             attr.fields(C1).x,
             int,
             "1",
@@ -181,7 +174,7 @@ class TestFunctional(object):
         """
 
         @attr.s(slots=slots)
-        class C3(object):
+        class C3:
             _x = attr.ib()
 
         assert "C3(_x=1)" == repr(C3(x=1))
@@ -351,7 +344,7 @@ class TestFunctional(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             x = attr.ib(default=1)
             y = attr.ib()
 
@@ -380,7 +373,7 @@ class TestFunctional(object):
         dict-classes are never replaced.
         """
 
-        class C(object):
+        class C:
             x = attr.ib()
 
         C_new = attr.s(C)
@@ -395,7 +388,7 @@ class TestFunctional(object):
         """
 
         @attr.s(hash=False)
-        class HashByIDBackwardCompat(object):
+        class HashByIDBackwardCompat:
             x = attr.ib()
 
         assert hash(HashByIDBackwardCompat(1)) != hash(
@@ -403,13 +396,13 @@ class TestFunctional(object):
         )
 
         @attr.s(hash=False, eq=False)
-        class HashByID(object):
+        class HashByID:
             x = attr.ib()
 
         assert hash(HashByID(1)) != hash(HashByID(1))
 
         @attr.s(hash=True)
-        class HashByValues(object):
+        class HashByValues:
             x = attr.ib()
 
         assert hash(HashByValues(1)) == hash(HashByValues(1))
@@ -420,11 +413,11 @@ class TestFunctional(object):
         """
 
         @attr.s
-        class Unhashable(object):
+        class Unhashable:
             pass
 
         @attr.s
-        class C(object):
+        class C:
             x = attr.ib(default=Unhashable())
 
         @attr.s
@@ -438,7 +431,7 @@ class TestFunctional(object):
         """
 
         @attr.s(hash=False, eq=False, slots=slots)
-        class C(object):
+        class C:
             pass
 
         assert hash(C()) != hash(C())
@@ -450,7 +443,7 @@ class TestFunctional(object):
         """
 
         @attr.s(eq=False, slots=slots)
-        class C(object):
+        class C:
             pass
 
         # Ensure both objects live long enough such that their ids/hashes
@@ -468,7 +461,7 @@ class TestFunctional(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             c = attr.ib(default=100)
             x = attr.ib(default=1)
             b = attr.ib(default=23)
@@ -515,7 +508,7 @@ class TestFunctional(object):
             slots=base_slots,
             weakref_slot=base_weakref_slot,
         )
-        class Base(object):
+        class Base:
             a = attr.ib(converter=int if base_converter else None)
 
         @attr.s(
@@ -542,7 +535,7 @@ class TestFunctional(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             property = attr.ib()
             itemgetter = attr.ib()
             x = attr.ib()
@@ -633,63 +626,33 @@ class TestFunctional(object):
         """
 
         @attr.s(eq=True, order=False, slots=slots, frozen=frozen)
-        class C(object):
+        class C:
             x = attr.ib()
 
-        if not PY2:
-            possible_errors = (
-                "unorderable types: C() < C()",
-                "'<' not supported between instances of 'C' and 'C'",
-                "unorderable types: C < C",  # old PyPy 3
-            )
-
-            with pytest.raises(TypeError) as ei:
-                C(5) < C(6)
-
-            assert ei.value.args[0] in possible_errors
-        else:
-            i = C(42)
-            for m in ("lt", "le", "gt", "ge"):
-                assert None is getattr(i, "__%s__" % (m,), None)
-
-    @given(cmp=optional_bool, eq=optional_bool, order=optional_bool)
-    def test_cmp_deprecated_attribute(self, cmp, eq, order):
-        """
-        Accessing Attribute.cmp raises a deprecation warning but returns True
-        if cmp is True, or eq and order are *both* effectively True.
-        """
-        # These cases are invalid and raise a ValueError.
-        assume(cmp is None or (eq is None and order is None))
-        assume(not (eq is False and order is True))
-
-        if cmp is not None:
-            rv = cmp
-        elif eq is True or eq is None:
-            rv = order is None or order is True
-        elif cmp is None and eq is None and order is None:
-            rv = True
-        elif cmp is None or eq is None:
-            rv = False
-        else:
-            pytest.fail(
-                "Unexpected state: cmp=%r eq=%r order=%r" % (cmp, eq, order)
-            )
-
-        with pytest.deprecated_call() as dc:
-
-            @attr.s
-            class C(object):
-                x = attr.ib(cmp=cmp, eq=eq, order=order)
-
-            assert rv == attr.fields(C).x.cmp
-
-        (w,) = dc.list
-
-        assert (
-            "The usage of `cmp` is deprecated and will be removed on or after "
-            "2021-06-01.  Please use `eq` and `order` instead."
-            == w.message.args[0]
+        possible_errors = (
+            "unorderable types: C() < C()",
+            "'<' not supported between instances of 'C' and 'C'",
+            "unorderable types: C < C",  # old PyPy 3
         )
+
+        with pytest.raises(TypeError) as ei:
+            C(5) < C(6)
+
+        assert ei.value.args[0] in possible_errors
+
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("cmp", [True, False])
+    def test_attrib_cmp_shortcut(self, slots, cmp):
+        """
+        Setting cmp on `attr.ib`s sets both eq and order.
+        """
+
+        @attr.s(slots=slots)
+        class C:
+            x = attr.ib(cmp=cmp)
+
+        assert cmp is attr.fields(C).x.eq
+        assert cmp is attr.fields(C).x.order
 
     @pytest.mark.parametrize("slots", [True, False])
     def test_no_setattr_if_validate_without_validators(self, slots):
@@ -702,7 +665,7 @@ class TestFunctional(object):
         """
 
         @attr.s(on_setattr=attr.setters.validate)
-        class C(object):
+        class C:
             x = attr.ib()
 
         @attr.s(on_setattr=attr.setters.validate)
@@ -724,7 +687,7 @@ class TestFunctional(object):
         """
 
         @attr.s(on_setattr=attr.setters.convert)
-        class C(object):
+        class C:
             x = attr.ib()
 
         @attr.s(on_setattr=attr.setters.convert)
@@ -748,7 +711,7 @@ class TestFunctional(object):
         """
 
         @attr.define
-        class C(object):
+        class C:
             x = attr.ib()
 
         src = inspect.getsource(C.__init__)
@@ -775,7 +738,7 @@ class TestFunctional(object):
         """
 
         @attr.s(on_setattr=attr.setters.validate)
-        class C(object):
+        class C:
             x = attr.ib(validator=42)
 
         @attr.s(on_setattr=attr.setters.validate)

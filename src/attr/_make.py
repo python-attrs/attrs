@@ -1,11 +1,10 @@
 # SPDX-License-Identifier: MIT
 
-from __future__ import absolute_import, division, print_function
-
 import copy
 import linecache
 import sys
-import warnings
+import types
+import typing
 
 from operator import itemgetter
 
@@ -14,14 +13,9 @@ from operator import itemgetter
 from . import _compat, _config, setters
 from ._compat import (
     HAS_F_STRINGS,
-    PY2,
     PY310,
     PYPY,
     _AnnotationExtractor,
-    isclass,
-    iteritems,
-    metadata_proxy,
-    new_class,
     ordered_dict,
     set_closure_cell,
 )
@@ -29,13 +23,8 @@ from .exceptions import (
     DefaultAlreadySetError,
     FrozenInstanceError,
     NotAnAttrsClassError,
-    PythonTooOldError,
     UnannotatedAttributeError,
 )
-
-
-if not PY2:
-    import typing
 
 
 # This is used at least twice, so cache it here.
@@ -56,7 +45,7 @@ _classvar_prefixes = (
 # (when slots=True)
 _hash_cache_field = "_attrs_cached_hash"
 
-_empty_metadata_singleton = metadata_proxy({})
+_empty_metadata_singleton = types.MappingProxyType({})
 
 # Unique object for unequivocal getattr() defaults.
 _sentinel = object()
@@ -64,7 +53,7 @@ _sentinel = object()
 _ng_default_on_setattr = setters.pipe(setters.convert, setters.validate)
 
 
-class _Nothing(object):
+class _Nothing:
     """
     Sentinel class to indicate the lack of a value when ``None`` is ambiguous.
 
@@ -77,7 +66,7 @@ class _Nothing(object):
 
     def __new__(cls):
         if _Nothing._singleton is None:
-            _Nothing._singleton = super(_Nothing, cls).__new__(cls)
+            _Nothing._singleton = super().__new__(cls)
         return _Nothing._singleton
 
     def __repr__(self):
@@ -85,9 +74,6 @@ class _Nothing(object):
 
     def __bool__(self):
         return False
-
-    def __len__(self):
-        return 0  # __bool__ for Python 2
 
 
 NOTHING = _Nothing()
@@ -108,17 +94,8 @@ class _CacheHashWrapper(int):
     See GH #613 for more details.
     """
 
-    if PY2:
-        # For some reason `type(None)` isn't callable in Python 2, but we don't
-        # actually need a constructor for None objects, we just need any
-        # available function that returns None.
-        def __reduce__(self, _none_constructor=getattr, _args=(0, "", None)):
-            return _none_constructor, _args
-
-    else:
-
-        def __reduce__(self, _none_constructor=type(None), _args=()):
-            return _none_constructor, _args
+    def __reduce__(self, _none_constructor=type(None), _args=()):
+        return _none_constructor, _args
 
 
 def attrib(
@@ -524,7 +501,7 @@ def _transform_attrs(
     anns = _get_annotations(cls)
 
     if these is not None:
-        ca_list = [(name, ca) for name, ca in iteritems(these)]
+        ca_list = [(name, ca) for name, ca in these.items()]
 
         if not isinstance(these, ordered_dict):
             ca_list.sort(key=_counter_getter)
@@ -647,7 +624,7 @@ def _frozen_delattrs(self, name):
     raise FrozenInstanceError()
 
 
-class _ClassBuilder(object):
+class _ClassBuilder:
     """
     Iteratively build *one* class.
     """
@@ -701,7 +678,7 @@ class _ClassBuilder(object):
         self._cls = cls
         self._cls_dict = dict(cls.__dict__) if slots else {}
         self._attrs = attrs
-        self._base_names = set(a.name for a in base_attrs)
+        self._base_names = {a.name for a in base_attrs}
         self._base_attr_map = base_map
         self._attr_names = tuple(a.name for a in attrs)
         self._slots = slots
@@ -815,7 +792,7 @@ class _ClassBuilder(object):
         """
         cd = {
             k: v
-            for k, v in iteritems(self._cls_dict)
+            for k, v in self._cls_dict.items()
             if k not in tuple(self._attr_names) + ("__dict__", "__weakref__")
         }
 
@@ -870,7 +847,7 @@ class _ClassBuilder(object):
         # we collect them here and update the class dict
         reused_slots = {
             slot: slot_descriptor
-            for slot, slot_descriptor in iteritems(existing_slots)
+            for slot, slot_descriptor in existing_slots.items()
             if slot in slot_names
         }
         slot_names = [name for name in slot_names if name not in reused_slots]
@@ -879,9 +856,7 @@ class _ClassBuilder(object):
             slot_names.append(_hash_cache_field)
         cd["__slots__"] = tuple(slot_names)
 
-        qualname = getattr(self._cls, "__qualname__", None)
-        if qualname is not None:
-            cd["__qualname__"] = qualname
+        cd["__qualname__"] = self._cls.__qualname__
 
         # Create new class based on old class and our methods.
         cls = type(self._cls)(self._cls.__name__, self._cls.__bases__, cd)
@@ -1113,12 +1088,6 @@ class _ClassBuilder(object):
         return method
 
 
-_CMP_DEPRECATION = (
-    "The usage of `cmp` is deprecated and will be removed on or after "
-    "2021-06-01.  Please use `eq` and `order` instead."
-)
-
-
 def _determine_attrs_eq_order(cmp, eq, order, default_eq):
     """
     Validate the combination of *cmp*, *eq*, and *order*. Derive the effective
@@ -1197,8 +1166,6 @@ def _determine_whether_to_implement(
     whose presence signal that the user has implemented it themselves.
 
     Return *default* if no reason for either for or against is found.
-
-    auto_detect must be False on Python 2.
     """
     if flag is True or flag is False:
         return flag
@@ -1495,11 +1462,6 @@ def attrs(
     .. versionchanged:: 21.1.0 *cmp* undeprecated
     .. versionadded:: 21.3.0 *match_args*
     """
-    if auto_detect and PY2:
-        raise PythonTooOldError(
-            "auto_detect only works on Python 3 and later."
-        )
-
     eq_, order_ = _determine_attrs_eq_order(cmp, eq, order, None)
     hash_ = hash  # work around the lack of nonlocal
 
@@ -1507,10 +1469,6 @@ def attrs(
         on_setattr = setters.pipe(*on_setattr)
 
     def wrap(cls):
-
-        if getattr(cls, "__class__", None) is None:
-            raise TypeError("attrs only works with new-style classes.")
-
         is_frozen = frozen or _has_frozen_base_class(cls)
         is_exc = auto_exc is True and issubclass(cls, BaseException)
         has_own_setattr = auto_detect and _has_own_attribute(
@@ -1634,34 +1592,19 @@ Internal alias so we can use it in functions that take an argument called
 """
 
 
-if PY2:
-
-    def _has_frozen_base_class(cls):
-        """
-        Check whether *cls* has a frozen ancestor by looking at its
-        __setattr__.
-        """
-        return (
-            getattr(cls.__setattr__, "__module__", None)
-            == _frozen_setattrs.__module__
-            and cls.__setattr__.__name__ == _frozen_setattrs.__name__
-        )
-
-else:
-
-    def _has_frozen_base_class(cls):
-        """
-        Check whether *cls* has a frozen ancestor by looking at its
-        __setattr__.
-        """
-        return cls.__setattr__ == _frozen_setattrs
+def _has_frozen_base_class(cls):
+    """
+    Check whether *cls* has a frozen ancestor by looking at its
+    __setattr__.
+    """
+    return cls.__setattr__ is _frozen_setattrs
 
 
 def _generate_unique_filename(cls, func_name):
     """
     Create a "filename" suitable for a function being generated.
     """
-    unique_filename = "<attrs generated {0} {1}.{2}>".format(
+    unique_filename = "<attrs generated {} {}.{}>".format(
         func_name,
         cls.__module__,
         getattr(cls, "__qualname__", cls.__name__),
@@ -1687,8 +1630,7 @@ def _make_hash(cls, attrs, frozen, cache_hash):
     if not cache_hash:
         hash_def += "):"
     else:
-        if not PY2:
-            hash_def += ", *"
+        hash_def += ", *"
 
         hash_def += (
             ", _cache_wrapper="
@@ -1987,15 +1929,7 @@ else:
                 return "..."
             real_cls = self.__class__
             if ns is None:
-                qualname = getattr(real_cls, "__qualname__", None)
-                if qualname is not None:  # pragma: no cover
-                    # This case only happens on Python 3.5 and 3.6. We exclude
-                    # it from coverage, because we don't want to slow down our
-                    # test suite by running them under coverage too for this
-                    # one line.
-                    class_name = qualname.rsplit(">.", 1)[-1]
-                else:
-                    class_name = real_cls.__name__
+                class_name = real_cls.__qualname__.rsplit(">.", 1)[-1]
             else:
                 class_name = ns + "." + real_cls.__name__
 
@@ -2051,7 +1985,7 @@ def fields(cls):
     ..  versionchanged:: 16.2.0 Returned tuple allows accessing the fields
         by name.
     """
-    if not isclass(cls):
+    if not isinstance(cls, type):
         raise TypeError("Passed object must be a class.")
     attrs = getattr(cls, "__attrs_attrs__", None)
     if attrs is None:
@@ -2079,14 +2013,14 @@ def fields_dict(cls):
 
     .. versionadded:: 18.1.0
     """
-    if not isclass(cls):
+    if not isinstance(cls, type):
         raise TypeError("Passed object must be a class.")
     attrs = getattr(cls, "__attrs_attrs__", None)
     if attrs is None:
         raise NotAnAttrsClassError(
             "{cls!r} is not an attrs-decorated class.".format(cls=cls)
         )
-    return ordered_dict(((a.name, a) for a in attrs))
+    return ordered_dict((a.name, a) for a in attrs)
 
 
 def validate(inst):
@@ -2234,63 +2168,6 @@ def _assign_with_converter(attr_name, value_var, has_on_setattr):
         _init_converter_pat % (attr_name,),
         value_var,
     )
-
-
-if PY2:
-
-    def _unpack_kw_only_py2(attr_name, default=None):
-        """
-        Unpack *attr_name* from _kw_only dict.
-        """
-        if default is not None:
-            arg_default = ", %s" % default
-        else:
-            arg_default = ""
-        return "%s = _kw_only.pop('%s'%s)" % (
-            attr_name,
-            attr_name,
-            arg_default,
-        )
-
-    def _unpack_kw_only_lines_py2(kw_only_args):
-        """
-        Unpack all *kw_only_args* from _kw_only dict and handle errors.
-
-        Given a list of strings "{attr_name}" and "{attr_name}={default}"
-        generates list of lines of code that pop attrs from _kw_only dict and
-        raise TypeError similar to builtin if required attr is missing or
-        extra key is passed.
-
-        >>> print("\n".join(_unpack_kw_only_lines_py2(["a", "b=42"])))
-        try:
-            a = _kw_only.pop('a')
-            b = _kw_only.pop('b', 42)
-        except KeyError as _key_error:
-            raise TypeError(
-                ...
-        if _kw_only:
-            raise TypeError(
-                ...
-        """
-        lines = ["try:"]
-        lines.extend(
-            "    " + _unpack_kw_only_py2(*arg.split("="))
-            for arg in kw_only_args
-        )
-        lines += """\
-except KeyError as _key_error:
-    raise TypeError(
-        '__init__() missing required keyword-only argument: %s' % _key_error
-    )
-if _kw_only:
-    raise TypeError(
-        '__init__() got an unexpected keyword argument %r'
-        % next(iter(_kw_only))
-    )
-""".split(
-            "\n"
-        )
-        return lines
 
 
 def _attrs_to_init_script(
@@ -2548,15 +2425,10 @@ def _attrs_to_init_script(
 
     args = ", ".join(args)
     if kw_only_args:
-        if PY2:
-            lines = _unpack_kw_only_lines_py2(kw_only_args) + lines
-
-            args += "%s**_kw_only" % (", " if args else "",)  # leading comma
-        else:
-            args += "%s*, %s" % (
-                ", " if args else "",  # leading comma
-                ", ".join(kw_only_args),  # kw_only args
-            )
+        args += "%s*, %s" % (
+            ", " if args else "",  # leading comma
+            ", ".join(kw_only_args),  # kw_only args
+        )
     return (
         """\
 def {init_name}(self, {args}):
@@ -2571,7 +2443,7 @@ def {init_name}(self, {args}):
     )
 
 
-class Attribute(object):
+class Attribute:
     """
     *Read-only* representation of an attribute.
 
@@ -2667,7 +2539,7 @@ class Attribute(object):
         bound_setattr(
             "metadata",
             (
-                metadata_proxy(metadata)
+                types.MappingProxyType(dict(metadata))  # Shallow copy
                 if metadata
                 else _empty_metadata_singleton
             ),
@@ -2711,15 +2583,6 @@ class Attribute(object):
             **inst_dict
         )
 
-    @property
-    def cmp(self):
-        """
-        Simulate the presence of a cmp attribute and warn.
-        """
-        warnings.warn(_CMP_DEPRECATION, DeprecationWarning, stacklevel=2)
-
-        return self.eq and self.order
-
     # Don't use attr.evolve since fields(Attribute) doesn't work
     def evolve(self, **changes):
         """
@@ -2762,7 +2625,7 @@ class Attribute(object):
             else:
                 bound_setattr(
                     name,
-                    metadata_proxy(value)
+                    types.MappingProxyType(dict(value))
                     if value
                     else _empty_metadata_singleton,
                 )
@@ -2793,7 +2656,7 @@ Attribute = _add_hash(
 )
 
 
-class _CountingAttr(object):
+class _CountingAttr:
     """
     Intermediate representation of attributes that uses a counter to preserve
     the order in which the attributes have been defined.
@@ -2936,7 +2799,7 @@ class _CountingAttr(object):
 _CountingAttr = _add_eq(_add_repr(_CountingAttr))
 
 
-class Factory(object):
+class Factory:
     """
     Stores a factory callable.
 
@@ -3022,7 +2885,7 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
     if isinstance(attrs, dict):
         cls_dict = attrs
     elif isinstance(attrs, (list, tuple)):
-        cls_dict = dict((a, attrib()) for a in attrs)
+        cls_dict = {a: attrib() for a in attrs}
     else:
         raise TypeError("attrs argument must be a dict or a list.")
 
@@ -3038,7 +2901,7 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
     if user_init is not None:
         body["__init__"] = user_init
 
-    type_ = new_class(name, bases, {}, lambda ns: ns.update(body))
+    type_ = types.new_class(name, bases, {}, lambda ns: ns.update(body))
 
     # For pickling to work, the __module__ variable needs to be set to the
     # frame where the class is created.  Bypass this step in environments where
@@ -3071,7 +2934,7 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
 
 
 @attrs(slots=True, hash=True)
-class _AndValidator(object):
+class _AndValidator:
     """
     Compose many validators to a single one.
     """
@@ -3126,10 +2989,9 @@ def pipe(*converters):
         return val
 
     if not converters:
-        if not PY2:
-            # If the converter list is empty, pipe_converter is the identity.
-            A = typing.TypeVar("A")
-            pipe_converter.__annotations__ = {"val": A, "return": A}
+        # If the converter list is empty, pipe_converter is the identity.
+        A = typing.TypeVar("A")
+        pipe_converter.__annotations__ = {"val": A, "return": A}
     else:
         # Get parameter type from first converter.
         t = _AnnotationExtractor(converters[0]).get_first_param_type()

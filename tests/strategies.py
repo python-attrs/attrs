@@ -28,8 +28,7 @@ def gen_attr_names():
     Some short strings (such as 'as') are keywords, so we skip them.
     """
     lc = string.ascii_lowercase
-    for c in lc:
-        yield c
+    yield from lc
     for outer in lc:
         for inner in lc:
             res = outer + inner

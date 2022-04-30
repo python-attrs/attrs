@@ -4,7 +4,6 @@
 Tests for `attr.validators`.
 """
 
-from __future__ import absolute_import, division, print_function
 
 import re
 
@@ -14,7 +13,6 @@ import attr
 
 from attr import _config, fields, has
 from attr import validators as validator_module
-from attr._compat import PY2, TYPE
 from attr.validators import (
     and_,
     deep_iterable,
@@ -49,7 +47,7 @@ def zope_interface():
     return zope.interface
 
 
-class TestDisableValidators(object):
+class TestDisableValidators:
     @pytest.fixture(autouse=True)
     def reset_default(self):
         """
@@ -109,7 +107,7 @@ class TestDisableValidators(object):
         assert _config._run_validators is True
 
 
-class TestInstanceOf(object):
+class TestInstanceOf:
     """
     Tests for `instance_of`.
     """
@@ -144,8 +142,7 @@ class TestInstanceOf(object):
         with pytest.raises(TypeError) as e:
             v(None, a, "42")
         assert (
-            "'test' must be <{type} 'int'> (got '42' that is a <{type} "
-            "'str'>).".format(type=TYPE),
+            "'test' must be <class 'int'> (got '42' that is a <class 'str'>).",
             a,
             int,
             "42",
@@ -156,12 +153,10 @@ class TestInstanceOf(object):
         Returned validator has a useful `__repr__`.
         """
         v = instance_of(int)
-        assert (
-            "<instance_of validator for type <{type} 'int'>>".format(type=TYPE)
-        ) == repr(v)
+        assert ("<instance_of validator for type <class 'int'>>") == repr(v)
 
 
-class TestMatchesRe(object):
+class TestMatchesRe:
     """
     Tests for `matches_re`.
     """
@@ -178,7 +173,7 @@ class TestMatchesRe(object):
         """
 
         @attr.s
-        class ReTester(object):
+        class ReTester:
             str_match = attr.ib(validator=matches_re("a|ab"))
 
         ReTester("ab")  # shouldn't raise exceptions
@@ -195,7 +190,7 @@ class TestMatchesRe(object):
         """
 
         @attr.s
-        class MatchTester(object):
+        class MatchTester:
             val = attr.ib(validator=matches_re("a", re.IGNORECASE, re.match))
 
         MatchTester("A1")  # test flags and using re.match
@@ -207,7 +202,7 @@ class TestMatchesRe(object):
         pattern = re.compile("a")
 
         @attr.s
-        class RePatternTester(object):
+        class RePatternTester:
             val = attr.ib(validator=matches_re(pattern))
 
         RePatternTester("a")
@@ -229,7 +224,7 @@ class TestMatchesRe(object):
         """
 
         @attr.s
-        class SearchTester(object):
+        class SearchTester:
             val = attr.ib(validator=matches_re("a", 0, re.search))
 
         SearchTester("bab")  # re.search will match
@@ -241,16 +236,10 @@ class TestMatchesRe(object):
         with pytest.raises(ValueError) as ei:
             matches_re("a", 0, lambda: None)
 
-        if not PY2:
-            assert (
-                "'func' must be one of None, fullmatch, match, search."
-                == ei.value.args[0]
-            )
-        else:
-            assert (
-                "'func' must be one of None, match, search."
-                == ei.value.args[0]
-            )
+        assert (
+            "'func' must be one of None, fullmatch, match, search."
+            == ei.value.args[0]
+        )
 
     @pytest.mark.parametrize(
         "func", [None, getattr(re, "fullmatch", None), re.match, re.search]
@@ -283,7 +272,7 @@ def always_fail(_, __, ___):
     0 / 0
 
 
-class TestAnd(object):
+class TestAnd:
     def test_in_all(self):
         """
         Verify that this validator is in ``__all__``.
@@ -313,7 +302,7 @@ class TestAnd(object):
         """
 
         @attr.s
-        class C(object):
+        class C:
             a1 = attr.ib("a1", validator=and_(instance_of(int)))
             a2 = attr.ib("a2", validator=[instance_of(int)])
 
@@ -337,7 +326,7 @@ def ifoo(zope_interface):
     return IFoo
 
 
-class TestProvides(object):
+class TestProvides:
     """
     Tests for `provides`.
     """
@@ -354,7 +343,7 @@ class TestProvides(object):
         """
 
         @zope_interface.implementer(ifoo)
-        class C(object):
+        class C:
             def f(self):
                 pass
 
@@ -395,7 +384,7 @@ class TestProvides(object):
 @pytest.mark.parametrize(
     "validator", [instance_of(int), [always_pass, instance_of(int)]]
 )
-class TestOptional(object):
+class TestOptional:
     """
     Tests for `optional`.
     """
@@ -429,8 +418,7 @@ class TestOptional(object):
         with pytest.raises(TypeError) as e:
             v(None, a, "42")
         assert (
-            "'test' must be <{type} 'int'> (got '42' that is a <{type} "
-            "'str'>).".format(type=TYPE),
+            "'test' must be <class 'int'> (got '42' that is a <class 'str'>).",
             a,
             int,
             "42",
@@ -445,18 +433,18 @@ class TestOptional(object):
         if isinstance(validator, list):
             repr_s = (
                 "<optional validator for _AndValidator(_validators=[{func}, "
-                "<instance_of validator for type <{type} 'int'>>]) or None>"
-            ).format(func=repr(always_pass), type=TYPE)
+                "<instance_of validator for type <class 'int'>>]) or None>"
+            ).format(func=repr(always_pass))
         else:
             repr_s = (
                 "<optional validator for <instance_of validator for type "
-                "<{type} 'int'>> or None>"
-            ).format(type=TYPE)
+                "<class 'int'>> or None>"
+            )
 
         assert repr_s == repr(v)
 
 
-class TestIn_(object):
+class TestIn_:
     """
     Tests for `in_`.
     """
@@ -501,10 +489,26 @@ class TestIn_(object):
         Returned validator has a useful `__repr__`.
         """
         v = in_([3, 4, 5])
-        assert (("<in_ validator with options [3, 4, 5]>")) == repr(v)
+        assert ("<in_ validator with options [3, 4, 5]>") == repr(v)
 
 
-class TestDeepIterable(object):
+@pytest.fixture(
+    name="member_validator",
+    params=(
+        instance_of(int),
+        [always_pass, instance_of(int)],
+        (always_pass, instance_of(int)),
+    ),
+    scope="module",
+)
+def _member_validator(request):
+    """
+    Provides sample `member_validator`s for some tests in `TestDeepIterable`
+    """
+    return request.param
+
+
+class TestDeepIterable:
     """
     Tests for `deep_iterable`.
     """
@@ -515,21 +519,19 @@ class TestDeepIterable(object):
         """
         assert deep_iterable.__name__ in validator_module.__all__
 
-    def test_success_member_only(self):
+    def test_success_member_only(self, member_validator):
         """
         If the member validator succeeds and the iterable validator is not set,
         nothing happens.
         """
-        member_validator = instance_of(int)
         v = deep_iterable(member_validator)
         a = simple_attr("test")
         v(None, a, [42])
 
-    def test_success_member_and_iterable(self):
+    def test_success_member_and_iterable(self, member_validator):
         """
         If both the member and iterable validators succeed, nothing happens.
         """
-        member_validator = instance_of(int)
         iterable_validator = instance_of(list)
         v = deep_iterable(member_validator, iterable_validator)
         a = simple_attr("test")
@@ -542,6 +544,8 @@ class TestDeepIterable(object):
             (42, instance_of(list)),
             (42, 42),
             (42, None),
+            ([instance_of(int), 42], 42),
+            ([42, instance_of(int)], 42),
         ),
     )
     def test_noncallable_validators(
@@ -562,17 +566,16 @@ class TestDeepIterable(object):
         assert message in e.value.msg
         assert value == e.value.value
 
-    def test_fail_invalid_member(self):
+    def test_fail_invalid_member(self, member_validator):
         """
         Raise member validator error if an invalid member is found.
         """
-        member_validator = instance_of(int)
         v = deep_iterable(member_validator)
         a = simple_attr("test")
         with pytest.raises(TypeError):
             v(None, a, [42, "42"])
 
-    def test_fail_invalid_iterable(self):
+    def test_fail_invalid_iterable(self, member_validator):
         """
         Raise iterable validator error if an invalid iterable is found.
         """
@@ -583,12 +586,11 @@ class TestDeepIterable(object):
         with pytest.raises(TypeError):
             v(None, a, [42])
 
-    def test_fail_invalid_member_and_iterable(self):
+    def test_fail_invalid_member_and_iterable(self, member_validator):
         """
         Raise iterable validator error if both the iterable
         and a member are invalid.
         """
-        member_validator = instance_of(int)
         iterable_validator = instance_of(tuple)
         v = deep_iterable(member_validator, iterable_validator)
         a = simple_attr("test")
@@ -601,14 +603,29 @@ class TestDeepIterable(object):
         when only member validator is set.
         """
         member_validator = instance_of(int)
-        member_repr = "<instance_of validator for type <{type} 'int'>>".format(
-            type=TYPE
-        )
+        member_repr = "<instance_of validator for type <class 'int'>>"
         v = deep_iterable(member_validator)
         expected_repr = (
             "<deep_iterable validator for iterables of {member_repr}>"
         ).format(member_repr=member_repr)
-        assert ((expected_repr)) == repr(v)
+        assert expected_repr == repr(v)
+
+    def test_repr_member_only_sequence(self):
+        """
+        Returned validator has a useful `__repr__`
+        when only member validator is set and the member validator is a list of
+        validators
+        """
+        member_validator = [always_pass, instance_of(int)]
+        member_repr = (
+            "_AndValidator(_validators=({func}, "
+            "<instance_of validator for type <class 'int'>>))"
+        ).format(func=repr(always_pass))
+        v = deep_iterable(member_validator)
+        expected_repr = (
+            "<deep_iterable validator for iterables of {member_repr}>"
+        ).format(member_repr=member_repr)
+        assert expected_repr == repr(v)
 
     def test_repr_member_and_iterable(self):
         """
@@ -616,13 +633,9 @@ class TestDeepIterable(object):
         and iterable validators are set.
         """
         member_validator = instance_of(int)
-        member_repr = "<instance_of validator for type <{type} 'int'>>".format(
-            type=TYPE
-        )
+        member_repr = "<instance_of validator for type <class 'int'>>"
         iterable_validator = instance_of(list)
-        iterable_repr = (
-            "<instance_of validator for type <{type} 'list'>>"
-        ).format(type=TYPE)
+        iterable_repr = "<instance_of validator for type <class 'list'>>"
         v = deep_iterable(member_validator, iterable_validator)
         expected_repr = (
             "<deep_iterable validator for"
@@ -630,8 +643,29 @@ class TestDeepIterable(object):
         ).format(iterable_repr=iterable_repr, member_repr=member_repr)
         assert expected_repr == repr(v)
 
+    def test_repr_sequence_member_and_iterable(self):
+        """
+        Returned validator has a useful `__repr__` when both member
+        and iterable validators are set and the member validator is a list of
+        validators
+        """
+        member_validator = [always_pass, instance_of(int)]
+        member_repr = (
+            "_AndValidator(_validators=({func}, "
+            "<instance_of validator for type <class 'int'>>))"
+        ).format(func=repr(always_pass))
+        iterable_validator = instance_of(list)
+        iterable_repr = "<instance_of validator for type <class 'list'>>"
+        v = deep_iterable(member_validator, iterable_validator)
+        expected_repr = (
+            "<deep_iterable validator for"
+            " {iterable_repr} iterables of {member_repr}>"
+        ).format(iterable_repr=iterable_repr, member_repr=member_repr)
 
-class TestDeepMapping(object):
+        assert expected_repr == repr(v)
+
+
+class TestDeepMapping:
     """
     Tests for `deep_mapping`.
     """
@@ -720,13 +754,9 @@ class TestDeepMapping(object):
         Returned validator has a useful `__repr__`.
         """
         key_validator = instance_of(str)
-        key_repr = "<instance_of validator for type <{type} 'str'>>".format(
-            type=TYPE
-        )
+        key_repr = "<instance_of validator for type <class 'str'>>"
         value_validator = instance_of(int)
-        value_repr = "<instance_of validator for type <{type} 'int'>>".format(
-            type=TYPE
-        )
+        value_repr = "<instance_of validator for type <class 'int'>>"
         v = deep_mapping(key_validator, value_validator)
         expected_repr = (
             "<deep_mapping validator for objects mapping "
@@ -735,7 +765,7 @@ class TestDeepMapping(object):
         assert expected_repr == repr(v)
 
 
-class TestIsCallable(object):
+class TestIsCallable:
     """
     Tests for `is_callable`.
     """
@@ -804,7 +834,7 @@ def test_hashability():
 
 class TestLtLeGeGt:
     """
-    Tests for `max_len`.
+    Tests for `Lt, Le, Ge, Gt`.
     """
 
     BOUND = 4
@@ -825,7 +855,7 @@ class TestLtLeGeGt:
         """
 
         @attr.s
-        class Tester(object):
+        class Tester:
             value = attr.ib(validator=v(self.BOUND))
 
         assert fields(Tester).value.validator.bound == self.BOUND
@@ -845,7 +875,7 @@ class TestLtLeGeGt:
         """Silent if value {op} bound."""
 
         @attr.s
-        class Tester(object):
+        class Tester:
             value = attr.ib(validator=v(self.BOUND))
 
         Tester(value)  # shouldn't raise exceptions
@@ -863,7 +893,7 @@ class TestLtLeGeGt:
         """Raise ValueError if value {op} bound."""
 
         @attr.s
-        class Tester(object):
+        class Tester:
             value = attr.ib(validator=v(self.BOUND))
 
         with pytest.raises(ValueError):
@@ -899,7 +929,7 @@ class TestMaxLen:
         """
 
         @attr.s
-        class Tester(object):
+        class Tester:
             value = attr.ib(validator=max_len(self.MAX_LENGTH))
 
         assert fields(Tester).value.validator.max_length == self.MAX_LENGTH
@@ -922,7 +952,7 @@ class TestMaxLen:
         """
 
         @attr.s
-        class Tester(object):
+        class Tester:
             value = attr.ib(validator=max_len(self.MAX_LENGTH))
 
         Tester(value)  # shouldn't raise exceptions
@@ -940,7 +970,7 @@ class TestMaxLen:
         """
 
         @attr.s
-        class Tester(object):
+        class Tester:
             value = attr.ib(validator=max_len(self.MAX_LENGTH))
 
         with pytest.raises(ValueError):
@@ -972,7 +1002,7 @@ class TestMinLen:
         """
 
         @attr.s
-        class Tester(object):
+        class Tester:
             value = attr.ib(validator=min_len(self.MIN_LENGTH))
 
         assert fields(Tester).value.validator.min_length == self.MIN_LENGTH
@@ -993,7 +1023,7 @@ class TestMinLen:
         """
 
         @attr.s
-        class Tester(object):
+        class Tester:
             value = attr.ib(validator=min_len(self.MIN_LENGTH))
 
         Tester(value)  # shouldn't raise exceptions
@@ -1011,7 +1041,7 @@ class TestMinLen:
         """
 
         @attr.s
-        class Tester(object):
+        class Tester:
             value = attr.ib(validator=min_len(self.MIN_LENGTH))
 
         with pytest.raises(ValueError):

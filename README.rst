@@ -15,6 +15,9 @@
       <a href="https://pypi.org/project/attrs/">
          <img src="https://img.shields.io/pypi/v/attrs" />
       </a>
+      <a href="https://pepy.tech/project/attrs">
+         <img src="https://static.pepy.tech/personalized-badge/attrs?period=month&units=international_system&left_color=grey&right_color=blue&left_text=Downloads%20/%20Month" alt="Downloads per month" />
+      </a>
    </p>
 
 .. teaser-begin
@@ -117,7 +120,8 @@ Project Information
 its documentation lives at `Read the Docs <https://www.attrs.org/>`_,
 the code on `GitHub <https://github.com/python-attrs/attrs>`_,
 and the latest release on `PyPI <https://pypi.org/project/attrs/>`_.
-It’s rigorously tested on Python 2.7, 3.5+, and PyPy.
+It’s rigorously tested on Python 3.5+ and PyPy.
+The last version with Python 2.7 support is `21.4.0 <https://pypi.org/project/attrs/21.4.0/>`_.
 
 We collect information on **third-party extensions** in our `wiki <https://github.com/python-attrs/attrs/wiki/Extensions-to-attrs>`_.
 Feel free to browse and add your own!

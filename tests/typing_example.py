@@ -403,6 +403,7 @@ def accessing_from_attr() -> None:
     attr.filters.include
     attr.setters.frozen
     attr.validators.and_
+    attr.cmp_using
 
 
 def accessing_from_attrs() -> None:
@@ -414,3 +415,4 @@ def accessing_from_attrs() -> None:
     attrs.filters.include
     attrs.setters.frozen
     attrs.validators.and_
+    attrs.cmp_using
