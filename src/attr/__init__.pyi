@@ -3,6 +3,7 @@ import sys
 from typing import (
     Any,
     Callable,
+    ClassVar,
     Dict,
     Generic,
     List,
@@ -59,8 +60,8 @@ _FieldTransformer = Callable[
 _ValidatorArgType = Union[_ValidatorType[_T], Sequence[_ValidatorType[_T]]]
 
 # A protocol to be able to statically accept an attrs class.
-class AttrsClass(Protocol[_T]):
-    __attrs_attrs__: _T
+class AttrsInstance(Protocol):
+    __attrs_attrs__: ClassVar[Any]
 
 # _make --
 
@@ -404,9 +405,9 @@ def define(
 mutable = define
 frozen = define  # they differ only in their defaults
 
-def fields(cls: type[AttrsClass[_T]]) -> _T: ...
-def fields_dict(cls: type) -> Dict[str, Attribute[Any]]: ...
-def validate(inst: Any) -> None: ...
+def fields(cls: Type[AttrsInstance]) -> Tuple: ...
+def fields_dict(cls: Type[AttrsInstance]) -> Dict[str, Attribute[Any]]: ...
+def validate(inst: AttrsInstance) -> None: ...
 def resolve_types(
     cls: _C,
     globalns: Optional[Dict[str, Any]] = ...,
@@ -450,7 +451,7 @@ def make_class(
 # https://github.com/python/typing/issues/253
 # XXX: remember to fix attrs.asdict/astuple too!
 def asdict(
-    inst: Any,
+    inst: AttrsInstance,
     recurse: bool = ...,
     filter: Optional[_FilterType[Any]] = ...,
     dict_factory: Type[Mapping[Any, Any]] = ...,
@@ -463,7 +464,7 @@ def asdict(
 
 # TODO: add support for returning NamedTuple from the mypy plugin
 def astuple(
-    inst: Any,
+    inst: AttrsInstance,
     recurse: bool = ...,
     filter: Optional[_FilterType[Any]] = ...,
     tuple_factory: Type[Sequence[Any]] = ...,
