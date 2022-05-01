@@ -24,8 +24,8 @@ from . import exceptions as exceptions
 from . import filters as filters
 from . import setters as setters
 from . import validators as validators
-from ._version_info import VersionInfo
 from ._cmp import cmp_using as cmp_using
+from ._version_info import VersionInfo
 
 __version__: str
 __version_info__: VersionInfo
@@ -405,7 +405,7 @@ def define(
 mutable = define
 frozen = define  # they differ only in their defaults
 
-def fields(cls: Type[AttrsInstance]) -> Tuple: ...
+def fields(cls: Type[AttrsInstance]) -> Any: ...
 def fields_dict(cls: Type[AttrsInstance]) -> Dict[str, Attribute[Any]]: ...
 def validate(inst: AttrsInstance) -> None: ...
 def resolve_types(
