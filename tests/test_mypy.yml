@@ -468,9 +468,9 @@
             return self.x  # E: Incompatible return value type (got "List[T]", expected "T")
     reveal_type(A) # N: Revealed type is "def [T] (x: builtins.list[T`1], y: T`1) -> main.A[T`1]"
     a = A([1], 2)
-    reveal_type(a)  # N: Revealed type is "main.A[builtins.int*]"
-    reveal_type(a.x)  # N: Revealed type is "builtins.list[builtins.int*]"
-    reveal_type(a.y)  # N: Revealed type is "builtins.int*"
+    reveal_type(a)  # N: Revealed type is "main.A[builtins.int]"
+    reveal_type(a.x)  # N: Revealed type is "builtins.list[builtins.int]"
+    reveal_type(a.y)  # N: Revealed type is "builtins.int"
 
     A(['str'], 7)  # E: Cannot infer type argument 1 of "A"
     A([1], '2')  # E: Cannot infer type argument 1 of "A"
@@ -512,12 +512,12 @@
         pass
 
     sub_int = Sub[int](attr=1)
-    reveal_type(sub_int)  # N: Revealed type is "main.Sub[builtins.int*]"
-    reveal_type(sub_int.attr)  # N: Revealed type is "builtins.int*"
+    reveal_type(sub_int)  # N: Revealed type is "main.Sub[builtins.int]"
+    reveal_type(sub_int.attr)  # N: Revealed type is "builtins.int"
 
     sub_str = Sub[str](attr='ok')
-    reveal_type(sub_str)  # N: Revealed type is "main.Sub[builtins.str*]"
-    reveal_type(sub_str.attr)  # N: Revealed type is "builtins.str*"
+    reveal_type(sub_str)  # N: Revealed type is "main.Sub[builtins.str]"
+    reveal_type(sub_str.attr)  # N: Revealed type is "builtins.str"
 
 - case: testAttrsGenericInheritance2
   main: |
@@ -1361,7 +1361,7 @@
       a: int
       b: str
 
-    reveal_type(fields(A))  # N: Revealed type is "builtins.tuple[Any, ...]"
+    reveal_type(fields(A))  # N: Revealed type is "Any"
 
 - case: testFieldsError
   main: |
