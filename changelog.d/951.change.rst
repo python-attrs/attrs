@@ -1,4 +1,0 @@
-validators._in() now includes the default argument
-"verbose_value_error=False". If set to True, the
-ValueError raised in _InValidator includes the attribute,
-options and value in addition to the error message.
