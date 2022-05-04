@@ -9,7 +9,7 @@ If you're confused by the many names, please check out `names` for clarification
 
 What follows is the API explanation, if you'd like a more hands-on introduction, have a look at `examples`.
 
-As of version 21.3.0, ``attrs`` consists of **two** to-level package names:
+As of version 21.3.0, ``attrs`` consists of **two** top-level package names:
 
 - The classic ``attr`` that powered the venerable `attr.s` and `attr.ib`
 - The modern ``attrs`` that only contains most modern APIs and relies on `attrs.define` and `attrs.field` to define your classes.
