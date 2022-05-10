@@ -146,6 +146,8 @@ The method has to accept three arguments:
 #. the *attribute* that it's validating, and finally
 #. the *value* that is passed for it.
 
+These values are passed as *positional arguments*, therefore their names don't matter.
+
 If the value does not pass the validator's standards, it just raises an appropriate exception.
 
    >>> @define
@@ -171,6 +173,7 @@ Callables
 If you want to re-use your validators, you should have a look at the ``validator`` argument to `attrs.field`.
 
 It takes either a callable or a list of callables (usually functions) and treats them as validators that receive the same arguments as with the decorator approach.
+Also as with the decorator approach, they are passed as *positional arguments* so you can name them however you want.
 
 Since the validators run *after* the instance is initialized, you can refer to other attributes while validating:
 
