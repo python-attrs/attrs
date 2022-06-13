@@ -330,11 +330,9 @@ def in_(options, verbose_value_error=False):
     :param verbose_value_error: Determines extent of the ValueError signature.
     :type verbose_value_error: bool
 
-    :raises ValueError: With a human readable error message,
-        and if verbose_value_error is set to True,
-        the attribute (of type `attrs.Attribute`),
-        the expected options,
-        and the value it got.
+    :raises ValueError: With a human readable error message, and if
+       verbose_value_error is set to True, the attribute (of type
+       `attrs.Attribute`), the expected options, and the value it got.
 
     .. versionadded:: 17.1.0
     """
