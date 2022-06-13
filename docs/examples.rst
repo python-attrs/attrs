@@ -329,6 +329,8 @@ The method receives the partially initialized instance which enables you to base
    >>> C()
    C(x=1, y=2, z=[])
 
+Please keep in mind that the decorator approach *only* works if the attribute in question has a ``field`` assigned to it.
+As a result, annotating an attribute with a type is *not* enough if you use ``@default``.
 
 .. _examples_validators:
 
@@ -401,7 +403,7 @@ You can use a decorator:
    ValueError: value out of bounds
 
 Please note that the decorator approach only works if -- and only if! -- the attribute in question has a ``field`` assigned.
-Therefore if you use ``@default``, it is *not* enough to annotate said attribute with a type.
+Therefore if you use ``@validator``, it is *not* enough to annotate said attribute with a type.
 
 ``attrs`` ships with a bunch of validators, make sure to `check them out <api_validators>` before writing your own:
 
