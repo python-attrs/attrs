@@ -473,19 +473,6 @@ class TestIn_:
             v(None, a, None)
         assert (
             "'test' must be in [1, 2, 3] (got None)",
-        ) == e.value.args
-
-    def test_fail_verbose(self):
-        """
-        Raise verbose ValueError if the value is outside our options
-        and verbose_value_error is set to True.
-        """
-        v = in_([1, 2, 3], verbose_value_error=True)
-        a = simple_attr("test")
-        with pytest.raises(ValueError) as e:
-            v(None, a, None)
-        assert (
-            "'test' must be in [1, 2, 3] (got None)",
             a,
             [1, 2, 3],
             None,
@@ -497,20 +484,6 @@ class TestIn_:
         options are specified as a string and the value is not a string.
         """
         v = in_("abc")
-        a = simple_attr("test")
-        with pytest.raises(ValueError) as e:
-            v(None, a, None)
-        assert (
-            "'test' must be in 'abc' (got None)",
-        ) == e.value.args
-
-    def test_fail_with_string_verbose(self):
-        """
-        Raise verbose ValueError if the value is outside our options when
-        the options are specified as a string, verbose_value_error is set
-        to True and the value is not a string.
-        """
-        v = in_("abc", verbose_value_error=True)
         a = simple_attr("test")
         with pytest.raises(ValueError) as e:
             v(None, a, None)
