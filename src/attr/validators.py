@@ -299,7 +299,10 @@ class _InValidator:
             raise ValueError(
                 "'{name}' must be in {options!r} (got {value!r})".format(
                     name=attr.name, options=self.options, value=value
-                )
+                ),
+                attr,
+                self.options,
+                value,
             )
 
     def __repr__(self):

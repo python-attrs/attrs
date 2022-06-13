@@ -471,7 +471,12 @@ class TestIn_:
         a = simple_attr("test")
         with pytest.raises(ValueError) as e:
             v(None, a, None)
-        assert ("'test' must be in [1, 2, 3] (got None)",) == e.value.args
+        assert (
+            "'test' must be in [1, 2, 3] (got None)",
+            a,
+            [1, 2, 3],
+            None,
+        ) == e.value.args
 
     def test_fail_with_string(self):
         """
@@ -482,7 +487,12 @@ class TestIn_:
         a = simple_attr("test")
         with pytest.raises(ValueError) as e:
             v(None, a, None)
-        assert ("'test' must be in 'abc' (got None)",) == e.value.args
+        assert (
+            "'test' must be in 'abc' (got None)",
+            a,
+            "abc",
+            None,
+        ) == e.value.args
 
     def test_repr(self):
         """
