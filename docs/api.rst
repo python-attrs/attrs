@@ -566,24 +566,24 @@ All objects from ``attrs.validators`` are also available from ``attr.validators`
 
    .. doctest::
 
-       >>> import enum
-       >>> class State(enum.Enum):
-       ...     ON = "on"
-       ...     OFF = "off"
-       >>> @attrs.define
-       ... class C:
-       ...     state = attrs.field(validator=attrs.validators.in_(State))
-       ...     val = attrs.field(validator=attrs.validators.in_([1, 2, 3]))
-       >>> C(State.ON, 1)
-       C(state=<State.ON: 'on'>, val=1)
-       >>> C("on", 1)
-       Traceback (most recent call last):
-          ...
-       ValueError: 'state' must be in <enum 'State'> (got 'on')
-       >>> C(State.ON, 4)
-       Traceback (most recent call last):
-          ...
-       ValueError: 'val' must be in [1, 2, 3] (got 4)
+      >>> import enum
+      >>> class State(enum.Enum):
+      ...     ON = "on"
+      ...     OFF = "off"
+      >>> @attrs.define
+      ... class C:
+      ...     state = attrs.field(validator=attrs.validators.in_(State))
+      ...     val = attrs.field(validator=attrs.validators.in_([1, 2, 3]))
+      >>> C(State.ON, 1)
+      C(state=<State.ON: 'on'>, val=1)
+      >>> C("on", 1)
+      Traceback (most recent call last):
+         ...
+      ValueError: 'state' must be in <enum 'State'> (got 'on'), Attribute(name='state', default=NOTHING, validator=<in_ validator with options <enum 'State'>>, repr=True, eq=True, eq_key=None, order=True, order_key=None, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False, on_setattr=None), <enum 'State'>, 'on')
+      >>> C(State.ON, 4)
+      Traceback (most recent call last):
+      ...
+      ValueError: 'val' must be in [1, 2, 3] (got 4), Attribute(name='val', default=NOTHING, validator=<in_ validator with options [1, 2, 3]>, repr=True, eq=True, eq_key=None, order=True, order_key=None, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False, on_setattr=None), [1, 2, 3], 4)
 
 .. autofunction:: attrs.validators.provides
 

@@ -325,6 +325,10 @@ def in_(options):
        got.
 
     .. versionadded:: 17.1.0
+    .. versionchanged:: 22.1.0
+       The ValueError was incomplete until now and only contained the human
+       readable error message. Now it contains all the information that has
+       been promised since 17.1.0.
     """
     return _InValidator(options)
 

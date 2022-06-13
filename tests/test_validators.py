@@ -469,8 +469,10 @@ class TestIn_:
         """
         v = in_([1, 2, 3])
         a = simple_attr("test")
+
         with pytest.raises(ValueError) as e:
             v(None, a, None)
+
         assert (
             "'test' must be in [1, 2, 3] (got None)",
             a,

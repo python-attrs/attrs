@@ -1,3 +1,1 @@
-The error signature of _InValidator has been completed,
-it now includes the attribute,
-options and value as proclaimed in the docstring of _in().
+``attrs.validators._in()``'s ``ValueError`` is not missing the attribute, expected options, and the value it got anymore.
