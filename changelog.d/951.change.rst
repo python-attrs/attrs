@@ -1,0 +1,3 @@
+The error signature of _InValidator has been completed,
+it now includes the attribute,
+options and value as proclaimed in the docstring of _in().
