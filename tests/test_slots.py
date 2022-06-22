@@ -660,10 +660,10 @@ class TestPickle:
         As long as getstate_setstate is None, nothing is done to dict
         classes.
         """
-        assert getattr(object, "__getstate__", None) == getattr(
+        assert getattr(object, "__getstate__", None) is getattr(
             C1, "__getstate__", None
         )
-        assert getattr(object, "__setstate__", None) == getattr(
+        assert getattr(object, "__setstate__", None) is getattr(
             C1, "__setstate__", None
         )
 
@@ -676,10 +676,10 @@ class TestPickle:
         class C:
             x = attr.ib()
 
-        assert getattr(object, "__getstate__", None) == getattr(
+        assert getattr(object, "__getstate__", None) is getattr(
             C, "__getstate__", None
         )
-        assert getattr(object, "__setstate__", None) == getattr(
+        assert getattr(object, "__setstate__", None) is getattr(
             C, "__setstate__", None
         )
 
