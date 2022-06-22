@@ -94,7 +94,10 @@ class TestAnnotations:
         assert 1 == len(attr.fields(C))
         assert_init_annotations(C, x=typing.List[int])
 
-    @pytest.mark.skipif(sys.version_info[:2] < (3, 11), reason="Incompatible behavior on older Pythons")
+    @pytest.mark.skipif(
+        sys.version_info[:2] < (3, 11),
+        reason="Incompatible behavior on older Pythons",
+    )
     @pytest.mark.parametrize("slots", [True, False])
     def test_auto_attribs(self, slots):
         """
@@ -385,7 +388,10 @@ class TestAnnotations:
 
         assert attr.converters.optional(noop).__annotations__ == {}
 
-    @pytest.mark.skipif(sys.version_info[:2] < (3, 11), reason="Incompatible behavior on older Pythons")
+    @pytest.mark.skipif(
+        sys.version_info[:2] < (3, 11),
+        reason="Incompatible behavior on older Pythons",
+    )
     @pytest.mark.parametrize("slots", [True, False])
     def test_annotations_strings(self, slots):
         """

@@ -660,8 +660,12 @@ class TestPickle:
         As long as getstate_setstate is None, nothing is done to dict
         classes.
         """
-        assert getattr(object, "__getstate__", None) == getattr(C1, "__getstate__", None)
-        assert getattr(object, "__setstate__", None) == getattr(C1, "__setstate__", None)
+        assert getattr(object, "__getstate__", None) == getattr(
+            C1, "__getstate__", None
+        )
+        assert getattr(object, "__setstate__", None) == getattr(
+            C1, "__setstate__", None
+        )
 
     def test_no_getstate_setstate_if_option_false(self):
         """
@@ -672,8 +676,12 @@ class TestPickle:
         class C:
             x = attr.ib()
 
-        assert getattr(object, "__getstate__", None) == getattr(C, "__getstate__", None)
-        assert getattr(object, "__setstate__", None) == getattr(C, "__setstate__", None)
+        assert getattr(object, "__getstate__", None) == getattr(
+            C, "__getstate__", None
+        )
+        assert getattr(object, "__setstate__", None) == getattr(
+            C, "__setstate__", None
+        )
 
     @pytest.mark.parametrize("cls", [C2(1), C2Slots(1)])
     def test_getstate_set_state_force_true(self, cls):
