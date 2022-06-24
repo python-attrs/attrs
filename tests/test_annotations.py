@@ -94,6 +94,10 @@ class TestAnnotations:
         assert 1 == len(attr.fields(C))
         assert_init_annotations(C, x=typing.List[int])
 
+    @pytest.mark.skipif(
+        sys.version_info[:2] < (3, 11),
+        reason="Incompatible behavior on older Pythons",
+    )
     @pytest.mark.parametrize("slots", [True, False])
     def test_auto_attribs(self, slots):
         """
@@ -149,7 +153,7 @@ class TestAnnotations:
             x=typing.List[int],
             y=int,
             z=int,
-            foo=typing.Optional[typing.Any],
+            foo=typing.Any,
         )
 
     @pytest.mark.parametrize("slots", [True, False])
@@ -384,8 +388,9 @@ class TestAnnotations:
 
         assert attr.converters.optional(noop).__annotations__ == {}
 
-    @pytest.mark.xfail(
-        sys.version_info[:2] == (3, 6), reason="Does not work on 3.6."
+    @pytest.mark.skipif(
+        sys.version_info[:2] < (3, 11),
+        reason="Incompatible behavior on older Pythons",
     )
     @pytest.mark.parametrize("slots", [True, False])
     def test_annotations_strings(self, slots):
@@ -417,7 +422,7 @@ class TestAnnotations:
             x=typing.List[int],
             y=int,
             z=int,
-            foo=typing.Optional[typing.Any],
+            foo=typing.Any,
         )
 
     @pytest.mark.parametrize("slots", [True, False])

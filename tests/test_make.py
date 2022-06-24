@@ -2275,7 +2275,9 @@ class TestAutoDetect:
             def __getstate__(self):
                 return ("hi",)
 
-        assert None is getattr(C(), "__setstate__", None)
+        assert getattr(object, "__setstate__", None) is getattr(
+            C, "__setstate__", None
+        )
 
         @attr.s(slots=slots, auto_detect=True)
         class C:
@@ -2291,7 +2293,9 @@ class TestAutoDetect:
         i.__setstate__(())
 
         assert True is i.called
-        assert None is getattr(C(), "__getstate__", None)
+        assert getattr(object, "__getstate__", None) is getattr(
+            C, "__getstate__", None
+        )
 
     @pytest.mark.skipif(PY310, reason="Pre-3.10 only.")
     def test_match_args_pre_310(self):
