@@ -255,7 +255,7 @@ class TestAnnotations:
 
     def test_nullary_converter(self):
         """
-        A coverter with no arguments doesn't cause a crash.
+        A converter with no arguments doesn't cause a crash.
         """
 
         def noop():
