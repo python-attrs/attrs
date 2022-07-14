@@ -65,8 +65,6 @@ class AttrsInstance(Protocol):
 
 # _make --
 
-NOTHING: object
-
 # NOTE: Factory lies about its return type to make this possible:
 # `x: List[int] # = Factory(list)`
 # Work around mypy issue #4554 in the common case by using an overload.
