@@ -58,6 +58,8 @@ Day-to-Day Usage
    :start-after: -getting-help-
    :end-before: -project-information-
 
+.. include:: ../README.rst
+   :start-after: -project-information-
 
 ----
 
@@ -81,10 +83,6 @@ Full Table of Contents
    names
    glossary
 
-
-.. include:: ../README.rst
-   :start-after: -project-information-
-
 .. toctree::
    :maxdepth: 1
 
@@ -92,8 +90,4 @@ Full Table of Contents
    changelog
 
 
-Indices and tables
-==================
-
-* `genindex`
-* `search`
+`Full Index <genindex>`
