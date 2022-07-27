@@ -1,1 +1,1 @@
-Speedup instantiation of frozen slotted classes.
+Instantiation of frozen slotted classes is now faster.
