@@ -55,10 +55,6 @@ Day-to-Day Usage
 
 
 .. include:: ../README.rst
-   :start-after: -getting-help-
-   :end-before: -project-information-
-
-.. include:: ../README.rst
    :start-after: -project-information-
 
 ----

@@ -100,31 +100,19 @@ For instance it allows you to define `special handling of NumPy arrays for equal
 
 For more details, please refer to our `comparison page <https://www.attrs.org/en/stable/why.html#data-classes>`_.
 
-
-.. -getting-help-
-
-Getting Help
-============
-
-Please use the ``python-attrs`` tag on `Stack Overflow <https://stackoverflow.com/questions/tagged/python-attrs>`_ to get help.
-
-Answering questions of your fellow developers is also a great way to help the project!
-
-
 .. -project-information-
 
 Project Information
 ===================
 
-``attrs`` is released under the `MIT <https://choosealicense.com/licenses/mit/>`_ license,
-its documentation lives at `Read the Docs <https://www.attrs.org/>`_,
-the code on `GitHub <https://github.com/python-attrs/attrs>`_,
-and the latest release on `PyPI <https://pypi.org/project/attrs/>`_.
-It’s rigorously tested on Python 3.5+ and PyPy.
-The last version with Python 2.7 support is `21.4.0 <https://pypi.org/project/attrs/21.4.0/>`_.
-
-We collect information on **third-party extensions** in our `wiki <https://github.com/python-attrs/attrs/wiki/Extensions-to-attrs>`_.
-Feel free to browse and add your own!
+- **License**: `MIT <https://choosealicense.com/licenses/mit/>`_
+- **PyPI**: https://pypi.org/project/attrs/
+- **Source Code**: https://github.com/python-attrs/attrs
+- **Documentation**:  https://www.attrs.org/
+- **Changelog**: https://www.attrs.org/en/stable/changelog.html
+- **Get Help**: please use the ``python-attrs`` tag on `StackOverflow <https://stackoverflow.com/questions/tagged/python-attrs>`_
+- **Third-party Extensions**: https://github.com/python-attrs/attrs/wiki/Extensions-to-attrs
+- **Supported Python Versions**: 3.5 and later (last 2.7-compatible release was `21.4.0 <https://pypi.org/project/attrs/21.4.0/>`_)
 
 If you'd like to contribute to ``attrs`` you're most welcome and we've written `a little guide <https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md>`_ to get you started!
 
