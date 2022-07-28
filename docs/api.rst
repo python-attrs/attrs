@@ -124,7 +124,7 @@ Classic
 
    .. note::
 
-      ``attrs`` also comes with a serious business alias ``attr.attrs``.
+      ``attrs`` also comes with a serious-business alias ``attr.attrs``.
 
    For example:
 
@@ -164,7 +164,7 @@ Classic
 
    .. note::
 
-      ``attrs`` also comes with a serious business alias ``attr.attrib``.
+      ``attrs`` also comes with a serious-business alias ``attr.attrib``.
 
    The object returned by `attr.ib` also allows for setting the default and the validator using decorators:
 
@@ -842,7 +842,7 @@ It behaves similarly to `sys.version_info` and is an instance of `VersionInfo`:
 
 ----
 
-The serious business aliases used to be called ``attr.attributes`` and ``attr.attr``.
+The serious-business aliases used to be called ``attr.attributes`` and ``attr.attr``.
 There are no plans to remove them but they shouldn't be used in new code.
 
 .. autofunction:: assoc

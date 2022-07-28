@@ -23,7 +23,7 @@ They are only available in Python 3.6 and later.
 Sometimes they're referred to as *next-generation* or *NG* APIs.
 As of ``attrs`` 21.3.0 you can also import them from the ``attrs`` package namespace.
 
-The traditional APIs `attr.s` / `attr.ib`, their serious business aliases ``attr.attrs`` / ``attr.attrib``, and the never-documented, but popular ``attr.dataclass`` easter egg will stay **forever**.
+The traditional APIs `attr.s` / `attr.ib`, their serious-business aliases ``attr.attrs`` / ``attr.attrib``, and the never-documented, but popular ``attr.dataclass`` easter egg will stay **forever**.
 
 ``attrs`` will **never** force you to use type annotations.
 

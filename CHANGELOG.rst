@@ -940,7 +940,7 @@ Deprecations:
   This will remove the confusing error message if you write your own ``__init__`` and forget to initialize some attribute.
   Instead you will get a straightforward ``AttributeError``.
   In other words: decorated classes will work more like plain Python classes which was always ``attrs``'s goal.
-- The serious business aliases ``attr.attributes`` and ``attr.attr`` have been deprecated in favor of ``attr.attrs`` and ``attr.attrib`` which are much more consistent and frankly obvious in hindsight.
+- The serious-business aliases ``attr.attributes`` and ``attr.attr`` have been deprecated in favor of ``attr.attrs`` and ``attr.attrib`` which are much more consistent and frankly obvious in hindsight.
   They will be purged from documentation immediately but there are no plans to actually remove them.
 
 
