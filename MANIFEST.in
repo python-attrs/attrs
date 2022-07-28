@@ -1,4 +1,4 @@
-include LICENSE *.rst *.toml *.yml *.yaml *.ini
+include LICENSE *.rst *.toml *.yml *.yaml *.ini CITATION.cff
 graft .github
 
 # Stubs
