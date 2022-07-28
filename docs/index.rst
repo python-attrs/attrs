@@ -22,15 +22,13 @@ The recommended installation method is `pip <https://pip.pypa.io/en/stable/>`_-i
 
    $ python -m pip install attrs
 
-The next three steps should bring you up and running in no time:
+The next steps will get you up and running in no time:
 
 - `overview` will show you a simple example of ``attrs`` in action and introduce you to its philosophy.
   Afterwards, you can start writing your own classes and understand what drives ``attrs``'s design.
 - `examples` will give you a comprehensive tour of ``attrs``'s features.
   After reading, you will know about our advanced features and how to use them.
-- If you're confused by all the ``attr.s``, ``attr.ib``, ``attrs``, ``attrib``, ``define``, ``frozen``, and ``field``, head over to `names` for a very short explanation, and optionally a quick history lesson.
-- Finally `why` gives you a rundown of potential alternatives and why we think ``attrs`` is superior.
-  Yes, we've heard about ``namedtuple``\ s and Data Classes!
+- `why` gives you a rundown of potential alternatives and why we think ``attrs`` is still worthwhile -- depending on *your* needs even superior.
 - If at any point you get confused by some terminology, please check out our `glossary`.
 
 
@@ -52,6 +50,7 @@ Day-to-Day Usage
 - Once you're comfortable with the concepts, our `api` contains all information you need to use ``attrs`` to its fullest.
 - ``attrs`` is built for extension from the ground up.
   `extending` will show you the affordances it offers and how to make it a building block of your own projects.
+- Finally, if you're confused by all the ``attr.s``, ``attr.ib``, ``attrs``, ``attrib``, ``define``, ``frozen``, and ``field``, head over to `names` for a very short explanation, and optionally a quick history lesson.
 
 
 .. include:: ../README.rst
