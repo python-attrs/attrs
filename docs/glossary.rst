@@ -16,11 +16,11 @@ Glossary
       A regular class whose attributes are stored in the `object.__dict__` attribute of every single instance.
       This is quite wasteful especially for objects with very few data attributes and the space consumption can become significant when creating large numbers of instances.
 
-      This is the type of class you get by default both with and without ``attrs`` (except with the next APIs `attr.define`, `attr.mutable`, and `attr.frozen`).
+      This is the type of class you get by default both with and without ``attrs`` (except with the next APIs `attrs.define()`, `attrs.mutable()`, and `attrs.frozen()`).
 
    slotted classes
       A class whose instances have no `object.__dict__` attribute and `define <https://docs.python.org/3/reference/datamodel.html#slots>`_ their attributes in a `object.__slots__` attribute instead.
-      In ``attrs``, they are created by passing ``slots=True`` to ``@attr.s`` (and are on by default in `attr.define`/`attr.mutable`/`attr.frozen`).
+      In ``attrs``, they are created by passing ``slots=True`` to ``@attr.s`` (and are on by default in `attrs.define()`/`attrs.mutable()`/`attrs.frozen()`).
 
 
       Their main advantage is that they use less memory on CPython [#pypy]_ and are slightly faster.
