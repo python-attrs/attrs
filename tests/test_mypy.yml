@@ -418,7 +418,6 @@
         a: int
         b = field()
 
-    # TODO: Next Gen hasn't shipped with mypy yet so the following are wrong
     reveal_type(A) # N: Revealed type is "def (a: Any) -> main.A"
     reveal_type(B) # N: Revealed type is "def (a: builtins.int) -> main.B"
     reveal_type(C) # N: Revealed type is "def (a: builtins.int, b: Any) -> main.C"
