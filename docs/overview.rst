@@ -6,7 +6,7 @@ In order to fulfill its ambitious goal of bringing back the joy to writing class
 
 .. include:: ../README.rst
    :start-after: -code-begin-
-   :end-before: -getting-help-
+   :end-before: -project-information-
 
 
 .. _philosophy:
