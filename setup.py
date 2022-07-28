@@ -62,7 +62,7 @@ if (
     and platform.python_implementation() != "PyPy"
 ):
     EXTRAS_REQUIRE["tests_no_zope"].extend(
-        ["mypy!=0.940", "pytest-mypy-plugins"]
+        ["mypy>=0.900,!=0.940", "pytest-mypy-plugins"]
     )
 
 EXTRAS_REQUIRE["tests"] = EXTRAS_REQUIRE["tests_no_zope"] + ["zope.interface"]
