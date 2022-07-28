@@ -68,7 +68,7 @@ For that, it gives you a class decorator and a way to declaratively define the a
    C(a='foo', b='bar')
 
 
-After *declaring* your attributes ``attrs`` gives you:
+After *declaring* your attributes, ``attrs`` gives you:
 
 - a concise and explicit overview of the class's attributes,
 - a nice human-readable ``__repr__``,
