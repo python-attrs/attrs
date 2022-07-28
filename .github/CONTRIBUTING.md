@@ -34,7 +34,67 @@ The official tag is `python-attrs` and helping out in support frees us up to imp
   If you have problems to test something, open anyway and ask for advice.
   In some situations, we may agree to add an `# pragma: no cover`.
 - Once you've addressed review feedback, make sure to bump the pull request with a short note, so we know you're done.
-- Don’t break backwards compatibility.
+- Don’t break backwards-compatibility.
+
+
+## Local Development Environment
+
+You can (and should) run our test suite using [*tox*].
+However, you’ll probably want a more traditional environment as well.
+We highly recommend to develop using the latest Python release because we try to take advantage of modern features whenever possible.
+
+First create a [virtual environment](https://virtualenv.pypa.io/) so you don't break your system-wide Python installation.
+It’s out of scope for this document to list all the ways to manage virtual environments in Python, but if you don’t already have a pet way, take some time to look at tools like [*direnv*](https://hynek.me/til/python-project-local-venvs/), [*virtualfish*](https://virtualfish.readthedocs.io/), and [*virtualenvwrapper*](https://virtualenvwrapper.readthedocs.io/).
+
+Next, get an up-to-date checkout of the `attrs` repository:
+
+```console
+$ git clone git@github.com:python-attrs/attrs.git
+```
+
+or if you prefer to use git via `https`:
+
+```console
+$ git clone https://github.com/python-attrs/attrs.git
+```
+
+Change into the newly created directory and **after activating your virtual environment** install an editable version of `attrs` along with its tests and docs requirements:
+
+```console
+$ cd attrs
+$ python -m pip install --upgrade pip setuptools  # PLEASE don't skip this step
+$ python -m pip install -e '.[dev]'
+```
+
+At this point,
+
+```console
+$ python -m pytest
+```
+
+should work and pass, as should:
+
+```console
+$ cd docs
+$ make html
+```
+
+The built documentation can then be found in `docs/_build/html/`.
+
+To avoid committing code that violates our style guide, we strongly advise you to install [*pre-commit*] [^dev] hooks:
+
+```console
+$ pre-commit install
+```
+
+You can also run them anytime (as our *tox* does) using:
+
+```console
+$ pre-commit run --all-files
+```
+
+[^dev]: *pre-commit* should have been installed into your virtualenv automatically when you ran `pip install -e '.[dev]'` above.
+        If *pre-commit* is missing, your probably need to run `pip install -e '.[dev]'` again.
 
 
 ## Code
@@ -54,7 +114,7 @@ The official tag is `python-attrs` and helping out in support frees us up to imp
   ```
 - If you add or change public APIs, tag the docstring using `..  versionadded:: 16.0.0 WHAT` or `..  versionchanged:: 16.2.0 WHAT`.
 - We use [*isort*](https://github.com/PyCQA/isort) to sort our imports, and we use [*Black*](https://github.com/psf/black) with line length of 79 characters to format our code.
-  As long as you run our full [*tox*] suite before committing, or install our [*pre-commit*] hooks (ideally you'll do both – see [*Local Development Environment*](#local-development-environment) below), you won't have to spend any time on formatting your code at all.
+  As long as you run our full [*tox*] suite before committing, or install our [*pre-commit*] hooks (ideally you'll do both – see [*Local Development Environment*](#local-development-environment) above), you won't have to spend any time on formatting your code at all.
   If you don't, [CI] will catch it for you – but that seems like a waste of your time!
 
 
@@ -81,7 +141,7 @@ The official tag is `python-attrs` and helping out in support frees us up to imp
 
 ## Documentation
 
-- Use [semantic newlines] in [*reStructuredText*] files (files ending in `.rst`):
+- Use [semantic newlines] in [*reStructuredText*] and [*Markdown*](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) files (files ending in `.rst` and `.md`):
 
   ```rst
   This is a sentence.
@@ -150,66 +210,6 @@ or:
 ---
 
 ``tox -e changelog`` will render the current changelog to the terminal if you have any doubts.
-
-
-## Local Development Environment
-
-You can (and should) run our test suite using [*tox*].
-However, you’ll probably want a more traditional environment as well.
-We highly recommend to develop using the latest Python release because we try to take advantage of modern features whenever possible.
-
-First create a [virtual environment](https://virtualenv.pypa.io/) so you don't break your system-wide Python installation.
-It’s out of scope for this document to list all the ways to manage virtual environments in Python, but if you don’t already have a pet way, take some time to look at tools like [*direnv*](https://hynek.me/til/python-project-local-venvs/), [*virtualfish*](https://virtualfish.readthedocs.io/), and [*virtualenvwrapper*](https://virtualenvwrapper.readthedocs.io/).
-
-Next, get an up to date checkout of the `attrs` repository:
-
-```console
-$ git clone git@github.com:python-attrs/attrs.git
-```
-
-or if you want to use git via `https`:
-
-```console
-$ git clone https://github.com/python-attrs/attrs.git
-```
-
-Change into the newly created directory and **after activating your virtual environment** install an editable version of `attrs` along with its tests and docs requirements:
-
-```console
-$ cd attrs
-$ pip install --upgrade pip setuptools  # PLEASE don't skip this step
-$ pip install -e '.[dev]'
-```
-
-At this point,
-
-```console
-$ python -m pytest
-```
-
-should work and pass, as should:
-
-```console
-$ cd docs
-$ make html
-```
-
-The built documentation can then be found in `docs/_build/html/`.
-
-To avoid committing code that violates our style guide, we strongly advise you to install [*pre-commit*] [^dev] hooks:
-
-```console
-$ pre-commit install
-```
-
-You can also run them anytime (as our tox does) using:
-
-```console
-$ pre-commit run --all-files
-```
-
-[^dev]: *pre-commit* should have been installed into your virtualenv automatically when you ran `pip install -e '.[dev]'` above.
-        If *pre-commit* is missing, your probably need to run `pip install -e '.[dev]'` again.
 
 
 ## Governance
