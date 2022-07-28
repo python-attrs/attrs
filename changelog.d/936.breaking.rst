@@ -1,6 +1,0 @@
-Python 2.7 is not supported anymore.
-
-Dealing with Python 2.7 tooling has become too difficult for a volunteer-run project.
-
-We have supported Python 2 more than 2 years after it was officially discontinued and feel that we have paid our dues.
-All version up to 21.4.0 from December 2021 remain fully functional, of course.

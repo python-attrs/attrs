@@ -17,16 +17,49 @@ Whenever there is a need to break compatibility, it is announced here in the cha
 
    However if you intend to build extensions on top of ``attrs`` you have to anticipate that.
 
-Changes for the upcoming release can be found in the `"changelog.d" directory <https://github.com/python-attrs/attrs/tree/main/changelog.d>`_ in our repository.
-
-..
-   Do *NOT* add changelog entries here!
-
-   This changelog is managed by towncrier and is compiled at release time.
-
-   See https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md#changelog for details.
-
 .. towncrier release notes start
+
+22.1.0 (2022-07-28)
+-------------------
+
+Backwards-incompatible Changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Python 2.7 is not supported anymore.
+
+  Dealing with Python 2.7 tooling has become too difficult for a volunteer-run project.
+
+  We have supported Python 2 more than 2 years after it was officially discontinued and feel that we have paid our dues.
+  All version up to 21.4.0 from December 2021 remain fully functional, of course.
+  `#936 <https://github.com/python-attrs/attrs/issues/936>`_
+- The deprecated ``cmp`` attribute of ``attrs.Attribute`` has been removed.
+  This does not affect the *cmp* argument to ``attr.s`` that can be used as a shortcut to set *eq* and *order* at the same time.
+  `#939 <https://github.com/python-attrs/attrs/issues/939>`_
+
+
+Changes
+^^^^^^^
+
+- Instantiation of frozen slotted classes is now faster.
+  `#898 <https://github.com/python-attrs/attrs/issues/898>`_
+- If an ``eq`` key is defined, it is also used before hashing the attribute.
+  `#909 <https://github.com/python-attrs/attrs/issues/909>`_
+- Added ``attrs.validators.min_len()``.
+  `#916 <https://github.com/python-attrs/attrs/issues/916>`_
+- ``attrs.validators.deep_iterable()``'s *member_validator* argument now also accepts a list of validators and wraps them in an ``attrs.validators.and_()``.
+  `#925 <https://github.com/python-attrs/attrs/issues/925>`_
+- Added missing type stub re-imports for ``attrs.converters`` and ``attrs.filters``.
+  `#931 <https://github.com/python-attrs/attrs/issues/931>`_
+- Added missing stub for ``attr(s).cmp_using()``.
+  `#949 <https://github.com/python-attrs/attrs/issues/949>`_
+- ``attrs.validators._in()``'s ``ValueError`` is not missing the attribute, expected options, and the value it got anymore.
+  `#951 <https://github.com/python-attrs/attrs/issues/951>`_
+- Python 3.11 is now officially supported.
+  `#969 <https://github.com/python-attrs/attrs/issues/969>`_
+
+
+----
+
 
 21.4.0 (2021-12-29)
 -------------------

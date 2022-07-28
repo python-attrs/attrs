@@ -1,1 +1,0 @@
-``attrs.validators._in()``'s ``ValueError`` is not missing the attribute, expected options, and the value it got anymore.

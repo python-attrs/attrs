@@ -1,1 +1,0 @@
-Added missing stub for ``attr(s).cmp_using()``.

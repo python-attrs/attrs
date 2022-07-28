@@ -1,1 +1,0 @@
-``attrs.validators.deep_iterable()``'s *member_validator* argument now also accepts a list of validators and wraps them in an ``attrs.validators.and_()``.

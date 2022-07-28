@@ -1,2 +1,0 @@
-The deprecated ``cmp`` attribute of ``attrs.Attribute`` has been removed.
-This does not affect the *cmp* argument to ``attr.s`` that can be used as a shortcut to set *eq* and *order* at the same time.
