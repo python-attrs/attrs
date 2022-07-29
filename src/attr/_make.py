@@ -1207,8 +1207,7 @@ def attrs(
     match_args=True,
 ):
     r"""
-    A class decorator that adds `dunder
-    <https://wiki.python.org/moin/DunderAlias>`_\ -methods according to the
+    A class decorator that adds :term:`dunder methods` according to the
     specified attributes using `attr.ib` or the *these* argument.
 
     :param these: A dictionary of name to `attr.ib` mappings.  This is
@@ -1301,10 +1300,10 @@ def attrs(
         injected instead. This allows you to define a custom ``__init__``
         method that can do pre-init work such as ``super().__init__()``,
         and then call ``__attrs_init__()`` and ``__attrs_post_init__()``.
-    :param bool slots: Create a `slotted class <slotted classes>` that's more
-        memory-efficient. Slotted classes are generally superior to the default
-        dict classes, but have some gotchas you should know about, so we
-        encourage you to read the `glossary entry <slotted classes>`.
+    :param bool slots: Create a :term:`slotted class <slotted classes>` that's
+        more memory-efficient. Slotted classes are generally superior to the
+        default dict classes, but have some gotchas you should know about, so
+        we encourage you to read the :term:`glossary entry <slotted classes>`.
     :param bool frozen: Make instances immutable after initialization.  If
         someone attempts to modify a frozen instance,
         `attr.exceptions.FrozenInstanceError` is raised.
