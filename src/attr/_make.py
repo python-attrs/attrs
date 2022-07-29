@@ -411,13 +411,6 @@ def _get_annotations(cls):
     return {}
 
 
-def _counter_getter(e):
-    """
-    Key function for sorting to avoid re-creating a lambda for every class.
-    """
-    return e[1].counter
-
-
 def _collect_base_attrs(cls, taken_attr_names):
     """
     Collect attr.ibs from base classes of *cls*, except *taken_attr_names*.
@@ -495,9 +488,6 @@ def _transform_attrs(
 
     if these is not None:
         ca_list = [(name, ca) for name, ca in these.items()]
-
-        if not isinstance(these, dict):
-            ca_list.sort(key=_counter_getter)
     elif auto_attribs is True:
         ca_names = {
             name
