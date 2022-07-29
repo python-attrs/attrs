@@ -19,7 +19,6 @@ We recommend our modern APIs for new code:
 - and `attrs.field()` to define an attribute.
 
 They have been added in ``attrs`` 20.1.0, they are expressive, and they have modern defaults like slots and type annotation awareness switched on by default.
-They are only available in Python 3.6 and later.
 Sometimes they're referred to as *next-generation* or *NG* APIs.
 As of ``attrs`` 21.3.0 you can also import them from the ``attrs`` package namespace.
 

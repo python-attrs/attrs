@@ -2,8 +2,6 @@
 
 """
 Tests for PEP-526 type annotations.
-
-Python 3.6+ only.
 """
 
 import sys
@@ -397,7 +395,7 @@ class TestAnnotations:
         """
         String annotations are passed into __init__ as is.
 
-        It fails on 3.6 due to a bug in Python.
+        The strings keep changing between releases.
         """
         import typing as t
 

@@ -22,7 +22,7 @@ from hypothesis.strategies import booleans, integers, lists, sampled_from, text
 import attr
 
 from attr import _config
-from attr._compat import PY310, ordered_dict
+from attr._compat import PY310
 from attr._make import (
     Attribute,
     Factory,
@@ -297,7 +297,7 @@ class TestTransformAttrs:
         b = attr.ib(default=2)
         a = attr.ib(default=1)
 
-        @attr.s(these=ordered_dict([("a", a), ("b", b)]))
+        @attr.s(these=dict([("a", a), ("b", b)]))
         class C:
             pass
 
@@ -1071,7 +1071,7 @@ class TestMakeClass:
         b = attr.ib(default=2)
         a = attr.ib(default=1)
 
-        C = attr.make_class("C", ordered_dict([("a", a), ("b", b)]))
+        C = attr.make_class("C", dict([("a", a), ("b", b)]))
 
         assert "C(a=1, b=2)" == repr(C())
 
@@ -1114,7 +1114,7 @@ class TestFields:
             fields(object)
 
         assert (
-            "{o!r} is not an attrs-decorated class.".format(o=object)
+            f"{object!r} is not an attrs-decorated class."
         ) == e.value.args[0]
 
     @given(simple_classes())
@@ -1156,7 +1156,7 @@ class TestFieldsDict:
             fields_dict(object)
 
         assert (
-            "{o!r} is not an attrs-decorated class.".format(o=object)
+            f"{object!r} is not an attrs-decorated class."
         ) == e.value.args[0]
 
     @given(simple_classes())
@@ -1166,7 +1166,7 @@ class TestFieldsDict:
         """
         d = fields_dict(C)
 
-        assert isinstance(d, ordered_dict)
+        assert isinstance(d, dict)
         assert list(fields(C)) == list(d.values())
         assert [a.name for a in fields(C)] == [field_name for field_name in d]
 
@@ -1214,7 +1214,7 @@ class TestConverter:
         """
         C = make_class(
             "C",
-            ordered_dict(
+            dict(
                 [
                     ("y", attr.ib()),
                     (

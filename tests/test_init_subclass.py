@@ -2,8 +2,6 @@
 
 """
 Tests for `__init_subclass__` related tests.
-
-Python 3.6+ only.
 """
 
 import pytest
