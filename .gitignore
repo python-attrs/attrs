@@ -2,12 +2,16 @@
 *.pyc
 .cache
 .coverage*
+.direnv
+.envrc
 .hypothesis
 .mypy_cache
 .pytest_cache
 .tox
+.vscode
 build
 dist
 docs/_build/
 htmlcov
 pip-wheel-metadata
+tmp
