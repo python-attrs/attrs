@@ -103,7 +103,7 @@ LOGO = """
 .. image:: https://www.attrs.org/en/stable/_static/attrs_logo.png
    :alt: attrs logo
    :align: center
-"""  # noqa
+"""
 
 VERSION = find_meta("version")
 URL = find_meta("url")
