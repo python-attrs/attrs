@@ -15,7 +15,7 @@ repos:
     rev: v2.37.3
     hooks:
       - id: pyupgrade
-        args: [--py3-plus, --keep-percent-format]
+        args: [--py36-plus, --keep-percent-format]
         exclude: "tests/test_slots.py"
 
   - repo: https://github.com/PyCQA/isort

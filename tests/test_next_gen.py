@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 
 """
-Python 3-only integration tests for provisional next-generation APIs.
+Integration tests for next-generation APIs.
 """
 
 import re

@@ -4,7 +4,6 @@ import codecs
 import os
 import platform
 import re
-import sys
 
 from setuptools import find_packages, setup
 
@@ -33,7 +32,6 @@ CLASSIFIERS = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.5",
     "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
@@ -57,10 +55,7 @@ EXTRAS_REQUIRE = {
         "pytest>=4.3.0",  # 4.3.0 dropped last use of `convert`
     ],
 }
-if (
-    sys.version_info[:2] >= (3, 6)
-    and platform.python_implementation() != "PyPy"
-):
+if platform.python_implementation() != "PyPy":
     EXTRAS_REQUIRE["tests_no_zope"].extend(
         ["mypy>=0.900,!=0.940", "pytest-mypy-plugins"]
     )
@@ -92,11 +87,11 @@ def find_meta(meta):
     Extract __*meta*__ from META_FILE.
     """
     meta_match = re.search(
-        r"^__{meta}__ = ['\"]([^'\"]*)['\"]".format(meta=meta), META_FILE, re.M
+        rf"^__{meta}__ = ['\"]([^'\"]*)['\"]", META_FILE, re.M
     )
     if meta_match:
         return meta_match.group(1)
-    raise RuntimeError("Unable to find __{meta}__ string.".format(meta=meta))
+    raise RuntimeError(f"Unable to find __{meta}__ string.")
 
 
 LOGO = """
@@ -119,7 +114,7 @@ LONG = (
         re.S,
     ).group(1)
     + "\n\n`Full changelog "
-    + "<{url}en/stable/changelog.html>`_.\n\n".format(url=URL)
+    + f"<{URL}en/stable/changelog.html>`_.\n\n"
     + read("AUTHORS.rst")
 )
 
@@ -141,7 +136,7 @@ if __name__ == "__main__":
         long_description_content_type="text/x-rst",
         packages=PACKAGES,
         package_dir={"": "src"},
-        python_requires=">=3.5",
+        python_requires=">=3.6",
         zip_safe=False,
         classifiers=CLASSIFIERS,
         install_requires=INSTALL_REQUIRES,

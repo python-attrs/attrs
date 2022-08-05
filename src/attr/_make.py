@@ -11,14 +11,7 @@ from operator import itemgetter
 # We need to import _compat itself in addition to the _compat members to avoid
 # having the thread-local in the globals here.
 from . import _compat, _config, setters
-from ._compat import (
-    HAS_F_STRINGS,
-    PY310,
-    PYPY,
-    _AnnotationExtractor,
-    ordered_dict,
-    set_closure_cell,
-)
+from ._compat import PY310, PYPY, _AnnotationExtractor, set_closure_cell
 from .exceptions import (
     DefaultAlreadySetError,
     FrozenInstanceError,
@@ -201,9 +194,9 @@ def attrib(
         value is converted before being passed to the validator, if any.
     :param metadata: An arbitrary mapping, to be used by third-party
         components.  See `extending_metadata`.
-    :param type: The type of the attribute.  In Python 3.6 or greater, the
-        preferred method to specify the type is using a variable annotation
-        (see :pep:`526`).
+
+    :param type: The type of the attribute. Nowadays, the preferred method to
+        specify the type is using a variable annotation (see :pep:`526`).
         This argument is provided for backward compatibility.
         Regardless of the approach used, the type will be stored on
         ``Attribute.type``.
@@ -323,7 +316,7 @@ def _make_method(name, script, filename, globs):
         if old_val == linecache_tuple:
             break
         else:
-            filename = "{}-{}>".format(base_filename[:-1], count)
+            filename = f"{base_filename[:-1]}-{count}>"
             count += 1
 
     _compile_and_eval(script, globs, locs, filename)
@@ -341,9 +334,9 @@ def _make_attr_tuple_class(cls_name, attr_names):
         __slots__ = ()
         x = property(itemgetter(0))
     """
-    attr_class_name = "{}Attributes".format(cls_name)
+    attr_class_name = f"{cls_name}Attributes"
     attr_class_template = [
-        "class {}(tuple):".format(attr_class_name),
+        f"class {attr_class_name}(tuple):",
         "    __slots__ = ()",
     ]
     if attr_names:
@@ -416,13 +409,6 @@ def _get_annotations(cls):
         return cls.__annotations__
 
     return {}
-
-
-def _counter_getter(e):
-    """
-    Key function for sorting to avoid re-creating a lambda for every class.
-    """
-    return e[1].counter
 
 
 def _collect_base_attrs(cls, taken_attr_names):
@@ -502,9 +488,6 @@ def _transform_attrs(
 
     if these is not None:
         ca_list = [(name, ca) for name, ca in these.items()]
-
-        if not isinstance(these, ordered_dict):
-            ca_list.sort(key=_counter_getter)
     elif auto_attribs is True:
         ca_names = {
             name
@@ -735,7 +718,7 @@ class _ClassBuilder:
             ) = self._make_getstate_setstate()
 
     def __repr__(self):
-        return "<_ClassBuilder(cls={cls})>".format(cls=self._cls.__name__)
+        return f"<_ClassBuilder(cls={self._cls.__name__})>"
 
     def build_class(self):
         """
@@ -1218,10 +1201,7 @@ def attrs(
         If *these* is not ``None``, ``attrs`` will *not* search the class body
         for attributes and will *not* remove any attributes from it.
 
-        If *these* is an ordered dict (`dict` on Python 3.6+,
-        `collections.OrderedDict` otherwise), the order is deduced from
-        the order of the attributes inside *these*.  Otherwise the order
-        of the definition of the attributes is used.
+        The order is deduced from the order of the attributes inside *these*.
 
     :type these: `dict` of `str` to `attr.ib`
 
@@ -1329,7 +1309,7 @@ def attrs(
     :param bool weakref_slot: Make instances weak-referenceable.  This has no
         effect unless ``slots`` is also enabled.
     :param bool auto_attribs: If ``True``, collect :pep:`526`-annotated
-        attributes (Python 3.6 and later only) from the class body.
+        attributes from the class body.
 
         In this case, you **must** annotate every field.  If ``attrs``
         encounters a field that is set to an `attr.ib` but lacks a type
@@ -1833,126 +1813,61 @@ def _add_eq(cls, attrs=None):
     return cls
 
 
-if HAS_F_STRINGS:
-
-    def _make_repr(attrs, ns, cls):
-        unique_filename = _generate_unique_filename(cls, "repr")
-        # Figure out which attributes to include, and which function to use to
-        # format them. The a.repr value can be either bool or a custom
-        # callable.
-        attr_names_with_reprs = tuple(
-            (a.name, (repr if a.repr is True else a.repr), a.init)
-            for a in attrs
-            if a.repr is not False
+def _make_repr(attrs, ns, cls):
+    unique_filename = _generate_unique_filename(cls, "repr")
+    # Figure out which attributes to include, and which function to use to
+    # format them. The a.repr value can be either bool or a custom
+    # callable.
+    attr_names_with_reprs = tuple(
+        (a.name, (repr if a.repr is True else a.repr), a.init)
+        for a in attrs
+        if a.repr is not False
+    )
+    globs = {
+        name + "_repr": r for name, r, _ in attr_names_with_reprs if r != repr
+    }
+    globs["_compat"] = _compat
+    globs["AttributeError"] = AttributeError
+    globs["NOTHING"] = NOTHING
+    attribute_fragments = []
+    for name, r, i in attr_names_with_reprs:
+        accessor = (
+            "self." + name if i else 'getattr(self, "' + name + '", NOTHING)'
         )
-        globs = {
-            name + "_repr": r
-            for name, r, _ in attr_names_with_reprs
-            if r != repr
-        }
-        globs["_compat"] = _compat
-        globs["AttributeError"] = AttributeError
-        globs["NOTHING"] = NOTHING
-        attribute_fragments = []
-        for name, r, i in attr_names_with_reprs:
-            accessor = (
-                "self." + name
-                if i
-                else 'getattr(self, "' + name + '", NOTHING)'
-            )
-            fragment = (
-                "%s={%s!r}" % (name, accessor)
-                if r == repr
-                else "%s={%s_repr(%s)}" % (name, name, accessor)
-            )
-            attribute_fragments.append(fragment)
-        repr_fragment = ", ".join(attribute_fragments)
-
-        if ns is None:
-            cls_name_fragment = (
-                '{self.__class__.__qualname__.rsplit(">.", 1)[-1]}'
-            )
-        else:
-            cls_name_fragment = ns + ".{self.__class__.__name__}"
-
-        lines = [
-            "def __repr__(self):",
-            "  try:",
-            "    already_repring = _compat.repr_context.already_repring",
-            "  except AttributeError:",
-            "    already_repring = {id(self),}",
-            "    _compat.repr_context.already_repring = already_repring",
-            "  else:",
-            "    if id(self) in already_repring:",
-            "      return '...'",
-            "    else:",
-            "      already_repring.add(id(self))",
-            "  try:",
-            "    return f'%s(%s)'" % (cls_name_fragment, repr_fragment),
-            "  finally:",
-            "    already_repring.remove(id(self))",
-        ]
-
-        return _make_method(
-            "__repr__", "\n".join(lines), unique_filename, globs=globs
+        fragment = (
+            "%s={%s!r}" % (name, accessor)
+            if r == repr
+            else "%s={%s_repr(%s)}" % (name, name, accessor)
         )
+        attribute_fragments.append(fragment)
+    repr_fragment = ", ".join(attribute_fragments)
 
-else:
+    if ns is None:
+        cls_name_fragment = '{self.__class__.__qualname__.rsplit(">.", 1)[-1]}'
+    else:
+        cls_name_fragment = ns + ".{self.__class__.__name__}"
 
-    def _make_repr(attrs, ns, _):
-        """
-        Make a repr method that includes relevant *attrs*, adding *ns* to the
-        full name.
-        """
+    lines = [
+        "def __repr__(self):",
+        "  try:",
+        "    already_repring = _compat.repr_context.already_repring",
+        "  except AttributeError:",
+        "    already_repring = {id(self),}",
+        "    _compat.repr_context.already_repring = already_repring",
+        "  else:",
+        "    if id(self) in already_repring:",
+        "      return '...'",
+        "    else:",
+        "      already_repring.add(id(self))",
+        "  try:",
+        "    return f'%s(%s)'" % (cls_name_fragment, repr_fragment),
+        "  finally:",
+        "    already_repring.remove(id(self))",
+    ]
 
-        # Figure out which attributes to include, and which function to use to
-        # format them. The a.repr value can be either bool or a custom
-        # callable.
-        attr_names_with_reprs = tuple(
-            (a.name, repr if a.repr is True else a.repr)
-            for a in attrs
-            if a.repr is not False
-        )
-
-        def __repr__(self):
-            """
-            Automatically created by attrs.
-            """
-            try:
-                already_repring = _compat.repr_context.already_repring
-            except AttributeError:
-                already_repring = set()
-                _compat.repr_context.already_repring = already_repring
-
-            if id(self) in already_repring:
-                return "..."
-            real_cls = self.__class__
-            if ns is None:
-                class_name = real_cls.__qualname__.rsplit(">.", 1)[-1]
-            else:
-                class_name = ns + "." + real_cls.__name__
-
-            # Since 'self' remains on the stack (i.e.: strongly referenced)
-            # for the duration of this call, it's safe to depend on id(...)
-            # stability, and not need to track the instance and therefore
-            # worry about properties like weakref- or hash-ability.
-            already_repring.add(id(self))
-            try:
-                result = [class_name, "("]
-                first = True
-                for name, attr_repr in attr_names_with_reprs:
-                    if first:
-                        first = False
-                    else:
-                        result.append(", ")
-                    result.extend(
-                        (name, "=", attr_repr(getattr(self, name, NOTHING)))
-                    )
-                return "".join(result) + ")"
-            finally:
-                already_repring.remove(id(self))
-
-        return __repr__
+    return _make_method(
+        "__repr__", "\n".join(lines), unique_filename, globs=globs
+    )
 
 
 def _add_repr(cls, ns=None, attrs=None):
@@ -1988,9 +1903,7 @@ def fields(cls):
         raise TypeError("Passed object must be a class.")
     attrs = getattr(cls, "__attrs_attrs__", None)
     if attrs is None:
-        raise NotAnAttrsClassError(
-            "{cls!r} is not an attrs-decorated class.".format(cls=cls)
-        )
+        raise NotAnAttrsClassError(f"{cls!r} is not an attrs-decorated class.")
     return attrs
 
 
@@ -2005,10 +1918,7 @@ def fields_dict(cls):
     :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
         class.
 
-    :rtype: an ordered dict where keys are attribute names and values are
-        `attrs.Attribute`\\ s. This will be a `dict` if it's
-        naturally ordered like on Python 3.6+ or an
-        :class:`~collections.OrderedDict` otherwise.
+    :rtype: dict
 
     .. versionadded:: 18.1.0
     """
@@ -2016,10 +1926,8 @@ def fields_dict(cls):
         raise TypeError("Passed object must be a class.")
     attrs = getattr(cls, "__attrs_attrs__", None)
     if attrs is None:
-        raise NotAnAttrsClassError(
-            "{cls!r} is not an attrs-decorated class.".format(cls=cls)
-        )
-    return ordered_dict((a.name, a) for a in attrs)
+        raise NotAnAttrsClassError(f"{cls!r} is not an attrs-decorated class.")
+    return {a.name: a for a in attrs}
 
 
 def validate(inst):
@@ -2579,7 +2487,7 @@ class Attribute:
             type=type,
             cmp=None,
             inherited=False,
-            **inst_dict
+            **inst_dict,
         )
 
     # Don't use attr.evolve since fields(Attribute) doesn't work
@@ -2865,10 +2773,9 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
     :param attrs: A list of names or a dictionary of mappings of names to
         attributes.
 
-        If *attrs* is a list or an ordered dict (`dict` on Python 3.6+,
-        `collections.OrderedDict` otherwise), the order is deduced from
-        the order of the names or attributes inside *attrs*.  Otherwise the
-        order of the definition of the attributes is used.
+        The order is deduced from the order of the names or attributes inside
+        *attrs*.  Otherwise the order of the definition of the attributes is
+        used.
     :type attrs: `list` or `dict`
 
     :param tuple bases: Classes that the new class will subclass.
