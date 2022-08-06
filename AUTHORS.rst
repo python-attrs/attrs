@@ -3,7 +3,7 @@ Credits
 
 ``attrs`` is written and maintained by `Hynek Schlawack <https://hynek.me/>`_.
 
-The development is kindly supported by `Variomedia AG <https://www.variomedia.de/>`_, the ``attrs`` `Tidelift subscribers <https://tidelift.com/subscription/pkg/pypi-attrs?utm_source=pypi-attrs&utm_medium=referral&utm_campaign=enterprise&utm_term=repo>`_,  and all my amazing `GitHub Sponsors <https://github.com/sponsors/hynek>`_.
+The development is kindly supported by `Variomedia AG <https://www.variomedia.de/>`_, ``attrs`` `Tidelift subscribers <https://tidelift.com/subscription/pkg/pypi-attrs?utm_source=pypi-attrs&utm_medium=referral&utm_campaign=enterprise&utm_term=repo>`_,  and all my amazing `GitHub Sponsors <https://github.com/sponsors/hynek>`_.
 
 A full list of contributors can be found in `GitHub's overview <https://github.com/python-attrs/attrs/graphs/contributors>`_.
 
