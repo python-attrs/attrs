@@ -1,0 +1,1 @@
+Added missing re-import of ``attr.AttrsInstance`` to the ``attrs`` namespace.
