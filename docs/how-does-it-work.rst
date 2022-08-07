@@ -94,9 +94,9 @@ This is (still) slower than a plain assignment:
         -s "import attr; C = attr.make_class('C', ['x', 'y', 'z'], slots=True, frozen=True)" \
         "C(1, 2, 3)"
   .........................................
-  Mean +- std dev: 450 ns +- 26 ns
+  Mean +- std dev: 425 ns +- 16 ns
 
-So on a laptop computer the difference is about 230 nanoseconds (1 second is 1,000,000,000 nanoseconds).
+So on a laptop computer the difference is about 200 nanoseconds (1 second is 1,000,000,000 nanoseconds).
 It's certainly something you'll feel in a hot loop but shouldn't matter in normal code.
 Pick what's more important to you.
 

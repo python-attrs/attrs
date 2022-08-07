@@ -915,7 +915,7 @@ class _ClassBuilder:
             """
             Automatically created by attrs.
             """
-            __bound_setattr = _obj_setattr.__get__(self, Attribute)
+            __bound_setattr = _obj_setattr.__get__(self)
             for name, value in zip(state_attr_names, state):
                 __bound_setattr(name, value)
 
@@ -2007,6 +2007,7 @@ def _make_init(
         cache_hash,
         base_attr_map,
         is_exc,
+        needs_cached_setattr,
         has_cls_on_setattr,
         attrs_init,
     )
@@ -2019,7 +2020,7 @@ def _make_init(
     if needs_cached_setattr:
         # Save the lookup overhead in __init__ if we need to circumvent
         # setattr hooks.
-        globs["_setattr"] = _obj_setattr
+        globs["_cached_setattr_get"] = _obj_setattr.__get__
 
     init = _make_method(
         "__attrs_init__" if attrs_init else "__init__",
@@ -2036,7 +2037,7 @@ def _setattr(attr_name, value_var, has_on_setattr):
     """
     Use the cached object.setattr to set *attr_name* to *value_var*.
     """
-    return "_setattr(self, '%s', %s)" % (attr_name, value_var)
+    return "_setattr('%s', %s)" % (attr_name, value_var)
 
 
 def _setattr_with_converter(attr_name, value_var, has_on_setattr):
@@ -2044,7 +2045,7 @@ def _setattr_with_converter(attr_name, value_var, has_on_setattr):
     Use the cached object.setattr to set *attr_name* to *value_var*, but run
     its converter first.
     """
-    return "_setattr(self, '%s', %s(%s))" % (
+    return "_setattr('%s', %s(%s))" % (
         attr_name,
         _init_converter_pat % (attr_name,),
         value_var,
@@ -2086,6 +2087,7 @@ def _attrs_to_init_script(
     cache_hash,
     base_attr_map,
     is_exc,
+    needs_cached_setattr,
     has_cls_on_setattr,
     attrs_init,
 ):
@@ -2100,6 +2102,14 @@ def _attrs_to_init_script(
     lines = []
     if pre_init:
         lines.append("self.__attrs_pre_init__()")
+
+    if needs_cached_setattr:
+        lines.append(
+            # Circumvent the __setattr__ descriptor to save one lookup per
+            # assignment.
+            # Note _setattr will be used again below if cache_hash is True
+            "_setattr = _cached_setattr_get(self)"
+        )
 
     if frozen is True:
         if slots is True:
@@ -2315,7 +2325,7 @@ def _attrs_to_init_script(
         if frozen:
             if slots:
                 # if frozen and slots, then _setattr defined above
-                init_hash_cache = "_setattr(self, '%s', %s)"
+                init_hash_cache = "_setattr('%s', %s)"
             else:
                 # if frozen and not slots, then _inst_dict defined above
                 init_hash_cache = "_inst_dict['%s'] = %s"
@@ -2428,7 +2438,7 @@ class Attribute:
         )
 
         # Cache this descriptor here to speed things up later.
-        bound_setattr = _obj_setattr.__get__(self, Attribute)
+        bound_setattr = _obj_setattr.__get__(self)
 
         # Despite the big red warning, people *do* instantiate `Attribute`
         # themselves.
@@ -2525,7 +2535,7 @@ class Attribute:
         self._setattrs(zip(self.__slots__, state))
 
     def _setattrs(self, name_values_pairs):
-        bound_setattr = _obj_setattr.__get__(self, Attribute)
+        bound_setattr = _obj_setattr.__get__(self)
         for name, value in name_values_pairs:
             if name != "metadata":
                 bound_setattr(name, value)
