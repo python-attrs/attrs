@@ -17,7 +17,6 @@ from hypothesis.strategies import booleans
 
 import attr
 
-from attr._compat import PY36
 from attr._make import NOTHING, Attribute
 from attr.exceptions import FrozenInstanceError
 
@@ -224,9 +223,9 @@ class TestFunctional:
         assert i.x is i.meth() is obj
         assert i.y == 2
         if cls is Sub:
-            assert "Sub(x={obj}, y=2)".format(obj=obj) == repr(i)
+            assert f"Sub(x={obj}, y=2)" == repr(i)
         else:
-            assert "SubSlots(x={obj}, y=2)".format(obj=obj) == repr(i)
+            assert f"SubSlots(x={obj}, y=2)" == repr(i)
 
     @pytest.mark.parametrize("base", [Base, BaseSlots])
     def test_subclass_without_extra_attrs(self, base):
@@ -241,7 +240,7 @@ class TestFunctional:
         obj = object()
         i = Sub2(x=obj)
         assert i.x is i.meth() is obj
-        assert "Sub2(x={obj})".format(obj=obj) == repr(i)
+        assert f"Sub2(x={obj})" == repr(i)
 
     @pytest.mark.parametrize(
         "frozen_class",
@@ -701,7 +700,6 @@ class TestFunctional:
         assert "self.y = y" in src
         assert object.__setattr__ == D.__setattr__
 
-    @pytest.mark.skipif(not PY36, reason="NG APIs are 3.6+")
     @pytest.mark.parametrize("slots", [True, False])
     def test_no_setattr_with_ng_defaults(self, slots):
         """

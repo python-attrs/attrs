@@ -4,17 +4,13 @@ import json
 import os.path
 import shutil
 import subprocess
-import sys
 
 import pytest
 
 import attr
 
 
-if sys.version_info < (3, 6):
-    _found_pyright = False
-else:
-    _found_pyright = shutil.which("pyright")
+_found_pyright = shutil.which("pyright")
 
 
 @attr.s(frozen=True)

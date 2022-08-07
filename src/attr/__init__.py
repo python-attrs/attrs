@@ -1,8 +1,5 @@
 # SPDX-License-Identifier: MIT
 
-
-import sys
-
 from functools import partial
 
 from . import converters, exceptions, filters, setters, validators
@@ -20,6 +17,7 @@ from ._make import (
     make_class,
     validate,
 )
+from ._next_gen import define, field, frozen, mutable
 from ._version_info import VersionInfo
 
 
@@ -56,15 +54,19 @@ __all__ = [
     "attrs",
     "cmp_using",
     "converters",
+    "define",
     "evolve",
     "exceptions",
+    "field",
     "fields",
     "fields_dict",
     "filters",
+    "frozen",
     "get_run_validators",
     "has",
     "ib",
     "make_class",
+    "mutable",
     "resolve_types",
     "s",
     "set_run_validators",
@@ -72,8 +74,3 @@ __all__ = [
     "validate",
     "validators",
 ]
-
-if sys.version_info[:2] >= (3, 6):
-    from ._next_gen import define, field, frozen, mutable  # noqa: F401
-
-    __all__.extend(("define", "field", "frozen", "mutable"))

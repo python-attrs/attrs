@@ -391,7 +391,7 @@ class _DeepIterable:
         iterable_identifier = (
             ""
             if self.iterable_validator is None
-            else " {iterable!r}".format(iterable=self.iterable_validator)
+            else f" {self.iterable_validator!r}"
         )
         return (
             "<deep_iterable validator for{iterable_identifier}"
@@ -548,7 +548,7 @@ class _MaxLengthValidator:
             )
 
     def __repr__(self):
-        return "<max_len validator for {max}>".format(max=self.max_length)
+        return f"<max_len validator for {self.max_length}>"
 
 
 def max_len(length):
@@ -579,7 +579,7 @@ class _MinLengthValidator:
             )
 
     def __repr__(self):
-        return "<min_len validator for {min}>".format(min=self.min_length)
+        return f"<min_len validator for {self.min_length}>"
 
 
 def min_len(length):

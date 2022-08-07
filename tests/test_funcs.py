@@ -15,7 +15,7 @@ from hypothesis import strategies as st
 import attr
 
 from attr import asdict, assoc, astuple, evolve, fields, has
-from attr._compat import Mapping, Sequence, ordered_dict
+from attr._compat import Mapping, Sequence
 from attr.exceptions import AttrsAttributeNotFoundError
 from attr.validators import instance_of
 
@@ -196,7 +196,7 @@ class TestAsDict:
         Field order should be preserved when dumping to an ordered_dict.
         """
         instance = cls()
-        dict_instance = asdict(instance, dict_factory=ordered_dict)
+        dict_instance = asdict(instance, dict_factory=dict)
 
         assert [a.name for a in fields(cls)] == list(dict_instance.keys())
 
@@ -483,9 +483,7 @@ class TestAssoc:
         ) as e, pytest.deprecated_call():
             assoc(C(), aaaa=2)
 
-        assert (
-            "aaaa is not an attrs attribute on {cls!r}.".format(cls=C),
-        ) == e.value.args
+        assert (f"aaaa is not an attrs attribute on {C!r}.",) == e.value.args
 
     def test_frozen(self):
         """

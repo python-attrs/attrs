@@ -14,7 +14,6 @@ As of version 21.3.0, ``attrs`` consists of **two** top-level package names:
 - The classic ``attr`` that powered the venerable `attr.s` and `attr.ib`
 - The modern ``attrs`` that only contains most modern APIs and relies on `attrs.define` and `attrs.field` to define your classes.
   Additionally it offers some ``attr`` APIs with nicer defaults (e.g. `attrs.asdict`).
-  Using this namespace requires Python 3.6 or later.
 
 The ``attrs`` namespace is built *on top of* ``attr`` which will *never* go away.
 

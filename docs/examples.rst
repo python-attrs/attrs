@@ -473,7 +473,7 @@ If you're the author of a third-party library with ``attrs`` integration, please
 Types
 -----
 
-``attrs`` also allows you to associate a type with an attribute using either the *type* argument to `attr.ib` or -- as of Python 3.6 -- using :pep:`526`-annotations:
+``attrs`` also allows you to associate a type with an attribute using either the *type* argument to `attr.ib` or using :pep:`526`-annotations:
 
 
 .. doctest::
