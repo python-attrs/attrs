@@ -1,1 +1,4 @@
 Python 3.5 is not supported anymore.
+
+We are considering to drop 3.6 soon too.
+If that would affect you, please let us know.
