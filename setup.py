@@ -54,7 +54,6 @@ EXTRAS_REQUIRE = {
         # Since the mypy error messages keep changing, we have to keep updating
         # this pin.
         "mypy>=0.971; python_implementation == 'CPython'",
-        "pytest-mypy-plugins",
         "pytest-mypy-plugins; python_implementation == 'CPython'",
     ],
     "tests": {
