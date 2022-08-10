@@ -1,4 +1,4 @@
 Python 3.5 is not supported anymore.
 
-We are considering to drop 3.6 soon too.
-If that would affect you, please let us know.
+We're considering to drop 3.6 soon too.
+If that would affect you, please `let us know <https://github.com/python-attrs/attrs/pull/993>`_.
