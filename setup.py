@@ -2,7 +2,6 @@
 
 import codecs
 import os
-import platform
 import re
 
 from setuptools import find_packages, setup
@@ -45,25 +44,27 @@ CLASSIFIERS = [
 INSTALL_REQUIRES = []
 EXTRAS_REQUIRE = {
     "docs": ["furo", "sphinx", "zope.interface", "sphinx-notfound-page"],
-    "tests_no_zope": [
+    "tests-no-zope": [
         # For regression test to ensure cloudpickle compat doesn't break.
         'cloudpickle; python_implementation == "CPython"',
-        # 5.0 introduced toml; parallel was broken until 5.0.2
-        "coverage[toml]>=5.0.2",
         "hypothesis",
         "pympler",
-        "pytest>=4.3.0",  # 4.3.0 dropped last use of `convert`
+        # 4.3.0 dropped last use of `convert`
+        "pytest>=4.3.0",
+        # Since the mypy error messages keep changing, we have to keep updating
+        # this pin.
+        "mypy>=0.971; python_implementation == 'CPython'",
+        "pytest-mypy-plugins; python_implementation == 'CPython'",
     ],
+    "tests": {
+        "attrs[tests-no-zope]",
+        "zope.interface",
+    },
+    "dev": {"attrs[tests,docs]": ["pre-commit"]},
 }
-if platform.python_implementation() != "PyPy":
-    EXTRAS_REQUIRE["tests_no_zope"].extend(
-        ["mypy>=0.900,!=0.940", "pytest-mypy-plugins"]
-    )
+# Don't break Paul unnecessarily just yet. C.f. #685
+EXTRAS_REQUIRE["tests_no_zope"] = EXTRAS_REQUIRE["tests-no-zope"]
 
-EXTRAS_REQUIRE["tests"] = EXTRAS_REQUIRE["tests_no_zope"] + ["zope.interface"]
-EXTRAS_REQUIRE["dev"] = (
-    EXTRAS_REQUIRE["tests"] + EXTRAS_REQUIRE["docs"] + ["pre-commit"]
-)
 
 ###############################################################################
 
