@@ -11,6 +11,7 @@ import attr
 
 
 _found_pyright = shutil.which("pyright")
+pytestmark = pytest.mark.skipif(not _found_pyright, reason="Requires pyright.")
 
 
 @attr.s(frozen=True)
@@ -19,14 +20,7 @@ class PyrightDiagnostic:
     message = attr.ib()
 
 
-@pytest.mark.skipif(not _found_pyright, reason="Requires pyright.")
-def test_pyright_baseline():
-    """The __dataclass_transform__ decorator allows pyright to determine
-    attrs decorated class types.
-    """
-
-    test_file = os.path.dirname(__file__) + "/dataclass_transform_example.py"
-
+def parse_pyright_output(test_file):
     pyright = subprocess.run(
         ["pyright", "--outputjson", str(test_file)], capture_output=True
     )
@@ -36,6 +30,17 @@ def test_pyright_baseline():
         PyrightDiagnostic(d["severity"], d["message"])
         for d in pyright_result["generalDiagnostics"]
     }
+
+    return diagnostics
+
+
+def test_pyright_baseline():
+    """The __dataclass_transform__ decorator allows pyright to determine
+    attrs decorated class types.
+    """
+    diagnostics = parse_pyright_output(
+        os.path.dirname(__file__) + "/dataclass_transform_example.py"
+    )
 
     # Expected diagnostics as per pyright 1.1.135
     expected_diagnostics = {
@@ -64,4 +69,29 @@ def test_pyright_baseline():
         ),
     }
 
+    assert diagnostics == expected_diagnostics
+
+
+def test_pyright_attrsinstance_is_any(tmp_path):
+    """
+    Test that `AttrsInstance` is `Any` under Pyright.
+    """
+    test_pyright_attrsinstance_is_any_path = (
+        tmp_path / "test_pyright_attrsinstance_is_any.py"
+    )
+    test_pyright_attrsinstance_is_any_path.write_text(
+        """\
+import attrs
+
+reveal_type(attrs.AttrsInstance)
+"""
+    )
+
+    diagnostics = parse_pyright_output(test_pyright_attrsinstance_is_any_path)
+    expected_diagnostics = {
+        PyrightDiagnostic(
+            severity="information",
+            message='Type of "attrs.AttrsInstance" is "Any"',
+        ),
+    }
     assert diagnostics == expected_diagnostics
