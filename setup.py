@@ -63,6 +63,8 @@ EXTRAS_REQUIRE = {
     },
     "dev": {"attrs[tests,docs]": ["pre-commit"]},
 }
+# Don't break Paul unnecessarily just yet. C.f. #685
+EXTRAS_REQUIRE["tests_no_zope"] = EXTRAS_REQUIRE["tests-no-zope"]
 
 
 ###############################################################################
