@@ -24,7 +24,9 @@ from . import setters as setters
 from . import validators as validators
 from ._cmp import cmp_using as cmp_using
 from ._version_info import VersionInfo
-from ._typing_compat import AttrsInstance_ as AttrsInstance
+from ._typing_compat import AttrsInstance_
+
+AttrsInstance = AttrsInstance_
 
 __version__: str
 __version_info__: VersionInfo
