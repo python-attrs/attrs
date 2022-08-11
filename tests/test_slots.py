@@ -452,7 +452,6 @@ class TestClosureCellRewriting:
         assert non_slot_instance.my_subclass() is C2
         assert slot_instance.my_subclass() is C2Slots
 
-    @pytest.mark.parametrize("slots", [True, False])
     def test_cls_static(self, slots):
         """
         Slotted classes support proper closure cell rewriting for class- and
