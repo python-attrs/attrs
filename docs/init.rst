@@ -45,7 +45,7 @@ Embrace functions and classmethods as a filter between reality and what's best f
 
    We want to help you to write a ``__init__`` that you'd write by hand, but with less boilerplate.
 
-   If you look for powerful-yet-unintrusive serialization and validation for your ``attrs`` classes, have a look at our sibling project `cattrs <https://cattrs.readthedocs.io/en>`_ or our `third-party extensions <https://github.com/python-attrs/attrs/wiki/Extensions-to-attrs>`_.
+   If you look for powerful-yet-unintrusive serialization and validation for your ``attrs`` classes, have a look at our sibling project `cattrs <https://cattrs.readthedocs.io/>`_ or our `third-party extensions <https://github.com/python-attrs/attrs/wiki/Extensions-to-attrs>`_.
 
 
 Private Attributes
