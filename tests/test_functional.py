@@ -353,8 +353,6 @@ class TestFunctional:
 
         assert C(1, 2) == C()
 
-    @pytest.mark.parametrize("slots", [True, False])
-    @pytest.mark.parametrize("frozen", [True, False])
     @pytest.mark.parametrize("weakref_slot", [True, False])
     def test_attrib_overwrite(self, slots, frozen, weakref_slot):
         """
@@ -423,7 +421,6 @@ class TestFunctional:
         class D(C):
             pass
 
-    @pytest.mark.parametrize("slots", [True, False])
     def test_hash_false_eq_false(self, slots):
         """
         hash=False and eq=False make a class hashable by ID.
@@ -435,7 +432,6 @@ class TestFunctional:
 
         assert hash(C()) != hash(C())
 
-    @pytest.mark.parametrize("slots", [True, False])
     def test_eq_false(self, slots):
         """
         eq=False makes a class hashable by ID.
@@ -543,8 +539,6 @@ class TestFunctional:
         assert "itemgetter" == attr.fields(C).itemgetter.name
         assert "x" == attr.fields(C).x.name
 
-    @pytest.mark.parametrize("slots", [True, False])
-    @pytest.mark.parametrize("frozen", [True, False])
     def test_auto_exc(self, slots, frozen):
         """
         Classes with auto_exc=True have a Exception-style __str__, compare and
@@ -599,8 +593,6 @@ class TestFunctional:
                 deepcopy(e1)
                 deepcopy(e2)
 
-    @pytest.mark.parametrize("slots", [True, False])
-    @pytest.mark.parametrize("frozen", [True, False])
     def test_auto_exc_one_attrib(self, slots, frozen):
         """
         Having one attribute works with auto_exc=True.
@@ -614,8 +606,6 @@ class TestFunctional:
 
         FooError(1)
 
-    @pytest.mark.parametrize("slots", [True, False])
-    @pytest.mark.parametrize("frozen", [True, False])
     def test_eq_only(self, slots, frozen):
         """
         Classes with order=False cannot be ordered.
@@ -639,7 +629,6 @@ class TestFunctional:
 
         assert ei.value.args[0] in possible_errors
 
-    @pytest.mark.parametrize("slots", [True, False])
     @pytest.mark.parametrize("cmp", [True, False])
     def test_attrib_cmp_shortcut(self, slots, cmp):
         """
@@ -653,7 +642,6 @@ class TestFunctional:
         assert cmp is attr.fields(C).x.eq
         assert cmp is attr.fields(C).x.order
 
-    @pytest.mark.parametrize("slots", [True, False])
     def test_no_setattr_if_validate_without_validators(self, slots):
         """
         If a class has on_setattr=attr.setters.validate (former default in NG
@@ -663,11 +651,11 @@ class TestFunctional:
         Regression test for #816.
         """
 
-        @attr.s(on_setattr=attr.setters.validate)
+        @attr.s(on_setattr=attr.setters.validate, slots=slots)
         class C:
             x = attr.ib()
 
-        @attr.s(on_setattr=attr.setters.validate)
+        @attr.s(on_setattr=attr.setters.validate, slots=slots)
         class D(C):
             y = attr.ib()
 
@@ -678,18 +666,17 @@ class TestFunctional:
         assert "self.y = y" in src
         assert object.__setattr__ == D.__setattr__
 
-    @pytest.mark.parametrize("slots", [True, False])
     def test_no_setattr_if_convert_without_converters(self, slots):
         """
         If a class has on_setattr=attr.setters.convert but sets no validators,
         don't use the (slower) setattr in __init__.
         """
 
-        @attr.s(on_setattr=attr.setters.convert)
+        @attr.s(on_setattr=attr.setters.convert, slots=slots)
         class C:
             x = attr.ib()
 
-        @attr.s(on_setattr=attr.setters.convert)
+        @attr.s(on_setattr=attr.setters.convert, slots=slots)
         class D(C):
             y = attr.ib()
 
@@ -700,7 +687,6 @@ class TestFunctional:
         assert "self.y = y" in src
         assert object.__setattr__ == D.__setattr__
 
-    @pytest.mark.parametrize("slots", [True, False])
     def test_no_setattr_with_ng_defaults(self, slots):
         """
         If a class has the NG default on_setattr=[convert, validate] but sets
@@ -708,7 +694,7 @@ class TestFunctional:
         __init__.
         """
 
-        @attr.define
+        @attr.define(slots=slots)
         class C:
             x = attr.ib()
 
@@ -718,7 +704,7 @@ class TestFunctional:
         assert "self.x = x" in src
         assert object.__setattr__ == C.__setattr__
 
-        @attr.define
+        @attr.define(slots=slots)
         class D(C):
             y = attr.ib()
 
