@@ -203,7 +203,6 @@ class TestSetAttr:
 
         assert "Frozen classes can't use on_setattr." == ei.value.args[0]
 
-    @pytest.mark.parametrize("slots", [True, False])
     def test_setattr_reset_if_no_custom_setattr(self, slots):
         """
         If a class with an active setattr is subclassed and no new setattr
@@ -229,7 +228,6 @@ class TestSetAttr:
         assert not NoHook.__attrs_own_setattr__
         assert WithOnSetAttrHook.__attrs_own_setattr__
 
-    @pytest.mark.parametrize("slots", [True, False])
     def test_setattr_inherited_do_not_reset(self, slots):
         """
         If we inherit a __setattr__ that has been written by the user, we must
@@ -257,7 +255,6 @@ class TestSetAttr:
 
         assert C.__setattr__ == A.__setattr__
 
-    @pytest.mark.parametrize("slots", [True, False])
     def test_pickling_retains_attrs_own(self, slots):
         """
         Pickling/Unpickling does not lose ownership information about
@@ -314,7 +311,6 @@ class TestSetAttr:
 
         C(1).x = 2
 
-    @pytest.mark.parametrize("slots", [True, False])
     def test_setattr_auto_detect_if_no_custom_setattr(self, slots):
         """
         It's possible to remove the on_setattr hook from an attribute and
@@ -334,7 +330,6 @@ class TestSetAttr:
         assert not RemoveNeedForOurSetAttr.__attrs_own_setattr__
         assert 2 == i.x
 
-    @pytest.mark.parametrize("slots", [True, False])
     def test_setattr_restore_respects_auto_detect(self, slots):
         """
         If __setattr__ should be restored but the user supplied its own and
@@ -348,7 +343,6 @@ class TestSetAttr:
 
         assert CustomSetAttr.__setattr__ != object.__setattr__
 
-    @pytest.mark.parametrize("slots", [True, False])
     def test_setattr_auto_detect_frozen(self, slots):
         """
         frozen=True together with a detected custom __setattr__ are rejected.
@@ -362,7 +356,6 @@ class TestSetAttr:
                 def __setattr__(self, _, __):
                     pass
 
-    @pytest.mark.parametrize("slots", [True, False])
     def test_setattr_auto_detect_on_setattr(self, slots):
         """
         on_setattr attributes together with a detected custom __setattr__ are

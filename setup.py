@@ -12,7 +12,7 @@ from setuptools import find_packages, setup
 NAME = "attrs"
 PACKAGES = find_packages(where="src")
 META_PATH = os.path.join("src", "attr", "__init__.py")
-KEYWORDS = ["class", "attribute", "boilerplate"]
+KEYWORDS = ["class", "attribute", "boilerplate", "dataclass"]
 PROJECT_URLS = {
     "Documentation": "https://www.attrs.org/",
     "Changelog": "https://www.attrs.org/en/stable/changelog.html",
@@ -56,11 +56,11 @@ EXTRAS_REQUIRE = {
         "mypy>=0.971; python_implementation == 'CPython'",
         "pytest-mypy-plugins; python_implementation == 'CPython'",
     ],
-    "tests": {
+    "tests": [
         "attrs[tests-no-zope]",
         "zope.interface",
-    },
-    "dev": {"attrs[tests,docs]": ["pre-commit"]},
+    ],
+    "dev": ["attrs[tests,docs]"],
 }
 # Don't break Paul unnecessarily just yet. C.f. #685
 EXTRAS_REQUIRE["tests_no_zope"] = EXTRAS_REQUIRE["tests-no-zope"]
