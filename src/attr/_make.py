@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: MIT
 
-import abc
 import copy
 import linecache
 import sys
@@ -719,6 +718,7 @@ class _ClassBuilder:
         return f"<_ClassBuilder(cls={self._cls.__name__})>"
 
     if PY310:
+        import abc
 
         def build_class(self):
             """
@@ -729,7 +729,9 @@ class _ClassBuilder:
             if self._slots is True:
                 return self._create_slots_class()
 
-            return abc.update_abstractmethods(self._patch_original_class())
+            return self.abc.update_abstractmethods(
+                self._patch_original_class()
+            )
 
     else:
 
