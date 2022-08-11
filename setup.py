@@ -12,7 +12,7 @@ from setuptools import find_packages, setup
 NAME = "attrs"
 PACKAGES = find_packages(where="src")
 META_PATH = os.path.join("src", "attr", "__init__.py")
-KEYWORDS = ["class", "attribute", "boilerplate"]
+KEYWORDS = ["class", "attribute", "boilerplate", "dataclass"]
 PROJECT_URLS = {
     "Documentation": "https://www.attrs.org/",
     "Changelog": "https://www.attrs.org/en/stable/changelog.html",
