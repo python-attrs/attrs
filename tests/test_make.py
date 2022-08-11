@@ -683,7 +683,6 @@ class TestAttributes:
         assert str is fields(C).y.type
         assert None is fields(C).z.type
 
-    @pytest.mark.parametrize("slots", [True, False])
     def test_clean_class(self, slots):
         """
         Attribute definitions do not appear on the class body after @attr.s.
@@ -1043,7 +1042,6 @@ class TestMakeClass:
         assert D in cls.__mro__
         assert isinstance(cls(), D)
 
-    @pytest.mark.parametrize("slots", [True, False])
     def test_clean_class(self, slots):
         """
         Attribute definitions do not appear on the class body.
@@ -1941,8 +1939,6 @@ class TestAutoDetect:
             C, None, True, ("__le__", "__lt__", "__ge__", "__gt__")
         )
 
-    @pytest.mark.parametrize("slots", [True, False])
-    @pytest.mark.parametrize("frozen", [True, False])
     def test_make_all_by_default(self, slots, frozen):
         """
         If nothing is there to be detected, imply init=True, repr=True,
@@ -1965,8 +1961,6 @@ class TestAutoDetect:
         assert i.__ge__ is not o.__ge__
         assert i.__gt__ is not o.__gt__
 
-    @pytest.mark.parametrize("slots", [True, False])
-    @pytest.mark.parametrize("frozen", [True, False])
     def test_detect_auto_init(self, slots, frozen):
         """
         If auto_detect=True and an __init__ exists, don't write one.
@@ -1981,8 +1975,6 @@ class TestAutoDetect:
 
         assert 42 == CI().x
 
-    @pytest.mark.parametrize("slots", [True, False])
-    @pytest.mark.parametrize("frozen", [True, False])
     def test_detect_auto_repr(self, slots, frozen):
         """
         If auto_detect=True and an __repr__ exists, don't write one.
@@ -1997,8 +1989,6 @@ class TestAutoDetect:
 
         assert "hi" == repr(C(42))
 
-    @pytest.mark.parametrize("slots", [True, False])
-    @pytest.mark.parametrize("frozen", [True, False])
     def test_hash_uses_eq(self, slots, frozen):
         """
         If eq is passed in, then __hash__ should use the eq callable
@@ -2018,8 +2008,6 @@ class TestAutoDetect:
         assert hash(C("1")) == hash(C(1))
         assert hash(D("1")) != hash(D(1))
 
-    @pytest.mark.parametrize("slots", [True, False])
-    @pytest.mark.parametrize("frozen", [True, False])
     def test_detect_auto_hash(self, slots, frozen):
         """
         If auto_detect=True and an __hash__ exists, don't write one.
@@ -2034,8 +2022,6 @@ class TestAutoDetect:
 
         assert 0xC0FFEE == hash(C(42))
 
-    @pytest.mark.parametrize("slots", [True, False])
-    @pytest.mark.parametrize("frozen", [True, False])
     def test_detect_auto_eq(self, slots, frozen):
         """
         If auto_detect=True and an __eq__ or an __ne__, exist, don't write one.
@@ -2061,8 +2047,6 @@ class TestAutoDetect:
         with pytest.raises(ValueError, match="worked"):
             D(1) != D(1)
 
-    @pytest.mark.parametrize("slots", [True, False])
-    @pytest.mark.parametrize("frozen", [True, False])
     def test_detect_auto_order(self, slots, frozen):
         """
         If auto_detect=True and an __ge__, __gt__, __le__, or and __lt__ exist,
@@ -2108,8 +2092,6 @@ class TestAutoDetect:
         assert_none_set(GE, "__ge__")
         assert_none_set(GT, "__gt__")
 
-    @pytest.mark.parametrize("slots", [True, False])
-    @pytest.mark.parametrize("frozen", [True, False])
     def test_override_init(self, slots, frozen):
         """
         If init=True is passed, ignore __init__.
@@ -2124,8 +2106,6 @@ class TestAutoDetect:
 
         assert C(1) == C(1)
 
-    @pytest.mark.parametrize("slots", [True, False])
-    @pytest.mark.parametrize("frozen", [True, False])
     def test_override_repr(self, slots, frozen):
         """
         If repr=True is passed, ignore __repr__.
@@ -2140,8 +2120,6 @@ class TestAutoDetect:
 
         assert "C(x=1)" == repr(C(1))
 
-    @pytest.mark.parametrize("slots", [True, False])
-    @pytest.mark.parametrize("frozen", [True, False])
     def test_override_hash(self, slots, frozen):
         """
         If hash=True is passed, ignore __hash__.
@@ -2156,8 +2134,6 @@ class TestAutoDetect:
 
         assert hash(C(1))
 
-    @pytest.mark.parametrize("slots", [True, False])
-    @pytest.mark.parametrize("frozen", [True, False])
     def test_override_eq(self, slots, frozen):
         """
         If eq=True is passed, ignore __eq__ and __ne__.
@@ -2175,8 +2151,6 @@ class TestAutoDetect:
 
         assert C(1) == C(1)
 
-    @pytest.mark.parametrize("slots", [True, False])
-    @pytest.mark.parametrize("frozen", [True, False])
     @pytest.mark.parametrize(
         "eq,order,cmp",
         [
@@ -2213,7 +2187,6 @@ class TestAutoDetect:
         assert C(2) > C(1)
         assert C(2) >= C(1)
 
-    @pytest.mark.parametrize("slots", [True, False])
     @pytest.mark.parametrize("first", [True, False])
     def test_total_ordering(self, slots, first):
         """
@@ -2262,7 +2235,6 @@ class TestAutoDetect:
 
         assert c1.own_eq_called
 
-    @pytest.mark.parametrize("slots", [True, False])
     def test_detects_setstate_getstate(self, slots):
         """
         __getstate__ and __setstate__ are not overwritten if either is present.
