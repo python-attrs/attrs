@@ -56,11 +56,11 @@ EXTRAS_REQUIRE = {
         "mypy>=0.971; python_implementation == 'CPython'",
         "pytest-mypy-plugins; python_implementation == 'CPython'",
     ],
-    "tests": {
+    "tests": [
         "attrs[tests-no-zope]",
         "zope.interface",
-    },
-    "dev": {"attrs[tests,docs]": ["pre-commit"]},
+    ],
+    "dev": ["attrs[tests,docs]"],
 }
 # Don't break Paul unnecessarily just yet. C.f. #685
 EXTRAS_REQUIRE["tests_no_zope"] = EXTRAS_REQUIRE["tests-no-zope"]
