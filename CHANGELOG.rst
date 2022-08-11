@@ -312,7 +312,7 @@ Backward-incompatible Changes
 Changes
 ^^^^^^^
 
-- ``attr.define()`` et al now correct detect ``__eq__`` and ``__ne__``.
+- ``attr.define()`` et al now correctly detect ``__eq__`` and ``__ne__``.
   `#671 <https://github.com/python-attrs/attrs/issues/671>`_
 - ``attr.define()`` et al's hybrid behavior now also works correctly when arguments are passed.
   `#675 <https://github.com/python-attrs/attrs/issues/675>`_
