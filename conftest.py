@@ -1,8 +1,15 @@
 # SPDX-License-Identifier: MIT
 
+import pytest
+
 from hypothesis import HealthCheck, settings
 
 from attr._compat import PY310
+
+
+@pytest.fixture(name="slots", params=(True, False))
+def slots(request):
+    return request.param
 
 
 def pytest_configure(config):

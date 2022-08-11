@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 
+import abc
 import copy
 import linecache
 import sys
@@ -717,15 +718,30 @@ class _ClassBuilder:
     def __repr__(self):
         return f"<_ClassBuilder(cls={self._cls.__name__})>"
 
-    def build_class(self):
-        """
-        Finalize class based on the accumulated configuration.
+    if PY310:
 
-        Builder cannot be used after calling this method.
-        """
-        if self._slots is True:
-            return self._create_slots_class()
-        else:
+        def build_class(self):
+            """
+            Finalize class based on the accumulated configuration.
+
+            Builder cannot be used after calling this method.
+            """
+            if self._slots is True:
+                return self._create_slots_class()
+
+            return abc.update_abstractmethods(self._patch_original_class())
+
+    else:
+
+        def build_class(self):
+            """
+            Finalize class based on the accumulated configuration.
+
+            Builder cannot be used after calling this method.
+            """
+            if self._slots is True:
+                return self._create_slots_class()
+
             return self._patch_original_class()
 
     def _patch_original_class(self):
