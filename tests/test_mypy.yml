@@ -1373,7 +1373,6 @@
     fields(A)  # E: Argument 1 to "fields" has incompatible type "Type[A]"; expected "Type[AttrsInstance]"
 
 - case: testHasTypeGuard
-  skip: sys.version_info < (3, 10)
   main: |
     from attrs import define, has
 
