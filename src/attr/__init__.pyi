@@ -27,7 +27,6 @@ from . import validators as validators
 from ._cmp import cmp_using as cmp_using
 from ._version_info import VersionInfo
 
-
 if sys.version_info >= (3, 10):
     from typing import TypeGuard
 else:
