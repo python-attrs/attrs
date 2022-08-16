@@ -1371,3 +1371,15 @@
       b: str
 
     fields(A)  # E: Argument 1 to "fields" has incompatible type "Type[A]"; expected "Type[AttrsInstance]"
+
+- case: testHasTypeGuard
+  main: |
+    from attrs import define, has
+
+    @define
+    class A:
+        pass
+
+    reveal_type(A)  # N: Revealed type is "def () -> main.A"
+    if has(A):
+        reveal_type(A)  # N: Revealed type is "Type[attr.AttrsInstance]"

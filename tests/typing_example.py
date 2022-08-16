@@ -416,3 +416,8 @@ def accessing_from_attrs() -> None:
     attrs.setters.frozen
     attrs.validators.and_
     attrs.cmp_using
+
+
+foo = object
+if attrs.has(foo) or attr.has(foo):
+    foo.__attrs_attrs__
