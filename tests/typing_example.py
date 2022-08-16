@@ -418,7 +418,6 @@ def accessing_from_attrs() -> None:
     attrs.cmp_using
 
 
-def has_typeguard() -> None:
-    foo = object
-    if attrs.has(foo):
-        foo.__attrs_attrs__
+foo = object
+if attrs.has(foo) or attr.has(foo):
+    foo.__attrs_attrs__
