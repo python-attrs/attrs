@@ -27,6 +27,11 @@ from . import validators as validators
 from ._cmp import cmp_using as cmp_using
 from ._version_info import VersionInfo
 
+if sys.version_info >= (3, 10):
+    from typing import TypeGuard
+else:
+    from typing_extensions import TypeGuard
+
 __version__: str
 __version_info__: VersionInfo
 __title__: str
@@ -470,7 +475,7 @@ def astuple(
     tuple_factory: Type[Sequence[Any]] = ...,
     retain_collection_types: bool = ...,
 ) -> Tuple[Any, ...]: ...
-def has(cls: type) -> bool: ...
+def has(cls: type) -> TypeGuard[Type[AttrsInstance]]: ...
 def assoc(inst: _T, **changes: Any) -> _T: ...
 def evolve(inst: _T, **changes: Any) -> _T: ...
 
