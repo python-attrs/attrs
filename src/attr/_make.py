@@ -922,7 +922,7 @@ class _ClassBuilder:
             """
             Automatically created by attrs.
             """
-            return tuple(getattr(self, name) for name in state_attr_names)
+            return {name: getattr(self, name) for name in state_attr_names}
 
         hash_caching_enabled = self._cache_hash
 
@@ -931,8 +931,9 @@ class _ClassBuilder:
             Automatically created by attrs.
             """
             __bound_setattr = _obj_setattr.__get__(self)
-            for name, value in zip(state_attr_names, state):
-                __bound_setattr(name, value)
+            for name in state_attr_names:
+                if name in state:
+                    __bound_setattr(name, state[name])
 
             # The hash code cache is not included when the object is
             # serialized, but it still needs to be initialized to None to
