@@ -14,6 +14,7 @@ import attr
 from attr import _config, fields, has
 from attr import validators as validator_module
 from attr.validators import (
+    _subclass_of,
     and_,
     deep_iterable,
     deep_mapping,
@@ -27,6 +28,7 @@ from attr.validators import (
     matches_re,
     max_len,
     min_len,
+    not_,
     optional,
     provides,
 )
@@ -1064,3 +1066,278 @@ class TestMinLen:
         __repr__ is meaningful.
         """
         assert repr(min_len(23)) == "<min_len validator for 23>"
+
+
+class TestSubclassOf:
+    """
+    Tests for `_subclass_of`.
+    """
+
+    def test_success(self):
+        """
+        Nothing happens if classes match.
+        """
+        v = _subclass_of(int)
+        v(None, simple_attr("test"), int)
+
+    def test_subclass(self):
+        """
+        Subclasses are accepted too.
+        """
+        v = _subclass_of(int)
+        # yep, bools are a subclass of int :(
+        v(None, simple_attr("test"), bool)
+
+    def test_fail(self):
+        """
+        Raises `TypeError` on wrong types.
+        """
+        v = _subclass_of(int)
+        a = simple_attr("test")
+        with pytest.raises(TypeError) as e:
+            v(None, a, str)
+        assert (
+            "'test' must be a subclass of <class 'int'> (got <class 'str'>).",
+            a,
+            int,
+            str,
+        ) == e.value.args
+
+    def test_repr(self):
+        """
+        Returned validator has a useful `__repr__`.
+        """
+        v = _subclass_of(int)
+        assert ("<subclass_of validator for type <class 'int'>>") == repr(v)
+
+
+class TestNot_:
+    """
+    Tests for `not_`.
+    """
+
+    DEFAULT_EXC_TYPES = (ValueError, TypeError)
+
+    def test_not_all(self):
+        """
+        The validator is in ``__all__``.
+        """
+        assert not_.__name__ in validator_module.__all__
+
+    def test_repr(self):
+        """
+        Returned validator has a useful `__repr__`.
+        """
+        wrapped = in_([3, 4, 5])
+
+        v = not_(wrapped)
+
+        assert (
+            (
+                "<not_ validator wrapping {wrapped!r}, "
+                "capturing {exc_types!r}>"
+            ).format(
+                wrapped=wrapped,
+                exc_types=v.exc_types,
+            )
+        ) == repr(v)
+
+    def test_success_because_fails(self):
+        """
+        If the wrapped validator fails, we're happy.
+        """
+
+        def always_fails(inst, attr, value):
+            raise ValueError("always fails")
+
+        v = not_(always_fails)
+        a = simple_attr("test")
+        input_value = 3
+
+        v(1, a, input_value)
+
+    def test_fails_because_success(self):
+        """
+        If the wrapped validator doesn't fail, not_ should fail.
+        """
+
+        def always_passes(inst, attr, value):
+            pass
+
+        v = not_(always_passes)
+        a = simple_attr("test")
+        input_value = 3
+
+        with pytest.raises(ValueError) as e:
+            v(1, a, input_value)
+
+        assert (
+            (
+                "not_ validator child '{!r}' did not raise a captured error"
+            ).format(always_passes),
+            a,
+            always_passes,
+            input_value,
+            self.DEFAULT_EXC_TYPES,
+        ) == e.value.args
+
+    def test_composable_with_in_pass(self):
+        """
+        Check something is ``not in`` something else.
+        """
+        v = not_(in_("abc"))
+        a = simple_attr("test")
+        input_value = "d"
+
+        v(None, a, input_value)
+
+    def test_composable_with_in_fail(self):
+        """
+        Check something is ``not in`` something else, but it is, so fail.
+        """
+        wrapped = in_("abc")
+        v = not_(wrapped)
+        a = simple_attr("test")
+        input_value = "b"
+
+        with pytest.raises(ValueError) as e:
+            v(None, a, input_value)
+
+        assert (
+            (
+                "not_ validator child '{!r}' did not raise a captured error"
+            ).format(in_("abc")),
+            a,
+            wrapped,
+            input_value,
+            self.DEFAULT_EXC_TYPES,
+        ) == e.value.args
+
+    def test_composable_with_matches_re_pass(self):
+        """
+        Check something does not match a regex.
+        """
+        v = not_(matches_re("[a-z]{3}"))
+        a = simple_attr("test")
+        input_value = "spam"
+
+        v(None, a, input_value)
+
+    def test_composable_with_matches_re_fail(self):
+        """
+        Check something does not match a regex, but it does, so fail.
+        """
+        wrapped = matches_re("[a-z]{3}")
+        v = not_(wrapped)
+        a = simple_attr("test")
+        input_value = "egg"
+
+        with pytest.raises(ValueError) as e:
+            v(None, a, input_value)
+
+        assert (
+            (
+                "not_ validator child '{!r}' did not raise a captured error"
+            ).format(wrapped),
+            a,
+            wrapped,
+            input_value,
+            self.DEFAULT_EXC_TYPES,
+        ) == e.value.args
+
+    def test_composable_with_instance_of_pass(self):
+        """
+        Check something is not a type. This validator raises a TypeError,
+        rather than a ValueError like the others.
+        """
+        v = not_(instance_of((int, float)))
+        a = simple_attr("test")
+
+        v(None, a, "spam")
+
+    def test_composable_with_instance_of_fail(self):
+        """
+        Check something is not a type, but it is, so fail.
+        """
+        wrapped = instance_of((int, float))
+        v = not_(wrapped)
+        a = simple_attr("test")
+        input_value = 2.718281828
+
+        with pytest.raises(ValueError) as e:
+            v(None, a, input_value)
+
+        assert (
+            (
+                "not_ validator child '{!r}' did not raise a captured error"
+            ).format(instance_of((int, float))),
+            a,
+            wrapped,
+            input_value,
+            self.DEFAULT_EXC_TYPES,
+        ) == e.value.args
+
+    def test_custom_capture_match(self):
+        """
+        Match a custom exception provided to `not_`
+        """
+        v = not_(in_("abc"), exc_types=ValueError)
+        a = simple_attr("test")
+
+        v(None, a, "d")
+
+    def test_custom_capture_miss(self):
+        """
+        If the exception doesn't match, the underlying raise comes through
+        """
+
+        class MyError(Exception):
+            """:("""
+
+        wrapped = in_("abc")
+        v = not_(wrapped, exc_types=MyError)
+        a = simple_attr("test")
+        input_value = "d"
+
+        with pytest.raises(ValueError) as e:
+            v(None, a, input_value)
+
+        # get the underlying exception to compare
+        with pytest.raises(Exception) as e_from_wrapped:
+            wrapped(None, a, input_value)
+        assert e_from_wrapped.value.args == e.value.args
+
+    def test_custom_msg(self):
+        """
+        If provided, use the custom message in the raised error
+        """
+        custom_msg = "custom message!"
+        wrapped = in_("abc")
+        v = not_(wrapped, msg=custom_msg)
+        a = simple_attr("test")
+        input_value = "a"
+
+        with pytest.raises(ValueError) as e:
+            v(None, a, input_value)
+
+        assert (
+            custom_msg,
+            a,
+            wrapped,
+            input_value,
+            self.DEFAULT_EXC_TYPES,
+        ) == e.value.args
+
+    def test_bad_exception_args(self):
+        """
+        Malformed exception arguments
+        """
+        wrapped = in_("abc")
+
+        with pytest.raises(TypeError) as e:
+            not_(wrapped, exc_types=(str, int))
+
+        assert (
+            "'exc_types' must be a subclass of <class 'Exception'> "
+            "(got <class 'str'>)."
+        ) == e.value.args[0]

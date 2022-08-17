@@ -206,6 +206,26 @@ class Validated:
         validator=attrs.validators.instance_of((int, C, str))
     )
 
+    l: Any = attr.ib(
+        validator=attr.validators.not_(attr.validators.in_("abc"))
+    )
+    m: Any = attr.ib(
+        validator=attr.validators.not_(
+            attr.validators.in_("abc"), exc_types=ValueError
+        )
+    )
+    n: Any = attr.ib(
+        validator=attr.validators.not_(
+            attr.validators.in_("abc"), exc_types=(ValueError,)
+        )
+    )
+    o: Any = attr.ib(
+        validator=attr.validators.not_(attr.validators.in_("abc"), msg="spam")
+    )
+    p: Any = attr.ib(
+        validator=attr.validators.not_(attr.validators.in_("abc"), msg=None)
+    )
+
 
 @attr.define
 class Validated2:

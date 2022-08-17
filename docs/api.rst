@@ -596,6 +596,32 @@ All objects from ``attrs.validators`` are also available from ``attr.validators`
       x = attrs.field(validator=attrs.validators.and_(v1, v2, v3))
       x = attrs.field(validator=[v1, v2, v3])
 
+.. autofunction:: attrs.validators.not_
+
+   For example:
+
+   .. doctest::
+
+      >>> reserved_names = {"id", "time", "source"}
+      >>> @attrs.define
+      ... class Measurement:
+      ...     tags = attrs.field(
+      ...         validator=attrs.validators.deep_mapping(
+      ...             key_validator=attrs.validators.not_(
+      ...                 attrs.validators.in_(reserved_names),
+      ...                 msg="reserved tag key",
+      ...             ),
+      ...             value_validator=attrs.validators.instance_of((str, int)),
+      ...         )
+      ...     )
+      >>> Measurement(tags={"source": "universe"})
+      Traceback (most recent call last):
+         ...
+      ValueError: ("reserved tag key", Attribute(name='tags', default=NOTHING, validator=<not_ validator wrapping <in_ validator with options {'id', 'time', 'source'}>, capturing (<class 'ValueError'>, <class 'TypeError'>)>, type=None, kw_only=False), <in_ validator with options {'id', 'time', 'source'}>, {'source_': 'universe'}, (<class 'ValueError'>, <class 'TypeError'>))
+      >>> Measurement(tags={"source_": "universe"})
+      Measurement(tags={'source_': 'universe'})
+
+
 .. autofunction:: attrs.validators.optional
 
    For example:
