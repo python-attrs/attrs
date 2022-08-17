@@ -72,7 +72,10 @@ At this point,
 $ python -m pytest
 ```
 
-should work and pass, as should:
+should work and pass.
+You can *significantly* speed up the test suite by passing `-n auto` to *pytest* which activates [*pytest-xdist*](https://github.com/pytest-dev/pytest-xdist) and takes advantage of all your CPU cores.
+
+Documentation should also build:
 
 ```console
 $ cd docs

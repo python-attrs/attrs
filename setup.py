@@ -51,6 +51,8 @@ EXTRAS_REQUIRE = {
         "pympler",
         # 4.3.0 dropped last use of `convert`
         "pytest>=4.3.0",
+        # psutil extra is needed for correct core count detection.
+        "pytest-xdist[psutil]",
         # Since the mypy error messages keep changing, we have to keep updating
         # this pin.
         "mypy>=0.971; python_implementation == 'CPython'",
