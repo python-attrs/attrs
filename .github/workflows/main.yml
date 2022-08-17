@@ -40,6 +40,8 @@ jobs:
 
       - run: python -m tox
 
+      - run: ls -al
+
       - name: Upload coverage data
         uses: actions/upload-artifact@v3
         with:
