@@ -3,10 +3,10 @@ name: CI
 
 on:
   push:
-    branches: ["main"]
+    branches: [main]
     tags: ["*"]
   pull_request:
-    branches: ["main"]
+    branches: [main]
   workflow_dispatch:
 
 env:
@@ -31,20 +31,20 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: "Install dependencies"
+      - name: Install dependencies
         run: |
           python -VV
           python -m site
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install --upgrade virtualenv tox tox-gh-actions
 
-      - run: "python -m tox"
+      - run: python -m tox
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v3
         with:
           name: coverage-data
-          path: ".coverage.*"
+          path: .coverage.*
           if-no-files-found: ignore
 
 
@@ -103,7 +103,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: ["ubuntu-latest", "windows-latest"]
+        os: [ubuntu-latest, windows-latest]
 
     steps:
       - uses: actions/checkout@v3
