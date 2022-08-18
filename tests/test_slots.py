@@ -772,22 +772,24 @@ def test_slots_unpickle_after_attr_removed(cls):
 
     with mock.patch(f"{__name__}.A", NEW_A):
         new_a = pickle.loads(a_pickled)
+
         assert new_a.x == 1
         assert new_a.c == 3
         assert not hasattr(new_a, "b")
 
 
 @pytest.mark.parametrize("cls", [A])
-def test_slots_unpickle_after_attr_added(cls):
+def test_slots_unpickle_after_attr_added(cls, frozen):
     """
     We don't assign attribute we haven't had before if the class has one added.
     """
     a = cls(1, 2, 3)
     a_pickled = pickle.dumps(a)
     a_unpickled = pickle.loads(a_pickled)
+
     assert a_unpickled == a
 
-    @attr.s(slots=True)
+    @attr.s(slots=True, frozen=frozen)
     class NEW_A:
         x = attr.ib()
         b = attr.ib()
@@ -796,6 +798,7 @@ def test_slots_unpickle_after_attr_added(cls):
 
     with mock.patch(f"{__name__}.A", NEW_A):
         new_a = pickle.loads(a_pickled)
+
         assert new_a.x == 1
         assert new_a.b == 2
         assert new_a.c == 3
