@@ -1,0 +1,2 @@
+``attrs``'s pickling methods now use dicts instead of tuples.
+That is safer and more robust across differnt versions of a class.
