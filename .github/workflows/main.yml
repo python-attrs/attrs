@@ -10,10 +10,9 @@ on:
   workflow_dispatch:
 
 env:
-  FORCE_COLOR: "1"  # Make tools pretty.
+  FORCE_COLOR: "1" # Make tools pretty.
   TOX_TESTENV_PASSENV: FORCE_COLOR
   PYTHON_LATEST: "3.10"
-
 
 jobs:
   tests:
@@ -23,7 +22,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.6", "3.7", "3.8", "3.9", "3.10", "3.11.0-beta - 3.11", "pypy-3.7", "pypy-3.8"]
+        python-version:
+          [
+            "3.6",
+            "3.7",
+            "3.8",
+            "3.9",
+            "3.10",
+            "3.11.0-beta - 3.11",
+            "pypy-3.7",
+            "pypy-3.8",
+          ]
 
     steps:
       - uses: actions/checkout@v3
@@ -46,7 +55,6 @@ jobs:
           name: coverage-data
           path: .coverage.*
           if-no-files-found: ignore
-
 
   coverage:
     runs-on: ubuntu-latest
@@ -79,7 +87,6 @@ jobs:
           path: htmlcov
         if: ${{ failure() }}
 
-
   package:
     name: Build & verify package
     runs-on: ubuntu-latest
@@ -96,7 +103,6 @@ jobs:
       - run: check-wheel-contents dist/*.whl
       - name: Check long_description
         run: python -m twine check dist/*
-
 
   install-dev:
     name: Verify dev env
