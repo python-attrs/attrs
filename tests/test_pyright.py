@@ -91,6 +91,7 @@ def test_pyright_attrsinstance_is_any(tmp_path):
         """\
 import attrs
 
+foo: attrs.AttrsInstance = object()  # We can assign any old object to `AttrsInstance`.
 reveal_type(attrs.AttrsInstance)
 """
     )
@@ -99,7 +100,7 @@ reveal_type(attrs.AttrsInstance)
     expected_diagnostics = {
         PyrightDiagnostic(
             severity="information",
-            message='Type of "attrs.AttrsInstance" is "Any"',
+            message='Type of "attrs.AttrsInstance" is "Type[AttrsInstance]"',
         ),
     }
     assert diagnostics == expected_diagnostics

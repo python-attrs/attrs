@@ -8,6 +8,7 @@ from typing import (
     List,
     Mapping,
     Optional,
+    Protocol,
     Sequence,
     Tuple,
     Type,
@@ -25,8 +26,6 @@ from . import validators as validators
 from ._cmp import cmp_using as cmp_using
 from ._version_info import VersionInfo
 from ._typing_compat import AttrsInstance_
-
-AttrsInstance = AttrsInstance_
 
 if sys.version_info >= (3, 10):
     from typing import TypeGuard
@@ -64,6 +63,10 @@ _FieldTransformer = Callable[
 # or tuple, but those are invariant and so would prevent subtypes of
 # _ValidatorType from working when passed in a list or tuple.
 _ValidatorArgType = Union[_ValidatorType[_T], Sequence[_ValidatorType[_T]]]
+
+# We subclass this here to keep the protocol's qualified name clean.
+class AttrsInstance(AttrsInstance_, Protocol):
+    pass
 
 # _make --
 
