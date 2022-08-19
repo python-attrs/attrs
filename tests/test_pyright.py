@@ -80,14 +80,14 @@ def test_pyright_baseline():
     assert diagnostics == expected_diagnostics
 
 
-def test_pyright_attrsinstance_is_any(tmp_path):
+def test_pyright_attrsinstance_compat(tmp_path):
     """
-    Test that `AttrsInstance` is `Any` under Pyright.
+    Test that `AttrsInstance` is compatible with Pyright.
     """
-    test_pyright_attrsinstance_is_any_path = (
-        tmp_path / "test_pyright_attrsinstance_is_any.py"
+    test_pyright_attrsinstance_compat_path = (
+        tmp_path / "test_pyright_attrsinstance_compat.py"
     )
-    test_pyright_attrsinstance_is_any_path.write_text(
+    test_pyright_attrsinstance_compat_path.write_text(
         """\
 import attrs
 
@@ -96,7 +96,7 @@ reveal_type(attrs.AttrsInstance)
 """
     )
 
-    diagnostics = parse_pyright_output(test_pyright_attrsinstance_is_any_path)
+    diagnostics = parse_pyright_output(test_pyright_attrsinstance_compat_path)
     expected_diagnostics = {
         PyrightDiagnostic(
             severity="information",
