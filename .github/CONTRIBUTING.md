@@ -52,7 +52,7 @@ Next, get an up-to-date checkout of the `attrs` repository:
 $ git clone git@github.com:python-attrs/attrs.git
 ```
 
-or if you prefer to use git via `https`:
+or if you prefer to use *Git* via `https`:
 
 ```console
 $ git clone https://github.com/python-attrs/attrs.git
@@ -62,7 +62,7 @@ Change into the newly created directory and **after activating your virtual envi
 
 ```console
 $ cd attrs
-$ python -m pip install --upgrade pip setuptools  # PLEASE don't skip this step
+$ python -m pip install --upgrade pip wheel setuptools  # PLEASE don't skip this step
 $ python -m pip install -e '.[dev]'
 ```
 
