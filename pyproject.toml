@@ -17,7 +17,7 @@ branch = true
 source_pkgs = ["attr", "attrs"]
 
 [tool.coverage.paths]
-source = ["sre", ". tox/*/site-packages"]
+source = ["src", ".tox/*/site-packages"]
 
 [tool.coverage.report]
 show_missing = true
