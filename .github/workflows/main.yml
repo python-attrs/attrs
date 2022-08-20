@@ -54,7 +54,7 @@ jobs:
       - name: Make coverage unique if it exists.
         run: |
           if [ -f .coverage ]; then
-            mv .coverage .coverage.$(uuidgen)
+            mv .coverage .coverage.${{ strategy.job-index }}
           fi
 
       - name: Upload coverage data
