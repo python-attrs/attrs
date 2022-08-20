@@ -66,6 +66,8 @@ EXTRAS_REQUIRE = {
         "attrs[tests]",
         # pytest-xdist breaks classic coverage.
         "pytest-cov",
+        # Ensure coverage is new enough for `source_pkgs`.
+        "coverage>=5.3",
     ],
     "dev": ["attrs[tests,docs]"],
 }
