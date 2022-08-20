@@ -11,6 +11,7 @@ xfail_strict = true
 testpaths = "tests"
 filterwarnings = ["once::Warning", "ignore:::pympler[.*]"]
 
+
 [tool.coverage.run]
 parallel = true
 branch = true
