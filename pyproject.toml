@@ -14,7 +14,6 @@ filterwarnings = ["once::Warning", "ignore:::pympler[.*]"]
 
 [tool.coverage.run]
 parallel = true
-concurrency = ["multiprocessing"]
 branch = true
 source_pkgs = ["attr", "attrs"]
 
