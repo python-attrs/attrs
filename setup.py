@@ -43,7 +43,13 @@ CLASSIFIERS = [
 ]
 INSTALL_REQUIRES = []
 EXTRAS_REQUIRE = {
-    "docs": ["furo", "sphinx", "zope.interface", "sphinx-notfound-page"],
+    "docs": [
+        "furo",
+        "sphinx",
+        "zope.interface",
+        "sphinx-notfound-page",
+        "sphinxcontrib-towncrier",
+    ],
     "tests-no-zope": [
         # For regression test to ensure cloudpickle compat doesn't break.
         'cloudpickle; python_implementation == "CPython"',
