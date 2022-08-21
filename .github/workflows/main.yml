@@ -49,14 +49,6 @@ jobs:
 
       - run: python -m tox
 
-      # pytest-cov automatically merges coverage into `.coverage`, so we have to
-      # make it unique before uploading.
-      - name: Make coverage unique if it exists.
-        run: |
-          if [ -f .coverage ]; then
-            mv .coverage .coverage.${{ strategy.job-index }}
-          fi
-
       - name: Upload coverage data
         uses: actions/upload-artifact@v3
         with:
