@@ -1,1 +1,0 @@
-Render the unreleased ``attrs`` version change notes on the changelog page in docs.
