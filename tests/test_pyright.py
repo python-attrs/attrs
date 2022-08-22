@@ -91,7 +91,9 @@ def test_pyright_attrsinstance_compat(tmp_path):
         """\
 import attrs
 
-foo: attrs.AttrsInstance = object()  # We can assign any old object to `AttrsInstance`.
+# We can assign any old object to `AttrsInstance`.
+foo: attrs.AttrsInstance = object()
+
 reveal_type(attrs.AttrsInstance)
 """
     )
