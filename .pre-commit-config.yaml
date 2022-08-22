@@ -26,12 +26,12 @@ repos:
         files: \.py$
 
   - repo: https://github.com/asottile/yesqa
-    rev: v1.3.0
+    rev: v1.4.0
     hooks:
       - id: yesqa
 
   - repo: https://github.com/PyCQA/flake8
-    rev: 5.0.2
+    rev: 5.0.4
     hooks:
       - id: flake8
 

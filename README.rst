@@ -109,7 +109,7 @@ Project Information
 - **License**: `MIT <https://choosealicense.com/licenses/mit/>`_
 - **PyPI**: https://pypi.org/project/attrs/
 - **Source Code**: https://github.com/python-attrs/attrs
-- **Documentation**:  https://www.attrs.org/
+- **Documentation**: https://www.attrs.org/
 - **Changelog**: https://www.attrs.org/en/stable/changelog.html
 - **Get Help**: please use the ``python-attrs`` tag on `StackOverflow <https://stackoverflow.com/questions/tagged/python-attrs>`_
 - **Third-party Extensions**: https://github.com/python-attrs/attrs/wiki/Extensions-to-attrs

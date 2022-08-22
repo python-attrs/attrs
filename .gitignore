@@ -1,5 +1,6 @@
 *.egg-info
 *.pyc
+.DS_Store
 .cache
 .coverage*
 .direnv
@@ -13,5 +14,4 @@ build
 dist
 docs/_build/
 htmlcov
-pip-wheel-metadata
-tmp
+tmp*

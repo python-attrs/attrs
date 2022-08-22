@@ -218,7 +218,7 @@ is roughly
    ...         self.b = b
    ...
    ...     def __repr__(self):
-   ...         return "ArtisanalClass(a={}, b={})".format(self.a, self.b)
+   ...         return f"ArtisanalClass(a={self.a}, b={self.b})"
    ...
    ...     def __eq__(self, other):
    ...         if other.__class__ is self.__class__:

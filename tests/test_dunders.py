@@ -319,7 +319,6 @@ class TestAddRepr:
     Tests for `_add_repr`.
     """
 
-    @pytest.mark.parametrize("slots", [True, False])
     def test_repr(self, slots):
         """
         If `repr` is False, ignore that attribute.
@@ -645,8 +644,6 @@ class TestAddHash:
         assert 1 == cached_instance.hash_counter.times_hash_called
 
     @pytest.mark.parametrize("cache_hash", [True, False])
-    @pytest.mark.parametrize("frozen", [True, False])
-    @pytest.mark.parametrize("slots", [True, False])
     def test_copy_hash_cleared(self, cache_hash, frozen, slots):
         """
         Test that the default hash is recalculated after a copy operation.
@@ -700,7 +697,6 @@ class TestAddHash:
 
         assert original_hash != hash(obj_rt)
 
-    @pytest.mark.parametrize("frozen", [True, False])
     def test_copy_two_arg_reduce(self, frozen):
         """
         If __getstate__ returns None, the tuple returned by object.__reduce__

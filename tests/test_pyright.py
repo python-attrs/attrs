@@ -4,38 +4,51 @@ import json
 import os.path
 import shutil
 import subprocess
+import sys
 
 import pytest
 
-import attr
+import attrs
 
 
-_found_pyright = shutil.which("pyright")
+pytestmark = [
+    pytest.mark.skipif(
+        sys.version_info < (3, 7), reason="Requires Python 3.7+."
+    ),
+    pytest.mark.skipif(
+        shutil.which("pyright") is None, reason="Requires pyright."
+    ),
+]
 
 
-@attr.s(frozen=True)
+@attrs.frozen
 class PyrightDiagnostic:
-    severity = attr.ib()
-    message = attr.ib()
+    severity: str
+    message: str
 
 
-@pytest.mark.skipif(not _found_pyright, reason="Requires pyright.")
+def parse_pyright_output(test_file):
+    pyright = subprocess.run(
+        ["pyright", "--outputjson", str(test_file)], capture_output=True
+    )
+
+    pyright_result = json.loads(pyright.stdout)
+
+    return {
+        PyrightDiagnostic(d["severity"], d["message"])
+        for d in pyright_result["generalDiagnostics"]
+    }
+
+
 def test_pyright_baseline():
-    """The __dataclass_transform__ decorator allows pyright to determine
-    attrs decorated class types.
+    """
+    The __dataclass_transform__ decorator allows pyright to determine attrs
+    decorated class types.
     """
 
     test_file = os.path.dirname(__file__) + "/dataclass_transform_example.py"
 
-    pyright = subprocess.run(
-        ["pyright", "--outputjson", str(test_file)], capture_output=True
-    )
-    pyright_result = json.loads(pyright.stdout)
-
-    diagnostics = {
-        PyrightDiagnostic(d["severity"], d["message"])
-        for d in pyright_result["generalDiagnostics"]
-    }
+    diagnostics = parse_pyright_output(test_file)
 
     # Expected diagnostics as per pyright 1.1.135
     expected_diagnostics = {
