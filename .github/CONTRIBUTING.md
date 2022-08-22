@@ -52,7 +52,7 @@ Next, get an up-to-date checkout of the `attrs` repository:
 $ git clone git@github.com:python-attrs/attrs.git
 ```
 
-or if you prefer to use git via `https`:
+or if you prefer to use *Git* via `https`:
 
 ```console
 $ git clone https://github.com/python-attrs/attrs.git
@@ -62,7 +62,7 @@ Change into the newly created directory and **after activating your virtual envi
 
 ```console
 $ cd attrs
-$ python -m pip install --upgrade pip setuptools  # PLEASE don't skip this step
+$ python -m pip install --upgrade pip wheel setuptools  # PLEASE don't skip this step
 $ python -m pip install -e '.[dev]'
 ```
 
@@ -72,7 +72,10 @@ At this point,
 $ python -m pytest
 ```
 
-should work and pass, as should:
+should work and pass.
+You can *significantly* speed up the test suite by passing `-n auto` to *pytest* which activates [*pytest-xdist*](https://github.com/pytest-dev/pytest-xdist) and takes advantage of all your CPU cores.
+
+Documentation should also build:
 
 ```console
 $ cd docs
@@ -93,7 +96,7 @@ This is not strictly necessary, because our [*tox*] file contains an environment
 $ pre-commit run --all-files
 ```
 
-and our CI has integration with `pre-commit.ci <https://pre-commit.ci>`_.
+and our CI has integration with [pre-commit.ci](https://pre-commit.ci).
 But it's way more comfortable to run it locally and *git* catching avoidable errors.
 
 

@@ -15,7 +15,7 @@ filterwarnings = ["once::Warning", "ignore:::pympler[.*]"]
 [tool.coverage.run]
 parallel = true
 branch = true
-source = ["attr", "attrs"]
+source_pkgs = ["attr", "attrs"]
 
 [tool.coverage.paths]
 source = ["src", ".tox/*/site-packages"]

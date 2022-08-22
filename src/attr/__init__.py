@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: MIT
 
+import sys
+import warnings
+
 from functools import partial
 
 from . import converters, exceptions, filters, setters, validators
@@ -20,6 +23,14 @@ from ._make import (
 from ._next_gen import define, field, frozen, mutable
 from ._version_info import VersionInfo
 
+
+if sys.version_info < (3, 7):  # pragma: no cover
+    warnings.warn(
+        "Running attrs on Python 3.6 is deprecated & we intend to drop "
+        "support soon. If that's a problem for you, please let us know why & "
+        "we MAY re-evaluate: <https://github.com/python-attrs/attrs/pull/993>",
+        DeprecationWarning,
+    )
 
 __version__ = "22.2.0.dev0"
 __version_info__ = VersionInfo._from_version_string(__version__)

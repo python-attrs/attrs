@@ -43,7 +43,13 @@ CLASSIFIERS = [
 ]
 INSTALL_REQUIRES = []
 EXTRAS_REQUIRE = {
-    "docs": ["furo", "sphinx", "zope.interface", "sphinx-notfound-page"],
+    "docs": [
+        "furo",
+        "sphinx",
+        "zope.interface",
+        "sphinx-notfound-page",
+        "sphinxcontrib-towncrier",
+    ],
     "tests-no-zope": [
         # For regression test to ensure cloudpickle compat doesn't break.
         'cloudpickle; python_implementation == "CPython"',
@@ -51,6 +57,8 @@ EXTRAS_REQUIRE = {
         "pympler",
         # 4.3.0 dropped last use of `convert`
         "pytest>=4.3.0",
+        # psutil extra is needed for correct core count detection.
+        "pytest-xdist[psutil]",
         # Since the mypy error messages keep changing, we have to keep updating
         # this pin.
         "mypy>=0.971; python_implementation == 'CPython'",
@@ -59,6 +67,12 @@ EXTRAS_REQUIRE = {
     "tests": [
         "attrs[tests-no-zope]",
         "zope.interface",
+    ],
+    "cov": [
+        "attrs[tests]",
+        "coverage-enable-subprocess",
+        # Ensure coverage is new enough for `source_pkgs`.
+        "coverage[toml]>=5.3",
     ],
     "dev": ["attrs[tests,docs]"],
 }
