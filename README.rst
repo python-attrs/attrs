@@ -112,7 +112,7 @@ Project Information
 - **Documentation**: https://www.attrs.org/
 - **Changelog**: https://www.attrs.org/en/stable/changelog.html
 - **Get Help**: please use the ``python-attrs`` tag on `StackOverflow <https://stackoverflow.com/questions/tagged/python-attrs>`_
-- **Contributing**: <https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md>`_
+- **Contributing**: https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md
 - **Third-party Extensions**: https://github.com/python-attrs/attrs/wiki/Extensions-to-attrs
 - **Supported Python Versions**: 3.6 and later (last 2.7-compatible release is `21.4.0 <https://pypi.org/project/attrs/21.4.0/>`_)
 
