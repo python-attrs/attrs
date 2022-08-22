@@ -1,6 +1,12 @@
 # SPDX-License-Identifier: MIT
 
 from importlib import metadata
+from pathlib import Path
+
+
+# -- Path setup -----------------------------------------------------------
+
+PROJECT_ROOT_DIR = Path(__file__).parents[1].resolve()
 
 
 # -- General configuration ------------------------------------------------
@@ -35,6 +41,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.todo",
     "notfound.extension",
+    "sphinxcontrib.towncrier",
 ]
 
 
@@ -153,3 +160,11 @@ intersphinx_mapping = {
 
 # Allow non-local URIs so we can have images in CHANGELOG etc.
 suppress_warnings = ["image.nonlocal_uri"]
+
+
+# -- Options for sphinxcontrib.towncrier extension ------------------------
+
+towncrier_draft_autoversion_mode = "draft"
+towncrier_draft_include_empty = True
+towncrier_draft_working_directory = PROJECT_ROOT_DIR
+towncrier_draft_config_path = "pyproject.toml"

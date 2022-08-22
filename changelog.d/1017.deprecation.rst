@@ -1,0 +1,2 @@
+Python 3.6 is now deprecated and is slated for removal in the next release.
+If that would affect you, please `let us know <https://github.com/python-attrs/attrs/pull/993>`_.
