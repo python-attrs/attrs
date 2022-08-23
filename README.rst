@@ -2,7 +2,10 @@
 
    <p align="center">
       <a href="https://www.attrs.org/">
-         <img src="./docs/_static/attrs_logo.svg" width="35%" alt="attrs" />
+         <picture>
+            <source srcset="./docs/_static/attrs_logo_white.svg" media="(prefers-color-scheme: dark)">
+            <img src="./docs/_static/attrs_logo.svg" width="35%" alt="attrs" />
+         </picture>
       </a>
    </p>
    <p align="center">
