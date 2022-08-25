@@ -1,6 +1,6 @@
 # How To Contribute
 
-First off, thank you for considering contributing to `attrs`!
+Thank you for considering contributing to `attrs`!
 It's people like *you* who make it such a great tool for everyone.
 
 This document intends to make contribution more accessible by codifying tribal knowledge and expectations.
@@ -24,10 +24,10 @@ The official tag is `python-attrs` and helping out in support frees us up to imp
 - No contribution is too small!
   Please submit as many fixes for typos and grammar bloopers as you can!
 - Try to limit each pull request to *one* change only.
-- Since we squash on merge, it's up to you how you handle updates to the main branch.
-  Whether you prefer to rebase on main or merge main into your branch, do whatever is more comfortable for you.
+- Since we squash on merge, it's up to you how you handle updates to the `main` branch.
+  Whether you prefer to rebase on `main` or merge `main` into your branch, do whatever is more comfortable for you.
 - *Always* add tests and docs for your code.
-  This is a hard rule; patches with missing tests or documentation can't be merged.
+  This is a hard rule; patches with missing tests or documentation won't be merged.
 - Make sure your changes pass our [CI].
   You won't get any feedback until it's green unless you ask for it.
 - For the CI to pass, the coverage must be 100%.
@@ -83,6 +83,8 @@ $ make html
 ```
 
 The built documentation can then be found in `docs/_build/html/`.
+
+---
 
 To avoid committing code that violates our style guide, we strongly advise you to install [*pre-commit*] and its hooks:
 
