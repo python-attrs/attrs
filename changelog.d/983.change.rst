@@ -1,0 +1,1 @@
+``attrs.NOTHING`` is now an enum value, making it possible to use with f.e. ``typing.Literal``.
