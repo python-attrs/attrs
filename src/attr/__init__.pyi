@@ -24,8 +24,8 @@ from . import filters as filters
 from . import setters as setters
 from . import validators as validators
 from ._cmp import cmp_using as cmp_using
-from ._version_info import VersionInfo
 from ._typing_compat import AttrsInstance_
+from ._version_info import VersionInfo
 
 if sys.version_info >= (3, 10):
     from typing import TypeGuard
