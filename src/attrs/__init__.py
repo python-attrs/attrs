@@ -3,6 +3,7 @@
 from attr import (
     NOTHING,
     Attribute,
+    AttrsInstance,
     Factory,
     __author__,
     __copyright__,
