@@ -49,6 +49,8 @@ EXTRAS_REQUIRE = {
         "zope.interface",
         "sphinx-notfound-page",
         "sphinxcontrib-towncrier",
+        # https://github.com/sphinx-contrib/sphinxcontrib-towncrier/issues/60
+        "towncrier<22.8",
     ],
     "tests-no-zope": [
         # For regression test to ensure cloudpickle compat doesn't break.
