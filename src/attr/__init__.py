@@ -52,8 +52,14 @@ s = attributes = attrs
 ib = attr = attrib
 dataclass = partial(attrs, auto_attribs=True)  # happy Easter ;)
 
+
+class AttrsInstance:
+    pass
+
+
 __all__ = [
     "Attribute",
+    "AttrsInstance",
     "Factory",
     "NOTHING",
     "asdict",

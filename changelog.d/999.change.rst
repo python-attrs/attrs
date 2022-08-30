@@ -1,0 +1,2 @@
+Made ``attrs.AttrsInstance`` stub available at runtime and fixed type errors
+related to the usage of ``attrs.AttrsInstance`` in Pyright.

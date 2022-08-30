@@ -78,3 +78,31 @@ def test_pyright_baseline():
     }
 
     assert diagnostics == expected_diagnostics
+
+
+def test_pyright_attrsinstance_compat(tmp_path):
+    """
+    Test that `AttrsInstance` is compatible with Pyright.
+    """
+    test_pyright_attrsinstance_compat_path = (
+        tmp_path / "test_pyright_attrsinstance_compat.py"
+    )
+    test_pyright_attrsinstance_compat_path.write_text(
+        """\
+import attrs
+
+# We can assign any old object to `AttrsInstance`.
+foo: attrs.AttrsInstance = object()
+
+reveal_type(attrs.AttrsInstance)
+"""
+    )
+
+    diagnostics = parse_pyright_output(test_pyright_attrsinstance_compat_path)
+    expected_diagnostics = {
+        PyrightDiagnostic(
+            severity="information",
+            message='Type of "attrs.AttrsInstance" is "Type[AttrsInstance]"',
+        ),
+    }
+    assert diagnostics == expected_diagnostics

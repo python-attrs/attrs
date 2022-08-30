@@ -4,7 +4,6 @@ import sys
 from typing import (
     Any,
     Callable,
-    ClassVar,
     Dict,
     Generic,
     List,
@@ -26,6 +25,7 @@ from . import filters as filters
 from . import setters as setters
 from . import validators as validators
 from ._cmp import cmp_using as cmp_using
+from ._typing_compat import AttrsInstance_
 from ._version_info import VersionInfo
 
 if sys.version_info >= (3, 10):
@@ -65,9 +65,9 @@ _FieldTransformer = Callable[
 # _ValidatorType from working when passed in a list or tuple.
 _ValidatorArgType = Union[_ValidatorType[_T], Sequence[_ValidatorType[_T]]]
 
-# A protocol to be able to statically accept an attrs class.
-class AttrsInstance(Protocol):
-    __attrs_attrs__: ClassVar[Any]
+# We subclass this here to keep the protocol's qualified name clean.
+class AttrsInstance(AttrsInstance_, Protocol):
+    pass
 
 # _make --
 
