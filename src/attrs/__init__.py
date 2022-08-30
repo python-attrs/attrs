@@ -49,6 +49,7 @@ __all__ = [
     "assoc",
     "astuple",
     "Attribute",
+    "AttrsInstance",
     "cmp_using",
     "converters",
     "define",
