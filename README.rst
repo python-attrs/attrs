@@ -9,8 +9,8 @@
       </a>
    </p>
    <p align="center">
-      <a href="https://www.attrs.org/en/stable/?badge=stable">
-          <img src="https://img.shields.io/badge/Docs-Read%20The%20Docs-black" alt="Documentation" />
+      <a href="https://www.attrs.org/en/stable/">
+          <img src="https://img.shields.io/badge/Docs-RTD-black" alt="Documentation" />
       </a>
       <a href="https://github.com/python-attrs/attrs/blob/main/LICENSE">
          <img src="https://img.shields.io/badge/license-MIT-C06524" alt="License: MIT" />
