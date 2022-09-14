@@ -15,6 +15,7 @@
       <a href="https://github.com/python-attrs/attrs/blob/main/LICENSE">
          <img src="https://img.shields.io/badge/license-MIT-C06524" alt="License: MIT" />
       </a>
+      <a href="https://bestpractices.coreinfrastructure.org/projects/6482"><img src="https://bestpractices.coreinfrastructure.org/projects/6482/badge"></a>
       <a href="https://pypi.org/project/attrs/">
          <img src="https://img.shields.io/pypi/v/attrs" />
       </a>
