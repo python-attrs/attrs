@@ -12,6 +12,8 @@ on:
 env:
   FORCE_COLOR: "1" # Make tools pretty.
   TOX_TESTENV_PASSENV: FORCE_COLOR
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PIP_NO_PYTHON_VERSION_WARNING: "1"
   PYTHON_LATEST: "3.10"
 
 jobs:
@@ -42,8 +44,7 @@ jobs:
         run: |
           python -VV
           python -m site
-          python -m pip install --upgrade pip setuptools wheel
-          python -m pip install --upgrade virtualenv tox tox-gh-actions
+          python -m pip install --upgrade wheel tox tox-gh-actions
 
       - run: python -m tox
 
@@ -94,6 +95,7 @@ jobs:
         with:
           python-version: "3.10"
 
+      - run: python -m pip install --upgrade wheel tox
       - run: tox -e docs
 
   package:
