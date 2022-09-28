@@ -128,7 +128,7 @@ def instance_of(type):
     `isinstance` therefore it's also valid to pass a tuple of types).
 
     :param type: The type to check for.
-    :type type: type or tuple of types
+    :type type: type or tuple of type
 
     :raises TypeError: With a human readable error message, the attribute
         (of type `attrs.Attribute`), the expected type, and the value it
