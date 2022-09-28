@@ -85,6 +85,17 @@ jobs:
           path: htmlcov
         if: ${{ failure() }}
 
+  docs:
+    name: Build docs & run doctests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - run: tox -e docs
+
   package:
     name: Build & verify package
     runs-on: ubuntu-latest
@@ -108,11 +119,12 @@ jobs:
       - run: python -m pip install -e .[dev]
       - run: python -c 'import attr; print(attr.__version__)'
 
-  check:  # This job does nothing and is only used for the branch protection
+  check: # This job does nothing and is only used for the branch protection
     if: always()
 
     needs:
       - coverage
+      - docs
       - install-dev
       - package
 
@@ -123,5 +135,3 @@ jobs:
         uses: re-actors/alls-green@release/v1
         with:
           jobs: ${{ toJSON(needs) }}
-
-...
