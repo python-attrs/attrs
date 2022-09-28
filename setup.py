@@ -63,8 +63,8 @@ EXTRAS_REQUIRE = {
         # Since the mypy error messages keep changing, we have to keep updating
         # this pin.
         "mypy>=0.971; python_implementation == 'CPython'",
-        "pytest-mypy-plugins; python_implementation == 'CPython',"
-        " python_version<'3.11'",
+        "pytest-mypy-plugins; python_implementation == 'CPython' and "
+        "python_version<'3.11'",
     ],
     "tests": [
         "attrs[tests-no-zope]",
