@@ -34,8 +34,12 @@ jobs:
           - "3.9"
           - "3.10"
           - "3.11"
+          - "~3.12.0-0"
           - "pypy-3.7"
           - "pypy-3.8"
+
+    continue-on-error: >-
+      ${{ contains(matrix.python-version, '~') && true || false }}
 
     steps:
       - name: Harden Runner
