@@ -9,6 +9,9 @@ on:
   schedule:
     - cron: '30 22 * * 4'
 
+permissions:  # added using https://github.com/step-security/secure-workflows
+  contents: read
+
 jobs:
   analyze:
     name: Analyze
@@ -24,6 +27,11 @@ jobs:
         language: [ 'python' ]
 
     steps:
+    - name: Harden Runner
+      uses: step-security/harden-runner@v1
+      with:
+        egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+
     - name: Checkout repository
       uses: actions/checkout@v3
 
