@@ -38,8 +38,13 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@v1
         with:
-          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
-
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443
+            files.pythonhosted.org:443
+            github.com:443
+            objects.githubusercontent.com:443
+            pypi.org:443
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
@@ -68,7 +73,11 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@v1
         with:
-          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+          egress-policy: block
+          allowed-endpoints: >
+            files.pythonhosted.org:443
+            github.com:443
+            pypi.org:443
 
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -103,7 +112,12 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@v1
         with:
-          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+          egress-policy: block
+          allowed-endpoints: >
+            docs.python.org:443
+            files.pythonhosted.org:443
+            github.com:443
+            pypi.org:443
 
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -113,6 +127,29 @@ jobs:
       - run: python -m pip install --upgrade wheel tox
       - run: tox -e docs
 
+  pyright:
+    name: Check types using pyright
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v1
+        with:
+          egress-policy: block
+          allowed-endpoints: >
+            files.pythonhosted.org:443
+            github.com:443
+            nodejs.org:443
+            pypi.org:443
+            registry.npmjs.org:443
+
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{env.PYTHON_LATEST}}
+
+      - run: python -m pip install --upgrade wheel tox
+      - run: tox -e pyright
+
   package:
     name: Build & verify package
     runs-on: ubuntu-latest
@@ -121,8 +158,11 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@v1
         with:
-          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
-
+          egress-policy: block
+          allowed-endpoints: >
+            files.pythonhosted.org:443
+            github.com:443
+            pypi.org:443
       - uses: actions/checkout@v3
       - uses: hynek/build-and-inspect-python-package@v1
 
@@ -137,8 +177,11 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@v1
         with:
-          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
-
+          egress-policy: block
+          allowed-endpoints: >
+            files.pythonhosted.org:443
+            github.com:443
+            pypi.org:443
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
@@ -154,6 +197,7 @@ jobs:
       - docs
       - install-dev
       - package
+      - pyright
 
     runs-on: ubuntu-latest
 
@@ -161,7 +205,7 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@v1
         with:
-          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+          egress-policy: block
 
       - name: Decide whether the needed jobs succeeded or failed
         uses: re-actors/alls-green@release/v1
