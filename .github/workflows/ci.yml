@@ -197,6 +197,7 @@ jobs:
       - docs
       - install-dev
       - package
+      - pyright
 
     runs-on: ubuntu-latest
 
