@@ -38,7 +38,7 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@v1
         with:
-          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+          egress-policy: block
 
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -68,7 +68,7 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@v1
         with:
-          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+          egress-policy: block
 
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -103,7 +103,7 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@v1
         with:
-          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+          egress-policy: block
 
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -121,7 +121,7 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@v1
         with:
-          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+          egress-policy: block
 
       - uses: actions/checkout@v3
       - uses: hynek/build-and-inspect-python-package@v1
@@ -137,7 +137,7 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@v1
         with:
-          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+          egress-policy: block
 
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -161,7 +161,7 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@v1
         with:
-          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+          egress-policy: block
 
       - name: Decide whether the needed jobs succeeded or failed
         uses: re-actors/alls-green@release/v1
