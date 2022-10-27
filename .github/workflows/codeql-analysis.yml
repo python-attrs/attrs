@@ -37,6 +37,7 @@ jobs:
             files.pythonhosted.org:443
             github.com:443
             pypi.org:443
+            uploads.github.com:443
 
       - name: Checkout repository
         uses: actions/checkout@v3
