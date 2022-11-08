@@ -62,7 +62,7 @@ EXTRAS_REQUIRE = {
         "pytest-xdist[psutil]",
         # Since the mypy error messages keep changing, we have to keep updating
         # this pin.
-        "mypy>=0.971; python_implementation == 'CPython'",
+        "mypy>=0.971,<0.990; python_implementation == 'CPython'",
         "pytest-mypy-plugins; python_implementation == 'CPython' and "
         "python_version<'3.11'",
     ],
