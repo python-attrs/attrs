@@ -14,7 +14,7 @@ env:
   TOX_TESTENV_PASSENV: FORCE_COLOR
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
   PIP_NO_PYTHON_VERSION_WARNING: "1"
-  PYTHON_LATEST: "3.10"
+  PYTHON_LATEST: "3.11"
 
 permissions:
   contents: read
@@ -33,7 +33,7 @@ jobs:
           - "3.8"
           - "3.9"
           - "3.10"
-          - "~3.11.0-0"
+          - "3.11"
           - "pypy-3.7"
           - "pypy-3.8"
 
@@ -81,6 +81,7 @@ jobs:
             files.pythonhosted.org:443
             github.com:443
             pypi.org:443
+            api.github.com:443
 
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -144,6 +145,7 @@ jobs:
             nodejs.org:443
             pypi.org:443
             registry.npmjs.org:443
+            api.github.com:443
 
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -166,6 +168,7 @@ jobs:
             files.pythonhosted.org:443
             github.com:443
             pypi.org:443
+
       - uses: actions/checkout@v3
       - uses: hynek/build-and-inspect-python-package@v1
 
@@ -185,6 +188,7 @@ jobs:
             files.pythonhosted.org:443
             github.com:443
             pypi.org:443
+            api.github.com:443
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
@@ -210,7 +214,8 @@ jobs:
         uses: step-security/harden-runner@v1
         with:
           egress-policy: block
-
+          allowed-endpoints: >
+            api.github.com:443
       - name: Decide whether the needed jobs succeeded or failed
         uses: re-actors/alls-green@release/v1
         with:
