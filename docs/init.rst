@@ -91,7 +91,7 @@ This can be used to override private attribute handling, or make other arbitrary
    ...    _x: int = field(alias="_x")
    ...    y: int = field(alias="distasteful_y")
    >>> inspect.signature(C.__init__)
-   <Signature (self, x: int, distasteful_y: int) -> None>
+   <Signature (self, _x: int, distasteful_y: int) -> None>
 
 
 Defaults
