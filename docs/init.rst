@@ -50,7 +50,7 @@ Embrace functions and classmethods as a filter between reality and what's best f
 .. _private_attributes:
 
 Private Attributes and Aliases
-------------------
+------------------------------
 
 One thing people tend to find confusing is the treatment of private attributes that start with an underscore.
 ``attrs`` follows the doctrine that `there is no such thing as a private argument`_ and strips the underscores from the name when writing the ``__init__`` method signature:
