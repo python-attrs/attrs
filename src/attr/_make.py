@@ -2179,9 +2179,8 @@ def _attrs_to_init_script(
         has_on_setattr = a.on_setattr is not None or (
             a.on_setattr is not setters.NO_OP and has_cls_on_setattr
         )
-        assert (
-            a.alias
-        ), "requires known field alias, should have been set via _ClassBuilder"
+        # a.alias is set to maybe-mangled attr_name in _ClassBuilder if not
+        # explicitly provided
         arg_name = a.alias
 
         has_factory = isinstance(a.default, Factory)
@@ -2376,7 +2375,8 @@ def _attrs_to_init_script(
 
 
 def _default_init_alias_for(name: str) -> str:
-    """The default __init__ parameter name for a field.
+    """
+    The default __init__ parameter name for a field.
 
     This performs private-name adjustment via leading-unscore stripping,
     and is the default value of Attribute.alias if not provided.
