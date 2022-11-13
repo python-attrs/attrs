@@ -70,6 +70,16 @@ If you want to initialize your private attributes yourself, you can do that too:
       ...
    TypeError: __init__() takes exactly 1 argument (2 given)
 
+If you prefer to expose your privates, you can use keyword argument aliases:
+
+.. doctest::
+
+   >>> @define
+   ... class C:
+   ...     _x: int = field(alias="_x")
+   >>> C(_x=1)
+   C(_x=1)
+
 An additional way of defining attributes is supported too.
 This is useful in times when you want to enhance classes that are not yours (nice ``__repr__`` for Django models anyone?):
 
