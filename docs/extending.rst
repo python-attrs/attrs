@@ -260,8 +260,8 @@ A more realistic example would be to automatically convert data that you, e.g., 
    >>> Data(**from_json)  # ****
    Data(a=3, b='spam', c=datetime.datetime(2020, 5, 4, 13, 37))
 
-Or, perhaps you would prefer alternative default field names.
-Noting, that ``field_transformer`` receives `attrs.Attribute` instances before private-attribute handling.
+Or, perhaps you would prefer to generate dataclass-compatible ``__init__`` signatures via a default field ``alias``.
+Note, ``field_transformer`` operates on `attrs.Attribute` instances before the default private-attribute handling is applied so explicit user-provided aliases can be detected.
 
 .. doctest::
 
@@ -276,10 +276,11 @@ Noting, that ``field_transformer`` receives `attrs.Attribute` instances before p
    >>> @frozen(field_transformer=dataclass_names)
    ... class Data:
    ...     public: int
-   ...     _private: float
+   ...     _private: str
+   ...     explicit: str = field(alias="aliased")
    ...
-   >>> Data(public=42, _private="spam")
-   Data(public=42, _private='spam')
+   >>> Data(public=42, _private="spam", aliased="yes")
+   Data(public=42, _private='spam', aliased='yes')
 
 
 Customize Value Serialization in ``asdict()``
