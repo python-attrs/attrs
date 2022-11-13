@@ -2394,6 +2394,8 @@ class Attribute:
     following:
 
     - ``name`` (`str`): The name of the attribute.
+    - ``alias`` (`str`): The __init__ parameter name of the attribute, after
+      any explicit overrides and default private-attribute-name handling.
     - ``inherited`` (`bool`): Whether or not that attribute has been inherited
       from a base class.
     - ``eq_key`` and ``order_key`` (`typing.Callable` or `None`): The callables
@@ -2409,8 +2411,9 @@ class Attribute:
     - Validators get them passed as the first argument.
     - The :ref:`field transformer <transform-fields>` hook receives a list of
       them.
-    - ``alias`` exposes the __init__ parameter name of the field, including
-      with overrides or default private-attribute handling.
+    - The ``alias`` property exposes the __init__ parameter name of the field,
+      with any overrides and default private-attribute handling applied.
+
 
     .. versionadded:: 20.1.0 *inherited*
     .. versionadded:: 20.1.0 *on_setattr*
