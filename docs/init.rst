@@ -49,7 +49,7 @@ Embrace functions and classmethods as a filter between reality and what's best f
 
 .. _private_attributes:
 
-Private Attributes
+Private Attributes and Aliases
 ------------------
 
 One thing people tend to find confusing is the treatment of private attributes that start with an underscore.
@@ -78,6 +78,20 @@ But it's important to be aware of it because it can lead to surprising syntax er
    SyntaxError: invalid syntax
 
 In this case a valid attribute name ``_1`` got transformed into an invalid argument name ``1``.
+
+If your taste differs, you can use the ``alias`` argument to `attrs.field` to explicitly set the argument name.
+This can be used to override private attribute handling, or make other arbitrary changes to ``__init__`` argument names.
+
+.. doctest::
+
+   >>> import inspect, attr, attrs
+   >>> from attr import define
+   >>> @define
+   ... class C:
+   ...    _x: int = field(alias="_x")
+   ...    y: int = field(alias="distasteful_y")
+   >>> inspect.signature(C.__init__)
+   <Signature (self, x: int, distasteful_y: int) -> None>
 
 
 Defaults
