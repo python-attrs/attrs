@@ -277,10 +277,10 @@ Note, ``field_transformer`` operates on `attrs.Attribute` instances before the d
    ... class Data:
    ...     public: int
    ...     _private: str
-   ...     explicit: str = field(alias="aliased")
+   ...     explicit: str = field(alias="aliased_name")
    ...
-   >>> Data(public=42, _private="spam", aliased="yes")
-   Data(public=42, _private='spam', aliased='yes')
+   >>> Data(public=42, _private="spam", aliased_name="yes")
+   Data(public=42, _private='spam', explicit='yes')
 
 
 Customize Value Serialization in ``asdict()``
