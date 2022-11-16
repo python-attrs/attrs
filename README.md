@@ -36,7 +36,7 @@ Its main goal is to help you to write **concise** and **correct** software witho
 ## Sponsors
 
 *attrs* would not be possible without our [amazing sponsors](https://github.com/sponsors/hynek).
-Especially those generously sponsoring us at the *The Organization* level and higher:
+Especially those generously supporting us at the *The Organization* tier and higher:
 
 <p align="center">
    <a href="https://www.variomedia.de/">
