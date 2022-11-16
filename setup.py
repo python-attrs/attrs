@@ -46,6 +46,7 @@ EXTRAS_REQUIRE = {
     "docs": [
         "furo",
         "sphinx",
+        "myst-parser",
         "zope.interface",
         "sphinx-notfound-page",
         "sphinxcontrib-towncrier",
@@ -111,30 +112,9 @@ def find_meta(meta):
     raise RuntimeError(f"Unable to find __{meta}__ string.")
 
 
-LOGO = """
-.. image:: https://www.attrs.org/en/stable/_static/attrs_logo.png
-   :alt: attrs logo
-   :align: center
-"""
-
 VERSION = find_meta("version")
 URL = find_meta("url")
-LONG = (
-    LOGO
-    + read("README.rst").split(".. teaser-begin")[1]
-    + "\n\n"
-    + "Release Information\n"
-    + "===================\n\n"
-    + re.search(
-        r"(\d+.\d.\d \(.*?\)\r?\n.*?)\r?\n\r?\n\r?\n----\r?\n\r?\n\r?\n",
-        read("CHANGELOG.rst"),
-        re.S,
-    ).group(1)
-    + "\n\n`Full changelog "
-    + f"<{URL}en/stable/changelog.html>`_.\n\n"
-    + read("AUTHORS.rst")
-)
-
+LONG = read("README.md")
 
 if __name__ == "__main__":
     setup(
@@ -150,7 +130,7 @@ if __name__ == "__main__":
         maintainer_email=find_meta("email"),
         keywords=KEYWORDS,
         long_description=LONG,
-        long_description_content_type="text/x-rst",
+        long_description_content_type="text/markdown",
         packages=PACKAGES,
         package_dir={"": "src"},
         python_requires=">=3.6",
