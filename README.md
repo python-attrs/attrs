@@ -31,7 +31,6 @@
 
 Its main goal is to help you to write **concise** and **correct** software without slowing down your code.
 
-<!-- teaser-end -->
 
 ## Sponsors
 
@@ -40,15 +39,15 @@ Especially those generously supporting us at the *The Organization* tier and hig
 
 <p align="center">
    <a href="https://www.variomedia.de/">
-      <img src="./docs/_static/sponsors/Variomedia.svg" width="200" height="60"></img>
+      <img src="https://raw.githubusercontent.com/python-attrs/attrs/main/.github/sponsors/Variomedia.svg" width="200" height="60"></img>
    </a>
 
    <a href="https://tidelift.com/subscription/pkg/pypi-attrs?utm_source=pypi-attrs&utm_medium=referral&utm_campaign=enterprise&utm_term=repo">
-      <img src="./docs/_static/sponsors/Tidelift.svg" width="200" height="60"></img>
+      <img src="https://raw.githubusercontent.com/python-attrs/attrs/main/.github/sponsors/Tidelift.svg" width="200" height="60"></img>
    </a>
 
    <a href="https://filepreviews.io/">
-      <img src="./docs/_static/sponsors/FilePreviews.svg" width="200" height="60"></img>
+      <img src="https://raw.githubusercontent.com/python-attrs/attrs/main/.github/sponsors/FilePreviews.svg" width="200" height="60"></img>
    </a>
 </p>
 
@@ -56,6 +55,7 @@ Especially those generously supporting us at the *The Organization* tier and hig
    <strong>For a limited time, you can add your logo here for <a href="https://github.com/sponsors/hynek">as little as $50 per month!</a></strong>
 </p>
 
+<!-- teaser-end -->
 
 ## Example
 
