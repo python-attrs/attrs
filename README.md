@@ -33,7 +33,35 @@ Its main goal is to help you to write **concise** and **correct** software witho
 
 <!-- teaser-end -->
 
-For that, it gives you a class decorator and a way to declaratively define the attributes on that class:
+## Sponsors
+
+*attrs* could not be possible without our [amazing sponsors](https://github.com/sponsors/hynek).
+Especially those generously sponsoring us at *The Organization* level and higher:
+
+<p align="center">
+   <a href="https://www.variomedia.de/">
+      <img src="./docs/_static/sponsors/Variomedia.svg" width="200" height="60"></img>
+   </a>
+
+   <a href="https://tidelift.com/subscription/pkg/pypi-attrs?utm_source=pypi-attrs&utm_medium=referral&utm_campaign=enterprise&utm_term=repo">
+      <img src="./docs/_static/sponsors/Tidelift.svg" width="200" height="60"></img>
+   </a>
+
+   <a href="https://filepreviews.io/">
+      <img src="./docs/_static/sponsors/FilePreviews.svg" width="200" height="60"></img>
+   </a>
+</p>
+
+<p align="center">
+   <small>
+      <strong>For a limited time, you can add your logo here for <a href="https://github.com/sponsors/hynek">as little as $50 per month!</a></strong>
+   </small>
+</p>
+
+
+## Example
+
+*attrs* gives you a class decorator and a way to declaratively define the attributes on that class:
 
 <!-- code-begin -->
 
