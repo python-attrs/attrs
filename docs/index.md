@@ -89,4 +89,4 @@ license
 changelog
 ```
 
-`Full Index <genindex>`
+[Full Index](genindex)
