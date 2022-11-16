@@ -26,7 +26,7 @@
 
 <!-- teaser-begin -->
 
-`attrs` is the Python package that will bring back the **joy** of **writing classes** by relieving you from the drudgery of implementing object protocols (aka [dunder methods](https://www.attrs.org/en/latest/glossary.html#term-dunder-methods)).
+*attrs* is the Python package that will bring back the **joy** of **writing classes** by relieving you from the drudgery of implementing object protocols (aka [dunder methods](https://www.attrs.org/en/latest/glossary.html#term-dunder-methods)).
 [Trusted by NASA](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/customizing-your-profile/personalizing-your-profile#list-of-qualifying-repositories-for-mars-2020-helicopter-contributor-achievement) for Mars missions since 2020!
 
 Its main goal is to help you to write **concise** and **correct** software without slowing down your code.
@@ -71,7 +71,7 @@ SomeClass(a_number=42, list_of_numbers=[])
 C(a='foo', b='bar')
 ```
 
-After *declaring* your attributes, `attrs` gives you:
+After *declaring* your attributes, *attrs* gives you:
 
 - a concise and explicit overview of the class's attributes,
 - a nice human-readable `__repr__`,
@@ -83,12 +83,12 @@ After *declaring* your attributes, `attrs` gives you:
 
 **Hate type annotations**!?
 No problem!
-Types are entirely **optional** with `attrs`.
+Types are entirely **optional** with *attrs*.
 Simply assign `attrs.field()` to the attributes instead of annotating them with types.
 
 ---
 
-This example uses `attrs`'s modern APIs that have been introduced in version 20.1.0, and the `attrs` package import name that has been added in version 21.3.0.
+This example uses *attrs*'s modern APIs that have been introduced in version 20.1.0, and the *attrs* package import name that has been added in version 21.3.0.
 The classic APIs (`@attr.s`, `attr.ib`, plus their serious-business aliases) and the `attr` package import name will remain **indefinitely**.
 
 Please check out [On The Core API Names](https://www.attrs.org/en/latest/names.html) for a more in-depth explanation.
@@ -96,7 +96,7 @@ Please check out [On The Core API Names](https://www.attrs.org/en/latest/names.h
 
 ## Data Classes
 
-On the tin, `attrs` might remind you of `dataclasses` (and indeed, `dataclasses` [are a descendant](https://hynek.me/articles/import-attrs/) of `attrs`).
+On the tin, *attrs* might remind you of `dataclasses` (and indeed, `dataclasses` [are a descendant](https://hynek.me/articles/import-attrs/) of *attrs*).
 In practice it does a lot more and is more flexible.
 For instance it allows you to define [special handling of NumPy arrays for equality checks](https://www.attrs.org/en/stable/comparison.html#customization), or allows more ways to [plug into the initialization process](https://www.attrs.org/en/stable/init.html#hooking-yourself-into-initialization).
 
@@ -116,10 +116,10 @@ For more details, please refer to our [comparison page](https://www.attrs.org/en
 - **Supported Python Versions**: 3.6 and later (last 2.7-compatible release is [21.4.0](https://pypi.org/project/attrs/21.4.0/))
 
 
-### `attrs` for Enterprise
+### *attrs* for Enterprise
 
 Available as part of the Tidelift Subscription.
 
-The maintainers of `attrs` and thousands of other packages are working with Tidelift to deliver commercial support and maintenance for the open source packages you use to build your applications.
+The maintainers of *attrs* and thousands of other packages are working with Tidelift to deliver commercial support and maintenance for the open source packages you use to build your applications.
 Save time, reduce risk, and improve code health, while paying the maintainers of the exact packages you use.
 [Learn more.](https://tidelift.com/subscription/pkg/pypi-attrs?utm_source=pypi-attrs&utm_medium=referral&utm_campaign=enterprise&utm_term=repo)
