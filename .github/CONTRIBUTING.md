@@ -1,6 +1,6 @@
 # How To Contribute
 
-Thank you for considering contributing to `attrs`!
+Thank you for considering contributing to *attrs*!
 It's people like *you* who make it such a great tool for everyone.
 
 This document intends to make contribution more accessible by codifying tribal knowledge and expectations.
@@ -16,7 +16,7 @@ Please report any harm to [Hynek Schlawack] in any way you find appropriate.
 In case you'd like to help out but don't want to deal with GitHub, there's a great opportunity:
 help your fellow developers on [Stack Overflow](https://stackoverflow.com/questions/tagged/python-attrs)!
 
-The official tag is `python-attrs` and helping out in support frees us up to improve `attrs` instead!
+The official tag is `python-attrs` and helping out in support frees us up to improve *attrs* instead!
 
 
 ## Workflow
@@ -46,7 +46,7 @@ We highly recommend to develop using the latest Python release because we try to
 First create a [virtual environment](https://virtualenv.pypa.io/) so you don't break your system-wide Python installation.
 It’s out of scope for this document to list all the ways to manage virtual environments in Python, but if you don’t already have a pet way, take some time to look at tools like [*direnv*](https://hynek.me/til/python-project-local-venvs/), [*virtualfish*](https://virtualfish.readthedocs.io/), and [*virtualenvwrapper*](https://virtualenvwrapper.readthedocs.io/).
 
-Next, get an up-to-date checkout of the `attrs` repository:
+Next, get an up-to-date checkout of the *attrs* repository:
 
 ```console
 $ git clone git@github.com:python-attrs/attrs.git
@@ -58,7 +58,7 @@ or if you prefer to use *Git* via `https`:
 $ git clone https://github.com/python-attrs/attrs.git
 ```
 
-Change into the newly created directory and **after activating your virtual environment** install an editable version of `attrs` along with its tests and docs requirements:
+Change into the newly created directory and **after activating your virtual environment** install an editable version of *attrs* along with its tests and docs requirements:
 
 ```console
 $ cd attrs
@@ -175,7 +175,7 @@ But it's way more comfortable to run it locally and *git* catching avoidable err
 
 If your change is noteworthy, there needs to be a changelog entry so our users can learn about it!
 
-To avoid merge conflicts, we use the [*towncrier*](https://pypi.org/project/towncrier) package to manage our changelog.
+To avoid merge conflicts, we use the [*Towncrier*](https://pypi.org/project/towncrier) package to manage our changelog.
 *towncrier* uses independent files for each pull request – so called *news fragments* – instead of one monolithic changelog file.
 On release, those news fragments are compiled into our [`CHANGELOG.rst`](https://github.com/python-attrs/attrs/blob/main/CHANGELOG.rst).
 
@@ -219,7 +219,7 @@ or:
 
 ## Governance
 
-`attrs` is maintained by [team of volunteers](https://github.com/python-attrs) that is always open to new members that share our vision of a fast, lean, and magic-free library that empowers programmers to write better code with less effort.
+*attrs* is maintained by [team of volunteers](https://github.com/python-attrs) that is always open to new members that share our vision of a fast, lean, and magic-free library that empowers programmers to write better code with less effort.
 If you'd like to join, just get a pull request merged and ask to be added in the very same pull request!
 
 **The simple rule is that everyone is welcome to review/merge pull requests of others but nobody is allowed to merge their own code.**
