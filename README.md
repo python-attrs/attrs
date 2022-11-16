@@ -35,8 +35,8 @@ Its main goal is to help you to write **concise** and **correct** software witho
 
 ## Sponsors
 
-*attrs* could not be possible without our [amazing sponsors](https://github.com/sponsors/hynek).
-Especially those generously sponsoring us at *The Organization* level and higher:
+*attrs* would not be possible without our [amazing sponsors](https://github.com/sponsors/hynek).
+Especially those generously sponsoring us at the *The Organization* level and higher:
 
 <p align="center">
    <a href="https://www.variomedia.de/">
@@ -53,9 +53,7 @@ Especially those generously sponsoring us at *The Organization* level and higher
 </p>
 
 <p align="center">
-   <small>
-      <strong>For a limited time, you can add your logo here for <a href="https://github.com/sponsors/hynek">as little as $50 per month!</a></strong>
-   </small>
+   <strong>For a limited time, you can add your logo here for <a href="https://github.com/sponsors/hynek">as little as $50 per month!</a></strong>
 </p>
 
 
