@@ -105,15 +105,15 @@ For more details, please refer to our [comparison page](https://www.attrs.org/en
 
 ## Project Information
 
-- **License**: [MIT](https://choosealicense.com/licenses/mit/)
-- **PyPI**: <https://pypi.org/project/attrs/>
-- **Source Code**: <https://github.com/python-attrs/attrs>
-- **Documentation**: <https://www.attrs.org/>
-- **Changelog**: <https://www.attrs.org/en/stable/changelog.html>
+- [**Changelog**](https://www.attrs.org/en/stable/changelog.html)
+- [**Documentation**](https://www.attrs.org/)
+- [**PyPI**](https://pypi.org/project/attrs/)
+- [**Source Code**](https://github.com/python-attrs/attrs)
+- [**Contributing**](https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md)
+- [**Third-party Extensions**](https://github.com/python-attrs/attrs/wiki/Extensions-to-attrs)
+- **License**: [MIT](https://www.attrs.org/en/latest/license.html)
 - **Get Help**: please use the `python-attrs` tag on [StackOverflow](https://stackoverflow.com/questions/tagged/python-attrs)
-- **Contributing**: <https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md>
-- **Third-party Extensions**: <https://github.com/python-attrs/attrs/wiki/Extensions-to-attrs>
-- **Supported Python Versions**: 3.6 and later (last 2.7-compatible release is [21.4.0](https://pypi.org/project/attrs/21.4.0/))
+- **Supported Python Versions**: 3.6 and later
 
 
 ### *attrs* for Enterprise
