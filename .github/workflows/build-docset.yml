@@ -1,0 +1,39 @@
+---
+name: Build docset
+
+on:
+  push:
+    tags: ["*"]
+  workflow_dispatch:
+
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: 1
+  PIP_NO_PYTHON_VERSION_WARNING: 1
+
+permissions:  # added using https://github.com/step-security/secure-workflows
+  contents: read
+
+jobs:
+  docset:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v1
+        with:
+          egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
+
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # get correct version once we switch to hatch-vcs
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - run: pip install tox
+
+      - run: tox -e docset
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: docset
+          path: attrs.tgz

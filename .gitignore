@@ -12,6 +12,8 @@
 .vscode
 build
 dist
-docs/_build/
+docs/_build
 htmlcov
 tmp*
+attrs.docset
+attrs.tgz
