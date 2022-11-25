@@ -22,7 +22,7 @@ permissions:
 jobs:
   tests:
     name: tox on ${{ matrix.python-version }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     strategy:
       fail-fast: false
