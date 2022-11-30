@@ -223,7 +223,7 @@ class TestTransformAttrs:
             "eq=True, eq_key=None, order=True, order_key=None, "
             "hash=None, init=True, "
             "metadata=mappingproxy({}), type=None, converter=None, "
-            "kw_only=False, inherited=False, on_setattr=None)",
+            "kw_only=False, inherited=False, on_setattr=None, alias=None)",
         ) == e.value.args
 
     def test_kw_only(self):
@@ -1728,6 +1728,107 @@ class TestClassBuilder:
         actual = copy.copy(C(5))
 
         assert actual == expected
+
+
+class TestInitAlias:
+    """
+    Tests for Attribute alias handling.
+    """
+
+    def test_default_and_specify(self):
+        """
+        alias is present on the Attributes returned from attr.fields.
+
+        If left unspecified, it defaults to standard private-attribute
+        handling.  If specified, it passes through the explicit alias.
+        """
+
+        # alias is None by default on _CountingAttr
+        default_counting = attr.ib()
+        assert default_counting.alias is None
+
+        override_counting = attr.ib(alias="specified")
+        assert override_counting.alias == "specified"
+
+        @attr.s
+        class Cases:
+            public_default = attr.ib()
+            _private_default = attr.ib()
+            __dunder_default__ = attr.ib()
+
+            public_override = attr.ib(alias="public")
+            _private_override = attr.ib(alias="_private")
+            __dunder_override__ = attr.ib(alias="__dunder__")
+
+        cases = attr.fields_dict(Cases)
+
+        # Default applies private-name mangling logic
+        assert cases["public_default"].name == "public_default"
+        assert cases["public_default"].alias == "public_default"
+
+        assert cases["_private_default"].name == "_private_default"
+        assert cases["_private_default"].alias == "private_default"
+
+        assert cases["__dunder_default__"].name == "__dunder_default__"
+        assert cases["__dunder_default__"].alias == "dunder_default__"
+
+        # Override is passed through
+        assert cases["public_override"].name == "public_override"
+        assert cases["public_override"].alias == "public"
+
+        assert cases["_private_override"].name == "_private_override"
+        assert cases["_private_override"].alias == "_private"
+
+        assert cases["__dunder_override__"].name == "__dunder_override__"
+        assert cases["__dunder_override__"].alias == "__dunder__"
+
+        # And aliases are applied to the __init__ signature
+        example = Cases(
+            public_default=1,
+            private_default=2,
+            dunder_default__=3,
+            public=4,
+            _private=5,
+            __dunder__=6,
+        )
+
+        assert example.public_default == 1
+        assert example._private_default == 2
+        assert example.__dunder_default__ == 3
+        assert example.public_override == 4
+        assert example._private_override == 5
+        assert example.__dunder_override__ == 6
+
+    def test_evolve(self):
+        """
+        attr.evolve uses Attribute.alias to determine parameter names.
+        """
+
+        @attr.s
+        class EvolveCase:
+            _override = attr.ib(alias="_override")
+            __mangled = attr.ib()
+            __dunder__ = attr.ib()
+
+        org = EvolveCase(1, 2, 3)
+
+        # Previous behavior of evolve as broken for double-underscore
+        # passthrough, and would raise here due to mis-mapping the __dunder__
+        # alias
+        assert attr.evolve(org) == org
+
+        # evolve uses the alias to match __init__ signature
+        assert attr.evolve(
+            org,
+            _override=0,
+        ) == EvolveCase(0, 2, 3)
+
+        # and properly passes through dunders and mangles
+        assert attr.evolve(
+            org,
+            EvolveCase__mangled=4,
+            dunder__=5,
+        ) == EvolveCase(1, 4, 5)
 
 
 class TestMakeOrder:

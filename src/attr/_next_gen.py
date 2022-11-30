@@ -169,6 +169,7 @@ def field(
     eq=None,
     order=None,
     on_setattr=None,
+    alias=None,
 ):
     """
     Identical to `attr.ib`, except keyword-only and with some arguments
@@ -189,6 +190,7 @@ def field(
         eq=eq,
         order=order,
         on_setattr=on_setattr,
+        alias=alias,
     )
 
 

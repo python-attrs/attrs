@@ -359,7 +359,7 @@ def evolve(inst, **changes):
         if not a.init:
             continue
         attr_name = a.name  # To deal with private attributes.
-        init_name = attr_name if attr_name[0] != "_" else attr_name[1:]
+        init_name = a.alias
         if init_name not in changes:
             changes[init_name] = getattr(inst, attr_name)
 

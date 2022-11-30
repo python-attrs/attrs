@@ -101,6 +101,7 @@ def attrib(
     eq=None,
     order=None,
     on_setattr=None,
+    alias=None,
 ):
     """
     Create a new attribute on a class.
@@ -208,6 +209,9 @@ def attrib(
         attribute -- regardless of the setting in `attr.s`.
     :type on_setattr: `callable`, or a list of callables, or `None`, or
         `attrs.setters.NO_OP`
+    :param Optional[str] alias: Override this attribute's parameter name in the
+        generated ``__init__`` method. If left `None`, default to ``name``
+        stripped of leading underscores. See `private_attributes`.
 
     .. versionadded:: 15.2.0 *convert*
     .. versionadded:: 16.3.0 *metadata*
@@ -230,6 +234,7 @@ def attrib(
     .. versionchanged:: 21.1.0
        *eq*, *order*, and *cmp* also accept a custom callable
     .. versionchanged:: 21.1.0 *cmp* undeprecated
+    .. versionadded:: 22.2.0 *alias*
     """
     eq, eq_key, order, order_key = _determine_attrib_eq_order(
         cmp, eq, order, True
@@ -279,6 +284,7 @@ def attrib(
         order=order,
         order_key=order_key,
         on_setattr=on_setattr,
+        alias=alias,
     )
 
 
@@ -562,6 +568,14 @@ def _transform_attrs(
 
     if field_transformer is not None:
         attrs = field_transformer(cls, attrs)
+
+    # Resolve default field alias after executing field_transformer.
+    # This allows field_transformer to differentiate between explicit vs
+    # default aliases and supply their own defaults.
+    attrs = [
+        a.evolve(alias=_default_init_alias_for(a.name)) if not a.alias else a
+        for a in attrs
+    ]
 
     # Create AttrsClass *after* applying the field_transformer since it may
     # add or remove attributes!
@@ -2165,7 +2179,9 @@ def _attrs_to_init_script(
         has_on_setattr = a.on_setattr is not None or (
             a.on_setattr is not setters.NO_OP and has_cls_on_setattr
         )
-        arg_name = a.name.lstrip("_")
+        # a.alias is set to maybe-mangled attr_name in _ClassBuilder if not
+        # explicitly provided
+        arg_name = a.alias
 
         has_factory = isinstance(a.default, Factory)
         if has_factory and a.default.takes_self:
@@ -2358,6 +2374,17 @@ def _attrs_to_init_script(
     )
 
 
+def _default_init_alias_for(name: str) -> str:
+    """
+    The default __init__ parameter name for a field.
+
+    This performs private-name adjustment via leading-unscore stripping,
+    and is the default value of Attribute.alias if not provided.
+    """
+
+    return name.lstrip("_")
+
+
 class Attribute:
     """
     *Read-only* representation of an attribute.
@@ -2367,6 +2394,8 @@ class Attribute:
     following:
 
     - ``name`` (`str`): The name of the attribute.
+    - ``alias`` (`str`): The __init__ parameter name of the attribute, after
+      any explicit overrides and default private-attribute-name handling.
     - ``inherited`` (`bool`): Whether or not that attribute has been inherited
       from a base class.
     - ``eq_key`` and ``order_key`` (`typing.Callable` or `None`): The callables
@@ -2382,12 +2411,16 @@ class Attribute:
     - Validators get them passed as the first argument.
     - The :ref:`field transformer <transform-fields>` hook receives a list of
       them.
+    - The ``alias`` property exposes the __init__ parameter name of the field,
+      with any overrides and default private-attribute handling applied.
+
 
     .. versionadded:: 20.1.0 *inherited*
     .. versionadded:: 20.1.0 *on_setattr*
     .. versionchanged:: 20.2.0 *inherited* is not taken into account for
         equality checks and hashing anymore.
     .. versionadded:: 21.1.0 *eq_key* and *order_key*
+    .. versionadded:: 22.2.0 *alias*
 
     For the full version history of the fields, see `attr.ib`.
     """
@@ -2409,6 +2442,7 @@ class Attribute:
         "kw_only",
         "inherited",
         "on_setattr",
+        "alias",
     )
 
     def __init__(
@@ -2430,6 +2464,7 @@ class Attribute:
         order=None,
         order_key=None,
         on_setattr=None,
+        alias=None,
     ):
         eq, eq_key, order, order_key = _determine_attrib_eq_order(
             cmp, eq_key or eq, order_key or order, True
@@ -2463,6 +2498,7 @@ class Attribute:
         bound_setattr("kw_only", kw_only)
         bound_setattr("inherited", inherited)
         bound_setattr("on_setattr", on_setattr)
+        bound_setattr("alias", alias)
 
     def __setattr__(self, name, value):
         raise FrozenInstanceError()
@@ -2558,6 +2594,7 @@ _a = [
         hash=(name != "metadata"),
         init=True,
         inherited=False,
+        alias=_default_init_alias_for(name),
     )
     for name in Attribute.__slots__
 ]
@@ -2596,10 +2633,12 @@ class _CountingAttr:
         "type",
         "kw_only",
         "on_setattr",
+        "alias",
     )
     __attrs_attrs__ = tuple(
         Attribute(
             name=name,
+            alias=_default_init_alias_for(name),
             default=NOTHING,
             validator=None,
             repr=True,
@@ -2623,10 +2662,12 @@ class _CountingAttr:
             "hash",
             "init",
             "on_setattr",
+            "alias",
         )
     ) + (
         Attribute(
             name="metadata",
+            alias="metadata",
             default=None,
             validator=None,
             repr=True,
@@ -2661,6 +2702,7 @@ class _CountingAttr:
         order,
         order_key,
         on_setattr,
+        alias,
     ):
         _CountingAttr.cls_counter += 1
         self.counter = _CountingAttr.cls_counter
@@ -2678,6 +2720,7 @@ class _CountingAttr:
         self.type = type
         self.kw_only = kw_only
         self.on_setattr = on_setattr
+        self.alias = alias
 
     def validator(self, meth):
         """

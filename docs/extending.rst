@@ -16,7 +16,7 @@ So it is fairly simple to build your own decorators on top of ``attrs``:
    ... @define
    ... class C:
    ...     a: int
-   (Attribute(name='a', default=NOTHING, validator=None, repr=True, eq=True, eq_key=None, order=True, order_key=None, hash=None, init=True, metadata=mappingproxy({}), type=<class 'int'>, converter=None, kw_only=False, inherited=False, on_setattr=None),)
+   (Attribute(name='a', default=NOTHING, validator=None, repr=True, eq=True, eq_key=None, order=True, order_key=None, hash=None, init=True, metadata=mappingproxy({}), type=<class 'int'>, converter=None, kw_only=False, inherited=False, on_setattr=None, alias='a'),)
 
 
 .. warning::
@@ -259,6 +259,28 @@ A more realistic example would be to automatically convert data that you, e.g., 
    >>> from_json = {"a": 3, "b": "spam", "c": "2020-05-04T13:37:00"}
    >>> Data(**from_json)  # ****
    Data(a=3, b='spam', c=datetime.datetime(2020, 5, 4, 13, 37))
+
+Or, perhaps you would prefer to generate dataclass-compatible ``__init__`` signatures via a default field ``alias``.
+Note, ``field_transformer`` operates on `attrs.Attribute` instances before the default private-attribute handling is applied so explicit user-provided aliases can be detected.
+
+.. doctest::
+
+   >>> def dataclass_names(cls, fields):
+   ...     return [
+   ...         field.evolve(alias=field.name)
+   ...         if not field.alias
+   ...         else field
+   ...         for field in fields
+   ...     ]
+   ...
+   >>> @frozen(field_transformer=dataclass_names)
+   ... class Data:
+   ...     public: int
+   ...     _private: str
+   ...     explicit: str = field(alias="aliased_name")
+   ...
+   >>> Data(public=42, _private="spam", aliased_name="yes")
+   Data(public=42, _private='spam', explicit='yes')
 
 
 Customize Value Serialization in ``asdict()``
