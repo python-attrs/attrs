@@ -46,13 +46,17 @@ Especially those generously supporting us at the *The Organization* tier and hig
       <img src="https://raw.githubusercontent.com/python-attrs/attrs/main/.github/sponsors/Tidelift.svg" width="200" height="60"></img>
    </a>
 
+   <a href="https://sentry.io/">
+      <img src="https://raw.githubusercontent.com/python-attrs/attrs/main/.github/sponsors/Sentry.svg" width="200" height="60"></img>
+   </a>
+
    <a href="https://filepreviews.io/">
       <img src="https://raw.githubusercontent.com/python-attrs/attrs/main/.github/sponsors/FilePreviews.svg" width="200" height="60"></img>
    </a>
 </p>
 
 <p align="center">
-   <strong>For a limited time, you can add your logo here for <a href="https://github.com/sponsors/hynek">as little as $50 per month!</a></strong>
+   <strong>Please consider <a href="https://github.com/sponsors/hynek">joining them</a> to help make <em>attrs</em>’s maintenance more sustainable!</strong>
 </p>
 
 <!-- teaser-end -->
