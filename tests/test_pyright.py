@@ -75,9 +75,13 @@ def test_pyright_baseline():
             severity="information",
             message='Type of "d2.a" is "Literal[\'new\']"',
         ),
+        PyrightDiagnostic(
+            severity="information",
+            message='Type of "af.__init__" is "(_a: int) -> None"',
+        ),
     }
 
-    assert diagnostics == expected_diagnostics
+    assert expected_diagnostics == diagnostics
 
 
 def test_pyright_attrsinstance_compat(tmp_path):

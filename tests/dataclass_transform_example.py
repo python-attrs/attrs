@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 
 import attr
+import attrs
 
 
 @attr.define()
@@ -43,3 +44,14 @@ d2 = FrozenDefine("a")
 d2.a = "new"
 
 reveal_type(d2.a)  # noqa
+
+
+# Field-aliasing works
+@attrs.define
+class AliasedField:
+    _a: int = attrs.field(alias="_a")
+
+
+af = AliasedField(42)
+
+reveal_type(af.__init__)  # noqa
