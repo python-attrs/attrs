@@ -17,3 +17,4 @@ htmlcov
 tmp*
 attrs.docset
 attrs.tgz
+Justfile
