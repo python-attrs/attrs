@@ -1217,6 +1217,7 @@ def attrs(
     on_setattr=None,
     field_transformer=None,
     match_args=True,
+    unsafe_hash=None,
 ):
     r"""
     A class decorator that adds :term:`dunder methods` according to the
@@ -1279,8 +1280,8 @@ def attrs(
         *eq*.
     :param Optional[bool] cmp: Setting *cmp* is equivalent to setting *eq*
         and *order* to the same value. Must not be mixed with *eq* or *order*.
-    :param Optional[bool] hash: If ``None`` (default), the ``__hash__`` method
-        is generated according how *eq* and *frozen* are set.
+    :param Optional[bool] unsafe_hash: If ``None`` (default), the ``__hash__``
+        method is generated according how *eq* and *frozen* are set.
 
         1. If *both* are True, ``attrs`` will generate a ``__hash__`` for you.
         2. If *eq* is True and *frozen* is False, ``__hash__`` will be set to
@@ -1298,6 +1299,8 @@ def attrs(
         `object.__hash__`, and the `GitHub issue that led to the default \
         behavior <https://github.com/python-attrs/attrs/issues/136>`_ for more
         details.
+    :param Optional[bool] hash: Alias for *unsafe_hash*. *unsafe_hash* takes
+        precedence.
     :param bool init: Create a ``__init__`` method that initializes the
         ``attrs`` attributes. Leading underscores are stripped for the argument
         name. If a ``__attrs_pre_init__`` method exists on the class, it will
@@ -1469,9 +1472,14 @@ def attrs(
     .. versionchanged:: 21.1.0 Support for ``__attrs_pre_init__``
     .. versionchanged:: 21.1.0 *cmp* undeprecated
     .. versionadded:: 21.3.0 *match_args*
+    .. versionadded:: 22.2.0
+       *unsafe_hash* as an alias for *hash* (for :pep:`681` compliance).
     """
     eq_, order_ = _determine_attrs_eq_order(cmp, eq, order, None)
-    hash_ = hash  # work around the lack of nonlocal
+
+    # unsafe_hash takes precedence due to PEP 681.
+    if unsafe_hash is not None:
+        hash = unsafe_hash
 
     if isinstance(on_setattr, (list, tuple)):
         on_setattr = setters.pipe(*on_setattr)
@@ -1527,14 +1535,14 @@ def attrs(
 
         builder.add_setattr()
 
+        nonlocal hash
         if (
-            hash_ is None
+            hash is None
             and auto_detect is True
             and _has_own_attribute(cls, "__hash__")
         ):
             hash = False
-        else:
-            hash = hash_
+
         if hash is not True and hash is not False and hash is not None:
             # Can't use `hash in` because 1 == True for example.
             raise TypeError(
