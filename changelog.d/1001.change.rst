@@ -1,3 +1,2 @@
-On Python 3.10 and later, call `abc.update_abstractmethods() <https://docs.pytho.
-org/3.10/library/abc.html#abc.update_abstractmethods>`_ on dict classes after creation.
+On Python 3.10 and later, call `abc.update_abstractmethods() <https://docs.python.org/3/library/abc.html#abc.update_abstractmethods>`_ on dict classes after creation.
 This improves the detection of abstractness.
