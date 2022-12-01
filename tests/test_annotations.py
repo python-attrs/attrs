@@ -105,6 +105,8 @@ class TestAnnotations:
         @attr.s(auto_attribs=True, slots=slots)
         class C:
             cls_var: typing.ClassVar[int] = 23
+            final_cls_var: typing.Final = 23
+            final_cls_var2: typing.Final[int] = 23
             a: int
             x: typing.List[int] = attr.Factory(list)
             y: int = 2
@@ -117,6 +119,8 @@ class TestAnnotations:
         attr_names = {a.name for a in C.__attrs_attrs__}
         assert "a" in attr_names  # just double check that the set works
         assert "cls_var" not in attr_names
+        assert "final_cls_var" not in attr_names
+        assert "final_cls_var2" not in attr_names
 
         attr.resolve_types(C)
 
@@ -648,6 +652,98 @@ class TestAnnotations:
         attr.resolve_types(A)
         assert int == attr.fields(A).n.type
 
+    @pytest.mark.skipif(
+        sys.version_info[:2] < (3, 8),
+        reason="Python 3.7 has no typing.Final"
+    )
+    def test_final_classvar_37(self, slots: bool) -> None:
+        """Attributes annotated as Final are left to be classvars."""
+
+        import typing_extensions
+
+        @attr.s(auto_attribs=True, slots=slots)
+        class C:
+            final_cls_var: typing.Final = 23
+            final_cls_var2: typing.Final[int] = 23
+            final_cls_var3: typing_extensions.Final = 23
+            final_cls_var4: typing_extensions.Final = 23
+            a: int
+
+        i = C(42)
+        assert "C(a=42)" == repr(i)
+
+        attr_names = {a.name for a in C.__attrs_attrs__}
+        assert "a" in attr_names  # just double check that the set works
+        assert "cls_var" not in attr_names
+        assert "final_cls_var" not in attr_names
+        assert "final_cls_var2" not in attr_names
+        assert "final_cls_var3" not in attr_names
+        assert "final_cls_var4" not in attr_names
+
+        attr.resolve_types(C)
+
+        assert int == attr.fields(C).a.type
+
+        # Class body is clean.
+        if slots is False:
+            with pytest.raises(AttributeError):
+                C.a
+
+            assert 42 == i.a
+        else:
+            assert isinstance(C.a, types.MemberDescriptorType)
+
+            i.a = 23
+            assert 23 == i.a
+
+        assert_init_annotations(
+            C,
+            a=int,
+        )
+
+    def test_final_classvar_37(self, slots: bool) -> None:
+        """Attributes annotated as Final are left to be classvars.
+
+        Remove this test when dropping 3.7.
+        """
+
+        import typing_extensions
+
+        @attr.s(auto_attribs=True, slots=slots)
+        class C:
+            final_cls_var3: typing_extensions.Final = 23
+            final_cls_var4: typing_extensions.Final = 23
+            a: int
+
+        i = C(42)
+        assert "C(a=42)" == repr(i)
+
+        attr_names = {a.name for a in C.__attrs_attrs__}
+        assert "a" in attr_names  # just double check that the set works
+        assert "cls_var" not in attr_names
+        assert "final_cls_var3" not in attr_names
+        assert "final_cls_var4" not in attr_names
+
+        attr.resolve_types(C)
+
+        assert int == attr.fields(C).a.type
+
+        # Class body is clean.
+        if slots is False:
+            with pytest.raises(AttributeError):
+                C.a
+
+            assert 42 == i.a
+        else:
+            assert isinstance(C.a, types.MemberDescriptorType)
+
+            i.a = 23
+            assert 23 == i.a
+
+        assert_init_annotations(
+            C,
+            a=int,
+        )
 
 @pytest.mark.parametrize(
     "annot",
@@ -656,7 +752,8 @@ class TestAnnotations:
         "typing.ClassVar",
         "'typing.ClassVar[dict]'",
         "t.ClassVar[int]",
-    ],
+        "typing.Final"
+    ] + ([typing.Final] if sys.version_info[:2] >= (3,8) else []),
 )
 def test_is_class_var(annot):
     """
