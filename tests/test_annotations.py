@@ -655,7 +655,7 @@ class TestAnnotations:
     @pytest.mark.skipif(
         sys.version_info[:2] < (3, 8), reason="Python 3.7 has no typing.Final"
     )
-    def test_final_classvar_37(self, slots: bool) -> None:
+    def test_final_classvar(self, slots: bool) -> None:
         """Attributes annotated as Final are left to be classvars."""
 
         import typing_extensions
