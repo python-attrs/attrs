@@ -1,0 +1,1 @@
+Fields annotated as ``Final`` are now treated as class variables instead of instance attributes.

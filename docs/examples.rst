@@ -513,6 +513,7 @@ If you don't mind annotating *all* attributes, you can even drop the `attrs.fiel
    >>> @define
    ... class AutoC:
    ...     cls_var: typing.ClassVar[int] = 5  # this one is ignored
+   ...     final_var: typing.Final = 5  # this is ignored too
    ...     l: list[int] = Factory(list)
    ...     x: int = 1
    ...     foo: str = "every attrib needs a type if auto_attribs=True"
