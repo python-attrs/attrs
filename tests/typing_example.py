@@ -452,3 +452,8 @@ def accessing_from_attrs() -> None:
 foo = object
 if attrs.has(foo) or attr.has(foo):
     foo.__attrs_attrs__
+
+
+@attrs.define(unsafe_hash=True)
+class Hashable:
+    pass

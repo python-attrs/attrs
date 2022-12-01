@@ -55,3 +55,9 @@ class AliasedField:
 af = AliasedField(42)
 
 reveal_type(af.__init__)  # noqa
+
+
+# unsafe_hash is accepted
+@attrs.define(unsafe_hash=True)
+class Hashable:
+    pass
