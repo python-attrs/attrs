@@ -653,8 +653,7 @@ class TestAnnotations:
         assert int == attr.fields(A).n.type
 
     @pytest.mark.skipif(
-        sys.version_info[:2] < (3, 8),
-        reason="Python 3.7 has no typing.Final"
+        sys.version_info[:2] < (3, 8), reason="Python 3.7 has no typing.Final"
     )
     def test_final_classvar_37(self, slots: bool) -> None:
         """Attributes annotated as Final are left to be classvars."""
@@ -745,6 +744,7 @@ class TestAnnotations:
             a=int,
         )
 
+
 @pytest.mark.parametrize(
     "annot",
     [
@@ -752,8 +752,9 @@ class TestAnnotations:
         "typing.ClassVar",
         "'typing.ClassVar[dict]'",
         "t.ClassVar[int]",
-        "typing.Final"
-    ] + ([typing.Final] if sys.version_info[:2] >= (3,8) else []),
+        "typing.Final",
+    ]
+    + ([typing.Final] if sys.version_info[:2] >= (3, 8) else []),
 )
 def test_is_class_var(annot):
     """

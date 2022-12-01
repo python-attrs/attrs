@@ -31,7 +31,7 @@ _classvar_prefixes = (
     "ClassVar",
     "typing_extensions.ClassVar",
     "typing.Final",
-    "typing_extensions.Final"
+    "typing_extensions.Final",
 )
 # we don't use a double-underscore prefix because that triggers
 # name mangling when trying to create a slot for the field
