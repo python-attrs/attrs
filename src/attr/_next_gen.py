@@ -26,6 +26,7 @@ def define(
     *,
     these=None,
     repr=None,
+    unsafe_hash=None,
     hash=None,
     init=None,
     slots=True,
@@ -81,6 +82,8 @@ def define(
 
     .. versionadded:: 20.1.0
     .. versionchanged:: 21.3.0 Converters are also run ``on_setattr``.
+    .. versionadded:: 22.2.0
+       *unsafe_hash* as an alias for *hash* (for :pep:`681` compliance).
     """
 
     def do_it(cls, auto_attribs):
@@ -89,6 +92,7 @@ def define(
             these=these,
             repr=repr,
             hash=hash,
+            unsafe_hash=unsafe_hash,
             init=init,
             slots=slots,
             frozen=frozen,

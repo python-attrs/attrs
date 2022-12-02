@@ -342,6 +342,7 @@ def attrs(
     on_setattr: Optional[_OnSetAttrArgType] = ...,
     field_transformer: Optional[_FieldTransformer] = ...,
     match_args: bool = ...,
+    unsafe_hash: Optional[bool] = ...,
 ) -> _C: ...
 @overload
 @__dataclass_transform__(order_default=True, field_descriptors=(attrib, field))
@@ -369,6 +370,7 @@ def attrs(
     on_setattr: Optional[_OnSetAttrArgType] = ...,
     field_transformer: Optional[_FieldTransformer] = ...,
     match_args: bool = ...,
+    unsafe_hash: Optional[bool] = ...,
 ) -> Callable[[_C], _C]: ...
 @overload
 @__dataclass_transform__(field_descriptors=(attrib, field))
@@ -377,6 +379,7 @@ def define(
     *,
     these: Optional[Dict[str, Any]] = ...,
     repr: bool = ...,
+    unsafe_hash: Optional[bool] = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
     slots: bool = ...,
@@ -402,6 +405,7 @@ def define(
     *,
     these: Optional[Dict[str, Any]] = ...,
     repr: bool = ...,
+    unsafe_hash: Optional[bool] = ...,
     hash: Optional[bool] = ...,
     init: bool = ...,
     slots: bool = ...,
