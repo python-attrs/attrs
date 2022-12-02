@@ -10,6 +10,11 @@ Leave it at `None` which means that *attrs* will do the right thing for you, dep
 - If you want hashing and equality by object identity: use `@define(eq=False)`
 
 Setting `unsafe_hash` yourself can have unexpected consequences so we recommend to tinker with it only if you know exactly what you're doing.
+
+---
+
+Also please note that `unsafe_hash`'s original name was `hash` but was changed to conform with {pep}`681`.
+The old name is still around and will not be remove, but setting `unsafe_hash` takes precedence over `hash`.
 :::
 
 Under certain circumstances, it's necessary for objects to be *hashable*.
@@ -32,7 +37,7 @@ Because according to the [definition](https://docs.python.org/3/glossary.html#te
    It follows that the moment you (or *attrs*) change the way equality is handled by implementing `__eq__` which is based on attribute values, this constraint is broken.
    For that reason Python 3 will make a class that has customized equality unhashable.
    Python 2 on the other hand will happily let you shoot your foot off.
-   Unfortunately, *attrs* still mimics (otherwise unsupported) Python 2's behavior for backward compatibility reasons if you set `hash=False`.
+   Unfortunately, *attrs* still mimics (otherwise unsupported) Python 2's behavior for backward-compatibility reasons if you set `unsafe_hash=False`.
 
    The *correct way* to achieve hashing by id is to set `@define(eq=False)`.
    Setting `@define(unsafe_hash=False)` (which implies `eq=True`) is almost certainly a *bug*.
@@ -55,7 +60,7 @@ Because according to the [definition](https://docs.python.org/3/glossary.html#te
 3. The hash of an object **must not** change.
 
    If you create a class with `@define(frozen=True)` this is fulfilled by definition, therefore *attrs* will write a `__hash__` function for you automatically.
-   You can also force it to write one with `hash=True` but then it's *your* responsibility to make sure that the object is not mutated.
+   You can also force it to write one with `unsafe_hash=True` but then it's *your* responsibility to make sure that the object is not mutated.
 
    This point is the reason why mutable structures like lists, dictionaries, or sets aren't hashable while immutable ones like tuples or `frozenset`s are:
    point 1 and 2 require that the hash changes with the contents but point 3 forbids it.
