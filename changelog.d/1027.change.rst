@@ -1,1 +1,0 @@
-The type stubs for ``attrs.cmp_using()`` now have default values.

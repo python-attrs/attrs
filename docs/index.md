@@ -1,18 +1,12 @@
-```{eval-rst}
-.. module:: attr
-.. module:: attrs
-```
-
 # *attrs*: Classes Without Boilerplate
 
-Release **{sub-ref}`release`**  ([What's new?](changelog))
+Release **{sub-ref}`release`**  ([What's new?](changelog.md))
 
 ```{eval-rst}
 .. include:: ../README.md
    :parser: myst_parser.sphinx_
    :start-after: teaser-begin -->
    :end-before: <!-- teaser-end
-
 ```
 
 ## Getting Started

@@ -176,15 +176,15 @@ But it's way more comfortable to run it locally and *git* catching avoidable err
 If your change is noteworthy, there needs to be a changelog entry so our users can learn about it!
 
 To avoid merge conflicts, we use the [*Towncrier*](https://pypi.org/project/towncrier) package to manage our changelog.
-*towncrier* uses independent files for each pull request – so called *news fragments* – instead of one monolithic changelog file.
-On release, those news fragments are compiled into our [`CHANGELOG.rst`](https://github.com/python-attrs/attrs/blob/main/CHANGELOG.rst).
+*towncrier* uses independent *Markdown* files for each pull request – so called *news fragments* – instead of one monolithic changelog file.
+On release, those news fragments are compiled into our [`CHANGELOG.md`](https://github.com/python-attrs/attrs/blob/main/CHANGELOG.md).
 
-You don't need to install *towncrier* yourself, you just have to abide by a few simple rules:
+You don't need to install *Towncrier* yourself, you just have to abide by a few simple rules:
 
-- For each pull request, add a new file into `changelog.d` with a filename adhering to the `pr#.(change|deprecation|breaking).rst` schema:
-  For example, `changelog.d/42.change.rst` for a non-breaking change that is proposed in pull request #42.
+- For each pull request, add a new file into `changelog.d` with a filename adhering to the `pr#.(change|deprecation|breaking).md` schema:
+  For example, `changelog.d/42.change.md` for a non-breaking change that is proposed in pull request #42.
 - As with other docs, please use [semantic newlines] within news fragments.
-- Wrap symbols like modules, functions, or classes into double backticks so they are rendered in a `monospace font`.
+- Wrap symbols like modules, functions, or classes into backticks so they are rendered in a `monospace font`.
 - Wrap arguments into asterisks like in docstrings:
   `Added new argument *an_argument*.`
 - If you mention functions or other callables, add parentheses at the end of their names:
@@ -196,19 +196,19 @@ You don't need to install *towncrier* yourself, you just have to abide by a few 
   + Added `attrs.validators.func()`.
   + `attrs.func()` now doesn't crash the Large Hadron Collider anymore when passed the *foobar* argument.
 - If you want to reference multiple issues, copy the news fragment to another filename.
-  *towncrier* will merge all news fragments with identical contents into one entry with multiple links to the respective pull requests.
+  *Towncrier* will merge all news fragments with identical contents into one entry with multiple links to the respective pull requests.
 
 Example entries:
 
-  ```rst
-  Added ``attrs.validators.func()``.
+  ```md
+  Added `attrs.validators.func()`.
   The feature really *is* awesome.
   ```
 
 or:
 
-  ```rst
-  ``attrs.func()`` now doesn't crash the Large Hadron Collider anymore when passed the *foobar* argument.
+  ```md
+  `attrs.func()` now doesn't crash the Large Hadron Collider anymore when passed the *foobar* argument.
   The bug really *was* nasty.
   ```
 

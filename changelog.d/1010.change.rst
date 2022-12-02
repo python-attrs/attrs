@@ -1,1 +1,0 @@
-Added ``attrs.validators.not_(wrapped_validator)`` to logically invert *wrapped_validator* by accepting only values where *wrapped_validator* rejects the value with a ``ValueError`` or ``TypeError`` (by default, exception types configurable).

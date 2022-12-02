@@ -42,7 +42,8 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.todo",
     "notfound.extension",
-    "sphinxcontrib.towncrier",
+    # Disabled until it speaks Markdown:
+    # "sphinxcontrib.towncrier",
 ]
 
 myst_enable_extensions = [
