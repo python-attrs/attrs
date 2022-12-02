@@ -10,17 +10,13 @@ Leave it at `None` which means that *attrs* will do the right thing for you, dep
 - If you want hashing and equality by object identity: use `@define(eq=False)`
 
 Setting `unsafe_hash` yourself can have unexpected consequences so we recommend to tinker with it only if you know exactly what you're doing.
-
-Also, please note that the `unsafe_hash` argument's original name was `hash` but was changed to conform with {pep}`681` in 22.2.0.
-The old argument name is still around and will **not** be removed -- but setting `unsafe_hash` takes precedence over `hash`.
-The field-level argument is still called `hash` and will remain so.
 :::
 
 Under certain circumstances, it's necessary for objects to be *hashable*.
 For example if you want to put them into a {class}`set` or if you want to use them as keys in a {class}`dict`.
 
 The *hash* of an object is an integer that represents the contents of an object.
-It can be obtained by calling `hash` on an object and is implemented by writing a `__hash__` method for your class.
+It can be obtained by calling {func}`hash` on an object and is implemented by writing a `__hash__` method for your class.
 
 *attrs* will happily write a `__hash__` method for you [^fn1], however it will *not* do so by default.
 Because according to the [definition](https://docs.python.org/3/glossary.html#term-hashable) from the official Python docs, the returned hash has to fulfill certain constraints:
@@ -65,6 +61,12 @@ Because according to the [definition](https://docs.python.org/3/glossary.html#te
    point 1 and 2 require that the hash changes with the contents but point 3 forbids it.
 
 For a more thorough explanation of this topic, please refer to this blog post: [*Python Hashes and Equality*](https://hynek.me/articles/hashes-and-equality/).
+
+:::{note}
+Please note that the `unsafe_hash` argument's original name was `hash` but was changed to conform with {pep}`681` in 22.2.0.
+The old argument name is still around and will **not** be removed -- but setting `unsafe_hash` takes precedence over `hash`.
+The field-level argument is still called `hash` and will remain so.
+:::
 
 
 ## Hashing and Mutability
