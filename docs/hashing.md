@@ -11,10 +11,9 @@ Leave it at `None` which means that *attrs* will do the right thing for you, dep
 
 Setting `unsafe_hash` yourself can have unexpected consequences so we recommend to tinker with it only if you know exactly what you're doing.
 
----
-
-Also please note that `unsafe_hash`'s original name was `hash` but was changed to conform with {pep}`681`.
-The old name is still around and will not be remove, but setting `unsafe_hash` takes precedence over `hash`.
+Also, please note that the `unsafe_hash` argument's original name was `hash` but was changed to conform with {pep}`681` in 22.2.0.
+The old argument name is still around and will **not** be removed -- but setting `unsafe_hash` takes precedence over `hash`.
+The field-level argument is still called `hash` and will remain so.
 :::
 
 Under certain circumstances, it's necessary for objects to be *hashable*.
