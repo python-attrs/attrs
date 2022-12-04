@@ -215,7 +215,7 @@ For that, {func}`attrs.asdict` offers a callback that decides whether an attribu
 {'users': [{'email': 'jane@doe.invalid'}, {'email': 'joe@doe.invalid'}]}
 ```
 
-For the common case where you want to [`include`](attrs.filters.include) or [`exclude`](attrs.filters.exclude) certain types or attributes, *attrs* ships with a few helpers:
+For the common case where you want to [`include`](attrs.filters.include) or [`exclude`](attrs.filters.exclude) certain types, string name or attributes, *attrs* ships with a few helpers:
 
 ```{doctest}
 >>> from attrs import asdict, filters, fields
@@ -228,7 +228,7 @@ For the common case where you want to [`include`](attrs.filters.include) or [`ex
 
 >>> asdict(
 ...     User("jane", "s33kred", 42),
-...     filter=filters.exclude(fields(User).password, int))
+...     filter=filters.exclude(fields(User).password, int, "password"))
 {'login': 'jane'}
 
 >>> @define
@@ -238,7 +238,7 @@ For the common case where you want to [`include`](attrs.filters.include) or [`ex
 ...     z: int
 
 >>> asdict(C("foo", "2", 3),
-...        filter=filters.include(int, fields(C).x))
+...        filter=filters.include(int, fields(C).x, "x"))
 {'x': 'foo', 'z': 3}
 ```
 

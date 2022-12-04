@@ -27,6 +27,8 @@ def include(*what):
         `attrs.Attribute`\\ s
 
     :rtype: `callable`
+
+    .. versionchanged:: 22.2.0 Accept field name string as input argument
     """
     cls, names, attrs = _split_what(what)
 
@@ -49,6 +51,8 @@ def exclude(*what):
         `attrs.Attribute`\\ s.
 
     :rtype: `callable`
+
+    .. versionchanged:: 22.2.0 Accept field name string as input argument
     """
     cls, names, attrs = _split_what(what)
 
