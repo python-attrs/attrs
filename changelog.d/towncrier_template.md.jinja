@@ -13,8 +13,8 @@ These changes reflect the current [development progress](https://github.com/pyth
 {% for category, val in definitions.items() if category in sections[section] %}
 
 ### {{ definitions[category]['name'] }}
-{% for text, values in sections[section][category].items() %}
 
+{% for text, values in sections[section][category].items() %}
 - {{ text }}
   {{ values|join(',\n  ') }}
 {% endfor %}
