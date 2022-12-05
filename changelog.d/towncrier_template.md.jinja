@@ -1,3 +1,10 @@
+{%- if versiondata["version"] == "main" -%}
+## Changes for the Upcoming Release
+{%- else -%}
+## [{{ versiondata["version"] }}](https://github.com/python-attrs/attrs/tree/{{ versiondata["version"] }}) - {{ versiondata["date"] }}
+{%- endif %}
+
+
 {% for section, _ in sections.items() %}
 {% if sections[section] %}
 {% for category, val in definitions.items() if category in sections[section] %}

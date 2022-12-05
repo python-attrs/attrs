@@ -53,7 +53,7 @@ name = "attrs"
 directory = "changelog.d"
 filename = "CHANGELOG.md"
 template = "changelog.d/towncrier_template.md.jinja"
-title_format = "## [{version}](https://github.com/python-attrs/attrs/tree/{version}) - {project_date}"
+title_format = ""
 issue_format = "[#{issue}](https://github.com/python-attrs/attrs/issues/{issue})"
 underlines = ["", "", ""]
 

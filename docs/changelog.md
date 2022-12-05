@@ -3,7 +3,7 @@
 ```
 
  ```{towncrier-draft-entries}
- Unreleased
+main
  ```
 
 ```{include} ../CHANGELOG.md
