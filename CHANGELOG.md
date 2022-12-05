@@ -27,7 +27,7 @@ See https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md#chan
 
 towncrier release notes start -->
 
-## 22.1.0 (2022-07-28)
+## [22.1.0](https://github.com/python-attrs/attrs/tree/22.1.0) - 2022-07-28
 
 ### Backwards-incompatible Changes
 
@@ -42,6 +42,7 @@ towncrier release notes start -->
 - The deprecated `cmp` attribute of `attrs.Attribute` has been removed.
   This does not affect the *cmp* argument to `attr.s` that can be used as a shortcut to set *eq* and *order* at the same time.
   [#939](https://github.com/python-attrs/attrs/issues/939)
+
 
 ### Changes
 
@@ -62,9 +63,8 @@ towncrier release notes start -->
 - Python 3.11 is now officially supported.
   [#969](https://github.com/python-attrs/attrs/issues/969)
 
----
 
-## 21.4.0 (2021-12-29)
+## [21.4.0](https://github.com/python-attrs/attrs/tree/21.4.0) - 2021-12-29
 
 ### Changes
 
@@ -74,9 +74,8 @@ towncrier release notes start -->
   [#895](https://github.com/python-attrs/attrs/issues/895),
   [#896](https://github.com/python-attrs/attrs/issues/896)
 
----
 
-## 21.3.0 (2021-12-28)
+## [21.3.0](https://github.com/python-attrs/attrs/tree/21.3.0) - 2021-12-28
 
 ### Backward-incompatible Changes
 
@@ -102,6 +101,7 @@ towncrier release notes start -->
 
   Please do report any bugs or documentation inconsistencies!
   [#887](https://github.com/python-attrs/attrs/issues/887)
+
 
 ### Changes
 
@@ -140,7 +140,7 @@ towncrier release notes start -->
 
 ---
 
-## 21.2.0 (2021-05-07)
+## [21.2.0](https://github.com/python-attrs/attrs/tree/21.2.0) - 2021-05-07
 
 ### Backward-incompatible Changes
 
@@ -151,9 +151,8 @@ towncrier release notes start -->
   This has **no** consequences if you pin `attrs` to 21.1.0.
   [#807](https://github.com/python-attrs/attrs/issues/807)
 
----
 
-## 21.1.0 (2021-05-06)
+## [21.1.0](https://github.com/python-attrs/attrs/tree/21.1.0) - 2021-05-06
 
 ### Deprecations
 
@@ -175,6 +174,7 @@ towncrier release notes start -->
 
   The `cmp` attribute and argument on `attr.Attribute` remains deprecated and will be removed later this year.
   [#773](https://github.com/python-attrs/attrs/issues/773)
+
 
 ### Changes
 
@@ -240,9 +240,8 @@ towncrier release notes start -->
   Your constructive feedback is welcome in both [attrs#795](https://github.com/python-attrs/attrs/issues/795) and [pyright#1782](https://github.com/microsoft/pyright/discussions/1782).
   [#796](https://github.com/python-attrs/attrs/issues/796)
 
----
 
-## 20.3.0 (2020-11-05)
+## [20.3.0](https://github.com/python-attrs/attrs/tree/20.3.0) - 2020-11-05
 
 ### Backward-incompatible Changes
 
@@ -275,7 +274,7 @@ towncrier release notes start -->
 
 ---
 
-## 20.2.0 (2020-09-05)
+## [20.2.0](https://github.com/python-attrs/attrs/tree/20.2.0) - 2020-09-05
 
 ### Backward-incompatible Changes
 
@@ -317,7 +316,7 @@ towncrier release notes start -->
 
 ---
 
-## 20.1.0 (2020-08-20)
+## [20.1.0](https://github.com/python-attrs/attrs/tree/20.1.0) - 2020-08-20
 
 ### Backward-incompatible Changes
 
@@ -428,7 +427,7 @@ towncrier release notes start -->
 
 ---
 
-## 19.3.0 (2019-10-15)
+## [19.3.0](https://github.com/python-attrs/attrs/tree/19.3.0) - 2019-10-15
 
 ### Changes
 
@@ -437,7 +436,7 @@ towncrier release notes start -->
 
 ---
 
-## 19.2.0 (2019-10-01)
+## [19.2.0](https://github.com/python-attrs/attrs/tree/19.2.0) - 2019-10-01
 
 ### Backward-incompatible Changes
 
@@ -499,7 +498,7 @@ towncrier release notes start -->
 
 ---
 
-## 19.1.0 (2019-03-03)
+## [19.1.0](https://github.com/python-attrs/attrs/tree/19.1.0) - 2019-03-03
 
 ### Backward-incompatible Changes
 
@@ -540,7 +539,7 @@ towncrier release notes start -->
 
 ---
 
-## 18.2.0 (2018-09-01)
+## [18.2.0](https://github.com/python-attrs/attrs/tree/18.2.0) - 2018-09-01
 
 ### Deprecations
 
@@ -595,7 +594,7 @@ towncrier release notes start -->
 
 ---
 
-## 18.1.0 (2018-05-03)
+## [18.1.0](https://github.com/python-attrs/attrs/tree/18.1.0) - 2018-05-03
 
 ### Changes
 
@@ -663,7 +662,7 @@ towncrier release notes start -->
 
 ---
 
-## 17.4.0 (2017-12-30)
+## [17.4.0](https://github.com/python-attrs/attrs/tree/17.4.0) - 2017-12-30
 
 ### Backward-incompatible Changes
 
@@ -750,7 +749,7 @@ towncrier release notes start -->
 
 ---
 
-## 17.3.0 (2017-11-08)
+## [17.3.0](https://github.com/python-attrs/attrs/tree/17.3.0) - 2017-11-08
 
 ### Backward-incompatible Changes
 
@@ -795,7 +794,7 @@ towncrier release notes start -->
 
 ---
 
-## 17.2.0 (2017-05-24)
+## [17.2.0](https://github.com/python-attrs/attrs/tree/17.2.0) - 2017-05-24
 
 ### Changes:
 
@@ -805,7 +804,7 @@ towncrier release notes start -->
 
 ---
 
-## 17.1.0 (2017-05-16)
+## [17.1.0](https://github.com/python-attrs/attrs/tree/17.1.0) - 2017-05-16
 
 To encourage more participation, the project has also been moved into a [dedicated GitHub organization](https://github.com/python-attrs/) and everyone is most welcome to join!
 
@@ -881,7 +880,7 @@ To encourage more participation, the project has also been moved into a [dedicat
 
 ---
 
-## 16.3.0 (2016-11-24)
+## [16.3.0](https://github.com/python-attrs/attrs/tree/16.3.0) - 2016-11-24
 
 ### Changes:
 
@@ -902,7 +901,7 @@ To encourage more participation, the project has also been moved into a [dedicat
 
 ---
 
-## 16.2.0 (2016-09-17)
+## [16.2.0](https://github.com/python-attrs/attrs/tree/16.2.0) - 2016-09-17
 
 ### Changes:
 
@@ -923,7 +922,7 @@ To encourage more participation, the project has also been moved into a [dedicat
 
 ---
 
-## 16.1.0 (2016-08-30)
+## [16.1.0](https://github.com/python-attrs/attrs/tree/16.1.0) - 2016-08-30
 
 ### Backward-incompatible Changes:
 
@@ -960,7 +959,7 @@ To encourage more participation, the project has also been moved into a [dedicat
 
 ---
 
-## 16.0.0 (2016-05-23)
+## [16.0.0](https://github.com/python-attrs/attrs/tree/16.0.0) - 2016-05-23
 
 ### Backward-incompatible Changes:
 
@@ -986,7 +985,7 @@ To encourage more participation, the project has also been moved into a [dedicat
 
 ---
 
-## 15.2.0 (2015-12-08)
+## [15.2.0](https://github.com/python-attrs/attrs/tree/15.2.0) - 2015-12-08
 
 ### Changes:
 
@@ -998,7 +997,7 @@ To encourage more participation, the project has also been moved into a [dedicat
 
 ---
 
-## 15.1.0 (2015-08-20)
+## [15.1.0](https://github.com/python-attrs/attrs/tree/15.1.0) - 2015-08-20
 
 ### Changes:
 
@@ -1011,7 +1010,7 @@ To encourage more participation, the project has also been moved into a [dedicat
 
 ---
 
-## 15.0.0 (2015-04-15)
+## [15.0.0](https://github.com/python-attrs/attrs/tree/15.0.0) - 2015-04-15
 
 ### Changes:
 

@@ -119,7 +119,8 @@ LONG = (
     + "\n\n## Changes in This Release\n"
     + read("CHANGELOG.md")
     .split("towncrier release notes start -->", 1)[1]
-    .split("---")[0]
+    .strip()
+    .split("\n## ", 1)[0]
     .strip()
     .split("\n", 1)[1]
     + "\n\n---\n\n[Full changelog]"

@@ -4,32 +4,21 @@
 :::{warning}
 These changes reflect the current development progress and have **not** been part of a PyPI release yet.
 :::
-{%- else -%}
+{% else -%}
 ## [{{ versiondata["version"] }}](https://github.com/python-attrs/attrs/tree/{{ versiondata["version"] }}) - {{ versiondata["date"] }}
 {%- endif %}
-
 
 {% for section, _ in sections.items() %}
 {% if sections[section] %}
 {% for category, val in definitions.items() if category in sections[section] %}
-### {{ definitions[category]['name'] }}
 
-{% if definitions[category]['showcontent'] %}
+### {{ definitions[category]['name'] }}
 {% for text, values in sections[section][category].items() %}
+
 - {{ text }}
   {{ values|join(',\n  ') }}
 {% endfor %}
 
-{% else %}
-- {{ sections[section][category]['']|join(', ') }}
-
-{% endif %}
-{% if sections[section][category]|length == 0 %}
-No significant changes.
-
-{% else %}
-{% endif %}
-
 {% endfor %}
 {% else %}
 No significant changes.
@@ -37,4 +26,3 @@ No significant changes.
 
 {% endif %}
 {% endfor %}
----
