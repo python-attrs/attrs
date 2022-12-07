@@ -1376,7 +1376,7 @@ class TestValidate:
 # Hypothesis seems to cache values, so the lists of attributes come out
 # unsorted.
 sorted_lists_of_attrs = list_of_attrs.map(
-    lambda l: sorted(l, key=attrgetter("counter"))
+    lambda ln: sorted(ln, key=attrgetter("counter"))
 )
 
 
