@@ -114,7 +114,18 @@ def find_meta(meta):
 
 VERSION = find_meta("version")
 URL = find_meta("url")
-LONG = read("README.md")
+LONG = (
+    read("README.md")
+    + "\n\n## Changes in This Release\n"
+    + read("CHANGELOG.md")
+    .split("towncrier release notes start -->", 1)[1]
+    .strip()
+    .split("\n## ", 1)[0]
+    .strip()
+    .split("\n", 1)[1]
+    + "\n\n---\n\n[Full changelog]"
+    "(https://www.attrs.org/en/stable/changelog.html)\n"
+)
 
 if __name__ == "__main__":
     setup(

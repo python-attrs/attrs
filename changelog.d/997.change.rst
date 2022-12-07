@@ -1,2 +1,0 @@
-``attrs.has()`` is now a ``TypeGuard`` for ``AttrsInstance``.
-That means that type checkers know a class is an instance of an ``attrs`` class if you check it using ``attrs.has()`` (or ``attr.has()``) first.

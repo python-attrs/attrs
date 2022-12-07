@@ -1,4 +1,4 @@
-include LICENSE *.rst *.toml *.yml *.yaml *.ini CITATION.cff
+include LICENSE *.md *.toml *.yml *.yaml *.ini CITATION.cff
 graft .github
 
 # Stubs
@@ -16,9 +16,10 @@ recursive-include docs *.png
 recursive-include docs *.svg
 recursive-include docs *.py
 recursive-include docs *.rst
+recursive-include docs *.md
 prune docs/_build
 
 # Just to keep check-manifest happy; on releases those files are gone.
 # Last rule wins!
-exclude changelog.d/*.rst
-include changelog.d/towncrier_template.rst
+exclude changelog.d/*.md
+include changelog.d/towncrier_template.md.jinja
