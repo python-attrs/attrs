@@ -1,0 +1,59 @@
+---
+name: Build and maybe publish to PyPI
+
+on:
+  push:
+    branches: [main]
+    tags: ["*"]
+  pull_request:
+    branches: [main]
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+
+permissions:
+  contents: read
+
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: block
+          allowed-endpoints: >
+            files.pythonhosted.org:443
+            github.com:443
+            pypi.org:443
+            test.pypi.org:443
+
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: hynek/build-and-inspect-python-package@v1
+        id: baipp
+
+      # Upload to Test PyPI on every pushed tag.
+      - name: Publish package to TestPyPI
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags') && github.repository_owner == 'python-attrs'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/
+          packages_dir: ${{ steps.baipp.outputs.dist }}
+
+      # Upload to real PyPI on GitHub Releases.
+      - name: Publish package to PyPI
+        if: github.event.action == 'published' && github.repository_owner == 'python-attrs'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          packages_dir: ${{ steps.baipp.outputs.dist }}
