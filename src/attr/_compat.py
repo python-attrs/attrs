@@ -13,6 +13,7 @@ from collections.abc import Mapping, Sequence  # noqa
 
 PYPY = platform.python_implementation() == "PyPy"
 PY310 = sys.version_info[:2] >= (3, 10)
+PY_3_12_PLUS = sys.version_info[:2] >= (3, 12)
 
 
 def just_warn(*args, **kw):
