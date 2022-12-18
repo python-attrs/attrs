@@ -614,8 +614,8 @@ def test_slots_empty_cell():
     closure cells are present with no contents in a `slots=True` class.
     (issue https://github.com/python-attrs/attrs/issues/589)
 
-    On Python 3, if a method mentions `__class__` or uses the no-arg `super()`,
-    the compiler will bake a reference to the class in the method itself as
+    If a method mentions `__class__` or uses the no-arg `super()`, the compiler
+    will bake a reference to the class in the method itself as
     `method.__closure__`. Since `attrs` replaces the class with a clone,
     `_ClassBuilder._create_slots_class(self)` will rewrite these references so
     it keeps working. This method was not properly covering the edge case where
@@ -726,7 +726,7 @@ def test_slots_super_property_get():
 
 def test_slots_super_property_get_shortcut():
     """
-    On Python 3, the `super()` shortcut is allowed.
+    The `super()` shortcut is allowed.
     """
 
     @attr.s(slots=True)

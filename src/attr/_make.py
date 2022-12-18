@@ -200,9 +200,8 @@ def attrib(
         Please note that ``attrs`` doesn't do anything with this metadata by
         itself. You can use it as part of your own code or for
         `static type checking <types>`.
-    :param kw_only: Make this attribute keyword-only (Python 3+)
-        in the generated ``__init__`` (if ``init`` is ``False``, this
-        parameter is ignored).
+    :param kw_only: Make this attribute keyword-only in the generated
+        ``__init__`` (if ``init`` is ``False``, this parameter is ignored).
     :param on_setattr: Allows to overwrite the *on_setattr* setting from
         `attr.s`. If left `None`, the *on_setattr* value from `attr.s` is used.
         Set to `attrs.setters.NO_OP` to run **no** `setattr` hooks for this
@@ -387,8 +386,6 @@ def _is_class_var(annot):
 def _has_own_attribute(cls, attrib_name):
     """
     Check whether *cls* defines *attrib_name* (and doesn't just inherit it).
-
-    Requires Python 3.
     """
     attr = getattr(cls, attrib_name, _sentinel)
     if attr is _sentinel:
@@ -872,8 +869,8 @@ class _ClassBuilder:
         cls = type(self._cls)(self._cls.__name__, self._cls.__bases__, cd)
 
         # The following is a fix for
-        # <https://github.com/python-attrs/attrs/issues/102>.  On Python 3,
-        # if a method mentions `__class__` or uses the no-arg super(), the
+        # <https://github.com/python-attrs/attrs/issues/102>.
+        # If a method mentions `__class__` or uses the no-arg super(), the
         # compiler will bake a reference to the class in the method itself
         # as `method.__closure__`.  Since we replace the class with a
         # clone, we rewrite these references so it keeps working.
@@ -1261,9 +1258,6 @@ def attrs(
         Passing ``True`` or ``False`` to *init*, *repr*, *eq*, *order*,
         *cmp*, or *hash* overrides whatever *auto_detect* would determine.
 
-        *auto_detect* requires Python 3. Setting it ``True`` on Python 2 raises
-        an `attrs.exceptions.PythonTooOldError`.
-
     :param bool repr: Create a ``__repr__`` method with a human readable
         representation of ``attrs`` attributes..
     :param bool str: Create a ``__str__`` method that is identical to
@@ -1366,7 +1360,7 @@ def attrs(
            These errors can be quite confusing and probably the most common bug
            report on our bug tracker.
 
-    :param bool kw_only: Make all attributes keyword-only (Python 3+)
+    :param bool kw_only: Make all attributes keyword-only
         in the generated ``__init__`` (if ``init`` is ``False``, this
         parameter is ignored).
     :param bool cache_hash: Ensure that the object's hash code is computed

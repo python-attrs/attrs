@@ -571,7 +571,7 @@ class TestAttributes:
     @given(slots_outer=booleans(), slots_inner=booleans())
     def test_repr_qualname(self, slots_outer, slots_inner):
         """
-        On Python 3, the name in repr is the __qualname__.
+        The name in repr is the __qualname__.
         """
 
         @attr.s(slots=slots_outer)
@@ -600,7 +600,7 @@ class TestAttributes:
     @given(slots_outer=booleans(), slots_inner=booleans())
     def test_name_not_overridden(self, slots_outer, slots_inner):
         """
-        On Python 3, __name__ is different from __qualname__.
+        __name__ is different from __qualname__.
         """
 
         @attr.s(slots=slots_outer)
@@ -1423,8 +1423,8 @@ class TestMetadata:
                 a.metadata.setdefault(string, string)
 
             for k in a.metadata:
-                # For some reason, Python 3's MappingProxyType throws an
-                # IndexError for deletes on a large integer key.
+                # For some reason, MappingProxyType throws an IndexError for
+                # deletes on a large integer key.
                 with pytest.raises((TypeError, IndexError)):
                     del a.metadata[k]
                 with pytest.raises(AttributeError):
@@ -1840,7 +1840,7 @@ class TestMakeOrder:
         """
         Calling comparison methods on subclasses raises a TypeError.
 
-        We use the actual operation so we get an error raised on Python 3.
+        We use the actual operation so we get an error raised.
         """
 
         @attr.s

@@ -383,8 +383,8 @@ class TestSetAttr:
         A user-provided intermediate __setattr__ is not reset to
         object.__setattr__.
 
-        This only can work on Python 3+ with auto_detect activated, such that
-        attrs can know that there is a user-provided __setattr__.
+        This only can work with auto_detect activated, such that attrs can know
+        that there is a user-provided __setattr__.
         """
 
         @attr.s(slots=a_slots)
