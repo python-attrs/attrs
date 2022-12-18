@@ -7,7 +7,7 @@ import pytest
 
 import attrs
 
-from attr._compat import PY310
+from attr._compat import PY310, PY_3_12_PLUS
 
 
 @pytest.mark.skipif(not PY310, reason="abc.update_abstractmethods is 3.10+")
@@ -50,7 +50,11 @@ class TestUpdateAbstractMethods:
             pass
 
         assert inspect.isabstract(StillAbstract)
-        with pytest.raises(
-            TypeError, match="class StillAbstract with abstract method foo"
-        ):
+        expected_exception_message = (
+            "^Can't instantiate abstract class StillAbstract without an "
+            "implementation for abstract method 'foo'$"
+            if PY_3_12_PLUS
+            else "class StillAbstract with abstract method foo"
+        )
+        with pytest.raises(TypeError, match=expected_exception_message):
             StillAbstract()
