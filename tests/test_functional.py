@@ -613,9 +613,6 @@ class TestFunctional:
     def test_eq_only(self, slots, frozen):
         """
         Classes with order=False cannot be ordered.
-
-        Python 3 throws a TypeError, in Python2 we have to check for the
-        absence.
         """
 
         @attr.s(eq=True, order=False, slots=slots, frozen=frozen)
