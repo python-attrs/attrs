@@ -16,7 +16,7 @@ jobs:
   release-test-pypi:
     environment: release-test-pypi
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags') && github.repository_owner == 'python-attrs'
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
 
     steps:
       - name: Harden Runner
@@ -47,7 +47,7 @@ jobs:
   release-pypi:
     environment: release-pypi
     runs-on: ubuntu-latest
-    if: github.event.action == 'published' && github.repository_owner == 'python-attrs'
+    if: github.event.action == 'published'
 
     steps:
       - name: Harden Runner
