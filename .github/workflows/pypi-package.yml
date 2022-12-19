@@ -31,11 +31,13 @@ jobs:
             test.pypi.org:443
 
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+        # with:
+        #   fetch-depth: 0
 
       - uses: hynek/build-and-inspect-python-package@v1
         id: baipp
+
+      - run: ls -l ${{ steps.baipp.outputs.dist }}
 
       # Upload to Test PyPI on every pushed tag.
       - name: Publish package to TestPyPI
@@ -67,8 +69,6 @@ jobs:
 
       - uses: hynek/build-and-inspect-python-package@v1
         id: baipp
-
-      - run: ls -l ${{ steps.baipp.outputs.dist }}
 
       # Upload to real PyPI on GitHub Releases.
       - name: Publish package to PyPI
