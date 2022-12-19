@@ -68,6 +68,8 @@ jobs:
       - uses: hynek/build-and-inspect-python-package@v1
         id: baipp
 
+      - run: ls -l ${{ steps.baipp.outputs.dist }}
+
       # Upload to real PyPI on GitHub Releases.
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
