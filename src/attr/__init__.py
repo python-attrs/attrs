@@ -32,7 +32,7 @@ if sys.version_info < (3, 7):  # pragma: no cover
         DeprecationWarning,
     )
 
-__version__ = "22.2.0.dev1"
+__version__ = "22.2.0.dev0"
 __version_info__ = VersionInfo._from_version_string(__version__)
 
 __title__ = "attrs"
