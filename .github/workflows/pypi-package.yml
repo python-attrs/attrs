@@ -1,5 +1,5 @@
 ---
-name: Build & push package to (Test-) PyPI
+name: Deploy to (Test-) PyPI
 
 on:
   push:
@@ -7,16 +7,16 @@ on:
   release:
     types:
       - published
-  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
   release-test-pypi:
+    # Upload to Test PyPI on every pushed tag.
     environment: release-test-pypi
-    runs-on: ubuntu-latest
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+    runs-on: ubuntu-latest
 
     steps:
       - name: Harden Runner
@@ -40,17 +40,17 @@ jobs:
           python -m build
           twine check --strict dist/*
 
-      # Upload to Test PyPI on every pushed tag.
-      - name: Publish package to TestPyPI
+      - name: Publish package to Test PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
           repository_url: https://test.pypi.org/legacy/
 
   release-pypi:
+    # Upload to real PyPI on GitHub Releases.
     environment: release-pypi
-    runs-on: ubuntu-latest
     if: github.event.action == 'published'
+    runs-on: ubuntu-latest
 
     steps:
       - name: Harden Runner
@@ -72,7 +72,6 @@ jobs:
           python -m build
           twine check --strict dist/*
 
-      # Upload to real PyPI on GitHub Releases.
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
