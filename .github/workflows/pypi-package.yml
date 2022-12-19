@@ -23,9 +23,11 @@ jobs:
         uses: step-security/harden-runner@v2
         with:
           egress-policy: block
+          # Need the real pypi.org for installations.
           allowed-endpoints: >
             files.pythonhosted.org:443
             github.com:443
+            pypi.org:443
             test.pypi.org:443
 
       - uses: actions/checkout@v3
