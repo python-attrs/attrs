@@ -3,10 +3,7 @@ name: Build & push package to (Test-) PyPI
 
 on:
   push:
-    branches: [main]
     tags: ["*"]
-  pull_request:
-    branches: [main]
   release:
     types:
       - published
