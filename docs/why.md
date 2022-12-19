@@ -1,6 +1,6 @@
 # Why not…
 
-If you'd like third party's account why *attrs* is great, have a look at Glyph's [The One Python Library Everyone Needs](https://glyph.twistedmatrix.com/2016/08/attrs.html).
+If you'd like third party's account why *attrs* is great, have a look at Glyph's [*The One Python Library Everyone Needs*](https://glyph.twistedmatrix.com/2016/08/attrs.html).
 It predates type annotations and hence Data Classes, but it masterfully illustrates the appeal of class-building packages.
 
 
@@ -48,7 +48,7 @@ However, as convenient as it might be, using it for your business or data layer 
 Is it really necessary to re-validate all your objects while reading them from a trusted database?
 In the parlance of [*Form, Command, and Model Validation*](https://verraes.net/2015/02/form-command-model-validation/), *pydantic* is the right tool for *Commands*.
 
-[Separation of concerns](https://en.wikipedia.org/wiki/Separation_of_concerns) feels tedious at times, but it's one of those things that you get to appreciate once you've shot your own foot often enough.
+[*Separation of concerns*](https://en.wikipedia.org/wiki/Separation_of_concerns) feels tedious at times, but it's one of those things that you get to appreciate once you've shot your own foot often enough.
 
 
 ## … namedtuples?
@@ -110,7 +110,7 @@ Other often surprising behaviors include:
   you end up with a class that has *two* `Point`s in its {attr}`__mro__ <class.__mro__>`: `[<class 'point.Point'>, <class 'point.Point'>, <type 'tuple'>, <type 'object'>]`.
 
   That's not only confusing, it also has very practical consequences:
-  for example if you create documentation that includes class hierarchies like [Sphinx's autodoc](https://www.sphinx-doc.org/en/stable/usage/extensions/autodoc.html) with `show-inheritance`.
+  for example if you create documentation that includes class hierarchies like *[*Sphinx*'s autodoc](https://www.sphinx-doc.org/en/stable/usage/extensions/autodoc.html) with `show-inheritance`.
   Again: common problem, hacky solution with confusing fallout.
 
 All these things make `namedtuple`s a particularly poor choice for public APIs because all your objects are irrevocably tainted.
@@ -132,7 +132,7 @@ Other than that, *attrs* also adds nifty features like validators, converters, a
     All helpers are functions in the `attr` package.
     Since they take the instance as first argument, you can easily attach them to your classes under a name of your own choice.
 
-[^iter]: `attr.astuple` can be used to get that behavior in *attrs* on *explicit demand*.
+[^iter]: {func}`attrs.astuple` can be used to get that behavior in *attrs* on *explicit demand*.
 
 [^immutable]: *attrs* offers *optional* immutability through the `frozen` keyword.
 
