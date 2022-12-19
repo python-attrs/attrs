@@ -114,8 +114,18 @@ def find_meta(meta):
 
 VERSION = find_meta("version")
 URL = find_meta("url")
+
+# PyPI doesn't support the <picture> tag.
+LOGO = """<p align="center">
+  <a href="https://www.attrs.org/">
+    <img src="https://raw.githubusercontent.com/python-attrs/attrs/main/docs/_static/attrs_logo.svg" width="35%" alt="attrs" />
+  </a>
+</p>
+"""  # noqa
+
 LONG = (
-    read("README.md")
+    LOGO
+    + read("README.md").split("<!-- logo-end -->", 1)[1]
     + "\n\n## Changes in This Release\n"
     + read("CHANGELOG.md")
     .split("towncrier release notes start -->", 1)[1]

@@ -7,6 +7,8 @@
    </a>
 </p>
 
+<!-- logo-end -->
+
 <p align="center">
    <a href="https://www.attrs.org/en/stable/">
        <img src="https://img.shields.io/badge/Docs-RTD-black" alt="Documentation" />
