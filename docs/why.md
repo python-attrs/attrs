@@ -53,7 +53,7 @@ In the parlance of [*Form, Command, and Model Validation*](https://verraes.net/2
 
 ## … namedtuples?
 
-{func}`collections.namedtuple`s are tuples with names, not classes.[^history]
+{obj}`collections.namedtuple`s are tuples with names, not classes.[^history]
 Since writing classes is tiresome in Python, every now and then someone discovers all the typing they could save and gets really excited.
 However, that convenience comes at a price.
 
