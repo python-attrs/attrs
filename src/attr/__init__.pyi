@@ -48,17 +48,17 @@ _T = TypeVar("_T")
 _C = TypeVar("_C", bound=type)
 
 _EqOrderType = Union[bool, Callable[[Any], Any]]
-_ValidatorType = Callable[[Any, Attribute[_T], _T], Any]
+_ValidatorType = Callable[[Any, "Attribute[_T]", _T], Any]
 _ConverterType = Callable[[Any], Any]
-_FilterType = Callable[[Attribute[_T], _T], bool]
+_FilterType = Callable[["Attribute[_T]", _T], bool]
 _ReprType = Callable[[Any], str]
 _ReprArgType = Union[bool, _ReprType]
-_OnSetAttrType = Callable[[Any, Attribute[Any], Any], Any]
+_OnSetAttrType = Callable[[Any, "Attribute[Any]", Any], Any]
 _OnSetAttrArgType = Union[
     _OnSetAttrType, List[_OnSetAttrType], setters._NoOpType
 ]
 _FieldTransformer = Callable[
-    [type, List[Attribute[Any]]], List[Attribute[Any]]
+    [type, List["Attribute[Any]"]], List["Attribute[Any]"]
 ]
 # FIXME: in reality, if multiple validators are passed they must be in a list
 # or tuple, but those are invariant and so would prevent subtypes of
