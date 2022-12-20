@@ -189,7 +189,7 @@ def attrib(
         returned value will be used as the new value of the attribute.  The
         value is converted before being passed to the validator, if any.
     :param metadata: An arbitrary mapping, to be used by third-party
-        components.  See `extending_metadata`.
+        components.  See `extending-metadata`.
 
     :param type: The type of the attribute. Nowadays, the preferred method to
         specify the type is using a variable annotation (see :pep:`526`).

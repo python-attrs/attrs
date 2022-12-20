@@ -477,7 +477,7 @@ All ``attrs`` attributes may include arbitrary metadata in the form of a read-on
 Metadata is not used by ``attrs``, and is meant to enable rich functionality in third-party libraries.
 The metadata dictionary follows the normal dictionary rules: keys need to be hashable, and both keys and values are recommended to be immutable.
 
-If you're the author of a third-party library with ``attrs`` integration, please see `Extending Metadata <extending_metadata>`.
+If you're the author of a third-party library with ``attrs`` integration, please see `Extending Metadata <extending-metadata>`.
 
 
 Types
