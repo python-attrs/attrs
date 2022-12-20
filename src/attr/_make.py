@@ -210,7 +210,7 @@ def attrib(
         `attrs.setters.NO_OP`
     :param Optional[str] alias: Override this attribute's parameter name in the
         generated ``__init__`` method. If left `None`, default to ``name``
-        stripped of leading underscores. See `private_attributes`.
+        stripped of leading underscores. See `private-attributes`.
 
     .. versionadded:: 15.2.0 *convert*
     .. versionadded:: 16.3.0 *metadata*

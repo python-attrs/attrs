@@ -415,7 +415,7 @@ You can use a decorator:
 Please note that the decorator approach only works if -- and only if! -- the attribute in question has a ``field`` assigned.
 Therefore if you use ``@validator``, it is *not* enough to annotate said attribute with a type.
 
-``attrs`` ships with a bunch of validators, make sure to `check them out <api_validators>` before writing your own:
+``attrs`` ships with a bunch of validators, make sure to `check them out <api-validators>` before writing your own:
 
 .. doctest::
 
