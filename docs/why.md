@@ -59,32 +59,28 @@ However, that convenience comes at a price.
 
 The most obvious difference between `namedtuple`s and *attrs*-based classes is that the latter are type-sensitive:
 
-```{eval-rst}
-.. doctest::
-
-   >>> import attr
-   >>> C1 = attr.make_class("C1", ["a"])
-   >>> C2 = attr.make_class("C2", ["a"])
-   >>> i1 = C1(1)
-   >>> i2 = C2(1)
-   >>> i1.a == i2.a
-   True
-   >>> i1 == i2
-   False
+```{doctest}
+>>> import attrs
+>>> C1 = attrs.make_class("C1", ["a"])
+>>> C2 = attrs.make_class("C2", ["a"])
+>>> i1 = C1(1)
+>>> i2 = C2(1)
+>>> i1.a == i2.a
+True
+>>> i1 == i2
+False
 ```
 
-…while a `namedtuple` is *intentionally* [behaving like a tuple] which means the type of a tuple is *ignored*:
+…while a `namedtuple` is *intentionally* [behaving like a tuple](https://docs.python.org/3/tutorial/datastructures.html#tuples-and-sequences) which means the type of a tuple is *ignored*:
 
-```{eval-rst}
-.. doctest::
-
-   >>> from collections import namedtuple
-   >>> NT1 = namedtuple("NT1", "a")
-   >>> NT2 = namedtuple("NT2", "b")
-   >>> t1 = NT1(1)
-   >>> t2 = NT2(1)
-   >>> t1 == t2 == (1,)
-   True
+```{doctest}
+>>> from collections import namedtuple
+>>> NT1 = namedtuple("NT1", "a")
+>>> NT2 = namedtuple("NT2", "b")
+>>> t1 = NT1(1)
+>>> t2 = NT2(1)
+>>> t1 == t2 == (1,)
+True
 ```
 
 Other often surprising behaviors include:
@@ -177,7 +173,7 @@ Why would you want to write `customer[2]` instead of `customer.first_name`?
 Don't get me started when you add nesting.
 If you've never run into mysterious tuples you had no idea what the hell they meant while debugging, you're much smarter than yours truly.
 
-Using proper classes with names and types makes program code much more readable and [comprehensible].
+Using proper classes with names and types makes program code much more readable and [comprehensible](https://arxiv.org/pdf/1304.5257.pdf).
 Especially when trying to grok a new piece of software or returning to old code after several months.
 
 
@@ -210,71 +206,67 @@ I usually manage to get some typos inside and there's simply more code that can 
 
 To bring it into perspective, the equivalent of
 
-```{eval-rst}
-.. doctest::
-
-   >>> @attr.s
-   ... class SmartClass:
-   ...    a = attr.ib()
-   ...    b = attr.ib()
-   >>> SmartClass(1, 2)
-   SmartClass(a=1, b=2)
+```{doctest}
+>>> @attrs.define
+... class SmartClass:
+...    a = attrs.field()
+...    b = attrs.field()
+>>> SmartClass(1, 2)
+SmartClass(a=1, b=2)
 ```
 
 is roughly
 
-```{eval-rst}
-.. doctest::
-
-   >>> class ArtisanalClass:
-   ...     def __init__(self, a, b):
-   ...         self.a = a
-   ...         self.b = b
-   ...
-   ...     def __repr__(self):
-   ...         return f"ArtisanalClass(a={self.a}, b={self.b})"
-   ...
-   ...     def __eq__(self, other):
-   ...         if other.__class__ is self.__class__:
-   ...             return (self.a, self.b) == (other.a, other.b)
-   ...         else:
-   ...             return NotImplemented
-   ...
-   ...     def __ne__(self, other):
-   ...         result = self.__eq__(other)
-   ...         if result is NotImplemented:
-   ...             return NotImplemented
-   ...         else:
-   ...             return not result
-   ...
-   ...     def __lt__(self, other):
-   ...         if other.__class__ is self.__class__:
-   ...             return (self.a, self.b) < (other.a, other.b)
-   ...         else:
-   ...             return NotImplemented
-   ...
-   ...     def __le__(self, other):
-   ...         if other.__class__ is self.__class__:
-   ...             return (self.a, self.b) <= (other.a, other.b)
-   ...         else:
-   ...             return NotImplemented
-   ...
-   ...     def __gt__(self, other):
-   ...         if other.__class__ is self.__class__:
-   ...             return (self.a, self.b) > (other.a, other.b)
-   ...         else:
-   ...             return NotImplemented
-   ...
-   ...     def __ge__(self, other):
-   ...         if other.__class__ is self.__class__:
-   ...             return (self.a, self.b) >= (other.a, other.b)
-   ...         else:
-   ...             return NotImplemented
-   ...
-   ...     def __hash__(self):
-   ...         return hash((self.__class__, self.a, self.b))
-   >>> ArtisanalClass(a=1, b=2)
-   ArtisanalClass(a=1, b=2)
+```{doctest}
+>>> class ArtisanalClass:
+...     def __init__(self, a, b):
+...         self.a = a
+...         self.b = b
+...
+...     def __repr__(self):
+...         return f"ArtisanalClass(a={self.a}, b={self.b})"
+...
+...     def __eq__(self, other):
+...         if other.__class__ is self.__class__:
+...             return (self.a, self.b) == (other.a, other.b)
+...         else:
+...             return NotImplemented
+...
+...     def __ne__(self, other):
+...         result = self.__eq__(other)
+...         if result is NotImplemented:
+...             return NotImplemented
+...         else:
+...             return not result
+...
+...     def __lt__(self, other):
+...         if other.__class__ is self.__class__:
+...             return (self.a, self.b) < (other.a, other.b)
+...         else:
+...             return NotImplemented
+...
+...     def __le__(self, other):
+...         if other.__class__ is self.__class__:
+...             return (self.a, self.b) <= (other.a, other.b)
+...         else:
+...             return NotImplemented
+...
+...     def __gt__(self, other):
+...         if other.__class__ is self.__class__:
+...             return (self.a, self.b) > (other.a, other.b)
+...         else:
+...             return NotImplemented
+...
+...     def __ge__(self, other):
+...         if other.__class__ is self.__class__:
+...             return (self.a, self.b) >= (other.a, other.b)
+...         else:
+...             return NotImplemented
+...
+...     def __hash__(self):
+...         return hash((self.__class__, self.a, self.b))
+>>> ArtisanalClass(a=1, b=2)
+ArtisanalClass(a=1, b=2)
 ```
 
 which is quite a mouthful and it doesn't even use any of *attrs*'s more advanced features like validators or defaults values.
@@ -284,18 +276,16 @@ And who will guarantee you, that you don't accidentally flip the `<` in your ten
 It also should be noted that *attrs* is not an all-or-nothing solution.
 You can freely choose which features you want and disable those that you want more control over:
 
-```{eval-rst}
-.. doctest::
-
-   >>> @attr.s(repr=False)
-   ... class SmartClass:
-   ...    a = attr.ib()
-   ...    b = attr.ib()
-   ...
-   ...    def __repr__(self):
-   ...        return "<SmartClass(a=%d)>" % (self.a,)
-   >>> SmartClass(1, 2)
-   <SmartClass(a=1)>
+```{doctest}
+>>> @attrs.define
+... class SmartClass:
+...    a: int
+...    b: int
+...
+...    def __repr__(self):
+...        return "<SmartClass(a=%d)>" % (self.a,)
+>>> SmartClass(1, 2)
+<SmartClass(a=1)>
 ```
 
 :::{admonition} Summary
@@ -305,6 +295,3 @@ However it takes a lot of bias and determined rationalization to claim that *att
 
 In any case, if you ever get sick of the repetitiveness and drowning important code in a sea of boilerplate, *attrs* will be waiting for you.
 :::
-
-[behaving like a tuple]: https://docs.python.org/3/tutorial/datastructures.html#tuples-and-sequences
-[comprehensible]: https://arxiv.org/pdf/1304.5257.pdf

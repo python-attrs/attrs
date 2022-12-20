@@ -160,7 +160,7 @@ Here are some tips for effective use of metadata:
 
 - To avoid metadata key collisions, consider exposing your metadata keys from your modules.:
 
-  ```
+  ```python
   from mylib import MY_METADATA_KEY
 
   @define
@@ -173,31 +173,28 @@ Here are some tips for effective use of metadata:
 - Expose `field` wrappers for your specific metadata.
   This is a more graceful approach if your users don't require metadata from other libraries.
 
-  ```{eval-rst}
-  .. doctest::
-
-    >>> from attr import fields, NOTHING
-    >>> MY_TYPE_METADATA = '__my_type_metadata'
-    >>>
-    >>> def typed(
-    ...     cls, default=NOTHING, validator=None, repr=True,
-    ...     eq=True, order=None, hash=None, init=True, metadata=None,
-    ...     converter=None
-    ... ):
-    ...     metadata = metadata or {}
-    ...     metadata[MY_TYPE_METADATA] = cls
-    ...     return field(
-    ...         default=default, validator=validator, repr=repr,
-    ...         eq=eq, order=order, hash=hash, init=init,
-    ...         metadata=metadata, converter=converter
-    ...     )
-    >>>
-    >>> @define
-    ... class C:
-    ...     x: int = typed(int, default=1, init=False)
-    >>> fields(C).x.metadata[MY_TYPE_METADATA]
-    <class 'int'>
-
+  ```{doctest}
+  >>> from attrs import fields, NOTHING
+  >>> MY_TYPE_METADATA = '__my_type_metadata'
+  >>>
+  >>> def typed(
+  ...     cls, default=NOTHING, validator=None, repr=True,
+  ...     eq=True, order=None, hash=None, init=True, metadata=None,
+  ...     converter=None
+  ... ):
+  ...     metadata = metadata or {}
+  ...     metadata[MY_TYPE_METADATA] = cls
+  ...     return field(
+  ...         default=default, validator=validator, repr=repr,
+  ...         eq=eq, order=order, hash=hash, init=init,
+  ...         metadata=metadata, converter=converter
+  ...     )
+  >>>
+  >>> @define
+  ... class C:
+  ...     x: int = typed(int, default=1, init=False)
+  >>> fields(C).x.metadata[MY_TYPE_METADATA]
+  <class 'int'>
   ```
 
 (transform-fields)=
@@ -293,24 +290,22 @@ Data(public=42, _private='spam', explicit='yes')
 *attrs* allows you to serialize instances of *attrs* classes to dicts using the {func}`attrs.asdict` function.
 However, the result can not always be serialized since most data types will remain as they are:
 
-```{eval-rst}
-.. doctest::
-
-   >>> import json
-   >>> import datetime
-   >>> from attrs import asdict
-   >>>
-   >>> @frozen
-   ... class Data:
-   ...    dt: datetime.datetime
+```{doctest}
+>>> import json
+>>> import datetime
+>>> from attrs import asdict
+>>>
+>>> @frozen
+... class Data:
+...    dt: datetime.datetime
+...
+>>> data = asdict(Data(datetime.datetime(2020, 5, 4, 13, 37)))
+>>> data
+{'dt': datetime.datetime(2020, 5, 4, 13, 37)}
+>>> json.dumps(data)
+Traceback (most recent call last):
    ...
-   >>> data = asdict(Data(datetime.datetime(2020, 5, 4, 13, 37)))
-   >>> data
-   {'dt': datetime.datetime(2020, 5, 4, 13, 37)}
-   >>> json.dumps(data)
-   Traceback (most recent call last):
-     ...
-   TypeError: Object of type datetime is not JSON serializable
+TypeError: Object of type datetime is not JSON serializable
 ```
 
 To help you with this, {func}`~attrs.asdict` allows you to pass a *value_serializer* hook.

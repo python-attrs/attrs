@@ -20,18 +20,16 @@ While creating new classes is more elegant, we've run into several edge cases su
 
 To be very clear: if you define a class with a single attribute without a default value, the generated `__init__` will look *exactly* how you'd expect:
 
-```{eval-rst}
-.. doctest::
-
-   >>> import inspect
-   >>> from attr import define
-   >>> @define
-   ... class C:
-   ...     x: int
-   >>> print(inspect.getsource(C.__init__))
-   def __init__(self, x):
-       self.x = x
-   <BLANKLINE>
+```{doctest}
+>>> import inspect
+>>> from attrs import define
+>>> @define
+... class C:
+...     x: int
+>>> print(inspect.getsource(C.__init__))
+def __init__(self, x):
+    self.x = x
+<BLANKLINE>
 ```
 
 No magic, no meta programming, no expensive introspection at runtime.

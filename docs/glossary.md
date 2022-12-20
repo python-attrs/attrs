@@ -26,20 +26,18 @@ slotted classes
 
   - Slotted classes don't allow for any other attribute to be set except for those defined in one of the class' hierarchies `__slots__`:
 
-    ```{eval-rst}
-    .. doctest::
-
-      >>> from attr import define
-      >>> @define
-      ... class Coordinates:
-      ...     x: int
-      ...     y: int
-      ...
-      >>> c = Coordinates(x=1, y=2)
-      >>> c.z = 3
-      Traceback (most recent call last):
-          ...
-      AttributeError: 'Coordinates' object has no attribute 'z'
+    ```{doctest}
+    >>> from attr import define
+    >>> @define
+    ... class Coordinates:
+    ...     x: int
+    ...     y: int
+    ...
+    >>> c = Coordinates(x=1, y=2)
+    >>> c.z = 3
+    Traceback (most recent call last):
+        ...
+    AttributeError: 'Coordinates' object has no attribute 'z'
     ```
 
   - Slotted classes can inherit from other classes just like non-slotted classes, but some of the benefits of slotted classes are lost if you do that.

@@ -4,19 +4,17 @@
 
 However they will forever remain *optional*, therefore the example from the README could also be written as:
 
-```{eval-rst}
-.. doctest::
+```{doctest}
+>>> from attrs import define, field
 
-   >>> from attrs import define, field
+>>> @define
+... class SomeClass:
+...     a_number = field(default=42)
+...     list_of_numbers = field(factory=list)
 
-   >>> @define
-   ... class SomeClass:
-   ...     a_number = field(default=42)
-   ...     list_of_numbers = field(factory=list)
-
-   >>> sc = SomeClass(1, [1, 2, 3])
-   >>> sc
-   SomeClass(a_number=1, list_of_numbers=[1, 2, 3])
+>>> sc = SomeClass(1, [1, 2, 3])
+>>> sc
+SomeClass(a_number=1, list_of_numbers=[1, 2, 3])
 ```
 
 You can choose freely between the approaches, but please remember that if you choose to use type annotations, you **must** annotate **all** attributes!

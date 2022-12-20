@@ -408,18 +408,16 @@ Therefore if you use `@validator`, it is *not* enough to annotate said attribute
 
 *attrs* ships with a bunch of validators, make sure to [check them out](api-validators) before writing your own:
 
-```{eval-rst}
-.. doctest::
-
-   >>> @define
-   ... class C:
-   ...     x: int = field(validator=validators.instance_of(int))
-   >>> C(42)
-   C(x=42)
-   >>> C("42")
-   Traceback (most recent call last):
-      ...
-   TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, factory=NOTHING, validator=<instance_of validator for type <type 'int'>>, type=None, kw_only=False), <type 'int'>, '42')
+```{doctest}
+>>> @define
+... class C:
+...     x: int = field(validator=validators.instance_of(int))
+>>> C(42)
+C(x=42)
+>>> C("42")
+Traceback (most recent call last):
+   ...
+TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, factory=NOTHING, validator=<instance_of validator for type <type 'int'>>, type=None, kw_only=False), <type 'int'>, '42')
 ```
 
 Please note that if you use {func}`attr.s` (and **not** {func}`attrs.define`) to define your class, validators only run on initialization by default -- not when you set an attribute.
