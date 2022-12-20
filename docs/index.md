@@ -48,10 +48,8 @@ If you need any help while getting started, feel free to use the `python-attrs` 
 
 ## Project Information
 
-```{eval-rst}
-.. include:: ../README.md
-   :parser: myst_parser.sphinx_
-   :start-after: ## Project Information
+```{include} ../README.md
+:start-after: '## Project Information'
 ```
 
 ---
