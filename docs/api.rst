@@ -3,13 +3,13 @@ API Reference
 
 .. currentmodule:: attr
 
-``attrs`` works by decorating a class using `attrs.define` or `attr.s` and then optionally defining attributes on the class using `attrs.field`, `attr.ib`, or a type annotation.
+*attrs* works by decorating a class using `attrs.define` or `attr.s` and then optionally defining attributes on the class using `attrs.field`, `attr.ib`, or a type annotation.
 
 If you're confused by the many names, please check out `names` for clarification.
 
 What follows is the API explanation, if you'd like a more hands-on introduction, have a look at `examples`.
 
-As of version 21.3.0, ``attrs`` consists of **two** top-level package names:
+As of version 21.3.0, *attrs* consists of **two** top-level package names:
 
 - The classic ``attr`` that powered the venerable `attr.s` and `attr.ib`
 - The modern ``attrs`` that only contains most modern APIs and relies on `attrs.define` and `attrs.field` to define your classes.
@@ -124,7 +124,7 @@ Classic
 
    .. note::
 
-      ``attrs`` also comes with a serious-business alias ``attr.attrs``.
+      *attrs* also comes with a serious-business alias ``attr.attrs``.
 
    For example:
 
@@ -164,7 +164,7 @@ Classic
 
    .. note::
 
-      ``attrs`` also comes with a serious-business alias ``attr.attrib``.
+      *attrs* also comes with a serious-business alias ``attr.attrib``.
 
    The object returned by `attr.ib` also allows for setting the default and the validator using decorators:
 
@@ -228,7 +228,7 @@ That means that it doesn't matter from from which namespace they've been raised 
 Helpers
 -------
 
-``attrs`` comes with a bunch of helper methods that make working with it easier:
+*attrs* comes with a bunch of helper methods that make working with it easier:
 
 .. autofunction:: attrs.cmp_using
 .. function:: attr.cmp_using
@@ -357,7 +357,7 @@ Helpers
 .. autofunction:: attr.astuple
 
 
-``attrs`` includes some handy helpers for filtering the attributes in `attrs.asdict` and `attrs.astuple`:
+*attrs* includes some handy helpers for filtering the attributes in `attrs.asdict` and `attrs.astuple`:
 
 .. autofunction:: attrs.filters.include
 
@@ -440,7 +440,7 @@ Validators can be globally disabled if you want to run them only in development 
 Validators
 ----------
 
-``attrs`` comes with some common validators in the ``attrs.validators`` module.
+*attrs* comes with some common validators in the ``attrs.validators`` module.
 All objects from ``attrs.validators`` are also available from ``attr.validators``.
 
 
