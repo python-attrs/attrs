@@ -52,6 +52,7 @@ toplevel = ["attr", "attrs"]
 name = "attrs"
 directory = "changelog.d"
 filename = "CHANGELOG.md"
+start_string = "<!-- towncrier release notes start -->\n"
 template = "changelog.d/towncrier_template.md.jinja"
 title_format = ""
 issue_format = "[#{issue}](https://github.com/python-attrs/attrs/issues/{issue})"

@@ -24,8 +24,9 @@ Do *NOT* add changelog entries here!
 This changelog is managed by towncrier and is compiled at release time.
 
 See https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md#changelog for details.
+-->
 
-towncrier release notes start -->
+<!-- towncrier release notes start -->
 
 ## [22.1.0](https://github.com/python-attrs/attrs/tree/22.1.0) - 2022-07-28
 
