@@ -18,6 +18,8 @@ from attr import define, frozen, field, validators, Factory
 linkcheck_ignore = [
     # We run into GitHub's rate limits.
     r"https://github.com/.*/(issues|pull)/\d+",
+    # Rate limits and the latest tag is missing anyways on release.
+    "https://github.com/python-attrs/attrs/tree/.*",
     # It never finds the anchor even though it's there.
     "https://github.com/microsoft/pyright/blob/main/specs/"
     "dataclass_transforms.md#attrs",
