@@ -18,15 +18,57 @@ Whenever there is a need to break compatibility, it is announced here in the cha
 
 Changes for the upcoming release can be found in the ["changelog.d" directory](https://github.com/python-attrs/attrs/tree/main/changelog.d) in our repository.
 
-<!--
-Do *NOT* add changelog entries here!
-
-This changelog is managed by towncrier and is compiled at release time.
-
-See https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md#changelog for details.
--->
-
 <!-- towncrier release notes start -->
+
+## [22.2.0](https://github.com/python-attrs/attrs/tree/22.2.0) - 2022-12-21
+
+### Backwards-incompatible Changes
+
+- Python 3.5 is not supported anymore.
+  [#988](https://github.com/python-attrs/attrs/issues/988)
+
+
+### Deprecations
+
+- Python 3.6 is now deprecated and support will be removed in the next release.
+  [#1017](https://github.com/python-attrs/attrs/issues/1017)
+
+
+### Changes
+
+- `attrs.field()` now supports an *alias* option for explicit `__init__` argument names.
+
+  Get `__init__` signatures matching any taste, peculiar or plain!
+  The [PEP 681 compatible](https://peps.python.org/pep-0681/#field-specifier-parameters) *alias* option can be use to override private attribute name mangling, or add other arbitrary field argument name overrides.
+  [#950](https://github.com/python-attrs/attrs/issues/950)
+- `attrs.NOTHING` is now an enum value, making it possible to use with e.g. [`typing.Literal`](https://docs.python.org/3/library/typing.html#typing.Literal).
+  [#983](https://github.com/python-attrs/attrs/issues/983)
+- Added missing re-import of `attr.AttrsInstance` to the `attrs` namespace.
+  [#987](https://github.com/python-attrs/attrs/issues/987)
+- Fix slight performance regression in classes with custom `__setattr__` and speedup even more.
+  [#991](https://github.com/python-attrs/attrs/issues/991)
+- Class-creation performance improvements by switching performance-sensitive templating operations to f-strings.
+
+  You can expect an improvement of about 5% -- even for very simple classes.
+  [#995](https://github.com/python-attrs/attrs/issues/995)
+- `attrs.has()` is now a [`TypeGuard`](https://docs.python.org/3/library/typing.html#typing.TypeGuard) for `AttrsInstance`.
+  That means that type checkers know a class is an instance of an `attrs` class if you check it using `attrs.has()` (or `attr.has()`) first.
+  [#997](https://github.com/python-attrs/attrs/issues/997)
+- Made `attrs.AttrsInstance` stub available at runtime and fixed type errors related to the usage of `attrs.AttrsInstance` in *Pyright*.
+  [#999](https://github.com/python-attrs/attrs/issues/999)
+- On Python 3.10 and later, call [`abc.update_abstractmethods()`](https://docs.python.org/3/library/abc.html#abc.update_abstractmethods) on dict classes after creation.
+  This improves the detection of abstractness.
+  [#1001](https://github.com/python-attrs/attrs/issues/1001)
+- *attrs*'s pickling methods now use dicts instead of tuples.
+  That is safer and more robust across different versions of a class.
+  [#1009](https://github.com/python-attrs/attrs/issues/1009)
+- Added `attrs.validators.not_(wrapped_validator)` to logically invert *wrapped_validator* by accepting only values where *wrapped_validator* rejects the value with a `ValueError` or `TypeError` (by default, exception types configurable).
+  [#1010](https://github.com/python-attrs/attrs/issues/1010)
+- The type stubs for `attrs.cmp_using()` now have default values.
+  [#1027](https://github.com/python-attrs/attrs/issues/1027)
+- To conform with [PEP 681](https://peps.python.org/pep-0681/), `attr.s()` and `attrs.define()` now accept *unsafe_hash* in addition to *hash*.
+  [#1065](https://github.com/python-attrs/attrs/issues/1065)
+
 
 ## [22.1.0](https://github.com/python-attrs/attrs/tree/22.1.0) - 2022-07-28
 
