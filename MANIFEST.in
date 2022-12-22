@@ -11,7 +11,7 @@ recursive-include tests *.py
 recursive-include tests *.yml
 
 # Documentation
-include docs/Makefile docs/docutils.conf
+include docs/Makefile
 recursive-include docs *.png
 recursive-include docs *.svg
 recursive-include docs *.py
