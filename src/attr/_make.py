@@ -2818,13 +2818,13 @@ Factory = _add_hash(_add_eq(_add_repr(Factory, attrs=_f), attrs=_f), attrs=_f)
 
 
 def make_class(name, attrs, bases=(object,), **attributes_arguments):
-    """
+    r"""
     A quick way to create a new class called *name* with *attrs*.
 
     :param str name: The name for the new class.
 
     :param attrs: A list of names or a dictionary of mappings of names to
-        attributes.
+        `attr.ib`\ s / `attrs.field`\ s.
 
         The order is deduced from the order of the names or attributes inside
         *attrs*.  Otherwise the order of the definition of the attributes is

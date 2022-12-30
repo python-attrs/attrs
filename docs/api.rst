@@ -85,11 +85,14 @@ Core
 
    .. doctest::
 
-      >>> C1 = attr.make_class("C1", ["x", "y"])
+      >>> import attrs
+      >>> C1 = attrs.make_class("C1", ["x", "y"])
       >>> C1(1, 2)
       C1(x=1, y=2)
-      >>> C2 = attr.make_class("C2", {"x": attr.ib(default=42),
-      ...                             "y": attr.ib(default=attr.Factory(list))})
+      >>> C2 = attrs.make_class("C2", {
+      ...     "x": attrs.field(default=42),
+      ...     "y": attrs.field(factory=list)
+      ... })
       >>> C2()
       C2(x=42, y=[])
 
