@@ -22,13 +22,12 @@ permissions:
 jobs:
   tests:
     name: tox on ${{ matrix.python-version }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
         python-version:
-          - "3.6"
           - "3.7"
           - "3.8"
           - "3.9"
