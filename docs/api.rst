@@ -1,6 +1,9 @@
 API Reference
 =============
 
+.. module:: attr
+.. module:: attrs
+
 .. currentmodule:: attr
 
 *attrs* works by decorating a class using `attrs.define` or `attr.s` and then optionally defining attributes on the class using `attrs.field`, `attr.ib`, or a type annotation.
