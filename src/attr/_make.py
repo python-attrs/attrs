@@ -1931,8 +1931,9 @@ def fields(cls):
         if generic_base is not None:
             attrs = getattr(generic_base, "__attrs_attrs__", None)
             if attrs is not None:
-                # Even though this is global state, stick it on here to speed it up.
-                # We rely on `cls` being cached for this to be efficient.
+                # Even though this is global state, stick it on here to speed
+                # it up. We rely on `cls` being cached for this to be
+                # efficient.
                 cls.__attrs_attrs__ = attrs
                 return attrs
         raise NotAnAttrsClassError(f"{cls!r} is not an attrs-decorated class.")
