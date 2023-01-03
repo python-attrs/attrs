@@ -1145,6 +1145,7 @@ class TestFields:
         assert fields(A).a.name == "a"
         assert fields(A).a.default is attr.NOTHING
 
+
 class TestFieldsDict:
     """
     Tests for `fields_dict`.

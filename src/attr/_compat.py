@@ -176,6 +176,7 @@ set_closure_cell = make_set_closure_cell()
 # If they have such a reference, it breaks cloudpickle.
 repr_context = threading.local()
 
+
 def get_generic_base(cl):
     """If this is a generic class (A[str]), return the generic base for it."""
     if cl.__class__ is _GenericAlias:
