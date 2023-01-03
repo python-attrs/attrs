@@ -13,6 +13,7 @@ import itertools
 import sys
 
 from operator import attrgetter
+from typing import Generic, TypeVar
 
 import pytest
 
@@ -1130,6 +1131,19 @@ class TestFields:
         for attribute in fields(C):
             assert getattr(fields(C), attribute.name) is attribute
 
+    def test_generics(self):
+        """
+        Fields work with generic classes.
+        """
+        T = TypeVar("T")
+
+        @attr.define
+        class A(Generic[T]):
+            a: T
+
+        assert len(fields(A)) == 1
+        assert fields(A).a.name == "a"
+        assert fields(A).a.default is attr.NOTHING
 
 class TestFieldsDict:
     """

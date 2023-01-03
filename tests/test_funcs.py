@@ -6,6 +6,7 @@ Tests for `attr._funcs`.
 
 
 from collections import OrderedDict
+from typing import Generic, TypeVar
 
 import pytest
 
@@ -417,6 +418,18 @@ class TestHas:
         Returns `False` on non-decorated classes.
         """
         assert not has(object)
+
+    def test_generics(self):
+        """
+        Works with generic classes.
+        """
+        T = TypeVar("T")
+
+        @attr.define
+        class A(Generic[T]):
+            a: T
+
+        assert has(A)
 
 
 class TestAssoc:
