@@ -2546,13 +2546,13 @@ class Attribute:
             **inst_dict,
         )
 
-    # Don't use attr.evolve since fields(Attribute) doesn't work
+    # Don't use attrs.evolve since fields(Attribute) doesn't work
     def evolve(self, **changes):
         """
         Copy *self* and apply *changes*.
 
-        This works similarly to `attr.evolve` but that function does not work
-        with ``Attribute``.
+        This works similarly to `attrs.evolve` but that function does not work
+        with `Attribute`.
 
         It is mainly meant to be used for `transform-fields`.
 
