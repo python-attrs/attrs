@@ -1,5 +1,5 @@
-API Reference for the `attr` Namespace
-======================================
+API Reference for the ``attr`` Namespace
+========================================
 
 .. module:: attr
 
