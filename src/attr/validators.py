@@ -359,13 +359,13 @@ class _IsCallableValidator:
 
 def is_callable():
     """
-    A validator that raises a `attr.exceptions.NotCallableError` if the
+    A validator that raises a `attrs.exceptions.NotCallableError` if the
     initializer is called with a value for this particular attribute
     that is not callable.
 
     .. versionadded:: 19.1.0
 
-    :raises `attr.exceptions.NotCallableError`: With a human readable error
+    :raises attrs.exceptions.NotCallableError: With a human readable error
         message containing the attribute (`attrs.Attribute`) name,
         and the value it got.
     """
