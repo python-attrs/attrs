@@ -3,7 +3,7 @@ API Reference
 
 .. module:: attrs
 
-*attrs* works by decorating a class using `attrs.define` or `attr.s` and then optionally defining attributes on the class using `attrs.field`, `attr.ib`, or a type annotation.
+*attrs* works by decorating a class using `attrs.define` or `attr.s` and then defining attributes on the class using `attrs.field`, `attr.ib`, or a type annotation.
 
 If you're confused by the many names, please check out `names` for clarification.
 
