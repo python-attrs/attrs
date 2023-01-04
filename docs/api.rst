@@ -3,20 +3,18 @@ API Reference
 
 .. module:: attrs
 
-*attrs* works by decorating a class using `attrs.define` or `attr.s` and then defining attributes on the class using `attrs.field`, `attr.ib`, or a type annotation.
+*attrs* works by decorating a class using `attrs.define` or `attr.s` and then defining attributes on the class using `attrs.field`, `attr.ib`, or type annotations.
 
-If you're confused by the many names, please check out `names` for clarification.
+What follows is the API explanation, if you'd like a more hands-on tutorial, have a look at `examples`.
 
-What follows is the API explanation, if you'd like a more hands-on introduction, have a look at `examples`.
+If you're confused by the many names, please check out `names` for clarification, but the `TL;DR <https://en.wikipedia.org/wiki/TL;DR>`_ is that as of version 21.3.0, *attrs* consists of **two** top-level package names:
 
-As of version 21.3.0, *attrs* consists of **two** top-level package names:
-
-- The classic ``attr`` that powered the venerable `attr.s` and `attr.ib`
-- The modern ``attrs`` that only contains most modern APIs and relies on `attrs.define` and `attrs.field` to define your classes.
+- The classic ``attr`` that powers the venerable `attr.s` and `attr.ib`.
+- The newer ``attrs`` that only contains most modern APIs and relies on `attrs.define` and `attrs.field` to define your classes.
   Additionally it offers some ``attr`` APIs with nicer defaults (e.g. `attrs.asdict`).
 
-The ``attrs`` namespace is built *on top of* ``attr`` which will *never* go away.
-To keep repetition low and this document at a reasonable size, the ``attr`` namespace is `documented separately <api-attr>`, though.
+The ``attrs`` namespace is built *on top of* ``attr`` -- which will *never* go away -- and is just as stable, since it doesn't constitute a rewrite.
+To keep repetition low and this document at a reasonable size, the ``attr`` namespace is `documented on a separate page <api-attr>`, though.
 
 
 Core
