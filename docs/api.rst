@@ -1,10 +1,8 @@
 API Reference
 =============
 
-.. module:: attr
 .. module:: attrs
-
-.. currentmodule:: attr
+.. module:: attr
 
 *attrs* works by decorating a class using `attrs.define` or `attr.s` and then optionally defining attributes on the class using `attrs.field`, `attr.ib`, or a type annotation.
 
@@ -35,17 +33,22 @@ Core
 
 .. autofunction:: attrs.define
 
-.. function:: attrs.mutable(same_as_define)
+.. currentmodule:: attrs
+
+.. function:: mutable(same_as_define)
 
    Alias for `attrs.define`.
 
    .. versionadded:: 20.1.0
 
-.. function:: attrs.frozen(same_as_define)
+
+.. function:: frozen(same_as_define)
 
    Behaves the same as `attrs.define` but sets *frozen=True* and *on_setattr=None*.
 
    .. versionadded:: 20.1.0
+
+.. currentmodule:: attr
 
 .. autofunction:: attrs.field
 
@@ -79,6 +82,9 @@ Core
       >>> attr.fields(C).x
       Attribute(name='x', default=NOTHING, validator=None, repr=True, eq=True, eq_key=None, order=True, order_key=None, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False, on_setattr=None, alias='x')
 
+.. class:: Attribute
+
+   Old import path for `attrs.Attribute`.
 
 .. autofunction:: attrs.make_class
 
@@ -122,7 +128,7 @@ Core
 Classic
 ~~~~~~~
 
-.. data:: attr.NOTHING
+.. data:: NOTHING
 
    Same as `attrs.NOTHING`.
 
@@ -237,7 +243,8 @@ Helpers
 *attrs* comes with a bunch of helper methods that make working with it easier:
 
 .. autofunction:: attrs.cmp_using
-.. function:: attr.cmp_using
+
+.. function:: cmp_using
 
    Same as `attrs.cmp_using`.
 
@@ -258,7 +265,7 @@ Helpers
       >>> attrs.fields(C).y is attrs.fields(C)[1]
       True
 
-.. function:: attr.fields
+.. function:: fields
 
    Same as `attrs.fields`.
 
@@ -279,7 +286,7 @@ Helpers
       >>> attrs.fields_dict(C)['y'] is attrs.fields(C).y
       True
 
-.. function:: attr.fields_dict
+.. function:: fields_dict
 
    Same as `attrs.fields_dict`.
 
@@ -297,7 +304,7 @@ Helpers
       >>> attr.has(object)
       False
 
-.. function:: attr.has
+.. function:: has
 
    Same as `attrs.has`.
 
@@ -328,7 +335,7 @@ Helpers
         >>> attrs.fields(A).b.type
         <class 'B'>
 
-.. function:: attr.resolve_types
+.. function:: resolve_types
 
    Same as `attrs.resolve_types`.
 
@@ -345,7 +352,7 @@ Helpers
       >>> attrs.asdict(C(1, C(2, 3)))
       {'x': 1, 'y': {'x': 2, 'y': 3}}
 
-.. autofunction:: attr.asdict
+.. autofunction:: asdict
 
 .. autofunction:: attrs.astuple
 
@@ -360,7 +367,7 @@ Helpers
       >>> attrs.astuple(C(1,2))
       (1, 2)
 
-.. autofunction:: attr.astuple
+.. autofunction:: astuple
 
 
 *attrs* includes some handy helpers for filtering the attributes in `attrs.asdict` and `attrs.astuple`:
@@ -369,11 +376,11 @@ Helpers
 
 .. autofunction:: attrs.filters.exclude
 
-.. function:: attr.filters.include
+.. function:: filters.include
 
    Same as `attrs.filters.include`.
 
-.. function:: attr.filters.exclude
+.. function:: filters.exclude
 
    Same as `attrs.filters.exclude`.
 
@@ -409,7 +416,7 @@ All objects from ``attrs.filters`` are also available from ``attr.filters``.
    * attributes with ``init=False`` can't be set with ``evolve``.
    * the usual ``__init__`` validators will validate the new values.
 
-.. function:: attr.evolve
+.. function:: evolve
 
    Same as `attrs.evolve`.
 
@@ -429,7 +436,7 @@ All objects from ``attrs.filters`` are also available from ``attr.filters``.
          ...
       TypeError: ("'x' must be <class 'int'> (got '1' that is a <class 'str'>).", ...)
 
-.. function:: attr.validate
+.. function:: validate
 
    Same as `attrs.validate`.
 
@@ -814,6 +821,8 @@ All objects from ``attrs.converters`` are also available from ``attr.converters`
 Setters
 -------
 
+.. currentmodule:: attrs
+
 These are helpers that you can use together with `attrs.define`'s and `attrs.fields`'s ``on_setattr`` arguments.
 All setters in ``attrs.setters`` are also available from ``attr.setters``.
 
@@ -821,7 +830,8 @@ All setters in ``attrs.setters`` are also available from ``attr.setters``.
 .. autofunction:: attrs.setters.validate
 .. autofunction:: attrs.setters.convert
 .. autofunction:: attrs.setters.pipe
-.. data:: attrs.setters.NO_OP
+
+.. data:: setters.NO_OP
 
    Sentinel for disabling class-wide *on_setattr* hooks for certain attributes.
 
@@ -852,10 +862,12 @@ All setters in ``attrs.setters`` are also available from ``attr.setters``.
 Deprecated APIs
 ---------------
 
+.. currentmodule:: attr
+
 .. _version-info:
 
 To help you write backward compatible code that doesn't throw warnings on modern releases, the ``attr`` module has an ``__version_info__`` attribute as of version 19.2.0.
-It behaves similarly to `sys.version_info` and is an instance of `VersionInfo`:
+It behaves similarly to `sys.version_info` and is an instance of `attr.VersionInfo`:
 
 .. autoclass:: VersionInfo
 

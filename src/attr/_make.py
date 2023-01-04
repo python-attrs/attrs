@@ -142,7 +142,7 @@ def attrib(
         all pass.
 
         Validators can be globally disabled and re-enabled using
-        `get_run_validators`.
+        `attrs.validators.get_disabled` / `attrs.validators.set_disabled`.
 
         The validator can also be set using decorator notation as shown below.
 
