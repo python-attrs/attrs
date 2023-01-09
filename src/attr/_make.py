@@ -12,7 +12,7 @@ from operator import itemgetter
 # We need to import _compat itself in addition to the _compat members to avoid
 # having the thread-local in the globals here.
 from . import _compat, _config, setters
-from ._compat import PY310, PYPY, _AnnotationExtractor, set_closure_cell
+from ._compat import PY310, _AnnotationExtractor, set_closure_cell
 from .exceptions import (
     DefaultAlreadySetError,
     FrozenInstanceError,
@@ -582,28 +582,19 @@ def _transform_attrs(
     return _Attributes((AttrsClass(attrs), base_attrs, base_attr_map))
 
 
-if PYPY:
+def _frozen_setattrs(self, name, value):
+    """
+    Attached to frozen classes as __setattr__.
+    """
+    if isinstance(self, BaseException) and name in (
+        "__cause__",
+        "__context__",
+        "__traceback__",
+    ):
+        BaseException.__setattr__(self, name, value)
+        return
 
-    def _frozen_setattrs(self, name, value):
-        """
-        Attached to frozen classes as __setattr__.
-        """
-        if isinstance(self, BaseException) and name in (
-            "__cause__",
-            "__context__",
-        ):
-            BaseException.__setattr__(self, name, value)
-            return
-
-        raise FrozenInstanceError()
-
-else:
-
-    def _frozen_setattrs(self, name, value):
-        """
-        Attached to frozen classes as __setattr__.
-        """
-        raise FrozenInstanceError()
+    raise FrozenInstanceError()
 
 
 def _frozen_delattrs(self, name):
