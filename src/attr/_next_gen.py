@@ -46,7 +46,7 @@ def define(
     match_args=True,
 ):
     r"""
-    Define an ``attrs`` class.
+    Define an *attrs* class.
 
     Differences to the classic `attr.s` that it uses underneath:
 

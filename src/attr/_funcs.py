@@ -16,13 +16,13 @@ def asdict(
     value_serializer=None,
 ):
     """
-    Return the ``attrs`` attribute values of *inst* as a dict.
+    Return the *attrs* attribute values of *inst* as a dict.
 
-    Optionally recurse into other ``attrs``-decorated classes.
+    Optionally recurse into other *attrs*-decorated classes.
 
-    :param inst: Instance of an ``attrs``-decorated class.
+    :param inst: Instance of an *attrs*-decorated class.
     :param bool recurse: Recurse into classes that are also
-        ``attrs``-decorated.
+        *attrs*-decorated.
     :param callable filter: A callable whose return code determines whether an
         attribute or element is included (``True``) or dropped (``False``).  Is
         called with the `attrs.Attribute` as the first argument and the
@@ -40,7 +40,7 @@ def asdict(
 
     :rtype: return type of *dict_factory*
 
-    :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
+    :raise attrs.exceptions.NotAnAttrsClassError: If *cls* is not an *attrs*
         class.
 
     ..  versionadded:: 16.0.0 *dict_factory*
@@ -195,13 +195,13 @@ def astuple(
     retain_collection_types=False,
 ):
     """
-    Return the ``attrs`` attribute values of *inst* as a tuple.
+    Return the *attrs* attribute values of *inst* as a tuple.
 
-    Optionally recurse into other ``attrs``-decorated classes.
+    Optionally recurse into other *attrs*-decorated classes.
 
-    :param inst: Instance of an ``attrs``-decorated class.
+    :param inst: Instance of an *attrs*-decorated class.
     :param bool recurse: Recurse into classes that are also
-        ``attrs``-decorated.
+        *attrs*-decorated.
     :param callable filter: A callable whose return code determines whether an
         attribute or element is included (``True``) or dropped (``False``).  Is
         called with the `attrs.Attribute` as the first argument and the
@@ -215,7 +215,7 @@ def astuple(
 
     :rtype: return type of *tuple_factory*
 
-    :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
+    :raise attrs.exceptions.NotAnAttrsClassError: If *cls* is not an *attrs*
         class.
 
     ..  versionadded:: 16.2.0
@@ -289,7 +289,7 @@ def astuple(
 
 def has(cls):
     """
-    Check whether *cls* is a class with ``attrs`` attributes.
+    Check whether *cls* is a class with *attrs* attributes.
 
     :param type cls: Class to introspect.
     :raise TypeError: If *cls* is not a class.
@@ -303,14 +303,14 @@ def assoc(inst, **changes):
     """
     Copy *inst* and apply *changes*.
 
-    :param inst: Instance of a class with ``attrs`` attributes.
+    :param inst: Instance of a class with *attrs* attributes.
     :param changes: Keyword changes in the new copy.
 
     :return: A copy of inst with *changes* incorporated.
 
-    :raise attr.exceptions.AttrsAttributeNotFoundError: If *attr_name* couldn't
-        be found on *cls*.
-    :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
+    :raise attrs.exceptions.AttrsAttributeNotFoundError: If *attr_name*
+        couldn't be found on *cls*.
+    :raise attrs.exceptions.NotAnAttrsClassError: If *cls* is not an *attrs*
         class.
 
     ..  deprecated:: 17.1.0
@@ -341,14 +341,14 @@ def evolve(inst, **changes):
     """
     Create a new instance, based on *inst* with *changes* applied.
 
-    :param inst: Instance of a class with ``attrs`` attributes.
+    :param inst: Instance of a class with *attrs* attributes.
     :param changes: Keyword changes in the new copy.
 
     :return: A copy of inst with *changes* incorporated.
 
     :raise TypeError: If *attr_name* couldn't be found in the class
         ``__init__``.
-    :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
+    :raise attrs.exceptions.NotAnAttrsClassError: If *cls* is not an *attrs*
         class.
 
     ..  versionadded:: 17.1.0
@@ -385,10 +385,10 @@ def resolve_types(cls, globalns=None, localns=None, attribs=None):
     :param Optional[dict] localns: Dictionary containing local variables.
     :param Optional[list] attribs: List of attribs for the given class.
         This is necessary when calling from inside a ``field_transformer``
-        since *cls* is not an ``attrs`` class yet.
+        since *cls* is not an *attrs* class yet.
 
     :raise TypeError: If *cls* is not a class.
-    :raise attr.exceptions.NotAnAttrsClassError: If *cls* is not an ``attrs``
+    :raise attrs.exceptions.NotAnAttrsClassError: If *cls* is not an *attrs*
         class and you didn't pass any attribs.
     :raise NameError: If types cannot be resolved because of missing variables.
 
