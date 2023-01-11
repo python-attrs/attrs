@@ -12,7 +12,6 @@ from operator import itemgetter
 # We need to import _compat itself in addition to the _compat members to avoid
 # having the thread-local in the globals here.
 from . import _compat, _config, setters
-
 from ._compat import (
     PY310,
     _AnnotationExtractor,
