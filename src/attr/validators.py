@@ -9,17 +9,12 @@ import operator
 import re
 
 from contextlib import contextmanager
+from re import Pattern
 
 from ._config import get_run_validators, set_run_validators
 from ._make import _AndValidator, and_, attrib, attrs
 from .converters import default_if_none
 from .exceptions import NotCallableError
-
-
-try:
-    Pattern = re.Pattern
-except AttributeError:  # Python <3.7 lacks a Pattern type.
-    Pattern = type(re.compile(""))
 
 
 __all__ = [
