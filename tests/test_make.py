@@ -1107,7 +1107,7 @@ class TestFields:
 
     def test_handler_non_attrs_class(self):
         """
-        Raises `ValueError` if passed a non-``attrs`` instance.
+        Raises `ValueError` if passed a non-*attrs* instance.
         """
         with pytest.raises(NotAnAttrsClassError) as e:
             fields(object)
@@ -1163,7 +1163,7 @@ class TestFieldsDict:
 
     def test_handler_non_attrs_class(self):
         """
-        Raises `ValueError` if passed a non-``attrs`` instance.
+        Raises `ValueError` if passed a non-*attrs* instance.
         """
         with pytest.raises(NotAnAttrsClassError) as e:
             fields_dict(object)
