@@ -22,7 +22,6 @@ class DefineConverter:
 reveal_type(DefineConverter.__init__)  # noqa
 
 
-# mypy plugin supports attr.frozen, pyright does not
 @attr.frozen()
 class Frozen:
     a: str
@@ -34,7 +33,6 @@ d.a = "new"
 reveal_type(d.a)  # noqa
 
 
-# but pyright supports attr.define(frozen)
 @attr.define(frozen=True)
 class FrozenDefine:
     a: str

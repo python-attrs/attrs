@@ -116,6 +116,7 @@ def __dataclass_transform__(
     eq_default: bool = True,
     order_default: bool = False,
     kw_only_default: bool = False,
+    frozen_default: bool = False,
     field_descriptors: Tuple[Union[type, Callable[..., Any]], ...] = (()),
 ) -> Callable[[_T], _T]: ...
 
@@ -426,8 +427,63 @@ def define(
 ) -> Callable[[_C], _C]: ...
 
 mutable = define
-frozen = define  # they differ only in their defaults
 
+@overload
+@__dataclass_transform__(
+    frozen_default=True, field_descriptors=(attrib, field)
+)
+def frozen(
+    maybe_cls: _C,
+    *,
+    these: Optional[Dict[str, Any]] = ...,
+    repr: bool = ...,
+    unsafe_hash: Optional[bool] = ...,
+    hash: Optional[bool] = ...,
+    init: bool = ...,
+    slots: bool = ...,
+    frozen: bool = ...,
+    weakref_slot: bool = ...,
+    str: bool = ...,
+    auto_attribs: bool = ...,
+    kw_only: bool = ...,
+    cache_hash: bool = ...,
+    auto_exc: bool = ...,
+    eq: Optional[bool] = ...,
+    order: Optional[bool] = ...,
+    auto_detect: bool = ...,
+    getstate_setstate: Optional[bool] = ...,
+    on_setattr: Optional[_OnSetAttrArgType] = ...,
+    field_transformer: Optional[_FieldTransformer] = ...,
+    match_args: bool = ...,
+) -> _C: ...
+@overload
+@__dataclass_transform__(
+    frozen_default=True, field_descriptors=(attrib, field)
+)
+def frozen(
+    maybe_cls: None = ...,
+    *,
+    these: Optional[Dict[str, Any]] = ...,
+    repr: bool = ...,
+    unsafe_hash: Optional[bool] = ...,
+    hash: Optional[bool] = ...,
+    init: bool = ...,
+    slots: bool = ...,
+    frozen: bool = ...,
+    weakref_slot: bool = ...,
+    str: bool = ...,
+    auto_attribs: bool = ...,
+    kw_only: bool = ...,
+    cache_hash: bool = ...,
+    auto_exc: bool = ...,
+    eq: Optional[bool] = ...,
+    order: Optional[bool] = ...,
+    auto_detect: bool = ...,
+    getstate_setstate: Optional[bool] = ...,
+    on_setattr: Optional[_OnSetAttrArgType] = ...,
+    field_transformer: Optional[_FieldTransformer] = ...,
+    match_args: bool = ...,
+) -> Callable[[_C], _C]: ...
 def fields(cls: Type[AttrsInstance]) -> Any: ...
 def fields_dict(cls: Type[AttrsInstance]) -> Dict[str, Attribute[Any]]: ...
 def validate(inst: AttrsInstance) -> None: ...

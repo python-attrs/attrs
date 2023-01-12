@@ -63,6 +63,11 @@ def test_pyright_baseline():
             '"(self: DefineConverter, with_converter: int) -> None"',
         ),
         PyrightDiagnostic(
+            severity="error",
+            message='Cannot assign member "a" for type '
+            '"Frozen"\n\xa0\xa0"Frozen" is frozen',
+        ),
+        PyrightDiagnostic(
             severity="information",
             message='Type of "d.a" is "Literal[\'new\']"',
         ),
