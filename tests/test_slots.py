@@ -801,3 +801,20 @@ def test_slots_unpickle_after_attr_added(frozen):
         assert new_a.b == 2
         assert new_a.c == 3
         assert not hasattr(new_a, "d")
+
+
+def test_slots_unpickle_is_backward_compatible(frozen):
+    """
+    Ensure object pickled before v22.2.0 can still be unpickled.
+    """
+    a = A(1, 2, 3)
+
+    a_pickled = (
+        b"\x80\x04\x95&\x00\x00\x00\x00\x00\x00\x00\x8c\x10"
+        + a.__module__.encode()
+        + b"\x94\x8c\x01A\x94\x93\x94)\x81\x94K\x01K\x02K\x03\x87\x94b."
+    )
+
+    a_unpickled = pickle.loads(a_pickled)
+
+    assert a_unpickled == a
