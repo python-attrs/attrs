@@ -754,13 +754,12 @@ class A:
     c = attr.ib()
 
 
-@pytest.mark.parametrize("cls", [A])
-def test_slots_unpickle_after_attr_removed(cls):
+def test_slots_unpickle_after_attr_removed():
     """
     We don't assign attributes we don't have anymore if the class has
     removed it.
     """
-    a = cls(1, 2, 3)
+    a = A(1, 2, 3)
     a_pickled = pickle.dumps(a)
     a_unpickled = pickle.loads(a_pickled)
     assert a_unpickled == a
@@ -778,12 +777,11 @@ def test_slots_unpickle_after_attr_removed(cls):
         assert not hasattr(new_a, "b")
 
 
-@pytest.mark.parametrize("cls", [A])
-def test_slots_unpickle_after_attr_added(cls, frozen):
+def test_slots_unpickle_after_attr_added(frozen):
     """
     We don't assign attribute we haven't had before if the class has one added.
     """
-    a = cls(1, 2, 3)
+    a = A(1, 2, 3)
     a_pickled = pickle.dumps(a)
     a_unpickled = pickle.loads(a_pickled)
 
