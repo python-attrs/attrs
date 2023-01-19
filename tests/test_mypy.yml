@@ -1372,6 +1372,25 @@
 
     fields(A)  # E: Argument 1 to "fields" has incompatible type "Type[A]"; expected "Type[AttrsInstance]"  [arg-type]
 
+- case: testAsDict
+  main: |
+    from attrs import asdict, define
+
+    @define
+    class A:
+      a: int
+
+    asdict(A(1))
+
+- case: testAsDictError
+  main: |
+    from attrs import asdict
+
+    class A:
+      a: int
+
+    asdict(A())  # E: Argument 1 to "asdict" has incompatible type "A"; expected "AttrsInstance"  [arg-type]
+
 - case: testHasTypeGuard
   main: |
     from attrs import define, has
