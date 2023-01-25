@@ -934,9 +934,15 @@ class _ClassBuilder:
             Automatically created by attrs.
             """
             __bound_setattr = _obj_setattr.__get__(self)
-            for name in state_attr_names:
-                if name in state:
-                    __bound_setattr(name, state[name])
+            if isinstance(state, tuple):
+                # Backward compatibility with attrs instances pickled with
+                # attrs versions before v22.2.0 which stored tuples.
+                for name, value in zip(state_attr_names, state):
+                    __bound_setattr(name, value)
+            else:
+                for name in state_attr_names:
+                    if name in state:
+                        __bound_setattr(name, state[name])
 
             # The hash code cache is not included when the object is
             # serialized, but it still needs to be initialized to None to
