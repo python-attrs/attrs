@@ -51,7 +51,7 @@ tests = ["attrs[tests-no-zope]", "zope.interface"]
 cov = [
     "attrs[tests]",
     # Ensure coverage is new enough for `source_pkgs`.
-    "coverage>=5.3",
+    "coverage[toml]>=5.3",
 ]
 docs = [
     "furo",
