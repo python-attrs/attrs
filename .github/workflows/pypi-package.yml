@@ -1,79 +1,93 @@
 ---
-name: Deploy to (Test-) PyPI
+name: Build & maybe upload PyPI package
 
 on:
   push:
+    branches: [main]
     tags: ["*"]
+  pull_request:
+    branches: [main]
   release:
     types:
       - published
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  release-test-pypi:
-    # Upload to Test PyPI on every pushed tag.
-    environment: release-test-pypi
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+  # Always build & lint package.
+  build-package:
+    name: Build & verify package
     runs-on: ubuntu-latest
 
     steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@v2
+      - uses: step-security/harden-runner@v2
         with:
+          disable-sudo: true
           egress-policy: block
-          # Need the real pypi.org for installations.
           allowed-endpoints: >
             files.pythonhosted.org:443
             github.com:443
             pypi.org:443
-            test.pypi.org:443
 
       - uses: actions/checkout@v3
-        # with:
-        #   fetch-depth: 0
+        with:
+          fetch-depth: 0
 
-      - name: Build package
-        run: |
-          python -m pip install -U build twine wheel
-          python -m build
-          twine check --strict dist/*
+      - uses: hynek/build-and-inspect-python-package@v1
 
-      - name: Publish package to Test PyPI
+  # Upload to Test PyPI on every commit on main.
+  release-test-pypi:
+    name: Publish in-dev package to test.pypi.org
+    environment: release-test-pypi
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: build-package
+
+    steps:
+      - uses: step-security/harden-runner@v2
+        with:
+          disable-sudo: true
+          egress-policy: block
+          allowed-endpoints: >
+            test.pypi.org:443
+
+      - name: Download packages built by build-and-inspect-python-package
+        uses: actions/download-artifact@v3
+        with:
+          name: Packages
+          path: dist
+
+      - name: Upload package to Test PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
           repository_url: https://test.pypi.org/legacy/
 
+  # Upload to real PyPI on GitHub Releases.
   release-pypi:
-    # Upload to real PyPI on GitHub Releases.
+    name: Publish released package to pypi.org
     environment: release-pypi
     if: github.event.action == 'published'
     runs-on: ubuntu-latest
+    needs: build-package
 
     steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@v2
+      - uses: step-security/harden-runner@v2
         with:
+          disable-sudo: true
           egress-policy: block
           allowed-endpoints: >
-            files.pythonhosted.org:443
-            github.com:443
-            pypi.org:443
             upload.pypi.org:443
 
-      - uses: actions/checkout@v3
-        # with:
-        #   fetch-depth: 0
+      - name: Download packages built by build-and-inspect-python-package
+        uses: actions/download-artifact@v3
+        with:
+          name: Packages
+          path: dist
 
-      - name: Build package
-        run: |
-          python -m pip install -U build twine wheel
-          python -m build
-          twine check --strict dist/*
-
-      - name: Publish package to PyPI
+      - name: Upload package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
