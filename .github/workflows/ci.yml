@@ -169,9 +169,9 @@ jobs:
         with:
           egress-policy: block
           allowed-endpoints: >
-            files.pythonhosted.org: 443
+            files.pythonhosted.org:443
             github.com:443
-            pypi.org: 443
+            pypi.org:443
       - uses: actions/checkout@v3
       - uses: hynek/build-and-inspect-python-package@v1
 
