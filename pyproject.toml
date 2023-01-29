@@ -75,7 +75,7 @@ Ko-fi = "https://ko-fi.com/the_hynek"
 
 [tool.hatch.version]
 source = "vcs"
-raw_options.local_scheme = "no-local-version"
+raw-options = { local_scheme = "no-local-version" }
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/attr", "src/attrs"]
