@@ -21,6 +21,8 @@ permissions:
 
 jobs:
   version:
+    # To save ourselves deep checkouts in every job, we determine the in-dev
+    # version once and set SETUPTOOLS_SCM_PRETEND_VERSION to it.
     name: Determine in-dev version
     runs-on: ubuntu-latest
 
@@ -56,6 +58,7 @@ jobs:
       ${{ contains(matrix.python-version, '~') && true || false }}
 
     steps:
+      - run: echo ${{ env.SETUPTOOLS_SCM_PRETEND_VERSION }}
       - name: Harden Runner
         uses: step-security/harden-runner@v2
         with:
