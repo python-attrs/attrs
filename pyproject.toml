@@ -1,13 +1,12 @@
 # SPDX-License-Identifier: MIT
 
 [build-system]
-requires = ["hatchling", "hatch-fancy-pypi-readme"]
+requires = ["hatchling", "hatch-vcs", "hatch-fancy-pypi-readme"]
 build-backend = "hatchling.build"
 
 
 [project]
 name = "attrs"
-version = "23.1.0.dev0"
 authors = [{ name = "Hynek Schlawack", email = "hs@ox.cx" }]
 license = "MIT"
 requires-python = ">=3.7"
@@ -31,7 +30,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = ["importlib_metadata;python_version<'3.8'"]
-dynamic = ["readme"]
+dynamic = ["version", "readme"]
 
 [project.optional-dependencies]
 tests-no-zope = [
@@ -73,6 +72,10 @@ Funding = "https://github.com/sponsors/hynek"
 Tidelift = "https://tidelift.com/subscription/pkg/pypi-attrs?utm_source=pypi-attrs&utm_medium=pypi"
 Ko-fi = "https://ko-fi.com/the_hynek"
 
+
+[tool.hatch.version]
+source = "vcs"
+raw-options = { local_scheme = "no-local-version" }
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/attr", "src/attrs"]
