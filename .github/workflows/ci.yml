@@ -15,31 +15,16 @@ env:
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
   PIP_NO_PYTHON_VERSION_WARNING: "1"
   PYTHON_LATEST: "3.11"
+  # avoid warnings about shallow checkout, but also make sure pytest accepts us.
+  SETUPTOOLS_SCM_PRETEND_VERSION: "99.9.9"
 
 permissions:
   contents: read
 
 jobs:
-  version:
-    # To save ourselves deep checkouts in every job, we determine the in-dev
-    # version once and set SETUPTOOLS_SCM_PRETEND_VERSION to it.
-    name: Determine in-dev version
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v4
-        with:
-          python-version: ${{env.PYTHON_LATEST}}
-      - run: python -Im pip install --upgrade hatch
-      - run: echo SETUPTOOLS_SCM_PRETEND_VERSION=$(hatch version) >>$GITHUB_ENV
-
   tests:
     name: tox on ${{ matrix.python-version }}
     runs-on: ubuntu-latest
-    needs: version
 
     strategy:
       fail-fast: false
@@ -132,7 +117,6 @@ jobs:
 
   docs:
     name: Build docs & run doctests
-    needs: version
     runs-on: ubuntu-latest
     steps:
       - name: Harden Runner
@@ -179,7 +163,6 @@ jobs:
 
   install-dev:
     name: Verify dev env
-    needs: version
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
