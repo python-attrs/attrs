@@ -43,7 +43,6 @@ jobs:
       ${{ contains(matrix.python-version, '~') && true || false }}
 
     steps:
-      - run: echo ${{ env.SETUPTOOLS_SCM_PRETEND_VERSION }}
       - name: Harden Runner
         uses: step-security/harden-runner@v2
         with:
