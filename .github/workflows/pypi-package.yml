@@ -1,5 +1,5 @@
 ---
-name: Deploy to (Test-) PyPI
+name: Build & maybe upload PyPI package
 
 on:
   push:
@@ -35,6 +35,7 @@ jobs:
 
   # Upload to Test PyPI on every commit on main.
   release-test-pypi:
+    name: Publish in-dev package to test.pypi.org
     environment: release-test-pypi
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
@@ -54,7 +55,7 @@ jobs:
           name: Packages
           path: dist
 
-      - name: Publish package to Test PyPI
+      - name: Upload package to Test PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
@@ -62,6 +63,7 @@ jobs:
 
   # Upload to real PyPI on GitHub Releases.
   release-pypi:
+    name: Publish released package to pypi.org
     environment: release-pypi
     if: github.event.action == 'published'
     runs-on: ubuntu-latest
@@ -81,7 +83,7 @@ jobs:
           name: Packages
           path: dist
 
-      - name: Publish package to PyPI
+      - name: Upload package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
