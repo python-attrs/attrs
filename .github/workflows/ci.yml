@@ -174,6 +174,8 @@ jobs:
             github.com:443
             pypi.org:443
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - uses: hynek/build-and-inspect-python-package@v1
 
   install-dev:
