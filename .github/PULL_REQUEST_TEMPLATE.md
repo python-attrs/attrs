@@ -24,7 +24,8 @@ If your pull request is a documentation fix or a trivial typo, feel free to dele
     - [ ] New functions/classes have to be added to `docs/api.rst` by hand.
     - [ ] Changes to the signature of `@attr.s()` have to be added by hand too.
     - [ ] Changed/added classes/methods/functions have appropriate `versionadded`, `versionchanged`, or `deprecated` [directives](http://www.sphinx-doc.org/en/stable/markup/para.html#directive-versionadded).
-          Find the appropriate next version in our [``__init__.py``](https://github.com/python-attrs/attrs/blob/main/src/attr/__init__.py) file.
+          The next version is the second number in the current release + 1.
+          So if the current version on PyPI is 23.1.0, the next version is gonna be 23.2.0.
 - [ ] Documentation in `.rst` files is written using [semantic newlines](https://rhodesmill.org/brandon/2012/one-sentence-per-line/).
 - [ ] Changes (and possible deprecations) have news fragments in [`changelog.d`](https://github.com/python-attrs/attrs/blob/main/changelog.d).
 - [ ] Consider granting [push permissions to the PR branch](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/allowing-changes-to-a-pull-request-branch-created-from-a-fork), so maintainers can fix minor issues themselves without pestering you.

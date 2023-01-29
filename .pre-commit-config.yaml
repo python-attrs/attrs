@@ -3,7 +3,7 @@ ci:
   autoupdate_schedule: monthly
 
 default_language_version:
-  python: python3.10  # needed for match
+  python: python3.11
 
 repos:
   - repo: https://github.com/psf/black
@@ -15,14 +15,13 @@ repos:
     rev: v3.3.1
     hooks:
       - id: pyupgrade
-        args: [--py36-plus, --keep-percent-format]
+        args: [--py37-plus, --keep-percent-format]
         exclude: "tests/test_slots.py"
 
   - repo: https://github.com/PyCQA/isort
     rev: 5.11.4
     hooks:
       - id: isort
-        additional_dependencies: [toml]
         files: \.py$
 
   - repo: https://github.com/asottile/yesqa
