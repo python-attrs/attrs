@@ -167,6 +167,7 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@v2
         with:
+          disable-sudo: true
           egress-policy: block
           allowed-endpoints: >
             files.pythonhosted.org:443
@@ -186,6 +187,7 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@v2
         with:
+          disable-sudo: true
           egress-policy: block
           allowed-endpoints: >
             files.pythonhosted.org:443
@@ -216,6 +218,7 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@v2
         with:
+          disable-sudo: true
           egress-policy: block
           allowed-endpoints: >
             api.github.com:443
