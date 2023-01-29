@@ -160,6 +160,21 @@ jobs:
       - run: python -m pip install --upgrade wheel 'tox<4'
       - run: python -m tox -e pyright
 
+  package:
+    name: Build & verify package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: block
+          allowed-endpoints: >
+            files.pythonhosted.org: 443
+            github.com:443
+            pypi.org: 443
+      - uses: actions/checkout@v3
+      - uses: hynek/build-and-inspect-python-package@v1
+
   install-dev:
     name: Verify dev env
     runs-on: ${{ matrix.os }}
@@ -190,6 +205,7 @@ jobs:
 
     needs:
       - coverage
+      - package
       - docs
       - install-dev
       - pyright
