@@ -19,7 +19,7 @@ repos:
         exclude: "tests/test_slots.py"
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.11.4
+    rev: 5.12.0
     hooks:
       - id: isort
         files: \.py$
