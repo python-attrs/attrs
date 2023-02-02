@@ -62,7 +62,7 @@ jobs:
         run: |
           python -VV
           python -m site
-          python -m pip install --upgrade wheel tox tox-gh-actions
+          python -m pip install --upgrade wheel tox tox-gh
 
       - run: python -m tox
 
