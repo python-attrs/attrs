@@ -525,6 +525,7 @@ class TestAnnotations:
         `get_type_hints` returns extra type hints.
         """
         from typing import Annotated
+
         globals = {"Annotated": Annotated}
 
         @attr.define

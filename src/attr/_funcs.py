@@ -367,7 +367,9 @@ def evolve(inst, **changes):
     return cls(**changes)
 
 
-def resolve_types(cls, globalns=None, localns=None, attribs=None, include_extras=True):
+def resolve_types(
+    cls, globalns=None, localns=None, attribs=None, include_extras=True
+):
     """
     Resolve any strings and forward annotations in type annotations.
 
@@ -408,6 +410,7 @@ def resolve_types(cls, globalns=None, localns=None, attribs=None, include_extras
     # done it already.
     if getattr(cls, "__attrs_types_resolved__", None) != cls:
         import typing
+
         kwargs = {"globalns": globalns, "localns": localns}
 
         if PY_3_9_PLUS:

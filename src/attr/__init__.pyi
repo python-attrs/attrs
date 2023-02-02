@@ -28,7 +28,6 @@ from ._cmp import cmp_using as cmp_using
 from ._typing_compat import AttrsInstance_
 from ._version_info import VersionInfo
 
-
 if sys.version_info >= (3, 10):
     from typing import TypeGuard
 else:
