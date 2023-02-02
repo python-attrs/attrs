@@ -389,8 +389,10 @@ def resolve_types(
     :param Optional[list] attribs: List of attribs for the given class.
         This is necessary when calling from inside a ``field_transformer``
         since *cls* is not an *attrs* class yet.
-    :param bool include_extras: Pass ``include_extras`` to ``typing.get_hints``, if possible.
-        On supported Python versions (3.9+), this resolves the types more accurately.
+    :param bool include_extras: Resolve more accurately, if possible.
+        Pass ``include_extras`` to ``typing.get_hints``, if supported by the
+        typing module. On supported Python versions (3.9+), this resolves the
+        types more accurately.
 
     :raise TypeError: If *cls* is not a class.
     :raise attrs.exceptions.NotAnAttrsClassError: If *cls* is not an *attrs*
