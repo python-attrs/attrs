@@ -3,6 +3,7 @@
 
 import copy
 
+from ._compat import PY_3_9_PLUS
 from ._make import NOTHING, _obj_setattr, fields
 from .exceptions import AttrsAttributeNotFoundError
 
@@ -366,7 +367,7 @@ def evolve(inst, **changes):
     return cls(**changes)
 
 
-def resolve_types(cls, globalns=None, localns=None, attribs=None):
+def resolve_types(cls, globalns=None, localns=None, attribs=None, include_extras=True):
     """
     Resolve any strings and forward annotations in type annotations.
 
@@ -386,6 +387,8 @@ def resolve_types(cls, globalns=None, localns=None, attribs=None):
     :param Optional[list] attribs: List of attribs for the given class.
         This is necessary when calling from inside a ``field_transformer``
         since *cls* is not an *attrs* class yet.
+    :param bool include_extras: Pass ``include_extras`` to ``typing.get_hints``, if possible.
+        On supported Python versions (3.9+), this resolves the types more accurately.
 
     :raise TypeError: If *cls* is not a class.
     :raise attrs.exceptions.NotAnAttrsClassError: If *cls* is not an *attrs*
@@ -398,14 +401,19 @@ def resolve_types(cls, globalns=None, localns=None, attribs=None):
 
     ..  versionadded:: 20.1.0
     ..  versionadded:: 21.1.0 *attribs*
+    ..  versionadded:: 23.1.0 *include_extras*
 
     """
     # Since calling get_type_hints is expensive we cache whether we've
     # done it already.
     if getattr(cls, "__attrs_types_resolved__", None) != cls:
         import typing
+        kwargs = {"globalns": globalns, "localns": localns}
 
-        hints = typing.get_type_hints(cls, globalns=globalns, localns=localns)
+        if PY_3_9_PLUS:
+            kwargs["include_extras"] = include_extras
+
+        hints = typing.get_type_hints(cls, **kwargs)
         for field in fields(cls) if attribs is None else attribs:
             if field.name in hints:
                 # Since fields have been frozen we must work around it.
