@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   tests:
-    name: tox on ${{ matrix.python-version }}
+    name: tests on ${{ matrix.python-version }}
     runs-on: ubuntu-latest
 
     strategy:
@@ -58,13 +58,24 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
+      - name: Determine Python version for tox
         run: |
-          python -VV
-          python -m site
-          python -m pip install --upgrade wheel tox tox-gh-actions
+          V=${{ matrix.python-version }}
+          if [[ "$V" = ~* ]]; then
+            # Extract version from a '~3.XX.0-0' specifier.
+            V=${V:1:4}
+          fi
 
-      - run: python -m tox
+          if [[ "$V" = pypy-* ]]; then
+            V=pypy3
+          else
+            V=py$(echo $V | tr -d .)
+          fi
+
+          echo TOX_PYTHON=$V >>$GITHUB_ENV
+
+      - run: python -Im pip install --upgrade wheel tox
+      - run: python -Im tox run -f ${{ env.TOX_PYTHON }}
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v3
@@ -94,7 +105,7 @@ jobs:
           # Use latest Python, so it understands all syntax.
           python-version: ${{env.PYTHON_LATEST}}
 
-      - run: python -m pip install --upgrade coverage[toml]
+      - run: python -Im pip install --upgrade coverage[toml]
 
       - name: Download coverage data
         uses: actions/download-artifact@v3
@@ -103,9 +114,9 @@ jobs:
 
       - name: Combine coverage and fail if it's <100%.
         run: |
-          python -m coverage combine
-          python -m coverage html --skip-covered --skip-empty
-          python -m coverage report --fail-under=100
+          python -Im coverage combine
+          python -Im coverage html --skip-covered --skip-empty
+          python -Im coverage report --fail-under=100
 
       - name: Upload HTML report if check failed.
         uses: actions/upload-artifact@v3
@@ -134,8 +145,30 @@ jobs:
           # Keep in sync with tox/docs and .readthedocs.yaml.
           python-version: "3.10"
 
-      - run: python -m pip install --upgrade wheel tox
-      - run: python -m tox -e docs,changelog
+      - run: python -Im pip install --upgrade wheel tox
+      - run: python -Im tox -e docs,changelog
+
+  mypy:
+    name: mypy on ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - "3.7"
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11"
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - run: python -Im pip install --upgrade wheel tox
+      - run: python -Im tox run -e mypy
 
   pyright:
     name: Check types using pyright
@@ -158,8 +191,8 @@ jobs:
         with:
           python-version: ${{env.PYTHON_LATEST}}
 
-      - run: python -m pip install --upgrade wheel tox
-      - run: python -m tox -e pyright
+      - run: python -Im pip install --upgrade wheel tox
+      - run: python -Im tox run -e pyright
 
   install-dev:
     name: Verify dev env
@@ -183,8 +216,8 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: ${{env.PYTHON_LATEST}}
-      - run: python -m pip install -e .[dev]
-      - run: python -c 'import attr; print(attr.__version__)'
+      - run: python -Im pip install -e .[dev]
+      - run: python -Ic 'import attr; print(attr.__version__)'
 
   # Ensure everything required is passing for branch protection.
   required-checks-pass:
@@ -194,6 +227,7 @@ jobs:
       - coverage
       - docs
       - install-dev
+      - mypy
       - pyright
 
     runs-on: ubuntu-latest
