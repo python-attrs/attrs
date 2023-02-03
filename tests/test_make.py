@@ -1115,6 +1115,22 @@ class TestFields:
             f"{object!r} is not an attrs-decorated class."
         ) == e.value.args[0]
 
+    def test_handler_non_attrs_generic_class(self):
+        """
+        Raises `ValueError` if passed a non-*attrs* generic class.
+        """
+        T = TypeVar("T")
+
+        class B(Generic[T]):
+            pass
+
+        with pytest.raises(NotAnAttrsClassError) as e:
+            fields(B[str])
+
+        assert (
+            f"{B[str]!r} is not an attrs-decorated class."
+        ) == e.value.args[0]
+
     @given(simple_classes())
     def test_fields(self, C):
         """
