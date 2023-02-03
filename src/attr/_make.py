@@ -1928,7 +1928,7 @@ def fields(cls):
     generic_base = get_generic_base(cls)
 
     if generic_base is None and not isinstance(cls, type):
-            raise TypeError("Passed object must be a class.")
+        raise TypeError("Passed object must be a class.")
 
     attrs = getattr(cls, "__attrs_attrs__", None)
 
