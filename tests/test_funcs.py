@@ -431,6 +431,10 @@ class TestHas:
 
         assert has(A)
 
+        assert has(A[str])
+        # Verify twice, since there's caching going on.
+        assert has(A[str])
+
 
 class TestAssoc:
     """

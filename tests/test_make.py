@@ -1144,6 +1144,10 @@ class TestFields:
         assert fields(A).a.name == "a"
         assert fields(A).a.default is attr.NOTHING
 
+        assert len(fields(A[str])) == 1
+        assert fields(A[str]).a.name == "a"
+        assert fields(A[str]).a.default is attr.NOTHING
+
 
 class TestFieldsDict:
     """

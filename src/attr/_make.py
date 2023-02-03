@@ -1923,14 +1923,20 @@ def fields(cls):
 
     .. versionchanged:: 16.2.0 Returned tuple allows accessing the fields
        by name.
-    .. versionchanged:: 22.3.0 Add support for generic classes.
+    .. versionchanged:: 23.1.0 Add support for generic classes.
     """
-    if not isinstance(cls, type):
-        raise TypeError("Passed object must be a class.")
+    generic_base = get_generic_base(cls)
+
+    if generic_base is None and not isinstance(cls, type):
+            raise TypeError("Passed object must be a class.")
+
     attrs = getattr(cls, "__attrs_attrs__", None)
+
     if attrs is None:
-        generic_base = get_generic_base(cls)
-        if generic_base is not None:
+        if generic_base is None:
+            if not isinstance(cls, type):
+                raise TypeError("Passed object must be a class.")
+        elif generic_base is not None:
             attrs = getattr(generic_base, "__attrs_attrs__", None)
             if attrs is not None:
                 # Even though this is global state, stick it on here to speed
@@ -1939,6 +1945,7 @@ def fields(cls):
                 cls.__attrs_attrs__ = attrs
                 return attrs
         raise NotAnAttrsClassError(f"{cls!r} is not an attrs-decorated class.")
+
     return attrs
 
 

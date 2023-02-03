@@ -3,6 +3,7 @@
 
 import copy
 
+from ._compat import get_generic_base
 from ._make import NOTHING, _obj_setattr, fields
 from .exceptions import AttrsAttributeNotFoundError
 
@@ -296,7 +297,19 @@ def has(cls):
 
     :rtype: bool
     """
-    return getattr(cls, "__attrs_attrs__", None) is not None
+    attrs = getattr(cls, "__attrs_attrs__", None)
+    if attrs is not None:
+        return True
+
+    # No attrs, maybe it's a specialized generic (A[str])?
+    generic_base = get_generic_base(cls)
+    if generic_base is not None:
+        generic_attrs = getattr(generic_base, "__attrs_attrs__", None)
+        if generic_attrs is not None:
+            # Stick it on here for speed next time.
+            cls.__attrs_attrs__ = generic_attrs
+        return generic_attrs is not None
+    return False
 
 
 def assoc(inst, **changes):
