@@ -401,7 +401,6 @@ class TestTransformAttrs:
 
         @attr.s(collect_by_mro=True)
         class A:
-
             x = attr.ib(10)
 
             def xx(self):
