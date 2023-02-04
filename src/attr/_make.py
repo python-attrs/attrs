@@ -1933,10 +1933,7 @@ def fields(cls):
     attrs = getattr(cls, "__attrs_attrs__", None)
 
     if attrs is None:
-        if generic_base is None:
-            if not isinstance(cls, type):
-                raise TypeError("Passed object must be a class.")
-        else:
+        if generic_base is not None:
             attrs = getattr(generic_base, "__attrs_attrs__", None)
             if attrs is not None:
                 # Even though this is global state, stick it on here to speed
