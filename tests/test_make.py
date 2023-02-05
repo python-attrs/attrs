@@ -13,6 +13,7 @@ import itertools
 import sys
 
 from operator import attrgetter
+from typing import Generic, TypeVar
 
 import pytest
 
@@ -1114,6 +1115,22 @@ class TestFields:
             f"{object!r} is not an attrs-decorated class."
         ) == e.value.args[0]
 
+    def test_handler_non_attrs_generic_class(self):
+        """
+        Raises `ValueError` if passed a non-*attrs* generic class.
+        """
+        T = TypeVar("T")
+
+        class B(Generic[T]):
+            pass
+
+        with pytest.raises(NotAnAttrsClassError) as e:
+            fields(B[str])
+
+        assert (
+            f"{B[str]!r} is not an attrs-decorated class."
+        ) == e.value.args[0]
+
     @given(simple_classes())
     def test_fields(self, C):
         """
@@ -1128,6 +1145,24 @@ class TestFields:
         """
         for attribute in fields(C):
             assert getattr(fields(C), attribute.name) is attribute
+
+    def test_generics(self):
+        """
+        Fields work with generic classes.
+        """
+        T = TypeVar("T")
+
+        @attr.define
+        class A(Generic[T]):
+            a: T
+
+        assert len(fields(A)) == 1
+        assert fields(A).a.name == "a"
+        assert fields(A).a.default is attr.NOTHING
+
+        assert len(fields(A[str])) == 1
+        assert fields(A[str]).a.name == "a"
+        assert fields(A[str]).a.default is attr.NOTHING
 
 
 class TestFieldsDict:
