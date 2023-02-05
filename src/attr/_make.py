@@ -12,7 +12,12 @@ from operator import itemgetter
 # We need to import _compat itself in addition to the _compat members to avoid
 # having the thread-local in the globals here.
 from . import _compat, _config, setters
-from ._compat import PY310, _AnnotationExtractor, set_closure_cell
+from ._compat import (
+    PY310,
+    _AnnotationExtractor,
+    get_generic_base,
+    set_closure_cell,
+)
 from .exceptions import (
     DefaultAlreadySetError,
     FrozenInstanceError,
@@ -1918,12 +1923,26 @@ def fields(cls):
 
     .. versionchanged:: 16.2.0 Returned tuple allows accessing the fields
        by name.
+    .. versionchanged:: 23.1.0 Add support for generic classes.
     """
-    if not isinstance(cls, type):
+    generic_base = get_generic_base(cls)
+
+    if generic_base is None and not isinstance(cls, type):
         raise TypeError("Passed object must be a class.")
+
     attrs = getattr(cls, "__attrs_attrs__", None)
+
     if attrs is None:
+        if generic_base is not None:
+            attrs = getattr(generic_base, "__attrs_attrs__", None)
+            if attrs is not None:
+                # Even though this is global state, stick it on here to speed
+                # it up. We rely on `cls` being cached for this to be
+                # efficient.
+                cls.__attrs_attrs__ = attrs
+                return attrs
         raise NotAnAttrsClassError(f"{cls!r} is not an attrs-decorated class.")
+
     return attrs
 
 

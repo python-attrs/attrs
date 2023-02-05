@@ -82,5 +82,5 @@ def not_(
     validator: _ValidatorType[_T],
     *,
     msg: Optional[str] = None,
-    exc_types: Union[Type[Exception], Iterable[Type[Exception]]] = ...
+    exc_types: Union[Type[Exception], Iterable[Type[Exception]]] = ...,
 ) -> _ValidatorType[_T]: ...

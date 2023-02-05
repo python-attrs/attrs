@@ -9,6 +9,7 @@ import types
 import warnings
 
 from collections.abc import Mapping, Sequence  # noqa
+from typing import _GenericAlias
 
 
 PYPY = platform.python_implementation() == "PyPy"
@@ -174,3 +175,10 @@ set_closure_cell = make_set_closure_cell()
 # don't have a direct reference to the thread-local in their globals dict.
 # If they have such a reference, it breaks cloudpickle.
 repr_context = threading.local()
+
+
+def get_generic_base(cl):
+    """If this is a generic class (A[str]), return the generic base for it."""
+    if cl.__class__ is _GenericAlias:
+        return cl.__origin__
+    return None
