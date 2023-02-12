@@ -16,7 +16,7 @@ env:
   PIP_NO_PYTHON_VERSION_WARNING: "1"
   # Keep in sync with .pre-commit-config.yaml/default_language_version/python.
   PYTHON_LATEST: "3.11"
-  # avoid warnings about shallow checkout, but also make sure pytest accepts us.
+  # Avoid warnings about shallow checkout, but also make sure pytest accepts us.
   SETUPTOOLS_SCM_PRETEND_VERSION: "99.9.9"
 
 permissions:
@@ -24,7 +24,7 @@ permissions:
 
 jobs:
   tests:
-    name: tests on ${{ matrix.python-version }}
+    name: Tests on ${{ matrix.python-version }}
     runs-on: ubuntu-latest
 
     strategy:
@@ -58,6 +58,7 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+      - run: python -Im pip install --upgrade wheel tox
 
       - name: Determine Python version for tox
         run: |
@@ -75,7 +76,6 @@ jobs:
 
           echo TOX_PYTHON=$V >>$GITHUB_ENV
 
-      - run: python -Im pip install --upgrade wheel tox
       - run: python -Im tox run -f ${{ env.TOX_PYTHON }}
 
       - name: Upload coverage data
@@ -150,7 +150,7 @@ jobs:
       - run: python -Im tox -e docs,changelog
 
   mypy:
-    name: mypy on ${{ matrix.python-version }}
+    name: Mypy on ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -219,6 +219,7 @@ jobs:
           python-version: ${{env.PYTHON_LATEST}}
       - run: python -Im pip install -e .[dev]
       - run: python -Ic 'import attr; print(attr.__version__)'
+      - run: python -Ic 'import attrs; print(attrs.__version__)'
 
   # Ensure everything required is passing for branch protection.
   required-checks-pass:
