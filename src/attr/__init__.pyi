@@ -258,6 +258,7 @@ def field(
     order: Optional[bool] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
     alias: Optional[str] = ...,
+    type: Optional[type] = ...,
 ) -> Any: ...
 
 # This form catches an explicit None or no default and infers the type from the
@@ -278,6 +279,7 @@ def field(
     order: Optional[_EqOrderType] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
     alias: Optional[str] = ...,
+    type: Optional[type] = ...,
 ) -> _T: ...
 
 # This form catches an explicit default argument.
@@ -297,6 +299,7 @@ def field(
     order: Optional[_EqOrderType] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
     alias: Optional[str] = ...,
+    type: Optional[type] = ...,
 ) -> _T: ...
 
 # This form covers type=non-Type: e.g. forward references (str), Any
@@ -316,6 +319,7 @@ def field(
     order: Optional[_EqOrderType] = ...,
     on_setattr: Optional[_OnSetAttrArgType] = ...,
     alias: Optional[str] = ...,
+    type: Optional[type] = ...,
 ) -> Any: ...
 @overload
 @__dataclass_transform__(order_default=True, field_descriptors=(attrib, field))

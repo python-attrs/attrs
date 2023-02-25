@@ -167,6 +167,7 @@ def field(
     hash=None,
     init=True,
     metadata=None,
+    type=None,
     converter=None,
     factory=None,
     kw_only=False,
@@ -178,7 +179,8 @@ def field(
     """
     Identical to `attr.ib`, except keyword-only and with some arguments
     removed.
-
+    
+    .. versionadded:: 22.3.0 type parameter
     .. versionadded:: 20.1.0
     """
     return attrib(
@@ -188,6 +190,7 @@ def field(
         hash=hash,
         init=init,
         metadata=metadata,
+        type=type,
         converter=converter,
         factory=factory,
         kw_only=kw_only,
