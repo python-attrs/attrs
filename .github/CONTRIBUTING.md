@@ -43,7 +43,7 @@ You can (and should) run our test suite using [*tox*].
 However, you’ll probably want a more traditional environment as well.
 We highly recommend to develop using the latest Python release because we try to take advantage of modern features whenever possible.
 
-First [fork](https://github.com/python-attrs/attrs/fork) the repository on GitHub. 
+First [fork](https://github.com/python-attrs/attrs/fork) the repository on GitHub.
 
 Clone the fork to your computer:
 
@@ -57,13 +57,13 @@ Or if you prefer to use Git via HTTPS:
 $ git clone https://github.com/<your-username>/attrs.git
 ```
 
-Then add the *attrs* repository as *upstream* remote: 
+Then add the *attrs* repository as *upstream* remote:
 
 ```console
 $ git remote add upstream git@github.com:python-attrs/attrs.git
 ```
 
-You can of course also rename the *origin* remote (your fork) to *fork* and add the repository as *origin*. 
+You can of course also rename the *origin* remote (your fork) to *fork* and add the repository as *origin*.
 
 The next step is to sync the upstream repository with your local copy:
 
@@ -71,7 +71,7 @@ The next step is to sync the upstream repository with your local copy:
 $ git fetch upstream
 ```
 
-This is important to obtain eventually missing tags, which are needed to install the development version later on. See #1104 
+This is important to obtain eventually missing tags, which are needed to install the development version later on. See #1104
 
 Change into the newly created directory and after activating a virtual environment install an editable version of *attrs* along with its tests and docs requirements:
 
@@ -99,15 +99,15 @@ $ make html
 
 The built documentation can then be found in `docs/_build/html/`.
 
-To file a pull request, create a new branch on top of the upstream repository: 
+To file a pull request, create a new branch on top of the upstream repository:
 
 ```console
 git checkout -b my_topical_branch upstream/main
 ```
 
-Make your changes, push them to your fork (the remote *origin*) and publish the PR! 
+Make your changes, push them to your fork (the remote *origin*) and publish the PR!
 
-To sync the *attrs* repository with your local copy, just pull from the *upstream* remote. 
+To sync the *attrs* repository with your local copy, just pull from the *upstream* remote.
 
 ---
 
