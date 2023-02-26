@@ -70,7 +70,6 @@ Changelog = "https://www.attrs.org/en/stable/changelog.html"
 "Source Code" = "https://github.com/python-attrs/attrs"
 Funding = "https://github.com/sponsors/hynek"
 Tidelift = "https://tidelift.com/subscription/pkg/pypi-attrs?utm_source=pypi-attrs&utm_medium=pypi"
-Ko-fi = "https://ko-fi.com/the_hynek"
 
 
 [tool.hatch.version]

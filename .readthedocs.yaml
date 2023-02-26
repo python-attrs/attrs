@@ -6,7 +6,7 @@ build:
   os: ubuntu-20.04
   tools:
     # Keep version in sync with tox.ini/docs and ci.yml/docs.
-    python: "3.10"
+    python: "3.11"
 
 python:
   install:
