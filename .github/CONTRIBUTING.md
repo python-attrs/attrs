@@ -102,7 +102,7 @@ The built documentation can then be found in `docs/_build/html/`.
 To file a pull request, create a new branch on top of the upstream repository:
 
 ```console
-git checkout -b my_topical_branch upstream/main
+$ git checkout -b my_topical_branch upstream/main
 ```
 
 Make your changes, push them to your fork (the remote *origin*) and publish the PR!
