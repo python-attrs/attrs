@@ -213,7 +213,7 @@ Traceback (most recent call last):
 ValueError: 'x' has to be smaller than 'y'!
 ```
 
-In this example, the list of validators passed to the `validator` argument, is syntactic sugar for the {obj}`attrs.validators.and_` validator: All validators in the list have to pass.
+This example shows a syntactic speciality for the {obj}`attrs.validators.and_` validator: If you pass a list, all validators in it have to pass.
 
 *attrs* won't intercept your changes to those attributes but you can always call {func}`attrs.validate` on any instance to verify that it's still valid:
 
