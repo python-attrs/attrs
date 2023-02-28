@@ -179,7 +179,7 @@ def field(
     """
     Identical to `attr.ib`, except keyword-only and with some arguments
     removed.
-    
+
     .. versionadded:: 22.3.0 type parameter
     .. versionadded:: 20.1.0
     """
