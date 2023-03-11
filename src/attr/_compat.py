@@ -82,32 +82,32 @@ def make_set_closure_cell():
 
     # Otherwise gotta do it the hard way.
 
-    # Create a function that will set its first cellvar to `value`.
-    def set_first_cellvar_to(value):
-        x = value
-        return
-
-        # This function will be eliminated as dead code, but
-        # not before its reference to `x` forces `x` to be
-        # represented as a closure cell rather than a local.
-        def force_x_to_be_a_cell():  # pragma: no cover
-            return x
-
     try:
-        # Extract the code object and make sure our assumptions about
-        # the closure behavior are correct.
-        co = set_first_cellvar_to.__code__
-        if co.co_cellvars != ("x",) or co.co_freevars != ():
-            raise AssertionError  # pragma: no cover
-
-        # Convert this code object to a code object that sets the
-        # function's first _freevar_ (not cellvar) to the argument.
         if sys.version_info >= (3, 8):
 
             def set_closure_cell(cell, value):
                 cell.cell_contents = value
 
         else:
+            # Create a function that will set its first cellvar to `value`.
+            def set_first_cellvar_to(value):
+                x = value
+                return
+
+                # This function will be eliminated as dead code, but
+                # not before its reference to `x` forces `x` to be
+                # represented as a closure cell rather than a local.
+                def force_x_to_be_a_cell():  # pragma: no cover
+                    return x
+
+            # Extract the code object and make sure our assumptions about
+            # the closure behavior are correct.
+            co = set_first_cellvar_to.__code__
+            if co.co_cellvars != ("x",) or co.co_freevars != ():
+                raise AssertionError  # pragma: no cover
+
+            # Convert this code object to a code object that sets the
+            # function's first _freevar_ (not cellvar) to the argument.
             args = [co.co_argcount]
             args.append(co.co_kwonlyargcount)
             args.extend(
