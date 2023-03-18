@@ -350,7 +350,7 @@ A converter will override an explicit type annotation or `type` argument.
 
 ## Hooking Yourself Into Initialization
 
-Generally speaking, the moment you realize the need of finer control -than what *attrs* offers- over how a class is instantiated, it's usually best to use a {obj}`classmethod` factory or to apply the [builder pattern](https://en.wikipedia.org/wiki/Builder_pattern).
+Generally speaking, the moment you realize the need of finer control – than what *attrs* offers – over how a class is instantiated, it's usually best to use a {obj}`classmethod` factory or to apply the [builder pattern](https://en.wikipedia.org/wiki/Builder_pattern).
 
 However, sometimes you need to do that one quick thing before or after your class is initialized.
 For that purpose, *attrs* offers the following options:
