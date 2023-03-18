@@ -213,10 +213,12 @@ Traceback (most recent call last):
 ValueError: 'x' has to be smaller than 'y'!
 ```
 
-This example also shows of some syntactic sugar for using the {obj}`attrs.validators.and_` validator: if you pass a list, all validators have to pass.
+This example demonstrates a convenience shortcut:
+Passing a list of validators directly is equivalent to passing them wrapped in the {obj}`attrs.validators.and_` validator and all validators must pass.
 
 *attrs* won't intercept your changes to those attributes but you can always call {func}`attrs.validate` on any instance to verify that it's still valid:
-When using {func}`attrs.define` or [`attrs.frozen`](attrs.frozen), *attrs* will run the validators even when setting the attribute.
+
+When using {func}`attrs.define` or [`attrs.frozen`](attrs.frozen), however, *attrs* will run the validators even when setting the attribute.
 
 ```{doctest}
 >>> i = C(4, 5)
@@ -241,7 +243,7 @@ TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attri
 ```
 
 Of course you can mix and match the two approaches at your convenience.
-If you define validators both ways for an attribute, they are both ran:
+If you use both ways to define validators for an attribute, they are both ran:
 
 ```{doctest}
 >>> @define
@@ -263,7 +265,7 @@ Traceback (most recent call last):
 ValueError: value out of bounds
 ```
 
-And finally you can disable validators globally:
+Finally, validators can be globally disabled:
 
 ```{doctest}
 >>> attrs.validators.set_disabled(True)
@@ -276,7 +278,7 @@ Traceback (most recent call last):
 TypeError: ("'x' must be <class 'int'> (got '128' that is a <class 'str'>).", Attribute(name='x', default=NOTHING, validator=[<instance_of validator for type <class 'int'>>, <function fits_byte at 0x10fd7a0d0>], repr=True, cmp=True, hash=True, init=True, metadata=mappingproxy({}), type=None, converter=None), <class 'int'>, '128')
 ```
 
-You can achieve the same by using the context manager:
+... or within a context manager:
 
 ```{doctest}
 >>> with attrs.validators.disabled():
@@ -292,8 +294,7 @@ TypeError: ("'x' must be <class 'int'> (got '128' that is a <class 'str'>).", At
 
 ## Converters
 
-Finally, sometimes you may want to normalize the values coming in.
-For that *attrs* comes with converters.
+Sometimes, it is necessary to normalize the values coming in, therefore *attrs* comes with converters.
 
 Attributes can have a `converter` function specified, which will be called with the attribute's passed-in value to get a new value to use.
 This can be useful for doing type-conversions on values that you don't want to force your callers to do.
@@ -350,10 +351,10 @@ A converter will override an explicit type annotation or `type` argument.
 
 ## Hooking Yourself Into Initialization
 
-Generally speaking, the moment you think that you need finer control over how your class is instantiated than what *attrs* offers, it's usually best to use a {obj}`classmethod` factory or to apply the [builder pattern](https://en.wikipedia.org/wiki/Builder_pattern).
+Generally speaking, the moment you realize the need of finer control – than what *attrs* offers – over how a class is instantiated, it's usually best to use a {obj}`classmethod` factory or to apply the [builder pattern](https://en.wikipedia.org/wiki/Builder_pattern).
 
 However, sometimes you need to do that one quick thing before or after your class is initialized.
-And for that *attrs* offers three means:
+For that purpose, *attrs* offers the following options:
 
 - `__attrs_pre_init__` is automatically detected and run *before* *attrs* starts initializing.
   This is useful if you need to inject a call to `super().__init__()`.
