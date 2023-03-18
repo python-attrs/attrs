@@ -293,7 +293,7 @@ TypeError: ("'x' must be <class 'int'> (got '128' that is a <class 'str'>).", At
 
 ## Converters
 
-Sometimes, is necessary to normalize the values coming in, therefore *attrs* comes with converters.
+Sometimes, it is necessary to normalize the values coming in, therefore *attrs* comes with converters.
 
 Attributes can have a `converter` function specified, which will be called with the attribute's passed-in value to get a new value to use.
 This can be useful for doing type-conversions on values that you don't want to force your callers to do.
