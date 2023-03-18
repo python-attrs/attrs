@@ -269,7 +269,7 @@ is roughly
 ArtisanalClass(a=1, b=2)
 ```
 
-which is quite a mouthful and it doesn't even use any of *attrs*'s more advanced features like validators or defaults values.
+which is quite a mouthful and it doesn't even use any of *attrs*'s more advanced features like validators or default values.
 Also: no tests whatsoever.
 And who will guarantee you, that you don't accidentally flip the `<` in your tenth implementation of `__gt__`?
 
@@ -293,5 +293,5 @@ If you don't care and like typing, we're not gonna stop you.
 
 However it takes a lot of bias and determined rationalization to claim that *attrs* raises the mental burden on a project given how difficult it is to find the important bits in a hand-written class and how annoying it is to ensure you've copy-pasted your code correctly over all your classes.
 
-In any case, if you ever get sick of the repetitiveness and drowning important code in a sea of boilerplate, *attrs* will be waiting for you.
+In any case, if you ever get sick of the repetitiveness and the drowning of important code in a sea of boilerplate, *attrs* will be waiting for you.
 :::
