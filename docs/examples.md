@@ -628,7 +628,7 @@ Sometimes you may want to create a class programmatically.
 ... class C1:
 ...     x = field(type=int)
 ...     y = field()
->>> C2 = make_class("C2", ["x", "y"])
+>>> C2 = make_class("C2", {"x": field(type=int), "y": field()})
 >>> fields(C1) == fields(C2)
 True
 >>> fields(C1).x.type
