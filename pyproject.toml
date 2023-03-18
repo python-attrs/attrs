@@ -43,7 +43,7 @@ tests-no-zope = [
     "pytest-xdist[psutil]",
     # Since the mypy error messages keep changing, we have to keep updating this
     # pin.
-    'mypy>=0.991; python_implementation == "CPython"',
+    'mypy>=1.1.1; python_implementation == "CPython"',
     'pytest-mypy-plugins; python_implementation == "CPython" and python_version<"3.11"',
 ]
 tests = ["attrs[tests-no-zope]", "zope.interface"]
@@ -70,7 +70,6 @@ Changelog = "https://www.attrs.org/en/stable/changelog.html"
 "Source Code" = "https://github.com/python-attrs/attrs"
 Funding = "https://github.com/sponsors/hynek"
 Tidelift = "https://tidelift.com/subscription/pkg/pypi-attrs?utm_source=pypi-attrs&utm_medium=pypi"
-Ko-fi = "https://ko-fi.com/the_hynek"
 
 
 [tool.hatch.version]

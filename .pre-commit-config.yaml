@@ -3,11 +3,12 @@ ci:
   autoupdate_schedule: monthly
 
 default_language_version:
+  # Keep in sync with ci.yml/PYTHON_LATEST
   python: python3.11
 
 repos:
   - repo: https://github.com/psf/black
-    rev: 22.12.0
+    rev: 23.1.0
     hooks:
       - id: black
 

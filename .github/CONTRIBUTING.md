@@ -43,26 +43,23 @@ You can (and should) run our test suite using [*tox*].
 However, you’ll probably want a more traditional environment as well.
 We highly recommend to develop using the latest Python release because we try to take advantage of modern features whenever possible.
 
-First create a [virtual environment](https://virtualenv.pypa.io/) so you don't break your system-wide Python installation.
-It’s out of scope for this document to list all the ways to manage virtual environments in Python, but if you don’t already have a pet way, take some time to look at tools like [*direnv*](https://hynek.me/til/python-project-local-venvs/), [*virtualfish*](https://virtualfish.readthedocs.io/), and [*virtualenvwrapper*](https://virtualenvwrapper.readthedocs.io/).
-
-Next, get an up-to-date checkout of the *attrs* repository:
+Clone the *attrs* repository to your computer:
 
 ```console
 $ git clone git@github.com:python-attrs/attrs.git
 ```
 
-or if you prefer to use *Git* via `https`:
+Or if you prefer to use Git via HTTPS:
 
 ```console
 $ git clone https://github.com/python-attrs/attrs.git
 ```
 
-Change into the newly created directory and **after activating your virtual environment** install an editable version of *attrs* along with its tests and docs requirements:
+Change into the newly created directory and after activating a virtual environment install an editable version of *attrs* along with its tests and docs requirements:
 
 ```console
 $ cd attrs
-$ python -m pip install --upgrade pip wheel setuptools  # PLEASE don't skip this step
+$ python -m pip install --upgrade pip wheel  # PLEASE don't skip this step
 $ python -m pip install -e '.[dev]'
 ```
 

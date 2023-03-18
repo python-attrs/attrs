@@ -177,9 +177,9 @@
   main: |
     import attr
     x = True
-    @attr.s(cmp=x)  # E: "cmp" argument must be True or False.  [misc]
+    @attr.s(cmp=x)  # E: "cmp" argument must be a True, False, or None literal  [literal-required]
     class A:
-        a = attr.ib(init=x)  # E: "init" argument must be True or False.  [misc]
+        a = attr.ib(init=x)  # E: "init" argument must be a True or False literal  [literal-required]
 
 - case: testAttrsInitFalse
   main: |

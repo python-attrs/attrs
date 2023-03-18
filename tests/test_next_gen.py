@@ -379,7 +379,6 @@ class TestNextGen:
 
         @attrs.define
         class A:
-
             x: int = 10
 
             def xx(self):
