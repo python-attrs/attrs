@@ -516,6 +516,34 @@ class TestAnnotations:
         assert str is attr.fields(C).y.type
         assert None is attr.fields(C).z.type
 
+    @pytest.mark.skipif(
+        sys.version_info[:2] < (3, 9),
+        reason="Incompatible behavior on older Pythons",
+    )
+    def test_extra_resolve(self):
+        """
+        `get_type_hints` returns extra type hints.
+        """
+        from typing import Annotated
+
+        globals = {"Annotated": Annotated}
+
+        @attr.define
+        class C:
+            x: 'Annotated[float, "test"]'
+
+        attr.resolve_types(C, globals)
+
+        assert attr.fields(C).x.type == Annotated[float, "test"]
+
+        @attr.define
+        class D:
+            x: 'Annotated[float, "test"]'
+
+        attr.resolve_types(D, globals, include_extras=False)
+
+        assert attr.fields(D).x.type == float
+
     def test_resolve_types_auto_attrib(self, slots):
         """
         Types can be resolved even when strings are involved.
