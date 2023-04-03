@@ -60,7 +60,7 @@ $ git clone https://github.com/<your-username>/attrs.git
 Then add the *attrs* repository as *upstream* remote:
 
 ```console
-$ git remote add upstream git@github.com:python-attrs/attrs.git
+$ git remote add -t main -m main --tags upstream https://github.com/python-attrs/attrs.git
 ```
 
 The next step is to sync the upstream repository with your local copy:
