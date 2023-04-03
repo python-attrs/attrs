@@ -69,6 +69,7 @@ _ValidatorArgType = Union[_ValidatorType[_T], Sequence[_ValidatorType[_T]]]
 class AttrsInstance(AttrsInstance_, Protocol):
     pass
 
+_A = TypeVar("_A", bound=AttrsInstance)
 # _make --
 
 class _Nothing(enum.Enum):
@@ -488,11 +489,12 @@ def fields(cls: Type[AttrsInstance]) -> Any: ...
 def fields_dict(cls: Type[AttrsInstance]) -> Dict[str, Attribute[Any]]: ...
 def validate(inst: AttrsInstance) -> None: ...
 def resolve_types(
-    cls: _C,
+    cls: _A,
     globalns: Optional[Dict[str, Any]] = ...,
     localns: Optional[Dict[str, Any]] = ...,
     attribs: Optional[List[Attribute[Any]]] = ...,
-) -> _C: ...
+    include_extras: bool = ...,
+) -> _A: ...
 
 # TODO: add support for returning a proper attrs class from the mypy plugin
 # we use Any instead of _CountingAttr so that e.g. `make_class('Foo',
