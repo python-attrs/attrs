@@ -707,3 +707,18 @@ class TestEvolve:
         assert Cls1({"foo": 42, "param2": 42}) == attr.evolve(
             obj1a, param1=obj2b
         )
+
+    def test_inst_kw(self):
+        """
+        If `inst` is passed per kw argument, a warning is raised.
+        See #1109
+        """
+
+        @attr.s
+        class C:
+            pass
+
+        with pytest.warns(DeprecationWarning) as wi:
+            evolve(inst=C())
+
+        assert __file__ == wi.list[0].filename

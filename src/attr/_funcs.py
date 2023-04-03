@@ -2,6 +2,7 @@
 
 
 import copy
+import warnings
 
 from ._compat import PY_3_9_PLUS, get_generic_base
 from ._make import NOTHING, _obj_setattr, fields
@@ -331,8 +332,6 @@ def assoc(inst, **changes):
         This function will not be removed du to the slightly different approach
         compared to `attrs.evolve`.
     """
-    import warnings
-
     warnings.warn(
         "assoc is deprecated and will be removed after 2018/01.",
         DeprecationWarning,
@@ -350,9 +349,10 @@ def assoc(inst, **changes):
     return new
 
 
-def evolve(inst, **changes):
+def evolve(*args, **changes):
     """
-    Create a new instance, based on *inst* with *changes* applied.
+    Create a new instance, based on the first positional argument with
+    *changes* applied.
 
     :param inst: Instance of a class with *attrs* attributes.
     :param changes: Keyword changes in the new copy.
@@ -364,8 +364,26 @@ def evolve(inst, **changes):
     :raise attrs.exceptions.NotAnAttrsClassError: If *cls* is not an *attrs*
         class.
 
-    ..  versionadded:: 17.1.0
+    .. versionadded:: 17.1.0
+    .. deprecated:: 23.1.0
+       It is now deprecated to pass the instance using the keyword argument
+       *inst*. It will raise a warning until at least April 2024, after which
+       it will become an error. Always pass the instance as a positional
+       argument.
     """
+    # Try to get instance by positional argument first.
+    # Use changes otherwise and warn it'll break.
+    if args:
+        (inst,) = args
+    else:
+        warnings.warn(
+            "Passing the instance per keyword argument is deprecated and "
+            "will stop working in, or after, April 2024.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        inst = changes.pop("inst")
+
     cls = inst.__class__
     attrs = fields(cls)
     for a in attrs:
