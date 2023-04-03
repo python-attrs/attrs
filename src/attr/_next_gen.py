@@ -180,7 +180,10 @@ def field(
     Identical to `attr.ib`, except keyword-only and with some arguments
     removed.
 
-    .. versionadded:: 22.3.0 type parameter
+    .. versionadded:: 22.3.0
+       The *type* parameter has been re-added; mostly for
+       {func}`attrs.make_class`. Please note that type checkers ignore this
+       metadata.
     .. versionadded:: 20.1.0
     """
     return attrib(

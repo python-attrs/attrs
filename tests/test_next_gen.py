@@ -33,7 +33,9 @@ class TestNextGen:
         Make class with attrs.field and type parameter.
         """
         classFields = {"testint": attrs.field(type=int)}
+
         A = attrs.make_class("A", classFields)
+
         assert int == attrs.fields(A).testint.type
 
     def test_no_slots(self):
