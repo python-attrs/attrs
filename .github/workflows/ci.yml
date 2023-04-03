@@ -44,16 +44,6 @@ jobs:
       ${{ contains(matrix.python-version, '~') && true || false }}
 
     steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@v2
-        with:
-          egress-policy: block
-          allowed-endpoints: >
-            api.github.com:443
-            files.pythonhosted.org:443
-            github.com:443
-            objects.githubusercontent.com:443
-            pypi.org:443
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
@@ -90,16 +80,6 @@ jobs:
     needs: tests
 
     steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@v2
-        with:
-          egress-policy: block
-          allowed-endpoints: >
-            files.pythonhosted.org:443
-            github.com:443
-            pypi.org:443
-            api.github.com:443
-
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
@@ -130,16 +110,6 @@ jobs:
     name: Build docs & run doctests
     runs-on: ubuntu-latest
     steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@v2
-        with:
-          egress-policy: block
-          allowed-endpoints: >
-            docs.python.org:443
-            files.pythonhosted.org:443
-            github.com:443
-            pypi.org:443
-
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
@@ -175,18 +145,6 @@ jobs:
     name: Check types using pyright
     runs-on: ubuntu-latest
     steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@v2
-        with:
-          egress-policy: block
-          allowed-endpoints: >
-            files.pythonhosted.org:443
-            github.com:443
-            nodejs.org:443
-            pypi.org:443
-            registry.npmjs.org:443
-            api.github.com:443
-
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
@@ -203,16 +161,6 @@ jobs:
         os: [ubuntu-latest, windows-latest]
 
     steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@v2
-        with:
-          disable-sudo: true
-          egress-policy: block
-          allowed-endpoints: >
-            files.pythonhosted.org:443
-            github.com:443
-            pypi.org:443
-            api.github.com:443
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
@@ -235,13 +183,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@v2
-        with:
-          disable-sudo: true
-          egress-policy: block
-          allowed-endpoints: >
-            api.github.com:443
       - name: Decide whether the needed jobs succeeded or failed
         uses: re-actors/alls-green@release/v1
         with:
