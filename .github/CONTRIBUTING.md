@@ -63,15 +63,14 @@ Then add the *attrs* repository as *upstream* remote:
 $ git remote add upstream git@github.com:python-attrs/attrs.git
 ```
 
-You can of course also rename the *origin* remote (your fork) to *fork* and add the repository as *origin*.
-
 The next step is to sync the upstream repository with your local copy:
 
 ```console
 $ git fetch upstream
 ```
 
-This is important to obtain eventually missing tags, which are needed to install the development version later on. See [#1104](https://github.com/python-attrs/attrs/issues/1104) for more information.
+This is important to obtain eventually missing tags, which are needed to install the development version later on.
+See [#1104](https://github.com/python-attrs/attrs/issues/1104) for more information.
 
 Change into the newly created directory and after activating a virtual environment install an editable version of *attrs* along with its tests and docs requirements:
 
@@ -102,10 +101,17 @@ The built documentation can then be found in `docs/_build/html/`.
 To file a pull request, create a new branch on top of the upstream repository:
 
 ```console
+$ git fetch --all
 $ git checkout -b my_topical_branch upstream/main
 ```
 
-Make your changes, push them to your fork (the remote *origin*) and publish the PR!
+Make your changes, push them to your fork (the remote *origin*):
+
+```console
+$ git push -u origin
+```
+
+and publish the PR in GitHub's web interface!
 
 Before starting to work on your next pull request, run the following command to sync your local repository with the remotes:
 
