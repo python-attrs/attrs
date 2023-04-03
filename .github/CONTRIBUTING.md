@@ -43,17 +43,34 @@ You can (and should) run our test suite using [*tox*].
 However, you’ll probably want a more traditional environment as well.
 We highly recommend to develop using the latest Python release because we try to take advantage of modern features whenever possible.
 
-Clone the *attrs* repository to your computer:
+First [fork](https://github.com/python-attrs/attrs/fork) the repository on GitHub.
+
+Clone the fork to your computer:
 
 ```console
-$ git clone git@github.com:python-attrs/attrs.git
+$ git clone git@github.com:<your-username>/attrs.git
 ```
 
 Or if you prefer to use Git via HTTPS:
 
 ```console
-$ git clone https://github.com/python-attrs/attrs.git
+$ git clone https://github.com/<your-username>/attrs.git
 ```
+
+Then add the *attrs* repository as *upstream* remote:
+
+```console
+$ git remote add -t main -m main --tags upstream https://github.com/python-attrs/attrs.git
+```
+
+The next step is to sync the upstream repository with your local copy:
+
+```console
+$ git fetch upstream
+```
+
+This is important to obtain eventually missing tags, which are needed to install the development version later on.
+See [#1104](https://github.com/python-attrs/attrs/issues/1104) for more information.
 
 Change into the newly created directory and after activating a virtual environment install an editable version of *attrs* along with its tests and docs requirements:
 
@@ -80,6 +97,29 @@ $ make html
 ```
 
 The built documentation can then be found in `docs/_build/html/`.
+
+To file a pull request, create a new branch on top of the upstream repository:
+
+```console
+$ git fetch --all
+$ git checkout -b my_topical_branch upstream/main
+```
+
+Make your changes, push them to your fork (the remote *origin*):
+
+```console
+$ git push -u origin
+```
+
+and publish the PR in GitHub's web interface!
+
+Before starting to work on your next pull request, run the following command to sync your local repository with the remotes:
+
+```console
+$ git fetch --all
+$ git checkout main
+$ git merge
+```
 
 ---
 
