@@ -22,15 +22,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: step-security/harden-runner@v2
-        with:
-          disable-sudo: true
-          egress-policy: block
-          allowed-endpoints: >
-            files.pythonhosted.org:443
-            github.com:443
-            pypi.org:443
-
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -46,13 +37,6 @@ jobs:
     needs: build-package
 
     steps:
-      - uses: step-security/harden-runner@v2
-        with:
-          disable-sudo: true
-          egress-policy: block
-          allowed-endpoints: >
-            test.pypi.org:443
-
       - name: Download packages built by build-and-inspect-python-package
         uses: actions/download-artifact@v3
         with:
@@ -74,13 +58,6 @@ jobs:
     needs: build-package
 
     steps:
-      - uses: step-security/harden-runner@v2
-        with:
-          disable-sudo: true
-          egress-policy: block
-          allowed-endpoints: >
-            upload.pypi.org:443
-
       - name: Download packages built by build-and-inspect-python-package
         uses: actions/download-artifact@v3
         with:
