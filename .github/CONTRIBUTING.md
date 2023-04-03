@@ -119,8 +119,6 @@ Before starting to work on your next pull request, run the following command to 
 $ git fetch --all
 $ git checkout main
 $ git merge
-$ git checkout main
-$ git merge
 ```
 
 ---
