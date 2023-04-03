@@ -471,7 +471,7 @@ If you're the author of a third-party library with *attrs* integration, please s
 
 ## Types
 
-*attrs* also allows you to associate a type with an attribute using either the *type* argument to {func}`attr.ib` or using {pep}`526`-annotations:
+*attrs* also allows you to associate a type with an attribute using either the *type* argument to {func}`attr.ib` and {func}`attr.field` or using {pep}`526`-annotations:
 
 ```{doctest}
 >>> @define
@@ -626,11 +626,13 @@ Sometimes you may want to create a class programmatically.
 >>> from attrs import make_class
 >>> @define
 ... class C1:
-...     x = field()
+...     x = field(type=int)
 ...     y = field()
->>> C2 = make_class("C2", ["x", "y"])
+>>> C2 = make_class("C2", {"x": field(type=int), "y": field()})
 >>> fields(C1) == fields(C2)
 True
+>>> fields(C1).x.type
+<class 'int'>
 ```
 
 You can still have power over the attributes if you pass a dictionary of name: {func}`~attrs.field` mappings and can pass arguments to `@attr.s`:
