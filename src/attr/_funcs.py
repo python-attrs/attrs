@@ -376,13 +376,19 @@ def evolve(*args, **changes):
     if args:
         (inst,) = args
     else:
+        try:
+            inst = changes.pop("inst")
+        except KeyError:
+            raise TypeError(
+                "evolve() missing 1 required positional argument: 'inst'"
+            )
+
         warnings.warn(
             "Passing the instance per keyword argument is deprecated and "
             "will stop working in, or after, April 2024.",
             DeprecationWarning,
             stacklevel=2,
         )
-        inst = changes.pop("inst")
 
     cls = inst.__class__
     attrs = fields(cls)

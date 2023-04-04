@@ -722,3 +722,10 @@ class TestEvolve:
             evolve(inst=C())
 
         assert __file__ == wi.list[0].filename
+
+    def test_no_inst(self):
+        """
+        Missing inst argument raises a TypeError like Python would.
+        """
+        with pytest.raises(TypeError, match=r"evolve\(\) missing 1"):
+            evolve(x=1)
