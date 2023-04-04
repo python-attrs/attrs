@@ -382,14 +382,14 @@ def evolve(*args, **changes):
             raise TypeError(
                 f"evolve() takes 1 positional argument, but {len(args)} "
                 "were given"
-            )
+            ) from None
     else:
         try:
             inst = changes.pop("inst")
         except KeyError:
             raise TypeError(
                 "evolve() missing 1 required positional argument: 'inst'"
-            )
+            ) from None
 
         import warnings
 
