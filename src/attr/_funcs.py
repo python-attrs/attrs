@@ -2,7 +2,6 @@
 
 
 import copy
-import warnings
 
 from ._compat import PY_3_9_PLUS, get_generic_base
 from ._make import NOTHING, _obj_setattr, fields
@@ -391,6 +390,8 @@ def evolve(*args, **changes):
             raise TypeError(
                 "evolve() missing 1 required positional argument: 'inst'"
             )
+
+        import warnings
 
         warnings.warn(
             "Passing the instance per keyword argument is deprecated and "
