@@ -724,7 +724,7 @@ class TestEvolve:
 
     def test_can_change_inst(self):
         """
-        If the instance is passed by positional argument, a filed named inst
+        If the instance is passed by positional argument, a field named `inst`
         can be changed.
         """
 
