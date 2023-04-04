@@ -316,6 +316,14 @@ def assoc(inst, **changes):
     """
     Copy *inst* and apply *changes*.
 
+    This is different from `evolve` that applies the changes to the arguments
+    that create the new instance.
+
+    `evolve`'s behavior is preferable, but there are `edge cases`_ where it
+    doesn't work. Therefore `assoc` is deprecated, but will not be removed.
+
+    .. _`edge cases`: https://github.com/python-attrs/attrs/issues/251
+
     :param inst: Instance of a class with *attrs* attributes.
     :param changes: Keyword changes in the new copy.
 
@@ -331,13 +339,6 @@ def assoc(inst, **changes):
         This function will not be removed du to the slightly different approach
         compared to `attrs.evolve`.
     """
-    import warnings
-
-    warnings.warn(
-        "assoc is deprecated and will be removed after 2018/01.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
     new = copy.copy(inst)
     attrs = fields(inst.__class__)
     for k, v in changes.items():

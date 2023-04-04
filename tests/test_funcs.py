@@ -467,8 +467,7 @@ class TestAssoc:
             pass
 
         i1 = C()
-        with pytest.deprecated_call():
-            i2 = assoc(i1)
+        i2 = assoc(i1)
 
         assert i1 is not i2
         assert i1 == i2
@@ -479,8 +478,7 @@ class TestAssoc:
         No changes means a verbatim copy.
         """
         i1 = C()
-        with pytest.deprecated_call():
-            i2 = assoc(i1)
+        i2 = assoc(i1)
 
         assert i1 is not i2
         assert i1 == i2
@@ -497,8 +495,7 @@ class TestAssoc:
         chosen_names = data.draw(st.sets(st.sampled_from(field_names)))
         change_dict = {name: data.draw(st.integers()) for name in chosen_names}
 
-        with pytest.deprecated_call():
-            changed = assoc(original, **change_dict)
+        changed = assoc(original, **change_dict)
 
         for k, v in change_dict.items():
             assert getattr(changed, k) == v
@@ -527,22 +524,7 @@ class TestAssoc:
             x = attr.ib()
             y = attr.ib()
 
-        with pytest.deprecated_call():
-            assert C(3, 2) == assoc(C(1, 2), x=3)
-
-    def test_warning(self):
-        """
-        DeprecationWarning points to the correct file.
-        """
-
-        @attr.s
-        class C:
-            x = attr.ib()
-
-        with pytest.warns(DeprecationWarning) as wi:
-            assert C(2) == assoc(C(1), x=2)
-
-        assert __file__ == wi.list[0].filename
+        assert C(3, 2) == assoc(C(1, 2), x=3)
 
 
 class TestEvolve:
