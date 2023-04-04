@@ -729,3 +729,13 @@ class TestEvolve:
         """
         with pytest.raises(TypeError, match=r"evolve\(\) missing 1"):
             evolve(x=1)
+
+    def test_too_many_pos_args(self):
+        """
+        More than one positional argument raises a TypeError like Python would.
+        """
+        with pytest.raises(
+            TypeError,
+            match=r"evolve\(\) takes 1 positional argument, but 2 were given",
+        ):
+            evolve(1, 2)

@@ -374,7 +374,13 @@ def evolve(*args, **changes):
     # Try to get instance by positional argument first.
     # Use changes otherwise and warn it'll break.
     if args:
-        (inst,) = args
+        try:
+            (inst,) = args
+        except ValueError:
+            raise TypeError(
+                f"evolve() takes 1 positional argument, but {len(args)} "
+                "were given"
+            )
     else:
         try:
             inst = changes.pop("inst")
