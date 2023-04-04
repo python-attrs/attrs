@@ -721,3 +721,15 @@ class TestEvolve:
             match=r"evolve\(\) takes 1 positional argument, but 2 were given",
         ):
             evolve(1, 2)
+
+    def test_can_change_inst(self):
+        """
+        If the instance is passed by positional argument, a filed named inst
+        can be changed.
+        """
+
+        @attr.define
+        class C:
+            inst: int
+
+        assert C(42) == evolve(C(23), inst=42)
