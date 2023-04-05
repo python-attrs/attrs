@@ -384,7 +384,12 @@ class TestProvides:
 
 
 @pytest.mark.parametrize(
-    "validator", [instance_of(int), [always_pass, instance_of(int)]]
+    "validator",
+    [
+        instance_of(int),
+        [always_pass, instance_of(int)],
+        (always_pass, instance_of(int)),
+    ],
 )
 class TestOptional:
     """
@@ -436,6 +441,11 @@ class TestOptional:
             repr_s = (
                 "<optional validator for _AndValidator(_validators=[{func}, "
                 "<instance_of validator for type <class 'int'>>]) or None>"
+            ).format(func=repr(always_pass))
+        elif isinstance(validator, tuple):
+            repr_s = (
+                "<optional validator for _AndValidator(_validators=({func}, "
+                "<instance_of validator for type <class 'int'>>)) or None>"
             ).format(func=repr(always_pass))
         else:
             repr_s = (
