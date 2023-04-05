@@ -351,9 +351,10 @@ def assoc(inst, **changes):
     return new
 
 
-def evolve(inst, **changes):
+def evolve(*args, **changes):
     """
-    Create a new instance, based on *inst* with *changes* applied.
+    Create a new instance, based on the first positional argument with
+    *changes* applied.
 
     :param inst: Instance of a class with *attrs* attributes.
     :param changes: Keyword changes in the new copy.
@@ -365,8 +366,40 @@ def evolve(inst, **changes):
     :raise attrs.exceptions.NotAnAttrsClassError: If *cls* is not an *attrs*
         class.
 
-    ..  versionadded:: 17.1.0
+    .. versionadded:: 17.1.0
+    .. deprecated:: 23.1.0
+       It is now deprecated to pass the instance using the keyword argument
+       *inst*. It will raise a warning until at least April 2024, after which
+       it will become an error. Always pass the instance as a positional
+       argument.
     """
+    # Try to get instance by positional argument first.
+    # Use changes otherwise and warn it'll break.
+    if args:
+        try:
+            (inst,) = args
+        except ValueError:
+            raise TypeError(
+                f"evolve() takes 1 positional argument, but {len(args)} "
+                "were given"
+            ) from None
+    else:
+        try:
+            inst = changes.pop("inst")
+        except KeyError:
+            raise TypeError(
+                "evolve() missing 1 required positional argument: 'inst'"
+            ) from None
+
+        import warnings
+
+        warnings.warn(
+            "Passing the instance per keyword argument is deprecated and "
+            "will stop working in, or after, April 2024.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
     cls = inst.__class__
     attrs = fields(cls)
     for a in attrs:
