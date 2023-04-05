@@ -178,7 +178,9 @@ jobs:
       - docs
       - install-dev
       - mypy
-      - pyright
+      # Pyright is currently flaky
+      # XXX: https://github.com/ekalinin/nodeenv/issues/324
+      # - pyright
 
     runs-on: ubuntu-latest
 
