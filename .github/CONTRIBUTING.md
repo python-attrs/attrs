@@ -116,7 +116,8 @@ and publish the PR in GitHub's web interface!
 After your pull request is merged and the branch is no longer needed, delete it:
 
 ```
-$ git push origin --delete my_topical_branch
+$ git checkout main
+$ git push --delete origin my_topical_branch && git branch -d my_topical_branch
 ```
 
 Before starting to work on your next pull request, run the following command to sync your local repository with the remotes:
