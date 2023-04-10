@@ -349,7 +349,9 @@ class TestProvides:
             def f(self):
                 pass
 
-        v = provides(ifoo)
+        with pytest.deprecated_call():
+            v = provides(ifoo)
+
         v(None, simple_attr("x"), C())
 
     def test_fail(self, ifoo):
@@ -359,9 +361,12 @@ class TestProvides:
         value = object()
         a = simple_attr("x")
 
-        v = provides(ifoo)
+        with pytest.deprecated_call():
+            v = provides(ifoo)
+
         with pytest.raises(TypeError) as e:
             v(None, a, value)
+
         assert (
             "'x' must provide {interface!r} which {value!r} doesn't.".format(
                 interface=ifoo, value=value
@@ -375,7 +380,9 @@ class TestProvides:
         """
         Returned validator has a useful `__repr__`.
         """
-        v = provides(ifoo)
+        with pytest.deprecated_call():
+            v = provides(ifoo)
+
         assert (
             "<provides validator for interface {interface!r}>".format(
                 interface=ifoo

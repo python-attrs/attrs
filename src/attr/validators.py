@@ -244,7 +244,17 @@ def provides(interface):
     :raises TypeError: With a human readable error message, the attribute
         (of type `attrs.Attribute`), the expected interface, and the
         value it got.
+
+    .. deprecated:: 23.1.0
     """
+    import warnings
+
+    warnings.warn(
+        "attrs's zope-interface support is deprecated and will be removed in, "
+        "or after, April 2024.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     return _ProvidesValidator(interface)
 
 
