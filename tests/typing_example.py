@@ -236,6 +236,15 @@ class Validated:
     p: Any = attr.ib(
         validator=attr.validators.not_(attr.validators.in_("abc"), msg=None)
     )
+    q: Any = attr.ib(
+        validator=attrs.validators.optional(attrs.validators.instance_of(C))
+    )
+    r: Any = attr.ib(
+        validator=attrs.validators.optional([attrs.validators.instance_of(C)])
+    )
+    s: Any = attr.ib(
+        validator=attrs.validators.optional((attrs.validators.instance_of(C),))
+    )
 
 
 @attr.define
