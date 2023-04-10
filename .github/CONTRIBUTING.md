@@ -99,7 +99,7 @@ $ make html
 
 The built documentation can then be found in `docs/_build/html/`.
 
-To file a pull request, create a new branch on top of the upstream repositorie's `main` branch:
+To file a pull request, create a new branch on top of the upstream repository's `main` branch:
 
 ```console
 $ git checkout -b my_topical_branch upstream/main
@@ -115,7 +115,7 @@ and publish the PR in GitHub's web interface!
 
 After your pull request is merged and the branch is no longer needed, delete it:
 
-```
+```console
 $ git checkout main
 $ git push --delete origin my_topical_branch && git branch -d my_topical_branch
 ```
