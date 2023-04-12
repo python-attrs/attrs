@@ -244,6 +244,7 @@ For the common case where you want to [`include`](attrs.filters.include) or [`ex
 
 :::{note}
 Through using string names directly is convenient, it's not safe in typo issues.
+`fields()` will raise an AttributeError when the field doesn't exist while literal string names won't.
 Use `fields()` to get attributes is worth being recommended in most cases.
 
 ```{doctest}
