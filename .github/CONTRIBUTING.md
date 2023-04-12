@@ -102,6 +102,7 @@ The built documentation can then be found in `docs/_build/html/`.
 To file a pull request, create a new branch on top of the upstream repository's `main` branch:
 
 ```console
+$ git fetch upstream
 $ git checkout -b my_topical_branch upstream/main
 ```
 
@@ -117,13 +118,13 @@ After your pull request is merged and the branch is no longer needed, delete it:
 
 ```console
 $ git checkout main
-$ git push --delete origin my_topical_branch && git branch -d my_topical_branch
+$ git push --delete origin my_topical_branch && git branch -D my_topical_branch
 ```
 
-Before starting to work on your next pull request, run the following command to sync your local repository with the remotes:
+Before starting to work on your next pull request, run the following command to sync your local repository with the remote *upstream*:
 
 ```console
-$ git fetch --all
+$ git fetch upstream -u main:main
 ```
 
 ---
