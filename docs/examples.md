@@ -228,7 +228,7 @@ For the common case where you want to [`include`](attrs.filters.include) or [`ex
 
 >>> asdict(
 ...     User("jane", "s33kred", 42),
-...     filter=filters.exclude(fields(User).password, int, "password"))
+...     filter=filters.exclude(fields(User).password, "password", int))
 {'login': 'jane'}
 
 >>> @define
@@ -241,6 +241,27 @@ For the common case where you want to [`include`](attrs.filters.include) or [`ex
 ...        filter=filters.include(int, fields(C).x, "x"))
 {'x': 'foo', 'z': 3}
 ```
+
+:::{note}
+Through using string names directly is convenient, it's not safe in typo issues.
+Use `fields()` to get attributes is worth being recommended in most cases.
+
+```{doctest}
+>>> asdict(
+...     User("jane", "s33kred", 42),
+...     filter=filters.exclude("passwd")
+... )
+{'login': 'jane', 'password': 's33kred', 'id': 42}
+
+>>> asdict(
+...     User("jane", "s33kred", 42),
+...     filter=fields(User).passwd
+... )
+Traceback (most recent call last):
+...
+AttributeError: 'UserAttributes' object has no attribute 'passwd'. Did you mean: 'password'?
+```
+:::
 
 Other times, all you want is a tuple and *attrs* won't let you down:
 
