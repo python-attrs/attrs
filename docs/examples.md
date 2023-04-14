@@ -243,7 +243,7 @@ For the common case where you want to [`include`](attrs.filters.include) or [`ex
 {'x': 'foo', 'z': 3}
 
 >>> asdict(C("foo", "2", 3),
-...        filter=filters.include(fields(C).x), "z")
+...        filter=filters.include(fields(C).x, "z"))
 {'x': 'foo', 'z': 3}
 ```
 
