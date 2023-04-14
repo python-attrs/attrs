@@ -441,6 +441,7 @@ def accessing_from_attr() -> None:
     attr.converters.optional
     attr.exceptions.FrozenError
     attr.filters.include
+    attr.filters.exclude
     attr.setters.frozen
     attr.validators.and_
     attr.cmp_using
@@ -453,6 +454,7 @@ def accessing_from_attrs() -> None:
     attrs.converters.optional
     attrs.exceptions.FrozenError
     attrs.filters.include
+    attrs.filters.exclude
     attrs.setters.frozen
     attrs.validators.and_
     attrs.cmp_using

@@ -215,7 +215,7 @@ For that, {func}`attrs.asdict` offers a callback that decides whether an attribu
 {'users': [{'email': 'jane@doe.invalid'}, {'email': 'joe@doe.invalid'}]}
 ```
 
-For the common case where you want to [`include`](attrs.filters.include) or [`exclude`](attrs.filters.exclude) certain types or attributes, *attrs* ships with a few helpers:
+For the common case where you want to [`include`](attrs.filters.include) or [`exclude`](attrs.filters.exclude) certain types, string name or attributes, *attrs* ships with a few helpers:
 
 ```{doctest}
 >>> from attrs import asdict, filters, fields
@@ -224,11 +224,12 @@ For the common case where you want to [`include`](attrs.filters.include) or [`ex
 ... class User:
 ...     login: str
 ...     password: str
+...     email: str
 ...     id: int
 
 >>> asdict(
-...     User("jane", "s33kred", 42),
-...     filter=filters.exclude(fields(User).password, int))
+...     User("jane", "s33kred", "jane@example.com", 42),
+...     filter=filters.exclude(fields(User).password, "email", int))
 {'login': 'jane'}
 
 >>> @define
@@ -240,7 +241,33 @@ For the common case where you want to [`include`](attrs.filters.include) or [`ex
 >>> asdict(C("foo", "2", 3),
 ...        filter=filters.include(int, fields(C).x))
 {'x': 'foo', 'z': 3}
+
+>>> asdict(C("foo", "2", 3),
+...        filter=filters.include(fields(C).x, "z"))
+{'x': 'foo', 'z': 3}
 ```
+
+:::{note}
+Though using string names directly is convenient, mistyping attribute names will silently do the wrong thing and neither Python nor your type checker can help you.
+{func}`attrs.fields()` will raise an `AttributeError` when the field doesn't exist while literal string names won't.
+Using {func}`attrs.fields()` to get attributes is worth being recommended in most cases.
+
+```{doctest}
+>>> asdict(
+...     User("jane", "s33kred", "jane@example.com", 42),
+...     filter=filters.exclude("passwd")
+... )
+{'login': 'jane', 'password': 's33kred', 'email': 'jane@example.com', 'id': 42}
+
+>>> asdict(
+...     User("jane", "s33kred", "jane@example.com", 42),
+...     filter=fields(User).passwd
+... )
+Traceback (most recent call last):
+...
+AttributeError: 'UserAttributes' object has no attribute 'passwd'. Did you mean: 'password'?
+```
+:::
 
 Other times, all you want is a tuple and *attrs* won't let you down:
 
