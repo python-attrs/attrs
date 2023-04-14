@@ -42,6 +42,7 @@ The official tag is `python-attrs` and helping out in support frees us up to imp
 You can (and should) run our test suite using [*tox*].
 However, you’ll probably want a more traditional environment as well.
 We highly recommend to develop using the latest Python release because we try to take advantage of modern features whenever possible.
+Also, running [*pre-commit*] later on will require the latest Python version.
 
 First [fork](https://github.com/python-attrs/attrs/fork) the repository on GitHub.
 
@@ -63,7 +64,7 @@ Then add the *attrs* repository as *upstream* remote:
 $ git remote add -t main -m main --tags upstream https://github.com/python-attrs/attrs.git
 ```
 
-The next step is to sync the upstream repository with your local copy:
+The next step is to sync your local copy with the upstream repository:
 
 ```console
 $ git fetch upstream
@@ -98,10 +99,10 @@ $ make html
 
 The built documentation can then be found in `docs/_build/html/`.
 
-To file a pull request, create a new branch on top of the upstream repository:
+To file a pull request, create a new branch on top of the upstream repository's `main` branch:
 
 ```console
-$ git fetch --all
+$ git fetch upstream
 $ git checkout -b my_topical_branch upstream/main
 ```
 
@@ -113,12 +114,17 @@ $ git push -u origin
 
 and publish the PR in GitHub's web interface!
 
-Before starting to work on your next pull request, run the following command to sync your local repository with the remotes:
+After your pull request is merged and the branch is no longer needed, delete it:
 
 ```console
-$ git fetch --all
 $ git checkout main
-$ git merge
+$ git push --delete origin my_topical_branch && git branch -D my_topical_branch
+```
+
+Before starting to work on your next pull request, run the following command to sync your local repository with the remote *upstream*:
+
+```console
+$ git fetch upstream -u main:main
 ```
 
 ---
@@ -205,7 +211,7 @@ But it's way more comfortable to run it locally and *git* catching avoidable err
   First line of new section.
   ```
 
-- If you add a new feature, demonstrate its awesomeness on the [examples page](https://github.com/python-attrs/attrs/blob/main/docs/examples.rst)!
+- If you add a new feature, demonstrate its awesomeness on the [examples page](https://github.com/python-attrs/attrs/blob/main/docs/examples.md)!
 
 
 ### Changelog
