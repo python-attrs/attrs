@@ -16,8 +16,8 @@ env:
   PIP_NO_PYTHON_VERSION_WARNING: "1"
   # Keep in sync with .pre-commit-config.yaml/default_language_version/python.
   PYTHON_LATEST: "3.11"
-  # Avoid warnings about shallow checkout, but also make sure pytest accepts us.
-  SETUPTOOLS_SCM_PRETEND_VERSION: "99.9.9"
+  # Use oldest version used in doctests / examples.
+  SETUPTOOLS_SCM_PRETEND_VERSION: "19.2.0"
 
 permissions:
   contents: read
