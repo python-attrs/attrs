@@ -1,1 +1,0 @@
-filters ``exclude`` and ``include`` now support to pass literal name of attribtes in ``str`` format

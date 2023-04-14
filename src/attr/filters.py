@@ -28,7 +28,7 @@ def include(*what):
 
     :rtype: `callable`
 
-    .. versionchanged:: 22.3.0 Accept field name string as input argument
+    .. versionchanged:: 23.3.0 Accept field name string as input argument
     """
     cls, names, attrs = _split_what(what)
 
@@ -52,7 +52,7 @@ def exclude(*what):
 
     :rtype: `callable`
 
-    .. versionchanged:: 22.3.0 Accept field name string as input argument
+    .. versionchanged:: 23.3.0 Accept field name string as input argument
     """
     cls, names, attrs = _split_what(what)
 

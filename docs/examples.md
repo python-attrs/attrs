@@ -224,11 +224,12 @@ For the common case where you want to [`include`](attrs.filters.include) or [`ex
 ... class User:
 ...     login: str
 ...     password: str
+...     email: str
 ...     id: int
 
 >>> asdict(
-...     User("jane", "s33kred", 42),
-...     filter=filters.exclude(fields(User).password, "password", int))
+...     User("jane", "s33kred", "jane@example.org", 42),
+...     filter=filters.exclude(fields(User).password, "email", int))
 {'login': 'jane'}
 
 >>> @define
@@ -238,14 +239,14 @@ For the common case where you want to [`include`](attrs.filters.include) or [`ex
 ...     z: int
 
 >>> asdict(C("foo", "2", 3),
-...        filter=filters.include(int, fields(C).x, "x"))
+...        filter=filters.include(int, fields(C).x))
 {'x': 'foo', 'z': 3}
 ```
 
 :::{note}
-Though using string names directly is convenient, it's not safe in typo issues.
-`fields()` will raise an `AttributeError` when the field doesn't exist while literal string names won't.
-Using `fields()` to get attributes is worth being recommended in most cases.
+Though using string names directly is convenient, mistyping attribute names will silently do the wrong thing and neither Python nor your type checker can help you.
+{func}`attrs.fields()` will raise an `AttributeError` when the field doesn't exist while literal string names won't.
+Using {func}`attrs.fields()` to get attributes is worth being recommended in most cases.
 
 ```{doctest}
 >>> asdict(
