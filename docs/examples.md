@@ -228,7 +228,7 @@ For the common case where you want to [`include`](attrs.filters.include) or [`ex
 ...     id: int
 
 >>> asdict(
-...     User("jane", "s33kred", "jane@example.org", 42),
+...     User("jane", "s33kred", "jane@example.com", 42),
 ...     filter=filters.exclude(fields(User).password, "email", int))
 {'login': 'jane'}
 
@@ -254,13 +254,13 @@ Using {func}`attrs.fields()` to get attributes is worth being recommended in mos
 
 ```{doctest}
 >>> asdict(
-...     User("jane", "s33kred", "jane@example.org", 42),
+...     User("jane", "s33kred", "jane@example.com", 42),
 ...     filter=filters.exclude("passwd")
 ... )
-{'login': 'jane', 'password': 's33kred', 'email': 'jane@example.org', 'id': 42}
+{'login': 'jane', 'password': 's33kred', 'email': 'jane@example.com', 'id': 42}
 
 >>> asdict(
-...     User("jane", "s33kred", 42),
+...     User("jane", "s33kred", "jane@example.com", 42),
 ...     filter=fields(User).passwd
 ... )
 Traceback (most recent call last):
