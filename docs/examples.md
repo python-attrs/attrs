@@ -250,10 +250,10 @@ Using {func}`attrs.fields()` to get attributes is worth being recommended in mos
 
 ```{doctest}
 >>> asdict(
-...     User("jane", "s33kred", 42),
+...     User("jane", "s33kred", "jane@example.org", 42),
 ...     filter=filters.exclude("passwd")
 ... )
-{'login': 'jane', 'password': 's33kred', 'id': 42}
+{'login': 'jane', 'password': 's33kred', 'email': 'jane@example.org', 'id': 42}
 
 >>> asdict(
 ...     User("jane", "s33kred", 42),
