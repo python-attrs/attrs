@@ -73,7 +73,7 @@ class SomeClass:
 
 ## Pyright
 
-*attrs* provides support for [*Pyright*] though the [`dataclass_transform`] specification.
+*attrs* provides support for [*Pyright*] through the `dataclass_transform` / {pep}`681` specification.
 This provides static type inference for a subset of *attrs* equivalent to standard-library {mod}`dataclasses`,
 and requires explicit type annotations using the {func}`attrs.define` or `@attr.s(auto_attribs=True)` API.
 
@@ -94,13 +94,10 @@ The *Pyright* inferred types are a tiny subset of those supported by *Mypy*, inc
 
 - The `attrs.frozen` decorator is not typed with frozen attributes, which are properly typed via `attrs.define(frozen=True)`.
 
-  A [full list](https://github.com/microsoft/pyright/blob/main/specs/dataclass_transforms.md#attrs) of limitations and incompatibilities can be found in *Pyright*'s repository.
-
 Your constructive feedback is welcome in both [attrs#795](https://github.com/python-attrs/attrs/issues/795) and [pyright#1782](https://github.com/microsoft/pyright/discussions/1782).
 Generally speaking, the decision on improving *attrs* support in *Pyright* is entirely Microsoft's prerogative, though.
 :::
 
-[`dataclass_transform`]: https://github.com/microsoft/pyright/blob/main/specs/dataclass_transforms.md
 [*Mypy*]: http://mypy-lang.org
 [*Pyright*]: https://github.com/microsoft/pyright
 [*pytype*]: https://google.github.io/pytype/

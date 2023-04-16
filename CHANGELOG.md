@@ -285,7 +285,7 @@ See https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md#chan
   See the [new docs on comparison](https://www.attrs.org/en/stable/comparison.html) for more details.
   [#787](https://github.com/python-attrs/attrs/issues/787)
 
-- Added **provisional** support for static typing in `pyright` via the [dataclass_transforms specification](https://github.com/microsoft/pyright/blob/main/specs/dataclass_transforms.md).
+- Added **provisional** support for static typing in `pyright` via [PEP 681](https://peps.python.org/pep-0681/).
   Both the `pyright` specification and `attrs` implementation may change in future versions of both projects.
 
   Your constructive feedback is welcome in both [attrs#795](https://github.com/python-attrs/attrs/issues/795) and [pyright#1782](https://github.com/microsoft/pyright/discussions/1782).

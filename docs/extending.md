@@ -94,7 +94,7 @@ You can only use this trick to tell *Mypy* that a class is actually an *attrs* c
 
 ### Pyright
 
-Generic decorator wrapping is supported in [*Pyright*](https://github.com/microsoft/pyright) via their [`dataclass_transform`] specification.
+Generic decorator wrapping is supported in [*Pyright*](https://github.com/microsoft/pyright) via `dataclass_transform` / {pep}`689`.
 
 For a custom wrapping of the form:
 
@@ -118,11 +118,6 @@ def __dataclass_transform__(
 def custom_define(f): ...
 ```
 
-:::{warning}
-`dataclass_transform` is supported **provisionally** as of `pyright` 1.1.135.
-
-Both the *Pyright* [`dataclass_transform`] specification and *attrs* implementation may change in future versions.
-:::
 
 ## Types
 
@@ -332,5 +327,3 @@ It has the signature
 >>> json.dumps(data)
 '{"dt": "2020-05-04T13:37:00"}'
 ```
-
-[`dataclass_transform`]: https://github.com/microsoft/pyright/blob/main/specs/dataclass_transforms.md

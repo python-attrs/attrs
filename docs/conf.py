@@ -20,9 +20,6 @@ linkcheck_ignore = [
     r"https://github.com/.*/(issues|pull)/\d+",
     # Rate limits and the latest tag is missing anyways on release.
     "https://github.com/python-attrs/attrs/tree/.*",
-    # It never finds the anchor even though it's there.
-    "https://github.com/microsoft/pyright/blob/main/specs/"
-    "dataclass_transforms.md#attrs",
 ]
 
 # In nitpick mode (-n), still ignore any of the following "broken" references
