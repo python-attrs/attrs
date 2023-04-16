@@ -18,6 +18,14 @@ Whenever there is a need to break compatibility, it is announced here in the cha
 
 Changes for the upcoming release can be found in the ["changelog.d" directory](https://github.com/python-attrs/attrs/tree/main/changelog.d) in our repository.
 
+<!--
+Do *NOT* add changelog entries here!
+
+This changelog is managed by towncrier and is compiled at release time.
+
+See https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md#changelog for details.
+-->
+
 <!-- towncrier release notes start -->
 
 ## [23.1.0](https://github.com/python-attrs/attrs/tree/23.1.0) - 2023-04-16
