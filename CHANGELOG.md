@@ -18,15 +18,57 @@ Whenever there is a need to break compatibility, it is announced here in the cha
 
 Changes for the upcoming release can be found in the ["changelog.d" directory](https://github.com/python-attrs/attrs/tree/main/changelog.d) in our repository.
 
-<!--
-Do *NOT* add changelog entries here!
-
-This changelog is managed by towncrier and is compiled at release time.
-
-See https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md#changelog for details.
--->
-
 <!-- towncrier release notes start -->
+
+## [23.1.0](https://github.com/python-attrs/attrs/tree/23.1.0) - 2023-04-16
+
+### Backwards-incompatible Changes
+
+- Python 3.6 has been dropped and packaging switched to static package data using [Hatch](https://hatch.pypa.io/latest/).
+  [#993](https://github.com/python-attrs/attrs/issues/993)
+
+
+### Deprecations
+
+- The support for *zope-interface* via the `attrs.validators.provides` validator is now deprecated and will be removed in, or after, April 2024.
+
+  The presence of a C-based package in our developement dependencies has caused headaches and we're not under the impression it's used a lot.
+
+  Let us know if you're using it and we might publish it as a separate package.
+  [#1120](https://github.com/python-attrs/attrs/issues/1120)
+
+
+### Changes
+
+- `attrs.filters.exclude()` and `attrs.filters.include()` now support the passing of attribute names as strings.
+  [#1068](https://github.com/python-attrs/attrs/issues/1068)
+- `attrs.has()` and `attrs.fields()` now handle generic classes correctly.
+  [#1079](https://github.com/python-attrs/attrs/issues/1079)
+- Fix frozen exception classes when raised within e.g. `contextlib.contextmanager`, which mutates their `__traceback__` attributes.
+  [#1081](https://github.com/python-attrs/attrs/issues/1081)
+- `@frozen` now works with type checkers that implement [PEP-681](https://peps.python.org/pep-0681/) (ex. [pyright](https://github.com/microsoft/pyright/)).
+  [#1084](https://github.com/python-attrs/attrs/issues/1084)
+- Restored ability to unpickle instances pickled before 22.2.0.
+  [#1085](https://github.com/python-attrs/attrs/issues/1085)
+- `attrs.asdict()`'s and `attrs.astuple()`'s type stubs now accept the `attrs.AttrsInstance` protocol.
+  [#1090](https://github.com/python-attrs/attrs/issues/1090)
+- Fix slots class cellvar updating closure in CPython 3.8+ even when `__code__` introspection is unavailable.
+  [#1092](https://github.com/python-attrs/attrs/issues/1092)
+- `attrs.resolve_types()` can now pass `include_extras` to `typing.get_type_hints()` on Python 3.9+, and does so by default.
+  [#1099](https://github.com/python-attrs/attrs/issues/1099)
+- Added instructions for pull request workflow to `CONTRIBUTING.md`.
+  [#1105](https://github.com/python-attrs/attrs/issues/1105)
+- Added *type* parameter to `attrs.field()` function for use with `attrs.make_class()`.
+
+  Please note that type checkers ignore type metadata passed into `make_class()`, but it can be useful if you're wrapping _attrs_.
+  [#1107](https://github.com/python-attrs/attrs/issues/1107)
+- It is now possible for `attrs.evolve()` (and `attr.evolve()`) to change fields named `inst` if the instance is passed as a positional argument.
+
+  Passing the instance using the `inst` keyword argument is now deprecated and will be removed in, or after, April 2024.
+  [#1117](https://github.com/python-attrs/attrs/issues/1117)
+- `attrs.validators.optional()` now also accepts a tuple of validators (in addition to lists of validators).
+  [#1122](https://github.com/python-attrs/attrs/issues/1122)
+
 
 ## [22.2.0](https://github.com/python-attrs/attrs/tree/22.2.0) - 2022-12-21
 
