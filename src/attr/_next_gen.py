@@ -181,9 +181,8 @@ def field(
     removed.
 
     .. versionadded:: 23.1.0
-       The *type* parameter has been re-added; mostly for
-       {func}`attrs.make_class`. Please note that type checkers ignore this
-       metadata.
+       The *type* parameter has been re-added; mostly for `attrs.make_class`.
+       Please note that type checkers ignore this metadata.
     .. versionadded:: 20.1.0
     """
     return attrib(
