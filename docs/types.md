@@ -1,6 +1,6 @@
 # Type Annotations
 
-*attrs* comes with first class support for type annotations for both Python 3.6 ({pep}`526`) and legacy syntax.
+*attrs* comes with first-class support for type annotations for both {pep}`526` and legacy syntax.
 
 However they will forever remain *optional*, therefore the example from the README could also be written as:
 

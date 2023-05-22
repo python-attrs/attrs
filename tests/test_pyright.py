@@ -4,7 +4,6 @@ import json
 import os.path
 import shutil
 import subprocess
-import sys
 
 import pytest
 
@@ -12,9 +11,6 @@ import attrs
 
 
 pytestmark = [
-    pytest.mark.skipif(
-        sys.version_info < (3, 7), reason="Requires Python 3.7+."
-    ),
     pytest.mark.skipif(
         shutil.which("pyright") is None, reason="Requires pyright."
     ),
