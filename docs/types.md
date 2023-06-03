@@ -89,9 +89,6 @@ class SomeClass:
 :::{warning}
 The *Pyright* inferred types are a tiny subset of those supported by *Mypy*, including:
 
-- The generated `__init__` signature only includes the attribute type annotations.
-  It currently does not include attribute `converter` types.
-
 - The `attrs.frozen` decorator is not typed with frozen attributes, which are properly typed via `attrs.define(frozen=True)`.
 
 Your constructive feedback is welcome in both [attrs#795](https://github.com/python-attrs/attrs/issues/795) and [pyright#1782](https://github.com/microsoft/pyright/discussions/1782).
