@@ -1,9 +1,12 @@
 # SPDX-License-Identifier: MIT
 
+from __future__ import annotations
+
 import json
-import os.path
 import shutil
 import subprocess
+
+from pathlib import Path
 
 import pytest
 
@@ -23,7 +26,7 @@ class PyrightDiagnostic:
     message: str
 
 
-def parse_pyright_output(test_file):
+def parse_pyright_output(test_file: Path) -> set[PyrightDiagnostic]:
     pyright = subprocess.run(
         ["pyright", "--outputjson", str(test_file)], capture_output=True
     )
@@ -42,11 +45,11 @@ def test_pyright_baseline():
     decorated class types.
     """
 
-    test_file = os.path.dirname(__file__) + "/dataclass_transform_example.py"
+    test_file = Path(__file__).parent / "dataclass_transform_example.py"
 
     diagnostics = parse_pyright_output(test_file)
 
-    # Expected diagnostics as per pyright 1.1.135
+    # Expected diagnostics as per pyright 1.1.311
     expected_diagnostics = {
         PyrightDiagnostic(
             severity="information",
@@ -55,8 +58,10 @@ def test_pyright_baseline():
         ),
         PyrightDiagnostic(
             severity="information",
-            message='Type of "DefineConverter.__init__" is '
-            '"(self: DefineConverter, with_converter: int) -> None"',
+            message='Type of "DefineConverter.__init__" is "(self: '
+            "DefineConverter, with_converter: str | bytes | bytearray | "
+            "memoryview | array[Any] | mmap | _CData | PickleBuffer | "
+            'SupportsInt | SupportsIndex | SupportsTrunc) -> None"',
         ),
         PyrightDiagnostic(
             severity="error",

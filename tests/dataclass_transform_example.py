@@ -21,6 +21,8 @@ class DefineConverter:
 
 reveal_type(DefineConverter.__init__)  # noqa
 
+DefineConverter(with_converter=b"42")
+
 
 @attr.frozen()
 class Frozen:
