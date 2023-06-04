@@ -69,8 +69,7 @@ _ValidatorArgType = Union[_ValidatorType[_T], Sequence[_ValidatorType[_T]]]
 class AttrsInstance(AttrsInstance_, Protocol):
     pass
 
-_A = TypeVar("_A", bound=AttrsInstance)
-# _make --
+_A = TypeVar("_A", bound=type[AttrsInstance])
 
 class _Nothing(enum.Enum):
     NOTHING = enum.auto()

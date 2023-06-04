@@ -468,3 +468,8 @@ if attrs.has(foo) or attr.has(foo):
 @attrs.define(unsafe_hash=True)
 class Hashable:
     pass
+
+
+def test(cls: type) -> None:
+    if attr.has(cls):
+        attr.resolve_types(cls)
