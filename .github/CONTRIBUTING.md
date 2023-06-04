@@ -41,10 +41,17 @@ The official tag is `python-attrs` and helping out in support frees us up to imp
 
 You can (and should) run our test suite using [*tox*].
 However, you’ll probably want a more traditional environment as well.
-We highly recommend to develop using the latest Python release because we try to take advantage of modern features whenever possible.
-Also, running [*pre-commit*] later on will require the latest Python version.
 
-First [fork](https://github.com/python-attrs/attrs/fork) the repository on GitHub.
+First, create a [virtual environment](https://virtualenv.pypa.io/) so you don't break your system-wide Python installation.
+We recommend using the Python version from the `.python-version` file in project's root directory.
+
+If you're using [*direnv*](https://direnv.net), you can automate the creation of a virtual environment with the correct Python version by adding the following `.envrc` to the project root after you've cloned it to your computer:
+
+```bash
+layout python python$(cat .python-version)
+```
+
+Then, [fork](https://github.com/python-attrs/attrs/fork) the repository on GitHub.
 
 Clone the fork to your computer:
 

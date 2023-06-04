@@ -14,10 +14,10 @@ env:
   TOX_TESTENV_PASSENV: FORCE_COLOR
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
   PIP_NO_PYTHON_VERSION_WARNING: "1"
-  # Keep in sync with .pre-commit-config.yaml/default_language_version/python.
-  PYTHON_LATEST: "3.11"
   # Use oldest version used in doctests / examples.
   SETUPTOOLS_SCM_PRETEND_VERSION: "19.2.0"
+  # N.B. default Python version for setup-python comes from the .python-version
+  # file at the root of the project.
 
 permissions:
   contents: read
@@ -36,9 +36,10 @@ jobs:
           - "3.9"
           - "3.10"
           - "3.11"
-          - "~3.12.0-0"
+          - "3.12"
           - "pypy-3.7"
           - "pypy-3.8"
+          - "pypy-3.9"
 
     continue-on-error: >-
       ${{ contains(matrix.python-version, '~') && true || false }}
@@ -48,6 +49,8 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
+
       - run: python -Im pip install --upgrade wheel tox
 
       - name: Determine Python version for tox
@@ -82,9 +85,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
-        with:
-          # Use latest Python, so it understands all syntax.
-          python-version: ${{env.PYTHON_LATEST}}
 
       - run: python -Im pip install --upgrade coverage[toml]
 
@@ -131,12 +131,14 @@ jobs:
           - "3.9"
           - "3.10"
           - "3.11"
+          - "3.12"
 
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
 
       - run: python -Im pip install --upgrade wheel tox
       - run: python -Im tox run -e mypy
@@ -147,8 +149,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
-        with:
-          python-version: ${{env.PYTHON_LATEST}}
 
       - run: python -Im pip install --upgrade wheel tox
       - run: python -Im tox run -e pyright
@@ -163,8 +163,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
-        with:
-          python-version: ${{env.PYTHON_LATEST}}
+
       - run: python -Im pip install -e .[dev]
       - run: python -Ic 'import attr; print(attr.__version__)'
       - run: python -Ic 'import attrs; print(attrs.__version__)'

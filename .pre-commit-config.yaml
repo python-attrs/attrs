@@ -3,7 +3,7 @@ ci:
   autoupdate_schedule: monthly
 
 default_language_version:
-  # Keep in sync with ci.yml/PYTHON_LATEST
+  # Keep in-sync with .python-version
   python: python3.11
 
 repos:
