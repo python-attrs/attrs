@@ -41,9 +41,6 @@ jobs:
           - "pypy-3.8"
           - "pypy-3.9"
 
-    continue-on-error: >-
-      ${{ contains(matrix.python-version, '~') && true || false }}
-
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -56,10 +53,6 @@ jobs:
       - name: Determine Python version for tox
         run: |
           V=${{ matrix.python-version }}
-          if [[ "$V" = ~* ]]; then
-            # Extract version from a '~3.XX.0-0' specifier.
-            V=${V:1:4}
-          fi
 
           if [[ "$V" = pypy-* ]]; then
             V=pypy3
