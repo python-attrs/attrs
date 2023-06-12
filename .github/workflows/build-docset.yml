@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 env:
-  PIP_DISABLE_PIP_VERSION_CHECK: 1
-  PIP_NO_PYTHON_VERSION_WARNING: 1
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PIP_NO_PYTHON_VERSION_WARNING: "1"
 
 permissions:
   contents: read
@@ -24,9 +24,9 @@ jobs:
         with:
           python-version: "3.x"
 
-      - run: pip install tox
+      - run: python -Im pip install tox
 
-      - run: tox -e docset
+      - run: python -Im tox run -e docset
 
       - uses: actions/upload-artifact@v3
         with:

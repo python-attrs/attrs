@@ -46,8 +46,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
+          cache: pip
 
-      - run: python -Im pip install --upgrade wheel tox
+      - run: python -Im pip install --upgrade tox
 
       - name: Determine Python version for tox
         run: |
@@ -77,6 +78,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
+        with:
+          cache: pip
 
       - run: python -Im pip install --upgrade coverage[toml]
 
@@ -107,9 +110,9 @@ jobs:
         with:
           # Keep in sync with tox/docs and .readthedocs.yaml.
           python-version: "3.11"
+          cache: pip
 
-      - run: python -Im pip install --upgrade wheel tox
-      - run: python -Im tox -e docs,changelog
+      - run: python -Im tox run -e docs,changelog
 
   mypy:
     name: Mypy on ${{ matrix.python-version }}
@@ -131,8 +134,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
+          cache: pip
 
-      - run: python -Im pip install --upgrade wheel tox
+      - run: python -Im pip install --upgrade tox
       - run: python -Im tox run -e mypy
 
   pyright:
@@ -141,8 +145,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
+        with:
+          cache: pip
 
-      - run: python -Im pip install --upgrade wheel tox
+      - run: python -Im pip install --upgrade tox
       - run: python -Im tox run -e pyright
 
   install-dev:
@@ -155,6 +161,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
+        with:
+          cache: pip
 
       - run: python -Im pip install -e .[dev]
       - run: python -Ic 'import attr; print(attr.__version__)'
