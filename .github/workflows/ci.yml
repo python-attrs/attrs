@@ -112,6 +112,8 @@ jobs:
           python-version: "3.11"
           cache: pip
 
+      - run: python -Im pip install --upgrade tox
+
       - run: python -Im tox run -e docs,changelog
 
   mypy:
