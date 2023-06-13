@@ -143,7 +143,6 @@ For more details, please refer to our [comparison page](https://www.attrs.org/en
 - [**Third-party Extensions**](https://github.com/python-attrs/attrs/wiki/Extensions-to-attrs)
 - **License**: [MIT](https://www.attrs.org/en/latest/license.html)
 - **Get Help**: please use the `python-attrs` tag on [StackOverflow](https://stackoverflow.com/questions/tagged/python-attrs)
-- **Supported Python Versions**: 3.7 and later
 
 
 ### *attrs* for Enterprise
