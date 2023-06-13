@@ -48,6 +48,7 @@ jobs:
 
       - name: Prepare & run tox
         run: |
+          echo $-
           V=${{ matrix.python-version }}
 
           if [[ "$V" = pypy-* ]]; then
