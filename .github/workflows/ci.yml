@@ -15,8 +15,6 @@ env:
   PIP_NO_PYTHON_VERSION_WARNING: "1"
   # Use oldest version used in doctests / examples.
   SETUPTOOLS_SCM_PRETEND_VERSION: "19.2.0"
-  # N.B. default Python version for setup-python comes from the .python-version
-  # file at the root of the project.
 
 permissions:
   contents: read
@@ -48,9 +46,7 @@ jobs:
           allow-prereleases: true
           cache: pip
 
-      - run: python -Im pip install --upgrade tox
-
-      - name: Determine Python version for tox
+      - name: Prepare & run tox
         run: |
           V=${{ matrix.python-version }}
 
@@ -60,9 +56,8 @@ jobs:
             V=py$(echo $V | tr -d .)
           fi
 
-          echo TOX_PYTHON=$V >>$GITHUB_ENV
-
-      - run: python -Im tox run -f ${{ env.TOX_PYTHON }}
+          python -Im pip install tox
+          python -Im tox run -f $V
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v3
@@ -79,6 +74,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
+          python-version-file: .python-version-default
           cache: pip
 
       - run: python -Im pip install --upgrade coverage[toml]
@@ -148,6 +144,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
+          python-version-file: .python-version-default
           cache: pip
 
       - run: python -Im pip install --upgrade tox
@@ -164,6 +161,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
+          python-version-file: .python-version-default
           cache: pip
 
       - run: python -Im pip install -e .[dev]
