@@ -6,15 +6,7 @@ The **first number** of the version is the year.
 The **second number** is incremented with each release, starting at 1 for each year.
 The **third number** is when we need to start branches for older releases (only for emergencies).
 
-Put simply, you shouldn't ever be afraid to upgrade `attrs` if you're only using its public APIs.
-Whenever there is a need to break compatibility, it is announced here in the changelog, and raises a `DeprecationWarning` for a year (if possible) before it's finally really broken.
-
-> **Warning**
-> The structure of the `attrs.Attribute` class is exempt from this rule.
-> It *will* change in the future, but since it should be considered read-only, that shouldn't matter.
->
-> However if you intend to build extensions on top of `attrs` you have to anticipate that.
-
+You can find out backwards-compatibility policy [here](https://github.com/python-attrs/attrs/blob/main/.github/SECURITY.md).
 
 Changes for the upcoming release can be found in the ["changelog.d" directory](https://github.com/python-attrs/attrs/tree/main/changelog.d) in our repository.
 
