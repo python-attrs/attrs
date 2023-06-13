@@ -44,17 +44,13 @@ class TestLegacyMetadataHack:
             in ws.list[0].message.args[0]
         )
 
-    def test_version(self, mod):
+    def test_version(self, mod, recwarn):
         """
-        __version__ returns the correct version.
+        __version__ returns the correct version and doesn't warn.
         """
-        with pytest.deprecated_call() as ws:
-            assert metadata.version("attrs") == mod.__version__
+        assert metadata.version("attrs") == mod.__version__
 
-        assert (
-            f"Accessing {mod.__name__}.__version__ is deprecated"
-            in ws.list[0].message.args[0]
-        )
+        assert [] == recwarn.list
 
     def test_description(self, mod):
         """

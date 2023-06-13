@@ -101,7 +101,7 @@ def _make_getattr(mod_name: str) -> Callable:
         else:
             from importlib.metadata import metadata
 
-        if name != "__version_info__":
+        if name not in ("__version__", "__version_info__"):
             warnings.warn(
                 f"Accessing {mod_name}.{name} is deprecated and will be "
                 "removed in a future release. Use importlib.metadata directly "
