@@ -58,9 +58,8 @@ def test_pyright_baseline():
         ),
         PyrightDiagnostic(
             severity="information",
-            message='Type of "DefineConverter.__init__" is "(self: '
-            "DefineConverter, with_converter: str | bytes | bytearray | "
-            "memoryview | array[Any] | mmap | _CData | PickleBuffer | "
+            message='Type of "DefineConverter.__init__" is '
+            '"(self: DefineConverter, with_converter: str | Buffer | '
             'SupportsInt | SupportsIndex | SupportsTrunc) -> None"',
         ),
         PyrightDiagnostic(
