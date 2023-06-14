@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   tests:
-    name: Tests on ${{ matrix.python-version }}
+    name: Tests & Mypy on ${{ matrix.python-version }}
     runs-on: ubuntu-latest
 
     strategy:
@@ -46,7 +46,7 @@ jobs:
           allow-prereleases: true
           cache: pip
 
-      - name: Prepare & run tox
+      - name: Prepare tox & run tests
         run: |
           V=${{ matrix.python-version }}
 
@@ -58,6 +58,8 @@ jobs:
 
           python -Im pip install tox
           python -Im tox run -f $V
+      - run: python -Im tox run -e mypy
+        if: ${{ !startsWith(matrix.python-version, 'pypy-') }}
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v3
@@ -77,8 +79,6 @@ jobs:
           python-version-file: .python-version-default
           cache: pip
 
-      - run: python -Im pip install --upgrade coverage[toml]
-
       - name: Download coverage data
         uses: actions/download-artifact@v3
         with:
@@ -86,6 +86,8 @@ jobs:
 
       - name: Combine coverage and fail if it's <100%.
         run: |
+          python -Im pip install --upgrade coverage[toml]
+
           python -Im coverage combine
           python -Im coverage html --skip-covered --skip-empty
           python -Im coverage report --fail-under=100
@@ -108,34 +110,10 @@ jobs:
           python-version: "3.11"
           cache: pip
 
-      - run: python -Im pip install --upgrade tox
-
-      - run: python -Im tox run -e docs,changelog
-
-  mypy:
-    name: Mypy on ${{ matrix.python-version }}
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version:
-          - "3.7"
-          - "3.8"
-          - "3.9"
-          - "3.10"
-          - "3.11"
-          - "3.12"
-
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-          allow-prereleases: true
-          cache: pip
-
-      - run: python -Im pip install --upgrade tox
-      - run: python -Im tox run -e mypy
+      - name: Prepare & run tox
+        run: |
+          python -Im pip install tox
+          python -Im tox run -e docs,changelog
 
   pyright:
     name: Check types using pyright
@@ -147,8 +125,10 @@ jobs:
           python-version-file: .python-version-default
           cache: pip
 
-      - run: python -Im pip install --upgrade tox
-      - run: python -Im tox run -e pyright
+      - name: Prepare & run tox
+        run: |
+          python -Im pip install tox
+          python -Im tox run -e pyright
 
   install-dev:
     name: Verify dev env
@@ -164,9 +144,11 @@ jobs:
           python-version-file: .python-version-default
           cache: pip
 
-      - run: python -Im pip install -e .[dev]
-      - run: python -Ic 'import attr; print(attr.__version__)'
-      - run: python -Ic 'import attrs; print(attrs.__version__)'
+      - name: Install in dev mode & import
+        run: |
+          python -Im pip install -e .[dev]
+          python -Ic 'import attr; print(attr.__version__)'
+          python -Ic 'import attrs; print(attrs.__version__)'
 
   # Ensure everything required is passing for branch protection.
   required-checks-pass:
@@ -176,7 +158,6 @@ jobs:
       - coverage
       - docs
       - install-dev
-      - mypy
       # Pyright is currently flaky
       # XXX: https://github.com/ekalinin/nodeenv/issues/324
       # - pyright
