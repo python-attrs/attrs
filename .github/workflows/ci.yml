@@ -69,6 +69,7 @@ jobs:
           if-no-files-found: ignore
 
   coverage:
+    name: Combine & check coverage.
     runs-on: ubuntu-latest
     needs: tests
 
@@ -84,12 +85,17 @@ jobs:
         with:
           name: coverage-data
 
-      - name: Combine coverage and fail if it's <100%.
+      - name: Combine coverage & fail if it's <100%.
         run: |
-          python -Im pip install --upgrade coverage[toml]
+          python -Im pip install coverage[toml]
 
           python -Im coverage combine
           python -Im coverage html --skip-covered --skip-empty
+
+          # Report and write to summary.
+          python -Im coverage report | sed 's/^/    /' >> $GITHUB_STEP_SUMMARY
+
+          # Report again and fail if under 100%.
           python -Im coverage report --fail-under=100
 
       - name: Upload HTML report if check failed.
