@@ -111,16 +111,6 @@ text = """
 """
 
 
-# Make coverage play nicely with pytest-xdist.
-[tool.hatch.build.targets.wheel.hooks.autorun]
-dependencies = ["hatch-autorun"]
-code = """
-import coverage
-coverage.process_startup()
-"""
-enable-by-default = false
-
-
 [tool.pytest.ini_options]
 addopts = ["-ra", "--strict-markers", "--strict-config"]
 xfail_strict = true
