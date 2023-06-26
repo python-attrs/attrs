@@ -111,7 +111,7 @@ reveal_type(attrs.AttrsInstance)
     expected_diagnostics = {
         PyrightDiagnostic(
             severity="information",
-            message='Type of "attrs.AttrsInstance" is "Type[AttrsInstance]"',
+            message='Type of "attrs.AttrsInstance" is "type[AttrsInstance]"',
         ),
     }
     assert diagnostics == expected_diagnostics
