@@ -39,7 +39,7 @@ tests-no-zope = [
     "pytest-xdist[psutil]",
     # Since the mypy error messages keep changing, we have to keep updating this
     # pin.
-    'mypy>=1.1.1; python_implementation == "CPython"',
+    'mypy>=1.1.1,<1.4; python_implementation == "CPython"',
     'pytest-mypy-plugins; python_implementation == "CPython" and python_version<"3.11"',
 ]
 tests = ["attrs[tests-no-zope]", "zope.interface"]
