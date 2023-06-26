@@ -1,3 +1,0 @@
-# This file is copied by tox into site-packages. It enables Coverage.py
-# together w/ pytest-xdist without extra dependencies.
-exec("import coverage; coverage.process_startup()")
