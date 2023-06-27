@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 
 """
-Tests for `__init_subclass__` related tests.
+Tests for `__init_subclass__` related functionality.
 """
 
 import attr
@@ -41,3 +41,26 @@ def test_init_subclass_attrs():
         pass
 
     assert "foo" == Attrs().param
+
+
+def test_init_subclass_slots_workaround():
+    """
+    `__init_subclass__` works with modern APIs if care is taken around classes
+    existing twice.
+    """
+    subs = {}
+
+    @attr.define
+    class Base:
+        def __init_subclass__(cls):
+            subs[cls.__qualname__] = cls
+
+    @attr.define
+    class Sub1(Base):
+        x: int
+
+    @attr.define
+    class Sub2(Base):
+        y: int
+
+    assert (Sub1, Sub2) == tuple(subs.values())
