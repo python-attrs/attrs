@@ -98,6 +98,7 @@ if sys.version_info >= (3, 8):
         factory: Callable[[], _T],
         takes_self: Literal[False],
     ) -> _T: ...
+
 else:
     @overload
     def Factory(factory: Callable[[], _T]) -> _T: ...
@@ -420,9 +421,7 @@ def define(
 mutable = define
 
 @overload
-@dataclass_transform(
-    frozen_default=True, field_descriptors=(attrib, field)
-)
+@dataclass_transform(frozen_default=True, field_descriptors=(attrib, field))
 def frozen(
     maybe_cls: _C,
     *,
@@ -448,9 +447,7 @@ def frozen(
     match_args: bool = ...,
 ) -> _C: ...
 @overload
-@dataclass_transform(
-    frozen_default=True, field_descriptors=(attrib, field)
-)
+@dataclass_transform(frozen_default=True, field_descriptors=(attrib, field))
 def frozen(
     maybe_cls: None = ...,
     *,
