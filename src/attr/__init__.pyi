@@ -310,7 +310,7 @@ def field(
     type: Optional[type] = ...,
 ) -> Any: ...
 @overload
-@dataclass_transform(order_default=True, field_descriptors=(attrib, field))
+@dataclass_transform(order_default=True, field_specifiers=(attrib, field))
 def attrs(
     maybe_cls: _C,
     these: Optional[Dict[str, Any]] = ...,
@@ -338,7 +338,7 @@ def attrs(
     unsafe_hash: Optional[bool] = ...,
 ) -> _C: ...
 @overload
-@dataclass_transform(order_default=True, field_descriptors=(attrib, field))
+@dataclass_transform(order_default=True, field_specifiers=(attrib, field))
 def attrs(
     maybe_cls: None = ...,
     these: Optional[Dict[str, Any]] = ...,
@@ -366,7 +366,7 @@ def attrs(
     unsafe_hash: Optional[bool] = ...,
 ) -> Callable[[_C], _C]: ...
 @overload
-@dataclass_transform(field_descriptors=(attrib, field))
+@dataclass_transform(field_specifiers=(attrib, field))
 def define(
     maybe_cls: _C,
     *,
@@ -392,7 +392,7 @@ def define(
     match_args: bool = ...,
 ) -> _C: ...
 @overload
-@dataclass_transform(field_descriptors=(attrib, field))
+@dataclass_transform(field_specifiers=(attrib, field))
 def define(
     maybe_cls: None = ...,
     *,
@@ -421,7 +421,7 @@ def define(
 mutable = define
 
 @overload
-@dataclass_transform(frozen_default=True, field_descriptors=(attrib, field))
+@dataclass_transform(frozen_default=True, field_specifiers=(attrib, field))
 def frozen(
     maybe_cls: _C,
     *,
@@ -447,7 +447,7 @@ def frozen(
     match_args: bool = ...,
 ) -> _C: ...
 @overload
-@dataclass_transform(frozen_default=True, field_descriptors=(attrib, field))
+@dataclass_transform(frozen_default=True, field_specifiers=(attrib, field))
 def frozen(
     maybe_cls: None = ...,
     *,
