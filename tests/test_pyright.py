@@ -41,7 +41,7 @@ def parse_pyright_output(test_file: Path) -> set[PyrightDiagnostic]:
 
 def test_pyright_baseline():
     """
-    The typing.dataclass_transform() decorator allows pyright to determine
+    The typing.dataclass_transform decorator allows pyright to determine
     attrs decorated class types.
     """
 
