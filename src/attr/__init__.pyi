@@ -33,6 +33,11 @@ if sys.version_info >= (3, 10):
 else:
     from typing_extensions import TypeGuard
 
+if sys.version_info >= (3, 11):
+    from typing import dataclass_transform
+else:
+    from typing_extensions import dataclass_transform
+
 __version__: str
 __version_info__: VersionInfo
 __title__: str
@@ -102,23 +107,6 @@ else:
         factory: Union[Callable[[Any], _T], Callable[[], _T]],
         takes_self: bool = ...,
     ) -> _T: ...
-
-# Static type inference support via __dataclass_transform__ implemented as per:
-# https://github.com/microsoft/pyright/blob/1.1.135/specs/dataclass_transforms.md
-# This annotation must be applied to all overloads of "define" and "attrs"
-#
-# NOTE: This is a typing construct and does not exist at runtime.  Extensions
-# wrapping attrs decorators should declare a separate __dataclass_transform__
-# signature in the extension module using the specification linked above to
-# provide pyright support.
-def __dataclass_transform__(
-    *,
-    eq_default: bool = True,
-    order_default: bool = False,
-    kw_only_default: bool = False,
-    frozen_default: bool = False,
-    field_descriptors: Tuple[Union[type, Callable[..., Any]], ...] = (()),
-) -> Callable[[_T], _T]: ...
 
 class Attribute(Generic[_T]):
     name: str
@@ -322,7 +310,7 @@ def field(
     type: Optional[type] = ...,
 ) -> Any: ...
 @overload
-@__dataclass_transform__(order_default=True, field_descriptors=(attrib, field))
+@dataclass_transform(order_default=True, field_specifiers=(attrib, field))
 def attrs(
     maybe_cls: _C,
     these: Optional[Dict[str, Any]] = ...,
@@ -350,7 +338,7 @@ def attrs(
     unsafe_hash: Optional[bool] = ...,
 ) -> _C: ...
 @overload
-@__dataclass_transform__(order_default=True, field_descriptors=(attrib, field))
+@dataclass_transform(order_default=True, field_specifiers=(attrib, field))
 def attrs(
     maybe_cls: None = ...,
     these: Optional[Dict[str, Any]] = ...,
@@ -378,7 +366,7 @@ def attrs(
     unsafe_hash: Optional[bool] = ...,
 ) -> Callable[[_C], _C]: ...
 @overload
-@__dataclass_transform__(field_descriptors=(attrib, field))
+@dataclass_transform(field_specifiers=(attrib, field))
 def define(
     maybe_cls: _C,
     *,
@@ -404,7 +392,7 @@ def define(
     match_args: bool = ...,
 ) -> _C: ...
 @overload
-@__dataclass_transform__(field_descriptors=(attrib, field))
+@dataclass_transform(field_specifiers=(attrib, field))
 def define(
     maybe_cls: None = ...,
     *,
@@ -433,9 +421,7 @@ def define(
 mutable = define
 
 @overload
-@__dataclass_transform__(
-    frozen_default=True, field_descriptors=(attrib, field)
-)
+@dataclass_transform(frozen_default=True, field_specifiers=(attrib, field))
 def frozen(
     maybe_cls: _C,
     *,
@@ -461,9 +447,7 @@ def frozen(
     match_args: bool = ...,
 ) -> _C: ...
 @overload
-@__dataclass_transform__(
-    frozen_default=True, field_descriptors=(attrib, field)
-)
+@dataclass_transform(frozen_default=True, field_specifiers=(attrib, field))
 def frozen(
     maybe_cls: None = ...,
     *,
