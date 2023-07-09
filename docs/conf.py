@@ -70,8 +70,11 @@ copyright = f"2015, {author}"
 
 # The full version, including alpha/beta/rc tags.
 release = metadata.version("attrs")
-# The short X.Y version.
-version = release.rsplit(".", 1)[0]
+if "dev" in release:
+    release = version = "UNRELEASED"
+else:
+    # The short X.Y version.
+    version = release.rsplit(".", 1)[0]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
