@@ -57,7 +57,7 @@ docs = [
     "sphinxcontrib-towncrier",
     "towncrier",
 ]
-dev = ["attrs[tests,docs]", "pre-commit"]
+dev = ["attrs[tests]", "pre-commit"]
 
 [project.urls]
 Documentation = "https://www.attrs.org/"

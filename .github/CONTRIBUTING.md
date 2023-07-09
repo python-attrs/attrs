@@ -101,14 +101,24 @@ $ python -m pytest
 should work and pass.
 You can *significantly* speed up the test suite by passing `-n auto` to *pytest* which activates [*pytest-xdist*](https://github.com/pytest-dev/pytest-xdist) and takes advantage of all your CPU cores.
 
-Documentation should also build:
+For documentation, you can use:
 
 ```console
-$ cd docs
-$ make html
+$ tox run -e docs-serve
 ```
 
-The built documentation can then be found in `docs/_build/html/`.
+This will build the documentation, and then watch for changes and rebuild it whenever you save a file.
+
+To just build the documentation and run doctests, use:
+
+```console
+$ tox run -e docs
+```
+
+You will find the built documentation in `docs/_build/html`.
+
+
+---
 
 To file a pull request, create a new branch on top of the upstream repository's `main` branch:
 
