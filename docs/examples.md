@@ -624,7 +624,7 @@ Please note that true immutability is impossible in Python but it will [get](how
 By themselves, immutable classes are useful for long-lived objects that should never change; like configurations for example.
 
 In order to use them in regular program flow, you'll need a way to easily create new instances with changed attributes.
-In Clojure that function is called [assoc](https://clojuredocs.org/clojure.core/assoc) and *attrs* shamelessly imitates it: `attr.evolve`:
+In Clojure that function is called [*assoc*](https://clojuredocs.org/clojure.core/assoc) and *attrs* shamelessly imitates it: {func}`attrs.evolve`:
 
 ```{doctest}
 >>> from attrs import evolve, frozen
