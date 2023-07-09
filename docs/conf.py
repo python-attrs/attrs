@@ -94,6 +94,7 @@ html_theme_options = {
     "sidebar_hide_name": True,
     "light_logo": "attrs_logo.svg",
     "dark_logo": "attrs_logo_white.svg",
+    "top_of_page_button": None,
 }
 
 
