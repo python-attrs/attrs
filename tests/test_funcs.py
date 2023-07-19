@@ -242,9 +242,9 @@ class TestAsDict:
             coords: Coordinates = attr.ib()
 
         instance = A(Coordinates(50.419019, 30.516225))
-        assert {
-            "coords": Coordinates(50.419019, 30.516225)
-        } == attr.asdict(instance, retain_collection_types=True)
+        assert {"coords": Coordinates(50.419019, 30.516225)} == attr.asdict(
+            instance, retain_collection_types=True
+        )
 
 
 class TestAsTuple:
