@@ -72,19 +72,21 @@ def asdict(
                 )
             elif isinstance(v, (tuple, list, set, frozenset)):
                 cf = v.__class__ if retain_collection_types is True else list
-                rv[a.name] = cf(
-                    [
-                        _asdict_anything(
-                            i,
-                            is_key=False,
-                            filter=filter,
-                            dict_factory=dict_factory,
-                            retain_collection_types=retain_collection_types,
-                            value_serializer=value_serializer,
-                        )
-                        for i in v
-                    ]
-                )
+                items = [
+                    _asdict_anything(
+                        i,
+                        is_key=False,
+                        filter=filter,
+                        dict_factory=dict_factory,
+                        retain_collection_types=retain_collection_types,
+                        value_serializer=value_serializer,
+                    )
+                    for i in v
+                ]
+                try:
+                    rv[a.name] = cf(items)
+                except TypeError:
+                    rv[a.name] = cf(*items)
             elif isinstance(v, dict):
                 df = dict_factory
                 rv[a.name] = df(

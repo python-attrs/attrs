@@ -6,7 +6,7 @@ Tests for `attr._funcs`.
 
 
 from collections import OrderedDict
-from typing import Generic, TypeVar
+from typing import Generic, NamedTuple, TypeVar
 
 import pytest
 
@@ -231,6 +231,20 @@ class TestAsDict:
         instance = A({(1,): 1})
 
         assert {"a": {(1,): 1}} == attr.asdict(instance)
+
+    def test_named_tuple_retain_type(self):
+        class Coordinates(NamedTuple):
+            lat: float
+            lon: float
+
+        @attr.s
+        class A:
+            coords: Coordinates = attr.ib()
+
+        instance = A(Coordinates(50.419019, 30.516225))
+        assert {
+            "coords": Coordinates(50.419019, 30.516225)
+        } == attr.asdict(instance, retain_collection_types=True)
 
 
 class TestAsTuple:
