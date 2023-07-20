@@ -86,6 +86,8 @@ def asdict(
                 try:
                     rv[a.name] = cf(items)
                 except TypeError:
+                    # Workaround for TypeError: cf.__new__() missing 1 required
+                    # positional argument (which appears, for a namedturle)
                     rv[a.name] = cf(*items)
             elif isinstance(v, dict):
                 df = dict_factory

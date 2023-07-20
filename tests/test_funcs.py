@@ -234,7 +234,8 @@ class TestAsDict:
 
     def test_named_tuple_retain_type(self):
         """
-        Serailization classes with namedtuple(s) if retain_collection_types is True.
+        Serailization classes with namedtuple(s)
+         if retain_collection_types is True.
 
         See #1164
         """
