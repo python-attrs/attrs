@@ -238,6 +238,7 @@ class TestAsDict:
 
         See #1164
         """
+
         class Coordinates(NamedTuple):
             lat: float
             lon: float
