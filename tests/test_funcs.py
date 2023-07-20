@@ -233,6 +233,11 @@ class TestAsDict:
         assert {"a": {(1,): 1}} == attr.asdict(instance)
 
     def test_named_tuple_retain_type(self):
+        """
+        Serailization classes with namedtuple(s) if retain_collection_types is True.
+
+        See #1164
+        """
         class Coordinates(NamedTuple):
             lat: float
             lon: float
