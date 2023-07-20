@@ -245,22 +245,24 @@ def astuple(
                 )
             elif isinstance(v, (tuple, list, set, frozenset)):
                 cf = v.__class__ if retain is True else list
-                rv.append(
-                    cf(
-                        [
-                            astuple(
-                                j,
-                                recurse=True,
-                                filter=filter,
-                                tuple_factory=tuple_factory,
-                                retain_collection_types=retain,
-                            )
-                            if has(j.__class__)
-                            else j
-                            for j in v
-                        ]
+                items = [
+                    astuple(
+                        j,
+                        recurse=True,
+                        filter=filter,
+                        tuple_factory=tuple_factory,
+                        retain_collection_types=retain,
                     )
-                )
+                    if has(j.__class__)
+                    else j
+                    for j in v
+                ]
+                try:
+                    rv.append(cf(items))
+                except TypeError:
+                    # Workaround for TypeError: cf.__new__() missing 1 required
+                    # positional argument (which appears, for a namedturle)
+                    rv.append(cf(*items))
             elif isinstance(v, dict):
                 df = v.__class__ if retain is True else dict
                 rv.append(

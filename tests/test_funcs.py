@@ -411,6 +411,27 @@ class TestAsTuple:
 
         assert (1, [1, 2, 3]) == d
 
+    def test_named_tuple_retain_type(self):
+        """
+        Serailization classes with namedtuple(s)
+         if retain_collection_types is True.
+
+        See #1164
+        """
+
+        class Coordinates(NamedTuple):
+            lat: float
+            lon: float
+
+        @attr.s
+        class A:
+            coords: Coordinates = attr.ib()
+
+        instance = A(Coordinates(50.419019, 30.516225))
+        assert (Coordinates(50.419019, 30.516225),) == attr.astuple(
+            instance, retain_collection_types=True
+        )
+
 
 class TestHas:
     """
