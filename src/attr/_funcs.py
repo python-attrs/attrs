@@ -87,7 +87,7 @@ def asdict(
                     rv[a.name] = cf(items)
                 except TypeError:
                     if not issubclass(cf, tuple):
-                        raise
+                        raise  # pragma: no cover
                     # Workaround for TypeError: cf.__new__() missing 1 required
                     # positional argument (which appears, for a namedturle)
                     rv[a.name] = cf(*items)
@@ -263,7 +263,7 @@ def astuple(
                     rv.append(cf(items))
                 except TypeError:
                     if not issubclass(cf, tuple):
-                        raise
+                        raise  # pragma: no cover
                     # Workaround for TypeError: cf.__new__() missing 1 required
                     # positional argument (which appears, for a namedturle)
                     rv.append(cf(*items))
