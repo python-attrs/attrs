@@ -83,12 +83,14 @@ def asdict(
                     )
                     for i in v
                 ]
-                if issubclass(cf, tuple):
+                try:
+                    rv[a.name] = cf(items)
+                except TypeError:
+                    if not issubclass(cf, tuple):
+                        raise
                     # Workaround for TypeError: cf.__new__() missing 1 required
                     # positional argument (which appears, for a namedturle)
                     rv[a.name] = cf(*items)
-                else:
-                    rv[a.name] = cf(items)
             elif isinstance(v, dict):
                 df = dict_factory
                 rv[a.name] = df(
@@ -257,12 +259,14 @@ def astuple(
                     else j
                     for j in v
                 ]
-                if issubclass(cf, tuple):
+                try:
+                    rv.append(cf(items))
+                except TypeError:
+                    if not issubclass(cf, tuple):
+                        raise
                     # Workaround for TypeError: cf.__new__() missing 1 required
                     # positional argument (which appears, for a namedturle)
                     rv.append(cf(*items))
-                else:
-                    rv.append(cf(items))
             elif isinstance(v, dict):
                 df = v.__class__ if retain is True else dict
                 rv.append(
