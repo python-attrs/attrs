@@ -10,7 +10,9 @@ from ._make import NOTHING, _obj_setattr, fields
 from .exceptions import AttrsAttributeNotFoundError
 
 
-def _is_namedtuple(obj, /, _namedtuple_dir=frozenset(dir(namedtuple('_sentinel', [])))):
+def _is_namedtuple(
+    obj, /, _namedtuple_dir=frozenset(dir(namedtuple("_sentinel", [])))
+):
     """
     Check that object is namedtuple.
     """
