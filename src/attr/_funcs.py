@@ -3,23 +3,9 @@
 
 import copy
 
-from collections import namedtuple
-
 from ._compat import PY_3_9_PLUS, get_generic_base
 from ._make import NOTHING, _obj_setattr, fields
 from .exceptions import AttrsAttributeNotFoundError
-
-
-_namedtuple_dir = frozenset(dir(namedtuple("_sentinel", [])))
-
-
-def _is_namedtuple(obj):
-    """
-    Check that object is namedtuple.
-    """
-    if isinstance(obj, tuple):
-        return set(dir(obj.__class__)) >= _namedtuple_dir
-    return False
 
 
 def asdict(
@@ -97,7 +83,7 @@ def asdict(
                     )
                     for i in v
                 ]
-                if _is_namedtuple(v):
+                if issubclass(cf, tuple):
                     # Workaround for TypeError: cf.__new__() missing 1 required
                     # positional argument (which appears, for a namedturle)
                     rv[a.name] = cf(*items)
@@ -271,7 +257,7 @@ def astuple(
                     else j
                     for j in v
                 ]
-                if _is_namedtuple(v):
+                if issubclass(cf, tuple):
                     # Workaround for TypeError: cf.__new__() missing 1 required
                     # positional argument (which appears, for a namedturle)
                     rv.append(cf(*items))
