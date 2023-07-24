@@ -264,10 +264,10 @@ class TestAsDict:
         message = "__new__() missing 1 required positional argument (asdict)"
 
         class Coordinates(list):
-            def __init__(self, *args):
-                if isinstance(next(iter(args), None), list):
+            def __init__(self, first, *rest):
+                if isinstance(first, list):
                     raise TypeError(message)
-                super().__init__(args)
+                super().__init__([first, *rest])
 
         @attr.s
         class A:
@@ -469,10 +469,10 @@ class TestAsTuple:
         message = "__new__() missing 1 required positional argument (astuple)"
 
         class Coordinates(list):
-            def __init__(self, *args):
-                if isinstance(next(iter(args), None), list):
+            def __init__(self, first, *rest):
+                if isinstance(first, list):
                     raise TypeError(message)
-                super().__init__(args)
+                super().__init__([first, *rest])
 
         @attr.s
         class A:
