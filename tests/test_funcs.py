@@ -261,7 +261,7 @@ class TestAsDict:
         See #1164
         """
 
-        message = '__new__() missing 1 required positional argument (asdict)'
+        message = "__new__() missing 1 required positional argument (asdict)"
 
         class Coordinates(list):
             def __init__(self, *args):
@@ -466,7 +466,7 @@ class TestAsTuple:
         See #1164
         """
 
-        message = '__new__() missing 1 required positional argument (astuple)'
+        message = "__new__() missing 1 required positional argument (astuple)"
 
         class Coordinates(list):
             def __init__(self, *args):
