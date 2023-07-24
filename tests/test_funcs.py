@@ -234,7 +234,7 @@ class TestAsDict:
 
     def test_named_tuple_retain_type(self):
         """
-        Serailization classes with namedtuple(s)
+        Serialization classes with namedtuple(s)
          if retain_collection_types is True.
 
         See #1164
@@ -252,6 +252,32 @@ class TestAsDict:
         assert {"coords": Coordinates(50.419019, 30.516225)} == attr.asdict(
             instance, retain_collection_types=True
         )
+
+    def test_type_error_with_retain_type(self):
+        """
+        Serialization classes with non-tuple type which raises TypeError
+         if retain_collection_types is True.
+
+        See #1164
+        """
+
+        message = '__new__() missing 1 required positional argument (asdict)'
+
+        class Coordinates(list):
+            def __init__(self, *args):
+                if isinstance(next(iter(args), None), list):
+                    raise TypeError(message)
+                super().__init__(args)
+
+        @attr.s
+        class A:
+            coords: Coordinates = attr.ib()
+
+        instance = A(Coordinates(50.419019, 30.516225))
+        with pytest.raises(TypeError) as ctx:
+            attr.asdict(instance, retain_collection_types=True)
+
+        assert str(ctx.value) == message
 
 
 class TestAsTuple:
@@ -431,6 +457,32 @@ class TestAsTuple:
         assert (Coordinates(50.419019, 30.516225),) == attr.astuple(
             instance, retain_collection_types=True
         )
+
+    def test_type_error_with_retain_type(self):
+        """
+        Serialization classes with non-tuple type which raises TypeError
+         if retain_collection_types is True.
+
+        See #1164
+        """
+
+        message = '__new__() missing 1 required positional argument (astuple)'
+
+        class Coordinates(list):
+            def __init__(self, *args):
+                if isinstance(next(iter(args), None), list):
+                    raise TypeError(message)
+                super().__init__(args)
+
+        @attr.s
+        class A:
+            coords: Coordinates = attr.ib()
+
+        instance = A(Coordinates(50.419019, 30.516225))
+        with pytest.raises(TypeError) as ctx:
+            attr.astuple(instance, retain_collection_types=True)
+
+        assert str(ctx.value) == message
 
 
 class TestHas:
