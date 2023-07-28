@@ -234,8 +234,7 @@ class TestAsDict:
 
     def test_named_tuple_retain_type(self):
         """
-        Serialization classes with namedtuple(s)
-         if retain_collection_types is True.
+        Namedtuples can be serialized if retain_collection_types is True.
 
         See #1164
         """
