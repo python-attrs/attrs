@@ -479,10 +479,9 @@ class TestAsTuple:
             coords: Coordinates = attr.ib()
 
         instance = A(Coordinates(50.419019, 30.516225))
-        with pytest.raises(TypeError) as ctx:
-            attr.astuple(instance, retain_collection_types=True)
 
-        assert str(ctx.value) == message
+        with pytest.raises(TypeError, match=message):
+            attr.astuple(instance, retain_collection_types=True)
 
 
 class TestHas:
