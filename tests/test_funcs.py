@@ -454,6 +454,7 @@ class TestAsTuple:
             coords: Coordinates = attr.ib()
 
         instance = A(Coordinates(50.419019, 30.516225))
+
         assert (Coordinates(50.419019, 30.516225),) == attr.astuple(
             instance, retain_collection_types=True
         )
