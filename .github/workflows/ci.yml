@@ -16,8 +16,7 @@ env:
   # Use oldest version used in doctests / examples.
   SETUPTOOLS_SCM_PRETEND_VERSION: "19.2.0"
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   tests:
