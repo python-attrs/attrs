@@ -255,8 +255,8 @@ class TestAsDict:
 
     def test_type_error_with_retain_type(self):
         """
-        Serialization classes with non-tuple type which raises TypeError
-         if retain_collection_types is True.
+        Serialization that fails with TypeError leaves the error through if
+        they're not tuples.
 
         See #1164
         """
