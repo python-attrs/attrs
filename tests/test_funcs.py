@@ -4,9 +4,10 @@
 Tests for `attr._funcs`.
 """
 
+import re
 
 from collections import OrderedDict
-from typing import Generic, TypeVar
+from typing import Generic, NamedTuple, TypeVar
 
 import pytest
 
@@ -232,6 +233,52 @@ class TestAsDict:
 
         assert {"a": {(1,): 1}} == attr.asdict(instance)
 
+    def test_named_tuple_retain_type(self):
+        """
+        Namedtuples can be serialized if retain_collection_types is True.
+
+        See #1164
+        """
+
+        class Coordinates(NamedTuple):
+            lat: float
+            lon: float
+
+        @attr.s
+        class A:
+            coords: Coordinates = attr.ib()
+
+        instance = A(Coordinates(50.419019, 30.516225))
+
+        assert {"coords": Coordinates(50.419019, 30.516225)} == attr.asdict(
+            instance, retain_collection_types=True
+        )
+
+    def test_type_error_with_retain_type(self):
+        """
+        Serialization that fails with TypeError leaves the error through if
+        they're not tuples.
+
+        See #1164
+        """
+
+        message = "__new__() missing 1 required positional argument (asdict)"
+
+        class Coordinates(list):
+            def __init__(self, first, *rest):
+                if isinstance(first, list):
+                    raise TypeError(message)
+                super().__init__([first, *rest])
+
+        @attr.s
+        class A:
+            coords: Coordinates = attr.ib()
+
+        instance = A(Coordinates(50.419019, 30.516225))
+
+        with pytest.raises(TypeError, match=re.escape(message)):
+            attr.asdict(instance, retain_collection_types=True)
+
 
 class TestAsTuple:
     """
@@ -389,6 +436,52 @@ class TestAsTuple:
         )
 
         assert (1, [1, 2, 3]) == d
+
+    def test_named_tuple_retain_type(self):
+        """
+        Namedtuples can be serialized if retain_collection_types is True.
+
+        See #1164
+        """
+
+        class Coordinates(NamedTuple):
+            lat: float
+            lon: float
+
+        @attr.s
+        class A:
+            coords: Coordinates = attr.ib()
+
+        instance = A(Coordinates(50.419019, 30.516225))
+
+        assert (Coordinates(50.419019, 30.516225),) == attr.astuple(
+            instance, retain_collection_types=True
+        )
+
+    def test_type_error_with_retain_type(self):
+        """
+        Serialization that fails with TypeError leaves the error through if
+        they're not tuples.
+
+        See #1164
+        """
+
+        message = "__new__() missing 1 required positional argument (astuple)"
+
+        class Coordinates(list):
+            def __init__(self, first, *rest):
+                if isinstance(first, list):
+                    raise TypeError(message)
+                super().__init__([first, *rest])
+
+        @attr.s
+        class A:
+            coords: Coordinates = attr.ib()
+
+        instance = A(Coordinates(50.419019, 30.516225))
+
+        with pytest.raises(TypeError, match=re.escape(message)):
+            attr.astuple(instance, retain_collection_types=True)
 
 
 class TestHas:
