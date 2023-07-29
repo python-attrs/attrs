@@ -4,6 +4,7 @@
 Tests for `attr._funcs`.
 """
 
+import re
 
 from collections import OrderedDict
 from typing import Generic, NamedTuple, TypeVar
@@ -275,7 +276,7 @@ class TestAsDict:
 
         instance = A(Coordinates(50.419019, 30.516225))
 
-        with pytest.raises(TypeError, match=message):
+        with pytest.raises(TypeError, match=re.escape(message)):
             attr.asdict(instance, retain_collection_types=True)
 
 
@@ -479,7 +480,7 @@ class TestAsTuple:
 
         instance = A(Coordinates(50.419019, 30.516225))
 
-        with pytest.raises(TypeError, match=message):
+        with pytest.raises(TypeError, match=re.escape(message)):
             attr.astuple(instance, retain_collection_types=True)
 
 
