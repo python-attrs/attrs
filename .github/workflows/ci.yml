@@ -93,7 +93,7 @@ jobs:
           python -Im coverage html --skip-covered --skip-empty
 
           # Report and write to summary.
-          python -Im coverage report | sed 's/^/    /' >> $GITHUB_STEP_SUMMARY
+          python -Im coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
 
           # Report again and fail if under 100%.
           python -Im coverage report --fail-under=100

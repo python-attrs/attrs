@@ -133,6 +133,9 @@ exclude_lines = [
     "pragma: no cover",
     # PyPy is unacceptably slow under coverage.
     "if PYPY:",
+    # not meant to be executed
+    ': \.\.\.$',
+    '^ +\.\.\.$',
 ]
 
 
