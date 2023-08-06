@@ -9,6 +9,7 @@ from typing import Callable
 
 from . import converters, exceptions, filters, setters, validators
 from ._cmp import cmp_using
+from ._compat import Protocol
 from ._config import get_run_validators, set_run_validators
 from ._funcs import asdict, assoc, astuple, evolve, has, resolve_types
 from ._make import (
@@ -31,7 +32,7 @@ ib = attr = attrib
 dataclass = partial(attrs, auto_attribs=True)  # happy Easter ;)
 
 
-class AttrsInstance:
+class AttrsInstance(Protocol):
     pass
 
 
