@@ -18,6 +18,15 @@ PY310 = sys.version_info[:2] >= (3, 10)
 PY_3_12_PLUS = sys.version_info[:2] >= (3, 12)
 
 
+if sys.version_info < (3, 8):
+    try:
+        from typing_extensions import Protocol
+    except ImportError:  # pragma: no cover
+        Protocol = object
+else:
+    from typing import Protocol  # noqa: F401
+
+
 def just_warn(*args, **kw):
     warnings.warn(
         "Running interpreter doesn't sufficiently support code object "
