@@ -66,7 +66,7 @@ def _create_hyp_nested_strategy(draw, simple_class_strategy):
         lambda: OrderedDict([("cls", cls())]),
     ]
     factory = draw(st.sampled_from(factories))
-    attrs = draw(list_of_attrs) + [attr.ib(default=attr.Factory(factory))]
+    attrs = [*draw(list_of_attrs), attr.ib(default=attr.Factory(factory))]
     return make_class("HypClass", dict(zip(gen_attr_names(), attrs)))
 
 

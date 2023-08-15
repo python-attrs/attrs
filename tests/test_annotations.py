@@ -426,7 +426,7 @@ class TestAnnotations:
 
         @attr.s(auto_attribs=True, slots=slots)
         class C:
-            cls_var: "typing_extensions.ClassVar" = 23  # noqa
+            cls_var: "typing_extensions.ClassVar" = 23  # noqa: F821
 
         assert_init_annotations(C)
 
@@ -587,7 +587,7 @@ class TestAnnotations:
         @attr.s(slots=slots, auto_attribs=True)
         class A:
             a: "A"
-            b: typing.Optional["A"]  # noqa: will resolve below
+            b: typing.Optional["A"]  # will resolve below -- noqa: F821
 
         attr.resolve_types(A, globals(), locals())
 
@@ -601,7 +601,7 @@ class TestAnnotations:
 
         @attr.s(slots=slots, auto_attribs=True)
         class A:
-            a: typing.List["B"]  # noqa: will resolve below
+            a: typing.List["B"]  # will resolve below -- noqa: F821
 
         @attr.s(slots=slots, auto_attribs=True)
         class B:

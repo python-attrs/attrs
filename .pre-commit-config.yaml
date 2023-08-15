@@ -12,24 +12,12 @@ repos:
     hooks:
       - id: black
 
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.10.1
-    hooks:
-      - id: pyupgrade
-        args: [--py37-plus, --keep-percent-format]
-        exclude: "tests/test_slots.py"
-
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
-        files: \.py$
-
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.0.284
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
+        exclude: r"*.\.pyi$"
 
   - repo: https://github.com/econchick/interrogate
     rev: 1.5.0

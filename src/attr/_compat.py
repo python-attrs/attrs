@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: MIT
 
-
 import inspect
 import platform
 import sys
@@ -8,7 +7,7 @@ import threading
 import types
 import warnings
 
-from collections.abc import Mapping, Sequence  # noqa
+from collections.abc import Mapping, Sequence  # noqa: F401
 from typing import _GenericAlias
 
 
@@ -164,7 +163,7 @@ def make_set_closure_cell():
         if cell.cell_contents != 100:
             raise AssertionError  # pragma: no cover
 
-    except Exception:
+    except Exception:  # noqa: BLE001
         return just_warn
     else:
         return set_closure_cell

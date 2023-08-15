@@ -91,8 +91,9 @@ def _make_getattr(mod_name: str) -> Callable:
             "__email__": "",
             "__license__": "license",
         }
-        if name not in dunder_to_metadata.keys():
-            raise AttributeError(f"module {mod_name} has no attribute {name}")
+        if name not in dunder_to_metadata:
+            msg = f"module {mod_name} has no attribute {name}"
+            raise AttributeError(msg)
 
         import sys
         import warnings
@@ -114,15 +115,15 @@ def _make_getattr(mod_name: str) -> Callable:
         meta = metadata("attrs")
         if name == "__license__":
             return "MIT"
-        elif name == "__copyright__":
+        if name == "__copyright__":
             return "Copyright (c) 2015 Hynek Schlawack"
-        elif name in ("__uri__", "__url__"):
+        if name in ("__uri__", "__url__"):
             return meta["Project-URL"].split(" ", 1)[-1]
-        elif name == "__version_info__":
+        if name == "__version_info__":
             return VersionInfo._from_version_string(meta["version"])
-        elif name == "__author__":
+        if name == "__author__":
             return meta["Author-email"].rsplit(" ", 1)[0]
-        elif name == "__email__":
+        if name == "__email__":
             return meta["Author-email"].rsplit("<", 1)[1][:-1]
 
         return meta[dunder_to_metadata[name]]

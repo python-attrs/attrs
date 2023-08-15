@@ -354,9 +354,8 @@ def assoc(inst, **changes):
     for k, v in changes.items():
         a = getattr(attrs, k, NOTHING)
         if a is NOTHING:
-            raise AttrsAttributeNotFoundError(
-                f"{k} is not an attrs attribute on {new.__class__}."
-            )
+            msg = f"{k} is not an attrs attribute on {new.__class__}."
+            raise AttrsAttributeNotFoundError(msg)
         _obj_setattr(new, k, v)
     return new
 
@@ -389,17 +388,14 @@ def evolve(*args, **changes):
         try:
             (inst,) = args
         except ValueError:
-            raise TypeError(
-                f"evolve() takes 1 positional argument, but {len(args)} "
-                "were given"
-            ) from None
+            msg = f"evolve() takes 1 positional argument, but {len(args)} were given"
+            raise TypeError(msg) from None
     else:
         try:
             inst = changes.pop("inst")
         except KeyError:
-            raise TypeError(
-                "evolve() missing 1 required positional argument: 'inst'"
-            ) from None
+            msg = "evolve() missing 1 required positional argument: 'inst'"
+            raise TypeError(msg) from None
 
         import warnings
 
