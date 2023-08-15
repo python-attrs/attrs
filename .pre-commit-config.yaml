@@ -11,19 +11,8 @@ repos:
     rev: 23.7.0
     hooks:
       - id: black
-
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.10.1
-    hooks:
-      - id: pyupgrade
-        args: [--py37-plus, --keep-percent-format]
-        exclude: "tests/test_slots.py"
-
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
-        files: \.py$
+        # Ping pong with Ruff about empty lines between imports and code.
+        exclude: .*\.pyi
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.0.284
@@ -42,6 +31,5 @@ repos:
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
-      - id: debug-statements
       - id: check-toml
       - id: check-yaml
