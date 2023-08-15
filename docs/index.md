@@ -14,7 +14,7 @@ Release **{sub-ref}`release`**  ([What's new?](changelog.md))
 The recommended installation method is [pip](https://pip.pypa.io/en/stable/)-installing into a [virtualenv](https://hynek.me/articles/virtualenv-lives/):
 
 ```console
-$ python -m pip install attrs
+$ python -Im pip install attrs
 ```
 
 The next steps will get you up and running in no time:
