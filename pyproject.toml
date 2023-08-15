@@ -62,8 +62,7 @@ dev = ["attrs[tests]", "pre-commit"]
 [project.urls]
 Documentation = "https://www.attrs.org/"
 Changelog = "https://www.attrs.org/en/stable/changelog.html"
-"Bug Tracker" = "https://github.com/python-attrs/attrs/issues"
-"Source Code" = "https://github.com/python-attrs/attrs"
+GitHub = "https://github.com/python-attrs/attrs"
 Funding = "https://github.com/sponsors/hynek"
 Tidelift = "https://tidelift.com/subscription/pkg/pypi-attrs?utm_source=pypi-attrs&utm_medium=pypi"
 
@@ -155,6 +154,15 @@ whitelist-regex = ["test_.*"]
 
 [tool.check-wheel-contents]
 toplevel = ["attr", "attrs"]
+
+
+[tool.ruff]
+src = ["src", "tests", "conftest.py", "docs"]
+
+[tool.ruff.per-file-ignores]
+"tests/typing_example.py" = [
+  "E741", # ambiguous variable names don't matter in type checks
+]
 
 
 [tool.towncrier]
