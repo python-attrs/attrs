@@ -70,13 +70,14 @@ api
 api-attr
 extending
 how-does-it-work
-names
 glossary
 ```
 
 ```{toctree}
+:caption: Meta
 :maxdepth: 1
 
+names
 license
 changelog
 ```
