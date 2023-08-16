@@ -13,49 +13,50 @@ requires-python = ">=3.7"
 description = "Classes Without Boilerplate"
 keywords = ["class", "attribute", "boilerplate"]
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: Implementation :: CPython",
-    "Programming Language :: Python :: Implementation :: PyPy",
-    "Typing :: Typed",
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+  "Typing :: Typed",
 ]
 dependencies = ["importlib_metadata;python_version<'3.8'"]
 dynamic = ["version", "readme"]
 
 [project.optional-dependencies]
 tests-no-zope = [
-    # For regression test to ensure cloudpickle compat doesn't break.
-    'cloudpickle; python_implementation == "CPython"',
-    "hypothesis",
-    "pympler",
-    # 4.3.0 dropped last use of `convert`
-    "pytest>=4.3.0",
-    "pytest-xdist[psutil]",
-    # Since the mypy error messages keep changing, we have to keep updating this
-    # pin.
-    'mypy>=1.4; python_implementation == "CPython"',
-    'pytest-mypy-plugins; python_implementation == "CPython"',
+  # For regression test to ensure cloudpickle compat doesn't break.
+  'cloudpickle; python_implementation == "CPython"',
+  "hypothesis",
+  "pympler",
+  # 4.3.0 dropped last use of `convert`
+  "pytest>=4.3.0",
+  "pytest-xdist[psutil]",
+  # Since the mypy error messages keep changing, we have to keep updating this
+  # pin.
+  'mypy>=1.4; python_implementation == "CPython"',
+  'pytest-mypy-plugins; python_implementation == "CPython"',
 ]
 tests = ["attrs[tests-no-zope]", "zope.interface"]
 cov = [
-    "attrs[tests]",
-    # Ensure coverage is new enough for `source_pkgs`.
-    "coverage[toml]>=5.3",
+  "attrs[tests]",
+  # Ensure coverage is new enough for `source_pkgs`.
+  "coverage[toml]>=5.3",
 ]
 docs = [
-    "furo",
-    "myst-parser",
-    "sphinx",
-    "zope.interface",
-    "sphinx-notfound-page",
-    "sphinxcontrib-towncrier",
-    "towncrier",
+  "furo",
+  "myst-parser",
+  "sphinx",
+  "zope.interface",
+  "sphinx-notfound-page",
+  "sphinxcontrib-towncrier",
+  "towncrier",
 ]
 dev = ["attrs[tests]", "pre-commit"]
 
@@ -129,12 +130,12 @@ source = ["src", ".tox/py*/**/site-packages"]
 show_missing = true
 skip_covered = true
 exclude_lines = [
-    "pragma: no cover",
-    # PyPy is unacceptably slow under coverage.
-    "if PYPY:",
-    # not meant to be executed
-    ': \.\.\.$',
-    '^ +\.\.\.$',
+  "pragma: no cover",
+  # PyPy is unacceptably slow under coverage.
+  "if PYPY:",
+  # not meant to be executed
+  ': \.\.\.$',
+  '^ +\.\.\.$',
 ]
 
 
