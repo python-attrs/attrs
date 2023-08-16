@@ -587,7 +587,7 @@ class TestAnnotations:
         @attr.s(slots=slots, auto_attribs=True)
         class A:
             a: "A"
-            b: typing.Optional["A"]  # : will resolve below
+            b: typing.Optional["A"]  # noqa : will resolve below
 
         attr.resolve_types(A, globals(), locals())
 
@@ -601,7 +601,7 @@ class TestAnnotations:
 
         @attr.s(slots=slots, auto_attribs=True)
         class A:
-            a: typing.List["B"]  # : will resolve below
+            a: typing.List["B"]  # noqa : will resolve below
 
         @attr.s(slots=slots, auto_attribs=True)
         class B:
