@@ -498,7 +498,7 @@ If you're the author of a third-party library with *attrs* integration, please s
 
 ## Types
 
-*attrs* also allows you to associate a type with an attribute using either the *type* argument to using {pep}`526`-annotations or {func}`attrs.ib` and {func}`attrs.field`:
+*attrs* also allows you to associate a type with an attribute using either the *type* argument to using {pep}`526`-annotations or {func}`attrs.field`/{func}`attr.ib`:
 
 ```{doctest}
 >>> @define
