@@ -218,9 +218,7 @@ ignore = [
   "PT005", # we always add underscores and explicit names
 ]
 
-# "src/attr/*.pyi" = ["PYI017"] # aliases
-# "src/attr/_typing_compat.pyi" = ["PYI052", "PYI002"] # let us use `MYPY`
-"src/*/*.pyi" = ["ALL"] # aliases
+"src/*/*.pyi" = ["ALL"] # TODO
 "tests/test_annotations.py" = ["FA100"]
 "tests/typing_example.py" = [
   "E741",   # ambiguous variable names don't matter in type checks
