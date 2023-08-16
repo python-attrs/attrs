@@ -667,7 +667,7 @@ True
 <class 'int'>
 ```
 
-You can still have power over the attributes if you pass a dictionary of name: {func}`~attrs.field` mappings and can pass arguments to `@attrs.define`:
+You can still have power over the attributes if you pass a dictionary of name: {func}`~attrs.field` mappings and can pass the same arguments as you can to `@attrs.define`:
 
 ```{doctest}
 >>> C = make_class("C", {"x": field(default=42),
