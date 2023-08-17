@@ -52,7 +52,7 @@ cov = [
 docs = [
   "furo",
   "myst-parser",
-  "sphinx",
+  "sphinx<7.2",
   "zope.interface",
   "sphinx-notfound-page",
   "sphinxcontrib-towncrier",
