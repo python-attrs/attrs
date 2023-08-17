@@ -55,10 +55,6 @@ If you're using tools that understand `.python-version` files like [*pyenv*](htt
 
 ---
 
-For our [Pyright](https://github.com/microsoft/pyright) tests, you also need working [Node.js](https://nodejs.org/) and [*npm*](https://www.npmjs.com) installations.
-
----
-
 Then, [fork](https://github.com/python-attrs/attrs/fork) the repository on GitHub.
 
 Clone the fork to your computer:
