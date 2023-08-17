@@ -20,3 +20,4 @@ attrs.docset
 attrs.tgz
 Justfile
 t.py
+node_modules
