@@ -498,7 +498,7 @@ If you're the author of a third-party library with *attrs* integration, please s
 
 ## Types
 
-*attrs* also allows you to associate a type with an attribute using either the *type* argument to {func}`attr.ib` and {func}`attr.field` or using {pep}`526`-annotations:
+*attrs* also allows you to associate a type with an attribute using either the *type* argument to using {pep}`526`-annotations or {func}`attrs.field`/{func}`attr.ib`:
 
 ```{doctest}
 >>> @define
@@ -588,6 +588,11 @@ However it's useful for writing your own validators or serialization frameworks.
 Defining `__slots__` by hand is tedious, in *attrs* it's just a matter of using {func}`attrs.define` or passing `slots=True` to {func}`attr.s`:
 
 ```{doctest}
+>>> @define
+... class Coordinates:
+...     x: int
+...     y: int
+
 >>> import attr
 
 >>> @attr.s(slots=True)
@@ -662,7 +667,7 @@ True
 <class 'int'>
 ```
 
-You can still have power over the attributes if you pass a dictionary of name: {func}`~attrs.field` mappings and can pass arguments to `@attr.s`:
+You can still have power over the attributes if you pass a dictionary of name: {func}`~attrs.field` mappings and can pass the same arguments as you can to `@attrs.define`:
 
 ```{doctest}
 >>> C = make_class("C", {"x": field(default=42),
