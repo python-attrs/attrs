@@ -46,20 +46,26 @@ jobs:
           allow-prereleases: true
           cache: pip
 
-      - name: Prepare tox & run tests
+      - name: Prepare tox
         run: |
           V=${{ matrix.python-version }}
 
           if [[ "$V" = pypy-* ]]; then
             V=pypy3
+            IS_PYPY=1
           else
             V=py$(echo $V | tr -d .)
+            IS_PYPY=0
           fi
 
+          echo IS_PYPY=$IS_PYPY >>$GITHUB_ENV
+          echo TOX_PYTHON=$V >>$GITHUB_ENV
+
           python -Im pip install tox
-          python -Im tox run -f $V
-      - run: python -Im tox run -e mypy
-        if: ${{ !startsWith(matrix.python-version, 'pypy-') }}
+
+      - run: python -Im tox run -e ${{ env.TOX_PYTHON }}-tests
+      - run: python -Im tox run -e ${{ env.TOX_PYTHON }}-mypy
+        if: env.IS_PYPY == '0'
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v3
@@ -116,10 +122,8 @@ jobs:
           python-version: "3.11"
           cache: pip
 
-      - name: Prepare & run tox
-        run: |
-          python -Im pip install tox
-          python -Im tox run -e docs,changelog
+      - run: python -Im pip install tox
+      - run: python -Im tox run -e docs,changelog
 
   pyright:
     name: Check types using pyright
@@ -131,10 +135,8 @@ jobs:
           python-version-file: .python-version-default
           cache: pip
 
-      - name: Prepare & run tox
-        run: |
-          python -Im pip install tox
-          python -Im tox run -e pyright
+      - run: python -Im pip install tox
+      - run: python -Im tox run -e pyright
 
   install-dev:
     name: Verify dev env
