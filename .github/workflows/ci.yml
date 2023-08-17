@@ -164,9 +164,7 @@ jobs:
       - coverage
       - docs
       - install-dev
-      # Pyright is currently flaky
-      # XXX: https://github.com/ekalinin/nodeenv/issues/324
-      # - pyright
+      - pyright
 
     runs-on: ubuntu-latest
 
