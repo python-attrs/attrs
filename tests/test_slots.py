@@ -23,7 +23,7 @@ try:
     from pympler.asizeof import asizeof
 
     has_pympler = True
-except BaseException:  # Won't be an import error.
+except BaseException:  # Won't be an import error.  # noqa: BLE001
     has_pympler = False
 
 
@@ -628,7 +628,7 @@ def test_slots_empty_cell():
         field = attr.ib()
 
         def f(self, a):
-            super(C, self).__init__()
+            super(C, self).__init__()  # noqa: UP008
 
     C(field=1)
 
@@ -716,7 +716,7 @@ def test_slots_super_property_get():
     class C(A):
         @property
         def f(self):
-            return super(C, self).f ** 2
+            return super(C, self).f ** 2  # noqa: UP008
 
     assert B(11).f == 121
     assert B(17).f == 289

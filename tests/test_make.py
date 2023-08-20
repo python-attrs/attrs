@@ -298,7 +298,7 @@ class TestTransformAttrs:
         b = attr.ib(default=2)
         a = attr.ib(default=1)
 
-        @attr.s(these=dict([("a", a), ("b", b)]))
+        @attr.s(these={"a": a, "b": b})
         class C:
             pass
 
@@ -518,7 +518,7 @@ class TestAttributes:
             assert meth is None
 
     @pytest.mark.parametrize(
-        "arg_name, method_name",
+        ("arg_name", "method_name"),
         [
             ("repr", "__repr__"),
             ("eq", "__eq__"),
@@ -1069,7 +1069,7 @@ class TestMakeClass:
         b = attr.ib(default=2)
         a = attr.ib(default=1)
 
-        C = attr.make_class("C", dict([("a", a), ("b", b)]))
+        C = attr.make_class("C", {"a": a, "b": b})
 
         assert "C(a=1, b=2)" == repr(C())
 
@@ -1200,7 +1200,7 @@ class TestFieldsDict:
 
         assert isinstance(d, dict)
         assert list(fields(C)) == list(d.values())
-        assert [a.name for a in fields(C)] == [field_name for field_name in d]
+        assert [a.name for a in fields(C)] == list(d)
 
 
 class TestConverter:
@@ -1246,19 +1246,14 @@ class TestConverter:
         """
         C = make_class(
             "C",
-            dict(
-                [
-                    ("y", attr.ib()),
-                    (
-                        "x",
-                        attr.ib(
-                            init=init,
-                            default=Factory(lambda: val),
-                            converter=lambda v: v + 1,
-                        ),
-                    ),
-                ]
-            ),
+            {
+                "y": attr.ib(),
+                "x": attr.ib(
+                    init=init,
+                    default=Factory(lambda: val),
+                    converter=lambda v: v + 1,
+                ),
+            },
         )
         c = C(2)
 
@@ -2056,7 +2051,7 @@ class BareSlottedC:
 
 
 class TestAutoDetect:
-    @pytest.mark.parametrize("C", (BareC, BareSlottedC))
+    @pytest.mark.parametrize("C", [BareC, BareSlottedC])
     def test_determine_detects_non_presence_correctly(self, C):
         """
         On an empty class, nothing should be detected.
@@ -2287,7 +2282,7 @@ class TestAutoDetect:
         assert C(1) == C(1)
 
     @pytest.mark.parametrize(
-        "eq,order,cmp",
+        ("eq", "order", "cmp"),
         [
             (True, None, None),
             (True, True, None),

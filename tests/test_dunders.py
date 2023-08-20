@@ -649,7 +649,7 @@ class TestAddHash:
         Test that the default hash is recalculated after a copy operation.
         """
 
-        kwargs = dict(frozen=frozen, slots=slots, cache_hash=cache_hash)
+        kwargs = {"frozen": frozen, "slots": slots, "cache_hash": cache_hash}
 
         # Give it an explicit hash if we don't have an implicit one
         if not frozen:
@@ -671,7 +671,7 @@ class TestAddHash:
         assert orig_hash != hash(b)
 
     @pytest.mark.parametrize(
-        "klass,cached",
+        ("klass", "cached"),
         [
             (HashCacheSerializationTestUncached, False),
             (HashCacheSerializationTestCached, True),

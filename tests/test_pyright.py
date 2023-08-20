@@ -27,7 +27,7 @@ class PyrightDiagnostic:
 
 
 def parse_pyright_output(test_file: Path) -> set[PyrightDiagnostic]:
-    pyright = subprocess.run(
+    pyright = subprocess.run(  # noqa: PLW1510
         ["pyright", "--outputjson", str(test_file)], capture_output=True
     )
 

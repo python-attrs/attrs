@@ -16,7 +16,7 @@ else:
 
 @pytest.fixture(name="mod", params=(attr, attrs))
 def _mod(request):
-    yield request.param
+    return request.param
 
 
 class TestLegacyMetadataHack:

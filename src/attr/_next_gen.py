@@ -131,10 +131,8 @@ def define(
         for base_cls in cls.__bases__:
             if base_cls.__setattr__ is _frozen_setattrs:
                 if had_on_setattr:
-                    raise ValueError(
-                        "Frozen classes can't use on_setattr "
-                        "(frozen-ness was inherited)."
-                    )
+                    msg = "Frozen classes can't use on_setattr (frozen-ness was inherited)."
+                    raise ValueError(msg)
 
                 on_setattr = setters.NO_OP
                 break
@@ -151,8 +149,8 @@ def define(
     # if it's used as `@attrs` but ``None`` if used as `@attrs()`.
     if maybe_cls is None:
         return wrap
-    else:
-        return wrap(maybe_cls)
+
+    return wrap(maybe_cls)
 
 
 mutable = define

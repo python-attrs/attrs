@@ -41,7 +41,7 @@ class TestInclude:
     """
 
     @pytest.mark.parametrize(
-        "incl,value",
+        ("incl", "value"),
         [
             ((int,), 42),
             ((str,), "hello"),
@@ -61,7 +61,7 @@ class TestInclude:
         assert i(fields(C).a, value) is True
 
     @pytest.mark.parametrize(
-        "incl,value",
+        ("incl", "value"),
         [
             ((str,), 42),
             ((int,), "hello"),
@@ -87,7 +87,7 @@ class TestExclude:
     """
 
     @pytest.mark.parametrize(
-        "excl,value",
+        ("excl", "value"),
         [
             ((str,), 42),
             ((int,), "hello"),
@@ -107,7 +107,7 @@ class TestExclude:
         assert e(fields(C).a, value) is True
 
     @pytest.mark.parametrize(
-        "excl,value",
+        ("excl", "value"),
         [
             ((int,), 42),
             ((str,), "hello"),

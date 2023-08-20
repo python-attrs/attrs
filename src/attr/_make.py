@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 
+import contextlib
 import copy
 import enum
 import linecache
@@ -87,7 +88,7 @@ class _CacheHashWrapper(int):
     See GH #613 for more details.
     """
 
-    def __reduce__(self, _none_constructor=type(None), _args=()):
+    def __reduce__(self, _none_constructor=type(None), _args=()):  # noqa: B008
         return _none_constructor, _args
 
 
@@ -248,18 +249,18 @@ def attrib(
     )
 
     if hash is not None and hash is not True and hash is not False:
-        raise TypeError(
-            "Invalid value for hash.  Must be True, False, or None."
-        )
+        msg = "Invalid value for hash.  Must be True, False, or None."
+        raise TypeError(msg)
 
     if factory is not None:
         if default is not NOTHING:
-            raise ValueError(
-                "The `default` and `factory` arguments are mutually "
-                "exclusive."
+            msg = (
+                "The `default` and `factory` arguments are mutually exclusive."
             )
+            raise ValueError(msg)
         if not callable(factory):
-            raise ValueError("The `factory` argument must be a callable.")
+            msg = "The `factory` argument must be a callable."
+            raise ValueError(msg)
         default = Factory(factory)
 
     if metadata is None:
@@ -323,9 +324,9 @@ def _make_method(name, script, filename, globs):
         old_val = linecache.cache.setdefault(filename, linecache_tuple)
         if old_val == linecache_tuple:
             break
-        else:
-            filename = f"{base_filename[:-1]}-{count}>"
-            count += 1
+
+        filename = f"{base_filename[:-1]}-{count}>"
+        count += 1
 
     _compile_and_eval(script, globs, locs, filename)
 
@@ -430,7 +431,7 @@ def _collect_base_attrs(cls, taken_attr_names):
             if a.inherited or a.name in taken_attr_names:
                 continue
 
-            a = a.evolve(inherited=True)
+            a = a.evolve(inherited=True)  # noqa: PLW2901
             base_attrs.append(a)
             base_attr_map[a.name] = base_cls
 
@@ -468,7 +469,7 @@ def _collect_base_attrs_broken(cls, taken_attr_names):
             if a.name in taken_attr_names:
                 continue
 
-            a = a.evolve(inherited=True)
+            a = a.evolve(inherited=True)  # noqa: PLW2901
             taken_attr_names.add(a.name)
             base_attrs.append(a)
             base_attr_map[a.name] = base_cls
@@ -509,10 +510,7 @@ def _transform_attrs(
             a = cd.get(attr_name, NOTHING)
 
             if not isinstance(a, _CountingAttr):
-                if a is NOTHING:
-                    a = attrib()
-                else:
-                    a = attrib(default=a)
+                a = attrib() if a is NOTHING else attrib(default=a)
             ca_list.append((attr_name, a))
 
         unannotated = ca_names - annot_names
@@ -563,10 +561,8 @@ def _transform_attrs(
     had_default = False
     for a in (a for a in attrs if a.init is not False and a.kw_only is False):
         if had_default is True and a.default is NOTHING:
-            raise ValueError(
-                "No mandatory attributes allowed after an attribute with a "
-                f"default value or factory.  Attribute in question: {a!r}"
-            )
+            msg = f"No mandatory attributes allowed after an attribute with a default value or factory.  Attribute in question: {a!r}"
+            raise ValueError(msg)
 
         if had_default is False and a.default is not NOTHING:
             had_default = True
@@ -768,13 +764,11 @@ class _ClassBuilder:
                     name not in base_names
                     and getattr(cls, name, _sentinel) is not _sentinel
                 ):
-                    try:
+                    # An AttributeError can happen if a base class defines a
+                    # class variable and we want to set an attribute with the
+                    # same name by using only a type annotation.
+                    with contextlib.suppress(AttributeError):
                         delattr(cls, name)
-                    except AttributeError:
-                        # This can happen if a base class defines a class
-                        # variable and we want to set an attribute with the
-                        # same name by using only a type annotation.
-                        pass
 
         # Attach our dunder methods.
         for name, value in self._cls_dict.items():
@@ -799,7 +793,7 @@ class _ClassBuilder:
         cd = {
             k: v
             for k, v in self._cls_dict.items()
-            if k not in tuple(self._attr_names) + ("__dict__", "__weakref__")
+            if k not in (*tuple(self._attr_names), "__dict__", "__weakref__")
         }
 
         # If our class doesn't have its own implementation of __setattr__
@@ -821,7 +815,7 @@ class _ClassBuilder:
 
         # Traverse the MRO to collect existing slots
         # and check for an existing __weakref__.
-        existing_slots = dict()
+        existing_slots = {}
         weakref_inherited = False
         for base_cls in self._cls.__mro__[1:-1]:
             if base_cls.__dict__.get("__weakref__", None) is not None:
@@ -890,7 +884,8 @@ class _ClassBuilder:
             for cell in closure_cells:
                 try:
                     match = cell.cell_contents is self._cls
-                except ValueError:  # ValueError: Cell is empty
+                except ValueError:  # noqa: PERF203
+                    # ValueError: Cell is empty
                     pass
                 else:
                     if match:
@@ -907,9 +902,8 @@ class _ClassBuilder:
     def add_str(self):
         repr = self._cls_dict.get("__repr__")
         if repr is None:
-            raise ValueError(
-                "__str__ can only be generated if a __repr__ exists."
-            )
+            msg = "__str__ can only be generated if a __repr__ exists."
+            raise ValueError(msg)
 
         def __str__(self):
             return self.__repr__()
@@ -1054,9 +1048,8 @@ class _ClassBuilder:
 
         if self._has_custom_setattr:
             # We need to write a __setattr__ but there already is one!
-            raise ValueError(
-                "Can't combine custom __setattr__ with on_setattr hooks."
-            )
+            msg = "Can't combine custom __setattr__ with on_setattr hooks."
+            raise ValueError(msg)
 
         # docstring comes from _add_method_dunders
         def __setattr__(self, name, val):
@@ -1079,25 +1072,17 @@ class _ClassBuilder:
         """
         Add __module__ and __qualname__ to a *method* if possible.
         """
-        try:
+        with contextlib.suppress(AttributeError):
             method.__module__ = self._cls.__module__
-        except AttributeError:
-            pass
 
-        try:
-            method.__qualname__ = ".".join(
-                (self._cls.__qualname__, method.__name__)
-            )
-        except AttributeError:
-            pass
+        with contextlib.suppress(AttributeError):
+            method.__qualname__ = f"{self._cls.__qualname__}.{method.__name__}"
 
-        try:
+        with contextlib.suppress(AttributeError):
             method.__doc__ = (
                 "Method generated by attrs for class "
                 f"{self._cls.__qualname__}."
             )
-        except AttributeError:
-            pass
 
         return method
 
@@ -1108,7 +1093,8 @@ def _determine_attrs_eq_order(cmp, eq, order, default_eq):
     values of eq and order.  If *eq* is None, set it to *default_eq*.
     """
     if cmp is not None and any((eq is not None, order is not None)):
-        raise ValueError("Don't mix `cmp` with `eq' and `order`.")
+        msg = "Don't mix `cmp` with `eq' and `order`."
+        raise ValueError(msg)
 
     # cmp takes precedence due to bw-compatibility.
     if cmp is not None:
@@ -1123,7 +1109,8 @@ def _determine_attrs_eq_order(cmp, eq, order, default_eq):
         order = eq
 
     if eq is False and order is True:
-        raise ValueError("`order` can only be True if `eq` is True too.")
+        msg = "`order` can only be True if `eq` is True too."
+        raise ValueError(msg)
 
     return eq, order
 
@@ -1134,7 +1121,8 @@ def _determine_attrib_eq_order(cmp, eq, order, default_eq):
     values of eq and order.  If *eq* is None, set it to *default_eq*.
     """
     if cmp is not None and any((eq is not None, order is not None)):
-        raise ValueError("Don't mix `cmp` with `eq' and `order`.")
+        msg = "Don't mix `cmp` with `eq' and `order`."
+        raise ValueError(msg)
 
     def decide_callable_or_boolean(value):
         """
@@ -1164,7 +1152,8 @@ def _determine_attrib_eq_order(cmp, eq, order, default_eq):
         order, order_key = decide_callable_or_boolean(order)
 
     if eq is False and order is True:
-        raise ValueError("`order` can only be True if `eq` is True too.")
+        msg = "`order` can only be True if `eq` is True too."
+        raise ValueError(msg)
 
     return eq, eq_key, order, order_key
 
@@ -1494,7 +1483,8 @@ def attrs(
         )
 
         if has_own_setattr and is_frozen:
-            raise ValueError("Can't freeze a class with a custom __setattr__.")
+            msg = "Can't freeze a class with a custom __setattr__."
+            raise ValueError(msg)
 
         builder = _ClassBuilder(
             cls,
@@ -1547,18 +1537,15 @@ def attrs(
 
         if hash is not True and hash is not False and hash is not None:
             # Can't use `hash in` because 1 == True for example.
-            raise TypeError(
-                "Invalid value for hash.  Must be True, False, or None."
-            )
-        elif hash is False or (hash is None and eq is False) or is_exc:
+            msg = "Invalid value for hash.  Must be True, False, or None."
+            raise TypeError(msg)
+
+        if hash is False or (hash is None and eq is False) or is_exc:
             # Don't do anything. Should fall back to __object__'s __hash__
             # which is by id.
             if cache_hash:
-                raise TypeError(
-                    "Invalid value for cache_hash.  To use hash caching,"
-                    " hashing must be either explicitly or implicitly "
-                    "enabled."
-                )
+                msg = "Invalid value for cache_hash.  To use hash caching, hashing must be either explicitly or implicitly enabled."
+                raise TypeError(msg)
         elif hash is True or (
             hash is None and eq is True and is_frozen is True
         ):
@@ -1567,11 +1554,8 @@ def attrs(
         else:
             # Raise TypeError on attempts to hash.
             if cache_hash:
-                raise TypeError(
-                    "Invalid value for cache_hash.  To use hash caching,"
-                    " hashing must be either explicitly or implicitly "
-                    "enabled."
-                )
+                msg = "Invalid value for cache_hash.  To use hash caching, hashing must be either explicitly or implicitly enabled."
+                raise TypeError(msg)
             builder.make_unhashable()
 
         if _determine_whether_to_implement(
@@ -1581,10 +1565,8 @@ def attrs(
         else:
             builder.add_attrs_init()
             if cache_hash:
-                raise TypeError(
-                    "Invalid value for cache_hash.  To use hash caching,"
-                    " init must be True."
-                )
+                msg = "Invalid value for cache_hash.  To use hash caching, init must be True."
+                raise TypeError(msg)
 
         if (
             PY310
@@ -1599,8 +1581,8 @@ def attrs(
     # if it's used as `@attrs` but ``None`` if used as `@attrs()`.
     if maybe_cls is None:
         return wrap
-    else:
-        return wrap(maybe_cls)
+
+    return wrap(maybe_cls)
 
 
 _attrs = attrs
@@ -1648,10 +1630,7 @@ def _make_hash(cls, attrs, frozen, cache_hash):
     else:
         hash_def += ", *"
 
-        hash_def += (
-            ", _cache_wrapper="
-            + "__import__('attr._make')._make._CacheHashWrapper):"
-        )
+        hash_def += ", _cache_wrapper=__import__('attr._make')._make._CacheHashWrapper):"
         hash_func = "_cache_wrapper(" + hash_func
         closing_braces += ")"
 
@@ -1760,7 +1739,7 @@ def _make_eq(cls, attrs):
                 lines.append(f"        self.{a.name},")
                 others.append(f"        other.{a.name},")
 
-        lines += others + ["    )"]
+        lines += [*others, "    )"]
     else:
         lines.append("    return True")
 
@@ -1928,7 +1907,8 @@ def fields(cls):
     generic_base = get_generic_base(cls)
 
     if generic_base is None and not isinstance(cls, type):
-        raise TypeError("Passed object must be a class.")
+        msg = "Passed object must be a class."
+        raise TypeError(msg)
 
     attrs = getattr(cls, "__attrs_attrs__", None)
 
@@ -1941,7 +1921,8 @@ def fields(cls):
                 # efficient.
                 cls.__attrs_attrs__ = attrs
                 return attrs
-        raise NotAnAttrsClassError(f"{cls!r} is not an attrs-decorated class.")
+        msg = f"{cls!r} is not an attrs-decorated class."
+        raise NotAnAttrsClassError(msg)
 
     return attrs
 
@@ -1962,10 +1943,12 @@ def fields_dict(cls):
     .. versionadded:: 18.1.0
     """
     if not isinstance(cls, type):
-        raise TypeError("Passed object must be a class.")
+        msg = "Passed object must be a class."
+        raise TypeError(msg)
     attrs = getattr(cls, "__attrs_attrs__", None)
     if attrs is None:
-        raise NotAnAttrsClassError(f"{cls!r} is not an attrs-decorated class.")
+        msg = f"{cls!r} is not an attrs-decorated class."
+        raise NotAnAttrsClassError(msg)
     return {a.name: a for a in attrs}
 
 
@@ -2015,7 +1998,8 @@ def _make_init(
     )
 
     if frozen and has_cls_on_setattr:
-        raise ValueError("Frozen classes can't use on_setattr.")
+        msg = "Frozen classes can't use on_setattr."
+        raise ValueError(msg)
 
     needs_cached_setattr = cache_hash or frozen
     filtered_attrs = []
@@ -2029,7 +2013,8 @@ def _make_init(
 
         if a.on_setattr is not None:
             if frozen is True:
-                raise ValueError("Frozen classes can't use on_setattr.")
+                msg = "Frozen classes can't use on_setattr."
+                raise ValueError(msg)
 
             needs_cached_setattr = True
         elif has_cls_on_setattr and a.on_setattr is not setters.NO_OP:
@@ -2208,10 +2193,7 @@ def _attrs_to_init_script(
         arg_name = a.alias
 
         has_factory = isinstance(a.default, Factory)
-        if has_factory and a.default.takes_self:
-            maybe_self = "self"
-        else:
-            maybe_self = ""
+        maybe_self = "self" if has_factory and a.default.takes_self else ""
 
         if a.init is False:
             if has_factory:
@@ -2235,25 +2217,24 @@ def _attrs_to_init_script(
                         )
                     )
                 names_for_globals[init_factory_name] = a.default.factory
+            elif a.converter is not None:
+                lines.append(
+                    fmt_setter_with_converter(
+                        attr_name,
+                        f"attr_dict['{attr_name}'].default",
+                        has_on_setattr,
+                    )
+                )
+                conv_name = _init_converter_pat % (a.name,)
+                names_for_globals[conv_name] = a.converter
             else:
-                if a.converter is not None:
-                    lines.append(
-                        fmt_setter_with_converter(
-                            attr_name,
-                            f"attr_dict['{attr_name}'].default",
-                            has_on_setattr,
-                        )
+                lines.append(
+                    fmt_setter(
+                        attr_name,
+                        f"attr_dict['{attr_name}'].default",
+                        has_on_setattr,
                     )
-                    conv_name = _init_converter_pat % (a.name,)
-                    names_for_globals[conv_name] = a.converter
-                else:
-                    lines.append(
-                        fmt_setter(
-                            attr_name,
-                            f"attr_dict['{attr_name}'].default",
-                            has_on_setattr,
-                        )
-                    )
+                )
         elif a.default is not NOTHING and not has_factory:
             arg = f"{arg_name}=attr_dict['{attr_name}'].default"
             if a.kw_only:
@@ -2362,7 +2343,7 @@ def _attrs_to_init_script(
     # hash code would result in silent bugs.
     if cache_hash:
         if frozen:
-            if slots:
+            if slots:  # noqa: SIM108
                 # if frozen and slots, then _setattr defined above
                 init_hash_cache = "_setattr('%s', %s)"
             else:
@@ -2537,9 +2518,8 @@ class Attribute:
         if type is None:
             type = ca.type
         elif ca.type is not None:
-            raise ValueError(
-                "Type annotation and type argument cannot both be present"
-            )
+            msg = "Type annotation and type argument cannot both be present"
+            raise ValueError(msg)
         inst_dict = {
             k: getattr(ca, k)
             for k in Attribute.__slots__
@@ -2663,36 +2643,37 @@ class _CountingAttr:
         "on_setattr",
         "alias",
     )
-    __attrs_attrs__ = tuple(
-        Attribute(
-            name=name,
-            alias=_default_init_alias_for(name),
-            default=NOTHING,
-            validator=None,
-            repr=True,
-            cmp=None,
-            hash=True,
-            init=True,
-            kw_only=False,
-            eq=True,
-            eq_key=None,
-            order=False,
-            order_key=None,
-            inherited=False,
-            on_setattr=None,
-        )
-        for name in (
-            "counter",
-            "_default",
-            "repr",
-            "eq",
-            "order",
-            "hash",
-            "init",
-            "on_setattr",
-            "alias",
-        )
-    ) + (
+    __attrs_attrs__ = (
+        *tuple(
+            Attribute(
+                name=name,
+                alias=_default_init_alias_for(name),
+                default=NOTHING,
+                validator=None,
+                repr=True,
+                cmp=None,
+                hash=True,
+                init=True,
+                kw_only=False,
+                eq=True,
+                eq_key=None,
+                order=False,
+                order_key=None,
+                inherited=False,
+                on_setattr=None,
+            )
+            for name in (
+                "counter",
+                "_default",
+                "repr",
+                "eq",
+                "order",
+                "hash",
+                "init",
+                "on_setattr",
+                "alias",
+            )
+        ),
         Attribute(
             name="metadata",
             alias="metadata",
@@ -2868,7 +2849,8 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
     elif isinstance(attrs, (list, tuple)):
         cls_dict = {a: attrib() for a in attrs}
     else:
-        raise TypeError("attrs argument must be a dict or a list.")
+        msg = "attrs argument must be a dict or a list."
+        raise TypeError(msg)
 
     pre_init = cls_dict.pop("__attrs_pre_init__", None)
     post_init = cls_dict.pop("__attrs_post_init__", None)
@@ -2888,12 +2870,10 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
     # frame where the class is created.  Bypass this step in environments where
     # sys._getframe is not defined (Jython for example) or sys._getframe is not
     # defined for arguments greater than 0 (IronPython).
-    try:
+    with contextlib.suppress(AttributeError, ValueError):
         type_.__module__ = sys._getframe(1).f_globals.get(
             "__name__", "__main__"
         )
-    except (AttributeError, ValueError):
-        pass
 
     # We do it here for proper warnings with meaningful stacklevel.
     cmp = attributes_arguments.pop("cmp", None)
