@@ -166,13 +166,10 @@ ignore = [
   "COM",     # Black takes care of our commas
   "D",       # We prefer our own docstring style.
   "E501",    # leave line-length enforcement to Black
-  "FBT",     # we have one function that takes one bool; c'mon!
+  "FBT",     # we don't hate bool args around here
   "FIX",     # Yes, we want XXX as a marker.
-  "INP001",  # sometimes we want Python files outside of packages
   "PLR0913", # yes, many arguments, but most have defaults
   "PLR2004", # numbers are sometimes fine
-  "PYI034",  # We're not adding typing_extensions just for Self.
-  "RUF001",  # leave my smart characters alone
   "SLF001",  # private members are accessed by friendly functions
   "TCH",     # TYPE_CHECKING blocks break autodocs
   "TD",      # we don't follow other people's todo style
