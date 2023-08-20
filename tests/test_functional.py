@@ -313,10 +313,7 @@ class TestFunctional:
         """
         Pickle object serialization works on all kinds of attrs classes.
         """
-        if len(attr.fields(cls)) == 2:
-            obj = cls(123, 456)
-        else:
-            obj = cls(123)
+        obj = cls(123, 456) if len(attr.fields(cls)) == 2 else cls(123)
 
         assert repr(obj) == repr(pickle.loads(pickle.dumps(obj, protocol)))
 

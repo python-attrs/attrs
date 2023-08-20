@@ -49,7 +49,7 @@ class TestNextGen:
 
         ns = NoSlots(1)
 
-        assert {"x": 1} == getattr(ns, "__dict__")
+        assert {"x": 1} == ns.__dict__
 
     def test_validates(self):
         """
