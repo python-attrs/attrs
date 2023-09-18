@@ -358,6 +358,7 @@ For that purpose, *attrs* offers the following options:
 
 - `__attrs_pre_init__` is automatically detected and run *before* *attrs* starts initializing.
   This is useful if you need to inject a call to `super().__init__()`.
+  `__attrs_pre_init__` also supports being passed the same arguments as `__init__`.
 
 - `__attrs_post_init__` is automatically detected and run *after* *attrs* is done initializing your instance.
   This is useful if you want to derive some attribute from others or perform some kind of validation over the whole instance.

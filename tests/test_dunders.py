@@ -6,6 +6,7 @@ Tests for dunder methods from `attrib._make`.
 
 
 import copy
+import inspect
 import pickle
 
 import pytest
@@ -84,10 +85,15 @@ def _add_init(cls, frozen):
     This function used to be part of _make.  It wasn't used anymore however
     the tests for it are still useful to test the behavior of _make_init.
     """
+    has_pre_init = bool(getattr(cls, "__attrs_pre_init__", False))
+
     cls.__init__ = _make_init(
         cls,
         cls.__attrs_attrs__,
-        getattr(cls, "__attrs_pre_init__", False),
+        has_pre_init,
+        len(inspect.signature(cls.__attrs_pre_init__).parameters) > 1
+        if has_pre_init
+        else False,
         getattr(cls, "__attrs_post_init__", False),
         frozen,
         _is_slot_cls(cls),
