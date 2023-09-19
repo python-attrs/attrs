@@ -59,7 +59,7 @@ def define(
       .. caution::
 
          Usually this has only upsides and few visible effects in everyday
-         programming. But it *can* lead to some suprising behaviors, so please
+         programming. But it *can* lead to some surprising behaviors, so please
          make sure to read :term:`slotted classes`.
     - *auto_exc=True*
     - *auto_detect=True*
