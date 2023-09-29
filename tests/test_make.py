@@ -613,27 +613,29 @@ class TestAttributes:
         assert C.D.__qualname__ == C.__qualname__ + ".D"
 
     @pytest.mark.parametrize("with_validation", [True, False])
-    def test_pre_init(self, with_validation, monkeypatch):
+    def test_pre_init(self, with_validation):
         """
         Verify that __attrs_pre_init__ gets called if defined.
         """
-        monkeypatch.setattr(_config, "_run_validators", with_validation)
 
         @attr.s
         class C:
             def __attrs_pre_init__(self2):
                 self2.z = 30
 
-        c = C()
+        try:
+            attr.validators.set_disabled(not with_validation)
+            c = C()
+        finally:
+            attr.validators.set_disabled(False)
 
         assert 30 == getattr(c, "z", None)
 
     @pytest.mark.parametrize("with_validation", [True, False])
-    def test_pre_init_args(self, with_validation, monkeypatch):
+    def test_pre_init_args(self, with_validation):
         """
         Verify that __attrs_pre_init__ gets called with extra args if defined.
         """
-        monkeypatch.setattr(_config, "_run_validators", with_validation)
 
         @attr.s
         class C:
@@ -642,16 +644,19 @@ class TestAttributes:
             def __attrs_pre_init__(self2, x):
                 self2.z = x + 1
 
-        c = C(x=10)
+        try:
+            attr.validators.set_disabled(not with_validation)
+            c = C(x=10)
+        finally:
+            attr.validators.set_disabled(False)
 
         assert 11 == getattr(c, "z", None)
 
     @pytest.mark.parametrize("with_validation", [True, False])
-    def test_pre_init_kwargs(self, with_validation, monkeypatch):
+    def test_pre_init_kwargs(self, with_validation):
         """
         Verify that __attrs_pre_init__ gets called with extra args and kwargs if defined.
         """
-        monkeypatch.setattr(_config, "_run_validators", with_validation)
 
         @attr.s
         class C:
@@ -661,7 +666,11 @@ class TestAttributes:
             def __attrs_pre_init__(self2, x, y):
                 self2.z = x + y + 1
 
-        c = C(10, y=11)
+        try:
+            attr.validators.set_disabled(not with_validation)
+            c = C(10, y=11)
+        finally:
+            attr.validators.set_disabled(False)
 
         assert 22 == getattr(c, "z", None)
 
