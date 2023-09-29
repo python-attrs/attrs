@@ -3,6 +3,7 @@
 import contextlib
 import copy
 import enum
+import inspect
 import linecache
 import sys
 import types
@@ -624,6 +625,7 @@ class _ClassBuilder:
         "_delete_attribs",
         "_frozen",
         "_has_pre_init",
+        "_pre_init_has_args",
         "_has_post_init",
         "_is_exc",
         "_on_setattr",
@@ -670,6 +672,13 @@ class _ClassBuilder:
         self._weakref_slot = weakref_slot
         self._cache_hash = cache_hash
         self._has_pre_init = bool(getattr(cls, "__attrs_pre_init__", False))
+        self._pre_init_has_args = False
+        if self._has_pre_init:
+            # Check if the pre init method has more arguments than just `self`
+            # We want to pass arguments if pre init expects arguments
+            pre_init_func = cls.__attrs_pre_init__
+            pre_init_signature = inspect.signature(pre_init_func)
+            self._pre_init_has_args = len(pre_init_signature.parameters) > 1
         self._has_post_init = bool(getattr(cls, "__attrs_post_init__", False))
         self._delete_attribs = not bool(these)
         self._is_exc = is_exc
@@ -974,6 +983,7 @@ class _ClassBuilder:
                 self._cls,
                 self._attrs,
                 self._has_pre_init,
+                self._pre_init_has_args,
                 self._has_post_init,
                 self._frozen,
                 self._slots,
@@ -1000,6 +1010,7 @@ class _ClassBuilder:
                 self._cls,
                 self._attrs,
                 self._has_pre_init,
+                self._pre_init_has_args,
                 self._has_post_init,
                 self._frozen,
                 self._slots,
@@ -1984,6 +1995,7 @@ def _make_init(
     cls,
     attrs,
     pre_init,
+    pre_init_has_args,
     post_init,
     frozen,
     slots,
@@ -2027,6 +2039,7 @@ def _make_init(
         frozen,
         slots,
         pre_init,
+        pre_init_has_args,
         post_init,
         cache_hash,
         base_attr_map,
@@ -2107,6 +2120,7 @@ def _attrs_to_init_script(
     frozen,
     slots,
     pre_init,
+    pre_init_has_args,
     post_init,
     cache_hash,
     base_attr_map,
@@ -2361,11 +2375,23 @@ def _attrs_to_init_script(
         lines.append(f"BaseException.__init__(self, {vals})")
 
     args = ", ".join(args)
+    pre_init_args = args
     if kw_only_args:
         args += "%s*, %s" % (
             ", " if args else "",  # leading comma
             ", ".join(kw_only_args),  # kw_only args
         )
+        pre_init_kw_only_args = ", ".join(
+            ["%s=%s" % (kw_arg, kw_arg) for kw_arg in kw_only_args]
+        )
+        pre_init_args += (
+            ", " if pre_init_args else ""
+        )  # handle only kwargs and no regular args
+        pre_init_args += pre_init_kw_only_args
+
+    if pre_init and pre_init_has_args:
+        # If pre init method has arguments, pass same arguments as `__init__`
+        lines[0] = "self.__attrs_pre_init__(%s)" % pre_init_args
 
     return (
         "def %s(self, %s):\n    %s\n"
