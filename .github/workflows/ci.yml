@@ -39,7 +39,7 @@ jobs:
           - "pypy-3.10"
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
@@ -80,7 +80,7 @@ jobs:
     needs: tests
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           python-version-file: .python-version-default
@@ -115,7 +115,7 @@ jobs:
     name: Build docs & run doctests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           # Keep in sync with tox/docs and .readthedocs.yaml.
@@ -129,7 +129,7 @@ jobs:
     name: Check types using pyright
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           python-version-file: .python-version-default
@@ -146,7 +146,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           python-version-file: .python-version-default
