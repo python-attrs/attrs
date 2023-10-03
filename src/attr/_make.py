@@ -495,7 +495,7 @@ def _transform_attrs(
     anns = _get_annotations(cls)
 
     if these is not None:
-        ca_list = [(name, ca) for name, ca in these.items()]
+        ca_list = list(these.items())
     elif auto_attribs is True:
         ca_names = {
             name
