@@ -52,8 +52,8 @@ def define(
 
     - Automatically detect whether or not *auto_attribs* should be `True` (c.f.
       *auto_attribs* parameter).
-    - If *frozen* is `False`, run converters and validators when setting an
-      attribute by default.
+    - Converters and validators run when attributes are set by default -- if
+      *frozen* is `False`.
     - *slots=True*
 
       .. caution::
