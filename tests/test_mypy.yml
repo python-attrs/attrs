@@ -1356,6 +1356,7 @@
     reveal_type(B)  # N: Revealed type is "def (foo: builtins.int) -> main.B"
 
 - case: testFields
+  regex: true
   main: |
     from attrs import define, fields
 
@@ -1364,7 +1365,7 @@
       a: int
       b: str
 
-    reveal_type(fields(A))  # N: Revealed type is "tuple[attr.Attribute[builtins.int], attr.Attribute[builtins.str], fallback=main.A.__main_A_AttrsAttributes__]"
+    reveal_type(fields(A))  # N: Revealed type is "[Tt]uple\[attr.Attribute\[builtins.int\], attr.Attribute\[builtins.str\], fallback=main.A.__main_A_AttrsAttributes__\]"
 
 - case: testFieldsError
   regex: true
