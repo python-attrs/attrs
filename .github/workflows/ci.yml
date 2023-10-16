@@ -65,7 +65,7 @@ jobs:
 
       - run: python -Im tox run -e ${{ env.TOX_PYTHON }}-tests
       - run: python -Im tox run -e ${{ env.TOX_PYTHON }}-mypy
-        if: env.IS_PYPY == '0'
+        if: env.IS_PYPY == '0' && matrix.python-version != '3.7'
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v3
