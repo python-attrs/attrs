@@ -29,6 +29,12 @@ dependencies = ["importlib_metadata;python_version<'3.8'"]
 dynamic = ["version", "readme"]
 
 [project.optional-dependencies]
+tests-mypy = [
+  'pytest-mypy-plugins; python_implementation == "CPython" and python_version >= "3.8"',
+  # Since the mypy error messages keep changing, we have to keep updating this
+  # pin.
+  'mypy>=1.6; python_implementation == "CPython" and python_version >= "3.8"',
+]
 tests-no-zope = [
   # For regression test to ensure cloudpickle compat doesn't break.
   'cloudpickle; python_implementation == "CPython"',
@@ -37,10 +43,7 @@ tests-no-zope = [
   # 4.3.0 dropped last use of `convert`
   "pytest>=4.3.0",
   "pytest-xdist[psutil]",
-  # Since the mypy error messages keep changing, we have to keep updating this
-  # pin.
-  'mypy>=1.4; python_implementation == "CPython"',
-  'pytest-mypy-plugins; python_implementation == "CPython"',
+  "attrs[tests-mypy]",
 ]
 tests = ["attrs[tests-no-zope]", "zope.interface"]
 cov = [

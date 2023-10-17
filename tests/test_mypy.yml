@@ -215,10 +215,10 @@
     class A:
         a: int
     reveal_type(A)  # N: Revealed type is "def (a: builtins.int) -> main.A"
-    reveal_type(A.__lt__)  # N: Revealed type is "def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool"
-    reveal_type(A.__le__)  # N: Revealed type is "def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool"
-    reveal_type(A.__gt__)  # N: Revealed type is "def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool"
-    reveal_type(A.__ge__)  # N: Revealed type is "def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool"
+    reveal_type(A.__lt__)  # N: Revealed type is "def [_AT] (self: _AT`3, other: _AT`3) -> builtins.bool"
+    reveal_type(A.__le__)  # N: Revealed type is "def [_AT] (self: _AT`4, other: _AT`4) -> builtins.bool"
+    reveal_type(A.__gt__)  # N: Revealed type is "def [_AT] (self: _AT`5, other: _AT`5) -> builtins.bool"
+    reveal_type(A.__ge__)  # N: Revealed type is "def [_AT] (self: _AT`6, other: _AT`6) -> builtins.bool"
 
     A(1) < A(2)
     A(1) <= A(2)
@@ -766,7 +766,7 @@
             return 'hello'
 
 - case: testAttrsUsingBadConverter
-  mypy_config: strict_optional = False
+  regex: true
   main: |
     import attr
     from typing import overload
@@ -786,14 +786,14 @@
         bad_overloaded: int = attr.ib(converter=bad_overloaded_converter)
     reveal_type(A)
   out: |
-    main:15: error: Cannot determine __init__ type from converter  [misc]
-    main:15: error: Argument "converter" has incompatible type "Callable[[], str]"; expected "Callable[[Any], Any]"  [arg-type]
-    main:16: error: Cannot determine __init__ type from converter  [misc]
-    main:16: error: Argument "converter" has incompatible type overloaded function; expected "Callable[[Any], Any]"  [arg-type]
-    main:17: note: Revealed type is "def (bad: Any, bad_overloaded: Any) -> main.A"
+    main:15: error: Cannot determine __init__ type from converter  \[misc\]
+    main:15: error: Argument "converter" has incompatible type \"Callable\[\[\], str\]\"; expected (\"Callable\[\[Any\], Any\] \| None\"|\"Optional\[Callable\[\[Any\], Any\]\]\")  \[arg-type\]
+    main:16: error: Cannot determine __init__ type from converter  \[misc\]
+    main:16: error: Argument "converter" has incompatible type overloaded function; expected (\"Callable\[\[Any\], Any\] \| None\"|\"Optional\[Callable\[\[Any\], Any\]\]\")  \[arg-type\]
+    main:17: note: Revealed type is "def (bad: Any, bad_overloaded: Any\) -> main.A"
 
 - case: testAttrsUsingBadConverterReprocess
-  mypy_config: strict_optional = False
+  regex: true
   main: |
     import attr
     from typing import overload
@@ -814,11 +814,11 @@
         bad_overloaded: int = attr.ib(converter=bad_overloaded_converter)
     reveal_type(A)
   out: |
-    main:16: error: Cannot determine __init__ type from converter  [misc]
-    main:16: error: Argument "converter" has incompatible type "Callable[[], str]"; expected "Callable[[Any], Any]"  [arg-type]
-    main:17: error: Cannot determine __init__ type from converter  [misc]
-    main:17: error: Argument "converter" has incompatible type overloaded function; expected "Callable[[Any], Any]"  [arg-type]
-    main:18: note: Revealed type is "def (bad: Any, bad_overloaded: Any) -> main.A"
+    main:16: error: Cannot determine __init__ type from converter  \[misc\]
+    main:16: error: Argument \"converter\" has incompatible type \"Callable\[\[\], str\]\"; expected (\"Callable\[\[Any\], Any\] \| None\"|\"Optional\[Callable\[\[Any\], Any\]\]\")  \[arg-type\]
+    main:17: error: Cannot determine __init__ type from converter  \[misc\]
+    main:17: error: Argument "converter" has incompatible type overloaded function; expected (\"Callable\[\[Any\], Any\] \| None\"|\"Optional\[Callable\[\[Any\], Any\]\]\")  \[arg-type\]
+    main:18: note: Revealed type is "def (bad: Any, bad_overloaded: Any\) -> main.A"
 
 - case: testAttrsUsingUnsupportedConverter
   main: |
@@ -885,10 +885,10 @@
     @attr.s
     class D(A): pass
 
-    reveal_type(A.__lt__)  # N: Revealed type is "def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool"
-    reveal_type(B.__lt__)  # N: Revealed type is "def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool"
-    reveal_type(C.__lt__)  # N: Revealed type is "def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool"
-    reveal_type(D.__lt__)  # N: Revealed type is "def [_AT] (self: _AT`-1, other: _AT`-1) -> builtins.bool"
+    reveal_type(A.__lt__)  # N: Revealed type is "def [_AT] (self: _AT`5, other: _AT`5) -> builtins.bool"
+    reveal_type(B.__lt__)  # N: Revealed type is "def [_AT] (self: _AT`6, other: _AT`6) -> builtins.bool"
+    reveal_type(C.__lt__)  # N: Revealed type is "def [_AT] (self: _AT`7, other: _AT`7) -> builtins.bool"
+    reveal_type(D.__lt__)  # N: Revealed type is "def [_AT] (self: _AT`8, other: _AT`8) -> builtins.bool"
 
     A() < A()
     B() < B()
@@ -1358,6 +1358,7 @@
     reveal_type(B)  # N: Revealed type is "def (foo: builtins.int) -> main.B"
 
 - case: testFields
+  regex: true
   main: |
     from attrs import define, fields
 
@@ -1366,7 +1367,7 @@
       a: int
       b: str
 
-    reveal_type(fields(A))  # N: Revealed type is "Any"
+    reveal_type(fields(A))  # N: Revealed type is "[Tt]uple\[attr.Attribute\[builtins.int\], attr.Attribute\[builtins.str\], fallback=main.A.__main_A_AttrsAttributes__\]"
 
 - case: testFieldsError
   regex: true
@@ -1377,7 +1378,7 @@
       a: int
       b: str
 
-    fields(A)  # E: Argument 1 to "fields" has incompatible type "[Tt]ype\[A\]"; expected "[Tt]ype\[AttrsInstance\]"  \[arg-type\]
+    fields(A)  # E: Argument 1 to "fields" has incompatible type "[Tt]ype\[A\]"; expected an attrs class  \[misc\] # E: Argument 1 to "fields" has incompatible type "[Tt]ype\[A\]"; expected "[Tt]ype\[AttrsInstance\]"  \[arg-type\]
 
 - case: testAsDict
   main: |
