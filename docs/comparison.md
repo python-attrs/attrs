@@ -1,9 +1,15 @@
 # Comparison
 
-By default, two instances of *attrs* classes are equal if all their fields are equal.
+By default, two instances of *attrs* classes are equal if they have the same type and all their fields are equal.
 For that, *attrs* writes `__eq__` and `__ne__` methods for you.
 
-Additionally, if you pass `order=True`[^default], *attrs* will also create a full set of ordering methods that are based on the defined fields: `__le__`, `__lt__`, `__ge__`, and `__gt__`.
+Additionally, if you pass `order=True`, *attrs* will also create a complete set of ordering methods: `__le__`, `__lt__`, `__ge__`, and `__gt__`.
+
+Both for equality and order, *attrs* will:
+
+- Check if the types of the instances you're comparing are equal,
+- if so, create a tuple of all field values for each instance,
+- and finally perform the desired comparison operation on those tuples.
 
 [^default]: That's the default if you use the {func}`attr.s` decorator, but not with {func}`~attrs.define`.
 
@@ -44,17 +50,17 @@ True
 ```
 
 This is especially useful when you have fields with objects that have atypical comparison properties.
-Common examples of such objects are [*NumPy* arrays](https://github.com/python-attrs/attrs/issues/435).
+Common examples of such objects are [NumPy arrays](https://github.com/python-attrs/attrs/issues/435).
 
 To save you unnecessary boilerplate, *attrs* comes with the {func}`attrs.cmp_using` helper to create such functions.
-For *NumPy* arrays it would look like this:
+For NumPy arrays it would look like this:
 
-```
+```python
 import numpy
 
 @define
 class C:
-   an_array = field(eq=attr.cmp_using(eq=numpy.array_equal))
+   an_array = field(eq=attrs.cmp_using(eq=numpy.array_equal))
 ```
 
 :::{warning}
