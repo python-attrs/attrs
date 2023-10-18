@@ -96,6 +96,7 @@ This can be used to override private attribute handling, or make other arbitrary
 <Signature (self, _x: int, distasteful_y: int) -> None>
 ```
 
+(defaults)=
 
 ## Defaults
 
