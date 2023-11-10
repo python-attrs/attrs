@@ -18,7 +18,6 @@ from ._compat import (
     PY310,
     _AnnotationExtractor,
     get_generic_base,
-    set_closure_cell,
 )
 from .exceptions import (
     DefaultAlreadySetError,
@@ -909,7 +908,7 @@ class _ClassBuilder:
                     pass
                 else:
                     if match:
-                        set_closure_cell(cell, cls)
+                        cell.cell_contents = cls
 
         return cls
 
