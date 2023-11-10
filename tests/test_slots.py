@@ -5,8 +5,6 @@ Unit tests for slots-related functionality.
 """
 
 import pickle
-import sys
-import types
 import weakref
 
 from unittest import mock
