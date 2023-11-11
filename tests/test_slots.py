@@ -5,8 +5,6 @@ Unit tests for slots-related functionality.
 """
 
 import pickle
-import sys
-import types
 import weakref
 
 from unittest import mock
@@ -15,7 +13,7 @@ import pytest
 
 import attr
 
-from attr._compat import PYPY, just_warn, make_set_closure_cell
+from attr._compat import PYPY
 
 
 # Pympler doesn't work on PyPy.
@@ -477,36 +475,6 @@ class TestClosureCellRewriting:
                 return __class__
 
         assert D.statmethod() is D
-
-    @pytest.mark.skipif(PYPY, reason="set_closure_cell always works on PyPy")
-    @pytest.mark.skipif(
-        sys.version_info >= (3, 8),
-        reason="can't break CodeType.replace() via monkeypatch",
-    )
-    def test_code_hack_failure(self, monkeypatch):
-        """
-        Keeps working if function/code object introspection doesn't work
-        on this (nonstandard) interpreter.
-
-        A warning is emitted that points to the actual code.
-        """
-        # This is a pretty good approximation of the behavior of
-        # the actual types.CodeType on Brython.
-        monkeypatch.setattr(types, "CodeType", lambda: None)
-        func = make_set_closure_cell()
-
-        with pytest.warns(RuntimeWarning) as wr:
-            func()
-
-        w = wr.pop()
-        assert __file__ == w.filename
-        assert (
-            "Running interpreter doesn't sufficiently support code object "
-            "introspection.  Some features like bare super() or accessing "
-            "__class__ will not work with slotted classes.",
-        ) == w.message.args
-
-        assert just_warn is func
 
 
 @pytest.mark.skipif(PYPY, reason="__slots__ only block weakref on CPython")
