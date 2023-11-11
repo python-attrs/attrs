@@ -209,16 +209,17 @@
     reveal_type(A)  # N: Revealed type is "def (b: Any) -> main.A"
 
 - case: testAttrsCmpTrue
+  regex: true
   main: |
     from attr import attrib, attrs
     @attrs(auto_attribs=True)
     class A:
         a: int
-    reveal_type(A)  # N: Revealed type is "def (a: builtins.int) -> main.A"
-    reveal_type(A.__lt__)  # N: Revealed type is "def [_AT] (self: _AT`3, other: _AT`3) -> builtins.bool"
-    reveal_type(A.__le__)  # N: Revealed type is "def [_AT] (self: _AT`4, other: _AT`4) -> builtins.bool"
-    reveal_type(A.__gt__)  # N: Revealed type is "def [_AT] (self: _AT`5, other: _AT`5) -> builtins.bool"
-    reveal_type(A.__ge__)  # N: Revealed type is "def [_AT] (self: _AT`6, other: _AT`6) -> builtins.bool"
+    reveal_type(A)  # N: Revealed type is "def \(a: builtins.int\) -> main.A"
+    reveal_type(A.__lt__)  # N: Revealed type is "def \[_AT\] \(self: _AT`\d+, other: _AT`\d+\) -> builtins.bool"
+    reveal_type(A.__le__)  # N: Revealed type is "def \[_AT\] \(self: _AT`\d+, other: _AT`\d+\) -> builtins.bool"
+    reveal_type(A.__gt__)  # N: Revealed type is "def \[_AT\] \(self: _AT`\d+, other: _AT`\d+\) -> builtins.bool"
+    reveal_type(A.__ge__)  # N: Revealed type is "def \[_AT\] \(self: _AT`\d+, other: _AT`\d+\) -> builtins.bool"
 
     A(1) < A(2)
     A(1) <= A(2)
@@ -227,17 +228,17 @@
     A(1) == A(2)
     A(1) != A(2)
 
-    A(1) < 1  # E: Unsupported operand types for < ("A" and "int")  [operator]
-    A(1) <= 1  # E: Unsupported operand types for <= ("A" and "int")  [operator]
-    A(1) > 1  # E: Unsupported operand types for > ("A" and "int")  [operator]
-    A(1) >= 1  # E: Unsupported operand types for >= ("A" and "int")  [operator]
+    A(1) < 1  # E: Unsupported operand types for < \("A" and "int"\)  \[operator\]
+    A(1) <= 1  # E: Unsupported operand types for <= \("A" and "int"\)  \[operator\]
+    A(1) > 1  # E: Unsupported operand types for > \("A" and "int"\)  \[operator\]
+    A(1) >= 1  # E: Unsupported operand types for >= \("A" and "int"\)  \[operator\]
     A(1) == 1
     A(1) != 1
 
-    1 < A(1)  # E: Unsupported operand types for < ("int" and "A")  [operator]
-    1 <= A(1)  # E: Unsupported operand types for <= ("int" and "A")  [operator]
-    1 > A(1)  # E: Unsupported operand types for > ("int" and "A")  [operator]
-    1 >= A(1)  # E: Unsupported operand types for >= ("int" and "A")  [operator]
+    1 < A(1)  # E: Unsupported operand types for < \("int" and "A"\)  \[operator\]
+    1 <= A(1)  # E: Unsupported operand types for <= \("int" and "A"\)  \[operator\]
+    1 > A(1)  # E: Unsupported operand types for > \("int" and "A"\)  \[operator\]
+    1 >= A(1)  # E: Unsupported operand types for >= \("int" and "A"\)  \[operator\]
     1 == A(1)
     1 != A(1)
 
@@ -874,6 +875,7 @@
     o = C(1, 2, "3")
 
 - case: testAttrsCmpWithSubclasses
+  regex: true
   main: |
     import attr
     @attr.s
@@ -885,29 +887,29 @@
     @attr.s
     class D(A): pass
 
-    reveal_type(A.__lt__)  # N: Revealed type is "def [_AT] (self: _AT`5, other: _AT`5) -> builtins.bool"
-    reveal_type(B.__lt__)  # N: Revealed type is "def [_AT] (self: _AT`6, other: _AT`6) -> builtins.bool"
-    reveal_type(C.__lt__)  # N: Revealed type is "def [_AT] (self: _AT`7, other: _AT`7) -> builtins.bool"
-    reveal_type(D.__lt__)  # N: Revealed type is "def [_AT] (self: _AT`8, other: _AT`8) -> builtins.bool"
+    reveal_type(A.__lt__)  # N: Revealed type is "def \[_AT\] \(self: _AT`\d+, other: _AT`\d+\) -> builtins.bool"
+    reveal_type(B.__lt__)  # N: Revealed type is "def \[_AT\] \(self: _AT`\d+, other: _AT`\d+\) -> builtins.bool"
+    reveal_type(C.__lt__)  # N: Revealed type is "def \[_AT\] \(self: _AT`\d+, other: _AT`\d+\) -> builtins.bool"
+    reveal_type(D.__lt__)  # N: Revealed type is "def \[_AT\] \(self: _AT`\d+, other: _AT`\d+\) -> builtins.bool"
 
     A() < A()
     B() < B()
-    A() < B() # E: Unsupported operand types for < ("A" and "B")  [operator]
+    A() < B() # E: Unsupported operand types for < \("A" and "B"\)  \[operator\]
 
     C() > A()
     C() > B()
     C() > C()
-    C() > D() # E: Unsupported operand types for > ("C" and "D")  [operator]
+    C() > D() # E: Unsupported operand types for > \("C" and "D"\)  \[operator\]
 
     D() >= A()
-    D() >= B()  # E: Unsupported operand types for >= ("D" and "B")  [operator]
-    D() >= C()  # E: Unsupported operand types for >= ("D" and "C")  [operator]
+    D() >= B()  # E: Unsupported operand types for >= \("D" and "B"\)  \[operator\]
+    D() >= C()  # E: Unsupported operand types for >= \("D" and "C"\)  \[operator\]
     D() >= D()
 
-    A() <= 1  # E: Unsupported operand types for <= ("A" and "int")  [operator]
-    B() <= 1  # E: Unsupported operand types for <= ("B" and "int")  [operator]
-    C() <= 1  # E: Unsupported operand types for <= ("C" and "int")  [operator]
-    D() <= 1  # E: Unsupported operand types for <= ("D" and "int")  [operator]
+    A() <= 1  # E: Unsupported operand types for <= \("A" and "int"\)  \[operator\]
+    B() <= 1  # E: Unsupported operand types for <= \("B" and "int"\)  \[operator\]
+    C() <= 1  # E: Unsupported operand types for <= \("C" and "int"\)  \[operator\]
+    D() <= 1  # E: Unsupported operand types for <= \("D" and "int"\)  \[operator\]
 
 - case: testAttrsComplexSuperclass
   main: |
@@ -1075,7 +1077,7 @@
         return 7
     @attr.s
     class A:
-        x: int = attr.ib(factory=list)  # E: Incompatible types in assignment \(expression has type "[Ll]ist\[_T\]", variable has type "int"\)  \[assignment\]
+        x: int = attr.ib(factory=list)  # E: Incompatible types in assignment \(expression has type "[Ll]ist\[.*\]", variable has type "int"\)  \[assignment\]
         y: str = attr.ib(factory=my_factory) # E: Incompatible types in assignment \(expression has type "int", variable has type "str"\)  \[assignment\]
 
 - case: testAttrsDefaultAndInit
@@ -1378,7 +1380,7 @@
       a: int
       b: str
 
-    fields(A)  # E: Argument 1 to "fields" has incompatible type "[Tt]ype\[A\]"; expected an attrs class  \[misc\] # E: Argument 1 to "fields" has incompatible type "[Tt]ype\[A\]"; expected "[Tt]ype\[AttrsInstance\]"  \[arg-type\]
+    fields(A)  # E: Argument 1 to "fields" has incompatible type "[Tt]ype\[A\]"; expected "[Tt]ype\[AttrsInstance\]"  \[arg-type\]
 
 - case: testAsDict
   main: |
