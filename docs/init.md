@@ -382,6 +382,7 @@ The sole reason for the existence of `__attrs_pre_init__` is to give users the c
 C(x=42)
 ```
 
+Note that *attrs* will not pass any arguments to your `__attrs_pre_init__` method (other than `self`, of course).
 If you need more control, use the custom init approach described next.
 
 
