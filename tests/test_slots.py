@@ -871,6 +871,29 @@ def test_slots_cached_property_called_independent_across_instances():
     assert obj_2.f == 2
 
 
+def test_slots_cached_properties_work_independently():
+    """
+    Multiple cached properties should work independently.
+    """
+
+    @attr.s(slots=True)
+    class A:
+        x = attr.ib()
+
+        @functools.cached_property
+        def f_1(self):
+            return self.x
+
+        @functools.cached_property
+        def f_2(self):
+            return self.x * 2
+
+    obj = A(1)
+
+    assert obj.f_1 == 1
+    assert obj.f_2 == 2
+
+
 @attr.s(slots=True)
 class A:
     x = attr.ib()

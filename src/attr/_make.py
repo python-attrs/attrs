@@ -882,6 +882,10 @@ class _ClassBuilder:
             # Add cached properties to names for slotting.
             names += tuple(cached_properties.keys())
 
+            for name in cached_properties:
+                # Clear out function from class to avoid clashing.
+                del cd[name]
+
             if "__annotations__" in cd:
                 for name, func in cached_properties.items():
                     annotation = inspect.signature(func).return_annotation
@@ -891,7 +895,6 @@ class _ClassBuilder:
             cd["__getattr__"] = _make_cached_property_getattr(
                 cached_properties, cd.get("__getattr__")
             )
-            del cd[name]
 
         # We only add the names of attributes that aren't inherited.
         # Setting __slots__ to inherited attributes wastes memory.
