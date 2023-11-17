@@ -3,12 +3,14 @@
 import contextlib
 import copy
 import enum
+import functools
 import inspect
 import linecache
 import sys
 import types
 import typing
 
+from _thread import RLock
 from operator import itemgetter
 
 # We need to import _compat itself in addition to the _compat members to avoid
@@ -597,6 +599,28 @@ def _transform_attrs(
     return _Attributes((AttrsClass(attrs), base_attrs, base_attr_map))
 
 
+def _make_cached_property_getattr(cached_properties, original_getattr=None):
+    lock = RLock()  # This is global for the class, can that be avoided?
+
+    def __getattr__(instance, item: str):
+        func = cached_properties.get(item)
+        if func is not None:
+            with lock:
+                try:
+                    # In case another thread has set it.
+                    return object.__getattribute__(instance, item)
+                except AttributeError:
+                    result = func(instance)
+                    object.__setattr__(instance, item, result)
+                    return result
+        elif original_getattr is not None:
+            return original_getattr(instance, item)
+        else:
+            raise AttributeError(item)
+
+    return __getattr__
+
+
 def _frozen_setattrs(self, name, value):
     """
     Attached to frozen classes as __setattr__.
@@ -857,9 +881,31 @@ class _ClassBuilder:
         ):
             names += ("__weakref__",)
 
+        cached_properties = {
+            name: cached_property.func
+            for name, cached_property in cd.items()
+            if isinstance(cached_property, functools.cached_property)
+        }
+
+        if cached_properties:
+            # Add cached properties to names for slotting.
+            names += tuple(cached_properties.keys())
+
+            if "__annotations__" in cd:
+                for name, func in cached_properties.items():
+                    annotation = inspect.signature(func).return_annotation
+                    if annotation is not inspect.Parameter.empty:
+                        cd["__annotations__"][name] = annotation
+
+            cd["__getattr__"] = _make_cached_property_getattr(
+                cached_properties, cd.get("__getattr__")
+            )
+            del cd[name]
+
         # We only add the names of attributes that aren't inherited.
         # Setting __slots__ to inherited attributes wastes memory.
         slot_names = [name for name in names if name not in base_names]
+
         # There are slots for attributes from current class
         # that are defined in parent classes.
         # As their descriptors may be overridden by a child class,
@@ -873,6 +919,7 @@ class _ClassBuilder:
         cd.update(reused_slots)
         if self._cache_hash:
             slot_names.append(_hash_cache_field)
+
         cd["__slots__"] = tuple(slot_names)
 
         cd["__qualname__"] = self._cls.__qualname__
@@ -909,7 +956,6 @@ class _ClassBuilder:
                 else:
                     if match:
                         cell.cell_contents = cls
-
         return cls
 
     def add_repr(self, ns):

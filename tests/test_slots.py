@@ -3,7 +3,7 @@
 """
 Unit tests for slots-related functionality.
 """
-
+import functools
 import pickle
 import weakref
 
@@ -12,6 +12,7 @@ from unittest import mock
 import pytest
 
 import attr
+import attrs
 
 from attr._compat import PYPY
 
@@ -713,6 +714,161 @@ def test_slots_super_property_get_shortcut():
 
     assert B(11).f == 121
     assert B(17).f == 289
+
+
+def test_slots_cached_property_allows_call():
+    """
+    cached_property in slotted class allows call.
+    """
+
+    @attr.s(slots=True)
+    class A:
+        x = attr.ib()
+
+        @functools.cached_property
+        def f(self):
+            return self.x
+
+    assert A(11).f == 11
+
+
+def test_slots_cached_property_class_does_not_have__dict__():
+    """
+    slotted class with cached property has no __dict__ attribute.
+    """
+
+    @attr.s(slots=True)
+    class A:
+        x = attr.ib()
+
+        @functools.cached_property
+        def f(self):
+            return self.x
+
+    assert set(A.__slots__) == {"x", "f", "__weakref__"}
+    assert "__dict__" not in dir(A)
+
+
+def test_slots_cached_property_infers_type():
+    """
+    Infers type of cached property.
+    """
+
+    @attrs.frozen(slots=True)
+    class A:
+        x: int
+
+        @functools.cached_property
+        def f(self) -> int:
+            return self.x
+
+    assert A.__annotations__ == {"x": int, "f": int}
+
+
+def test_slots_sub_class_avoids_duplicated_slots():
+    """
+    Duplicating the slots is a wast of memory.
+    """
+
+    @attr.s(slots=True)
+    class A:
+        x = attr.ib()
+
+        @functools.cached_property
+        def f(self):
+            return self.x
+
+    @attr.s(slots=True)
+    class B(A):
+        @functools.cached_property
+        def f(self):
+            return self.x * 2
+
+    assert B(1).f == 2
+    assert B.__slots__ == ()
+
+
+def test_slots_sub_class_with_actual_slot():
+    """
+    A sub-class can have an explicit attrs field that replaces a cached property.
+    """
+
+    @attr.s(slots=True)
+    class A:  # slots : (x, f)
+        x = attr.ib()
+
+        @functools.cached_property
+        def f(self):
+            return self.x
+
+    @attr.s(slots=True)
+    class B(A):
+        f: int = attr.ib()
+
+    assert B(1, 2).f == 2
+    assert B.__slots__ == ()
+
+
+def test_slots_cached_property_is_not_called_at_construction():
+    """
+    A cached property function should only be called at property access point.
+    """
+    call_count = 0
+
+    @attr.s(slots=True)
+    class A:
+        x = attr.ib()
+
+        @functools.cached_property
+        def f(self):
+            nonlocal call_count
+            call_count += 1
+            return self.x
+
+    A(1)
+    assert call_count == 0
+
+
+def test_slots_cached_property_repeat_call_only_once():
+    """
+    A cached property function should be called only once, on repeated attribute access.
+    """
+    call_count = 0
+
+    @attr.s(slots=True)
+    class A:
+        x = attr.ib()
+
+        @functools.cached_property
+        def f(self):
+            nonlocal call_count
+            call_count += 1
+            return self.x
+
+    obj = A(1)
+    obj.f
+    obj.f
+    assert call_count == 1
+
+
+def test_slots_cached_property_called_independent_across_instances():
+    """
+    A cached property value should be specific to the given instance.
+    """
+
+    @attr.s(slots=True)
+    class A:
+        x = attr.ib()
+
+        @functools.cached_property
+        def f(self):
+            return self.x
+
+    obj_1 = A(1)
+    obj_2 = A(2)
+
+    assert obj_1.f == 1
+    assert obj_2.f == 2
 
 
 @attr.s(slots=True)
