@@ -604,7 +604,7 @@ def _make_cached_property_getattr(cached_properties, original_getattr=None):
         func = cached_properties.get(item)
         if func is not None:
             result = func(instance)
-            object.__setattr__(instance, item, result)
+            _obj_setattr(instance, item, result)
             return result
         if original_getattr is not None:
             return original_getattr(instance, item)
