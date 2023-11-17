@@ -599,18 +599,46 @@ def _transform_attrs(
     return _Attributes((AttrsClass(attrs), base_attrs, base_attr_map))
 
 
-def _make_cached_property_getattr(cached_properties, original_getattr=None):
-    def __getattr__(instance, item: str):
-        func = cached_properties.get(item)
-        if func is not None:
-            result = func(instance)
-            _obj_setattr(instance, item, result)
-            return result
-        if original_getattr is not None:
-            return original_getattr(instance, item)
-        raise AttributeError(item)
+def _make_cached_property_getattr(
+    cached_properties,
+    cls,
+):
+    lines = [
+        # Wrapped to get `__class__` into closure cell for super()
+        # (It will be replaced with the newly constructed class after construction).
+        "def wrapper(_cls, cached_properties, _cached_setattr_get):",
+        "    __class__ = _cls",
+        "    def __getattr__(self, item):",
+        "         func = cached_properties.get(item)",
+        "         if func is not None:",
+        "              result = func(self)",
+        "              _setter = _cached_setattr_get(self)",
+        "              _setter(item, result)",
+        "              return result",
+        "         if '__attrs_original_getattr__' in vars(__class__):",
+        "              return __class__.__attrs_original_getattr__(self, item)",
+        "         if hasattr(super(), '__getattr__'):",
+        "              return super().__getattr__(item)",
+        "         original_error = f\"'{self.__class__.__name__}' object has no attribute '{item}'\"",
+        "         raise AttributeError(original_error)",
+        "    return __getattr__",
+        "__getattr__ = wrapper(_cls, cached_properties, _cached_setattr_get)",
+    ]
 
-    return __getattr__
+    unique_filename = _generate_unique_filename(cls, "getattr")
+
+    glob = {
+        "cached_properties": cached_properties,
+        "_cached_setattr_get": _obj_setattr.__get__,
+        "_cls": cls,
+    }
+
+    return _make_method(
+        "__getattr__",
+        "\n".join(lines),
+        unique_filename,
+        glob,
+    )
 
 
 def _frozen_setattrs(self, name, value):
@@ -898,8 +926,12 @@ class _ClassBuilder:
                     if annotation is not inspect.Parameter.empty:
                         cd["__annotations__"][name] = annotation
 
+            original_getattr = cd.get("__getattr__")
+            if original_getattr is not None:
+                cd["__attrs_original_getattr__"] = original_getattr
+
             cd["__getattr__"] = _make_cached_property_getattr(
-                cached_properties, cd.get("__getattr__")
+                cached_properties, self._cls
             )
 
         # We only add the names of attributes that aren't inherited.
