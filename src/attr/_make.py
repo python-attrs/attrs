@@ -17,6 +17,7 @@ from operator import itemgetter
 from . import _compat, _config, setters
 from ._compat import (
     PY310,
+    PY_3_8_PLUS,
     _AnnotationExtractor,
     get_generic_base,
 )
@@ -872,11 +873,16 @@ class _ClassBuilder:
         ):
             names += ("__weakref__",)
 
-        cached_properties = {
-            name: cached_property.func
-            for name, cached_property in cd.items()
-            if isinstance(cached_property, functools.cached_property)
-        }
+        if PY_3_8_PLUS:
+            cached_properties = {
+                name: cached_property.func
+                for name, cached_property in cd.items()
+                if isinstance(cached_property, functools.cached_property)
+            }
+        else:
+            # `functools.cached_property` was introduced in 3.8.
+            # So can't be used before this.
+            cached_properties = {}
 
         if cached_properties:
             # Add cached properties to names for slotting.
