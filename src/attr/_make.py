@@ -920,11 +920,11 @@ class _ClassBuilder:
                 # Clear out function from class to avoid clashing.
                 del cd[name]
 
-            if "__annotations__" in cd:
-                for name, func in cached_properties.items():
-                    annotation = inspect.signature(func).return_annotation
-                    if annotation is not inspect.Parameter.empty:
-                        cd["__annotations__"][name] = annotation
+            class_annotations = _get_annotations(self._cls)
+            for name, func in cached_properties.items():
+                annotation = inspect.signature(func).return_annotation
+                if annotation is not inspect.Parameter.empty:
+                    class_annotations[name] = annotation
 
             original_getattr = cd.get("__getattr__")
             if original_getattr is not None:
