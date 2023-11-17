@@ -1106,9 +1106,9 @@ class TestMakeClass:
         assert D in cls.__mro__
         assert isinstance(cls(), D)
 
-    def test_additional_namespace(self):
+    def test_additional_class_body(self):
         """
-        Additional namespace is added to the class dict.
+        Additional class_body is added to newly created class.
         """
 
         def echo_func(cls, *args):
