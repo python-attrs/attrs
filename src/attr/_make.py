@@ -10,7 +10,6 @@ import sys
 import types
 import typing
 
-from _thread import RLock
 from operator import itemgetter
 
 # We need to import _compat itself in addition to the _compat members to avoid
@@ -600,23 +599,15 @@ def _transform_attrs(
 
 
 def _make_cached_property_getattr(cached_properties, original_getattr=None):
-    lock = RLock()  # This is global for the class, can that be avoided?
-
     def __getattr__(instance, item: str):
         func = cached_properties.get(item)
         if func is not None:
-            with lock:
-                try:
-                    # In case another thread has set it.
-                    return object.__getattribute__(instance, item)
-                except AttributeError:
-                    result = func(instance)
-                    object.__setattr__(instance, item, result)
-                    return result
-        elif original_getattr is not None:
+            result = func(instance)
+            object.__setattr__(instance, item, result)
+            return result
+        if original_getattr is not None:
             return original_getattr(instance, item)
-        else:
-            raise AttributeError(item)
+        raise AttributeError(item)
 
     return __getattr__
 
