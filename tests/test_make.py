@@ -1114,7 +1114,7 @@ class TestMakeClass:
         def echo_func(cls, *args):
             return args
 
-        cls = make_class("C", {}, namespaces={"echo": classmethod(echo_func)})
+        cls = make_class("C", {}, class_body={"echo": classmethod(echo_func)})
 
         assert ("a", "b") == cls.echo("a", "b")
 
