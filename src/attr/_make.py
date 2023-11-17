@@ -2894,7 +2894,7 @@ def make_class(
 
     .. versionadded:: 17.1.0 *bases*
     .. versionchanged:: 18.1.0 If *attrs* is ordered, the order is retained.
-    .. versionchanged:: 23.2.0 If *attrs* is ordered, the order is retained.
+    .. versionchanged:: 23.2.0 *class_body*
     """
     if isinstance(attrs, dict):
         cls_dict = attrs
