@@ -46,10 +46,6 @@ Especially those generously supporting us at the *The Organization* tier and hig
       <img src="https://raw.githubusercontent.com/python-attrs/attrs/main/.github/sponsors/Tidelift.svg" width="200" height="60"></img>
    </a>
 
-   <a href="https://sentry.io/">
-      <img src="https://raw.githubusercontent.com/python-attrs/attrs/main/.github/sponsors/Sentry.svg" width="200" height="60"></img>
-   </a>
-
    <a href="https://filepreviews.io/">
       <img src="https://raw.githubusercontent.com/python-attrs/attrs/main/.github/sponsors/FilePreviews.svg" width="200" height="60"></img>
    </a>
