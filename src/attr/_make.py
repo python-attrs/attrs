@@ -5,6 +5,7 @@ import copy
 import enum
 import functools
 import inspect
+import itertools
 import linecache
 import sys
 import types
@@ -926,6 +927,9 @@ class _ClassBuilder:
             # So can't be used before this.
             cached_properties = {}
 
+        # Collect methods with a `__class__` reference that are shadowed in the new class.
+        # To know to update them.
+        additional_closure_functions_to_update = []
         if cached_properties:
             # Add cached properties to names for slotting.
             names += tuple(cached_properties.keys())
@@ -942,7 +946,7 @@ class _ClassBuilder:
 
             original_getattr = cd.get("__getattr__")
             if original_getattr is not None:
-                cd["__attrs_original_getattr__"] = original_getattr
+                additional_closure_functions_to_update.append(original_getattr)
 
             cd["__getattr__"] = _make_cached_property_getattr(
                 cached_properties, original_getattr, self._cls
@@ -979,7 +983,9 @@ class _ClassBuilder:
         # compiler will bake a reference to the class in the method itself
         # as `method.__closure__`.  Since we replace the class with a
         # clone, we rewrite these references so it keeps working.
-        for item in cls.__dict__.values():
+        for item in itertools.chain(
+            cls.__dict__.values(), additional_closure_functions_to_update
+        ):
             if isinstance(item, (classmethod, staticmethod)):
                 # Class- and staticmethods hide their functions inside.
                 # These might need to be rewritten as well.
