@@ -601,29 +601,42 @@ def _transform_attrs(
 
 def _make_cached_property_getattr(
     cached_properties,
+    original_getattr,
     cls,
 ):
     lines = [
         # Wrapped to get `__class__` into closure cell for super()
         # (It will be replaced with the newly constructed class after construction).
-        "def wrapper(_cls, cached_properties, _cached_setattr_get):",
+        "def wrapper():",
         "    __class__ = _cls",
-        "    def __getattr__(self, item):",
+        "    def __getattr__(self, item, cached_properties=cached_properties, original_getattr=original_getattr, _cached_setattr_get=_cached_setattr_get):",
         "         func = cached_properties.get(item)",
         "         if func is not None:",
         "              result = func(self)",
         "              _setter = _cached_setattr_get(self)",
         "              _setter(item, result)",
         "              return result",
-        "         if '__attrs_original_getattr__' in vars(__class__):",
-        "              return __class__.__attrs_original_getattr__(self, item)",
-        "         if hasattr(super(), '__getattr__'):",
-        "              return super().__getattr__(item)",
-        "         original_error = f\"'{self.__class__.__name__}' object has no attribute '{item}'\"",
-        "         raise AttributeError(original_error)",
-        "    return __getattr__",
-        "__getattr__ = wrapper(_cls, cached_properties, _cached_setattr_get)",
     ]
+    if original_getattr is not None:
+        lines.append(
+            "         return original_getattr(self, item)",
+        )
+    else:
+        lines.extend(
+            [
+                "         if hasattr(super(), '__getattr__'):",
+                "              return super().__getattr__(item)",
+                "         original_error = f\"'{self.__class__.__name__}' object has no attribute '{item}'\"",
+                "         raise AttributeError(original_error)",
+            ]
+        )
+
+    lines.extend(
+        [
+            "    return __getattr__",
+            "__getattr__ = wrapper()",
+        ]
+    )
 
     unique_filename = _generate_unique_filename(cls, "getattr")
 
@@ -631,6 +644,7 @@ def _make_cached_property_getattr(
         "cached_properties": cached_properties,
         "_cached_setattr_get": _obj_setattr.__get__,
         "_cls": cls,
+        "original_getattr": original_getattr,
     }
 
     return _make_method(
@@ -931,7 +945,7 @@ class _ClassBuilder:
                 cd["__attrs_original_getattr__"] = original_getattr
 
             cd["__getattr__"] = _make_cached_property_getattr(
-                cached_properties, self._cls
+                cached_properties, original_getattr, self._cls
             )
 
         # We only add the names of attributes that aren't inherited.
