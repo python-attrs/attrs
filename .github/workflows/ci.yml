@@ -120,7 +120,7 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           # Keep in sync with tox/docs and .readthedocs.yaml.
-          python-version: "3.11"
+          python-version: "3.12"
           cache: pip
 
       - run: python -Im pip install tox
