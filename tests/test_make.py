@@ -1106,6 +1106,18 @@ class TestMakeClass:
         assert D in cls.__mro__
         assert isinstance(cls(), D)
 
+    def test_additional_class_body(self):
+        """
+        Additional class_body is added to newly created class.
+        """
+
+        def echo_func(cls, *args):
+            return args
+
+        cls = make_class("C", {}, class_body={"echo": classmethod(echo_func)})
+
+        assert ("a", "b") == cls.echo("a", "b")
+
     def test_clean_class(self, slots):
         """
         Attribute definitions do not appear on the class body.

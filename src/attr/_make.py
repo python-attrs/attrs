@@ -2867,7 +2867,9 @@ _f = [
 Factory = _add_hash(_add_eq(_add_repr(Factory, attrs=_f), attrs=_f), attrs=_f)
 
 
-def make_class(name, attrs, bases=(object,), **attributes_arguments):
+def make_class(
+    name, attrs, bases=(object,), class_body=None, **attributes_arguments
+):
     r"""
     A quick way to create a new class called *name* with *attrs*.
 
@@ -2883,6 +2885,8 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
 
     :param tuple bases: Classes that the new class will subclass.
 
+    :param dict class_body: An optional dictionary of class attributes for the new class.
+
     :param attributes_arguments: Passed unmodified to `attr.s`.
 
     :return: A new class with *attrs*.
@@ -2890,6 +2894,7 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
 
     .. versionadded:: 17.1.0 *bases*
     .. versionchanged:: 18.1.0 If *attrs* is ordered, the order is retained.
+    .. versionchanged:: 23.2.0 *class_body*
     """
     if isinstance(attrs, dict):
         cls_dict = attrs
@@ -2904,6 +2909,8 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
     user_init = cls_dict.pop("__init__", None)
 
     body = {}
+    if class_body is not None:
+        body.update(class_body)
     if pre_init is not None:
         body["__attrs_pre_init__"] = pre_init
     if post_init is not None:
