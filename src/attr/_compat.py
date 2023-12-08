@@ -10,6 +10,7 @@ from typing import _GenericAlias
 
 
 PYPY = platform.python_implementation() == "PyPy"
+PY_3_8_PLUS = sys.version_info[:2] >= (3, 8)
 PY_3_9_PLUS = sys.version_info[:2] >= (3, 9)
 PY310 = sys.version_info[:2] >= (3, 10)
 PY_3_12_PLUS = sys.version_info[:2] >= (3, 12)
