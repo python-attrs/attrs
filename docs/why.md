@@ -109,7 +109,7 @@ Other often surprising behaviors include:
   you end up with a class that has *two* `Point`s in its {attr}`__mro__ <class.__mro__>`: `[<class 'point.Point'>, <class 'point.Point'>, <type 'tuple'>, <type 'object'>]`.
 
   That's not only confusing, it also has very practical consequences:
-  for example if you create documentation that includes class hierarchies like *[*Sphinx*'s autodoc](https://www.sphinx-doc.org/en/stable/usage/extensions/autodoc.html) with `show-inheritance`.
+  for example if you create documentation that includes class hierarchies like [*Sphinx*'s autodoc](https://www.sphinx-doc.org/en/stable/usage/extensions/autodoc.html) with `show-inheritance`.
   Again: common problem, hacky solution with confusing fallout.
 
 All these things make `namedtuple`s a particularly poor choice for public APIs because all your objects are irrevocably tainted.

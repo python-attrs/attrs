@@ -550,7 +550,7 @@ class _MinLengthValidator:
         We use a callable class to be able to change the ``__repr__``.
         """
         if len(value) < self.min_length:
-            msg = f"Length of '{attr.name}' must be => {self.min_length}: {len(value)}"
+            msg = f"Length of '{attr.name}' must be >= {self.min_length}: {len(value)}"
             raise ValueError(msg)
 
     def __repr__(self):

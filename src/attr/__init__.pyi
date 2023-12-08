@@ -490,6 +490,7 @@ def make_class(
     name: str,
     attrs: Union[List[str], Tuple[str, ...], Dict[str, Any]],
     bases: Tuple[type, ...] = ...,
+    class_body: Optional[Dict[str, Any]] = ...,
     repr_ns: Optional[str] = ...,
     repr: bool = ...,
     cmp: Optional[_EqOrderType] = ...,
