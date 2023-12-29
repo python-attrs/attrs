@@ -43,6 +43,26 @@ False
 
 As shown, the generated `__init__` method allows for both positional and keyword arguments.
 
+---
+
+Unlike Data Classes, *attrs* doesn't force you to use type annotations.
+So, the previous example could also have been written as:
+
+```{doctest}
+>>> @define
+... class Coordinates:
+...     x = field()
+...     y = field()
+>>> Coordinates(1, 2)
+Coordinates(x=1, y=2)
+```
+
+:::{caution}
+If a class body contains a field that is defined using {func}`attrs.field` (or {func}`attr.ib`), but **lacks a type annotation**, *attrs* switches to a no-typing mode and ignores fields that have type annotations but are not defined using {func}`attrs.field` (or {func}`attr.ib`).
+:::
+
+---
+
 For private attributes, *attrs* will strip the leading underscores for keyword arguments:
 
 ```{doctest}
