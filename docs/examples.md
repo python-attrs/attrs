@@ -467,7 +467,8 @@ Traceback (most recent call last):
 TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, factory=NOTHING, validator=<instance_of validator for type <type 'int'>>, type=None, kw_only=False), <type 'int'>, '42')
 ```
 
-Please note that if you use {func}`attr.s` (and **not** {func}`attrs.define`) to define your class, validators only run on initialization by default -- not when you set an attribute.
+If using the old-school {func}`attr.s` decorator, validators only run on initialization by default.
+If using the newer {func}`attrs.define` and friends, validators run on initialization *and* on attribute setting.
 This behavior can be changed using the *on_setattr* argument.
 
 Check out {ref}`validators` for more details.
@@ -485,10 +486,13 @@ This can be useful for doing type-conversions on values that you don't want to f
 >>> o = C("1")
 >>> o.x
 1
+>>> o.x = "2"
+>>> o.x
+2
 ```
 
-Please note that converters only run on initialization when using the old-school {func}`attr.s` decorator.
-They do run by default with {func}`attrs.define` and friends.
+If using the old-school {func}`attr.s` decorator, converters only run on initialization by default.
+If using the newer {func}`attrs.define` and friends, converters run on initialization *and* on attribute setting.
 This behavior can be changed using the *on_setattr* argument.
 
 Check out {ref}`converters` for more details.
