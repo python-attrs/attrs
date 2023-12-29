@@ -97,6 +97,10 @@ slotted classes
 
   - The {attr}`class.__subclasses__` attribute needs a garbage collection run (which can be manually triggered using {func}`gc.collect`), for the original class to be removed.
     See issue [#407](https://github.com/python-attrs/attrs/issues/407) for more details.
+
+  - Pickling of slotted classes will fail if you define a class with missing attributes.
+
+    This situation can occur if you define an `attrs.field(init=False)` and don't set the attribute by hand before pickling.
 :::
 
 [^pypy]: On PyPy, there is no memory advantage in using slotted classes.
