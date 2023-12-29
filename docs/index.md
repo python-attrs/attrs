@@ -46,10 +46,10 @@ If you need any help while getting started, feel free to use the `python-attrs` 
 - Finally, if you're confused by all the `attr.s`, `attr.ib`, `attrs`, `attrib`, `define`, `frozen`, and `field`, head over to {doc}`names` for a very short explanation, and optionally a quick history lesson.
 
 
-## Project Information
+## *attrs* for Enterprise
 
 ```{include} ../README.md
-:start-after: '## Project Information'
+:start-after: '### *attrs* for Enterprise'
 ```
 
 ---
@@ -80,6 +80,10 @@ glossary
 names
 license
 changelog
+Third-party Extentions <https://github.com/python-attrs/attrs/wiki/Extensions-to-attrs>
+PyPI <https://pypi.org/project/attrs/>
+Contributing <https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md>
+Funding <https://hynek.me/say-thanks/>
 ```
 
 [Full Index](genindex)
