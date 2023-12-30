@@ -30,9 +30,9 @@ Its main goal is to help you to write **concise** and **correct** software witho
 Especially those generously supporting us at the *The Organization* tier and higher:
 
 <p align="center">
-   <a href="https://www.variomedia.de/"><img src="https://raw.githubusercontent.com/python-attrs/attrs/main/.github/sponsors/Variomedia.svg" width="200" height="60" /></a>
-   <a href="https://tidelift.com/subscription/pkg/pypi-attrs?utm_source=pypi-attrs&utm_medium=referral&utm_campaign=enterprise&utm_term=repo"><img src="https://raw.githubusercontent.com/python-attrs/attrs/main/.github/sponsors/Tidelift.svg" width="200" height="60" /></a>
-   <a href="https://filepreviews.io/"><img src="https://raw.githubusercontent.com/python-attrs/attrs/main/.github/sponsors/FilePreviews.svg" width="200" height="60"/></a>
+   <a href="https://www.variomedia.de/"><img src="https://www.attrs.org/en/latest/_static/sponsors/Variomedia.svg" width="200" height="60" /></a>
+   <a href="https://tidelift.com/subscription/pkg/pypi-attrs?utm_source=pypi-attrs&utm_medium=referral&utm_campaign=enterprise&utm_term=repo"><img src="https://www.attrs.org/en/latest/_static/sponsors/Tidelift.svg" width="200" height="60" /></a>
+   <a href="https://filepreviews.io/"><img src="https://www.attrs.org/en/latest/_static/sponsors/FilePreviews.svg" width="200" height="60"/></a>
 </p>
 
 <p align="center">
