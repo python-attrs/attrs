@@ -182,7 +182,7 @@ But it's way more comfortable to run it locally and *git* catching avoidable err
       """
   ```
 - If you add or change public APIs, tag the docstring using `..  versionadded:: 16.0.0 WHAT` or `..  versionchanged:: 16.2.0 WHAT`.
-- We use [*isort*](https://github.com/PyCQA/isort) to sort our imports, and we use [*Black*](https://github.com/psf/black) with line length of 79 characters to format our code.
+- We use [Ruff](https://github.com/astral-sh/ruff) to sort our imports, and we use [Black](https://github.com/psf/black) with line length of 79 characters to format our code.
   As long as you run our full [*tox*] suite before committing, or install our [*pre-commit*] hooks (ideally you'll do both – see [*Local Development Environment*](#local-development-environment) above), you won't have to spend any time on formatting your code at all.
   If you don't, [CI] will catch it for you – but that seems like a waste of your time!
 
@@ -200,7 +200,7 @@ But it's way more comfortable to run it locally and *git* catching avoidable err
 
 - To run the test suite, all you need is a recent [*tox*].
   It will ensure the test suite runs with all dependencies against all Python versions just as it will in our [CI].
-  If you lack some Python versions, you can can always limit the environments like `tox -e py38,py39`, or make it a non-failure using `tox --skip-missing-interpreters`.
+  If you lack some Python versions, you can can always limit the environments like `tox run -e py38,py39`, or make it a non-failure using `tox run --skip-missing-interpreters`.
 
   In that case you should look into [*asdf*](https://asdf-vm.com) or [*pyenv*](https://github.com/pyenv/pyenv), which make it very easy to install many different Python versions in parallel.
 - Write [good test docstrings](https://jml.io/pages/test-docstrings.html).
@@ -210,7 +210,7 @@ But it's way more comfortable to run it locally and *git* catching avoidable err
 
 ## Documentation
 
-- Use [semantic newlines] in [*reStructuredText*] and [*Markdown*](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) files (files ending in `.rst` and `.md`):
+- Use [semantic newlines] in [reStructuredText](https://www.sphinx-doc.org/en/stable/usage/restructuredtext/basics.html) and [Markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) files (files ending in `.rst` and `.md`):
 
   ```rst
   This is a sentence.
@@ -278,7 +278,7 @@ or:
 
 ---
 
-``tox -e changelog`` will render the current changelog to the terminal if you have any doubts.
+`tox run -e changelog` will render the current changelog to the terminal if you have any doubts.
 
 
 ## Governance
@@ -296,4 +296,3 @@ If you'd like to join, just get a pull request merged and ask to be added in the
 [*pre-commit*]: https://pre-commit.com/
 [*tox*]: https://tox.wiki/
 [semantic newlines]: https://rhodesmill.org/brandon/2012/one-sentence-per-line/
-[*reStructuredText*]: https://www.sphinx-doc.org/en/stable/usage/restructuredtext/basics.html
