@@ -10,15 +10,29 @@ You can find out backwards-compatibility policy [here](https://github.com/python
 
 Changes for the upcoming release can be found in the ["changelog.d" directory](https://github.com/python-attrs/attrs/tree/main/changelog.d) in our repository.
 
-<!--
-Do *NOT* add changelog entries here!
-
-This changelog is managed by towncrier and is compiled at release time.
-
-See https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md#changelog for details.
--->
-
 <!-- towncrier release notes start -->
+
+## [23.2.0](https://github.com/python-attrs/attrs/tree/23.2.0) - 2023-12-31
+
+### Changes
+
+- The type annotation for `attrs.resolve_types()` is now correct.
+  [#1141](https://github.com/python-attrs/attrs/issues/1141)
+- Type stubs now use `typing.dataclass_transform` to decorate dataclass-like decorators, instead of the non-standard `__dataclass_transform__` special form, which is only supported by Pyright.
+  [#1158](https://github.com/python-attrs/attrs/issues/1158)
+- Fixed serialization of namedtuple fields using `attrs.asdict/astuple()` with `retain_collection_types=True`.
+  [#1165](https://github.com/python-attrs/attrs/issues/1165)
+- `attrs.AttrsInstance` is now a `typing.Protocol` in both type hints and code.
+  This allows you to subclass it along with another `Protocol`.
+  [#1172](https://github.com/python-attrs/attrs/issues/1172)
+- If *attrs* detects that `__attrs_pre_init__` accepts more than just `self`, it will call it with the same arguments as `__init__` was called.
+  This allows you to, for example, pass arguments to `super().__init__()`.
+  [#1187](https://github.com/python-attrs/attrs/issues/1187)
+- Slotted classes now transform `functools.cached_property` decorated methods to support equivalent semantics.
+  [#1200](https://github.com/python-attrs/attrs/issues/1200)
+- Added *class_body* argument to `attrs.make_class()` to provide additional attributes for newly created classes.
+  It is, for example, now possible to attach methods.
+  [#1203](https://github.com/python-attrs/attrs/issues/1203)
 
 ## [23.1.0](https://github.com/python-attrs/attrs/tree/23.1.0) - 2023-04-16
 
