@@ -43,7 +43,7 @@ slotted classes
   - Slotted classes can inherit from other classes just like non-slotted classes, but some of the benefits of slotted classes are lost if you do that.
     If you must inherit from other classes, try to inherit only from other slotted classes.
 
-  - However, [it's not possible](https://docs.python.org/3/reference/datamodel.html#notes-on-using-slots) to inherit from more than one class that has attributes in `__slots__` (you will get an `TypeError: multiple bases have instance lay-out conflict`).
+  - However, [it's not possible](https://docs.python.org/3/reference/datamodel.html#slots) to inherit from more than one class that has attributes in `__slots__` (you will get an `TypeError: multiple bases have instance lay-out conflict`).
 
   - It's not possible to monkeypatch methods on slotted classes.
     This can feel limiting in test code, however the need to monkeypatch your own classes is usually a design smell.

@@ -584,7 +584,7 @@ See https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md#chan
   That callable must return a string and is then used for formatting the attribute by the generated `__repr__()` method.
   [#568](https://github.com/python-attrs/attrs/issues/568)
 - Added `attr.__version_info__` that can be used to reliably check the version of `attrs` and write forward- and backward-compatible code.
-  Please check out the [section on deprecated APIs](https://www.attrs.org/en/stable/api.html#deprecated-apis) on how to use it.
+  Please check out the [section on deprecated APIs](https://www.attrs.org/en/stable/api-attr.html#deprecated-apis) on how to use it.
   [#580](https://github.com/python-attrs/attrs/issues/580)
 
 >
