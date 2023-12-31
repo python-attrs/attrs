@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 
 [build-system]
-requires = ["hatchling", "hatch-vcs", "hatch-fancy-pypi-readme"]
+requires = ["hatchling", "hatch-vcs", "hatch-fancy-pypi-readme>=23.2.0"]
 build-backend = "hatchling.build"
 
 
@@ -111,6 +111,11 @@ text = """
 
 [Full changelog](https://www.attrs.org/en/stable/changelog.html)
 """
+
+# Point sponsor image URLs to versions.
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
+pattern = '\/latest\/_static/sponsors'
+replacement = '/$HFPR_VERSION/_static/sponsors'
 
 
 [tool.pytest.ini_options]
