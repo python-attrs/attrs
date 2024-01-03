@@ -3,8 +3,6 @@
 """
 Tests for `attr._make`.
 """
-
-
 import copy
 import functools
 import gc
@@ -1767,6 +1765,26 @@ class TestClassBuilder:
         @attr.s(slots=True)
         class C2(C):
             pass
+
+        # The original C2 is in a reference cycle, so force a collect:
+        gc.collect()
+
+        assert [C2] == C.__subclasses__()
+
+    def test_no_references_to_original_when_using_cached_property(self):
+        """
+        When subclassing a slotted class and using cached property, there are no stray references to the original class.
+        """
+
+        @attr.s(slots=True)
+        class C:
+            pass
+
+        @attr.s(slots=True)
+        class C2(C):
+            @functools.cached_property
+            def value(self) -> int:
+                return 0
 
         # The original C2 is in a reference cycle, so force a collect:
         gc.collect()
