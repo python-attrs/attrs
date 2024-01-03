@@ -944,6 +944,25 @@ def test_slots_with_multiple_cached_property_subclasses_works():
 
 
 @pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
+def test_slotted_cached_property_can_access_super():
+    """
+    Multiple sub-classes shouldn't break cached properties.
+    """
+
+    @attr.s(slots=True)
+    class A:
+        x = attr.ib(kw_only=True)
+
+    @attr.s(slots=True)
+    class B(A):
+        @functools.cached_property
+        def f(self):
+            return super().x * 2
+
+    assert B(x=1).f == 2
+
+
+@pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
 def test_slots_sub_class_avoids_duplicated_slots():
     """
     Duplicating the slots is a waste of memory.

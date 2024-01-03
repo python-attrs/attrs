@@ -940,6 +940,10 @@ class _ClassBuilder:
                 # Clear out function from class to avoid clashing.
                 del cd[name]
 
+            additional_closure_functions_to_update.extend(
+                cached_properties.values()
+            )
+
             class_annotations = _get_annotations(self._cls)
             for name, func in cached_properties.items():
                 annotation = inspect.signature(func).return_annotation
