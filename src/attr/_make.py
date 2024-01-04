@@ -318,11 +318,11 @@ def _compile_and_eval(script, globs, locs=None, filename=""):
     eval(bytecode, globs, locs)
 
 
-def _make_method(name, script, filename, globs):
+def _make_method(name, script, filename, globs, locals=None):
     """
     Create the method with the script given and return the method object.
     """
-    locs = {}
+    locs = {} if locals is None else locals
 
     # In order of debuggers like PDB being able to step through the code,
     # we add a fake linecache entry.
@@ -608,7 +608,7 @@ def _make_cached_property_getattr(
     lines = [
         # Wrapped to get `__class__` into closure cell for super()
         # (It will be replaced with the newly constructed class after construction).
-        "def wrapper():",
+        "def wrapper(_cls):",
         "    __class__ = _cls",
         "    def __getattr__(self, item, cached_properties=cached_properties, original_getattr=original_getattr, _cached_setattr_get=_cached_setattr_get):",
         "         func = cached_properties.get(item)",
@@ -635,7 +635,7 @@ def _make_cached_property_getattr(
     lines.extend(
         [
             "    return __getattr__",
-            "__getattr__ = wrapper()",
+            "__getattr__ = wrapper(_cls)",
         ]
     )
 
@@ -644,7 +644,6 @@ def _make_cached_property_getattr(
     glob = {
         "cached_properties": cached_properties,
         "_cached_setattr_get": _obj_setattr.__get__,
-        "_cls": cls,
         "original_getattr": original_getattr,
     }
 
@@ -653,6 +652,9 @@ def _make_cached_property_getattr(
         "\n".join(lines),
         unique_filename,
         glob,
+        locals={
+            "_cls": cls,
+        },
     )
 
 
@@ -937,6 +939,10 @@ class _ClassBuilder:
             for name in cached_properties:
                 # Clear out function from class to avoid clashing.
                 del cd[name]
+
+            additional_closure_functions_to_update.extend(
+                cached_properties.values()
+            )
 
             class_annotations = _get_annotations(self._cls)
             for name, func in cached_properties.items():
