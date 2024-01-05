@@ -94,7 +94,7 @@ You can only use this trick to tell *Mypy* that a class is actually an *attrs* c
 
 ### Pyright
 
-Generic decorator wrapping is supported in [*Pyright*](https://github.com/microsoft/pyright) via `typing.dataclass_transform` / {pep}`689`.
+Generic decorator wrapping is supported in [*Pyright*](https://github.com/microsoft/pyright) via `typing.dataclass_transform` / {pep}`681`.
 
 For a custom wrapping of the form:
 
