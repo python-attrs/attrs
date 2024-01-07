@@ -1,14 +1,14 @@
 # Changelog
 
-Versions follow [CalVer](https://calver.org) with a strict backwards-compatibility policy.
+Versions follow [Calendar Versioning](https://calver.org) with a strict backwards-compatibility policy.
 
 The **first number** of the version is the year.
 The **second number** is incremented with each release, starting at 1 for each year.
 The **third number** is when we need to start branches for older releases (only for emergencies).
 
-You can find out backwards-compatibility policy [here](https://github.com/python-attrs/attrs/blob/main/.github/SECURITY.md).
+You can find our backwards-compatibility policy [here](https://github.com/python-attrs/attrs/blob/main/.github/SECURITY.md).
 
-Changes for the upcoming release can be found in the ["changelog.d" directory](https://github.com/python-attrs/attrs/tree/main/changelog.d) in our repository.
+Changes for the upcoming release can be found in the [`changelog.d` directory](https://github.com/python-attrs/attrs/tree/main/changelog.d) in our repository.
 
 <!--
 Do *NOT* add changelog entries here!
