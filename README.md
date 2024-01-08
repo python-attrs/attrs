@@ -121,7 +121,7 @@ For more details, please refer to our [comparison page](https://www.attrs.org/en
 - [**Source Code**](https://github.com/python-attrs/attrs)
 - [**Contributing**](https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md)
 - [**Third-party Extensions**](https://github.com/python-attrs/attrs/wiki/Extensions-to-attrs)
-- **Get Help**: please use the `python-attrs` tag on [StackOverflow](https://stackoverflow.com/questions/tagged/python-attrs)
+- **Get Help**: use the `python-attrs` tag on [Stack Overflow](https://stackoverflow.com/questions/tagged/python-attrs)
 
 
 ### *attrs* for Enterprise
