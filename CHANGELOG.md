@@ -54,7 +54,7 @@ See https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md#chan
 
 - The support for *zope-interface* via the `attrs.validators.provides` validator is now deprecated and will be removed in, or after, April 2024.
 
-  The presence of a C-based package in our developement dependencies has caused headaches and we're not under the impression it's used a lot.
+  The presence of a C-based package in our development dependencies has caused headaches and we're not under the impression it's used a lot.
 
   Let us know if you're using it and we might publish it as a separate package.
   [#1120](https://github.com/python-attrs/attrs/issues/1120)

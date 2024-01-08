@@ -125,7 +125,7 @@ class TestLegacyMetadataHack:
 
     def test_version_info(self, recwarn, mod):
         """
-        ___version_info__ is not deprected, therefore doesn't raise a warning
+        ___version_info__ is not deprecated, therefore doesn't raise a warning
         and parses correctly.
         """
         assert isinstance(mod.__version_info__, attr.VersionInfo)

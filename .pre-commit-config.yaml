@@ -9,7 +9,7 @@ repos:
       - id: black
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.9
+    rev: v0.1.11
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
@@ -19,6 +19,12 @@ repos:
     hooks:
       - id: interrogate
         args: [tests]
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.6
+    hooks:
+      - id: codespell
+        args: [--exclude-file=tests/test_mypy.yml]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0

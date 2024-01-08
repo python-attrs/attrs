@@ -189,7 +189,7 @@ Again, it's important that the decorated method doesn't have the same name as th
 
 ### Callables
 
-If you want to re-use your validators, you should have a look at the `validator` argument to {func}`attrs.field`.
+If you want to reuse your validators, you should have a look at the `validator` argument to {func}`attrs.field`.
 
 It takes either a callable or a list of callables (usually functions) and treats them as validators that receive the same arguments as with the decorator approach.
 Also as with the decorator approach, they are passed as *positional arguments* so you can name them however you want.

@@ -162,12 +162,12 @@ texinfo_documents = [
         "attrs Documentation",
         "Hynek Schlawack",
         "attrs",
-        "Python Clases Without Boilerplate",
+        "Python Classes Without Boilerplate",
         "Miscellaneous",
     )
 ]
 
-epub_description = "Python Clases Without Boilerplate"
+epub_description = "Python Classes Without Boilerplate"
 
 intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
 
