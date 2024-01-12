@@ -681,7 +681,7 @@ Setters
 
 .. module:: attrs.setters
 
-These are helpers that you can use together with `attrs.define`'s and `attrs.fields`'s ``on_setattr`` arguments.
+These are helpers that you can use together with `attrs.define`'s and `attrs.field`'s ``on_setattr`` arguments.
 All setters in ``attrs.setters`` are also available from ``attr.setters`` (it's the same module in a different namespace).
 
 .. autofunction:: frozen
