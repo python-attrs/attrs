@@ -106,7 +106,7 @@ Frozen dict classes have barely a performance impact, unfrozen slotted classes a
 
 By default, the standard library {func}`functools.cached_property` decorator does not work on slotted classes, because it requires a `__dict__` to store the cached value.
 This could be surprising when using *attrs*, as slotted classes are the default.
-Therefore, *attrs* converts `functools.cached_property` decorated methods when constructing slotted classes.
+Therefore, *attrs* converts `cached_property`-decorated methods when constructing slotted classes.
 
 Getting this working is achieved by:
 
