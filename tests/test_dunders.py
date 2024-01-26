@@ -91,9 +91,11 @@ def _add_init(cls, frozen):
         cls,
         cls.__attrs_attrs__,
         has_pre_init,
-        len(inspect.signature(cls.__attrs_pre_init__).parameters) > 1
-        if has_pre_init
-        else False,
+        (
+            len(inspect.signature(cls.__attrs_pre_init__).parameters) > 1
+            if has_pre_init
+            else False
+        ),
         getattr(cls, "__attrs_post_init__", False),
         frozen,
         _is_slot_cls(cls),
