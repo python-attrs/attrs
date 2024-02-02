@@ -1,9 +1,10 @@
+import sys
+
 from typing import (
     Any,
     Callable,
     Mapping,
     Sequence,
-    dataclass_transform,
     overload,
     TypeVar,
 )
@@ -38,6 +39,11 @@ from attr import setters as setters
 from attr import validate as validate
 from attr import validators as validators
 from attr import attrib, asdict as asdict, astuple as astuple
+
+if sys.version_info >= (3, 11):
+    from typing import dataclass_transform
+else:
+    from typing_extensions import dataclass_transform
 
 _T = TypeVar("_T")
 _C = TypeVar("_C", bound=type)
