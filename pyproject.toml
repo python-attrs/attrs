@@ -30,14 +30,14 @@ dynamic = ["version", "readme"]
 
 [project.optional-dependencies]
 tests-mypy = [
-  'pytest-mypy-plugins; python_implementation == "CPython" and python_version >= "3.8"',
+  'pytest-mypy-plugins; platform_python_implementation == "CPython" and python_version >= "3.8"',
   # Since the mypy error messages keep changing, we have to keep updating this
   # pin.
-  'mypy>=1.6; python_implementation == "CPython" and python_version >= "3.8"',
+  'mypy>=1.6; platform_python_implementation == "CPython" and python_version >= "3.8"',
 ]
 tests-no-zope = [
   # For regression test to ensure cloudpickle compat doesn't break.
-  'cloudpickle; python_implementation == "CPython"',
+  'cloudpickle; platform_python_implementation == "CPython"',
   "hypothesis",
   "pympler",
   # 4.3.0 dropped last use of `convert`
