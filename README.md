@@ -94,7 +94,16 @@ After *declaring* your attributes, *attrs* gives you:
 **Hate type annotations**!?
 No problem!
 Types are entirely **optional** with *attrs*.
-Simply assign `attrs.field()` to the attributes instead of annotating them with types.
+Simply assign `attrs.field()` to the attributes instead of annotating them with types:
+
+```python
+from attrs import define, field
+
+@define
+class SomeClass:
+    a_number = field(default=42)
+    list_of_numbers = field(factory=list)
+```
 
 ---
 
