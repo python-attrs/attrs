@@ -387,6 +387,13 @@ C(x=42)
 
 If you need more control, use the custom init approach described next.
 
+:::{warning}
+You never need to use `super()` with *attrs* classes that inherit from other *attrs* classes.
+Each *attrs* class implements an `__init__` based on its own fields and those of all its base classes.
+
+You only need this escape hatch when subclassing non-*attrs* classes.
+:::
+
 
 ### Custom Init
 
