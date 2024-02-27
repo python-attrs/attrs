@@ -165,7 +165,7 @@ toplevel = ["attr", "attrs"]
 [tool.ruff]
 src = ["src", "tests", "conftest.py", "docs"]
 
-[tool.lint.ruff]
+[tool.ruff.lint]
 select = ["ALL"]
 ignore = [
   "A001",    # shadowing is fine
