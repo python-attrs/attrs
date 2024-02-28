@@ -600,9 +600,7 @@ class TestAssoc:
         AttrsAttributeNotFoundError.
         """
         # No generated class will have a four letter attribute.
-        with pytest.raises(
-            AttrsAttributeNotFoundError
-        ) as e, pytest.deprecated_call():
+        with pytest.raises(AttrsAttributeNotFoundError) as e:
             assoc(C(), aaaa=2)
 
         assert (f"aaaa is not an attrs attribute on {C!r}.",) == e.value.args
