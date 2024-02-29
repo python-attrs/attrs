@@ -122,7 +122,7 @@ C(a=42, b=[], c=[], d={})
 
 It's important that the decorated method -- or any other method or property! -- doesn't have the same name as the attribute, otherwise it would overwrite the attribute definition.
 
-Please note that as with function and method signatures, `default=[]` will *not* do what you may think it might do:
+Similar to the [common gotcha with mutable default arguments](https://docs.python-guide.org/writing/gotchas/#mutable-default-arguments), `default=[]` will *not* do what you may think it might do:
 
 ```{doctest}
 >>> @define
