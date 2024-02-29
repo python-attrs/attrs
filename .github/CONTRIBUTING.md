@@ -104,7 +104,7 @@ You can *significantly* speed up the test suite by passing `-n auto` to *pytest*
 For documentation, you can use:
 
 ```console
-$ tox run -e docs-serve
+$ tox run -e docs-watch
 ```
 
 This will build the documentation, and then watch for changes and rebuild it whenever you save a file.
