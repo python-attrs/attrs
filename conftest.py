@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: MIT
 
+from datetime import timedelta
+
 import pytest
 
 from hypothesis import HealthCheck, settings
@@ -20,7 +22,11 @@ def _frozen(request):
 def pytest_configure(config):
     # HealthCheck.too_slow causes more trouble than good -- especially in CIs.
     settings.register_profile(
-        "patience", settings(suppress_health_check=[HealthCheck.too_slow])
+        "patience",
+        settings(
+            suppress_health_check=[HealthCheck.too_slow],
+            deadline=timedelta(milliseconds=400),
+        ),
     )
     settings.load_profile("patience")
 
