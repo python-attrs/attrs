@@ -41,8 +41,7 @@ tests-no-zope = [
   "hypothesis",
   "pympler",
   # 4.3.0 dropped last use of `convert`
-  # 8.0 broke something around warnings/exceptions
-  "pytest>=4.3.0,<8.0",
+  "pytest>=4.3.0",
   "pytest-xdist[psutil]",
   "attrs[tests-mypy]",
 ]
