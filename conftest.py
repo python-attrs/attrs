@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: MIT
 
+from datetime import timedelta
+
 import pytest
 
-from datetime import timedelta
 from hypothesis import HealthCheck, settings
 
 from attr._compat import PY310
