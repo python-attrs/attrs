@@ -328,7 +328,7 @@ class TestDundersUnnamedClass:
         method = self.cls.__ne__
         assert method.__doc__.strip() == (
             "Check equality and either forward a NotImplemented or\n"
-           f"{indent}return the result negated."
+            f"{indent}return the result negated."
         )
         assert method.__name__ == "__ne__"
 
@@ -396,7 +396,7 @@ class TestDundersPartialOrdering:
         method = self.cls.__ne__
         assert method.__doc__.strip() == (
             "Check equality and either forward a NotImplemented or\n"
-           f"{indent}return the result negated."
+            f"{indent}return the result negated."
         )
         assert method.__name__ == "__ne__"
 
