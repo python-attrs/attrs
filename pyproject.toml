@@ -270,5 +270,6 @@ showcontent = true
 
 
 [tool.mypy]
+pretty = true
 disallow_untyped_defs = true
 check_untyped_defs = true
