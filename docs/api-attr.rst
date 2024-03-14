@@ -136,7 +136,7 @@ Helpers
 
 .. function:: fields_dict
 
-   Same as `attr.fields_dict`.
+   Same as `attrs.fields_dict`.
 
 .. function:: has
 
