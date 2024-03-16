@@ -214,7 +214,7 @@ For example, let's assume that you really don't like floats:
 Data(a=42, c='spam')
 ```
 
-A more realistic example would be to automatically convert data that you, e.g., load from JSON:
+A more realistic example would be to automatically convert data that you, for example, load from JSON:
 
 ```{doctest}
 >>> from datetime import datetime

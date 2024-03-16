@@ -26,21 +26,21 @@ def cmp_using(
     The resulting class will have a full set of ordering methods if at least
     one of ``{lt, le, gt, ge}`` and ``eq``  are provided.
 
-    :param Optional[callable] eq: `callable` used to evaluate equality of two
+    :param typing.Callable | None eq: `Callable` used to evaluate equality of two
         objects.
-    :param Optional[callable] lt: `callable` used to evaluate whether one
+    :param typing.Callable | None lt: `Callable` used to evaluate whether one
         object is less than another object.
-    :param Optional[callable] le: `callable` used to evaluate whether one
+    :param typing.Callable | None le: `Callable` used to evaluate whether one
         object is less than or equal to another object.
-    :param Optional[callable] gt: `callable` used to evaluate whether one
+    :param typing.Callable | None gt: `Callable` used to evaluate whether one
         object is greater than another object.
-    :param Optional[callable] ge: `callable` used to evaluate whether one
+    :param typing.Callable | None ge: `Callable` used to evaluate whether one
         object is greater than or equal to another object.
 
     :param bool require_same_type: When `True`, equality and ordering methods
         will return `NotImplemented` if objects are not of the same type.
 
-    :param Optional[str] class_name: Name of class. Defaults to 'Comparable'.
+    :param str | None class_name: Name of class. Defaults to "Comparable".
 
     See `comparison` for more details.
 

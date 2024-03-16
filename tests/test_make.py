@@ -21,7 +21,7 @@ from hypothesis.strategies import booleans, integers, lists, sampled_from, text
 import attr
 
 from attr import _config
-from attr._compat import PY310, PY_3_8_PLUS
+from attr._compat import PY_3_8_PLUS, PY_3_10_PLUS
 from attr._make import (
     Attribute,
     Factory,
@@ -2492,7 +2492,7 @@ class TestAutoDetect:
             C, "__getstate__", None
         )
 
-    @pytest.mark.skipif(PY310, reason="Pre-3.10 only.")
+    @pytest.mark.skipif(PY_3_10_PLUS, reason="Pre-3.10 only.")
     def test_match_args_pre_310(self):
         """
         __match_args__ is not created on Python versions older than 3.10.
@@ -2505,7 +2505,9 @@ class TestAutoDetect:
         assert None is getattr(C, "__match_args__", None)
 
 
-@pytest.mark.skipif(not PY310, reason="Structural pattern matching is 3.10+")
+@pytest.mark.skipif(
+    not PY_3_10_PLUS, reason="Structural pattern matching is 3.10+"
+)
 class TestMatchArgs:
     """
     Tests for match_args and __match_args__ generation.

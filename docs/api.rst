@@ -11,7 +11,7 @@ If you're confused by the many names, please check out `names` for clarification
 
 - The classic ``attr`` that powers the venerable `attr.s` and `attr.ib`.
 - The newer ``attrs`` that only contains most modern APIs and relies on `attrs.define` and `attrs.field` to define your classes.
-  Additionally it offers some ``attr`` APIs with nicer defaults (e.g. `attrs.asdict`).
+  Additionally it offers some ``attr`` APIs with nicer defaults (for example, `attrs.asdict`).
 
 The ``attrs`` namespace is built *on top of* ``attr`` -- which will *never* go away -- and is just as stable, since it doesn't constitute a rewrite.
 To keep repetition low and this document at a reasonable size, the ``attr`` namespace is `documented on a separate page <api-attr>`, though.

@@ -104,7 +104,8 @@ def default_if_none(default=NOTHING, factory=None):
 
 def to_bool(val):
     """
-    Convert "boolean" strings (e.g., from env. vars.) to real booleans.
+    Convert "boolean" strings (for example, from environment variables) to real
+    booleans.
 
     Values mapping to :code:`True`:
 

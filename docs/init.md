@@ -370,7 +370,7 @@ For that purpose, *attrs* offers the following options:
 - `__attrs_post_init__` is automatically detected and run *after* *attrs* is done initializing your instance.
   This is useful if you want to derive some attribute from others or perform some kind of validation over the whole instance.
 
-- `__attrs_init__` is written and attached to your class *instead* of `__init__`, if *attrs* is told to not write one (i.e. `init=False` or a combination of `auto_detect=True` and a custom `__init__`).
+- `__attrs_init__` is written and attached to your class *instead* of `__init__`, if *attrs* is told to not write one (when `init=False` or a by a combination of `auto_detect=True` and a custom `__init__`).
   This is useful if you want full control over the initialization process, but don't want to set the attributes by hand.
 
 

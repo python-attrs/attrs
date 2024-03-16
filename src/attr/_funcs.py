@@ -432,25 +432,25 @@ def resolve_types(
     Resolve any strings and forward annotations in type annotations.
 
     This is only required if you need concrete types in `Attribute`'s *type*
-    field. In other words, you don't need to resolve your types if you only
-    use them for static type checking.
+    field. In other words, you don't need to resolve your types if you only use
+    them for static type checking.
 
     With no arguments, names will be looked up in the module in which the class
-    was created. If this is not what you want, e.g. if the name only exists
-    inside a method, you may pass *globalns* or *localns* to specify other
-    dictionaries in which to look up these names. See the docs of
+    was created. If this is not what you want, for example, if the name only
+    exists inside a method, you may pass *globalns* or *localns* to specify
+    other dictionaries in which to look up these names. See the docs of
     `typing.get_type_hints` for more details.
 
     :param type cls: Class to resolve.
-    :param Optional[dict] globalns: Dictionary containing global variables.
-    :param Optional[dict] localns: Dictionary containing local variables.
-    :param Optional[list] attribs: List of attribs for the given class.
-        This is necessary when calling from inside a ``field_transformer``
-        since *cls* is not an *attrs* class yet.
-    :param bool include_extras: Resolve more accurately, if possible.
-        Pass ``include_extras`` to ``typing.get_hints``, if supported by the
-        typing module. On supported Python versions (3.9+), this resolves the
-        types more accurately.
+    :param dict | None globalns: Dictionary containing global variables.
+    :param dict | None localns: Dictionary containing local variables.
+    :param list | None attribs: List of attribs for the given class. This is
+        necessary when calling from inside a ``field_transformer`` since *cls*
+        is not an *attrs* class yet.
+    :param bool include_extras: Resolve more accurately, if possible. Pass
+        ``include_extras`` to ``typing.get_hints``, if supported by the typing
+        module. On supported Python versions (3.9+), this resolves the types
+        more accurately.
 
     :raise TypeError: If *cls* is not a class.
     :raise attrs.exceptions.NotAnAttrsClassError: If *cls* is not an *attrs*
@@ -464,7 +464,6 @@ def resolve_types(
     ..  versionadded:: 20.1.0
     ..  versionadded:: 21.1.0 *attribs*
     ..  versionadded:: 23.1.0 *include_extras*
-
     """
     # Since calling get_type_hints is expensive we cache whether we've
     # done it already.

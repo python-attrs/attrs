@@ -17,8 +17,8 @@ from operator import itemgetter
 # having the thread-local in the globals here.
 from . import _compat, _config, setters
 from ._compat import (
-    PY310,
     PY_3_8_PLUS,
+    PY_3_10_PLUS,
     _AnnotationExtractor,
     get_generic_base,
 )
@@ -166,8 +166,9 @@ def attrib(
         If ``True``, include the attribute; if ``False``, omit it. By default,
         the built-in ``repr()`` function is used. To override how the attribute
         value is formatted, pass a ``callable`` that takes a single value and
-        returns a string. Note that the resulting string is used as-is, i.e. it
-        will be used directly *instead* of calling ``repr()`` (the default).
+        returns a string. Note that the resulting string is used as-is, which
+        means it will be used directly *instead* of calling ``repr()`` (the
+        default).
     :type repr: a `bool` or a `callable` to use a custom function.
 
     :param eq: If ``True`` (default), include this attribute in the generated
@@ -312,7 +313,8 @@ def attrib(
 
 def _compile_and_eval(script, globs, locs=None, filename=""):
     """
-    "Exec" the script with the given global (globs) and local (locs) variables.
+    Evaluate the script with the given global (globs) and local (locs)
+    variables.
     """
     bytecode = compile(script, filename, "exec")
     eval(bytecode, globs, locs)
@@ -499,8 +501,8 @@ def _transform_attrs(
 
     If *these* is passed, use that and don't look for them on the class.
 
-    *collect_by_mro* is True, collect them in the correct MRO order, otherwise
-    use the old -- incorrect -- order.  See #428.
+    If *collect_by_mro* is True, collect them in the correct MRO order,
+    otherwise use the old -- incorrect -- order.  See #428.
 
     Return an `_Attributes`.
     """
@@ -600,11 +602,7 @@ def _transform_attrs(
     return _Attributes((AttrsClass(attrs), base_attrs, base_attr_map))
 
 
-def _make_cached_property_getattr(
-    cached_properties,
-    original_getattr,
-    cls,
-):
+def _make_cached_property_getattr(cached_properties, original_getattr, cls):
     lines = [
         # Wrapped to get `__class__` into closure cell for super()
         # (It will be replaced with the newly constructed class after construction).
@@ -801,7 +799,7 @@ class _ClassBuilder:
     def __repr__(self):
         return f"<_ClassBuilder(cls={self._cls.__name__})>"
 
-    if PY310:
+    if PY_3_10_PLUS:
         import abc
 
         def build_class(self):
@@ -1339,13 +1337,13 @@ def attrs(
     A class decorator that adds :term:`dunder methods` according to the
     specified attributes using `attr.ib` or the *these* argument.
 
-    Please consider using `attrs.define` / `attrs.frozen` in new code
-    (``attr.s`` will *never* go away, though).
+    Consider using `attrs.define` / `attrs.frozen` in new code (``attr.s`` will
+    *never* go away, though).
 
     :param these: A dictionary of name to `attr.ib` mappings.  This is useful
         to avoid the definition of your attributes within the class body
-        because you can't (e.g. if you want to add ``__repr__`` methods to
-        Django models) or don't want to.
+        because you can't (for example, if you want to add ``__repr__`` methods
+        to Django models) or don't want to.
 
         If *these* is not ``None``, *attrs* will *not* search the class body
         for attributes and will *not* remove any attributes from it.
@@ -1354,16 +1352,16 @@ def attrs(
 
     :type these: `dict` of `str` to `attr.ib`
 
-    :param str repr_ns: When using nested classes, there's no way in Python 2
-        to automatically detect that.  Therefore it's possible to set the
-        namespace explicitly for a more meaningful ``repr`` output.
+    :param str repr_ns: When using nested classes, there was no way in Python 2
+        to automatically detect that.  This argument allows to set a custom
+        name for a more meaningful ``repr`` output.
     :param bool auto_detect: Instead of setting the *init*, *repr*, *eq*,
         *order*, and *hash* arguments explicitly, assume they are set to
         ``True`` **unless any** of the involved methods for one of the
-        arguments is implemented in the *current* class (i.e. it is *not*
+        arguments is implemented in the *current* class (meaning, it is *not*
         inherited from some base class).
 
-        So for example by implementing ``__eq__`` on a class yourself, *attrs*
+        So, for example by implementing ``__eq__`` on a class yourself, *attrs*
         will deduce ``eq=False`` and will create *neither* ``__eq__`` *nor*
         ``__ne__`` (but Python classes come with a sensible ``__ne__`` by
         default, so it *should* be enough to only implement ``__eq__`` in most
@@ -1372,10 +1370,9 @@ def attrs(
         .. warning::
 
            If you prevent *attrs* from creating the ordering methods for you
-           (``order=False``, e.g. by implementing ``__le__``), it becomes
-           *your* responsibility to make sure its ordering is sound. The best
-           way is to use the `functools.total_ordering` decorator.
-
+           (``order=False``, for example, by implementing ``__le__``), it
+           becomes *your* responsibility to make sure its ordering is sound.
+           The best way is to use the `functools.total_ordering` decorator.
 
         Passing ``True`` or ``False`` to *init*, *repr*, *eq*, *order*, *cmp*,
         or *hash* overrides whatever *auto_detect* would determine.
@@ -1412,26 +1409,26 @@ def attrs(
            ``object``, this means it will fall back to id-based hashing.).
 
         Although not recommended, you can decide for yourself and force *attrs*
-        to create one (e.g. if the class is immutable even though you didn't
-        freeze it programmatically) by passing ``True`` or not.  Both of these
-        cases are rather special and should be used carefully.
+        to create one (for example, if the class is immutable even though you
+        didn't freeze it programmatically) by passing ``True`` or not.  Both of
+        these cases are rather special and should be used carefully.
 
         .. seealso::
 
            - Our documentation on `hashing`,
            - Python's documentation on `object.__hash__`,
-           - and the `GitHub issue that led to the default \
-             behavior <https://github.com/python-attrs/attrs/issues/136>`_ for
-             more details.
+           - and the `GitHub issue that led to the default \ behavior
+             <https://github.com/python-attrs/attrs/issues/136>`_ for more
+             details.
 
     :param bool | None hash: Alias for *unsafe_hash*. *unsafe_hash* takes
         precedence.
     :param bool init: Create a ``__init__`` method that initializes the *attrs*
-        attributes. Leading underscores are stripped for the argument name. If
-        a ``__attrs_pre_init__`` method exists on the class, it will be called
-        before the class is initialized. If a ``__attrs_post_init__`` method
-        exists on the class, it will be called after the class is fully
-        initialized.
+        attributes. Leading underscores are stripped for the argument name
+        (unless an alias is set on the attribute). If a ``__attrs_pre_init__``
+        method exists on the class, it will be called before the class is
+        initialized. If a ``__attrs_post_init__`` method exists on the class,
+        it will be called after the class is fully initialized.
 
         If ``init`` is ``False``, an ``__attrs_init__`` method will be injected
         instead. This allows you to define a custom ``__init__`` method that
@@ -1472,29 +1469,28 @@ def attrs(
 
         In this case, you **must** annotate every field.  If *attrs* encounters
         a field that is set to an `attr.ib` but lacks a type annotation, an
-        `attr.exceptions.UnannotatedAttributeError` is raised.  Use
+        `attrs.exceptions.UnannotatedAttributeError` is raised.  Use
         ``field_name: typing.Any = attr.ib(...)`` if you don't want to set a
         type.
 
-        If you assign a value to those attributes (e.g. ``x: int = 42``), that
-        value becomes the default value like if it were passed using
-        ``attr.ib(default=42)``.  Passing an instance of `attrs.Factory` also
-        works as expected in most cases (see warning below).
+        If you assign a value to those attributes (for example, ``x: int =
+        42``), that value becomes the default value like if it were passed
+        using ``attr.ib(default=42)``.  Passing an instance of `attrs.Factory`
+        also works as expected in most cases (see warning below).
 
         Attributes annotated as `typing.ClassVar`, and attributes that are
         neither annotated nor set to an `attr.ib` are **ignored**.
 
         .. warning::
-           For features that use the attribute name to create decorators (e.g.
-           :ref:`validators <validators>`), you still *must* assign `attr.ib`
-           to them. Otherwise Python will either not find the name or try to
-           use the default value to call e.g. ``validator`` on it.
 
-           These errors can be quite confusing and probably the most common bug
-           report on our bug tracker.
+           For features that use the attribute name to create decorators (for
+           example, :ref:`validators <validators>`), you still *must* assign
+           `attr.ib` to them. Otherwise Python will either not find the name or
+           try to use the default value to call, for example, ``validator`` on
+           it.
 
     :param bool kw_only: Make all attributes keyword-only in the generated
-        ``__init__`` (if ``init`` is ``False``, this parameter is ignored).
+        ``__init__`` (if *init* is ``False``, this parameter is ignored).
     :param bool cache_hash: Ensure that the object's hash code is computed only
         once and stored on the object.  If this is set to ``True``, hashing
         must be either explicitly or implicitly enabled for this class.  If the
@@ -1517,7 +1513,7 @@ def attrs(
     :param bool collect_by_mro: Setting this to `True` fixes the way *attrs*
        collects attributes from base classes.  The default behavior is
        incorrect in certain cases of multiple inheritance.  It should be on by
-       default but is kept off for backward-compatibility.
+       default, but is kept off for backwards-compatibility.
 
        .. seealso::
           Issue `#428 <https://github.com/python-attrs/attrs/issues/428>`_
@@ -1530,12 +1526,12 @@ def attrs(
        If `True`, ``__getstate__`` and ``__setstate__`` are generated and
        attached to the class. This is necessary for slotted classes to be
        pickleable. If left `None`, it's `True` by default for slotted classes
-       and ``False`` for dict classes.
+       and `False` for dict classes.
 
        If *auto_detect* is `True`, and *getstate_setstate* is left `None`, and
        **either** ``__getstate__`` or ``__setstate__`` is detected directly on
-       the class (i.e. not inherited), it is set to `False` (this is usually
-       what you want).
+       the class (meaning: not inherited), it is set to `False` (this is
+       usually what you want).
 
     :param on_setattr: A callable that is run whenever the user attempts to set
         an attribute (either by assignment like ``i.x = 42`` or by using
@@ -1553,15 +1549,15 @@ def attrs(
 
     :param callable | None field_transformer:
         A function that is called with the original class object and all fields
-        right before *attrs* finalizes the class.  You can use this, e.g., to
-        automatically add converters or validators to fields based on their
-        types.
+        right before *attrs* finalizes the class.  You can use this, for
+        example, to automatically add converters or validators to fields based
+        on their types.
 
         .. seealso:: `transform-fields`
 
     :param bool match_args:
         If `True` (default), set ``__match_args__`` on the class to support
-        :pep:`634` (Structural Pattern Matching). It is a tuple of all
+        :pep:`634` (*Structural Pattern Matching*). It is a tuple of all
         non-keyword-only ``__init__`` parameter names on Python 3.10 and later.
         Ignored on older Python versions.
 
@@ -1705,7 +1701,7 @@ def attrs(
                 raise TypeError(msg)
 
         if (
-            PY310
+            PY_3_10_PLUS
             and match_args
             and not _has_own_attribute(cls, "__match_args__")
         ):

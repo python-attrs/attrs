@@ -6,7 +6,7 @@ import pytest
 
 from hypothesis import HealthCheck, settings
 
-from attr._compat import PY310
+from attr._compat import PY_3_10_PLUS
 
 
 @pytest.fixture(name="slots", params=(True, False))
@@ -32,5 +32,5 @@ def pytest_configure(config):
 
 
 collect_ignore = []
-if not PY310:
+if not PY_3_10_PLUS:
     collect_ignore.extend(["tests/test_pattern_matching.py"])

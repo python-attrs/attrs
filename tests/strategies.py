@@ -145,7 +145,7 @@ def simple_classes(
     be generated, and if `slots=False` is passed in, no slotted classes will be
     generated. The same applies to `frozen` and `weakref_slot`.
 
-    By default, some attributes will be private (i.e. prefixed with an
+    By default, some attributes will be private (those prefixed with an
     underscore). If `private_attrs=True` is passed in, all attributes will be
     private, and if `private_attrs=False`, no attributes will be private.
     """
