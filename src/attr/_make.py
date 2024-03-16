@@ -1354,7 +1354,8 @@ def attrs(
 
     :param str repr_ns: When using nested classes, there was no way in Python 2
         to automatically detect that.  This argument allows to set a custom
-        name for a more meaningful ``repr`` output.
+        name for a more meaningful ``repr`` output.  This argument
+        is pointless in Python 3 and is therefore deprecated.
     :param bool auto_detect: Instead of setting the *init*, *repr*, *eq*,
         *order*, and *hash* arguments explicitly, assume they are set to
         ``True`` **unless any** of the involved methods for one of the
@@ -1597,7 +1598,18 @@ def attrs(
     .. versionadded:: 21.3.0 *match_args*
     .. versionadded:: 22.2.0
        *unsafe_hash* as an alias for *hash* (for :pep:`681` compliance).
+    .. deprecated:: 24.1.0 *repr_ns*
     """
+    if repr_ns is not None:
+        import warnings
+
+        warnings.warn(
+            DeprecationWarning(
+                "The `repr_ns` argument is deprecated and will be removed in or after April 2025."
+            ),
+            stacklevel=2,
+        )
+
     eq_, order_ = _determine_attrs_eq_order(cmp, eq, order, None)
 
     # unsafe_hash takes precedence due to PEP 681.

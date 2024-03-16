@@ -600,11 +600,13 @@ class TestAttributes:
         Setting repr_ns overrides a potentially guessed namespace.
         """
 
-        @attr.s(slots=slots_outer)
-        class C:
-            @attr.s(repr_ns="C", slots=slots_inner)
-            class D:
-                pass
+        with pytest.deprecated_call(match="The `repr_ns` argument"):
+
+            @attr.s(slots=slots_outer)
+            class C:
+                @attr.s(repr_ns="C", slots=slots_inner)
+                class D:
+                    pass
 
         assert "C.D()" == repr(C.D())
 
