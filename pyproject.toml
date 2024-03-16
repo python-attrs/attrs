@@ -36,7 +36,7 @@ tests-mypy = [
   # pin.
   'mypy>=1.6; platform_python_implementation == "CPython" and python_version >= "3.8"',
 ]
-tests-no-zope = [
+tests = [
   # For regression test to ensure cloudpickle compat doesn't break.
   'cloudpickle; platform_python_implementation == "CPython"',
   "hypothesis",
@@ -46,7 +46,6 @@ tests-no-zope = [
   "pytest-xdist[psutil]",
   "attrs[tests-mypy]",
 ]
-tests = ["attrs[tests-no-zope]", "zope.interface"]
 cov = [
   "attrs[tests]",
   # Ensure coverage is new enough for `source_pkgs`.
@@ -56,7 +55,6 @@ docs = [
   "furo",
   "myst-parser",
   "sphinx",
-  "zope.interface",
   "sphinx-notfound-page",
   "sphinxcontrib-towncrier",
   "towncrier",
