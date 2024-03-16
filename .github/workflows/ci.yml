@@ -62,7 +62,7 @@ jobs:
           echo IS_PYPY=$IS_PYPY >>$GITHUB_ENV
           echo TOX_PYTHON=$V >>$GITHUB_ENV
 
-          python -Im pip install tox
+          python -Im pip install tox-uv
 
       - run: python -Im tox run -e ${{ env.TOX_PYTHON }}-tests
       - run: python -Im tox run -e ${{ env.TOX_PYTHON }}-mypy
@@ -124,7 +124,7 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - run: python -Im pip install tox
+      - run: python -Im pip install tox-uv
       - run: python -Im tox run -e docs,changelog
 
   pyright:
@@ -137,7 +137,7 @@ jobs:
           python-version-file: .python-version-default
           cache: pip
 
-      - run: python -Im pip install tox
+      - run: python -Im pip install tox-uv
       - run: python -Im tox run -e pyright
 
   install-dev:
