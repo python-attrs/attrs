@@ -371,7 +371,8 @@ def evolve(*args, **changes):
     Create a new instance, based on the first positional argument with
     *changes* applied.
 
-    :param inst: Instance of a class with *attrs* attributes.
+    :param inst: Instance of a class with *attrs* attributes. *inst* must be
+        passed as a positional argument.
     :param changes: Keyword changes in the new copy.
 
     :return: A copy of inst with *changes* incorporated.
@@ -387,30 +388,16 @@ def evolve(*args, **changes):
        *inst*. It will raise a warning until at least April 2024, after which
        it will become an error. Always pass the instance as a positional
        argument.
+    .. versionchanged:: 24.1.0
+       *inst* can't be passed as a keyword argument anymore.
     """
-    # Try to get instance by positional argument first.
-    # Use changes otherwise and warn it'll break.
-    if args:
-        try:
-            (inst,) = args
-        except ValueError:
-            msg = f"evolve() takes 1 positional argument, but {len(args)} were given"
-            raise TypeError(msg) from None
-    else:
-        try:
-            inst = changes.pop("inst")
-        except KeyError:
-            msg = "evolve() missing 1 required positional argument: 'inst'"
-            raise TypeError(msg) from None
-
-        import warnings
-
-        warnings.warn(
-            "Passing the instance per keyword argument is deprecated and "
-            "will stop working in, or after, April 2024.",
-            DeprecationWarning,
-            stacklevel=2,
+    try:
+        (inst,) = args
+    except ValueError:
+        msg = (
+            f"evolve() takes 1 positional argument, but {len(args)} were given"
         )
+        raise TypeError(msg) from None
 
     cls = inst.__class__
     attrs = fields(cls)
