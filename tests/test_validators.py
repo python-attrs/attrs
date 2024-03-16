@@ -443,14 +443,14 @@ class TestOptional:
 
         if isinstance(validator, list):
             repr_s = (
-                "<optional validator for _AndValidator(_validators=[{func}, "
+                f"<optional validator for _AndValidator(_validators=[{always_pass!r}, "
                 "<instance_of validator for type <class 'int'>>]) or None>"
-            ).format(func=repr(always_pass))
+            )
         elif isinstance(validator, tuple):
             repr_s = (
-                "<optional validator for _AndValidator(_validators=({func}, "
+                f"<optional validator for _AndValidator(_validators=({always_pass!r}, "
                 "<instance_of validator for type <class 'int'>>)) or None>"
-            ).format(func=repr(always_pass))
+            )
         else:
             repr_s = (
                 "<optional validator for <instance_of validator for type "
@@ -1180,8 +1180,8 @@ class TestNot_:
 
         assert (
             (
-                "not_ validator child '{!r}' did not raise a captured error"
-            ).format(always_passes),
+                f"not_ validator child '{always_passes!r}' did not raise a captured error"
+            ),
             a,
             always_passes,
             input_value,
@@ -1276,8 +1276,8 @@ class TestNot_:
 
         assert (
             (
-                "not_ validator child '{!r}' did not raise a captured error"
-            ).format(instance_of((int, float))),
+                f"not_ validator child '{instance_of((int, float))!r}' did not raise a captured error"
+            ),
             a,
             wrapped,
             input_value,

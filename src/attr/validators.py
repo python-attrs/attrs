@@ -97,12 +97,7 @@ class _InstanceOfValidator:
         We use a callable class to be able to change the ``__repr__``.
         """
         if not isinstance(value, self.type):
-            msg = "'{name}' must be {type!r} (got {value!r} that is a {actual!r}).".format(
-                name=attr.name,
-                type=self.type,
-                actual=value.__class__,
-                value=value,
-            )
+            msg = f"'{attr.name}' must be {self.type!r} (got {value!r} that is a {value.__class__!r})."
             raise TypeError(
                 msg,
                 attr,
@@ -140,9 +135,7 @@ class _MatchesReValidator:
         We use a callable class to be able to change the ``__repr__``.
         """
         if not self.match_func(value):
-            msg = "'{name}' must match regex {pattern!r} ({value!r} doesn't)".format(
-                name=attr.name, pattern=self.pattern.pattern, value=value
-            )
+            msg = f"'{attr.name}' must match regex {self.pattern.pattern!r} ({value!r} doesn't)"
             raise ValueError(
                 msg,
                 attr,
@@ -206,9 +199,7 @@ class _ProvidesValidator:
         We use a callable class to be able to change the ``__repr__``.
         """
         if not self.interface.providedBy(value):
-            msg = "'{name}' must provide {interface!r} which {value!r} doesn't.".format(
-                name=attr.name, interface=self.interface, value=value
-            )
+            msg = f"'{attr.name}' must provide {self.interface!r} which {value!r} doesn't."
             raise TypeError(
                 msg,
                 attr,
@@ -426,9 +417,7 @@ class _DeepMapping:
             self.value_validator(inst, attr, value[key])
 
     def __repr__(self):
-        return (
-            "<deep_mapping validator for objects mapping {key!r} to {value!r}>"
-        ).format(key=self.key_validator, value=self.value_validator)
+        return f"<deep_mapping validator for objects mapping {self.key_validator!r} to {self.value_validator!r}>"
 
 
 def deep_mapping(key_validator, value_validator, mapping_validator=None):
@@ -640,12 +629,7 @@ class _NotValidator:
             )
 
     def __repr__(self):
-        return (
-            "<not_ validator wrapping {what!r}, capturing {exc_types!r}>"
-        ).format(
-            what=self.validator,
-            exc_types=self.exc_types,
-        )
+        return f"<not_ validator wrapping {self.validator!r}, capturing {self.exc_types!r}>"
 
 
 def not_(validator, *, msg=None, exc_types=(ValueError, TypeError)):
