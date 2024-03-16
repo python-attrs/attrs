@@ -110,7 +110,7 @@ text = """
 
 ---
 
-[Full changelog](https://www.attrs.org/en/stable/changelog.html)
+[Full changelog →](https://www.attrs.org/en/stable/changelog.html)
 """
 
 # Point sponsor image URLs to versions.
