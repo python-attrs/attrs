@@ -34,7 +34,6 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
-          # - "pypy-3.7"
           - "pypy-3.8"
           - "pypy-3.9"
           - "pypy-3.10"
@@ -62,7 +61,10 @@ jobs:
           echo IS_PYPY=$IS_PYPY >>$GITHUB_ENV
           echo TOX_PYTHON=$V >>$GITHUB_ENV
 
-          python -Im pip install tox-uv
+          python -Im pip install tox
+
+      - run: python -Im pip install tox-uv
+        if: matrix.python-version != '3.7'
 
       - run: python -Im tox run -e ${{ env.TOX_PYTHON }}-tests
       - run: python -Im tox run -e ${{ env.TOX_PYTHON }}-mypy
