@@ -34,7 +34,6 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
-          # - "pypy-3.7"
           - "pypy-3.8"
           - "pypy-3.9"
           - "pypy-3.10"
@@ -63,6 +62,9 @@ jobs:
           echo TOX_PYTHON=$V >>$GITHUB_ENV
 
           python -Im pip install tox
+
+      - run: python -Im pip install tox-uv
+        if: matrix.python-version != '3.7'
 
       - run: python -Im tox run -e ${{ env.TOX_PYTHON }}-tests
       - run: python -Im tox run -e ${{ env.TOX_PYTHON }}-mypy
@@ -124,7 +126,7 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - run: python -Im pip install tox
+      - run: python -Im pip install tox-uv
       - run: python -Im tox run -e docs,changelog
 
   pyright:
@@ -137,7 +139,7 @@ jobs:
           python-version-file: .python-version-default
           cache: pip
 
-      - run: python -Im pip install tox
+      - run: python -Im pip install tox-uv
       - run: python -Im tox run -e pyright
 
   install-dev:
