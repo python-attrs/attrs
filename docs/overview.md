@@ -4,7 +4,7 @@ In order to fulfill its ambitious goal of bringing back the joy to writing class
 
 ```{include} ../README.md
 :start-after: 'code-begin -->'
-:end-before: '## Project Information'
+:end-before: '### Hate Type Annotations!?'
 ```
 
 
