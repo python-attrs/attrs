@@ -13,8 +13,8 @@ from ._funcs import asdict as _asdict
 from ._funcs import astuple as _astuple
 from ._make import (
     NOTHING,
+    _default_on_setattr,
     _frozen_setattrs,
-    _ng_default_on_setattr,
     attrib,
     attrs,
 )
@@ -124,7 +124,7 @@ def define(
 
         # By default, mutable classes convert & validate on setattr.
         if frozen is False and on_setattr is None:
-            on_setattr = _ng_default_on_setattr
+            on_setattr = _default_on_setattr
 
         # However, if we subclass a frozen class, we inherit the immutability
         # and disable on_setattr.

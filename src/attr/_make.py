@@ -50,7 +50,7 @@ _empty_metadata_singleton = types.MappingProxyType({})
 # Unique object for unequivocal getattr() defaults.
 _sentinel = object()
 
-_ng_default_on_setattr = setters.pipe(setters.convert, setters.validate)
+_default_on_setattr = setters.pipe(setters.convert, setters.validate)
 
 
 class _Nothing(enum.Enum):
@@ -766,7 +766,7 @@ class _ClassBuilder:
 
             self._wrote_own_setattr = True
         elif on_setattr in (
-            _ng_default_on_setattr,
+            _default_on_setattr,
             setters.validate,
             setters.convert,
         ):
@@ -781,7 +781,7 @@ class _ClassBuilder:
                     break
             if (
                 (
-                    on_setattr == _ng_default_on_setattr
+                    on_setattr == _default_on_setattr
                     and not (has_validator or has_converter)
                 )
                 or (on_setattr == setters.validate and not has_validator)
