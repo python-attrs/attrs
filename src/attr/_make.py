@@ -1605,7 +1605,7 @@ def attrs(
 
         warnings.warn(
             DeprecationWarning(
-                "The `repr_ns` argument is deprecated in will be removed in or after April 2025."
+                "The `repr_ns` argument is deprecated and will be removed in or after April 2025."
             ),
             stacklevel=2,
         )
