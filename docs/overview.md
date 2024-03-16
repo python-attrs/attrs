@@ -60,3 +60,15 @@ All *attrs* does is:
 It does *nothing* dynamic at runtime, hence zero runtime overhead.
 It's still *your* class.
 Do with it as you please.
+
+---
+
+*attrs* also isn't a fully-fledged serialization library.
+While it comes with features like converters and validators, it is meant to be a kit for building classes that you would write yourself – but with less boilerplate.
+If you look for powerful-yet-unintrusive serialization and validation for your *attrs* classes, have a look at our sibling project [*cattrs*](https://catt.rs/) or our [third-party extensions](https://github.com/python-attrs/attrs/wiki/Extensions-to-attrs).
+
+This separation of creating classes and serializing them is a conscious design decision.
+We don't think that your business model and your serialization format should be coupled.
+
+This separation of creating classes and serializing them is a conscious design decision.
+We don't think that your business model and your serialization format should be coupled.
