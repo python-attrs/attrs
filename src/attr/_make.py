@@ -2230,7 +2230,9 @@ def _assign_with_converter(attr_name, value_var, has_on_setattr):
     if has_on_setattr:
         return _setattr_with_converter(attr_name, value_var, True)
 
-    return f"self.{attr_name} = {_INIT_CONVERTER_PAT % (attr_name,)}({value_var})"
+    return (
+        f"self.{attr_name} = {_INIT_CONVERTER_PAT % (attr_name,)}({value_var})"
+    )
 
 
 def _determine_setters(frozen, slots, base_attr_map):
