@@ -2212,10 +2212,11 @@ def _setattr_with_converter(attr_name, value_var, has_on_setattr):
     Use the cached object.setattr to set *attr_name* to *value_var*, but run
     its converter first.
     """
-    return "_setattr('%s', %s(%s, self))" % (
+    return "_setattr('%s', %s(%s, self, attr_dict['%s']))" % (
         attr_name,
         _INIT_CONVERTER_PAT % (attr_name,),
         value_var,
+        attr_name,
     )
 
 
@@ -2238,10 +2239,11 @@ def _assign_with_converter(attr_name, value_var, has_on_setattr):
     if has_on_setattr:
         return _setattr_with_converter(attr_name, value_var, True)
 
-    return "self.%s = %s(%s, self)" % (
+    return "self.%s = %s(%s, self, attr_dict['%s'])" % (
         attr_name,
         _INIT_CONVERTER_PAT % (attr_name,),
         value_var,
+        attr_name,
     )
 
 
@@ -2271,10 +2273,11 @@ def _determine_setters(frozen, slots, base_attr_map):
                     attr_name, value_var, has_on_setattr
                 )
 
-            return "_inst_dict['%s'] = %s(%s, self)" % (
+            return "_inst_dict['%s'] = %s(%s, self, attr_dict['%s'])" % (
                 attr_name,
                 _INIT_CONVERTER_PAT % (attr_name,),
                 value_var,
+                attr_name,
             )
 
         return (
@@ -2349,7 +2352,7 @@ def _attrs_to_init_script(
         maybe_self = "self" if has_factory and a.default.takes_self else ""
 
         if a.converter and not isinstance(a.converter, Converter):
-            converter = Converter(a.converter, takes_self=False)
+            converter = Converter(a.converter)
         else:
             converter = a.converter
 
@@ -2987,44 +2990,61 @@ class Converter:
     """
     Stores a converter callable.
 
-    Allows for the wrapped converter to take additional arguments.
+    Allows for the wrapped converter to take additional arguments. The
+    arguments are passed in the order they are documented.
 
     :param Callable converter: A callable that converts a value.
     :param bool takes_self: Pass the partially initialized instance that is
-        being initialized as a positional argument. (default: `True`)
+        being initialized as a positional argument. (default: `False`)
+    :param bool takes_field: Pass the field definition (an `Attribute`) into
+        the converter as a positional argument. (default: `False`)
 
     .. versionadded:: 24.1.0
     """
 
-    __slots__ = ("converter", "takes_self", "_first_param_type", "__call__")
+    __slots__ = (
+        "converter",
+        "takes_self",
+        "takes_field",
+        "_first_param_type",
+        "__call__",
+    )
 
-    def __init__(self, converter, *, takes_self=True):
+    def __init__(self, converter, *, takes_self=False, takes_field=False):
         self.converter = converter
         self.takes_self = takes_self
-
-        ann = _AnnotationExtractor(converter)
-
-        self._first_param_type = ann.get_first_param_type()
+        self.takes_field = takes_field
 
         # Defining __call__ as a regular method leads to __annotations__ being
         # overwritten at a class level.
-        def __call__(value, inst):
-            if not self.takes_self:
-                return self.converter(value)
+        def __call__(value, inst, field):
+            return self.converter(
+                *{
+                    (False, False): (value,),
+                    (True, False): (value, inst),
+                    (False, True): (value, field),
+                    (True, True): (value, inst, field),
+                }[(takes_self, takes_field)]
+            )
 
-            return self.converter(value, inst)
-
+        ann = _AnnotationExtractor(converter)
         __call__.__annotations__.update(
             ann.get_annotations_for_converter_callable()
         )
         self.__call__ = __call__
+
+        self._first_param_type = ann.get_first_param_type()
 
     def __getstate__(self):
         """
         Return a dict containing only converter and takes_self -- the rest gets
         computed when loading.
         """
-        return {"converter": self.converter, "takes_self": self.takes_self}
+        return {
+            "converter": self.converter,
+            "takes_self": self.takes_self,
+            "takes_field": self.takes_field,
+        }
 
     def __setstate__(self, state):
         """
@@ -3046,7 +3066,7 @@ _f = [
         init=True,
         inherited=False,
     )
-    for name in ("converter", "takes_self")
+    for name in ("converter", "takes_self", "takes_field")
 ]
 
 Converter = _add_hash(
@@ -3186,10 +3206,10 @@ def pipe(*converters):
     .. versionadded:: 20.1.0
     """
 
-    def pipe_converter(val, inst):
+    def pipe_converter(val, inst, field):
         for converter in converters:
             if isinstance(converter, Converter):
-                val = converter(val, inst)
+                val = converter(val, inst, field)
             else:
                 val = converter(val)
 
@@ -3210,4 +3230,4 @@ def pipe(*converters):
         if rt:
             pipe_converter.__annotations__["return"] = rt
 
-    return Converter(pipe_converter, takes_self=True)
+    return Converter(pipe_converter, takes_self=True, takes_field=True)

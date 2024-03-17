@@ -1284,7 +1284,7 @@ class TestConverter:
     Tests for attribute conversion.
     """
 
-    def test_convert(self):
+    def test_converter(self):
         """
         Return value of converter is used as the attribute's value.
         """
@@ -1312,6 +1312,27 @@ class TestConverter:
                 converter=attr.Converter(converter_with_self, takes_self=True)
             )
             y = 42
+
+        assert 84 == C(2).x
+
+    def test_converter_wrapped_takes_field(self):
+        """
+        When wrapped and passed `takes_field`, the converter receives the field
+        definition -- and the return value is used as the field's value.
+        """
+
+        def converter_with_field(v, field):
+            assert isinstance(field, attr.Attribute)
+            return v * field.metadata["x"]
+
+        @attr.define
+        class C:
+            x: int = attr.field(
+                converter=attr.Converter(
+                    converter_with_field, takes_field=True
+                ),
+                metadata={"x": 42},
+            )
 
         assert 84 == C(2).x
 
