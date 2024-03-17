@@ -56,7 +56,7 @@ class DD:
 
 @attr.s
 class EE:
-    y: "list[int]" = attr.ib()
+    y: list[int] = attr.ib()
 
 
 @attr.s

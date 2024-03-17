@@ -98,10 +98,7 @@ def _make_getattr(mod_name: str) -> Callable:
         import sys
         import warnings
 
-        if sys.version_info < (3, 8):
-            from importlib_metadata import metadata
-        else:
-            from importlib.metadata import metadata
+        from importlib.metadata import metadata
 
         if name not in ("__version__", "__version_info__"):
             warnings.warn(

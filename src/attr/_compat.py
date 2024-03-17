@@ -17,13 +17,7 @@ PY_3_12_PLUS = sys.version_info[:2] >= (3, 12)
 PY_3_13_PLUS = sys.version_info[:2] >= (3, 13)
 
 
-if sys.version_info < (3, 8):
-    try:
-        from typing_extensions import Protocol
-    except ImportError:  # pragma: no cover
-        Protocol = object
-else:
-    from typing import Protocol  # noqa: F401
+from typing import Protocol  # noqa: F401
 
 
 class _AnnotationExtractor:

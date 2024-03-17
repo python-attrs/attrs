@@ -597,7 +597,7 @@ def test_slots_empty_cell():
         field = attr.ib()
 
         def f(self, a):
-            super(C, self).__init__()  # noqa: UP008
+            super().__init__()  # noqa: UP008
 
     C(field=1)
 
@@ -685,7 +685,7 @@ def test_slots_super_property_get():
     class C(A):
         @property
         def f(self):
-            return super(C, self).f ** 2  # noqa: UP008
+            return super().f ** 2  # noqa: UP008
 
     assert B(11).f == 121
     assert B(17).f == 289
