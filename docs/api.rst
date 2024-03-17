@@ -712,4 +712,5 @@ All setters in ``attrs.setters`` are also available from ``attr.setters`` (it's 
          ...
      attrs.exceptions.FrozenAttributeError: ()
 
-   N.B. Please use `attrs.define`'s *frozen* argument (or `attrs.frozen`) to freeze whole classes; it is more efficient.
+   .. tip::
+      Use `attrs.define`'s *frozen* argument (or `attrs.frozen`) to freeze whole classes; it is more efficient.

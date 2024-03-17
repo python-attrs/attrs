@@ -70,7 +70,7 @@ def define(
     Please note that these are all defaults and you can change them as you
     wish.
 
-    :param Optional[bool] auto_attribs: If set to `True` or `False`, it behaves
+    :param bool | None auto_attribs: If set to `True` or `False`, it behaves
        exactly like `attr.s`. If left `None`, `attr.s` will try to guess:
 
        1. If any attributes are annotated and no unannotated `attrs.fields`\ s
@@ -146,7 +146,7 @@ def define(
             return do_it(cls, False)
 
     # maybe_cls's type depends on the usage of the decorator.  It's a class
-    # if it's used as `@attrs` but ``None`` if used as `@attrs()`.
+    # if it's used as `@attrs` but `None` if used as `@attrs()`.
     if maybe_cls is None:
         return wrap
 

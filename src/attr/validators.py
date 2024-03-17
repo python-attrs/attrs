@@ -45,7 +45,7 @@ def set_disabled(disabled):
 
     By default, they are run.
 
-    :param disabled: If ``True``, disable running all validators.
+    :param disabled: If `True`, disable running all validators.
     :type disabled: bool
 
     .. warning::
@@ -61,7 +61,7 @@ def get_disabled():
     """
     Return a bool indicating whether validators are currently disabled or not.
 
-    :return: ``True`` if validators are currently disabled.
+    :return: `True` if validators are currently disabled.
     :rtype: bool
 
     .. versionadded:: 21.3.0
@@ -148,16 +148,16 @@ class _MatchesReValidator:
 
 def matches_re(regex, flags=0, func=None):
     r"""
-    A validator that raises `ValueError` if the initializer is called
-    with a string that doesn't match *regex*.
+    A validator that raises `ValueError` if the initializer is called with a
+    string that doesn't match *regex*.
 
     :param regex: a regex string or precompiled pattern to match against
     :param int flags: flags that will be passed to the underlying re function
         (default 0)
-    :param callable func: which underlying `re` function to call. Valid options
-        are `re.fullmatch`, `re.search`, and `re.match`; the default ``None``
-        means `re.fullmatch`. For performance reasons, the pattern is always
-        precompiled using `re.compile`.
+    :param typing.Callable func: which underlying `re` function to call. Valid
+        options are `re.fullmatch`, `re.search`, and `re.match`; the default
+        `None` means `re.fullmatch`. For performance reasons, the pattern is
+        always precompiled using `re.compile`.
 
     .. versionadded:: 19.2.0
     .. versionchanged:: 21.3.0 *regex* can be a pre-compiled pattern.
@@ -206,11 +206,13 @@ class _OptionalValidator:
 def optional(validator):
     """
     A validator that makes an attribute optional.  An optional attribute is one
-    which can be set to ``None`` in addition to satisfying the requirements of
+    which can be set to `None` in addition to satisfying the requirements of
     the sub-validator.
 
-    :param Callable | tuple[Callable] | list[Callable] validator: A validator
-        (or validators) that is used for non-``None`` values.
+    :param validator: A validator (or validators) that is used for non-`None`
+        values.
+    :type validator: typing.Callable | tuple[typing.Callable] |
+        list[typing.Callable]
 
     .. versionadded:: 15.1.0
     .. versionchanged:: 17.1.0 *validator* can be a list of validators.

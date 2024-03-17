@@ -55,7 +55,7 @@ _DEFAULT_ON_SETATTR = setters.pipe(setters.convert, setters.validate)
 
 class _Nothing(enum.Enum):
     """
-    Sentinel to indicate the lack of a value when ``None`` is ambiguous.
+    Sentinel to indicate the lack of a value when `None` is ambiguous.
 
     If extending attrs, you can use ``typing.Literal[NOTHING]`` to show
     that a value may be ``NOTHING``.
@@ -75,7 +75,7 @@ class _Nothing(enum.Enum):
 
 NOTHING = _Nothing.NOTHING
 """
-Sentinel to indicate the lack of a value when ``None`` is ambiguous.
+Sentinel to indicate the lack of a value when `None` is ambiguous.
 """
 
 
@@ -84,7 +84,7 @@ class _CacheHashWrapper(int):
     An integer subclass that pickles / copies as None
 
     This is used for non-slots classes with ``cache_hash=True``, to avoid
-    serializing a potentially (even likely) invalid hash value. Since ``None``
+    serializing a potentially (even likely) invalid hash value. Since `None`
     is the default value for uncalculated hashes, whenever this is copied,
     the copy's value for the hash should automatically reset.
 
@@ -139,13 +139,13 @@ def attrib(
 
         .. seealso:: `defaults`
 
-    :param callable factory: Syntactic sugar for
+    :param ~typing.Callable factory: Syntactic sugar for
         ``default=attr.Factory(factory)``.
 
-    :param validator: `callable` that is called by *attrs*-generated
-        ``__init__`` methods after the instance has been initialized.  They
-        receive the initialized instance, the :func:`~attrs.Attribute`, and the
-        passed value.
+    :param ~typing.Callable | list[~typing.Callable] validator: Callable that
+        is called by *attrs*-generated ``__init__`` methods after the instance
+        has been initialized.  They receive the initialized instance, the
+        :func:`~attrs.Attribute`, and the passed value.
 
         The return value is *not* inspected so the validator has to throw an
         exception itself.
@@ -160,33 +160,29 @@ def attrib(
 
         .. seealso:: :ref:`validators`
 
-    :type validator: `callable` or a `list` of `callable`\\ s.
+    :param bool | ~typing.Callable repr: Include this attribute in the
+        generated ``__repr__`` method. If `True`, include the attribute; if
+        `False`, omit it. By default, the built-in ``repr()`` function is used.
+        To override how the attribute value is formatted, pass a ``callable``
+        that takes a single value and returns a string. Note that the resulting
+        string is used as-is, which means it will be used directly *instead* of
+        calling ``repr()`` (the default).
 
-    :param repr: Include this attribute in the generated ``__repr__`` method.
-        If ``True``, include the attribute; if ``False``, omit it. By default,
-        the built-in ``repr()`` function is used. To override how the attribute
-        value is formatted, pass a ``callable`` that takes a single value and
-        returns a string. Note that the resulting string is used as-is, which
-        means it will be used directly *instead* of calling ``repr()`` (the
-        default).
-    :type repr: a `bool` or a `callable` to use a custom function.
-
-    :param eq: If ``True`` (default), include this attribute in the generated
-        ``__eq__`` and ``__ne__`` methods that check two instances for
-        equality. To override how the attribute value is compared, pass a
-        ``callable`` that takes a single value and returns the value to be
-        compared.
+    :param bool | ~typing.Callable eq: If `True` (default), include this
+        attribute in the generated ``__eq__`` and ``__ne__`` methods that check
+        two instances for equality. To override how the attribute value is
+        compared, pass a callable that takes a single value and returns the
+        value to be compared.
 
         .. seealso:: `comparison`
-    :type eq: a `bool` or a `callable`.
 
-    :param order: If ``True`` (default), include this attributes in the
-        generated ``__lt__``, ``__le__``, ``__gt__`` and ``__ge__`` methods. To
-        override how the attribute value is ordered, pass a ``callable`` that
-        takes a single value and returns the value to be ordered.
+    :param bool | ~typing.Callable order: If `True` (default), include this
+        attributes in the generated ``__lt__``, ``__le__``, ``__gt__`` and
+        ``__ge__`` methods. To override how the attribute value is ordered,
+        pass a callable that takes a single value and returns the value to be
+        ordered.
 
         .. seealso:: `comparison`
-    :type order: a `bool` or a `callable`.
 
     :param cmp: Setting *cmp* is equivalent to setting *eq* and *order* to the
         same value. Must not be mixed with *eq* or *order*.
@@ -195,22 +191,22 @@ def attrib(
     :type cmp: a `bool` or a `callable`.
 
     :param bool | None hash: Include this attribute in the generated
-        ``__hash__`` method.  If ``None`` (default), mirror *eq*'s value.  This
+        ``__hash__`` method.  If `None` (default), mirror *eq*'s value.  This
         is the correct behavior according the Python spec.  Setting this value
-        to anything else than ``None`` is *discouraged*.
+        to anything else than `None` is *discouraged*.
 
         .. seealso:: `hashing`
     :param bool init: Include this attribute in the generated ``__init__``
-        method.  It is possible to set this to ``False`` and set a default
-        value.  In that case this attributed is unconditionally initialized
-        with the specified default value or factory.
+        method.  It is possible to set this to `False` and set a default value.
+        In that case this attributed is unconditionally initialized with the
+        specified default value or factory.
 
         .. seealso:: `init`
-    :param callable converter: `callable` that is called by *attrs*-generated
-        ``__init__`` methods to convert attribute's value to the desired
-        format.  It is given the passed-in value, and the returned value will
-        be used as the new value of the attribute.  The value is converted
-        before being passed to the validator, if any.
+    :param typing.Callable converter: `callable` that is called by
+        *attrs*-generated ``__init__`` methods to convert attribute's value to
+        the desired format.  It is given the passed-in value, and the returned
+        value will be used as the new value of the attribute.  The value is
+        converted before being passed to the validator, if any.
 
         .. seealso:: :ref:`converters`
     :param dict | None metadata: An arbitrary mapping, to be used by
@@ -225,13 +221,13 @@ def attrib(
         itself. You can use it as part of your own code or for `static type
         checking <types>`.
     :param bool kw_only: Make this attribute keyword-only in the generated
-        ``__init__`` (if ``init`` is ``False``, this parameter is ignored).
+        ``__init__`` (if ``init`` is `False`, this parameter is ignored).
     :param on_setattr: Allows to overwrite the *on_setattr* setting from
         `attr.s`. If left `None`, the *on_setattr* value from `attr.s` is used.
         Set to `attrs.setters.NO_OP` to run **no** `setattr` hooks for this
         attribute -- regardless of the setting in `attr.s`.
-    :type on_setattr: `callable`, or a list of callables, or `None`, or
-        `attrs.setters.NO_OP`
+    :type on_setattr: ~typing.Callable | list[~typing.Callable] | None |
+        typing.Literal[attrs.setters.NO_OP]
     :param str | None alias: Override this attribute's parameter name in the
         generated ``__init__`` method. If left `None`, default to ``name``
         stripped of leading underscores. See `private-attributes`.
@@ -240,7 +236,7 @@ def attrib(
     .. versionadded:: 16.3.0 *metadata*
     .. versionchanged:: 17.1.0 *validator* can be a ``list`` now.
     .. versionchanged:: 17.1.0
-       *hash* is ``None`` and therefore mirrors *eq* by default.
+       *hash* is `None` and therefore mirrors *eq* by default.
     .. versionadded:: 17.3.0 *type*
     .. deprecated:: 17.4.0 *convert*
     .. versionadded:: 17.4.0 *converter* as a replacement for the deprecated
@@ -1345,7 +1341,7 @@ def attrs(
         because you can't (for example, if you want to add ``__repr__`` methods
         to Django models) or don't want to.
 
-        If *these* is not ``None``, *attrs* will *not* search the class body
+        If *these* is not `None`, *attrs* will *not* search the class body
         for attributes and will *not* remove any attributes from it.
 
         The order is deduced from the order of the attributes inside *these*.
@@ -1358,7 +1354,7 @@ def attrs(
         is pointless in Python 3 and is therefore deprecated.
     :param bool auto_detect: Instead of setting the *init*, *repr*, *eq*,
         *order*, and *hash* arguments explicitly, assume they are set to
-        ``True`` **unless any** of the involved methods for one of the
+        `True` **unless any** of the involved methods for one of the
         arguments is implemented in the *current* class (meaning, it is *not*
         inherited from some base class).
 
@@ -1375,23 +1371,23 @@ def attrs(
            becomes *your* responsibility to make sure its ordering is sound.
            The best way is to use the `functools.total_ordering` decorator.
 
-        Passing ``True`` or ``False`` to *init*, *repr*, *eq*, *order*, *cmp*,
+        Passing `True` or `False` to *init*, *repr*, *eq*, *order*, *cmp*,
         or *hash* overrides whatever *auto_detect* would determine.
 
     :param bool repr: Create a ``__repr__`` method with a human readable
         representation of *attrs* attributes..
     :param bool str: Create a ``__str__`` method that is identical to
         ``__repr__``.  This is usually not necessary except for `Exception`\ s.
-    :param bool | None eq: If ``True`` or ``None`` (default), add ``__eq__``
+    :param bool | None eq: If `True` or `None` (default), add ``__eq__``
         and ``__ne__`` methods that check two instances for equality.
 
         They compare the instances as if they were tuples of their *attrs*
         attributes if and only if the types of both classes are *identical*!
 
         .. seealso:: `comparison`
-    :param bool | None order: If ``True``, add ``__lt__``, ``__le__``,
+    :param bool | None order: If `True`, add ``__lt__``, ``__le__``,
         ``__gt__``, and ``__ge__`` methods that behave like *eq* above and
-        allow instances to be ordered. If ``None`` (default) mirror value of
+        allow instances to be ordered. If `None` (default) mirror value of
         *eq*.
 
         .. seealso:: `comparison`
@@ -1399,7 +1395,7 @@ def attrs(
         *order* to the same value. Must not be mixed with *eq* or *order*.
 
         .. seealso:: `comparison`
-    :param bool | None unsafe_hash: If ``None`` (default), the ``__hash__``
+    :param bool | None unsafe_hash: If `None` (default), the ``__hash__``
         method is generated according how *eq* and *frozen* are set.
 
         1. If *both* are True, *attrs* will generate a ``__hash__`` for you.
@@ -1411,7 +1407,7 @@ def attrs(
 
         Although not recommended, you can decide for yourself and force *attrs*
         to create one (for example, if the class is immutable even though you
-        didn't freeze it programmatically) by passing ``True`` or not.  Both of
+        didn't freeze it programmatically) by passing `True` or not.  Both of
         these cases are rather special and should be used carefully.
 
         .. seealso::
@@ -1431,7 +1427,7 @@ def attrs(
         initialized. If a ``__attrs_post_init__`` method exists on the class,
         it will be called after the class is fully initialized.
 
-        If ``init`` is ``False``, an ``__attrs_init__`` method will be injected
+        If ``init`` is `False`, an ``__attrs_init__`` method will be injected
         instead. This allows you to define a custom ``__init__`` method that
         can do pre-init work such as ``super().__init__()``, and then call
         ``__attrs_init__()`` and ``__attrs_post_init__()``.
@@ -1465,7 +1461,7 @@ def attrs(
 
     :param bool weakref_slot: Make instances weak-referenceable.  This has no
         effect unless ``slots`` is also enabled.
-    :param bool auto_attribs: If ``True``, collect :pep:`526`-annotated
+    :param bool auto_attribs: If `True`, collect :pep:`526`-annotated
         attributes from the class body.
 
         In this case, you **must** annotate every field.  If *attrs* encounters
@@ -1491,9 +1487,9 @@ def attrs(
            it.
 
     :param bool kw_only: Make all attributes keyword-only in the generated
-        ``__init__`` (if *init* is ``False``, this parameter is ignored).
+        ``__init__`` (if *init* is `False`, this parameter is ignored).
     :param bool cache_hash: Ensure that the object's hash code is computed only
-        once and stored on the object.  If this is set to ``True``, hashing
+        once and stored on the object.  If this is set to `True`, hashing
         must be either explicitly or implicitly enabled for this class.  If the
         hash code is cached, avoid any reassignments of fields involved in hash
         code computation or mutations of the objects those fields point to
@@ -1545,10 +1541,10 @@ def attrs(
 
         If a list of callables is passed, they're automatically wrapped in an
         `attrs.setters.pipe`.
-    :type on_setattr: `callable`, or a list of callables, or `None`, or
-        `attrs.setters.NO_OP`
+    :type on_setattr: ~typing.Callable | list[~typing.Callable] | None |
+        typing.Literal[attrs.setters.NO_OP]
 
-    :param callable | None field_transformer:
+    :param ~typing.Callable | None field_transformer:
         A function that is called with the original class object and all fields
         right before *attrs* finalizes the class.  You can use this, for
         example, to automatically add converters or validators to fields based
@@ -1567,7 +1563,7 @@ def attrs(
     .. versionadded:: 16.3.0 *str*
     .. versionadded:: 16.3.0 Support for ``__attrs_post_init__``.
     .. versionchanged:: 17.1.0
-       *hash* supports ``None`` as value which is also the default now.
+       *hash* supports `None` as value which is also the default now.
     .. versionadded:: 17.3.0 *auto_attribs*
     .. versionchanged:: 18.1.0
        If *these* is passed, no attributes are deleted from the class body.
@@ -1722,7 +1718,7 @@ def attrs(
         return builder.build_class()
 
     # maybe_cls's type depends on the usage of the decorator.  It's a class
-    # if it's used as `@attrs` but ``None`` if used as `@attrs()`.
+    # if it's used as `@attrs` but `None` if used as `@attrs()`.
     if maybe_cls is None:
         return wrap
 
@@ -2567,20 +2563,19 @@ class Attribute:
 
        You should never instantiate this class yourself.
 
-    The class has *all* arguments of `attr.ib` (except for ``factory``
-    which is only syntactic sugar for ``default=Factory(...)`` plus the
-    following:
+    The class has *all* arguments of `attr.ib` (except for ``factory`` which is
+    only syntactic sugar for ``default=Factory(...)`` plus the following:
 
     - ``name`` (`str`): The name of the attribute.
     - ``alias`` (`str`): The __init__ parameter name of the attribute, after
       any explicit overrides and default private-attribute-name handling.
     - ``inherited`` (`bool`): Whether or not that attribute has been inherited
       from a base class.
-    - ``eq_key`` and ``order_key`` (`typing.Callable` or `None`): The callables
-      that are used for comparing and ordering objects by this attribute,
-      respectively. These are set by passing a callable to `attr.ib`'s ``eq``,
-      ``order``, or ``cmp`` arguments. See also :ref:`comparison customization
-      <custom-comparison>`.
+    - ``eq_key`` and ``order_key`` (`typing.Callable` or `None`): The
+      callables that are used for comparing and ordering objects by this
+      attribute, respectively. These are set by passing a callable to
+      `attr.ib`'s ``eq``, ``order``, or ``cmp`` arguments. See also
+      :ref:`comparison customization <custom-comparison>`.
 
     Instances of this class are frequently used for introspection purposes
     like:
@@ -2944,8 +2939,8 @@ class Factory:
     If passed as the default value to `attrs.field`, the factory is used to
     generate a new value.
 
-    :param callable factory: A callable that takes either none or exactly one
-        mandatory positional argument depending on *takes_self*.
+    :param typing.Callable factory: A callable that takes either none or
+        exactly one mandatory positional argument depending on *takes_self*.
     :param bool takes_self: Pass the partially initialized instance that is
         being initialized as a positional argument.
 
@@ -2999,17 +2994,17 @@ def make_class(
 
     :param str name: The name for the new class.
 
-    :param attrs: A list of names or a dictionary of mappings of names to
-        `attr.ib`\ s / `attrs.field`\ s.
+    :param list | dict attrs: A list of names or a dictionary of mappings of
+        names to `attr.ib`\ s / `attrs.field`\ s.
 
         The order is deduced from the order of the names or attributes inside
         *attrs*.  Otherwise the order of the definition of the attributes is
         used.
-    :type attrs: `list` or `dict`
 
     :param tuple bases: Classes that the new class will subclass.
 
-    :param dict class_body: An optional dictionary of class attributes for the new class.
+    :param dict class_body: An optional dictionary of class attributes for the
+        new class.
 
     :param attributes_arguments: Passed unmodified to `attr.s`.
 
@@ -3091,7 +3086,8 @@ def and_(*validators):
 
     When called on a value, it runs all wrapped validators.
 
-    :param callables validators: Arbitrary number of validators.
+    :param ~collections.abc.Iterable[typing.Callable] validators: Arbitrary
+        number of validators.
 
     .. versionadded:: 17.1.0
     """
@@ -3113,10 +3109,11 @@ def pipe(*converters):
     When called on a value, it runs all wrapped converters, returning the
     *last* value.
 
-    Type annotations will be inferred from the wrapped converters', if
-    they have any.
+    Type annotations will be inferred from the wrapped converters', if they
+    have any.
 
-    :param callables converters: Arbitrary number of converters.
+    :param ~collections.abc.Iterable[typing.Callable] converters: Arbitrary
+        number of converters.
 
     .. versionadded:: 20.1.0
     """
