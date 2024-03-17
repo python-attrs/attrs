@@ -650,7 +650,7 @@ All objects from ``attrs.converters`` are also available from ``attr.converters`
       C(x='')
 
 
-.. autofunction:: attrs.converters.to_bool
+.. autofunction:: attrs.converters.to_bool(val)
 
    For example:
 
@@ -665,10 +665,11 @@ All objects from ``attrs.converters`` are also available from ``attr.converters`
       C(x=True)
       >>> C(0)
       C(x=False)
-      >>> C("foo")
+      >>> C("norway")
       Traceback (most recent call last):
          File "<stdin>", line 1, in <module>
-      ValueError: Cannot convert value to bool: foo
+      ValueError: Cannot convert value to bool: norway
+
 
 
 
