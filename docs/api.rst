@@ -93,21 +93,6 @@ Core
       >>> C([1, 2, 3])
       C(x=[1, 2, 3], y={1, 2, 3})
 
-.. autoclass:: Converter
-
-   For example:
-
-   .. doctest::
-
-      >>> def complicated(value, self_):
-      ...     return int(value) * self_.factor
-      >>> @define
-      ... class C:
-      ...     factor = 5  # not an *attrs* field
-      ...     x = field(converter=attrs.Converter(complicated, takes_self=True))
-      >>> C("42")
-      C(x=210)
-
 
 Exceptions
 ----------
@@ -621,6 +606,27 @@ Validators can be both globally and locally disabled:
 
 Converters
 ----------
+
+.. autoclass:: attrs.Converter
+
+   For example:
+
+   .. doctest::
+
+      >>> def complicated(value, self_, field):
+      ...     return int(value) * self_.factor + field.metadata["offset"]
+      >>> @define
+      ... class C:
+      ...     factor = 5  # not an *attrs* field
+      ...     x = field(
+      ...         metadata={"offset": 200},
+      ...         converter=attrs.Converter(
+      ...             complicated,
+      ...             takes_self=True, takes_field=True
+      ...     ))
+      >>> C("42")
+      C(x=410)
+
 
 .. module:: attrs.converters
 
