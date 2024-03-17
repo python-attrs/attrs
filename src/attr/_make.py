@@ -2252,7 +2252,7 @@ def _determine_setters(frozen, slots, base_attr_map):
     """
     if frozen is True:
         if slots is True:
-            return [], _setattr, _setattr_with_converter
+            return (), _setattr, _setattr_with_converter
 
         # Dict frozen classes assign directly to __dict__.
         # But only if the attribute doesn't come from an ancestor slot
@@ -2278,13 +2278,13 @@ def _determine_setters(frozen, slots, base_attr_map):
             )
 
         return (
-            ["_inst_dict = self.__dict__"],
+            ("_inst_dict = self.__dict__",),
             fmt_setter,
             fmt_setter_with_converter,
         )
 
     # Not frozen -- we can just assign directly.
-    return [], _assign, _assign_with_converter
+    return (), _assign, _assign_with_converter
 
 
 def _attrs_to_init_script(
