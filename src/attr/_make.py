@@ -2305,9 +2305,7 @@ def _attrs_to_init_script(
     If *frozen* is True, we cannot set the attributes directly so we use
     a cached ``object.__setattr__``.
     """
-    lines = []
-    if pre_init:
-        lines.append("self.__attrs_pre_init__()")
+    lines = ["self.__attrs_pre_init__()"] if pre_init else []
 
     if needs_cached_setattr:
         lines.append(
