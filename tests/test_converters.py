@@ -4,13 +4,24 @@
 Tests for `attr.converters`.
 """
 
+import pickle
 
 import pytest
 
 import attr
 
-from attr import Factory, attrib
+from attr import Converter, Factory, attrib
 from attr.converters import default_if_none, optional, pipe, to_bool
+
+
+class TestConverter:
+    def test_pickle(self):
+        """
+        Wrapped converters can be pickled.
+        """
+        c = Converter(int, takes_self=False)
+
+        assert c == pickle.loads(pickle.dumps(c))
 
 
 class TestOptional:
@@ -105,9 +116,9 @@ class TestPipe:
         """
         Succeeds if all wrapped converters succeed.
         """
-        c = pipe(str, to_bool, bool)
+        c = pipe(str, Converter(to_bool, takes_self=False), bool)
 
-        assert True is c("True") is c(True)
+        assert True is c("True", None) is c(True, None)
 
     def test_fail(self):
         """
@@ -117,11 +128,11 @@ class TestPipe:
 
         # First wrapped converter fails:
         with pytest.raises(ValueError):
-            c(33)
+            c(33, None)
 
         # Last wrapped converter fails:
         with pytest.raises(ValueError):
-            c("33")
+            c("33", None)
 
     def test_sugar(self):
         """
@@ -142,7 +153,7 @@ class TestPipe:
         """
         o = object()
 
-        assert o is pipe()(o)
+        assert o is pipe()(o, None)
 
 
 class TestToBool:
