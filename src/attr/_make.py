@@ -2113,15 +2113,12 @@ def validate(inst):
             v(inst, a, getattr(inst, a.name))
 
 
-def _is_slot_cls(cls):
-    return "__slots__" in cls.__dict__
-
-
 def _is_slot_attr(a_name, base_attr_map):
     """
     Check if the attribute name comes from a slot class.
     """
-    return a_name in base_attr_map and _is_slot_cls(base_attr_map[a_name])
+    cls = base_attr_map.get(a_name)
+    return cls and "__slots__" in cls.__dict__
 
 
 def _make_init(
