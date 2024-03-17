@@ -836,6 +836,29 @@ class TestAddInit:
         assert [] == i.a
         assert isinstance(i.b, D)
 
+    def test_factory_takes_self(self):
+        """
+        If takes_self on factories is True, self is passed.
+        """
+        C = make_class(
+            "C",
+            {
+                "x": attr.ib(
+                    default=Factory((lambda self: self), takes_self=True)
+                )
+            },
+        )
+
+        i = C()
+
+        assert i is i.x
+
+    def test_factory_hashable(self):
+        """
+        Factory is hashable.
+        """
+        assert hash(Factory(None, False)) == hash(Factory(None, False))
+
     def test_validator(self):
         """
         If a validator is passed, call it with the preliminary instance, the
