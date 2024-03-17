@@ -93,6 +93,21 @@ Core
       >>> C([1, 2, 3])
       C(x=[1, 2, 3], y={1, 2, 3})
 
+.. autoclass:: Converter
+
+   For example:
+
+   .. doctest::
+
+      >>> def complicated(value, self_):
+      ...     return int(value) * self_.factor
+      >>> @define
+      ... class C:
+      ...     factor = 5  # not an *attrs* field
+      ...     x = field(converter=attrs.Converter(complicated, takes_self=True))
+      >>> C("42")
+      C(x=210)
+
 
 Exceptions
 ----------
