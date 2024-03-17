@@ -2248,6 +2248,48 @@ def _assign_with_converter(attr_name, value_var, has_on_setattr):
     )
 
 
+def _determine_setters(frozen, slots, base_attr_map):
+    """
+    Determine the correct setter functions based on whether a class is frozen
+    and/or slotted.
+    """
+    if frozen is True:
+        if slots is True:
+            return [], _setattr, _setattr_with_converter
+
+        # Dict frozen classes assign directly to __dict__.
+        # But only if the attribute doesn't come from an ancestor slot
+        # class.
+        # Note _inst_dict will be used again below if cache_hash is True
+
+        def fmt_setter(attr_name, value_var, has_on_setattr):
+            if _is_slot_attr(attr_name, base_attr_map):
+                return _setattr(attr_name, value_var, has_on_setattr)
+
+            return f"_inst_dict['{attr_name}'] = {value_var}"
+
+        def fmt_setter_with_converter(attr_name, value_var, has_on_setattr):
+            if has_on_setattr or _is_slot_attr(attr_name, base_attr_map):
+                return _setattr_with_converter(
+                    attr_name, value_var, has_on_setattr
+                )
+
+            return "_inst_dict['%s'] = %s(%s)" % (
+                attr_name,
+                _INIT_CONVERTER_PAT % (attr_name,),
+                value_var,
+            )
+
+        return (
+            ["_inst_dict = self.__dict__"],
+            fmt_setter,
+            fmt_setter_with_converter,
+        )
+
+    # Not frozen -- we can just assign directly.
+    return [], _assign, _assign_with_converter
+
+
 def _attrs_to_init_script(
     attrs,
     frozen,
@@ -2282,41 +2324,10 @@ def _attrs_to_init_script(
             "_setattr = _cached_setattr_get(self)"
         )
 
-    if frozen is True:
-        if slots is True:
-            fmt_setter = _setattr
-            fmt_setter_with_converter = _setattr_with_converter
-        else:
-            # Dict frozen classes assign directly to __dict__.
-            # But only if the attribute doesn't come from an ancestor slot
-            # class.
-            # Note _inst_dict will be used again below if cache_hash is True
-            lines.append("_inst_dict = self.__dict__")
-
-            def fmt_setter(attr_name, value_var, has_on_setattr):
-                if _is_slot_attr(attr_name, base_attr_map):
-                    return _setattr(attr_name, value_var, has_on_setattr)
-
-                return f"_inst_dict['{attr_name}'] = {value_var}"
-
-            def fmt_setter_with_converter(
-                attr_name, value_var, has_on_setattr
-            ):
-                if has_on_setattr or _is_slot_attr(attr_name, base_attr_map):
-                    return _setattr_with_converter(
-                        attr_name, value_var, has_on_setattr
-                    )
-
-                return "_inst_dict['%s'] = %s(%s)" % (
-                    attr_name,
-                    _INIT_CONVERTER_PAT % (attr_name,),
-                    value_var,
-                )
-
-    else:
-        # Not frozen.
-        fmt_setter = _assign
-        fmt_setter_with_converter = _assign_with_converter
+    extra_lines, fmt_setter, fmt_setter_with_converter = _determine_setters(
+        frozen, slots, base_attr_map
+    )
+    lines.extend(extra_lines)
 
     args = []
     kw_only_args = []
@@ -2353,8 +2364,9 @@ def _attrs_to_init_script(
                             has_on_setattr,
                         )
                     )
-                    conv_name = _INIT_CONVERTER_PAT % (a.name,)
-                    names_for_globals[conv_name] = a.converter
+                    names_for_globals[_INIT_CONVERTER_PAT % (a.name,)] = (
+                        a.converter
+                    )
                 else:
                     lines.append(
                         fmt_setter(
@@ -2372,8 +2384,9 @@ def _attrs_to_init_script(
                         has_on_setattr,
                     )
                 )
-                conv_name = _INIT_CONVERTER_PAT % (a.name,)
-                names_for_globals[conv_name] = a.converter
+                names_for_globals[_INIT_CONVERTER_PAT % (a.name,)] = (
+                    a.converter
+                )
             else:
                 lines.append(
                     fmt_setter(
