@@ -31,10 +31,10 @@ from .exceptions import (
 
 
 # This is used at least twice, so cache it here.
-_obj_setattr = object.__setattr__
-_init_converter_pat = "__attr_converter_%s"
-_init_factory_pat = "__attr_factory_%s"
-_classvar_prefixes = (
+_OBJ_SETATTR = object.__setattr__
+_INIT_CONVERTER_PAT = "__attr_converter_%s"
+_INIT_FACTORY_PAT = "__attr_factory_%s"
+_CLASSVAR_PREFIXES = (
     "typing.ClassVar",
     "t.ClassVar",
     "ClassVar",
@@ -43,14 +43,14 @@ _classvar_prefixes = (
 # we don't use a double-underscore prefix because that triggers
 # name mangling when trying to create a slot for the field
 # (when slots=True)
-_hash_cache_field = "_attrs_cached_hash"
+_HASH_CACHE_FIELD = "_attrs_cached_hash"
 
-_empty_metadata_singleton = types.MappingProxyType({})
+_EMPTY_METADATA_SINGLETON = types.MappingProxyType({})
 
 # Unique object for unequivocal getattr() defaults.
-_sentinel = object()
+_SENTINEL = object()
 
-_default_on_setattr = setters.pipe(setters.convert, setters.validate)
+_DEFAULT_ON_SETATTR = setters.pipe(setters.convert, setters.validate)
 
 
 class _Nothing(enum.Enum):
@@ -405,15 +405,15 @@ def _is_class_var(annot):
     if annot.startswith(("'", '"')) and annot.endswith(("'", '"')):
         annot = annot[1:-1]
 
-    return annot.startswith(_classvar_prefixes)
+    return annot.startswith(_CLASSVAR_PREFIXES)
 
 
 def _has_own_attribute(cls, attrib_name):
     """
     Check whether *cls* defines *attrib_name* (and doesn't just inherit it).
     """
-    attr = getattr(cls, attrib_name, _sentinel)
-    if attr is _sentinel:
+    attr = getattr(cls, attrib_name, _SENTINEL)
+    if attr is _SENTINEL:
         return False
 
     for base_cls in cls.__mro__[1:]:
@@ -641,7 +641,7 @@ def _make_cached_property_getattr(cached_properties, original_getattr, cls):
 
     glob = {
         "cached_properties": cached_properties,
-        "_cached_setattr_get": _obj_setattr.__get__,
+        "_cached_setattr_get": _OBJ_SETATTR.__get__,
         "original_getattr": original_getattr,
     }
 
@@ -764,7 +764,7 @@ class _ClassBuilder:
 
             self._wrote_own_setattr = True
         elif on_setattr in (
-            _default_on_setattr,
+            _DEFAULT_ON_SETATTR,
             setters.validate,
             setters.convert,
         ):
@@ -779,7 +779,7 @@ class _ClassBuilder:
                     break
             if (
                 (
-                    on_setattr == _default_on_setattr
+                    on_setattr == _DEFAULT_ON_SETATTR
                     and not (has_validator or has_converter)
                 )
                 or (on_setattr == setters.validate and not has_validator)
@@ -840,7 +840,7 @@ class _ClassBuilder:
             for name in self._attr_names:
                 if (
                     name not in base_names
-                    and getattr(cls, name, _sentinel) is not _sentinel
+                    and getattr(cls, name, _SENTINEL) is not _SENTINEL
                 ):
                     # An AttributeError can happen if a base class defines a
                     # class variable and we want to set an attribute with the
@@ -860,7 +860,7 @@ class _ClassBuilder:
             cls.__attrs_own_setattr__ = False
 
             if not self._has_custom_setattr:
-                cls.__setattr__ = _obj_setattr
+                cls.__setattr__ = _OBJ_SETATTR
 
         return cls
 
@@ -888,7 +888,7 @@ class _ClassBuilder:
             if not self._has_custom_setattr:
                 for base_cls in self._cls.__bases__:
                     if base_cls.__dict__.get("__attrs_own_setattr__", False):
-                        cd["__setattr__"] = _obj_setattr
+                        cd["__setattr__"] = _OBJ_SETATTR
                         break
 
         # Traverse the MRO to collect existing slots
@@ -972,7 +972,7 @@ class _ClassBuilder:
         slot_names = [name for name in slot_names if name not in reused_slots]
         cd.update(reused_slots)
         if self._cache_hash:
-            slot_names.append(_hash_cache_field)
+            slot_names.append(_HASH_CACHE_FIELD)
 
         cd["__slots__"] = tuple(slot_names)
 
@@ -1053,7 +1053,7 @@ class _ClassBuilder:
             """
             Automatically created by attrs.
             """
-            __bound_setattr = _obj_setattr.__get__(self)
+            __bound_setattr = _OBJ_SETATTR.__get__(self)
             if isinstance(state, tuple):
                 # Backward compatibility with attrs instances pickled with
                 # attrs versions before v22.2.0 which stored tuples.
@@ -1069,7 +1069,7 @@ class _ClassBuilder:
             # indicate that the first call to __hash__ should be a cache
             # miss.
             if hash_caching_enabled:
-                __bound_setattr(_hash_cache_field, None)
+                __bound_setattr(_HASH_CACHE_FIELD, None)
 
         return slots_getstate, slots_setstate
 
@@ -1183,7 +1183,7 @@ class _ClassBuilder:
             else:
                 nval = hook(self, a, val)
 
-            _obj_setattr(self, name, nval)
+            _OBJ_SETATTR(self, name, nval)
 
         self._cls_dict["__attrs_own_setattr__"] = True
         self._cls_dict["__setattr__"] = self._add_method_dunders(__setattr__)
@@ -1807,17 +1807,17 @@ def _make_hash(cls, attrs, frozen, cache_hash):
         method_lines.append(indent + "    " + closing_braces)
 
     if cache_hash:
-        method_lines.append(tab + f"if self.{_hash_cache_field} is None:")
+        method_lines.append(tab + f"if self.{_HASH_CACHE_FIELD} is None:")
         if frozen:
             append_hash_computation_lines(
-                f"object.__setattr__(self, '{_hash_cache_field}', ", tab * 2
+                f"object.__setattr__(self, '{_HASH_CACHE_FIELD}', ", tab * 2
             )
             method_lines.append(tab * 2 + ")")  # close __setattr__
         else:
             append_hash_computation_lines(
-                f"self.{_hash_cache_field} = ", tab * 2
+                f"self.{_HASH_CACHE_FIELD} = ", tab * 2
             )
-        method_lines.append(tab + f"return self.{_hash_cache_field}")
+        method_lines.append(tab + f"return self.{_HASH_CACHE_FIELD}")
     else:
         append_hash_computation_lines("return ", tab)
 
@@ -2190,7 +2190,7 @@ def _make_init(
     if needs_cached_setattr:
         # Save the lookup overhead in __init__ if we need to circumvent
         # setattr hooks.
-        globs["_cached_setattr_get"] = _obj_setattr.__get__
+        globs["_cached_setattr_get"] = _OBJ_SETATTR.__get__
 
     init = _make_method(
         "__attrs_init__" if attrs_init else "__init__",
@@ -2217,7 +2217,7 @@ def _setattr_with_converter(attr_name, value_var, has_on_setattr):
     """
     return "_setattr('%s', %s(%s))" % (
         attr_name,
-        _init_converter_pat % (attr_name,),
+        _INIT_CONVERTER_PAT % (attr_name,),
         value_var,
     )
 
@@ -2243,7 +2243,7 @@ def _assign_with_converter(attr_name, value_var, has_on_setattr):
 
     return "self.%s = %s(%s)" % (
         attr_name,
-        _init_converter_pat % (attr_name,),
+        _INIT_CONVERTER_PAT % (attr_name,),
         value_var,
     )
 
@@ -2309,7 +2309,7 @@ def _attrs_to_init_script(
 
                 return "_inst_dict['%s'] = %s(%s)" % (
                     attr_name,
-                    _init_converter_pat % (attr_name,),
+                    _INIT_CONVERTER_PAT % (attr_name,),
                     value_var,
                 )
 
@@ -2344,7 +2344,7 @@ def _attrs_to_init_script(
 
         if a.init is False:
             if has_factory:
-                init_factory_name = _init_factory_pat % (a.name,)
+                init_factory_name = _INIT_FACTORY_PAT % (a.name,)
                 if a.converter is not None:
                     lines.append(
                         fmt_setter_with_converter(
@@ -2353,7 +2353,7 @@ def _attrs_to_init_script(
                             has_on_setattr,
                         )
                     )
-                    conv_name = _init_converter_pat % (a.name,)
+                    conv_name = _INIT_CONVERTER_PAT % (a.name,)
                     names_for_globals[conv_name] = a.converter
                 else:
                     lines.append(
@@ -2372,7 +2372,7 @@ def _attrs_to_init_script(
                         has_on_setattr,
                     )
                 )
-                conv_name = _init_converter_pat % (a.name,)
+                conv_name = _INIT_CONVERTER_PAT % (a.name,)
                 names_for_globals[conv_name] = a.converter
             else:
                 lines.append(
@@ -2395,7 +2395,7 @@ def _attrs_to_init_script(
                         attr_name, arg_name, has_on_setattr
                     )
                 )
-                names_for_globals[_init_converter_pat % (a.name,)] = (
+                names_for_globals[_INIT_CONVERTER_PAT % (a.name,)] = (
                     a.converter
                 )
             else:
@@ -2409,7 +2409,7 @@ def _attrs_to_init_script(
                 args.append(arg)
             lines.append(f"if {arg_name} is not NOTHING:")
 
-            init_factory_name = _init_factory_pat % (a.name,)
+            init_factory_name = _INIT_FACTORY_PAT % (a.name,)
             if a.converter is not None:
                 lines.append(
                     "    "
@@ -2426,7 +2426,7 @@ def _attrs_to_init_script(
                         has_on_setattr,
                     )
                 )
-                names_for_globals[_init_converter_pat % (a.name,)] = (
+                names_for_globals[_INIT_CONVERTER_PAT % (a.name,)] = (
                     a.converter
                 )
             else:
@@ -2455,7 +2455,7 @@ def _attrs_to_init_script(
                         attr_name, arg_name, has_on_setattr
                     )
                 )
-                names_for_globals[_init_converter_pat % (a.name,)] = (
+                names_for_globals[_INIT_CONVERTER_PAT % (a.name,)] = (
                     a.converter
                 )
             else:
@@ -2498,7 +2498,7 @@ def _attrs_to_init_script(
                 init_hash_cache = "_inst_dict['%s'] = %s"
         else:
             init_hash_cache = "self.%s = %s"
-        lines.append(init_hash_cache % (_hash_cache_field, "None"))
+        lines.append(init_hash_cache % (_HASH_CACHE_FIELD, "None"))
 
     # For exceptions we rely on BaseException.__init__ for proper
     # initialization.
@@ -2639,7 +2639,7 @@ class Attribute:
         )
 
         # Cache this descriptor here to speed things up later.
-        bound_setattr = _obj_setattr.__get__(self)
+        bound_setattr = _OBJ_SETATTR.__get__(self)
 
         # Despite the big red warning, people *do* instantiate `Attribute`
         # themselves.
@@ -2659,7 +2659,7 @@ class Attribute:
             (
                 types.MappingProxyType(dict(metadata))  # Shallow copy
                 if metadata
-                else _empty_metadata_singleton
+                else _EMPTY_METADATA_SINGLETON
             ),
         )
         bound_setattr("type", type)
@@ -2736,7 +2736,7 @@ class Attribute:
         self._setattrs(zip(self.__slots__, state))
 
     def _setattrs(self, name_values_pairs):
-        bound_setattr = _obj_setattr.__get__(self)
+        bound_setattr = _OBJ_SETATTR.__get__(self)
         for name, value in name_values_pairs:
             if name != "metadata":
                 bound_setattr(name, value)
@@ -2746,7 +2746,7 @@ class Attribute:
                     (
                         types.MappingProxyType(dict(value))
                         if value
-                        else _empty_metadata_singleton
+                        else _EMPTY_METADATA_SINGLETON
                     ),
                 )
 

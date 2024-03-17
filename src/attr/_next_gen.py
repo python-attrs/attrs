@@ -12,8 +12,8 @@ from . import setters
 from ._funcs import asdict as _asdict
 from ._funcs import astuple as _astuple
 from ._make import (
+    _DEFAULT_ON_SETATTR,
     NOTHING,
-    _default_on_setattr,
     _frozen_setattrs,
     attrib,
     attrs,
@@ -124,7 +124,7 @@ def define(
 
         # By default, mutable classes convert & validate on setattr.
         if frozen is False and on_setattr is None:
-            on_setattr = _default_on_setattr
+            on_setattr = _DEFAULT_ON_SETATTR
 
         # However, if we subclass a frozen class, we inherit the immutability
         # and disable on_setattr.

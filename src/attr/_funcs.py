@@ -4,7 +4,7 @@
 import copy
 
 from ._compat import PY_3_9_PLUS, get_generic_base
-from ._make import NOTHING, _obj_setattr, fields
+from ._make import _OBJ_SETATTR, NOTHING, fields
 from .exceptions import AttrsAttributeNotFoundError
 
 
@@ -362,7 +362,7 @@ def assoc(inst, **changes):
         if a is NOTHING:
             msg = f"{k} is not an attrs attribute on {new.__class__}."
             raise AttrsAttributeNotFoundError(msg)
-        _obj_setattr(new, k, v)
+        _OBJ_SETATTR(new, k, v)
     return new
 
 
@@ -466,7 +466,7 @@ def resolve_types(
         for field in fields(cls) if attribs is None else attribs:
             if field.name in hints:
                 # Since fields have been frozen we must work around it.
-                _obj_setattr(field, "type", hints[field.name])
+                _OBJ_SETATTR(field, "type", hints[field.name])
         # We store the class we resolved so that subclasses know they haven't
         # been resolved.
         cls.__attrs_types_resolved__ = cls
