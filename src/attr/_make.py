@@ -1979,9 +1979,9 @@ def _make_repr(attrs, ns, cls):
             "self." + name if i else 'getattr(self, "' + name + '", NOTHING)'
         )
         fragment = (
-            "{}={{{}!r}}".format(name, accessor)
+            f"{name}={{{accessor}!r}}"
             if r == repr
-            else "{}={{{}_repr({})}}".format(name, name, accessor)
+            else f"{name}={{{name}_repr({accessor})}}"
         )
         attribute_fragments.append(fragment)
     repr_fragment = ", ".join(attribute_fragments)
@@ -2208,11 +2208,7 @@ def _setattr_with_converter(attr_name, value_var, has_on_setattr):
     Use the cached object.setattr to set *attr_name* to *value_var*, but run
     its converter first.
     """
-    return "_setattr('{}', {}({}))".format(
-        attr_name,
-        _INIT_CONVERTER_PAT % (attr_name,),
-        value_var,
-    )
+    return f"_setattr('{attr_name}', {_INIT_CONVERTER_PAT % (attr_name,)}({value_var}))"
 
 
 def _assign(attr_name, value, has_on_setattr):
@@ -2234,11 +2230,7 @@ def _assign_with_converter(attr_name, value_var, has_on_setattr):
     if has_on_setattr:
         return _setattr_with_converter(attr_name, value_var, True)
 
-    return "self.{} = {}({})".format(
-        attr_name,
-        _INIT_CONVERTER_PAT % (attr_name,),
-        value_var,
-    )
+    return f"self.{attr_name} = {_INIT_CONVERTER_PAT % (attr_name,)}({value_var})"
 
 
 def _determine_setters(frozen, slots, base_attr_map):
@@ -2267,11 +2259,7 @@ def _determine_setters(frozen, slots, base_attr_map):
                     attr_name, value_var, has_on_setattr
                 )
 
-            return "_inst_dict['{}'] = {}({})".format(
-                attr_name,
-                _INIT_CONVERTER_PAT % (attr_name,),
-                value_var,
-            )
+            return f"_inst_dict['{attr_name}'] = {_INIT_CONVERTER_PAT % (attr_name,)}({value_var})"
 
         return (
             ("_inst_dict = self.__dict__",),
@@ -2519,7 +2507,7 @@ def _attrs_to_init_script(
             ", ".join(kw_only_args),  # kw_only args
         )
         pre_init_kw_only_args = ", ".join(
-            ["{}={}".format(kw_arg, kw_arg) for kw_arg in kw_only_args]
+            [f"{kw_arg}={kw_arg}" for kw_arg in kw_only_args]
         )
         pre_init_args += (
             ", " if pre_init_args else ""

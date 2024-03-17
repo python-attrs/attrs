@@ -1,14 +1,12 @@
 # SPDX-License-Identifier: MIT
 
-import sys
+
+from importlib import metadata
 
 import pytest
 
 import attr
 import attrs
-
-
-from importlib import metadata
 
 
 @pytest.fixture(name="mod", params=(attr, attrs))
