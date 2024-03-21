@@ -2218,7 +2218,7 @@ def _setattr_with_converter(
     return f"_setattr('{attr_name}', {converter._fmt_converter_call(attr_name, value_var)})"
 
 
-def _assign(attr_name, value, has_on_setattr) -> str:
+def _assign(attr_name: str, value: str, has_on_setattr: bool) -> str:
     """
     Unless *attr_name* has an on_setattr hook, use normal assignment. Otherwise
     relegate to _setattr.
