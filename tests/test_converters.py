@@ -23,7 +23,11 @@ class TestConverter:
         """
         c = Converter(int, takes_self=takes_self, takes_field=takes_field)
 
-        assert c == pickle.loads(pickle.dumps(c))
+        new_c = pickle.loads(pickle.dumps(c))
+
+        assert c == new_c
+        assert takes_self == new_c.takes_self
+        assert takes_field == new_c.takes_field
 
     @pytest.mark.parametrize(
         "scenario",
@@ -49,6 +53,7 @@ class TestConverter:
         according to `takes_self` and `takes_field`.
         """
         (takes_self, takes_field), expect = scenario
+
         c = Converter(None, takes_self=takes_self, takes_field=takes_field)
 
         assert expect == c._fmt_converter_call("le_name", "le_value")
