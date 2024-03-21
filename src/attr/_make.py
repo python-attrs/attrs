@@ -2177,7 +2177,7 @@ def _make_init(
         is_exc,
         needs_cached_setattr,
         has_cls_on_setattr,
-        attrs_init,
+        "__attrs_init__" if attrs_init else "__init__",
     )
     if cls.__module__ in sys.modules:
         # This makes typing.get_type_hints(CLS.__init__) resolve string types.
@@ -2290,39 +2290,37 @@ def _determine_setters(
 
 
 def _attrs_to_init_script(
-    attrs,
-    frozen,
-    slots,
-    pre_init,
-    pre_init_has_args,
-    post_init,
-    cache_hash,
-    base_attr_map,
-    is_exc,
-    needs_cached_setattr,
-    has_cls_on_setattr,
-    attrs_init,
-):
+    attrs: list[Attribute],
+    is_frozen: bool,
+    has_slots: bool,
+    call_pre_init: bool,
+    pre_init_has_args: bool,
+    call_post_init: bool,
+    does_cache_hash: bool,
+    base_attr_map: dict[str, type],
+    is_exc: bool,
+    needs_cached_setattr: bool,
+    has_cls_on_setattr: bool,
+    method_name: str,
+) -> tuple[str, dict, dict]:
     """
-    Return a script of an initializer for *attrs* and a dict of globals.
+    Return a script of an initializer for *attrs*, a dict of globals, and
+    annotations for the initializer.
 
-    The globals are expected by the generated script.
-
-    If *frozen* is True, we cannot set the attributes directly so we use
-    a cached ``object.__setattr__``.
+    The globals are required by the generated script.
     """
-    lines = ["self.__attrs_pre_init__()"] if pre_init else []
+    lines = ["self.__attrs_pre_init__()"] if call_pre_init else []
 
     if needs_cached_setattr:
         lines.append(
             # Circumvent the __setattr__ descriptor to save one lookup per
-            # assignment.
-            # Note _setattr will be used again below if cache_hash is True
+            # assignment. Note _setattr will be used again below if
+            # does_cache_hash is True.
             "_setattr = _cached_setattr_get(self)"
         )
 
     extra_lines, fmt_setter, fmt_setter_with_converter = _determine_setters(
-        frozen, slots, base_attr_map
+        is_frozen, has_slots, base_attr_map
     )
     lines.extend(extra_lines)
 
@@ -2496,25 +2494,25 @@ def _attrs_to_init_script(
             names_for_globals[val_name] = a.validator
             names_for_globals[attr_name] = a
 
-    if post_init:
+    if call_post_init:
         lines.append("self.__attrs_post_init__()")
 
-    # because this is set only after __attrs_post_init__ is called, a crash
+    # Because this is set only after __attrs_post_init__ is called, a crash
     # will result if post-init tries to access the hash code.  This seemed
-    # preferable to setting this beforehand, in which case alteration to
-    # field values during post-init combined with post-init accessing the
-    # hash code would result in silent bugs.
-    if cache_hash:
-        if frozen:
-            if slots:  # noqa: SIM108
+    # preferable to setting this beforehand, in which case alteration to field
+    # values during post-init combined with post-init accessing the hash code
+    # would result in silent bugs.
+    if does_cache_hash:
+        if is_frozen:
+            if has_slots:
                 # if frozen and slots, then _setattr defined above
-                init_hash_cache = "_setattr('%s', %s)"
+                init_hash_cache = f"_setattr('{_HASH_CACHE_FIELD}', None)"
             else:
                 # if frozen and not slots, then _inst_dict defined above
-                init_hash_cache = "_inst_dict['%s'] = %s"
+                init_hash_cache = f"_inst_dict['{_HASH_CACHE_FIELD}'] = None"
         else:
-            init_hash_cache = "self.%s = %s"
-        lines.append(init_hash_cache % (_HASH_CACHE_FIELD, "None"))
+            init_hash_cache = f"self.{_HASH_CACHE_FIELD} = None"
+        lines.append(init_hash_cache)
 
     # For exceptions we rely on BaseException.__init__ for proper
     # initialization.
@@ -2538,14 +2536,13 @@ def _attrs_to_init_script(
         )  # handle only kwargs and no regular args
         pre_init_args += pre_init_kw_only_args
 
-    if pre_init and pre_init_has_args:
+    if call_pre_init and pre_init_has_args:
         # If pre init method has arguments, pass same arguments as `__init__`
-        lines[0] = "self.__attrs_pre_init__(%s)" % pre_init_args
+        lines[0] = f"self.__attrs_pre_init__({pre_init_args})"
 
     return (
-        "def %s(self, %s):\n    %s\n"
+        f"def {method_name}(self, %s):\n    %s\n"
         % (
-            ("__attrs_init__" if attrs_init else "__init__"),
             args,
             "\n    ".join(lines) if lines else "pass",
         ),
