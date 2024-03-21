@@ -118,7 +118,11 @@ class TestPipe:
         """
         c = pipe(str, Converter(to_bool), bool)
 
-        assert True is c("True", None, None) is c(True, None, None)
+        assert (
+            True
+            is c.converter("True", None, None)
+            is c.converter(True, None, None)
+        )
 
     def test_fail(self):
         """
@@ -128,11 +132,11 @@ class TestPipe:
 
         # First wrapped converter fails:
         with pytest.raises(ValueError):
-            c(33, None, None)
+            c.converter(33, None, None)
 
         # Last wrapped converter fails:
         with pytest.raises(ValueError):
-            c("33", None, None)
+            c.converter("33", None, None)
 
     def test_sugar(self):
         """
@@ -153,7 +157,7 @@ class TestPipe:
         """
         o = object()
 
-        assert o is pipe()(o, None, None)
+        assert o is pipe().converter(o, None, None)
 
 
 class TestToBool:

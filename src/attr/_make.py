@@ -2366,7 +2366,7 @@ def _attrs_to_init_script(
                         )
                     )
                     names_for_globals[converter._get_global_name(a.name)] = (
-                        converter
+                        converter.converter
                     )
                 else:
                     lines.append(
@@ -2387,7 +2387,7 @@ def _attrs_to_init_script(
                     )
                 )
                 names_for_globals[converter._get_global_name(a.name)] = (
-                    converter
+                    converter.converter
                 )
             else:
                 lines.append(
@@ -2411,7 +2411,7 @@ def _attrs_to_init_script(
                     )
                 )
                 names_for_globals[converter._get_global_name(a.name)] = (
-                    converter
+                    converter.converter
                 )
             else:
                 lines.append(fmt_setter(attr_name, arg_name, has_on_setattr))
@@ -2443,7 +2443,7 @@ def _attrs_to_init_script(
                     )
                 )
                 names_for_globals[converter._get_global_name(a.name)] = (
-                    converter
+                    converter.converter
                 )
             else:
                 lines.append(
@@ -2472,7 +2472,7 @@ def _attrs_to_init_script(
                     )
                 )
                 names_for_globals[converter._get_global_name(a.name)] = (
-                    converter
+                    converter.converter
                 )
             else:
                 lines.append(fmt_setter(attr_name, arg_name, has_on_setattr))
@@ -3023,25 +3023,9 @@ class Converter:
         self.takes_self = takes_self
         self.takes_field = takes_field
 
-        # Defining __call__ as a regular method leads to __annotations__ being
-        # overwritten at a class level.
-        def __call__(value, inst, field):
-            return self.converter(
-                *{
-                    (False, False): (value,),
-                    (True, False): (value, inst),
-                    (False, True): (value, field),
-                    (True, True): (value, inst, field),
-                }[(takes_self, takes_field)]
-            )
-
-        ann = _AnnotationExtractor(converter)
-        __call__.__annotations__.update(
-            ann.get_annotations_for_converter_callable()
-        )
-        self.__call__ = __call__
-
-        self._first_param_type = ann.get_first_param_type()
+        self._first_param_type = _AnnotationExtractor(
+            converter
+        ).get_first_param_type()
 
     @staticmethod
     def _get_global_name(attr_name: str) -> str:
@@ -3052,7 +3036,16 @@ class Converter:
         return f"__attr_converter_{attr_name}"
 
     def _fmt_converter_call(self, attr_name: str, value_var: str) -> str:
-        return f"{self._get_global_name(attr_name)}({value_var}, self, attr_dict['{attr_name}'])"
+        if not (self.takes_self or self.takes_field):
+            return f"{self._get_global_name(attr_name)}({value_var})"
+
+        if self.takes_self and self.takes_field:
+            return f"{self._get_global_name(attr_name)}({value_var}, self, attr_dict['{attr_name}'])"
+
+        if self.takes_self:
+            return f"{self._get_global_name(attr_name)}({value_var}, self)"
+
+        return f"{self._get_global_name(attr_name)}({value_var}, attr_dict['{attr_name}'])"
 
     def __getstate__(self):
         """
@@ -3226,11 +3219,19 @@ def pipe(*converters):
     """
 
     def pipe_converter(val, inst, field):
-        for converter in converters:
-            if isinstance(converter, Converter):
-                val = converter(val, inst, field)
+        for c in converters:
+            if isinstance(c, Converter):
+                val = c.converter(
+                    val,
+                    *{
+                        (False, False): (),
+                        (True, False): (c.takes_self,),
+                        (False, True): (c.takes_field,),
+                        (True, True): (c.takes_self, c.takes_field),
+                    }[c.takes_self, c.takes_field],
+                )
             else:
-                val = converter(val)
+                val = c(val)
 
         return val
 
