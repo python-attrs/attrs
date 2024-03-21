@@ -25,6 +25,34 @@ class TestConverter:
 
         assert c == pickle.loads(pickle.dumps(c))
 
+    @pytest.mark.parametrize(
+        "scenario",
+        [
+            ((False, False), "__attr_converter_le_name(le_value)"),
+            (
+                (True, True),
+                "__attr_converter_le_name(le_value, self, attr_dict['le_name'])",
+            ),
+            (
+                (True, False),
+                "__attr_converter_le_name(le_value, self)",
+            ),
+            (
+                (False, True),
+                "__attr_converter_le_name(le_value, attr_dict['le_name'])",
+            ),
+        ],
+    )
+    def test_fmt_converter_call(self, scenario):
+        """
+        _fmt_converter_call determines the arguments to the wrapped converter
+        according to `takes_self` and `takes_field`.
+        """
+        (takes_self, takes_field), expect = scenario
+        c = Converter(None, takes_self=takes_self, takes_field=takes_field)
+
+        assert expect == c._fmt_converter_call("le_name", "le_value")
+
 
 class TestOptional:
     """
