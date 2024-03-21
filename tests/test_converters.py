@@ -15,11 +15,13 @@ from attr.converters import default_if_none, optional, pipe, to_bool
 
 
 class TestConverter:
-    def test_pickle(self):
+    @pytest.mark.parametrize("takes_self", [True, False])
+    @pytest.mark.parametrize("takes_field", [True, False])
+    def test_pickle(self, takes_self, takes_field):
         """
         Wrapped converters can be pickled.
         """
-        c = Converter(int, takes_self=False)
+        c = Converter(int, takes_self=takes_self, takes_field=takes_field)
 
         assert c == pickle.loads(pickle.dumps(c))
 
