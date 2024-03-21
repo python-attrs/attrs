@@ -2292,7 +2292,7 @@ def _determine_setters(
 def _attrs_to_init_script(
     attrs: list[Attribute],
     is_frozen: bool,
-    has_slots: bool,
+    is_slotted: bool,
     call_pre_init: bool,
     pre_init_has_args: bool,
     call_post_init: bool,
@@ -2320,7 +2320,7 @@ def _attrs_to_init_script(
         )
 
     extra_lines, fmt_setter, fmt_setter_with_converter = _determine_setters(
-        is_frozen, has_slots, base_attr_map
+        is_frozen, is_slotted, base_attr_map
     )
     lines.extend(extra_lines)
 
@@ -2504,11 +2504,9 @@ def _attrs_to_init_script(
     # would result in silent bugs.
     if does_cache_hash:
         if is_frozen:
-            if has_slots:
-                # if frozen and slots, then _setattr defined above
+            if is_slotted:
                 init_hash_cache = f"_setattr('{_HASH_CACHE_FIELD}', None)"
             else:
-                # if frozen and not slots, then _inst_dict defined above
                 init_hash_cache = f"_inst_dict['{_HASH_CACHE_FIELD}'] = None"
         else:
             init_hash_cache = f"self.{_HASH_CACHE_FIELD} = None"
