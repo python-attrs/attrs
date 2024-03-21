@@ -40,26 +40,16 @@ class _AnnotationExtractor:
         except (ValueError, TypeError):  # inspect failed
             self.sig = None
 
-    def get_first_param(self):
+    def get_first_param_type(self):
         """
-        Get the name and type annotation of the first argument as a tuple.
+        Return the type annotation of the first argument if it's not empty.
         """
         if not self.sig:
             return None
 
         params = list(self.sig.parameters.values())
         if params and params[0].annotation is not inspect.Parameter.empty:
-            return params[0].name, params[0].annotation
-
-        return None
-
-    def get_first_param_type(self):
-        """
-        Return the type annotation of the first argument if it's not empty.
-        """
-        p = self.get_first_param()
-        if p:
-            return p[1]
+            return params[0].annotation
 
         return None
 
