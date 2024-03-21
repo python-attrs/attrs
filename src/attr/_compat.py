@@ -40,26 +40,6 @@ class _AnnotationExtractor:
         except (ValueError, TypeError):  # inspect failed
             self.sig = None
 
-    def get_annotations_for_converter_callable(self):
-        """
-        Return the annotations based on its return values and the signature of
-        its first argument.
-        """
-        if not self.sig:
-            return {}
-
-        rv = {}
-
-        ret = self.get_return_type()
-        if ret is not None:
-            rv["return"] = ret
-
-        first_param = self.get_first_param()
-        if first_param is not None:
-            rv[first_param[0]] = first_param[1]
-
-        return rv
-
     def get_first_param(self):
         """
         Get the name and type annotation of the first argument as a tuple.
