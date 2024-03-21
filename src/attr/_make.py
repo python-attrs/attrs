@@ -3034,6 +3034,11 @@ class Converter:
         return f"__attr_converter_{attr_name}"
 
     def _fmt_converter_call(self, attr_name: str, value_var: str) -> str:
+        """
+        Return a string that calls the converter for an attribute name
+        *attr_name* and the value in variable named *value_var* according to
+        `self.takes_self` and `self.takes_field`.
+        """
         if not (self.takes_self or self.takes_field):
             return f"{self._get_global_name(attr_name)}({value_var})"
 
