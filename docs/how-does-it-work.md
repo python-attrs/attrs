@@ -64,7 +64,7 @@ Once constructed, frozen instances don't differ in any way from regular ones exc
 
 ### Dict Classes
 
-Dict classes -- i.e. regular classes -- simply assign the value directly into the class' eponymous `__dict__` (and there's nothing we can do to stop the user to do the same).
+Dict classes -- that is: regular classes -- simply assign the value directly into the class' eponymous `__dict__` (and there's nothing we can do to stop the user to do the same).
 
 The performance impact is negligible.
 
@@ -95,9 +95,9 @@ Pick what's more important to you.
 
 ### Summary
 
-You should avoid instantiating lots of frozen slotted classes (i.e. `@frozen`) in performance-critical code.
+You should avoid instantiating lots of frozen slotted classes (meaning: `@frozen`) in performance-critical code.
 
-Frozen dict classes have barely a performance impact, unfrozen slotted classes are even *faster* than unfrozen dict classes (i.e. regular classes).
+Frozen dict classes have barely a performance impact, unfrozen slotted classes are even *faster* than unfrozen dict classes (meaning: regular classes).
 
 
 (how-slotted-cached_property)=

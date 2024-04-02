@@ -8,7 +8,7 @@ Therefore we only support the latest version.
 Put simply, you shouldn't ever be afraid to upgrade as long as you're only using our public APIs.
 Whenever there is a need to break compatibility, it is announced in the changelog, and raises a `DeprecationWarning` for a year (if possible) before it's finally really broken.
 
-> **Warning**
+> [!WARNING]
 > The structure of the `attrs.Attribute` class is exempt from this rule.
 > It *will* change in the future, but since it should be considered read-only, that shouldn't matter.
 >

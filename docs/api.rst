@@ -11,7 +11,7 @@ If you're confused by the many names, please check out `names` for clarification
 
 - The classic ``attr`` that powers the venerable `attr.s` and `attr.ib`.
 - The newer ``attrs`` that only contains most modern APIs and relies on `attrs.define` and `attrs.field` to define your classes.
-  Additionally it offers some ``attr`` APIs with nicer defaults (e.g. `attrs.asdict`).
+  Additionally it offers some ``attr`` APIs with nicer defaults (for example, `attrs.asdict`).
 
 The ``attrs`` namespace is built *on top of* ``attr`` -- which will *never* go away -- and is just as stable, since it doesn't constitute a rewrite.
 To keep repetition low and this document at a reasonable size, the ``attr`` namespace is `documented on a separate page <api-attr>`, though.
@@ -451,8 +451,6 @@ All objects from ``attrs.validators`` are also available from ``attr.validators`
       ...
       ValueError: 'val' must be in [1, 2, 3] (got 4), Attribute(name='val', default=NOTHING, validator=<in_ validator with options [1, 2, 3]>, repr=True, eq=True, eq_key=None, order=True, order_key=None, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False, on_setattr=None), [1, 2, 3], 4)
 
-.. autofunction:: attrs.validators.provides
-
 .. autofunction:: attrs.validators.and_
 
    For convenience, it's also possible to pass a list to `attrs.field`'s validator argument.
@@ -652,7 +650,7 @@ All objects from ``attrs.converters`` are also available from ``attr.converters`
       C(x='')
 
 
-.. autofunction:: attrs.converters.to_bool
+.. autofunction:: attrs.converters.to_bool(val)
 
    For example:
 
@@ -667,10 +665,11 @@ All objects from ``attrs.converters`` are also available from ``attr.converters`
       C(x=True)
       >>> C(0)
       C(x=False)
-      >>> C("foo")
+      >>> C("norway")
       Traceback (most recent call last):
          File "<stdin>", line 1, in <module>
-      ValueError: Cannot convert value to bool: foo
+      ValueError: Cannot convert value to bool: norway
+
 
 
 
@@ -714,4 +713,5 @@ All setters in ``attrs.setters`` are also available from ``attr.setters`` (it's 
          ...
      attrs.exceptions.FrozenAttributeError: ()
 
-   N.B. Please use `attrs.define`'s *frozen* argument (or `attrs.frozen`) to freeze whole classes; it is more efficient.
+   .. tip::
+      Use `attrs.define`'s *frozen* argument (or `attrs.frozen`) to freeze whole classes; it is more efficient.

@@ -44,12 +44,15 @@ Try to design your classes in a way that is clean and convenient to use -- not b
 The database format can change anytime and you're stuck with a bad class design that is hard to change.
 Embrace functions and classmethods as a filter between reality and what's best for you to work with.
 
-:::{warning}
+:::{important}
 While *attrs*'s initialization concepts (including the following sections about validators and converters) are powerful, they are **not** intended to replace a fully-featured serialization or validation system.
 
 We want to help you to write a `__init__` that you'd write by hand, but with less boilerplate.
 
 If you look for powerful-yet-unintrusive serialization and validation for your *attrs* classes, have a look at our sibling project [*cattrs*](https://catt.rs/) or our [third-party extensions](https://github.com/python-attrs/attrs/wiki/Extensions-to-attrs).
+
+This separation of creating classes and serializing them is a conscious design decision.
+We don't think that your business model and your serialization format should be coupled.
 :::
 
 (private-attributes)=
@@ -367,7 +370,7 @@ For that purpose, *attrs* offers the following options:
 - `__attrs_post_init__` is automatically detected and run *after* *attrs* is done initializing your instance.
   This is useful if you want to derive some attribute from others or perform some kind of validation over the whole instance.
 
-- `__attrs_init__` is written and attached to your class *instead* of `__init__`, if *attrs* is told to not write one (i.e. `init=False` or a combination of `auto_detect=True` and a custom `__init__`).
+- `__attrs_init__` is written and attached to your class *instead* of `__init__`, if *attrs* is told to not write one (when `init=False` or a by a combination of `auto_detect=True` and a custom `__init__`).
   This is useful if you want full control over the initialization process, but don't want to set the attributes by hand.
 
 

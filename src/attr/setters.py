@@ -69,5 +69,6 @@ def convert(instance, attrib, new_value):
 
 
 # Sentinel for disabling class-wide *on_setattr* hooks for certain attributes.
-# autodata stopped working, so the docstring is inlined in the API docs.
+# Sphinx's autodata stopped working, so the docstring is inlined in the API
+# docs.
 NO_OP = object()

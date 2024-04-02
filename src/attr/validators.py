@@ -35,7 +35,6 @@ __all__ = [
     "min_len",
     "not_",
     "optional",
-    "provides",
     "set_disabled",
 ]
 
@@ -46,7 +45,7 @@ def set_disabled(disabled):
 
     By default, they are run.
 
-    :param disabled: If ``True``, disable running all validators.
+    :param disabled: If `True`, disable running all validators.
     :type disabled: bool
 
     .. warning::
@@ -62,7 +61,7 @@ def get_disabled():
     """
     Return a bool indicating whether validators are currently disabled or not.
 
-    :return: ``True`` if validators are currently disabled.
+    :return: `True` if validators are currently disabled.
     :rtype: bool
 
     .. versionadded:: 21.3.0
@@ -97,12 +96,7 @@ class _InstanceOfValidator:
         We use a callable class to be able to change the ``__repr__``.
         """
         if not isinstance(value, self.type):
-            msg = "'{name}' must be {type!r} (got {value!r} that is a {actual!r}).".format(
-                name=attr.name,
-                type=self.type,
-                actual=value.__class__,
-                value=value,
-            )
+            msg = f"'{attr.name}' must be {self.type!r} (got {value!r} that is a {value.__class__!r})."
             raise TypeError(
                 msg,
                 attr,
@@ -116,16 +110,14 @@ class _InstanceOfValidator:
 
 def instance_of(type):
     """
-    A validator that raises a `TypeError` if the initializer is called
-    with a wrong type for this particular attribute (checks are performed using
+    A validator that raises a `TypeError` if the initializer is called with a
+    wrong type for this particular attribute (checks are performed using
     `isinstance` therefore it's also valid to pass a tuple of types).
 
-    :param type: The type to check for.
-    :type type: type or tuple of type
+    :param type | tuple[type] type: The type to check for.
 
-    :raises TypeError: With a human readable error message, the attribute
-        (of type `attrs.Attribute`), the expected type, and the value it
-        got.
+    :raises TypeError: With a human readable error message, the attribute (of
+        type `attrs.Attribute`), the expected type, and the value it got.
     """
     return _InstanceOfValidator(type)
 
@@ -140,9 +132,7 @@ class _MatchesReValidator:
         We use a callable class to be able to change the ``__repr__``.
         """
         if not self.match_func(value):
-            msg = "'{name}' must match regex {pattern!r} ({value!r} doesn't)".format(
-                name=attr.name, pattern=self.pattern.pattern, value=value
-            )
+            msg = f"'{attr.name}' must match regex {self.pattern.pattern!r} ({value!r} doesn't)"
             raise ValueError(
                 msg,
                 attr,
@@ -156,16 +146,16 @@ class _MatchesReValidator:
 
 def matches_re(regex, flags=0, func=None):
     r"""
-    A validator that raises `ValueError` if the initializer is called
-    with a string that doesn't match *regex*.
+    A validator that raises `ValueError` if the initializer is called with a
+    string that doesn't match *regex*.
 
     :param regex: a regex string or precompiled pattern to match against
     :param int flags: flags that will be passed to the underlying re function
         (default 0)
-    :param callable func: which underlying `re` function to call. Valid options
-        are `re.fullmatch`, `re.search`, and `re.match`; the default ``None``
-        means `re.fullmatch`. For performance reasons, the pattern is always
-        precompiled using `re.compile`.
+    :param typing.Callable func: which underlying `re` function to call. Valid
+        options are `re.fullmatch`, `re.search`, and `re.match`; the default
+        `None` means `re.fullmatch`. For performance reasons, the pattern is
+        always precompiled using `re.compile`.
 
     .. versionadded:: 19.2.0
     .. versionchanged:: 21.3.0 *regex* can be a pre-compiled pattern.
@@ -198,56 +188,6 @@ def matches_re(regex, flags=0, func=None):
 
 
 @attrs(repr=False, slots=True, hash=True)
-class _ProvidesValidator:
-    interface = attrib()
-
-    def __call__(self, inst, attr, value):
-        """
-        We use a callable class to be able to change the ``__repr__``.
-        """
-        if not self.interface.providedBy(value):
-            msg = "'{name}' must provide {interface!r} which {value!r} doesn't.".format(
-                name=attr.name, interface=self.interface, value=value
-            )
-            raise TypeError(
-                msg,
-                attr,
-                self.interface,
-                value,
-            )
-
-    def __repr__(self):
-        return f"<provides validator for interface {self.interface!r}>"
-
-
-def provides(interface):
-    """
-    A validator that raises a `TypeError` if the initializer is called
-    with an object that does not provide the requested *interface* (checks are
-    performed using ``interface.providedBy(value)`` (see `zope.interface
-    <https://zopeinterface.readthedocs.io/en/latest/>`_).
-
-    :param interface: The interface to check for.
-    :type interface: ``zope.interface.Interface``
-
-    :raises TypeError: With a human readable error message, the attribute
-        (of type `attrs.Attribute`), the expected interface, and the
-        value it got.
-
-    .. deprecated:: 23.1.0
-    """
-    import warnings
-
-    warnings.warn(
-        "attrs's zope-interface support is deprecated and will be removed in, "
-        "or after, April 2024.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    return _ProvidesValidator(interface)
-
-
-@attrs(repr=False, slots=True, hash=True)
 class _OptionalValidator:
     validator = attrib()
 
@@ -264,11 +204,13 @@ class _OptionalValidator:
 def optional(validator):
     """
     A validator that makes an attribute optional.  An optional attribute is one
-    which can be set to ``None`` in addition to satisfying the requirements of
+    which can be set to `None` in addition to satisfying the requirements of
     the sub-validator.
 
-    :param Callable | tuple[Callable] | list[Callable] validator: A validator
-        (or validators) that is used for non-``None`` values.
+    :param validator: A validator (or validators) that is used for non-`None`
+        values.
+    :type validator: typing.Callable | tuple[typing.Callable] |
+        list[typing.Callable]
 
     .. versionadded:: 15.1.0
     .. versionchanged:: 17.1.0 *validator* can be a list of validators.
@@ -426,9 +368,7 @@ class _DeepMapping:
             self.value_validator(inst, attr, value[key])
 
     def __repr__(self):
-        return (
-            "<deep_mapping validator for objects mapping {key!r} to {value!r}>"
-        ).format(key=self.key_validator, value=self.value_validator)
+        return f"<deep_mapping validator for objects mapping {self.key_validator!r} to {self.value_validator!r}>"
 
 
 def deep_mapping(key_validator, value_validator, mapping_validator=None):
@@ -640,12 +580,7 @@ class _NotValidator:
             )
 
     def __repr__(self):
-        return (
-            "<not_ validator wrapping {what!r}, capturing {exc_types!r}>"
-        ).format(
-            what=self.validator,
-            exc_types=self.exc_types,
-        )
+        return f"<not_ validator wrapping {self.validator!r}, capturing {self.exc_types!r}>"
 
 
 def not_(validator, *, msg=None, exc_types=(ValueError, TypeError)):
