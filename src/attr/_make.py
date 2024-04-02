@@ -619,8 +619,12 @@ def _make_cached_property_getattr(cached_properties, original_getattr, cls):
     else:
         lines.extend(
             [
-                "         if hasattr(super(), '__getattr__'):",
-                "              return super().__getattr__(item)",
+                "         try:",
+                "             return super().__getattribute__(item)",
+                "         except AttributeError:",
+                "             if not hasattr(super(), '__getattr__'):",
+                "                 raise",
+                "             return super().__getattr__(item)",
                 "         original_error = f\"'{self.__class__.__name__}' object has no attribute '{item}'\"",
                 "         raise AttributeError(original_error)",
             ]

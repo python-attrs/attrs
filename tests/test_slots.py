@@ -807,6 +807,45 @@ def test_slots_cached_property_with_empty_getattr_raises_attribute_error_of_requ
 
 
 @pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
+def test_slots_cached_property_raising_attributeerror():
+    """
+    Ensures AttributeError raised by a property is preserved by __getattr__()
+    implementation.
+
+    Regression test for issue https://github.com/python-attrs/attrs/issues/1230
+    """
+
+    @attr.s(slots=True)
+    class A:
+        x = attr.ib()
+
+        @functools.cached_property
+        def f(self):
+            return self.p
+
+        @property
+        def p(self):
+            raise AttributeError("I am a property")
+
+        @functools.cached_property
+        def g(self):
+            return self.q
+
+        @property
+        def q(self):
+            return 2
+
+    a = A(1)
+    with pytest.raises(AttributeError, match=r"^I am a property$"):
+        a.p
+    with pytest.raises(AttributeError, match=r"^I am a property$"):
+        a.f
+
+    assert a.g == 2
+    assert a.q == 2
+
+
+@pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
 def test_slots_cached_property_with_getattr_calls_getattr_for_missing_attributes():
     """
     Ensure __getattr__ implementation is maintained for non cached_properties.
