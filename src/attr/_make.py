@@ -1014,9 +1014,14 @@ class _ClassBuilder:
                         cell.cell_contents = cls
         return cls
 
-    def add_repr(self, ns):
+    def add_repr(self, ns, only_non_default_attr_in_repr=False):
         self._cls_dict["__repr__"] = self._add_method_dunders(
-            _make_repr(self._attrs, ns, self._cls)
+            _make_repr(
+                self._attrs,
+                ns,
+                self._cls,
+                only_non_default_attr_in_repr=only_non_default_attr_in_repr,
+            )
         )
         return self
 
@@ -1332,6 +1337,7 @@ def attrs(
     field_transformer=None,
     match_args=True,
     unsafe_hash=None,
+    only_non_default_attr_in_repr=False,
 ):
     r"""
     A class decorator that adds :term:`dunder methods` according to the
@@ -1562,6 +1568,12 @@ def attrs(
         non-keyword-only ``__init__`` parameter names on Python 3.10 and later.
         Ignored on older Python versions.
 
+    :param bool only_non_default_attr_in_repr:
+        If `False` (default), then the usual ``attrs`` repr is created. If `True`
+        then only parameters set to their non-default values will be printed.
+        This means when this is set to `True` the repr output is dynamic based
+        on the state of the class.
+
     .. versionadded:: 16.0.0 *slots*
     .. versionadded:: 16.1.0 *frozen*
     .. versionadded:: 16.3.0 *str*
@@ -1655,7 +1667,10 @@ def attrs(
         if _determine_whether_to_implement(
             cls, repr, auto_detect, ("__repr__",)
         ):
-            builder.add_repr(repr_ns)
+            builder.add_repr(
+                repr_ns,
+                only_non_default_attr_in_repr=only_non_default_attr_in_repr,
+            )
         if str is True:
             builder.add_str()
 
@@ -1961,7 +1976,7 @@ def _add_eq(cls, attrs=None):
     return cls
 
 
-def _make_repr(attrs, ns, cls):
+def _make_repr(attrs, ns, cls, only_non_default_attr_in_repr=False):
     unique_filename = _generate_unique_filename(cls, "repr")
     # Figure out which attributes to include, and which function to use to
     # format them. The a.repr value can be either bool or a custom
@@ -2008,7 +2023,20 @@ def _make_repr(attrs, ns, cls):
         "    else:",
         "      already_repring.add(id(self))",
         "  try:",
-        f"    return f'{cls_name_fragment}({repr_fragment})'",
+        f"     if not {only_non_default_attr_in_repr}:",
+        f"         return f'{cls_name_fragment}({repr_fragment})'",
+        "     attr_frags = []",
+        "     for a in getattr(self, '__attrs_attrs__', []):",
+        "         value = getattr(self, a.name, NOTHING)",
+        "         if a. repr is False or value == a.default:",
+        "             frag = ''",
+        "         else:",
+        "             _repr = repr if a.repr is True else a.repr",
+        "             frag = f'{a.name}={_repr(value)}'",
+        "         attr_frags.append(frag)",
+        "     repr_fragment = ', '.join(f for f in attr_frags if f != '')",
+        f"     dynamic_repr = f'{cls_name_fragment}(' + repr_fragment + ')'",
+        "     return dynamic_repr",
         "  finally:",
         "    already_repring.remove(id(self))",
     ]
@@ -2018,14 +2046,19 @@ def _make_repr(attrs, ns, cls):
     )
 
 
-def _add_repr(cls, ns=None, attrs=None):
+def _add_repr(cls, ns=None, attrs=None, only_non_default_attr_in_repr=False):
     """
     Add a repr method to *cls*.
     """
     if attrs is None:
         attrs = cls.__attrs_attrs__
 
-    cls.__repr__ = _make_repr(attrs, ns, cls)
+    cls.__repr__ = _make_repr(
+        attrs,
+        ns,
+        cls,
+        only_non_default_attr_in_repr=only_non_default_attr_in_repr,
+    )
     return cls
 
 
