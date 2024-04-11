@@ -1611,6 +1611,10 @@ def attrs(
     .. versionadded:: 22.2.0
        *unsafe_hash* as an alias for *hash* (for :pep:`681` compliance).
     .. deprecated:: 24.1.0 *repr_ns*
+    .. versionadded:: 24.1
+       *only_non_default_attr_in_repr* added to allow users to choose to have their
+       classes dynamically include only those parameters whose values are set to
+       non-default values in the repr.
     """
     if repr_ns is not None:
         import warnings
