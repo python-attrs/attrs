@@ -31,7 +31,7 @@ dynamic = ["version", "readme"]
 
 [project.optional-dependencies]
 tests-mypy = [
-  'pytest-mypy-plugins; platform_python_implementation == "CPython" and python_version >= "3.8"',
+  'pytest-mypy-plugins; platform_python_implementation == "CPython" and python_version >= "3.8" and python_version < "3.13"',
   # Since the mypy error messages keep changing, we have to keep updating this
   # pin.
   'mypy>=1.6,<1.10; platform_python_implementation == "CPython" and python_version >= "3.8"',
