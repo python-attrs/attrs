@@ -3062,7 +3062,12 @@ def make_class(
         True,
     )
 
-    return _attrs(these=cls_dict, **attributes_arguments)(type_)
+    cls = _attrs(these=cls_dict, **attributes_arguments)(type_)
+    # Only add type annotations now or "_attrs()" will complain:
+    cls.__annotations__ = {
+        k: v.type for k, v in cls_dict.items() if v.type is not None
+    }
+    return cls
 
 
 # These are required by within this module so we define them here and merely
