@@ -892,6 +892,50 @@ def test_slots_getattr_in_superclass__is_called_for_missing_attributes_when_cach
 
 
 @pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
+def test_slots_getattr_in_subclass_without_cached_property():
+    """
+    Ensure that when a subclass of a slotted class with cached properties
+    defines a __getattr__ but has no cached property itself, parent's cached
+    properties are reachable.
+
+    Cover definition and usage of __attrs_cached_properties__ internal
+    attribute.
+
+    Regression test for issue https://github.com/python-attrs/attrs/issues/1288
+    """
+
+    @attr.s(slots=True)
+    class A:
+        @functools.cached_property
+        def f(self):
+            return 0
+
+    @attr.s(slots=True)
+    class B(A):
+        def __getattr__(self, item):
+            return item
+
+    @attr.s(slots=True)
+    class C(B):
+        @functools.cached_property
+        def g(self):
+            return 1
+
+    b = B()
+    assert b.f == 0
+    assert b.z == "z"
+
+    c = C()
+    assert c.f == 0
+    assert c.g == 1
+    assert c.a == "a"
+
+    assert list(A.__attrs_cached_properties__) == ["f"]
+    assert B.__attrs_cached_properties__ == {}
+    assert list(C.__attrs_cached_properties__) == ["g"]
+
+
+@pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
 def test_slots_getattr_in_subclass_gets_superclass_cached_property():
     """
     Ensure super() in __getattr__ is not broken through cached_property re-write.

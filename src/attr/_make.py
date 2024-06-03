@@ -917,11 +917,27 @@ class _ClassBuilder:
             names += ("__weakref__",)
 
         if PY_3_8_PLUS:
-            cached_properties = {
-                name: cached_property.func
-                for name, cached_property in cd.items()
-                if isinstance(cached_property, functools.cached_property)
+            # Store class cached properties for further use by subclasses
+            # (below) while clearing them out from __dict__ to avoid name
+            # clashing.
+            cd["__attrs_cached_properties__"] = {
+                name: cd.pop(name).func
+                for name in [
+                    name
+                    for name, cached_property in cd.items()
+                    if isinstance(cached_property, functools.cached_property)
+                ]
             }
+            # Gather cached properties from parent classes.
+            cached_properties = {
+                name: func
+                for base_cls in self._cls.__mro__[1:-1]
+                for name, func in base_cls.__dict__.get(
+                    "__attrs_cached_properties__", {}
+                ).items()
+            }
+            # Then from this class.
+            cached_properties.update(cd["__attrs_cached_properties__"])
         else:
             # `functools.cached_property` was introduced in 3.8.
             # So can't be used before this.
@@ -933,10 +949,6 @@ class _ClassBuilder:
         if cached_properties:
             # Add cached properties to names for slotting.
             names += tuple(cached_properties.keys())
-
-            for name in cached_properties:
-                # Clear out function from class to avoid clashing.
-                del cd[name]
 
             additional_closure_functions_to_update.extend(
                 cached_properties.values()
