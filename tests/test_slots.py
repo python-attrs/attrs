@@ -786,7 +786,7 @@ def test_slots_cached_property_infers_type():
 
 
 @pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
-def test_slots_cached_property_with_empty_getattr_raises_attribute_error_of_requested():
+def test_slots_cached_property_with_empty_getattribute_raises_attribute_error_of_requested():
     """
     Ensures error information is not lost.
     """
@@ -809,8 +809,8 @@ def test_slots_cached_property_with_empty_getattr_raises_attribute_error_of_requ
 @pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
 def test_slots_cached_property_raising_attributeerror():
     """
-    Ensures AttributeError raised by a property is preserved by __getattr__()
-    implementation.
+    Ensures AttributeError raised by a property is preserved by
+    __getattribute__() implementation.
 
     Regression test for issue https://github.com/python-attrs/attrs/issues/1230
     """
@@ -846,9 +846,9 @@ def test_slots_cached_property_raising_attributeerror():
 
 
 @pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
-def test_slots_cached_property_with_getattr_calls_getattr_for_missing_attributes():
+def test_slots_cached_property_with_getattribute_calls_getattr_for_missing_attributes():
     """
-    Ensure __getattr__ implementation is maintained for non cached_properties.
+    Ensure __getattribute__ implementation is maintained for non cached_properties.
     """
 
     @attr.s(slots=True)
@@ -859,7 +859,7 @@ def test_slots_cached_property_with_getattr_calls_getattr_for_missing_attributes
         def f(self):
             return self.x
 
-        def __getattr__(self, item):
+        def __getattribute__(self, item):
             return item
 
     a = A(1)
@@ -868,16 +868,16 @@ def test_slots_cached_property_with_getattr_calls_getattr_for_missing_attributes
 
 
 @pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
-def test_slots_getattr_in_superclass__is_called_for_missing_attributes_when_cached_property_present():
+def test_slots_getattribute_in_superclass__is_called_for_missing_attributes_when_cached_property_present():
     """
-    Ensure __getattr__ implementation is maintained in subclass.
+    Ensure __getattribute__ implementation is maintained in subclass.
     """
 
     @attr.s(slots=True)
     class A:
         x = attr.ib()
 
-        def __getattr__(self, item):
+        def __getattribute__(self, item):
             return item
 
     @attr.s(slots=True)
@@ -892,9 +892,66 @@ def test_slots_getattr_in_superclass__is_called_for_missing_attributes_when_cach
 
 
 @pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
-def test_slots_getattr_in_subclass_gets_superclass_cached_property():
+def test_slots_getattr_in_subclass_without_cached_property():
     """
-    Ensure super() in __getattr__ is not broken through cached_property re-write.
+    Ensure that when a subclass of a slotted class with cached properties
+    defines a __getattr__ but has no cached property itself, parent's cached
+    properties are reachable.
+
+    Regression test for issue https://github.com/python-attrs/attrs/issues/1288
+    """
+
+    # Reference behaviour, without attr.
+    class P:
+        __slots__ = ()
+
+        @functools.cached_property
+        def f(self) -> int:
+            return 0
+
+    class C(P):
+        def __getattr__(self, item: str) -> str:
+            return item
+
+    assert not C.__slots__
+    c = C()
+    assert c.x == "x"
+    assert c.__getattribute__("f") == 0
+    assert c.f == 0
+
+    # Same with a base attr class.
+    @attr.s(slots=True)
+    class A:
+        @functools.cached_property
+        def f(self) -> int:
+            return 0
+
+    # But subclass is not an attr-class.
+    class B(A):
+        def __getattr__(self, item: str) -> str:
+            return item
+
+    b = B()
+    assert b.z == "z"
+    assert b.__getattribute__("f") == 0
+    assert b.f == 0
+
+    # And also if subclass is an attr-class.
+    @attr.s(slots=True)
+    class D(A):
+        def __getattr__(self, item: str) -> str:
+            return item
+
+    d = D()
+    assert d.z == "z"
+    assert d.__getattribute__("f") == 0
+    assert d.f == 0
+
+
+@pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
+def test_slots_getattribute_in_subclass_gets_superclass_cached_property():
+    """
+    Ensure super() in __getattribute__ is not broken through cached_property re-write.
     """
 
     @attr.s(slots=True)
@@ -905,7 +962,7 @@ def test_slots_getattr_in_subclass_gets_superclass_cached_property():
         def f(self):
             return self.x
 
-        def __getattr__(self, item):
+        def __getattribute__(self, item):
             return item
 
     @attr.s(slots=True)
@@ -914,8 +971,8 @@ def test_slots_getattr_in_subclass_gets_superclass_cached_property():
         def g(self):
             return self.x
 
-        def __getattr__(self, item):
-            return super().__getattr__(item)
+        def __getattribute__(self, item):
+            return super().__getattribute__(item)
 
     b = B(1)
     assert b.f == 1
@@ -966,10 +1023,11 @@ def test_slots_with_multiple_cached_property_subclasses_works():
         def g(self):
             return self.x * 2
 
-        def __getattr__(self, item):
-            if hasattr(super(), "__getattr__"):
-                return super().__getattr__(item)
-            return item
+        def __getattribute__(self, item):
+            try:
+                return super().__getattribute__(item)
+            except AttributeError:
+                return item
 
     @attr.s(slots=True)
     class AB(A, B):

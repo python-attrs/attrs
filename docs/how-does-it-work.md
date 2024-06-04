@@ -111,7 +111,7 @@ Therefore, *attrs* converts `cached_property`-decorated methods when constructin
 Getting this working is achieved by:
 
 * Adding names to `__slots__` for the wrapped methods.
-* Adding a `__getattr__` method to set values on the wrapped methods.
+* Adding a `__getattribute__` method to set values on the wrapped methods.
 
 For most users, this should mean that it works transparently.
 
