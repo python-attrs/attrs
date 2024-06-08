@@ -564,8 +564,34 @@ class TestAddRepr:
                 """Default value for y."""
                 return self.x + 1
 
-        some_class = SomeClass(x=1)
+        some_class = SomeClass()
         assert "SomeClass()" == repr(some_class)
+        some_class = SomeClass(y=3)
+        assert "SomeClass(y=3)" == repr(some_class)
+
+    def test_only_non_default_attr_in_repr_with_converter(self):
+        """
+        Validate repr behavior with converter and only_non_default_attr_in_repr.
+        """
+
+        @attr.s(only_non_default_attr_in_repr=True)
+        class SomeClass:
+            x: int = attr.ib(default=1, converter=lambda value: value + 0.5)
+            y: int = attr.ib()
+            z: int = attr.ib(default=12, converter=int)
+
+            @y.default
+            def _y(self):
+                """Default value for y."""
+                return self.x + 1
+
+        some_class = SomeClass(x=0.5, z="12")
+        # B/c converter applies before setting x, x will equal default value
+        # Likewise, z is converted to integer 12 before setting, so it equals default
+        assert "SomeClass()" == repr(some_class)
+
+        some_class = SomeClass(x=1)
+        assert "SomeClass(x=1.5)" == repr(some_class)
 
 
 # these are for use in TestAddHash.test_cache_hash_serialization
