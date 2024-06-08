@@ -408,8 +408,29 @@ class TestAddRepr:
         repr signals unset attributes
         """
         C = make_class("C", {"a": attr.ib(init=False)})
-
         assert "C(a=NOTHING)" == repr(C())
+
+    @given(only_non_default_attr_in_repr=booleans())
+    def test_repr_uninitialized_member_with_only_non_default_attr_in_repr(
+        self, only_non_default_attr_in_repr
+    ):
+        """
+        repr signals unset attributes when using only_non_default_attr_in_repr.
+        """
+        C = make_class(
+            "C",
+            {"a": attr.ib(init=False), "b": attr.ib(default=10)},
+            only_non_default_attr_in_repr=only_non_default_attr_in_repr,
+        )
+        # When using only_non_default_attr_in_repr we don't get signal that
+        # the value for param a was not initialized because it is set to implicit
+        # default value "NOTHING"
+        if only_non_default_attr_in_repr:
+            assert "C()" == repr(C())
+            assert "C(b=7)" == repr(C(b=7))
+        else:
+            assert "C(a=NOTHING, b=10)" == repr(C())
+            assert "C(a=NOTHING, b=7)" == repr(C(b=7))
 
     @given(add_str=booleans(), slots=booleans())
     def test_str(self, add_str, slots):
@@ -423,6 +444,36 @@ class TestAddRepr:
         @attr.s(str=add_str, slots=slots)
         class Error(Exception):
             x = attr.ib()
+
+        e = Error(42)
+
+        assert (str(e) == repr(e)) is add_str
+
+    @given(
+        add_str=booleans(),
+        slots=booleans(),
+        only_non_default_attr_in_repr=booleans(),
+    )
+    def test_str_with_only_non_default_attr_in_repr(
+        self, add_str, slots, only_non_default_attr_in_repr
+    ):
+        """
+        If str is True, it returns the same as repr.
+
+        This verifies this continues to work with use of only_non_default_attr_in_repr.
+
+        This only makes sense when subclassing a class with an poor __str__
+        (like Exceptions).
+        """
+
+        @attr.s(
+            str=add_str,
+            slots=slots,
+            only_non_default_attr_in_repr=only_non_default_attr_in_repr,
+        )
+        class Error(Exception):
+            x = attr.ib()
+            y = attr.ib(default=False)
 
         e = Error(42)
 
