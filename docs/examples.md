@@ -386,7 +386,7 @@ in your attrs repr output, you can use the `only_non_default_attr_in_repr` argum
 
 When the argument isn't specified the repr works as expected.
 
-```{docttest}
+```{doctest}
 >>> @define
 ... class C:
 ...     x: int = 1
@@ -398,7 +398,7 @@ C(x=1, y=2)
 Instead, if `only_non_default_attr_in_repr=True` the parameters set to their
 defaults won't be included in the repr output.
 
-```{docttest}
+```{doctest}
 >>> @define(only_non_default_attr_in_repr=True)
 ... class C:
 ...     x: int = 1
@@ -421,7 +421,7 @@ But the field is still excluded from the repr when it is set to the default valu
 because `only_non_default_attr_in_repr` overrides `repr=True` or the repr being a
 custom callable when the field is set to its default value.
 
-```{docttest}
+```{doctest}
 >>> @define(only_non_default_attr_in_repr=True)
 ... class C:
 ...     x: int = field(default=1, repr=False)
@@ -435,6 +435,24 @@ C(y='foo: 3')
 C(y='foo: 3')
 >>> C(z=4)
 C(z=4)
+```
+
+The usual attrs order of execution applies. For each variable (in the order they
+are specified), the default factory (or default value) is considered. Then it is
+compared to set value of the field. When converters are applied, this occurs
+after the default factory. So when `only_non_default_attr_in_repr=True` the
+converted value will be checked against the default, meaning this functionality
+expects the defaults in the converted format.
+
+```{doctest}
+>>> @attr.s(only_non_default_attr_in_repr=True)
+>>> class SomeClass:
+...    x: int = attr.ib(default=1, converter=lambda value: value + 0.5)
+...    z: int = attr.ib(default=12, converter=int)
+>>> SomeClass(x=0.5, z="12")
+SomeClass()
+>>> SomeClass(x=1)
+SomeClass(1.5)
 ```
 
 (examples-validators)=
