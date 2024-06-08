@@ -549,6 +549,24 @@ class TestAddRepr:
         r = "SomeClass(positional=P, something_else=False, another=11.0, another1=7)"
         assert r == repr(some_class)
 
+    def test_only_non_default_attr_in_repr_default_decorator(self):
+        """
+        Validate repr behavior with default decorator and only_non_default_attr_in_repr.
+        """
+
+        @attr.s(only_non_default_attr_in_repr=True)
+        class SomeClass:
+            x: int = attr.ib(default=1)
+            y: int = attr.ib()
+
+            @y.default
+            def _y(self):
+                """Default value for y."""
+                return self.x + 1
+
+        some_class = SomeClass(x=1)
+        assert "SomeClass()" == repr(some_class)
+
 
 # these are for use in TestAddHash.test_cache_hash_serialization
 # they need to be out here so they can be un-pickled
