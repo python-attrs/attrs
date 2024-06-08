@@ -4,7 +4,6 @@
 Tests for dunder methods from `attrib._make`.
 """
 
-
 import copy
 import inspect
 import pickle
@@ -440,6 +439,65 @@ class TestAddRepr:
             "__str__ can only be generated if a __repr__ exists."
         ) == e.value.args[0]
 
+    def test_only_non_default_attr_in_repr(self):
+        """
+        Validate repr behavior when using only_non_default_attr_in_repr parameter.
+        """
+
+        # Use the only_non_default_attr_in_repr option means params whose values
+        # equal their default aren't included in their repr
+        @attr.s(only_non_default_attr_in_repr=True)
+        class SomeClass:
+            positional: int = attr.ib()
+            something = attr.ib(default=None, repr=True)
+            something_else = attr.ib(default=False, repr=True)
+            another = attr.ib(default=11.0, init=False, repr=False)
+
+        some_class = SomeClass(8, something=7)
+        r = "SomeClass(positional=8, something=7)"
+        assert r == repr(some_class)
+
+        # If we wanted to exclude the something param from the repr in the field
+        # definition or override it with a callable for repr we still can
+        # but this is only used when the parameter has a non-default value
+        @attr.s(only_non_default_attr_in_repr=True)
+        class SomeClass:
+            something = attr.ib(default=None, repr=False)
+            something_else = attr.ib(default=False, repr=True)
+            another = attr.ib(default=11.0, init=False, repr=False)
+            another_one = attr.ib(default=17.0, repr=lambda x: "P")
+
+        some_class = SomeClass(something=7, another_one=17.0)
+        r = "SomeClass()"
+        assert r == repr(some_class)
+
+        # The default is equivalent of only_non_default_attr_in_repr=False,
+        # so existing behavior is default
+        @attr.s()
+        class SomeClass:
+            positional = attr.ib()
+            something = attr.ib(default=None)
+            something_else = attr.ib(default=False)
+            another = attr.ib(default=11.0, init=False, repr=False)
+
+        some_class = SomeClass("P", something=7)
+        r = "SomeClass(positional='P', something=7, something_else=False)"
+        assert r == repr(some_class)
+
+        # The use of repr in a field works just like it did before so users can still
+        # exclude individual attributes from the repr (or pass custom callable)
+        @attr.s()
+        class SomeClass:
+            positional = attr.ib(repr=lambda x: "P")
+            something = attr.ib(default=None, repr=False)
+            something_else = attr.ib(default=False)
+            another = attr.ib(default=11.0, init=False)
+            another1 = attr.ib(default="Something", repr=lambda x: 7)
+
+        some_class = SomeClass(8, something=7)
+        r = "SomeClass(positional=P, something_else=False, another=11.0, another1=7)"
+        assert r == repr(some_class)
+
 
 # these are for use in TestAddHash.test_cache_hash_serialization
 # they need to be out here so they can be un-pickled
@@ -481,12 +539,12 @@ class TestAddHash:
         exc_args = ("Invalid value for hash.  Must be True, False, or None.",)
 
         with pytest.raises(TypeError) as e:
-            make_class("C", {}, hash=1),
+            (make_class("C", {}, hash=1),)
 
         assert exc_args == e.value.args
 
         with pytest.raises(TypeError) as e:
-            make_class("C", {"a": attr.ib(hash=1)}),
+            (make_class("C", {"a": attr.ib(hash=1)}),)
 
         assert exc_args == e.value.args
 
@@ -517,8 +575,7 @@ class TestAddHash:
         but attrs is not requested to generate `__init__`.
         """
         exc_args = (
-            "Invalid value for cache_hash.  To use hash caching,"
-            " init must be True.",
+            "Invalid value for cache_hash.  To use hash caching, init must be True.",
         )
         with pytest.raises(TypeError) as e:
             make_class("C", {}, init=False, hash=True, cache_hash=True)
