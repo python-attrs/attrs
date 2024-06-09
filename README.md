@@ -32,6 +32,7 @@ Especially those generously supporting us at the *The Organization* tier and hig
 <p align="center">
    <a href="https://www.variomedia.de/"><img src="https://www.attrs.org/en/latest/_static/sponsors/Variomedia.svg" width="200" height="60" /></a>
    <a href="https://tidelift.com/subscription/pkg/pypi-attrs?utm_source=pypi-attrs&utm_medium=referral&utm_campaign=enterprise&utm_term=repo"><img src="https://www.attrs.org/en/latest/_static/sponsors/Tidelift.svg" width="200" height="60" /></a>
+   <a href="https://klaviyo.com/"><img src="https://www.attrs.org/en/latest/_static/sponsors/Klaviyo.svg" width="200" height="60"/></a>
    <a href="https://filepreviews.io/"><img src="https://www.attrs.org/en/latest/_static/sponsors/FilePreviews.svg" width="200" height="60"/></a>
 </p>
 
