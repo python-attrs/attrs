@@ -430,9 +430,9 @@ custom callable when the field is set to its default value.
 >>> C()
 C()
 >>> C(y=3)
-C(y='foo: 3')
+C(y=foo: 3)
 >>> C(x=2, y=3)
-C(y='foo: 3')
+C(y=foo: 3)
 >>> C(z=4)
 C(z=4)
 ```
