@@ -446,7 +446,7 @@ expects the defaults in the converted format.
 
 ```{doctest}
 >>> @define(only_non_default_attr_in_repr=True)
->>> class C:
+... class C:
 ...     x: int = field(default=1, converter=lambda value: value + 0.5)
 ...     z: int = field(default=12, converter=int)
 >>> SomeClass(x=0.5, z="12")
