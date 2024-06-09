@@ -449,10 +449,10 @@ expects the defaults in the converted format.
 ... class C:
 ...     x: int = field(default=1, converter=lambda value: value + 0.5)
 ...     z: int = field(default=12, converter=int)
->>> SomeClass(x=0.5, z="12")
-SomeClass()
->>> SomeClass(x=1)
-SomeClass(1.5)
+>>> C(x=0.5, z="12")
+C()
+>>> C(x=1)
+C(1.5)
 ```
 
 (examples-validators)=
