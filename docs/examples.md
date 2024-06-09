@@ -445,7 +445,7 @@ converted value will be checked against the default, meaning this functionality
 expects the defaults in the converted format.
 
 ```{doctest}
->>> @attr.s(only_non_default_attr_in_repr=True)
+>>> @define(only_non_default_attr_in_repr=True)
 >>> class SomeClass:
 ...    x: int = attr.ib(default=1, converter=lambda value: value + 0.5)
 ...    z: int = attr.ib(default=12, converter=int)
