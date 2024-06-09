@@ -452,7 +452,7 @@ expects the defaults in the converted format.
 >>> C(x=0.5, z="12")
 C()
 >>> C(x=1)
-C(1.5)
+C(x=1.5)
 ```
 
 (examples-validators)=
