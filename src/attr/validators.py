@@ -15,6 +15,7 @@ from ._config import get_run_validators, set_run_validators
 from ._make import _AndValidator, and_, attrib, attrs
 from .exceptions import NotCallableError
 
+syntax error here!
 
 try:
     Pattern = re.Pattern
