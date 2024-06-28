@@ -4,7 +4,6 @@
 Tests for dunder methods from `attrib._make`.
 """
 
-
 import copy
 import inspect
 import pickle
@@ -409,8 +408,29 @@ class TestAddRepr:
         repr signals unset attributes
         """
         C = make_class("C", {"a": attr.ib(init=False)})
-
         assert "C(a=NOTHING)" == repr(C())
+
+    @given(only_non_default_attr_in_repr=booleans())
+    def test_repr_uninitialized_member_with_only_non_default_attr_in_repr(
+        self, only_non_default_attr_in_repr
+    ):
+        """
+        repr signals unset attributes when using only_non_default_attr_in_repr.
+        """
+        C = make_class(
+            "C",
+            {"a": attr.ib(init=False), "b": attr.ib(default=10)},
+            only_non_default_attr_in_repr=only_non_default_attr_in_repr,
+        )
+        # When using only_non_default_attr_in_repr we don't get signal that
+        # the value for param a was not initialized because it is set to implicit
+        # default value "NOTHING"
+        if only_non_default_attr_in_repr:
+            assert "C()" == repr(C())
+            assert "C(b=7)" == repr(C(b=7))
+        else:
+            assert "C(a=NOTHING, b=10)" == repr(C())
+            assert "C(a=NOTHING, b=7)" == repr(C(b=7))
 
     @given(add_str=booleans(), slots=booleans())
     def test_str(self, add_str, slots):
@@ -429,6 +449,36 @@ class TestAddRepr:
 
         assert (str(e) == repr(e)) is add_str
 
+    @given(
+        add_str=booleans(),
+        slots=booleans(),
+        only_non_default_attr_in_repr=booleans(),
+    )
+    def test_str_with_only_non_default_attr_in_repr(
+        self, add_str, slots, only_non_default_attr_in_repr
+    ):
+        """
+        If str is True, it returns the same as repr.
+
+        This verifies this continues to work with use of only_non_default_attr_in_repr.
+
+        This only makes sense when subclassing a class with an poor __str__
+        (like Exceptions).
+        """
+
+        @attr.s(
+            str=add_str,
+            slots=slots,
+            only_non_default_attr_in_repr=only_non_default_attr_in_repr,
+        )
+        class Error(Exception):
+            x = attr.ib()
+            y = attr.ib(default=False)
+
+        e = Error(42)
+
+        assert (str(e) == repr(e)) is add_str
+
     def test_str_no_repr(self):
         """
         Raises a ValueError if repr=False and str=True.
@@ -439,6 +489,109 @@ class TestAddRepr:
         assert (
             "__str__ can only be generated if a __repr__ exists."
         ) == e.value.args[0]
+
+    def test_only_non_default_attr_in_repr(self):
+        """
+        Validate repr behavior when using only_non_default_attr_in_repr parameter.
+        """
+
+        # Use the only_non_default_attr_in_repr option means params whose values
+        # equal their default aren't included in their repr
+        @attr.s(only_non_default_attr_in_repr=True)
+        class SomeClass:
+            positional: int = attr.ib()
+            something = attr.ib(default=None, repr=True)
+            something_else = attr.ib(default=False, repr=True)
+            another = attr.ib(default=11.0, init=False, repr=False)
+
+        some_class = SomeClass(8, something=7)
+        r = "SomeClass(positional=8, something=7)"
+        assert r == repr(some_class)
+
+        # If we wanted to exclude the something param from the repr in the field
+        # definition or override it with a callable for repr we still can
+        # but this is only used when the parameter has a non-default value
+        @attr.s(only_non_default_attr_in_repr=True)
+        class SomeClass:
+            something = attr.ib(default=None, repr=False)
+            something_else = attr.ib(default=False, repr=True)
+            another = attr.ib(default=11.0, init=False, repr=False)
+            another_one = attr.ib(default=17.0, repr=lambda x: "P")
+
+        some_class = SomeClass(something=7, another_one=17.0)
+        r = "SomeClass()"
+        assert r == repr(some_class)
+
+        # The default is equivalent of only_non_default_attr_in_repr=False,
+        # so existing behavior is default
+        @attr.s()
+        class SomeClass:
+            positional = attr.ib()
+            something = attr.ib(default=None)
+            something_else = attr.ib(default=False)
+            another = attr.ib(default=11.0, init=False, repr=False)
+
+        some_class = SomeClass("P", something=7)
+        r = "SomeClass(positional='P', something=7, something_else=False)"
+        assert r == repr(some_class)
+
+        # The use of repr in a field works just like it did before so users can still
+        # exclude individual attributes from the repr (or pass custom callable)
+        @attr.s()
+        class SomeClass:
+            positional = attr.ib(repr=lambda x: "P")
+            something = attr.ib(default=None, repr=False)
+            something_else = attr.ib(default=False)
+            another = attr.ib(default=11.0, init=False)
+            another1 = attr.ib(default="Something", repr=lambda x: 7)
+
+        some_class = SomeClass(8, something=7)
+        r = "SomeClass(positional=P, something_else=False, another=11.0, another1=7)"
+        assert r == repr(some_class)
+
+    def test_only_non_default_attr_in_repr_default_decorator(self):
+        """
+        Validate repr behavior with default decorator and only_non_default_attr_in_repr.
+        """
+
+        @attr.s(only_non_default_attr_in_repr=True)
+        class SomeClass:
+            x: int = attr.ib(default=1)
+            y: int = attr.ib()
+
+            @y.default
+            def _y(self):
+                """Default value for y."""
+                return self.x + 1
+
+        some_class = SomeClass()
+        assert "SomeClass()" == repr(some_class)
+        some_class = SomeClass(y=3)
+        assert "SomeClass(y=3)" == repr(some_class)
+
+    def test_only_non_default_attr_in_repr_with_converter(self):
+        """
+        Validate repr behavior with converter and only_non_default_attr_in_repr.
+        """
+
+        @attr.s(only_non_default_attr_in_repr=True)
+        class SomeClass:
+            x: int = attr.ib(default=1, converter=lambda value: value + 0.5)
+            y: int = attr.ib()
+            z: int = attr.ib(default=12, converter=int)
+
+            @y.default
+            def _y(self):
+                """Default value for y."""
+                return self.x + 1
+
+        some_class = SomeClass(x=0.5, z="12")
+        # B/c converter applies before setting x, x will equal default value
+        # Likewise, z is converted to integer 12 before setting, so it equals default
+        assert "SomeClass()" == repr(some_class)
+
+        some_class = SomeClass(x=1)
+        assert "SomeClass(x=1.5)" == repr(some_class)
 
 
 # these are for use in TestAddHash.test_cache_hash_serialization
@@ -481,12 +634,12 @@ class TestAddHash:
         exc_args = ("Invalid value for hash.  Must be True, False, or None.",)
 
         with pytest.raises(TypeError) as e:
-            make_class("C", {}, hash=1),
+            (make_class("C", {}, hash=1),)
 
         assert exc_args == e.value.args
 
         with pytest.raises(TypeError) as e:
-            make_class("C", {"a": attr.ib(hash=1)}),
+            (make_class("C", {"a": attr.ib(hash=1)}),)
 
         assert exc_args == e.value.args
 
@@ -517,8 +670,7 @@ class TestAddHash:
         but attrs is not requested to generate `__init__`.
         """
         exc_args = (
-            "Invalid value for cache_hash.  To use hash caching,"
-            " init must be True.",
+            "Invalid value for cache_hash.  To use hash caching, init must be True.",
         )
         with pytest.raises(TypeError) as e:
             make_class("C", {}, init=False, hash=True, cache_hash=True)
