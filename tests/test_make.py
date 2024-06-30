@@ -1164,6 +1164,34 @@ class TestMakeClass:
 
         attr.make_class("test", {"id": attr.ib(type=str)}, (MyParent[int],))
 
+    def test_annotations(self):
+        """
+        make_class fills the __annotations__ dict for attributes with a known
+        type.
+        """
+        a = attr.ib(type=bool)
+        b = attr.ib(
+            type=None
+        )  # Won't be added to ann. b/c of unfavorable default
+        c = attr.ib()
+
+        C = attr.make_class("C", {"a": a, "b": b, "c": c})
+        C = attr.resolve_types(C)
+
+        assert C.__annotations__ == {"a": bool}
+
+    def test_annotations_resolve(self):
+        """
+        resolve_types() resolves the annotations added by make_class().
+        """
+        a = attr.ib(type="bool")
+
+        C = attr.make_class("C", {"a": a})
+        C = attr.resolve_types(C)
+
+        assert attr.fields(C).a.type is bool
+        assert C.__annotations__ == {"a": "bool"}
+
 
 class TestFields:
     """
