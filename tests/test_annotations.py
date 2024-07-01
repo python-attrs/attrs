@@ -277,25 +277,27 @@ class TestAnnotations:
         def identity(z):
             return z
 
-        assert attr.converters.pipe(int2str).__annotations__ == {
+        assert attr.converters.pipe(int2str).converter.__annotations__ == {
             "val": int,
             "return": str,
         }
-        assert attr.converters.pipe(int2str, strlen).__annotations__ == {
+        assert attr.converters.pipe(
+            int2str, strlen
+        ).converter.__annotations__ == {
             "val": int,
             "return": int,
         }
-        assert attr.converters.pipe(identity, strlen).__annotations__ == {
-            "return": int
-        }
-        assert attr.converters.pipe(int2str, identity).__annotations__ == {
-            "val": int
-        }
+        assert attr.converters.pipe(
+            identity, strlen
+        ).converter.__annotations__ == {"return": int}
+        assert attr.converters.pipe(
+            int2str, identity
+        ).converter.__annotations__ == {"val": int}
 
         def int2str_(x: int, y: int = 0) -> str:
             return str(x)
 
-        assert attr.converters.pipe(int2str_).__annotations__ == {
+        assert attr.converters.pipe(int2str_).converter.__annotations__ == {
             "val": int,
             "return": str,
         }
@@ -306,17 +308,20 @@ class TestAnnotations:
         """
 
         p = attr.converters.pipe()
-        assert "val" in p.__annotations__
-        t = p.__annotations__["val"]
+
+        assert "val" in p.converter.__annotations__
+
+        t = p.converter.__annotations__["val"]
+
         assert isinstance(t, typing.TypeVar)
-        assert p.__annotations__ == {"val": t, "return": t}
+        assert p.converter.__annotations__ == {"val": t, "return": t}
 
     def test_pipe_non_introspectable(self):
         """
         pipe() doesn't crash when passed a non-introspectable converter.
         """
 
-        assert attr.converters.pipe(print).__annotations__ == {}
+        assert attr.converters.pipe(print).converter.__annotations__ == {}
 
     def test_pipe_nullary(self):
         """
@@ -326,7 +331,7 @@ class TestAnnotations:
         def noop():
             pass
 
-        assert attr.converters.pipe(noop).__annotations__ == {}
+        assert attr.converters.pipe(noop).converter.__annotations__ == {}
 
     def test_optional(self):
         """
