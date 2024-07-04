@@ -10,7 +10,7 @@ import sys
 from setuptools import find_packages, setup
 
 
-###############################################################################
+########################################x#######################################
 
 NAME = "attrs"
 PACKAGES = find_packages(where="src")
