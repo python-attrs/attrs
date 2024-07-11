@@ -479,7 +479,6 @@ class TestFunctional:
 
         assert "E(c=100, b=23, a=42, x=2, d=3.14, y=3, z=4)" == repr(E())
 
-    @pytest.mark.benchmark()
     @pytest.mark.parametrize("base_slots", [True, False])
     @pytest.mark.parametrize("sub_slots", [True, False])
     @pytest.mark.parametrize("base_frozen", [True, False])
