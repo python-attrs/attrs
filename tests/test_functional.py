@@ -106,12 +106,12 @@ class WithMetaSlots(metaclass=Meta):
 FromMakeClass = attr.make_class("FromMakeClass", ["x"])
 
 
-@pytest.mark.benchmark()
 class TestFunctional:
     """
     Functional tests.
     """
 
+    @pytest.mark.benchmark()
     @pytest.mark.parametrize("cls", [C2, C2Slots])
     def test_fields(self, cls):
         """
@@ -146,6 +146,7 @@ class TestFunctional:
             ),
         ) == attr.fields(cls)
 
+    @pytest.mark.benchmark()
     @pytest.mark.parametrize("cls", [C1, C1Slots])
     def test_asdict(self, cls):
         """
@@ -181,6 +182,7 @@ class TestFunctional:
 
         assert "C3(_x=1)" == repr(C3(x=1))
 
+    @pytest.mark.benchmark()
     @given(booleans(), booleans())
     def test_programmatic(self, slots, frozen):
         """
@@ -338,6 +340,7 @@ class TestFunctional:
         """
         assert Meta == type(cls)
 
+    @pytest.mark.benchmark()
     def test_default_decorator(self):
         """
         Default decorator sets the default and the respective method gets
@@ -476,6 +479,7 @@ class TestFunctional:
 
         assert "E(c=100, b=23, a=42, x=2, d=3.14, y=3, z=4)" == repr(E())
 
+    @pytest.mark.benchmark()
     @pytest.mark.parametrize("base_slots", [True, False])
     @pytest.mark.parametrize("sub_slots", [True, False])
     @pytest.mark.parametrize("base_frozen", [True, False])
@@ -541,6 +545,7 @@ class TestFunctional:
         assert "itemgetter" == attr.fields(C).itemgetter.name
         assert "x" == attr.fields(C).x.name
 
+    @pytest.mark.benchmark()
     def test_auto_exc(self, slots, frozen):
         """
         Classes with auto_exc=True have a Exception-style __str__, compare and
@@ -735,6 +740,7 @@ class TestFunctional:
         assert "_setattr('y', y)" in src
         assert object.__setattr__ != D.__setattr__
 
+    @pytest.mark.benchmark()
     def test_unsafe_hash(self, slots):
         """
         attr.s(unsafe_hash=True) makes a class hashable.
