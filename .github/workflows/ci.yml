@@ -125,6 +125,7 @@ jobs:
         with:
           python-version-file: .python-version-default
           cache: pip
+      - run: python -Im pip install tox-uv
 
       - name: Run CodSpeed benchmarks
         uses: CodSpeedHQ/action@v2
