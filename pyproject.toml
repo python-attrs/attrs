@@ -43,6 +43,7 @@ tests = [
   "pympler",
   # 4.3.0 dropped last use of `convert`
   "pytest>=4.3.0",
+  "pytest-codspeed",
   "pytest-xdist[psutil]",
   "attrs[tests-mypy]",
 ]

@@ -77,6 +77,13 @@ jobs:
           path: .coverage.*
           if-no-files-found: ignore
 
+      - name: Run CodSpeed benchmarks
+        uses: CodSpeedHQ/action@v2
+        with:
+          token: ${{ secrets.CODSPEED_TOKEN }}
+          run: tox run -e codspeed
+        if: matrix.python-version == '3.12'
+
   coverage:
     name: Combine & check coverage.
     runs-on: ubuntu-latest

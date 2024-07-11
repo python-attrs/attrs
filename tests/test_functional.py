@@ -106,6 +106,7 @@ class WithMetaSlots(metaclass=Meta):
 FromMakeClass = attr.make_class("FromMakeClass", ["x"])
 
 
+@pytest.mark.benchmark()
 class TestFunctional:
     """
     Functional tests.
