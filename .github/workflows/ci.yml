@@ -81,7 +81,7 @@ jobs:
         uses: CodSpeedHQ/action@v2
         with:
           token: ${{ secrets.CODSPEED_TOKEN }}
-          run: pytest --codspeed
+          run: tox run -e codspeed
         if: matrix.python-version == '3.12'
 
   coverage:
