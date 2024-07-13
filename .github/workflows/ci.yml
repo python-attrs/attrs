@@ -52,17 +52,18 @@ jobs:
           DO_MYPY=1
 
           if [[ "$V" = pypy-* ]]; then
-            V=pypy3
             DO_MYPY=0
-          else
-            V=py$(echo $V | tr -d .)
 
+            V=pypy3
+          else
             if [[ "$V" == "3.7" || "$V" == "3.8" ]]; then
               DO_MYPY=0
               echo "skipping $V"
             else
               echo "not skipping $V"
             fi
+
+            V=py$(echo $V | tr -d .)
           fi
 
           echo DO_MYPY=$DO_MYPY >>$GITHUB_ENV
