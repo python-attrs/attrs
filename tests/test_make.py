@@ -1178,7 +1178,7 @@ class TestMakeClass:
         C = attr.make_class("C", {"a": a, "b": b, "c": c})
         C = attr.resolve_types(C)
 
-        assert C.__annotations__ == {"a": bool}
+        assert {"a": bool} == C.__annotations__
 
     def test_annotations_resolve(self):
         """
@@ -1190,7 +1190,7 @@ class TestMakeClass:
         C = attr.resolve_types(C)
 
         assert attr.fields(C).a.type is bool
-        assert C.__annotations__ == {"a": "bool"}
+        assert {"a": "bool"} == C.__annotations__
 
 
 class TestFields:
