@@ -59,6 +59,9 @@ jobs:
 
             if [[ "$V" == "3.7" || "$V" == "3.8" ]]; then
               DO_MYPY=0
+              echo "skipping $V"
+            else
+              echo "not skipping $V"
             fi
           fi
 
