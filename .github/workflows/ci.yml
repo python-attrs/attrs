@@ -49,16 +49,20 @@ jobs:
       - name: Prepare tox
         run: |
           V=${{ matrix.python-version }}
+          DO_MYPY=1
 
           if [[ "$V" = pypy-* ]]; then
             V=pypy3
-            IS_PYPY=1
+            DO_MYPY=0
           else
             V=py$(echo $V | tr -d .)
-            IS_PYPY=0
+
+            if [[ "$V" == "3.7" || "$V" == "3.8" ]]; then
+              DO_MYPY=0
+            fi
           fi
 
-          echo IS_PYPY=$IS_PYPY >>$GITHUB_ENV
+          echo DO_MYPY=$DO_MYPY >>$GITHUB_ENV
           echo TOX_PYTHON=$V >>$GITHUB_ENV
 
           python -Im pip install tox
@@ -68,7 +72,7 @@ jobs:
 
       - run: python -Im tox run -e ${{ env.TOX_PYTHON }}-tests
       - run: python -Im tox run -e ${{ env.TOX_PYTHON }}-mypy
-        if: env.IS_PYPY == '0' && matrix.python-version != '3.7'
+        if: env.DO_MYPY == '1'
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v4
