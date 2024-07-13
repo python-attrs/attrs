@@ -19,6 +19,10 @@ Whether they're relevant to *you* depends on your circumstances:
 
   On the other hand, Data Classes currently do not offer any significant feature that *attrs* doesn't already have.
 
+- We are more likely to commit crimes against nature to make things work that one would expect to work, but that are quite complicated.
+
+  This includes stepping through generated methods using a debugger, cell rewriting to make bare `super()` calls work, or making {func}`functools.cached_property` work on slotted classes.
+
 - *attrs* supports all mainstream Python versions including PyPy.
 
 - *attrs* doesn't force type annotations on you if you don't like them.
@@ -27,6 +31,7 @@ Whether they're relevant to *you* depends on your circumstances:
 
 - While Data Classes are implementing features from *attrs* every now and then, their presence is dependent on the Python version, not the package version.
   For example, support for `__slots__` has only been added in Python 3.10, but it doesn’t do cell rewriting and therefore doesn’t support bare calls to `super()`.
+
   This may or may not be fixed in later Python releases, but handling all these differences is especially painful for PyPI packages that support multiple Python versions.
   And of course, this includes possible implementation bugs.
 
@@ -48,7 +53,7 @@ However, as convenient as it might be, using it for your business or data layer 
 Is it really necessary to re-validate all your objects while reading them from a trusted database?
 In the parlance of [*Form, Command, and Model Validation*](https://verraes.net/2015/02/form-command-model-validation/), Pydantic is the right tool for *Commands*.
 
-[*Separation of concerns*](https://en.wikipedia.org/wiki/Separation_of_concerns) feels tedious at times, but it's one of those things that you get to appreciate once you've shot your own foot often enough.
+[*Separation of concerns*](https://en.wikipedia.org/wiki/Separation_of_concerns) feels tedious at times, but it's one of those things that you get to appreciate once you've shot your own foot often enough and seen the results of allowing design pressure from the edges of your system, like ORMs or web APIs.
 
 *attrs* emphatically does **not** try to be a validation library, but a toolkit to write well-behaved classes like you would write yourself.
 If you'd like a powerful library for structuring, unstructuring, and validating data, have a look at [*cattrs*](https://catt.rs/) which is an official member of the *attrs* family.
@@ -272,7 +277,7 @@ is roughly
 ArtisanalClass(a=1, b=2)
 ```
 
-which is quite a mouthful and it doesn't even use any of *attrs*'s more advanced features like validators or default values.
+That's quite a mouthful and it doesn't even use any of *attrs*'s more advanced features like validators or default values.
 Also: no tests whatsoever.
 And who will guarantee you, that you don't accidentally flip the `<` in your tenth implementation of `__gt__`?
 

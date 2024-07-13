@@ -31,7 +31,13 @@ class Point:
 pt = Point.from_row(row)
 ```
 
-Now you can instantiate `Point`s without creating fake row objects in your tests and you can have as many smart creation helpers as you want, in case more data sources appear.
+This is sometimes called a *named constructor* or a *factory method*.
+
+Now, you can instantiate `Point`s without creating fake row objects in your tests.
+You can also have as many smart creation helpers as you want.
+This flexibility is useful because additional data sources tend to appear over time.
+
+---
 
 For similar reasons, we strongly discourage from patterns like:
 

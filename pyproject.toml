@@ -31,10 +31,10 @@ dynamic = ["version", "readme"]
 
 [project.optional-dependencies]
 tests-mypy = [
-  'pytest-mypy-plugins; platform_python_implementation == "CPython" and python_version >= "3.8" and python_version < "3.13"',
+  'pytest-mypy-plugins; platform_python_implementation == "CPython" and python_version >= "3.9" and python_version < "3.13"',
   # Since the mypy error messages keep changing, we have to keep updating this
   # pin.
-  'mypy>=1.6,<1.10; platform_python_implementation == "CPython" and python_version >= "3.8"',
+  'mypy>=1.10.1; platform_python_implementation == "CPython" and python_version >= "3.9"',
 ]
 tests = [
   # For regression test to ensure cloudpickle compat doesn't break.
@@ -43,7 +43,6 @@ tests = [
   "pympler",
   # 4.3.0 dropped last use of `convert`
   "pytest>=4.3.0",
-  "pytest-codspeed",
   "pytest-xdist[psutil]",
   "attrs[tests-mypy]",
 ]
@@ -52,7 +51,13 @@ cov = [
   # Ensure coverage is new enough for `source_pkgs`.
   "coverage[toml]>=5.3",
 ]
+benchmark = [
+  "pytest-codspeed",
+  "pytest-xdist[psutil]",
+  "attrs[tests]",
+]
 docs = [
+  "cogapp",
   "furo",
   "myst-parser",
   "sphinx",
@@ -114,8 +119,28 @@ text = """
 
 # Point sponsor image URLs to versions.
 [[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
-pattern = '\/latest\/_static/sponsors'
-replacement = '/$HFPR_VERSION/_static/sponsors'
+pattern = 'docs\/_static\/sponsors'
+replacement = 'https://www.attrs.org/en/$HFPR_VERSION/_static/sponsors'
+
+[[tool.sponcon.sponsors]]
+title = "Variomedia AG"
+url = "https://www.variomedia.de/"
+img = "Variomedia.svg"
+
+[[tool.sponcon.sponsors]]
+title = "Tidelift"
+url = "https://tidelift.com/?utm_source=lifter&utm_medium=referral&utm_campaign=hynek"
+img = "Tidelift.svg"
+
+[[tool.sponcon.sponsors]]
+title = "Klaviyo"
+url = "https://klaviyo.com/"
+img = "Klaviyo.svg"
+
+[[tool.sponcon.sponsors]]
+title = "FilePreviews"
+url = "https://filepreviews.io/"
+img = "FilePreviews.svg"
 
 
 [tool.pytest.ini_options]
@@ -198,6 +223,9 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
+"bench/**" = [
+  "INP001", # Benchmarks don't have to be importable.
+]
 "**/test_*" = [
   "ARG005",  # we need stub lambdas
   "S",
@@ -272,3 +300,8 @@ showcontent = true
 pretty = true
 disallow_untyped_defs = true
 check_untyped_defs = true
+
+
+[tool.pyright]
+# We need epexrimental features for converters.
+enableExperimentalFeatures = true
