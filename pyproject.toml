@@ -31,10 +31,10 @@ dynamic = ["version", "readme"]
 
 [project.optional-dependencies]
 tests-mypy = [
-  'pytest-mypy-plugins; platform_python_implementation == "CPython" and python_version >= "3.8" and python_version < "3.13"',
+  'pytest-mypy-plugins; platform_python_implementation == "CPython" and python_version >= "3.9" and python_version < "3.13"',
   # Since the mypy error messages keep changing, we have to keep updating this
   # pin.
-  'mypy>=1.6,<1.10; platform_python_implementation == "CPython" and python_version >= "3.8"',
+  'mypy>=1.10.1; platform_python_implementation == "CPython" and python_version >= "3.9"',
 ]
 tests = [
   # For regression test to ensure cloudpickle compat doesn't break.
@@ -43,6 +43,7 @@ tests = [
   "pympler",
   # 4.3.0 dropped last use of `convert`
   "pytest>=4.3.0",
+  "pytest-codspeed",
   "pytest-xdist[psutil]",
   "attrs[tests-mypy]",
 ]
@@ -271,3 +272,8 @@ showcontent = true
 pretty = true
 disallow_untyped_defs = true
 check_untyped_defs = true
+
+
+[tool.pyright]
+# We need epexrimental features for converters.
+enableExperimentalFeatures = true
