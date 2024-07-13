@@ -1099,7 +1099,7 @@ class TestMakeClass:
 
         cls = make_class("C", {})
 
-        assert cls.__mro__[-1] == object
+        assert cls.__mro__[-1] is object
 
         cls = make_class("C", {}, bases=(D,))
 

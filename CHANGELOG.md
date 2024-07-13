@@ -20,6 +20,7 @@ See https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md#chan
 
 <!-- towncrier release notes start -->
 
+
 ## [23.2.0](https://github.com/python-attrs/attrs/tree/23.2.0) - 2023-12-31
 
 ### Changes
@@ -41,6 +42,7 @@ See https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md#chan
 - Added *class_body* argument to `attrs.make_class()` to provide additional attributes for newly created classes.
   It is, for example, now possible to attach methods.
   [#1203](https://github.com/python-attrs/attrs/issues/1203)
+
 
 ## [23.1.0](https://github.com/python-attrs/attrs/tree/23.1.0) - 2023-04-16
 
