@@ -275,4 +275,5 @@ check_untyped_defs = true
 
 
 [tool.pyright]
+# We need epexrimental features for converters.
 enableExperimentalFeatures = true
