@@ -35,6 +35,7 @@ __all__ = [
     "min_len",
     "not_",
     "optional",
+    "or_",
     "set_disabled",
 ]
 
@@ -614,3 +615,47 @@ def not_(validator, *, msg=None, exc_types=(ValueError, TypeError)):
     except TypeError:
         exc_types = (exc_types,)
     return _NotValidator(validator, msg, exc_types)
+
+
+@attrs(repr=False, slots=True, hash=True)
+class _OrValidator:
+    validators = attrib()
+
+    def __call__(self, inst, attr, value):
+        for v in self.validators:
+            try:
+                v(inst, attr, value)
+            except Exception:
+                continue
+            else:
+                return
+
+        msg = f"None of {self.validators!r} satisfied for value {value!r}"
+        raise ValueError(msg)
+
+    def __repr__(self):
+        return f"<or validator wrapping {self.validators!r}>"
+
+
+def or_(*validators):
+    """
+    A validator that composes multiple validators into one.
+
+    When called on a value, it runs all wrapped validators until one of them
+    is satisfied.
+
+    Raises `ValueError` if none of them are.
+
+    :param ~collections.abc.Iterable[typing.Callable] validators: Arbitrary
+        number of validators.
+
+    :raises ValueError: With a human readable error message listing all the
+        wrapped validators and the value that failed all of them.
+
+    .. versionadded:: 24.1.0
+    """
+    vals = []
+    for v in validators:
+        vals.extend(v.validators if isinstance(v, _OrValidator) else [v])
+
+    return _OrValidator(tuple(vals))
