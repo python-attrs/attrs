@@ -473,7 +473,7 @@ All objects from ``attrs.validators`` are also available from ``attr.validators`
       >>> C(42)
       C(val=42)
       >>> C("42")
-      C(val="42")
+      C(val='42')
       >>> C(3.14)
       Traceback (most recent call last):
          ...
