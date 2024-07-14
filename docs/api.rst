@@ -460,6 +460,25 @@ All objects from ``attrs.validators`` are also available from ``attr.validators`
       x = field(validator=attrs.validators.and_(v1, v2, v3))
       x = field(validator=[v1, v2, v3])
 
+.. autofunction:: attrs.validators.or_
+
+   For example:
+
+   .. doctest::
+
+      >>> from typing import Union
+      >>> @define
+      ... class C:
+      ...     val: Union[int, str] = field(validator=attrs.validators.or_(attrs.validators.instance_of(int), attrs.validators.instance_of(str)))
+      >>> C(42)
+      C(val=42)
+      >>> C("42")
+      C(val="42")
+      >>> C(3.14)
+      Traceback (most recent call last):
+         ...
+      ValueError: None of (<instance_of validator for type <class 'int'>>, <instance_of validator for type <class 'str'>>) satisfied for value 3.14
+
 .. autofunction:: attrs.validators.not_
 
    For example:
