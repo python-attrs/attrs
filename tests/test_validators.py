@@ -1287,3 +1287,13 @@ class TestOr:
 
         with pytest.raises(ValueError):
             v(None, simple_attr("test"), 42)
+
+    def test_repr(self):
+        """
+        Returned validator has a useful `__repr__`.
+        """
+        v = or_(instance_of(int), instance_of(str))
+        assert (
+            "<or validator wrapping (<instance_of validator for type "
+            "<class 'int'>>, <instance_of validator for type <class 'str'>>)>"
+        ) == repr(v)
