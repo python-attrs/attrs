@@ -30,6 +30,7 @@ from attr.validators import (
     min_len,
     not_,
     optional,
+    or_,
 )
 
 from .utils import simple_attr
@@ -1261,3 +1262,28 @@ class TestNot_:
             "'exc_types' must be a subclass of <class 'Exception'> "
             "(got <class 'str'>)."
         ) == e.value.args[0]
+
+
+class TestOr:
+    def test_in_all(self):
+        """
+        Verify that this validator is in ``__all__``.
+        """
+        assert or_.__name__ in validator_module.__all__
+
+    def test_success(self):
+        """
+        Succeeds if at least one of wrapped validators succeed.
+        """
+        v = or_(instance_of(str), always_pass)
+
+        v(None, simple_attr("test"), 42)
+
+    def test_fail(self):
+        """
+        Fails if all wrapped validators fail.
+        """
+        v = or_(instance_of(str), always_fail)
+
+        with pytest.raises(ValueError):
+            v(None, simple_attr("test"), 42)
