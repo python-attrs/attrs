@@ -338,7 +338,7 @@ class TestFunctional:
         """
         Metaclass data is preserved.
         """
-        assert Meta == type(cls)
+        assert Meta is type(cls)
 
     @pytest.mark.benchmark()
     def test_default_decorator(self):
