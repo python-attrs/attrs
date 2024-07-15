@@ -58,19 +58,37 @@ If you need any help while getting started, feel free to use the `python-attrs` 
 
 ```{toctree}
 :maxdepth: 2
+:caption: Getting Started
 
 overview
 why
 examples
+```
+
+```{toctree}
+:maxdepth: 2
+:caption: Explanations
+
 types
 init
 comparison
 hashing
+```
+
+```{toctree}
+:maxdepth: 2
+:caption: Reference
+
 api
 api-attr
+glossary
+```
+```{toctree}
+:maxdepth: 2
+:caption: Advanced
+
 extending
 how-does-it-work
-glossary
 ```
 
 ```{toctree}
