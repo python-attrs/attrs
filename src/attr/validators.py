@@ -625,7 +625,7 @@ class _OrValidator:
         for v in self.validators:
             try:
                 v(inst, attr, value)
-            except Exception:
+            except Exception:  # noqa: BLE001, PERF203, S112
                 continue
             else:
                 return
