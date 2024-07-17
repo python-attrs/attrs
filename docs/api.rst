@@ -466,10 +466,9 @@ All objects from ``attrs.validators`` are also available from ``attr.validators`
 
    .. doctest::
 
-      >>> from typing import List, Union
       >>> @define
       ... class C:
-      ...     val: Union[int, List[int]] = field(
+      ...     val: int | list[int] = field(
       ...         validator=attrs.validators.or_(
       ...             attrs.validators.instance_of(int),
       ...             attrs.validators.deep_iterable(attrs.validators.instance_of(int)),
