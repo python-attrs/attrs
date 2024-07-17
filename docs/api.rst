@@ -466,18 +466,23 @@ All objects from ``attrs.validators`` are also available from ``attr.validators`
 
    .. doctest::
 
-      >>> from typing import Union
+      >>> from typing import List, Union
       >>> @define
       ... class C:
-      ...     val: Union[int, str] = field(validator=attrs.validators.or_(attrs.validators.instance_of(int), attrs.validators.instance_of(str)))
+      ...     val: Union[int, List[int]] = field(
+      ...         validator=attrs.validators.or_(
+      ...             attrs.validators.instance_of(int),
+      ...             attrs.validators.deep_iterable(attrs.validators.instance_of(int)),
+      ...         )
+      ...     )
       >>> C(42)
       C(val=42)
-      >>> C("42")
-      C(val='42')
-      >>> C(3.14)
+      >>> C([1, 2, 3])
+      C(val=[1, 2, 3])
+      >>> C(val='42')
       Traceback (most recent call last):
          ...
-      ValueError: None of (<instance_of validator for type <class 'int'>>, <instance_of validator for type <class 'str'>>) satisfied for value 3.14
+      ValueError: None of (<instance_of validator for type <class 'int'>>, <deep_iterable validator for iterables of <instance_of validator for type <class 'int'>>>) satisfied for value '42'
 
 .. autofunction:: attrs.validators.not_
 
