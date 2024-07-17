@@ -13,7 +13,8 @@ build:
 
     # Replace versions in sponsor URLs
     pre_build:
-      - cog -rP docs/index.md
+      - pip install tox-uv
+      - tox run -e docs-sponsors
 
 python:
   install:
