@@ -127,6 +127,8 @@ jobs:
   codspeed:
     name: Run CodSpeed benchmarks
     runs-on: ubuntu-latest
+    if: github.event_name != 'merge_group'
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
