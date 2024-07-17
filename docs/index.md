@@ -4,6 +4,28 @@ Release **{sub-ref}`release`**  ([What's new?](changelog.md))
 
 ```{include} ../README.md
 :start-after: 'teaser-begin -->'
+:end-before: '<!-- sponsor-break-begin'
+```
+
+<!-- [[[cog
+# This is mainly called from RTD's pre_build job!
+
+import pathlib, tomllib, importlib.metadata
+
+if "dev" in (version := importlib.metadata.version("attrs")):
+    version = "latest"
+
+for sponsor in tomllib.loads(pathlib.Path("pyproject.toml").read_text())["tool"]["sponcon"]["sponsors"]:
+      print(f'<a href="{sponsor["url"]}"><img title="{sponsor["title"]}" src="/en/{version}/_static/sponsors/{sponsor["img"]}" width="200" height="60" /></a>')
+]]] -->
+<a href="https://www.variomedia.de/"><img title="Variomedia AG" src="/en/latest/_static/sponsors/Variomedia.svg" width="200" height="60" /></a>
+<a href="https://tidelift.com/?utm_source=lifter&utm_medium=referral&utm_campaign=hynek"><img title="Tidelift" src="/en/latest/_static/sponsors/Tidelift.svg" width="200" height="60" /></a>
+<a href="https://klaviyo.com/"><img title="Klaviyo" src="/en/latest/_static/sponsors/Klaviyo.svg" width="200" height="60" /></a>
+<a href="https://filepreviews.io/"><img title="FilePreviews" src="/en/latest/_static/sponsors/FilePreviews.svg" width="200" height="60" /></a>
+<!-- [[[end]]] -->
+
+```{include} ../README.md
+:start-after: 'sponsor-break-end -->'
 :end-before: '<!-- teaser-end'
 ```
 

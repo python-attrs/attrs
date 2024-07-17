@@ -54,6 +54,7 @@ cov = [
   "coverage[toml]>=5.3",
 ]
 docs = [
+  "cogapp",
   "furo",
   "myst-parser",
   "sphinx",
@@ -115,8 +116,28 @@ text = """
 
 # Point sponsor image URLs to versions.
 [[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
-pattern = '\/latest\/_static/sponsors'
-replacement = '/$HFPR_VERSION/_static/sponsors'
+pattern = 'docs\/_static\/sponsors'
+replacement = 'https://www.attrs.org/en/$HFPR_VERSION/_static/sponsors'
+
+[[tool.sponcon.sponsors]]
+title = "Variomedia AG"
+url = "https://www.variomedia.de/"
+img = "Variomedia.svg"
+
+[[tool.sponcon.sponsors]]
+title = "Tidelift"
+url = "https://tidelift.com/?utm_source=lifter&utm_medium=referral&utm_campaign=hynek"
+img = "Tidelift.svg"
+
+[[tool.sponcon.sponsors]]
+title = "Klaviyo"
+url = "https://klaviyo.com/"
+img = "Klaviyo.svg"
+
+[[tool.sponcon.sponsors]]
+title = "FilePreviews"
+url = "https://filepreviews.io/"
+img = "FilePreviews.svg"
 
 
 [tool.pytest.ini_options]
