@@ -931,19 +931,13 @@ class _ClassBuilder:
         # To know to update them.
         additional_closure_functions_to_update = []
         if cached_properties:
-            # Add cached properties to names for slotting.
-            names += tuple(cached_properties.keys())
-
-            for name in cached_properties:
-                # Clear out function from class to avoid clashing.
-                del cd[name]
-
-            additional_closure_functions_to_update.extend(
-                cached_properties.values()
-            )
-
             class_annotations = _get_annotations(self._cls)
             for name, func in cached_properties.items():
+                # Add cached properties to names for slotting.
+                names += (name,)
+                # Clear out function from class to avoid clashing.
+                del cd[name]
+                additional_closure_functions_to_update.append(func)
                 annotation = inspect.signature(func).return_annotation
                 if annotation is not inspect.Parameter.empty:
                     class_annotations[name] = annotation
@@ -3106,7 +3100,12 @@ def make_class(
         True,
     )
 
-    return _attrs(these=cls_dict, **attributes_arguments)(type_)
+    cls = _attrs(these=cls_dict, **attributes_arguments)(type_)
+    # Only add type annotations now or "_attrs()" will complain:
+    cls.__annotations__ = {
+        k: v.type for k, v in cls_dict.items() if v.type is not None
+    }
+    return cls
 
 
 # These are required by within this module so we define them here and merely

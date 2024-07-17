@@ -128,7 +128,7 @@ See https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md#chan
 - `attrs.has()` is now a [`TypeGuard`](https://docs.python.org/3/library/typing.html#typing.TypeGuard) for `AttrsInstance`.
   That means that type checkers know a class is an instance of an `attrs` class if you check it using `attrs.has()` (or `attr.has()`) first.
   [#997](https://github.com/python-attrs/attrs/issues/997)
-- Made `attrs.AttrsInstance` stub available at runtime and fixed type errors related to the usage of `attrs.AttrsInstance` in *Pyright*.
+- Made `attrs.AttrsInstance` stub available at runtime and fixed type errors related to the usage of `attrs.AttrsInstance` in Pyright.
   [#999](https://github.com/python-attrs/attrs/issues/999)
 - On Python 3.10 and later, call [`abc.update_abstractmethods()`](https://docs.python.org/3/library/abc.html#abc.update_abstractmethods) on dict classes after creation.
   This improves the detection of abstractness.

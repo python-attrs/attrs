@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 
 from datetime import timedelta
+from importlib.util import find_spec
 
 import pytest
 
@@ -29,6 +30,12 @@ def pytest_configure(config):
         ),
     )
     settings.load_profile("patience")
+
+    # CodSpeed doesn't work on all supported platforms.
+    if find_spec("pytest_codspeed") is None:
+        config.addinivalue_line(
+            "markers", "benchmark: This marker does nothing."
+        )
 
 
 collect_ignore = []
