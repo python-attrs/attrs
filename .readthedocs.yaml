@@ -11,6 +11,10 @@ build:
     post_checkout:
       - git fetch --tags
 
+    # Replace versions in sponsor URLs
+    pre_build:
+      - cog -rP docs/index.md
+
 python:
   install:
     - method: pip
