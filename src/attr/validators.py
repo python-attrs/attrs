@@ -644,13 +644,12 @@ def or_(*validators):
     When called on a value, it runs all wrapped validators until one of them
     is satisfied.
 
-    Raises `ValueError` if none of them are.
-
     :param ~collections.abc.Iterable[typing.Callable] validators: Arbitrary
         number of validators.
 
-    :raises ValueError: With a human readable error message listing all the
-        wrapped validators and the value that failed all of them.
+    :raises ValueError: If no validator is satisfied. Raised with a
+        human-readable error message listing all the wrapped validators and
+        the value that failed all of them.
 
     .. versionadded:: 24.1.0
     """
