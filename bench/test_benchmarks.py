@@ -47,8 +47,8 @@ def test_create_simple_class_make_class():
     Benchmark creating a simple class using attrs.make_class().
     """
     for i in range(ROUNDS):
-        C = attrs.make_class(
-            f"C{i}",
+        LocalC = attrs.make_class(
+            f"LocalC{i}",
             {
                 "x": attrs.field(type=int),
                 "y": attrs.field(type=str),
@@ -56,7 +56,7 @@ def test_create_simple_class_make_class():
             },
         )
 
-        C(1, "2", {})
+        LocalC(1, "2", {})
 
 
 @attrs.define
