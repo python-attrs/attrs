@@ -21,7 +21,7 @@ ROUNDS = 1_000
 
 def test_create_simple_class():
     """
-    Benchmark creating and instantiating a simple class without any extras.
+    Benchmark creating  a simple class without any extras.
     """
     for _ in range(ROUNDS):
 
@@ -31,12 +31,10 @@ def test_create_simple_class():
             y: str
             z: dict[str, int]
 
-        LocalC(1, "2", {})
-
 
 def test_create_frozen_class():
     """
-    Benchmark creating and instantiating a frozen class without any extras.
+    Benchmark creating a frozen class without any extras.
     """
     for _ in range(ROUNDS):
 
@@ -51,7 +49,7 @@ def test_create_frozen_class():
 
 def test_create_simple_class_make_class():
     """
-    Benchmark creating and instantiating a simple class using attrs.make_class().
+    Benchmark creating a simple class using attrs.make_class().
     """
     for i in range(ROUNDS):
         C = attrs.make_class(
