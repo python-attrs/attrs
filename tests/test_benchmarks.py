@@ -34,6 +34,21 @@ def test_create_simple_class():
         LocalC(1, "2", {})
 
 
+def test_create_frozen_class():
+    """
+    Benchmark creating and instantiating a frozen class without any extras.
+    """
+    for _ in range(ROUNDS):
+
+        @attrs.frozen
+        class LocalC:
+            x: int
+            y: str
+            z: dict[str, int]
+
+        LocalC(1, "2", {})
+
+
 def test_create_simple_class_make_class():
     """
     Benchmark creating and instantiating a simple class using attrs.make_class().
