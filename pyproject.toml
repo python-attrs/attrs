@@ -220,6 +220,9 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
+"bench/**" = [
+  "INP001", # Benchmarks don't have to be importable.
+]
 "**/test_*" = [
   "ARG005",  # we need stub lambdas
   "S",

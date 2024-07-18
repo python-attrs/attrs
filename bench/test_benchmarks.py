@@ -4,15 +4,10 @@ Benchmark attrs using CodSpeed.
 
 from __future__ import annotations
 
-import os
-
 import pytest
 
 import attrs
 
-
-if os.environ.get("CODSPEED_ENV") is None:
-    pytest.skip("Not running in CodSpeed environment", allow_module_level=True)
 
 pytestmark = pytest.mark.benchmark()
 
