@@ -78,7 +78,11 @@ jobs:
       - name: Remove src to force tests running against installed wheel
         run: rm -rf src
 
-      - run: python -Im tox run --installpkg dist/*.whl -e ${{ env.TOX_PYTHON }}-tests
+      - run: >
+          python -Im
+          tox run
+          --installpkg dist/*.whl
+          -e ${{ env.TOX_PYTHON }}-tests
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v4
@@ -106,17 +110,22 @@ jobs:
         with:
           name: Packages
           path: dist
-      - run: tar xf dist/*.tar.gz --strip-components=1
+      - run: |
+          tar xf dist/*.tar.gz --strip-components=1
+          rm -rf src
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
           cache: pip
 
-      - name: Prepare tox
-        run: python -Im pip install tox tox-uv
+      - run: python -Im pip install tox tox-uv
 
-      - run: python -Im tox run -e pypy3-tests
+      - run: >
+          python -Im
+          tox run
+          --installpkg dist/*.whl
+          -e pypy3-tests
 
 
   coverage:
