@@ -10,11 +10,9 @@ on:
   workflow_dispatch:
 
 env:
-  FORCE_COLOR: "1" # Make tools pretty.
+  FORCE_COLOR: "1"
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
   PIP_NO_PYTHON_VERSION_WARNING: "1"
-  # Use oldest version used in doctests / examples.
-  SETUPTOOLS_SCM_PRETEND_VERSION: "19.2.0"
 
 permissions: {}
 
@@ -164,7 +162,12 @@ jobs:
     name: Build docs & run doctests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Download pre-built packages
+        uses: actions/download-artifact@v4
+        with:
+          name: Packages
+          path: dist
+      - run: tar xf dist/*.tar.gz --strip-components=1
       - uses: actions/setup-python@v5
         with:
           # Keep in sync with tox/docs and .readthedocs.yaml.
