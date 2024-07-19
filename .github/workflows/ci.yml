@@ -30,7 +30,9 @@ jobs:
         id: baipp
 
     outputs:
-      python-versions: ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
+      # Used to define the matrix for tests below. The value is based on
+      # packaging metadata (trove classifiers).
+      supported-python-versions: ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
 
   tests:
     name: Tests & Mypy on ${{ matrix.python-version }}
@@ -40,7 +42,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ${{ fromJson(needs.build-package.outputs.python-versions) }}
+        # Created by the build-and-inspect-python-package action above.
+        python-version: ${{ fromJson(needs.build-package.outputs.supported-python-versions) }}
 
     steps:
       - name: Download pre-built packages
