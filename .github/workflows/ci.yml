@@ -48,9 +48,7 @@ jobs:
         with:
           name: Packages
           path: dist
-      - run: |
-          tar xf dist/*.tar.gz --strip-components=1
-          rm -rf src
+      - run: tar xf dist/*.tar.gz --strip-components=1
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
@@ -74,9 +72,13 @@ jobs:
       - run: python -Im pip install tox-uv
         if: matrix.python-version != '3.7'
 
-      - run: python -Im tox run -e ${{ env.TOX_PYTHON }}-tests
       - run: python -Im tox run -e ${{ env.TOX_PYTHON }}-mypy
         if: env.DO_MYPY == '1'
+
+      - name: Remove src to force tests running against installed wheel
+        run: rm -rf src
+
+      - run: python -Im tox run --installpkg dist/*.whl -e ${{ env.TOX_PYTHON }}-tests
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v4
