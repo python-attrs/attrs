@@ -43,8 +43,6 @@ tests = [
   "pympler",
   # 4.3.0 dropped last use of `convert`
   "pytest>=4.3.0",
-  # CodSpeed needs CFFI, and CFFI doesn't speak 3.13.
-  'pytest-codspeed; python_version < "3.13"',
   "pytest-xdist[psutil]",
   "attrs[tests-mypy]",
 ]
