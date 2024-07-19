@@ -116,12 +116,6 @@ jobs:
 
       - run: python -Im tox run -e pypy3-tests
 
-      - name: Upload coverage data
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-data-${{ matrix.python-version }}
-          path: .coverage.*
-          if-no-files-found: ignore
 
   coverage:
     name: Combine & check coverage.
