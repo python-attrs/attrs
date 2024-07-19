@@ -234,6 +234,7 @@ jobs:
 
     needs:
       - coverage
+      - tests-pypy
       - docs
       - install-dev
       - pyright
