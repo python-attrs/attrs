@@ -53,6 +53,11 @@ cov = [
   # Ensure coverage is new enough for `source_pkgs`.
   "coverage[toml]>=5.3",
 ]
+benchmark = [
+  "pytest-codspeed",
+  "pytest-xdist[psutil]",
+  "attrs[tests]",
+]
 docs = [
   "cogapp",
   "furo",
