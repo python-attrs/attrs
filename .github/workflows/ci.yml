@@ -75,7 +75,7 @@ jobs:
       - run: python -Im tox run -e ${{ env.TOX_PYTHON }}-mypy
         if: env.DO_MYPY == '1'
 
-      - name: Remove src to force tests running against installed wheel
+      - name: Remove src to ensure tests run against wheel
         run: rm -rf src
 
       - run: >
@@ -112,21 +112,20 @@ jobs:
           path: dist
       - run: |
           tar xf dist/*.tar.gz --strip-components=1
-          rm -rf src
+          rm -rf src  # ensure tests run against wheel
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
           cache: pip
 
-      - run: python -Im pip install tox tox-uv
+      - run: python -Im pip install tox-uv
 
       - run: >
           python -Im
           tox run
           --installpkg dist/*.whl
           -e pypy3-tests
-
 
   coverage:
     name: Combine & check coverage.
