@@ -48,7 +48,9 @@ jobs:
         with:
           name: Packages
           path: dist
-      - run: tar xf dist/*.tar.gz --strip-components=1
+      - run: |
+          tar xf dist/*.tar.gz --strip-components=1
+          rm -rf src
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
