@@ -90,14 +90,6 @@ You can *significantly* speed up the test suite by passing `-n auto` to *pytest*
 
 ---
 
-Alternatively you can also use [Hatch](https://hatch.pypa.io/) to run the tests which will manage the virtual environment for you:
-
-```console
-$ hatch run tests
-```
-
----
-
 When working on the documentation, use:
 
 ```console
