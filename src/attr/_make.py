@@ -123,114 +123,134 @@ def attrib(
     Please consider using `attrs.field` in new code (``attr.ib`` will *never*
     go away, though).
 
-    :param default: A value that is used if an *attrs*-generated ``__init__``
-        is used and no value is passed while instantiating or the attribute is
-        excluded using ``init=False``.
+    Args:
+        default:
+            A value that is used if an *attrs*-generated ``__init__`` is used
+            and no value is passed while instantiating or the attribute is
+            excluded using ``init=False``.
 
-        If the value is an instance of `attrs.Factory`, its callable will be
-        used to construct a new value (useful for mutable data types like lists
-        or dicts).
+            If the value is an instance of `attrs.Factory`, its callable will
+            be used to construct a new value (useful for mutable data types
+            like lists or dicts).
 
-        If a default is not set (or set manually to `attrs.NOTHING`), a value
-        *must* be supplied when instantiating; otherwise a `TypeError` will be
-        raised.
+            If a default is not set (or set manually to `attrs.NOTHING`), a
+            value *must* be supplied when instantiating; otherwise a
+            `TypeError` will be raised.
 
-        The default can also be set using decorator notation as shown below.
+            The default can also be set using decorator notation as shown
+            below.
 
-        .. seealso:: `defaults`
+            .. seealso:: `defaults`
 
-    :param ~typing.Callable factory: Syntactic sugar for
-        ``default=attr.Factory(factory)``.
+        factory (~typing.Callable):
+            Syntactic sugar for ``default=attr.Factory(factory)``.
 
-    :param ~typing.Callable | list[~typing.Callable] validator: Callable that
-        is called by *attrs*-generated ``__init__`` methods after the instance
-        has been initialized.  They receive the initialized instance, the
-        :func:`~attrs.Attribute`, and the passed value.
+        validator (~typing.Callable | list[~typing.Callable]):
+            Callable that is called by *attrs*-generated ``__init__`` methods
+            after the instance has been initialized.  They receive the
+            initialized instance, the :func:`~attrs.Attribute`, and the passed
+            value.
 
-        The return value is *not* inspected so the validator has to throw an
-        exception itself.
+            The return value is *not* inspected so the validator has to throw
+            an exception itself.
 
-        If a `list` is passed, its items are treated as validators and must all
-        pass.
+            If a `list` is passed, its items are treated as validators and must
+            all pass.
 
-        Validators can be globally disabled and re-enabled using
-        `attrs.validators.get_disabled` / `attrs.validators.set_disabled`.
+            Validators can be globally disabled and re-enabled using
+            `attrs.validators.get_disabled` / `attrs.validators.set_disabled`.
 
-        The validator can also be set using decorator notation as shown below.
+            The validator can also be set using decorator notation as shown
+            below.
 
-        .. seealso:: :ref:`validators`
+            .. seealso:: :ref:`validators`
 
-    :param bool | ~typing.Callable repr: Include this attribute in the
-        generated ``__repr__`` method. If `True`, include the attribute; if
-        `False`, omit it. By default, the built-in ``repr()`` function is used.
-        To override how the attribute value is formatted, pass a ``callable``
-        that takes a single value and returns a string. Note that the resulting
-        string is used as-is, which means it will be used directly *instead* of
-        calling ``repr()`` (the default).
+        repr (bool | ~typing.Callable):
+            Include this attribute in the generated ``__repr__`` method. If
+            `True`, include the attribute; if `False`, omit it. By default, the
+            built-in ``repr()`` function is used. To override how the attribute
+            value is formatted, pass a ``callable`` that takes a single value
+            and returns a string. Note that the resulting string is used as-is,
+            which means it will be used directly *instead* of calling
+            ``repr()`` (the default).
 
-    :param bool | ~typing.Callable eq: If `True` (default), include this
-        attribute in the generated ``__eq__`` and ``__ne__`` methods that check
-        two instances for equality. To override how the attribute value is
-        compared, pass a callable that takes a single value and returns the
-        value to be compared.
+        eq (bool | ~typing.Callable):
+            If `True` (default), include this attribute in the generated
+            ``__eq__`` and ``__ne__`` methods that check two instances for
+            equality. To override how the attribute value is compared, pass a
+            callable that takes a single value and returns the value to be
+            compared.
 
-        .. seealso:: `comparison`
+            .. seealso:: `comparison`
 
-    :param bool | ~typing.Callable order: If `True` (default), include this
-        attributes in the generated ``__lt__``, ``__le__``, ``__gt__`` and
-        ``__ge__`` methods. To override how the attribute value is ordered,
-        pass a callable that takes a single value and returns the value to be
-        ordered.
+        order (bool | ~typing.Callable):
+            If `True` (default), include this attributes in the generated
+            ``__lt__``, ``__le__``, ``__gt__`` and ``__ge__`` methods. To
+            override how the attribute value is ordered, pass a callable that
+            takes a single value and returns the value to be ordered.
 
-        .. seealso:: `comparison`
+            .. seealso:: `comparison`
 
-    :param cmp: Setting *cmp* is equivalent to setting *eq* and *order* to the
-        same value. Must not be mixed with *eq* or *order*.
+        cmp(bool | ~typing.Callable):
+            Setting *cmp* is equivalent to setting *eq* and *order* to the same
+            value. Must not be mixed with *eq* or *order*.
 
-        .. seealso:: `comparison`
-    :type cmp: a `bool` or a `callable`.
+            .. seealso:: `comparison`
 
-    :param bool | None hash: Include this attribute in the generated
-        ``__hash__`` method.  If `None` (default), mirror *eq*'s value.  This
-        is the correct behavior according the Python spec.  Setting this value
-        to anything else than `None` is *discouraged*.
+        hash (bool | None):
+            Include this attribute in the generated ``__hash__`` method.  If
+            `None` (default), mirror *eq*'s value.  This is the correct
+            behavior according the Python spec.  Setting this value to anything
+            else than `None` is *discouraged*.
 
-        .. seealso:: `hashing`
-    :param bool init: Include this attribute in the generated ``__init__``
-        method.  It is possible to set this to `False` and set a default value.
-        In that case this attributed is unconditionally initialized with the
-        specified default value or factory.
+            .. seealso:: `hashing`
 
-        .. seealso:: `init`
-    :param typing.Callable converter: `callable` that is called by
-        *attrs*-generated ``__init__`` methods to convert attribute's value to
-        the desired format.  It is given the passed-in value, and the returned
-        value will be used as the new value of the attribute.  The value is
-        converted before being passed to the validator, if any.
+        init (bool):
+            Include this attribute in the generated ``__init__`` method.  It is
+            possible to set this to `False` and set a default value. In that
+            case this attributed is unconditionally initialized with the
+            specified default value or factory.
 
-        .. seealso:: :ref:`converters`
-    :param dict | None metadata: An arbitrary mapping, to be used by
-        third-party components.  See `extending-metadata`.
+            .. seealso:: `init`
 
-    :param type: The type of the attribute. Nowadays, the preferred method to
-        specify the type is using a variable annotation (see :pep:`526`). This
-        argument is provided for backward compatibility. Regardless of the
-        approach used, the type will be stored on ``Attribute.type``.
+        converter (typing.Callable(): `callable` that is called by
+            *attrs*-generated ``__init__`` methods to convert attribute's value
+            to the desired format.  It is given the passed-in value, and the
+            returned value will be used as the new value of the attribute.  The
+            value is converted before being passed to the validator, if any.
 
-        Please note that *attrs* doesn't do anything with this metadata by
-        itself. You can use it as part of your own code or for `static type
-        checking <types>`.
-    :param bool kw_only: Make this attribute keyword-only in the generated
-        ``__init__`` (if ``init`` is `False`, this parameter is ignored).
-    :param on_setattr: Allows to overwrite the *on_setattr* setting from
-        `attr.s`. If left `None`, the *on_setattr* value from `attr.s` is used.
-        Set to `attrs.setters.NO_OP` to run **no** `setattr` hooks for this
-        attribute -- regardless of the setting in `attr.s`.
-    :type on_setattr: ~typing.Callable | list[~typing.Callable] | None |
-        typing.Literal[attrs.setters.NO_OP]
-    :param str | None alias: Override this attribute's parameter name in the
-        generated ``__init__`` method. If left `None`, default to ``name``
-        stripped of leading underscores. See `private-attributes`.
+            .. seealso:: :ref:`converters`
+
+        metadata (dict | None):
+            An arbitrary mapping, to be used by third-party components.
+
+            .. seealso:: `extending-metadata`.
+
+        type (type):
+            The type of the attribute. Nowadays, the preferred method to
+            specify the type is using a variable annotation (see :pep:`526`).
+            This argument is provided for backwards-compatibility and for usage
+            with `make_class`. Regardless of the approach used, the type will
+            be stored on ``Attribute.type``.
+
+            Please note that *attrs* doesn't do anything with this metadata by
+            itself. You can use it as part of your own code or for `static type
+            checking <types>`.
+
+        kw_only (bool):
+            Make this attribute keyword-only in the generated ``__init__`` (if
+            ``init`` is `False`, this parameter is ignored).
+
+        on_setattr (~typing.Callable | list[~typing.Callable] | None | typing.Literal[attrs.setters.NO_OP]):
+            Allows to overwrite the *on_setattr* setting from `attr.s`. If left
+            `None`, the *on_setattr* value from `attr.s` is used. Set to
+            `attrs.setters.NO_OP` to run **no** `setattr` hooks for this
+            attribute -- regardless of the setting in `attr.s`.
+
+        alias (str | None):
+            Override this attribute's parameter name in the generated
+            ``__init__`` method. If left `None`, default to ``name`` stripped
+            of leading underscores. See `private-attributes`.
 
     .. versionadded:: 15.2.0 *convert*
     .. versionadded:: 16.3.0 *metadata*
@@ -239,8 +259,9 @@ def attrib(
        *hash* is `None` and therefore mirrors *eq* by default.
     .. versionadded:: 17.3.0 *type*
     .. deprecated:: 17.4.0 *convert*
-    .. versionadded:: 17.4.0 *converter* as a replacement for the deprecated
-       *convert* to achieve consistency with other noun-based arguments.
+    .. versionadded:: 17.4.0
+       *converter* as a replacement for the deprecated *convert* to achieve
+       consistency with other noun-based arguments.
     .. versionadded:: 18.1.0
        ``factory=f`` is syntactic sugar for ``default=attr.Factory(f)``.
     .. versionadded:: 18.2.0 *kw_only*
@@ -1334,227 +1355,266 @@ def attrs(
     Consider using `attrs.define` / `attrs.frozen` in new code (``attr.s`` will
     *never* go away, though).
 
-    :param these: A dictionary of name to `attr.ib` mappings.  This is useful
-        to avoid the definition of your attributes within the class body
-        because you can't (for example, if you want to add ``__repr__`` methods
-        to Django models) or don't want to.
+    Args:
+        these (dict[str, object]):
+            A dictionary of name to the (private) return value of `attr.ib`
+            mappings. This is useful to avoid the definition of your attributes
+            within the class body because you can't (for example, if you want
+            to add ``__repr__`` methods to Django models) or don't want to.
 
-        If *these* is not `None`, *attrs* will *not* search the class body
-        for attributes and will *not* remove any attributes from it.
+            If *these* is not `None`, *attrs* will *not* search the class body
+            for attributes and will *not* remove any attributes from it.
 
-        The order is deduced from the order of the attributes inside *these*.
+            The order is deduced from the order of the attributes inside
+            *these*.
 
-    :type these: `dict` of `str` to `attr.ib`
+        repr_ns (str):
+            When using nested classes, there was no way in Python 2 to
+            automatically detect that.  This argument allows to set a custom
+            name for a more meaningful ``repr`` output.  This argument is
+            pointless in Python 3 and is therefore deprecated.
 
-    :param str repr_ns: When using nested classes, there was no way in Python 2
-        to automatically detect that.  This argument allows to set a custom
-        name for a more meaningful ``repr`` output.  This argument
-        is pointless in Python 3 and is therefore deprecated.
-    :param bool auto_detect: Instead of setting the *init*, *repr*, *eq*,
-        *order*, and *hash* arguments explicitly, assume they are set to
-        `True` **unless any** of the involved methods for one of the
-        arguments is implemented in the *current* class (meaning, it is *not*
-        inherited from some base class).
+        auto_detect (bool):
+            Instead of setting the *init*, *repr*, *eq*, *order*, and *hash*
+            arguments explicitly, assume they are set to `True` **unless any**
+            of the involved methods for one of the arguments is implemented in
+            the *current* class (meaning, it is *not* inherited from some base
+            class).
 
-        So, for example by implementing ``__eq__`` on a class yourself, *attrs*
-        will deduce ``eq=False`` and will create *neither* ``__eq__`` *nor*
-        ``__ne__`` (but Python classes come with a sensible ``__ne__`` by
-        default, so it *should* be enough to only implement ``__eq__`` in most
-        cases).
+            So, for example by implementing ``__eq__`` on a class yourself,
+            *attrs* will deduce ``eq=False`` and will create *neither*
+            ``__eq__`` *nor* ``__ne__`` (but Python classes come with a
+            sensible ``__ne__`` by default, so it *should* be enough to only
+            implement ``__eq__`` in most cases).
 
-        .. warning::
+            .. warning::
 
-           If you prevent *attrs* from creating the ordering methods for you
-           (``order=False``, for example, by implementing ``__le__``), it
-           becomes *your* responsibility to make sure its ordering is sound.
-           The best way is to use the `functools.total_ordering` decorator.
+                If you prevent *attrs* from creating the ordering methods for
+                you (``order=False``, for example, by implementing ``__le__``),
+                it becomes *your* responsibility to make sure its ordering is
+                sound. The best way is to use the `functools.total_ordering`
+                decorator.
 
-        Passing `True` or `False` to *init*, *repr*, *eq*, *order*, *cmp*,
-        or *hash* overrides whatever *auto_detect* would determine.
+            Passing `True` or `False` to *init*, *repr*, *eq*, *order*, *cmp*,
+            or *hash* overrides whatever *auto_detect* would determine.
 
-    :param bool repr: Create a ``__repr__`` method with a human readable
-        representation of *attrs* attributes..
-    :param bool str: Create a ``__str__`` method that is identical to
-        ``__repr__``.  This is usually not necessary except for `Exception`\ s.
-    :param bool | None eq: If `True` or `None` (default), add ``__eq__``
-        and ``__ne__`` methods that check two instances for equality.
+        repr(bool):
+            Create a ``__repr__`` method with a human readable representation
+            of *attrs* attributes..
 
-        They compare the instances as if they were tuples of their *attrs*
-        attributes if and only if the types of both classes are *identical*!
+        str (bool):
+            Create a ``__str__`` method that is identical to ``__repr__``. This
+            is usually not necessary except for `Exception`\ s.
 
-        .. seealso:: `comparison`
-    :param bool | None order: If `True`, add ``__lt__``, ``__le__``,
-        ``__gt__``, and ``__ge__`` methods that behave like *eq* above and
-        allow instances to be ordered. If `None` (default) mirror value of
-        *eq*.
+        eq (bool | None):
+            If `True` or `None` (default), add ``__eq__`` and ``__ne__``
+            methods that check two instances for equality.
 
-        .. seealso:: `comparison`
-    :param bool | None cmp: Setting *cmp* is equivalent to setting *eq* and
-        *order* to the same value. Must not be mixed with *eq* or *order*.
+            They compare the instances as if they were tuples of their *attrs*
+            attributes if and only if the types of both classes are
+            *identical*!
 
-        .. seealso:: `comparison`
-    :param bool | None unsafe_hash: If `None` (default), the ``__hash__``
-        method is generated according how *eq* and *frozen* are set.
+            .. seealso:: `comparison`
 
-        1. If *both* are True, *attrs* will generate a ``__hash__`` for you.
-        2. If *eq* is True and *frozen* is False, ``__hash__`` will be set to
-           None, marking it unhashable (which it is).
-        3. If *eq* is False, ``__hash__`` will be left untouched meaning the
-           ``__hash__`` method of the base class will be used (if base class is
-           ``object``, this means it will fall back to id-based hashing.).
+        order (bool | None):
+            If `True`, add ``__lt__``, ``__le__``, ``__gt__``, and ``__ge__``
+            methods that behave like *eq* above and allow instances to be
+            ordered. If `None` (default) mirror value of *eq*.
 
-        Although not recommended, you can decide for yourself and force *attrs*
-        to create one (for example, if the class is immutable even though you
-        didn't freeze it programmatically) by passing `True` or not.  Both of
-        these cases are rather special and should be used carefully.
+            .. seealso:: `comparison`
 
-        .. seealso::
+        cmp (bool | None):
+            Setting *cmp* is equivalent to setting *eq* and *order* to the same
+            value. Must not be mixed with *eq* or *order*.
 
-           - Our documentation on `hashing`,
-           - Python's documentation on `object.__hash__`,
-           - and the `GitHub issue that led to the default \ behavior
-             <https://github.com/python-attrs/attrs/issues/136>`_ for more
-             details.
+            .. seealso:: `comparison`
 
-    :param bool | None hash: Alias for *unsafe_hash*. *unsafe_hash* takes
-        precedence.
-    :param bool init: Create a ``__init__`` method that initializes the *attrs*
-        attributes. Leading underscores are stripped for the argument name
-        (unless an alias is set on the attribute). If a ``__attrs_pre_init__``
-        method exists on the class, it will be called before the class is
-        initialized. If a ``__attrs_post_init__`` method exists on the class,
-        it will be called after the class is fully initialized.
+        unsafe_hash (bool | None):
+            If `None` (default), the ``__hash__`` method is generated according
+            how *eq* and *frozen* are set.
 
-        If ``init`` is `False`, an ``__attrs_init__`` method will be injected
-        instead. This allows you to define a custom ``__init__`` method that
-        can do pre-init work such as ``super().__init__()``, and then call
-        ``__attrs_init__()`` and ``__attrs_post_init__()``.
+            1. If *both* are True, *attrs* will generate a ``__hash__`` for
+               you.
+            2. If *eq* is True and *frozen* is False, ``__hash__`` will be set
+               to None, marking it unhashable (which it is).
+            3. If *eq* is False, ``__hash__`` will be left untouched meaning
+               the ``__hash__`` method of the base class will be used (if base
+               class is ``object``, this means it will fall back to id-based
+               hashing.).
 
-        .. seealso:: `init`
-    :param bool slots: Create a :term:`slotted class <slotted classes>` that's
-        more memory-efficient. Slotted classes are generally superior to the
-        default dict classes, but have some gotchas you should know about, so
-        we encourage you to read the :term:`glossary entry <slotted classes>`.
-    :param bool frozen: Make instances immutable after initialization.  If
-        someone attempts to modify a frozen instance,
-        `attrs.exceptions.FrozenInstanceError` is raised.
+            Although not recommended, you can decide for yourself and force
+            *attrs* to create one (for example, if the class is immutable even
+            though you didn't freeze it programmatically) by passing `True` or
+            not.  Both of these cases are rather special and should be used
+            carefully.
 
-        .. note::
+            .. seealso::
 
-            1. This is achieved by installing a custom ``__setattr__`` method
-               on your class, so you can't implement your own.
+                - Our documentation on `hashing`,
+                - Python's documentation on `object.__hash__`,
+                - and the `GitHub issue that led to the default \ behavior
+                  <https://github.com/python-attrs/attrs/issues/136>`_ for more
+                  details.
 
-            2. True immutability is impossible in Python.
+        hash (bool | None):
+            Alias for *unsafe_hash*. *unsafe_hash* takes precedence.
 
-            3. This *does* have a minor a runtime performance `impact
-               <how-frozen>` when initializing new instances.  In other words:
-               ``__init__`` is slightly slower with ``frozen=True``.
+        init (bool):
+            Create a ``__init__`` method that initializes the *attrs*
+            attributes. Leading underscores are stripped for the argument name
+            (unless an alias is set on the attribute). If a
+            ``__attrs_pre_init__`` method exists on the class, it will be
+            called before the class is initialized. If a
+            ``__attrs_post_init__`` method exists on the class, it will be
+            called after the class is fully initialized.
 
-            4. If a class is frozen, you cannot modify ``self`` in
-               ``__attrs_post_init__`` or a self-written ``__init__``. You can
-               circumvent that limitation by using ``object.__setattr__(self,
-               "attribute_name", value)``.
+            If ``init`` is `False`, an ``__attrs_init__`` method will be
+            injected instead. This allows you to define a custom ``__init__``
+            method that can do pre-init work such as ``super().__init__()``,
+            and then call ``__attrs_init__()`` and ``__attrs_post_init__()``.
 
-            5. Subclasses of a frozen class are frozen too.
+            .. seealso:: `init`
 
-    :param bool weakref_slot: Make instances weak-referenceable.  This has no
-        effect unless ``slots`` is also enabled.
-    :param bool auto_attribs: If `True`, collect :pep:`526`-annotated
-        attributes from the class body.
+        slots (bool):
+            Create a :term:`slotted class <slotted classes>` that's more
+            memory-efficient. Slotted classes are generally superior to the
+            default dict classes, but have some gotchas you should know about,
+            so we encourage you to read the :term:`glossary entry <slotted
+            classes>`.
 
-        In this case, you **must** annotate every field.  If *attrs* encounters
-        a field that is set to an `attr.ib` but lacks a type annotation, an
-        `attrs.exceptions.UnannotatedAttributeError` is raised.  Use
-        ``field_name: typing.Any = attr.ib(...)`` if you don't want to set a
-        type.
+        frozen (bool):
+            Make instances immutable after initialization.  If someone attempts
+            to modify a frozen instance, `attrs.exceptions.FrozenInstanceError`
+            is raised.
 
-        If you assign a value to those attributes (for example, ``x: int =
-        42``), that value becomes the default value like if it were passed
-        using ``attr.ib(default=42)``.  Passing an instance of `attrs.Factory`
-        also works as expected in most cases (see warning below).
+            .. note::
 
-        Attributes annotated as `typing.ClassVar`, and attributes that are
-        neither annotated nor set to an `attr.ib` are **ignored**.
+                1. This is achieved by installing a custom ``__setattr__``
+                   method on your class, so you can't implement your own.
 
-        .. warning::
+                2. True immutability is impossible in Python.
 
-           For features that use the attribute name to create decorators (for
-           example, :ref:`validators <validators>`), you still *must* assign
-           `attr.ib` to them. Otherwise Python will either not find the name or
-           try to use the default value to call, for example, ``validator`` on
-           it.
+                3. This *does* have a minor a runtime performance `impact
+                   <how-frozen>` when initializing new instances.  In other
+                   words: ``__init__`` is slightly slower with ``frozen=True``.
 
-    :param bool kw_only: Make all attributes keyword-only in the generated
-        ``__init__`` (if *init* is `False`, this parameter is ignored).
-    :param bool cache_hash: Ensure that the object's hash code is computed only
-        once and stored on the object.  If this is set to `True`, hashing
-        must be either explicitly or implicitly enabled for this class.  If the
-        hash code is cached, avoid any reassignments of fields involved in hash
-        code computation or mutations of the objects those fields point to
-        after object creation.  If such changes occur, the behavior of the
-        object's hash code is undefined.
-    :param bool auto_exc: If the class subclasses `BaseException` (which
-        implicitly includes any subclass of any exception), the following
-        happens to behave like a well-behaved Python exceptions class:
+                4. If a class is frozen, you cannot modify ``self`` in
+                   ``__attrs_post_init__`` or a self-written ``__init__``. You
+                   can circumvent that limitation by using
+                   ``object.__setattr__(self, "attribute_name", value)``.
 
-        - the values for *eq*, *order*, and *hash* are ignored and the
-          instances compare and hash by the instance's ids (N.B. *attrs* will
-          *not* remove existing implementations of ``__hash__`` or the equality
-          methods. It just won't add own ones.),
-        - all attributes that are either passed into ``__init__`` or have a
-          default value are additionally available as a tuple in the ``args``
-          attribute,
-        - the value of *str* is ignored leaving ``__str__`` to base classes.
-    :param bool collect_by_mro: Setting this to `True` fixes the way *attrs*
-       collects attributes from base classes.  The default behavior is
-       incorrect in certain cases of multiple inheritance.  It should be on by
-       default, but is kept off for backwards-compatibility.
+                5. Subclasses of a frozen class are frozen too.
 
-       .. seealso::
-          Issue `#428 <https://github.com/python-attrs/attrs/issues/428>`_
+        weakref_slot (bool):
+            Make instances weak-referenceable.  This has no effect unless
+            ``slots`` is also enabled.
 
-    :param bool | None getstate_setstate:
-       .. note::
-          This is usually only interesting for slotted classes and you should
-          probably just set *auto_detect* to `True`.
+        auto_attribs (bool):
+            If `True`, collect :pep:`526`-annotated attributes from the class
+            body.
 
-       If `True`, ``__getstate__`` and ``__setstate__`` are generated and
-       attached to the class. This is necessary for slotted classes to be
-       pickleable. If left `None`, it's `True` by default for slotted classes
-       and `False` for dict classes.
+            In this case, you **must** annotate every field.  If *attrs*
+            encounters a field that is set to an `attr.ib` but lacks a type
+            annotation, an `attrs.exceptions.UnannotatedAttributeError` is
+            raised.  Use ``field_name: typing.Any = attr.ib(...)`` if you don't
+            want to set a type.
 
-       If *auto_detect* is `True`, and *getstate_setstate* is left `None`, and
-       **either** ``__getstate__`` or ``__setstate__`` is detected directly on
-       the class (meaning: not inherited), it is set to `False` (this is
-       usually what you want).
+            If you assign a value to those attributes (for example, ``x: int =
+            42``), that value becomes the default value like if it were passed
+            using ``attr.ib(default=42)``.  Passing an instance of
+            `attrs.Factory` also works as expected in most cases (see warning
+            below).
 
-    :param on_setattr: A callable that is run whenever the user attempts to set
-        an attribute (either by assignment like ``i.x = 42`` or by using
-        `setattr` like ``setattr(i, "x", 42)``). It receives the same arguments
-        as validators: the instance, the attribute that is being modified, and
-        the new value.
+            Attributes annotated as `typing.ClassVar`, and attributes that are
+            neither annotated nor set to an `attr.ib` are **ignored**.
 
-        If no exception is raised, the attribute is set to the return value of
-        the callable.
+            .. warning::
 
-        If a list of callables is passed, they're automatically wrapped in an
-        `attrs.setters.pipe`.
-    :type on_setattr: ~typing.Callable | list[~typing.Callable] | None |
-        typing.Literal[attrs.setters.NO_OP]
+                For features that use the attribute name to create decorators
+                (for example, :ref:`validators <validators>`), you still *must*
+                assign `attr.ib` to them. Otherwise Python will either not find
+                the name or try to use the default value to call, for example,
+                ``validator`` on it.
 
-    :param ~typing.Callable | None field_transformer:
-        A function that is called with the original class object and all fields
-        right before *attrs* finalizes the class.  You can use this, for
-        example, to automatically add converters or validators to fields based
-        on their types.
+        kw_only (bool):
+            Make all attributes keyword-only in the generated ``__init__`` (if
+            *init* is `False`, this parameter is ignored).
 
-        .. seealso:: `transform-fields`
+        cache_hash (bool):
+            Ensure that the object's hash code is computed only once and stored
+            on the object.  If this is set to `True`, hashing must be either
+            explicitly or implicitly enabled for this class.  If the hash code
+            is cached, avoid any reassignments of fields involved in hash code
+            computation or mutations of the objects those fields point to after
+            object creation.  If such changes occur, the behavior of the
+            object's hash code is undefined.
 
-    :param bool match_args:
-        If `True` (default), set ``__match_args__`` on the class to support
-        :pep:`634` (*Structural Pattern Matching*). It is a tuple of all
-        non-keyword-only ``__init__`` parameter names on Python 3.10 and later.
-        Ignored on older Python versions.
+        auto_exc (bool):
+            If the class subclasses `BaseException` (which implicitly includes
+            any subclass of any exception), the following happens to behave
+            like a well-behaved Python exceptions class:
+
+            - the values for *eq*, *order*, and *hash* are ignored and the
+              instances compare and hash by the instance's ids (N.B. *attrs*
+              will *not* remove existing implementations of ``__hash__`` or the
+              equality methods. It just won't add own ones.),
+            - all attributes that are either passed into ``__init__`` or have a
+              default value are additionally available as a tuple in the
+              ``args`` attribute,
+            - the value of *str* is ignored leaving ``__str__`` to base
+              classes.
+
+        collect_by_mro (bool):
+            Setting this to `True` fixes the way *attrs* collects attributes
+            from base classes.  The default behavior is incorrect in certain
+            cases of multiple inheritance.  It should be on by default, but is
+            kept off for backwards-compatibility.
+
+            .. seealso::
+                Issue `#428 <https://github.com/python-attrs/attrs/issues/428>`_
+
+        getstate_setstate (bool | None):
+            .. note::
+
+                This is usually only interesting for slotted classes and you
+                should probably just set *auto_detect* to `True`.
+
+            If `True`, ``__getstate__`` and ``__setstate__`` are generated and
+            attached to the class. This is necessary for slotted classes to be
+            pickleable. If left `None`, it's `True` by default for slotted
+            classes and `False` for dict classes.
+
+            If *auto_detect* is `True`, and *getstate_setstate* is left `None`,
+            and **either** ``__getstate__`` or ``__setstate__`` is detected
+            directly on the class (meaning: not inherited), it is set to
+            `False` (this is usually what you want).
+
+        on_setattr (~typing.Callable | list[~typing.Callable] | None | typing.Literal[attrs.setters.NO_OP]):
+            A callable that is run whenever the user attempts to set an
+            attribute (either by assignment like ``i.x = 42`` or by using
+            `setattr` like ``setattr(i, "x", 42)``). It receives the same
+            arguments as validators: the instance, the attribute that is being
+            modified, and the new value.
+
+            If no exception is raised, the attribute is set to the return value
+            of the callable.
+
+            If a list of callables is passed, they're automatically wrapped in
+            an `attrs.setters.pipe`.
+
+        field_transformer (~typing.Callable | None):
+            A function that is called with the original class object and all
+            fields right before *attrs* finalizes the class.  You can use this,
+            for example, to automatically add converters or validators to
+            fields based on their types.
+
+            .. seealso:: `transform-fields`
+
+        match_args (bool):
+            If `True` (default), set ``__match_args__`` on the class to support
+            :pep:`634` (*Structural Pattern Matching*). It is a tuple of all
+            non-keyword-only ``__init__`` parameter names on Python 3.10 and
+            later. Ignored on older Python versions.
 
     .. versionadded:: 16.0.0 *slots*
     .. versionadded:: 16.1.0 *frozen*
@@ -2030,13 +2090,17 @@ def fields(cls):
     The tuple also allows accessing the fields by their names (see below for
     examples).
 
-    :param type cls: Class to introspect.
+    Args:
+        cls (type): Class to introspect.
 
-    :raise TypeError: If *cls* is not a class.
-    :raise attrs.exceptions.NotAnAttrsClassError: If *cls* is not an *attrs*
-        class.
+    Raises:
+        TypeError: If *cls* is not a class.
 
-    :rtype: tuple (with name accessors) of `attrs.Attribute`
+        attrs.exceptions.NotAnAttrsClassError:
+            If *cls* is not an *attrs* class.
+
+    Returns:
+        tuple (with name accessors) of `attrs.Attribute`
 
     .. versionchanged:: 16.2.0 Returned tuple allows accessing the fields
        by name.
@@ -2067,16 +2131,20 @@ def fields(cls):
 
 def fields_dict(cls):
     """
-    Return an ordered dictionary of *attrs* attributes for a class, whose
-    keys are the attribute names.
+    Return an ordered dictionary of *attrs* attributes for a class, whose keys
+    are the attribute names.
 
-    :param type cls: Class to introspect.
+    Args:
+        cls (type): Class to introspect.
 
-    :raise TypeError: If *cls* is not a class.
-    :raise attrs.exceptions.NotAnAttrsClassError: If *cls* is not an *attrs*
-        class.
+    Raises:
+        TypeError: If *cls* is not a class.
 
-    :rtype: dict
+        attrs.exceptions.NotAnAttrsClassError:
+            If *cls* is not an *attrs* class.
+
+    Returns:
+        dict[str, attrs.Attribute]: Dict of attribute name to definition
 
     .. versionadded:: 18.1.0
     """
@@ -2096,7 +2164,8 @@ def validate(inst):
 
     Leaves all exceptions through.
 
-    :param inst: Instance of a class with *attrs* attributes.
+    Args:
+        inst: Instance of a class with *attrs* attributes.
     """
     if _config._run_validators is False:
         return
@@ -2913,7 +2982,8 @@ class _CountingAttr:
 
         Returns *meth* unchanged.
 
-        :raises DefaultAlreadySetError: If default has been set before.
+        Raises:
+            DefaultAlreadySetError: If default has been set before.
 
         .. versionadded:: 17.1.0
         """
@@ -2935,10 +3005,14 @@ class Factory:
     If passed as the default value to `attrs.field`, the factory is used to
     generate a new value.
 
-    :param typing.Callable factory: A callable that takes either none or
-        exactly one mandatory positional argument depending on *takes_self*.
-    :param bool takes_self: Pass the partially initialized instance that is
-        being initialized as a positional argument.
+    Args:
+        factory (typing.Callable):
+            A callable that takes either none or exactly one mandatory
+            positional argument depending on *takes_self*.
+
+        takes_self (bool):
+            Pass the partially initialized instance that is being initialized
+            as a positional argument.
 
     .. versionadded:: 17.1.0  *takes_self*
     """
@@ -2988,24 +3062,26 @@ def make_class(
     r"""
     A quick way to create a new class called *name* with *attrs*.
 
-    :param str name: The name for the new class.
+    Args:
+        name (str): The name for the new class.
 
-    :param list | dict attrs: A list of names or a dictionary of mappings of
-        names to `attr.ib`\ s / `attrs.field`\ s.
+        attrs( list | dict):
+            A list of names or a dictionary of mappings of names to `attr.ib`\
+            s / `attrs.field`\ s.
 
-        The order is deduced from the order of the names or attributes inside
-        *attrs*.  Otherwise the order of the definition of the attributes is
-        used.
+            The order is deduced from the order of the names or attributes
+            inside *attrs*.  Otherwise the order of the definition of the
+            attributes is used.
 
-    :param tuple bases: Classes that the new class will subclass.
+        bases (tuple[type, ...]): Classes that the new class will subclass.
 
-    :param dict class_body: An optional dictionary of class attributes for the
-        new class.
+        class_body (dict):
+            An optional dictionary of class attributes for the new class.
 
-    :param attributes_arguments: Passed unmodified to `attr.s`.
+        attributes_arguments: Passed unmodified to `attr.s`.
 
-    :return: A new class with *attrs*.
-    :rtype: type
+    Returns:
+        type: A new class with *attrs*.
 
     .. versionadded:: 17.1.0 *bases*
     .. versionchanged:: 18.1.0 If *attrs* is ordered, the order is retained.
@@ -3087,8 +3163,9 @@ def and_(*validators):
 
     When called on a value, it runs all wrapped validators.
 
-    :param ~collections.abc.Iterable[typing.Callable] validators: Arbitrary
-        number of validators.
+    Args:
+        validators (~collections.abc.Iterable[typing.Callable]):
+            Arbitrary number of validators.
 
     .. versionadded:: 17.1.0
     """
@@ -3113,8 +3190,8 @@ def pipe(*converters):
     Type annotations will be inferred from the wrapped converters', if they
     have any.
 
-    :param ~collections.abc.Iterable[typing.Callable] converters: Arbitrary
-        number of converters.
+        converters (~collections.abc.Iterable[typing.Callable]):
+            Arbitrary number of converters.
 
     .. versionadded:: 20.1.0
     """
