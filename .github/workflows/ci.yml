@@ -19,27 +19,38 @@ env:
 permissions: {}
 
 jobs:
+  build-package:
+    name: Build & verify package
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: hynek/build-and-inspect-python-package@v2
+        id: baipp
+
+    outputs:
+      python-versions: ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
+
   tests:
     name: Tests & Mypy on ${{ matrix.python-version }}
     runs-on: ubuntu-latest
+    needs: build-package
 
     strategy:
       fail-fast: false
       matrix:
-        python-version:
-          - "3.7"
-          - "3.8"
-          - "3.9"
-          - "3.10"
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "pypy-3.8"
-          - "pypy-3.9"
-          - "pypy-3.10"
+        python-version: ${{ fromJson(needs.build-package.outputs.python-versions) }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Download pre-built packages
+        uses: actions/download-artifact@v4
+        with:
+          name: Packages
+          path: dist
+      - run: tar xf dist/*.tar.gz --strip-components=1
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
@@ -51,23 +62,12 @@ jobs:
           V=${{ matrix.python-version }}
           DO_MYPY=1
 
-          if [[ "$V" = pypy-* ]]; then
+          if [[ "$V" == "3.7" || "$V" == "3.8" ]]; then
             DO_MYPY=0
-
-            V=pypy3
-          else
-            if [[ "$V" == "3.7" || "$V" == "3.8" ]]; then
-              DO_MYPY=0
-              echo "skipping $V"
-            else
-              echo "not skipping $V"
-            fi
-
-            V=py$(echo $V | tr -d .)
           fi
 
           echo DO_MYPY=$DO_MYPY >>$GITHUB_ENV
-          echo TOX_PYTHON=$V >>$GITHUB_ENV
+          echo TOX_PYTHON=py$(echo $V | tr -d .) >>$GITHUB_ENV
 
           python -Im pip install tox
 
@@ -85,13 +85,56 @@ jobs:
           path: .coverage.*
           if-no-files-found: ignore
 
+  tests-pypy:
+    name: Tests on ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    needs: build-package
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - pypy-3.8
+          - pypy-3.9
+          - pypy-3.10
+
+    steps:
+      - name: Download pre-built packages
+        uses: actions/download-artifact@v4
+        with:
+          name: Packages
+          path: dist
+      - run: tar xf dist/*.tar.gz --strip-components=1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
+          cache: pip
+
+      - name: Prepare tox
+        run: python -Im pip install tox tox-uv
+
+      - run: python -Im tox run -e pypy3-tests
+
+      - name: Upload coverage data
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-data-${{ matrix.python-version }}
+          path: .coverage.*
+          if-no-files-found: ignore
+
   coverage:
     name: Combine & check coverage.
     runs-on: ubuntu-latest
     needs: tests
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Download pre-built packages
+        uses: actions/download-artifact@v4
+        with:
+          name: Packages
+          path: dist
+      - run: tar xf dist/*.tar.gz --strip-components=1
       - uses: actions/setup-python@v5
         with:
           python-version-file: .python-version-default
