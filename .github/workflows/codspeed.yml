@@ -1,0 +1,36 @@
+---
+name: CodSpeed Benchmarks
+
+on:
+  push:
+    branches: [main]
+    tags: ["*"]
+  pull_request:
+  workflow_dispatch:
+
+
+env:
+  FORCE_COLOR: "1"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PIP_NO_PYTHON_VERSION_WARNING: "1"
+
+permissions: {}
+
+jobs:
+  codspeed:
+    name: Run CodSpeed benchmarks
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version-default
+          cache: pip
+      - run: python -Im pip install tox-uv
+
+      - name: Run CodSpeed benchmarks
+        uses: CodSpeedHQ/action@v2
+        with:
+          token: ${{ secrets.CODSPEED_TOKEN }}
+          run: tox run -e codspeed
