@@ -1871,7 +1871,7 @@ def _make_eq(cls, attrs):
                 # of the evaluated function.
                 globs[cmp_name] = a.eq_key
                 lines.append(
-                    f"        {cmp_name}(self.{a.name}) == {cmp_name}(self.{a.name})"
+                    f"        {cmp_name}(self.{a.name}) == {cmp_name}(other.{a.name})"
                 )
             else:
                 lines.append(f"        self.{a.name} == other.{a.name}")
