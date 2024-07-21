@@ -1864,20 +1864,20 @@ def _make_eq(cls, attrs):
     globs = {}
     if attrs:
         lines.append("    return  (")
-        others = ["    ) == ("]
         for a in attrs:
             if a.eq_key:
                 cmp_name = f"_{a.name}_key"
                 # Add the key function to the global namespace
                 # of the evaluated function.
                 globs[cmp_name] = a.eq_key
-                lines.append(f"        {cmp_name}(self.{a.name}),")
-                others.append(f"        {cmp_name}(other.{a.name}),")
+                lines.append(
+                    f"        {cmp_name}(self.{a.name}) == {cmp_name}(other.{a.name})"
+                )
             else:
-                lines.append(f"        self.{a.name},")
-                others.append(f"        other.{a.name},")
-
-        lines += [*others, "    )"]
+                lines.append(f"        self.{a.name} == other.{a.name}")
+            if a is not attrs[-1]:
+                lines[-1] = f"{lines[-1]} and"
+        lines.append("    )")
     else:
         lines.append("    return True")
 
