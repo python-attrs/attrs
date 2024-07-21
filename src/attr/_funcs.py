@@ -21,33 +21,44 @@ def asdict(
 
     Optionally recurse into other *attrs*-decorated classes.
 
-    :param inst: Instance of an *attrs*-decorated class.
-    :param bool recurse: Recurse into classes that are also *attrs*-decorated.
-    :param ~typing.Callable filter: A callable whose return code determines
-        whether an attribute or element is included (`True`) or dropped
-        (`False`).  Is called with the `attrs.Attribute` as the first argument
-        and the value as the second argument.
-    :param ~typing.Callable dict_factory: A callable to produce dictionaries
-        from.  For example, to produce ordered dictionaries instead of normal
-        Python dictionaries, pass in ``collections.OrderedDict``.
-    :param bool retain_collection_types: Do not convert to `list` when
-        encountering an attribute whose type is `tuple` or `set`.  Only
-        meaningful if *recurse* is `True`.
-    :param typing.Callable | None value_serializer: A hook that is called for
-        every attribute or dict key/value.  It receives the current instance,
-        field and value and must return the (updated) value.  The hook is run
-        *after* the optional *filter* has been applied.
+    Args:
+        inst: Instance of an *attrs*-decorated class.
 
-    :rtype: return type of *dict_factory*
+        recurse (bool): Recurse into classes that are also *attrs*-decorated.
 
-    :raise attrs.exceptions.NotAnAttrsClassError: If *cls* is not an *attrs*
-        class.
+        filter (~typing.Callable):
+            A callable whose return code determines whether an attribute or
+            element is included (`True`) or dropped (`False`).  Is called with
+            the `attrs.Attribute` as the first argument and the value as the
+            second argument.
+
+        dict_factory (~typing.Callable):
+            A callable to produce dictionaries from.  For example, to produce
+            ordered dictionaries instead of normal Python dictionaries, pass in
+            ``collections.OrderedDict``.
+
+        retain_collection_types (bool):
+            Do not convert to `list` when encountering an attribute whose type
+            is `tuple` or `set`.  Only meaningful if *recurse* is `True`.
+
+        value_serializer (typing.Callable | None):
+            A hook that is called for every attribute or dict key/value.  It
+            receives the current instance, field and value and must return the
+            (updated) value.  The hook is run *after* the optional *filter* has
+            been applied.
+
+    Returns:
+        Return type of *dict_factory*.
+
+    Raises:
+        attrs.exceptions.NotAnAttrsClassError:
+            If *cls* is not an *attrs* class.
 
     ..  versionadded:: 16.0.0 *dict_factory*
     ..  versionadded:: 16.1.0 *retain_collection_types*
     ..  versionadded:: 20.3.0 *value_serializer*
-    ..  versionadded:: 21.3.0 If a dict has a collection for a key, it is
-        serialized as a tuple.
+    ..  versionadded:: 21.3.0
+        If a dict has a collection for a key, it is serialized as a tuple.
     """
     attrs = fields(inst.__class__)
     rv = dict_factory()
@@ -205,22 +216,33 @@ def astuple(
 
     Optionally recurse into other *attrs*-decorated classes.
 
-    :param inst: Instance of an *attrs*-decorated class.
-    :param bool recurse: Recurse into classes that are also *attrs*-decorated.
-    :param ~typing.Callable filter: A callable whose return code determines
-        whether an attribute or element is included (`True`) or dropped
-        (`False`).  Is called with the `attrs.Attribute` as the first argument
-        and the value as the second argument.
-    :param ~typing.Callable tuple_factory: A callable to produce tuples from.
-        For example, to produce lists instead of tuples.
-    :param bool retain_collection_types: Do not convert to `list` or `dict`
-        when encountering an attribute which type is `tuple`, `dict` or `set`.
-        Only meaningful if *recurse* is `True`.
+    Args:
+        inst: Instance of an *attrs*-decorated class.
 
-    :rtype: return type of *tuple_factory*
+        recurse (bool):
+            Recurse into classes that are also *attrs*-decorated.
 
-    :raise attrs.exceptions.NotAnAttrsClassError: If *cls* is not an *attrs*
-        class.
+        filter (~typing.Callable):
+            A callable whose return code determines whether an attribute or
+            element is included (`True`) or dropped (`False`).  Is called with
+            the `attrs.Attribute` as the first argument and the value as the
+            second argument.
+
+        tuple_factory (~typing.Callable):
+            A callable to produce tuples from. For example, to produce lists
+            instead of tuples.
+
+        retain_collection_types (bool):
+            Do not convert to `list` or `dict` when encountering an attribute
+            which type is `tuple`, `dict` or `set`. Only meaningful if
+            *recurse* is `True`.
+
+    Returns:
+        Return type of *tuple_factory*
+
+    Raises:
+        attrs.exceptions.NotAnAttrsClassError:
+            If *cls* is not an *attrs* class.
 
     ..  versionadded:: 16.2.0
     """
@@ -305,10 +327,14 @@ def has(cls):
     """
     Check whether *cls* is a class with *attrs* attributes.
 
-    :param type cls: Class to introspect.
-    :raise TypeError: If *cls* is not a class.
+    Args:
+        cls (type): Class to introspect.
 
-    :rtype: bool
+    Raises:
+        TypeError: If *cls* is not a class.
+
+    Returns:
+        bool:
     """
     attrs = getattr(cls, "__attrs_attrs__", None)
     if attrs is not None:
@@ -337,20 +363,25 @@ def assoc(inst, **changes):
 
     .. _`edge cases`: https://github.com/python-attrs/attrs/issues/251
 
-    :param inst: Instance of a class with *attrs* attributes.
-    :param changes: Keyword changes in the new copy.
+    Args:
+        inst: Instance of a class with *attrs* attributes.
 
-    :return: A copy of inst with *changes* incorporated.
+        changes: Keyword changes in the new copy.
 
-    :raise attrs.exceptions.AttrsAttributeNotFoundError: If *attr_name*
-        couldn't be found on *cls*.
-    :raise attrs.exceptions.NotAnAttrsClassError: If *cls* is not an *attrs*
-        class.
+    Returns:
+        A copy of inst with *changes* incorporated.
+
+    Raises:
+        attrs.exceptions.AttrsAttributeNotFoundError:
+            If *attr_name* couldn't be found on *cls*.
+
+        attrs.exceptions.NotAnAttrsClassError:
+            If *cls* is not an *attrs* class.
 
     ..  deprecated:: 17.1.0
-        Use `attrs.evolve` instead if you can.
-        This function will not be removed du to the slightly different approach
-        compared to `attrs.evolve`.
+        Use `attrs.evolve` instead if you can. This function will not be
+        removed du to the slightly different approach compared to
+        `attrs.evolve`, though.
     """
     new = copy.copy(inst)
     attrs = fields(inst.__class__)
@@ -368,16 +399,24 @@ def evolve(*args, **changes):
     Create a new instance, based on the first positional argument with
     *changes* applied.
 
-    :param inst: Instance of a class with *attrs* attributes. *inst* must be
-        passed as a positional argument.
-    :param changes: Keyword changes in the new copy.
+    Args:
 
-    :return: A copy of inst with *changes* incorporated.
+        inst:
+            Instance of a class with *attrs* attributes. *inst* must be passed
+            as a positional argument.
 
-    :raise TypeError: If *attr_name* couldn't be found in the class
-        ``__init__``.
-    :raise attrs.exceptions.NotAnAttrsClassError: If *cls* is not an *attrs*
-        class.
+        changes:
+            Keyword changes in the new copy.
+
+    Returns:
+        A copy of inst with *changes* incorporated.
+
+    Raises:
+        TypeError:
+            If *attr_name* couldn't be found in the class ``__init__``.
+
+        attrs.exceptions.NotAnAttrsClassError:
+            If *cls* is not an *attrs* class.
 
     .. versionadded:: 17.1.0
     .. deprecated:: 23.1.0
@@ -425,25 +464,36 @@ def resolve_types(
     other dictionaries in which to look up these names. See the docs of
     `typing.get_type_hints` for more details.
 
-    :param type cls: Class to resolve.
-    :param dict | None globalns: Dictionary containing global variables.
-    :param dict | None localns: Dictionary containing local variables.
-    :param list | None attribs: List of attribs for the given class. This is
-        necessary when calling from inside a ``field_transformer`` since *cls*
-        is not an *attrs* class yet.
-    :param bool include_extras: Resolve more accurately, if possible. Pass
-        ``include_extras`` to ``typing.get_hints``, if supported by the typing
-        module. On supported Python versions (3.9+), this resolves the types
-        more accurately.
+    Args:
+        cls (type): Class to resolve.
 
-    :raise TypeError: If *cls* is not a class.
-    :raise attrs.exceptions.NotAnAttrsClassError: If *cls* is not an *attrs*
-        class and you didn't pass any attribs.
-    :raise NameError: If types cannot be resolved because of missing variables.
+        globalns (dict | None): Dictionary containing global variables.
 
-    :returns: *cls* so you can use this function also as a class decorator.
-        Please note that you have to apply it **after** `attrs.define`. That
-        means the decorator has to come in the line **before** `attrs.define`.
+        localns (dict | None): Dictionary containing local variables.
+
+        attribs (list | None):
+            List of attribs for the given class. This is necessary when calling
+            from inside a ``field_transformer`` since *cls* is not an *attrs*
+            class yet.
+
+        include_extras (bool):
+            Resolve more accurately, if possible. Pass ``include_extras`` to
+            ``typing.get_hints``, if supported by the typing module. On
+            supported Python versions (3.9+), this resolves the types more
+            accurately.
+
+    Raises:
+        TypeError: If *cls* is not a class.
+
+        attrs.exceptions.NotAnAttrsClassError:
+            If *cls* is not an *attrs* class and you didn't pass any attribs.
+
+        NameError: If types cannot be resolved because of missing variables.
+
+    Returns:
+        *cls* so you can use this function also as a class decorator. Please
+        note that you have to apply it **after** `attrs.define`. That means the
+        decorator has to come in the line **before** `attrs.define`.
 
     ..  versionadded:: 20.1.0
     ..  versionadded:: 21.1.0 *attribs*

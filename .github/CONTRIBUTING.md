@@ -164,16 +164,26 @@ You will find the built documentation in `docs/_build/html`.
 
 - If you add a new feature, demonstrate its awesomeness on the [examples page](https://github.com/python-attrs/attrs/blob/main/docs/examples.md)!
 
-- For docstrings, we follow [PEP 257](https://peps.python.org/pep-0257/) and use the `"""`-on-separate-lines style:
+- For docstrings, we follow [PEP 257](https://peps.python.org/pep-0257/), use the `"""`-on-separate-lines style, and [Napoleon](https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html)-style API documentation:
 
   ```python
-  def func(x):
+  def func(x: str, y: int) -> str:
       """
       Do something.
 
-      :param str x: A very important parameter.
+      Args:
+          x: A very important argument.
 
-      :rtype: str
+          y:
+            Another very important argument, but its description is so long
+            that it doesn't fit on one line. So, we start the whole block on a
+            fresh new line to keep the block together.
+
+      Returns:
+          str: The result of doing something.
+
+      Raises:
+          ValueError: When an invalid value is passed.
       """
   ```
 

@@ -26,21 +26,31 @@ def cmp_using(
     The resulting class will have a full set of ordering methods if at least
     one of ``{lt, le, gt, ge}`` and ``eq``  are provided.
 
-    :param typing.Callable | None eq: Callable used to evaluate equality of two
-        objects.
-    :param typing.Callable | None lt: Callable used to evaluate whether one
-        object is less than another object.
-    :param typing.Callable | None le: Callable used to evaluate whether one
-        object is less than or equal to another object.
-    :param typing.Callable | None gt: Callable used to evaluate whether one
-        object is greater than another object.
-    :param typing.Callable | None ge: Callable used to evaluate whether one
-        object is greater than or equal to another object.
+    Args:
+        eq (typing.Callable | None):
+            Callable used to evaluate equality of two objects.
 
-    :param bool require_same_type: When `True`, equality and ordering methods
-        will return `NotImplemented` if objects are not of the same type.
+        lt (typing.Callable | None):
+            Callable used to evaluate whether one object is less than another
+            object.
 
-    :param str | None class_name: Name of class. Defaults to "Comparable".
+        le (typing.Callable | None):
+            Callable used to evaluate whether one object is less than or equal
+            to another object.
+
+        gt (typing.Callable | None):
+            Callable used to evaluate whether one object is greater than
+            another object.
+
+        ge (typing.Callable | None):
+            Callable used to evaluate whether one object is greater than or
+            equal to another object.
+
+        require_same_type (bool):
+            When `True`, equality and ordering methods will return
+            `NotImplemented` if objects are not of the same type.
+
+        class_name (str | None): Name of class. Defaults to "Comparable".
 
     See `comparison` for more details.
 
