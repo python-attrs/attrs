@@ -180,7 +180,10 @@ You will find the built documentation in `docs/_build/html`.
             fresh new line to keep the block together.
 
       Returns:
-          The result of doing something.
+          str: The result of doing something.
+
+      Raises:
+          ValueError: When an invalid value is passed.
       """
   ```
 
