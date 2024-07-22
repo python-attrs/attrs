@@ -222,6 +222,8 @@ jobs:
 
       - name: Ensure we can import attr and attrs packages
         run: |
+          source .venv/bin/activate
+
           python -Ic 'import attr; print(attr.__version__)'
           python -Ic 'import attrs; print(attrs.__version__)'
 
