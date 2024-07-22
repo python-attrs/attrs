@@ -9,6 +9,9 @@ on:
       - src/**
       - bench/**
   pull_request:
+    paths:
+      - src/**
+      - bench/**
   workflow_dispatch:
 
 
