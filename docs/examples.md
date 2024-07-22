@@ -112,7 +112,7 @@ This is useful in times when you want to enhance classes that are not yours (nic
 SomethingFromSomeoneElse(x=1)
 ```
 
-[Subclassing is bad for you](https://www.youtube.com/watch?v=3MNVP9-hglc), but *attrs* will still do what you'd hope for:
+[Subclassing is bad for you](https://www.youtube.com/watch?v=3MNVP9-hglc) (except when doing [strict specialization](https://hynek.me/articles/python-subclassing-redux/)), but *attrs* will still do what you'd hope for:
 
 ```{doctest}
 >>> @define(slots=False)

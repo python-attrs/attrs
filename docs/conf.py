@@ -46,6 +46,7 @@ nitpick_ignore = [
 # ones.
 extensions = [
     "myst_parser",
+    "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",

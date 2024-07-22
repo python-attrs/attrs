@@ -75,7 +75,7 @@ def _create_hyp_nested_strategy(draw, simple_class_strategy):
 bare_attrs = st.builds(attr.ib, default=st.none())
 int_attrs = st.integers().map(lambda i: attr.ib(default=i))
 str_attrs = st.text().map(lambda s: attr.ib(default=s))
-float_attrs = st.floats().map(lambda f: attr.ib(default=f))
+float_attrs = st.floats(allow_nan=False).map(lambda f: attr.ib(default=f))
 dict_attrs = st.dictionaries(keys=st.text(), values=st.integers()).map(
     lambda d: attr.ib(default=d)
 )
