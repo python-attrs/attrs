@@ -217,11 +217,13 @@ jobs:
           cache: pip
 
       - run: python -Im pip install uv
-      - run: uv venv
+      - run: uv venv --python $(cat .python-version-default)
       - run: uv pip install -e .[dev]
 
       - name: Ensure we can import attr and attrs packages
         run: |
+          source .venv/bin/activate
+
           python -Ic 'import attr; print(attr.__version__)'
           python -Ic 'import attrs; print(attrs.__version__)'
 
