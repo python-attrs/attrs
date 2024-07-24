@@ -100,6 +100,35 @@ else:
         takes_self: bool = ...,
     ) -> _T: ...
 
+In = TypeVar("In")
+Out = TypeVar("Out")
+
+class Converter(Generic[In, Out]):
+    @overload
+    def __init__(
+        self,
+        converter: Callable[[In, AttrsInstance, Any], Out],
+        *,
+        takes_self: Literal[True] = ...,
+        takes_field: Literal[True] = ...,
+    ) -> None: ...
+    @overload
+    def __init__(
+        self,
+        converter: Callable[[In, Any], Out],
+        *,
+        takes_field: Literal[True] = ...,
+    ) -> None: ...
+    @overload
+    def __init__(
+        self,
+        converter: Callable[[In, AttrsInstance], Out],
+        *,
+        takes_self: Literal[True] = ...,
+    ) -> None: ...
+    @overload
+    def __init__(self, converter: Callable[[In], Out]) -> None: ...
+
 class Attribute(Generic[_T]):
     name: str
     default: _T | None
@@ -110,7 +139,7 @@ class Attribute(Generic[_T]):
     order: _EqOrderType
     hash: bool | None
     init: bool
-    converter: _ConverterType | None
+    converter: _ConverterType | Converter[Any, _T] | None
     metadata: dict[Any, Any]
     type: type[_T] | None
     kw_only: bool
@@ -174,7 +203,7 @@ def attrib(
     init: bool = ...,
     metadata: Mapping[Any, Any] | None = ...,
     type: type[_T] | None = ...,
-    converter: _ConverterType | None = ...,
+    converter: _ConverterType | Converter[Any, _T] | None = ...,
     factory: Callable[[], _T] | None = ...,
     kw_only: bool = ...,
     eq: _EqOrderType | None = ...,
@@ -194,7 +223,7 @@ def attrib(
     init: bool = ...,
     metadata: Mapping[Any, Any] | None = ...,
     type: type[_T] | None = ...,
-    converter: _ConverterType | None = ...,
+    converter: _ConverterType | Converter[Any, _T] | None = ...,
     factory: Callable[[], _T] | None = ...,
     kw_only: bool = ...,
     eq: _EqOrderType | None = ...,
@@ -214,7 +243,7 @@ def attrib(
     init: bool = ...,
     metadata: Mapping[Any, Any] | None = ...,
     type: object = ...,
-    converter: _ConverterType | None = ...,
+    converter: _ConverterType | Converter[Any, _T] | None = ...,
     factory: Callable[[], _T] | None = ...,
     kw_only: bool = ...,
     eq: _EqOrderType | None = ...,
