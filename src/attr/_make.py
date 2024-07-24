@@ -206,8 +206,6 @@ def attrib(
 
             .. seealso:: `hashing`
 
-        .. seealso:: `init`
-
         init (bool):
             Include this attribute in the generated ``__init__`` method.  It is
             possible to set this to `False` and set a default value. In that
@@ -250,8 +248,7 @@ def attrib(
             Make this attribute keyword-only in the generated ``__init__`` (if
             ``init`` is `False`, this parameter is ignored).
 
-        on_setattr (~typing.Callable | list[~typing.Callable] | None |
-        typing.Literal[attrs.setters.NO_OP]):
+        on_setattr (~typing.Callable | list[~typing.Callable] | None | typing.Literal[attrs.setters.NO_OP]):
             Allows to overwrite the *on_setattr* setting from `attr.s`. If left
             `None`, the *on_setattr* value from `attr.s` is used. Set to
             `attrs.setters.NO_OP` to run **no** `setattr` hooks for this
