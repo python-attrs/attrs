@@ -3075,11 +3075,16 @@ class Converter:
     Allows for the wrapped converter to take additional arguments. The
     arguments are passed in the order they are documented.
 
-    :param Callable converter: A callable that converts a value.
-    :param bool takes_self: Pass the partially initialized instance that is
-        being initialized as a positional argument. (default: `False`)
-    :param bool takes_field: Pass the field definition (an `Attribute`) into
-        the converter as a positional argument. (default: `False`)
+    Args:
+        converter (Callable): A callable that converts the passed value.
+
+        takes_self (bool):
+            Pass the partially initialized instance that is being initialized
+            as a positional argument. (default: `False`)
+
+        takes_field (bool):
+            Pass the field definition (an `Attribute`) into the converter as a
+            positional argument. (default: `False`)
 
     .. versionadded:: 24.1.0
     """
