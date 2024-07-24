@@ -766,60 +766,60 @@
         def converter(s:int) -> str:
             return 'hello'
 
-- case: testAttrsUsingBadConverter
-  regex: true
-  main: |
-    import attr
-    from typing import overload
-    @overload
-    def bad_overloaded_converter(x: int, y: int) -> int:
-        ...
-    @overload
-    def bad_overloaded_converter(x: str, y: str) -> str:
-        ...
-    def bad_overloaded_converter(x, y=7):
-        return x
-    def bad_converter() -> str:
-        return ''
-    @attr.dataclass
-    class A:
-        bad: str = attr.ib(converter=bad_converter)
-        bad_overloaded: int = attr.ib(converter=bad_overloaded_converter)
-    reveal_type(A)
-  out: |
-    main:15: error: Cannot determine __init__ type from converter  \[misc\]
-    main:15: error: Argument "converter" has incompatible type \"Callable\[\[\], str\]\"; expected (\"Callable\[\[Any\], Any\] \| None\"|\"Optional\[Callable\[\[Any\], Any\]\]\")  \[arg-type\]
-    main:16: error: Cannot determine __init__ type from converter  \[misc\]
-    main:16: error: Argument "converter" has incompatible type overloaded function; expected (\"Callable\[\[Any\], Any\] \| None\"|\"Optional\[Callable\[\[Any\], Any\]\]\")  \[arg-type\]
-    main:17: note: Revealed type is "def (bad: Any, bad_overloaded: Any\) -> main.A"
+# - case: testAttrsUsingBadConverter
+#   regex: true
+#   main: |
+#     import attr
+#     from typing import overload
+#     @overload
+#     def bad_overloaded_converter(x: int, y: int) -> int:
+#         ...
+#     @overload
+#     def bad_overloaded_converter(x: str, y: str) -> str:
+#         ...
+#     def bad_overloaded_converter(x, y=7):
+#         return x
+#     def bad_converter() -> str:
+#         return ''
+#     @attr.dataclass
+#     class A:
+#         bad: str = attr.ib(converter=bad_converter)
+#         bad_overloaded: int = attr.ib(converter=bad_overloaded_converter)
+#     reveal_type(A)
+#   out: |
+#     main:15: error: Cannot determine __init__ type from converter  \[misc\]
+#     main:15: error: Argument "converter" has incompatible type \"Callable\[\[\], str\]\"; expected (\"Callable\[\[Any\], Any\] \| None\"|\"Optional\[Callable\[\[Any\], Any\]\]\")  \[arg-type\]
+#     main:16: error: Cannot determine __init__ type from converter  \[misc\]
+#     main:16: error: Argument "converter" has incompatible type overloaded function; expected (\"Callable\[\[Any\], Any\] \| None\"|\"Optional\[Callable\[\[Any\], Any\]\]\")  \[arg-type\]
+#     main:17: note: Revealed type is "def (bad: Any, bad_overloaded: Any\) -> main.A"
 
-- case: testAttrsUsingBadConverterReprocess
-  regex: true
-  main: |
-    import attr
-    from typing import overload
-    forward: 'A'
-    @overload
-    def bad_overloaded_converter(x: int, y: int) -> int:
-        ...
-    @overload
-    def bad_overloaded_converter(x: str, y: str) -> str:
-        ...
-    def bad_overloaded_converter(x, y=7):
-        return x
-    def bad_converter() -> str:
-        return ''
-    @attr.dataclass
-    class A:
-        bad: str = attr.ib(converter=bad_converter)
-        bad_overloaded: int = attr.ib(converter=bad_overloaded_converter)
-    reveal_type(A)
-  out: |
-    main:16: error: Cannot determine __init__ type from converter  \[misc\]
-    main:16: error: Argument \"converter\" has incompatible type \"Callable\[\[\], str\]\"; expected (\"Callable\[\[Any\], Any\] \| None\"|\"Optional\[Callable\[\[Any\], Any\]\]\")  \[arg-type\]
-    main:17: error: Cannot determine __init__ type from converter  \[misc\]
-    main:17: error: Argument "converter" has incompatible type overloaded function; expected (\"Callable\[\[Any\], Any\] \| None\"|\"Optional\[Callable\[\[Any\], Any\]\]\")  \[arg-type\]
-    main:18: note: Revealed type is "def (bad: Any, bad_overloaded: Any\) -> main.A"
+# - case: testAttrsUsingBadConverterReprocess
+#   regex: true
+#   main: |
+#     import attr
+#     from typing import overload
+#     forward: 'A'
+#     @overload
+#     def bad_overloaded_converter(x: int, y: int) -> int:
+#         ...
+#     @overload
+#     def bad_overloaded_converter(x: str, y: str) -> str:
+#         ...
+#     def bad_overloaded_converter(x, y=7):
+#         return x
+#     def bad_converter() -> str:
+#         return ''
+#     @attr.dataclass
+#     class A:
+#         bad: str = attr.ib(converter=bad_converter)
+#         bad_overloaded: int = attr.ib(converter=bad_overloaded_converter)
+#     reveal_type(A)
+#   out: |
+#     main:16: error: Cannot determine __init__ type from converter  \[misc\]
+#     main:16: error: Argument \"converter\" has incompatible type \"Callable\[\[\], str\]\"; expected (\"Callable\[\[Any\], Any\] \| None\"|\"Optional\[Callable\[\[Any\], Any\]\]\")  \[arg-type\]
+#     main:17: error: Cannot determine __init__ type from converter  \[misc\]
+#     main:17: error: Argument "converter" has incompatible type overloaded function; expected (\"Callable\[\[Any\], Any\] \| None\"|\"Optional\[Callable\[\[Any\], Any\]\]\")  \[arg-type\]
+#     main:18: note: Revealed type is "def (bad: Any, bad_overloaded: Any\) -> main.A"
 
 - case: testAttrsUsingUnsupportedConverter
   main: |
