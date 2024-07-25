@@ -361,6 +361,24 @@ A converter will override an explicit type annotation or `type` argument.
 {'return': None, 'x': <class 'str'>}
 ```
 
+If you need more control over the conversion process, you can wrap the converter with a {class}`attrs.Converter` and ask for the instance and/or the field that are being initialized:
+
+```{doctest}
+>>> def complicated(value, self_, field):
+...     return int(value) * self_.factor + field.metadata["offset"]
+>>> @define
+... class C:
+...     factor = 5  # not an *attrs* field
+...     x = field(
+...         metadata={"offset": 200},
+...         converter=attrs.Converter(
+...             complicated,
+...             takes_self=True, takes_field=True
+...     ))
+>>> C("42")
+C(x=410)
+```
+
 
 ## Hooking Yourself Into Initialization
 
