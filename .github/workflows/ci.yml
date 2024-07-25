@@ -130,7 +130,7 @@ jobs:
           -e pypy3-tests
 
   coverage:
-    name: Combine & check coverage.
+    name: Combine & check coverage
     runs-on: ubuntu-latest
     needs: tests
 
