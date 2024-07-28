@@ -105,29 +105,29 @@ Out = TypeVar("Out")
 
 class Converter(Generic[In, Out]):
     @overload
+    def __init__(self, converter: Callable[[In], Out]) -> None: ...
+    @overload
     def __init__(
         self,
-        converter: Callable[[In, AttrsInstance, Any], Out],
+        converter: Callable[[In, AttrsInstance, Attribute], Out],
         *,
-        takes_self: Literal[True] = ...,
-        takes_field: Literal[True] = ...,
+        takes_self: Literal[True],
+        takes_field: Literal[True],
     ) -> None: ...
     @overload
     def __init__(
         self,
-        converter: Callable[[In, Any], Out],
+        converter: Callable[[In, Attribute], Out],
         *,
-        takes_field: Literal[True] = ...,
+        takes_field: Literal[True],
     ) -> None: ...
     @overload
     def __init__(
         self,
         converter: Callable[[In, AttrsInstance], Out],
         *,
-        takes_self: Literal[True] = ...,
+        takes_self: Literal[True],
     ) -> None: ...
-    @overload
-    def __init__(self, converter: Callable[[In], Out]) -> None: ...
 
 class Attribute(Generic[_T]):
     name: str
