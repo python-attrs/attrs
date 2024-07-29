@@ -15,6 +15,7 @@ from ._funcs import asdict, assoc, astuple, evolve, has, resolve_types
 from ._make import (
     NOTHING,
     Attribute,
+    Converter,
     Factory,
     attrib,
     attrs,
@@ -39,6 +40,7 @@ class AttrsInstance(Protocol):
 __all__ = [
     "Attribute",
     "AttrsInstance",
+    "Converter",
     "Factory",
     "NOTHING",
     "asdict",

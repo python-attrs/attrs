@@ -22,6 +22,7 @@ from attr import astuple as astuple
 from attr import attrib
 from attr import cmp_using as cmp_using
 from attr import converters as converters
+from attr import Converter as Converter
 from attr import evolve as evolve
 from attr import exceptions as exceptions
 from attr import fields as fields
@@ -87,7 +88,7 @@ def field(
     hash: bool | None = ...,
     init: bool = ...,
     metadata: Mapping[Any, Any] | None = ...,
-    converter: _ConverterType | None = ...,
+    converter: _ConverterType | Converter[Any, _T] | None = ...,
     factory: Callable[[], _T] | None = ...,
     kw_only: bool = ...,
     eq: _EqOrderType | None = ...,
@@ -107,7 +108,7 @@ def field(
     hash: bool | None = ...,
     init: bool = ...,
     metadata: Mapping[Any, Any] | None = ...,
-    converter: _ConverterType | None = ...,
+    converter: _ConverterType | Converter[Any, _T] | None = ...,
     factory: Callable[[], _T] | None = ...,
     kw_only: bool = ...,
     eq: _EqOrderType | None = ...,
@@ -127,7 +128,7 @@ def field(
     hash: bool | None = ...,
     init: bool = ...,
     metadata: Mapping[Any, Any] | None = ...,
-    converter: _ConverterType | None = ...,
+    converter: _ConverterType | Converter[Any, _T] | None = ...,
     factory: Callable[[], _T] | None = ...,
     kw_only: bool = ...,
     eq: _EqOrderType | None = ...,

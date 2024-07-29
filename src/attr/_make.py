@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: MIT
 
+from __future__ import annotations
+
 import contextlib
 import copy
 import enum
@@ -32,7 +34,6 @@ from .exceptions import (
 
 # This is used at least twice, so cache it here.
 _OBJ_SETATTR = object.__setattr__
-_INIT_CONVERTER_PAT = "__attr_converter_%s"
 _INIT_FACTORY_PAT = "__attr_factory_%s"
 _CLASSVAR_PREFIXES = (
     "typing.ClassVar",
@@ -213,11 +214,17 @@ def attrib(
 
             .. seealso:: `init`
 
-        converter (typing.Callable(): `callable` that is called by
-            *attrs*-generated ``__init__`` methods to convert attribute's value
-            to the desired format.  It is given the passed-in value, and the
-            returned value will be used as the new value of the attribute.  The
-            value is converted before being passed to the validator, if any.
+        converter (typing.Callable | Converter):
+            `callable` that is called by *attrs*-generated ``__init__`` methods
+            to convert attribute's value to the desired format.
+
+            If a vanilla callable is passed, it is given the passed-in value as
+            the only positional argument. It is possible to receive additional
+            arguments by wrapping the callable in a `Converter`.
+
+            Either way, the returned value will be used as the new value of the
+            attribute.  The value is converted before being passed to the
+            validator, if any.
 
             .. seealso:: :ref:`converters`
 
@@ -2283,7 +2290,7 @@ def _make_init(
         is_exc,
         needs_cached_setattr,
         has_cls_on_setattr,
-        attrs_init,
+        "__attrs_init__" if attrs_init else "__init__",
     )
     if cls.__module__ in sys.modules:
         # This makes typing.get_type_hints(CLS.__init__) resolve string types.
@@ -2307,26 +2314,24 @@ def _make_init(
     return init
 
 
-def _setattr(attr_name, value_var, has_on_setattr):
+def _setattr(attr_name: str, value_var: str, has_on_setattr: bool) -> str:
     """
     Use the cached object.setattr to set *attr_name* to *value_var*.
     """
     return f"_setattr('{attr_name}', {value_var})"
 
 
-def _setattr_with_converter(attr_name, value_var, has_on_setattr):
+def _setattr_with_converter(
+    attr_name: str, value_var: str, has_on_setattr: bool, converter: Converter
+) -> str:
     """
     Use the cached object.setattr to set *attr_name* to *value_var*, but run
     its converter first.
     """
-    return "_setattr('%s', %s(%s))" % (
-        attr_name,
-        _INIT_CONVERTER_PAT % (attr_name,),
-        value_var,
-    )
+    return f"_setattr('{attr_name}', {converter._fmt_converter_call(attr_name, value_var)})"
 
 
-def _assign(attr_name, value, has_on_setattr):
+def _assign(attr_name: str, value: str, has_on_setattr: bool) -> str:
     """
     Unless *attr_name* has an on_setattr hook, use normal assignment. Otherwise
     relegate to _setattr.
@@ -2337,22 +2342,22 @@ def _assign(attr_name, value, has_on_setattr):
     return f"self.{attr_name} = {value}"
 
 
-def _assign_with_converter(attr_name, value_var, has_on_setattr):
+def _assign_with_converter(
+    attr_name: str, value_var: str, has_on_setattr: bool, converter: Converter
+) -> str:
     """
     Unless *attr_name* has an on_setattr hook, use normal assignment after
     conversion. Otherwise relegate to _setattr_with_converter.
     """
     if has_on_setattr:
-        return _setattr_with_converter(attr_name, value_var, True)
+        return _setattr_with_converter(attr_name, value_var, True, converter)
 
-    return "self.%s = %s(%s)" % (
-        attr_name,
-        _INIT_CONVERTER_PAT % (attr_name,),
-        value_var,
-    )
+    return f"self.{attr_name} = {converter._fmt_converter_call(attr_name, value_var)}"
 
 
-def _determine_setters(frozen, slots, base_attr_map):
+def _determine_setters(
+    frozen: bool, slots: bool, base_attr_map: dict[str, type]
+):
     """
     Determine the correct setter functions based on whether a class is frozen
     and/or slotted.
@@ -2366,23 +2371,26 @@ def _determine_setters(frozen, slots, base_attr_map):
         # class.
         # Note _inst_dict will be used again below if cache_hash is True
 
-        def fmt_setter(attr_name, value_var, has_on_setattr):
+        def fmt_setter(
+            attr_name: str, value_var: str, has_on_setattr: bool
+        ) -> str:
             if _is_slot_attr(attr_name, base_attr_map):
                 return _setattr(attr_name, value_var, has_on_setattr)
 
             return f"_inst_dict['{attr_name}'] = {value_var}"
 
-        def fmt_setter_with_converter(attr_name, value_var, has_on_setattr):
+        def fmt_setter_with_converter(
+            attr_name: str,
+            value_var: str,
+            has_on_setattr: bool,
+            converter: Converter,
+        ) -> str:
             if has_on_setattr or _is_slot_attr(attr_name, base_attr_map):
                 return _setattr_with_converter(
-                    attr_name, value_var, has_on_setattr
+                    attr_name, value_var, has_on_setattr, converter
                 )
 
-            return "_inst_dict['%s'] = %s(%s)" % (
-                attr_name,
-                _INIT_CONVERTER_PAT % (attr_name,),
-                value_var,
-            )
+            return f"_inst_dict['{attr_name}'] = {converter._fmt_converter_call(attr_name, value_var)}"
 
         return (
             ("_inst_dict = self.__dict__",),
@@ -2395,39 +2403,37 @@ def _determine_setters(frozen, slots, base_attr_map):
 
 
 def _attrs_to_init_script(
-    attrs,
-    frozen,
-    slots,
-    pre_init,
-    pre_init_has_args,
-    post_init,
-    cache_hash,
-    base_attr_map,
-    is_exc,
-    needs_cached_setattr,
-    has_cls_on_setattr,
-    attrs_init,
-):
+    attrs: list[Attribute],
+    is_frozen: bool,
+    is_slotted: bool,
+    call_pre_init: bool,
+    pre_init_has_args: bool,
+    call_post_init: bool,
+    does_cache_hash: bool,
+    base_attr_map: dict[str, type],
+    is_exc: bool,
+    needs_cached_setattr: bool,
+    has_cls_on_setattr: bool,
+    method_name: str,
+) -> tuple[str, dict, dict]:
     """
-    Return a script of an initializer for *attrs* and a dict of globals.
+    Return a script of an initializer for *attrs*, a dict of globals, and
+    annotations for the initializer.
 
-    The globals are expected by the generated script.
-
-    If *frozen* is True, we cannot set the attributes directly so we use
-    a cached ``object.__setattr__``.
+    The globals are required by the generated script.
     """
-    lines = ["self.__attrs_pre_init__()"] if pre_init else []
+    lines = ["self.__attrs_pre_init__()"] if call_pre_init else []
 
     if needs_cached_setattr:
         lines.append(
             # Circumvent the __setattr__ descriptor to save one lookup per
-            # assignment.
-            # Note _setattr will be used again below if cache_hash is True
+            # assignment. Note _setattr will be used again below if
+            # does_cache_hash is True.
             "_setattr = _cached_setattr_get(self)"
         )
 
     extra_lines, fmt_setter, fmt_setter_with_converter = _determine_setters(
-        frozen, slots, base_attr_map
+        is_frozen, is_slotted, base_attr_map
     )
     lines.extend(extra_lines)
 
@@ -2455,19 +2461,25 @@ def _attrs_to_init_script(
         has_factory = isinstance(a.default, Factory)
         maybe_self = "self" if has_factory and a.default.takes_self else ""
 
+        if a.converter and not isinstance(a.converter, Converter):
+            converter = Converter(a.converter)
+        else:
+            converter = a.converter
+
         if a.init is False:
             if has_factory:
                 init_factory_name = _INIT_FACTORY_PAT % (a.name,)
-                if a.converter is not None:
+                if converter is not None:
                     lines.append(
                         fmt_setter_with_converter(
                             attr_name,
                             init_factory_name + f"({maybe_self})",
                             has_on_setattr,
+                            converter,
                         )
                     )
-                    names_for_globals[_INIT_CONVERTER_PAT % (a.name,)] = (
-                        a.converter
+                    names_for_globals[converter._get_global_name(a.name)] = (
+                        converter.converter
                     )
                 else:
                     lines.append(
@@ -2478,16 +2490,17 @@ def _attrs_to_init_script(
                         )
                     )
                 names_for_globals[init_factory_name] = a.default.factory
-            elif a.converter is not None:
+            elif converter is not None:
                 lines.append(
                     fmt_setter_with_converter(
                         attr_name,
                         f"attr_dict['{attr_name}'].default",
                         has_on_setattr,
+                        converter,
                     )
                 )
-                names_for_globals[_INIT_CONVERTER_PAT % (a.name,)] = (
-                    a.converter
+                names_for_globals[converter._get_global_name(a.name)] = (
+                    converter.converter
                 )
             else:
                 lines.append(
@@ -2504,14 +2517,14 @@ def _attrs_to_init_script(
             else:
                 args.append(arg)
 
-            if a.converter is not None:
+            if converter is not None:
                 lines.append(
                     fmt_setter_with_converter(
-                        attr_name, arg_name, has_on_setattr
+                        attr_name, arg_name, has_on_setattr, converter
                     )
                 )
-                names_for_globals[_INIT_CONVERTER_PAT % (a.name,)] = (
-                    a.converter
+                names_for_globals[converter._get_global_name(a.name)] = (
+                    converter.converter
                 )
             else:
                 lines.append(fmt_setter(attr_name, arg_name, has_on_setattr))
@@ -2525,11 +2538,11 @@ def _attrs_to_init_script(
             lines.append(f"if {arg_name} is not NOTHING:")
 
             init_factory_name = _INIT_FACTORY_PAT % (a.name,)
-            if a.converter is not None:
+            if converter is not None:
                 lines.append(
                     "    "
                     + fmt_setter_with_converter(
-                        attr_name, arg_name, has_on_setattr
+                        attr_name, arg_name, has_on_setattr, converter
                     )
                 )
                 lines.append("else:")
@@ -2539,10 +2552,11 @@ def _attrs_to_init_script(
                         attr_name,
                         init_factory_name + "(" + maybe_self + ")",
                         has_on_setattr,
+                        converter,
                     )
                 )
-                names_for_globals[_INIT_CONVERTER_PAT % (a.name,)] = (
-                    a.converter
+                names_for_globals[converter._get_global_name(a.name)] = (
+                    converter.converter
                 )
             else:
                 lines.append(
@@ -2564,26 +2578,24 @@ def _attrs_to_init_script(
             else:
                 args.append(arg_name)
 
-            if a.converter is not None:
+            if converter is not None:
                 lines.append(
                     fmt_setter_with_converter(
-                        attr_name, arg_name, has_on_setattr
+                        attr_name, arg_name, has_on_setattr, converter
                     )
                 )
-                names_for_globals[_INIT_CONVERTER_PAT % (a.name,)] = (
-                    a.converter
+                names_for_globals[converter._get_global_name(a.name)] = (
+                    converter.converter
                 )
             else:
                 lines.append(fmt_setter(attr_name, arg_name, has_on_setattr))
 
         if a.init is True:
-            if a.type is not None and a.converter is None:
+            if a.type is not None and converter is None:
                 annotations[arg_name] = a.type
-            elif a.converter is not None:
-                # Try to get the type from the converter.
-                t = _AnnotationExtractor(a.converter).get_first_param_type()
-                if t:
-                    annotations[arg_name] = t
+            elif converter is not None and converter._first_param_type:
+                # Use the type from the converter if present.
+                annotations[arg_name] = converter._first_param_type
 
     if attrs_to_validate:  # we can skip this if there are no validators.
         names_for_globals["_config"] = _config
@@ -2595,25 +2607,23 @@ def _attrs_to_init_script(
             names_for_globals[val_name] = a.validator
             names_for_globals[attr_name] = a
 
-    if post_init:
+    if call_post_init:
         lines.append("self.__attrs_post_init__()")
 
-    # because this is set only after __attrs_post_init__ is called, a crash
+    # Because this is set only after __attrs_post_init__ is called, a crash
     # will result if post-init tries to access the hash code.  This seemed
-    # preferable to setting this beforehand, in which case alteration to
-    # field values during post-init combined with post-init accessing the
-    # hash code would result in silent bugs.
-    if cache_hash:
-        if frozen:
-            if slots:  # noqa: SIM108
-                # if frozen and slots, then _setattr defined above
-                init_hash_cache = "_setattr('%s', %s)"
+    # preferable to setting this beforehand, in which case alteration to field
+    # values during post-init combined with post-init accessing the hash code
+    # would result in silent bugs.
+    if does_cache_hash:
+        if is_frozen:
+            if is_slotted:
+                init_hash_cache = f"_setattr('{_HASH_CACHE_FIELD}', None)"
             else:
-                # if frozen and not slots, then _inst_dict defined above
-                init_hash_cache = "_inst_dict['%s'] = %s"
+                init_hash_cache = f"_inst_dict['{_HASH_CACHE_FIELD}'] = None"
         else:
-            init_hash_cache = "self.%s = %s"
-        lines.append(init_hash_cache % (_HASH_CACHE_FIELD, "None"))
+            init_hash_cache = f"self.{_HASH_CACHE_FIELD} = None"
+        lines.append(init_hash_cache)
 
     # For exceptions we rely on BaseException.__init__ for proper
     # initialization.
@@ -2637,14 +2647,13 @@ def _attrs_to_init_script(
         )  # handle only kwargs and no regular args
         pre_init_args += pre_init_kw_only_args
 
-    if pre_init and pre_init_has_args:
+    if call_pre_init and pre_init_has_args:
         # If pre init method has arguments, pass same arguments as `__init__`
-        lines[0] = "self.__attrs_pre_init__(%s)" % pre_init_args
+        lines[0] = f"self.__attrs_pre_init__({pre_init_args})"
 
     return (
-        "def %s(self, %s):\n    %s\n"
+        f"def {method_name}(self, %s):\n    %s\n"
         % (
-            ("__attrs_init__" if attrs_init else "__init__"),
             args,
             "\n    ".join(lines) if lines else "pass",
         ),
@@ -3100,6 +3109,109 @@ _f = [
 Factory = _add_hash(_add_eq(_add_repr(Factory, attrs=_f), attrs=_f), attrs=_f)
 
 
+class Converter:
+    """
+    Stores a converter callable.
+
+    Allows for the wrapped converter to take additional arguments. The
+    arguments are passed in the order they are documented.
+
+    Args:
+        converter (Callable): A callable that converts the passed value.
+
+        takes_self (bool):
+            Pass the partially initialized instance that is being initialized
+            as a positional argument. (default: `False`)
+
+        takes_field (bool):
+            Pass the field definition (an `Attribute`) into the converter as a
+            positional argument. (default: `False`)
+
+    .. versionadded:: 24.1.0
+    """
+
+    __slots__ = (
+        "converter",
+        "takes_self",
+        "takes_field",
+        "_first_param_type",
+        "_global_name",
+        "__call__",
+    )
+
+    def __init__(self, converter, *, takes_self=False, takes_field=False):
+        self.converter = converter
+        self.takes_self = takes_self
+        self.takes_field = takes_field
+
+        self._first_param_type = _AnnotationExtractor(
+            converter
+        ).get_first_param_type()
+
+    @staticmethod
+    def _get_global_name(attr_name: str) -> str:
+        """
+        Return the name that a converter for an attribute name *attr_name*
+        would have.
+        """
+        return f"__attr_converter_{attr_name}"
+
+    def _fmt_converter_call(self, attr_name: str, value_var: str) -> str:
+        """
+        Return a string that calls the converter for an attribute name
+        *attr_name* and the value in variable named *value_var* according to
+        `self.takes_self` and `self.takes_field`.
+        """
+        if not (self.takes_self or self.takes_field):
+            return f"{self._get_global_name(attr_name)}({value_var})"
+
+        if self.takes_self and self.takes_field:
+            return f"{self._get_global_name(attr_name)}({value_var}, self, attr_dict['{attr_name}'])"
+
+        if self.takes_self:
+            return f"{self._get_global_name(attr_name)}({value_var}, self)"
+
+        return f"{self._get_global_name(attr_name)}({value_var}, attr_dict['{attr_name}'])"
+
+    def __getstate__(self):
+        """
+        Return a dict containing only converter and takes_self -- the rest gets
+        computed when loading.
+        """
+        return {
+            "converter": self.converter,
+            "takes_self": self.takes_self,
+            "takes_field": self.takes_field,
+        }
+
+    def __setstate__(self, state):
+        """
+        Load instance from state.
+        """
+        self.__init__(**state)
+
+
+_f = [
+    Attribute(
+        name=name,
+        default=NOTHING,
+        validator=None,
+        repr=True,
+        cmp=None,
+        eq=True,
+        order=False,
+        hash=True,
+        init=True,
+        inherited=False,
+    )
+    for name in ("converter", "takes_self", "takes_field")
+]
+
+Converter = _add_hash(
+    _add_eq(_add_repr(Converter, attrs=_f), attrs=_f), attrs=_f
+)
+
+
 def make_class(
     name, attrs, bases=(object,), class_body=None, **attributes_arguments
 ):
@@ -3240,16 +3352,27 @@ def pipe(*converters):
     .. versionadded:: 20.1.0
     """
 
-    def pipe_converter(val):
-        for converter in converters:
-            val = converter(val)
+    def pipe_converter(val, inst, field):
+        for c in converters:
+            if isinstance(c, Converter):
+                val = c.converter(
+                    val,
+                    *{
+                        (False, False): (),
+                        (True, False): (c.takes_self,),
+                        (False, True): (c.takes_field,),
+                        (True, True): (c.takes_self, c.takes_field),
+                    }[c.takes_self, c.takes_field],
+                )
+            else:
+                val = c(val)
 
         return val
 
     if not converters:
         # If the converter list is empty, pipe_converter is the identity.
         A = typing.TypeVar("A")
-        pipe_converter.__annotations__ = {"val": A, "return": A}
+        pipe_converter.__annotations__.update({"val": A, "return": A})
     else:
         # Get parameter type from first converter.
         t = _AnnotationExtractor(converters[0]).get_first_param_type()
@@ -3261,4 +3384,4 @@ def pipe(*converters):
         if rt:
             pipe_converter.__annotations__["return"] = rt
 
-    return pipe_converter
+    return Converter(pipe_converter, takes_self=True, takes_field=True)
