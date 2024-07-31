@@ -34,7 +34,7 @@ tests-mypy = [
   'pytest-mypy-plugins; platform_python_implementation == "CPython" and python_version >= "3.9" and python_version < "3.13"',
   # Since the mypy error messages keep changing, we have to keep updating this
   # pin.
-  'mypy>=1.10.1; platform_python_implementation == "CPython" and python_version >= "3.9"',
+  'mypy>=1.10.1,<1.11.1; platform_python_implementation == "CPython" and python_version >= "3.9"',
 ]
 tests = [
   # For regression test to ensure cloudpickle compat doesn't break.
