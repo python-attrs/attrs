@@ -63,7 +63,9 @@ docs = [
   "sphinx",
   "sphinx-notfound-page",
   "sphinxcontrib-towncrier",
-  "towncrier",
+   # See https://github.com/sphinx-contrib/sphinxcontrib-towncrier/issues/92
+   # Pin also present in tox.ini
+  "towncrier<24.7",
 ]
 dev = ["attrs[tests]", "pre-commit"]
 
