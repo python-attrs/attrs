@@ -46,8 +46,9 @@ def define(
     match_args=True,
 ):
     r"""
-    A class decorator that adds :term:`dunder methods` according to the
-    specified attributes using `attr.ib` or the *these* argument.
+    A class decorator that adds :term:`dunder methods` according to attributes
+    specified using type annotations, `field()` calls, or the *these*
+    argument.
 
     Args:
         slots (bool):
@@ -125,8 +126,8 @@ def define(
             is usually not necessary except for `Exception`\ s.
 
         eq (bool | None):
-            If True or None (default), add ``__eq__`` and ``__ne__``
-            methods that check two instances for equality.
+            If True or None (default), add ``__eq__`` and ``__ne__`` methods
+            that check two instances for equality.
 
             .. seealso::
                 `comparison` describes how to customize the comparison behavior
@@ -159,8 +160,8 @@ def define(
                to None, marking it unhashable (which it is).
             3. If *eq* is False, ``__hash__`` will be left untouched meaning
                the ``__hash__`` method of the base class will be used. If the
-               base class is `object`, this means it will fall back to
-               id-based hashing.
+               base class is `object`, this means it will fall back to id-based
+               hashing.
 
             Although not recommended, you can decide for yourself and force
             *attrs* to create one (for example, if the class is immutable even
@@ -274,8 +275,8 @@ def define(
             **must** be annotated. If *attrs* encounters a field that is set to
             a `field` / `attr.ib` but lacks a type annotation, an
             `attrs.exceptions.UnannotatedAttributeError` is raised.  Use
-            ``field_name: typing.Any = attr.ib(...)`` if you don't want to set
-            a type.
+            ``field_name: typing.Any = field(...)`` if you don't want to set a
+            type.
 
             .. warning::
 
@@ -286,7 +287,7 @@ def define(
                 call, for example, ``validator`` on it.
 
             Attributes annotated as `typing.ClassVar`, and attributes that are
-            neither annotated nor set to an `attr.ib` are **ignored**.
+            neither annotated nor set to an `field()` are **ignored**.
 
         these (dict[str, object]):
             A dictionary of name to the (private) return value of `field()`
