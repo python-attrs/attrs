@@ -91,7 +91,7 @@ def define(
                ``__hash__`` or the equality methods. It just won't add own
                ones.
 
-        on_setattr (~typing.Callable | list[~typing.Callable] | None | typing.Literal[attrs.setters.NO_OP]):
+        on_setattr (~typing.Callable | list[~typing.Callable] | None | ~typing.Literal[attrs.setters.NO_OP]):
             A callable that is run whenever the user attempts to set an
             attribute (either by assignment like ``i.x = 42`` or by using
             `setattr` like ``setattr(i, "x", 42)``). It receives the same
@@ -423,13 +423,157 @@ def field(
     alias=None,
 ):
     """
-    Identical to `attr.ib`, except keyword-only and with some arguments
-    removed.
+    Create a new field / attribute on a class.
 
+    ..  warning::
+
+        Does **nothing** unless the class is also decorated with
+        `attrs.define` (or similar)!
+
+    Args:
+        default:
+            A value that is used if an *attrs*-generated ``__init__`` is used
+            and no value is passed while instantiating or the attribute is
+            excluded using ``init=False``.
+
+            If the value is an instance of `attrs.Factory`, its callable will
+            be used to construct a new value (useful for mutable data types
+            like lists or dicts).
+
+            If a default is not set (or set manually to `attrs.NOTHING`), a
+            value *must* be supplied when instantiating; otherwise a
+            `TypeError` will be raised.
+
+            .. seealso:: `defaults`
+
+        factory (~typing.Callable):
+            Syntactic sugar for ``default=attr.Factory(factory)``.
+
+        validator (~typing.Callable | list[~typing.Callable]):
+            Callable that is called by *attrs*-generated ``__init__`` methods
+            after the instance has been initialized.  They receive the
+            initialized instance, the :func:`~attrs.Attribute`, and the passed
+            value.
+
+            The return value is *not* inspected so the validator has to throw
+            an exception itself.
+
+            If a `list` is passed, its items are treated as validators and must
+            all pass.
+
+            Validators can be globally disabled and re-enabled using
+            `attrs.validators.get_disabled` / `attrs.validators.set_disabled`.
+
+            The validator can also be set using decorator notation as shown
+            below.
+
+            .. seealso:: :ref:`validators`
+
+        repr (bool | ~typing.Callable):
+            Include this attribute in the generated ``__repr__`` method. If
+            True, include the attribute; if False, omit it. By default, the
+            built-in ``repr()`` function is used. To override how the attribute
+            value is formatted, pass a ``callable`` that takes a single value
+            and returns a string. Note that the resulting string is used as-is,
+            which means it will be used directly *instead* of calling
+            ``repr()`` (the default).
+
+        eq (bool | ~typing.Callable):
+            If True (default), include this attribute in the generated
+            ``__eq__`` and ``__ne__`` methods that check two instances for
+            equality. To override how the attribute value is compared, pass a
+            callable that takes a single value and returns the value to be
+            compared.
+
+            .. seealso:: `comparison`
+
+        order (bool | ~typing.Callable):
+            If True (default), include this attributes in the generated
+            ``__lt__``, ``__le__``, ``__gt__`` and ``__ge__`` methods. To
+            override how the attribute value is ordered, pass a callable that
+            takes a single value and returns the value to be ordered.
+
+            .. seealso:: `comparison`
+
+        cmp(bool | ~typing.Callable):
+            Setting *cmp* is equivalent to setting *eq* and *order* to the same
+            value. Must not be mixed with *eq* or *order*.
+
+            .. seealso:: `comparison`
+
+        hash (bool | None):
+            Include this attribute in the generated ``__hash__`` method.  If
+            None (default), mirror *eq*'s value.  This is the correct behavior
+            according the Python spec.  Setting this value to anything else
+            than None is *discouraged*.
+
+            .. seealso:: `hashing`
+
+        init (bool):
+            Include this attribute in the generated ``__init__`` method.
+
+            It is possible to set this to False and set a default value. In
+            that case this attributed is unconditionally initialized with the
+            specified default value or factory.
+
+            .. seealso:: `init`
+
+        converter (typing.Callable | Converter):
+            A callable that is called by *attrs*-generated ``__init__`` methods
+            to convert attribute's value to the desired format.
+
+            If a vanilla callable is passed, it is given the passed-in value as
+            the only positional argument. It is possible to receive additional
+            arguments by wrapping the callable in a `Converter`.
+
+            Either way, the returned value will be used as the new value of the
+            attribute.  The value is converted before being passed to the
+            validator, if any.
+
+            .. seealso:: :ref:`converters`
+
+        metadata (dict | None):
+            An arbitrary mapping, to be used by third-party code.
+
+            .. seealso:: `extending-metadata`.
+
+        type (type):
+            The type of the attribute. Nowadays, the preferred method to
+            specify the type is using a variable annotation (see :pep:`526`).
+            This argument is provided for backwards-compatibility and for usage
+            with `make_class`. Regardless of the approach used, the type will
+            be stored on ``Attribute.type``.
+
+            Please note that *attrs* doesn't do anything with this metadata by
+            itself. You can use it as part of your own code or for `static type
+            checking <types>`.
+
+        kw_only (bool):
+            Make this attribute keyword-only in the generated ``__init__`` (if
+            ``init`` is False, this parameter is ignored).
+
+        on_setattr (~typing.Callable | list[~typing.Callable] | None | ~typing.Literal[attrs.setters.NO_OP]):
+            Allows to overwrite the *on_setattr* setting from `attr.s`. If left
+            None, the *on_setattr* value from `attr.s` is used. Set to
+            `attrs.setters.NO_OP` to run **no** `setattr` hooks for this
+            attribute -- regardless of the setting in `define()`.
+
+        alias (str | None):
+            Override this attribute's parameter name in the generated
+            ``__init__`` method. If left None, default to ``name`` stripped
+            of leading underscores. See `private-attributes`.
+
+    .. versionadded:: 20.1.0
+    .. versionchanged:: 21.1.0
+       *eq*, *order*, and *cmp* also accept a custom callable
+    .. versionadded:: 22.2.0 *alias*
     .. versionadded:: 23.1.0
        The *type* parameter has been re-added; mostly for `attrs.make_class`.
        Please note that type checkers ignore this metadata.
-    .. versionadded:: 20.1.0
+
+    .. seealso::
+
+       `attr.ib`
     """
     return attrib(
         default=default,

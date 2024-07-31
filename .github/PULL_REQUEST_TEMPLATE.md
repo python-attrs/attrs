@@ -25,12 +25,13 @@ If your pull request is a documentation fix or a trivial typo, feel free to dele
     - [ ] If they've been added to `attr/__init__.pyi`, they've *also* been re-imported in `attrs/__init__.pyi`.
 - [ ] Updated **documentation** for changed code.
     - [ ] New functions/classes have to be added to `docs/api.rst` by hand.
-    - [ ] Changes to the signature of `@attr.s()` have to be added by hand too.
+    - [ ] Changes to the signatures of `@attr.s()` and `@attrs.define()` have to be added by hand too.
     - [ ] Changed/added classes/methods/functions have appropriate `versionadded`, `versionchanged`, or `deprecated` [directives](http://www.sphinx-doc.org/en/stable/markup/para.html#directive-versionadded).
           The next version is the second number in the current release + 1.
           The first number represents the current year.
           So if the current version on PyPI is 22.2.0, the next version is gonna be 22.3.0.
           If the next version is the first in the new year, it'll be 23.1.0.
+      - [ ] If something changed that affects both `attrs.define()` and `attr.s()`, you have to add version directives to both.
 - [ ] Documentation in `.rst` and `.md` files is written using [semantic newlines](https://rhodesmill.org/brandon/2012/one-sentence-per-line/).
 - [ ] Changes (and possible deprecations) have news fragments in [`changelog.d`](https://github.com/python-attrs/attrs/blob/main/changelog.d).
 - [ ] Consider granting [push permissions to the PR branch](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/allowing-changes-to-a-pull-request-branch-created-from-a-fork), so maintainers can fix minor issues themselves without pestering you.
