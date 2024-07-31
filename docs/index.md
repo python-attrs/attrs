@@ -30,13 +30,8 @@ for sponsor in tomllib.loads(pathlib.Path("pyproject.toml").read_text())["tool"]
 ## Getting Started
 
 *attrs* is a Python-only package [hosted on PyPI](https://pypi.org/project/attrs/).
-The recommended installation method is [pip](https://pip.pypa.io/en/stable/)-installing into a [virtualenv](https://hynek.me/articles/virtualenv-lives/):
 
-```console
-$ python -Im pip install attrs
-```
-
-The next steps will get you up and running in no time:
+The following steps will get you up and running in no time:
 
 - {doc}`overview` will show you a simple example of *attrs* in action and introduce you to its philosophy.
   Afterwards, you can start writing your own classes and understand what drives *attrs*'s design.
