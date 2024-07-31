@@ -2591,12 +2591,10 @@ def _attrs_to_init_script(
     args = ", ".join(args)
     pre_init_args = args
     if kw_only_args:
-        args += "%s*, %s" % (
-            ", " if args else "",  # leading comma
-            ", ".join(kw_only_args),  # kw_only args
-        )
+        # leading comma & kw_only args
+        args += f"{', ' if args else ''}*, {', '.join(kw_only_args)}"
         pre_init_kw_only_args = ", ".join(
-            ["%s=%s" % (kw_arg, kw_arg) for kw_arg in kw_only_args]
+            [f"{kw_arg}={kw_arg}" for kw_arg in kw_only_args]
         )
         pre_init_args += (
             ", " if pre_init_args else ""
@@ -2607,12 +2605,12 @@ def _attrs_to_init_script(
         # If pre init method has arguments, pass same arguments as `__init__`
         lines[0] = f"self.__attrs_pre_init__({pre_init_args})"
 
+    # Python 3.7 doesn't allow backslashes in f strings.
+    NL = "\n    "
     return (
-        f"def {method_name}(self, %s):\n    %s\n"
-        % (
-            args,
-            "\n    ".join(lines) if lines else "pass",
-        ),
+        f"""def {method_name}(self, {args}):
+    {NL.join(lines) if lines else 'pass'}
+""",
         names_for_globals,
         annotations,
     )

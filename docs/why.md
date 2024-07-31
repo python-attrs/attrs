@@ -294,7 +294,7 @@ You can freely choose which features you want and disable those that you want mo
 ...    b: int
 ...
 ...    def __repr__(self):
-...        return "<SmartClass(a=%d)>" % (self.a,)
+...        return f"<SmartClass(a={self.a})>"
 >>> SmartClass(1, 2)
 <SmartClass(a=1)>
 ```
