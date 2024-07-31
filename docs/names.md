@@ -19,10 +19,10 @@ We recommend our modern APIs for new code:
 - and {func}`attrs.field()` to define an attribute.
 
 They have been added in *attrs* 20.1.0, they are expressive, and they have modern defaults like slots and type annotation awareness switched on by default.
-Sometimes they're referred to as *next-generation* or *NG* APIs.
+Sometimes, they're referred to as *next-generation* or *NG* APIs.
 As of *attrs* 21.3.0 you can also import them from the `attrs` package namespace.
 
-The traditional APIs {func}`attr.s` / {func}`attr.ib`, their serious-business aliases `attr.attrs` / `attr.attrib`, and the never-documented, but popular `attr.dataclass` easter egg will stay **forever**.
+The traditional, or *OG*, APIs {func}`attr.s` / {func}`attr.ib`, their serious-business aliases `attr.attrs` / `attr.attrib`, and the never-documented, but popular `attr.dataclass` easter egg will stay **forever**.
 
 *attrs* will **never** force you to use type annotations.
 
