@@ -1,16 +1,12 @@
 import sys
-
-from typing import (
-    Any,
-    Callable,
-    Mapping,
-    Sequence,
-    overload,
-    TypeVar,
-)
+from typing import Any, Callable, Mapping, Sequence, TypeVar, overload
 
 # Because we need to type our own stuff, we have to make everything from
 # attr explicitly public too.
+from attr import NOTHING as NOTHING
+from attr import Attribute as Attribute
+from attr import AttrsInstance as AttrsInstance
+from attr import Factory as Factory
 from attr import __author__ as __author__
 from attr import __copyright__ as __copyright__
 from attr import __description__ as __description__
@@ -20,26 +16,24 @@ from attr import __title__ as __title__
 from attr import __url__ as __url__
 from attr import __version__ as __version__
 from attr import __version_info__ as __version_info__
+from attr import asdict as asdict
 from attr import assoc as assoc
-from attr import Attribute as Attribute
-from attr import AttrsInstance as AttrsInstance
+from attr import astuple as astuple
+from attr import attrib
 from attr import cmp_using as cmp_using
 from attr import converters as converters
 from attr import Converter as Converter
 from attr import evolve as evolve
 from attr import exceptions as exceptions
-from attr import Factory as Factory
 from attr import fields as fields
 from attr import fields_dict as fields_dict
 from attr import filters as filters
 from attr import has as has
 from attr import make_class as make_class
-from attr import NOTHING as NOTHING
 from attr import resolve_types as resolve_types
 from attr import setters as setters
 from attr import validate as validate
 from attr import validators as validators
-from attr import attrib, asdict as asdict, astuple as astuple
 
 if sys.version_info >= (3, 11):
     from typing import dataclass_transform
@@ -168,6 +162,7 @@ def define(
     on_setattr: _OnSetAttrArgType | None = ...,
     field_transformer: _FieldTransformer | None = ...,
     match_args: bool = ...,
+    only_non_default_attr_in_repr: bool = ...,
 ) -> _C: ...
 @overload
 @dataclass_transform(field_specifiers=(attrib, field))
@@ -194,6 +189,7 @@ def define(
     on_setattr: _OnSetAttrArgType | None = ...,
     field_transformer: _FieldTransformer | None = ...,
     match_args: bool = ...,
+    only_non_default_attr_in_repr: bool = ...,
 ) -> Callable[[_C], _C]: ...
 
 mutable = define

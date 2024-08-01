@@ -381,6 +381,80 @@ C(x=1, y=2, z=[])
 Please keep in mind that the decorator approach *only* works if the attribute in question has a {func}`~attrs.field` assigned to it.
 As a result, annotating an attribute with a type is *not* enough if you use `@default`.
 
+In the event you only want to include fields that are set to a non-default value
+in your attrs repr output, you can use the `only_non_default_attr_in_repr` argument to {func}`~attrs.define`.
+
+When the argument isn't specified the repr works as expected.
+
+```{doctest}
+>>> @define
+... class C:
+...     x: int = 1
+...     y: int = field(default=2)
+>>> C()
+C(x=1, y=2)
+```
+
+Instead, if `only_non_default_attr_in_repr=True` the parameters set to their
+defaults won't be included in the repr output.
+
+```{doctest}
+>>> @define(only_non_default_attr_in_repr=True)
+... class C:
+...     x: int = 1
+...     y: int = field(default=2)
+>>> C()
+C()
+>>> C(x=2)
+C(x=2)
+>>> C(y=3)
+C(y=3)
+>>> C(x=2, y=3)
+C(x=2, y=3)
+```
+
+Other attrs repr features, including turning the repr off for a field or
+providing a custom callable for the repr of a field, will work as usual, when the
+field's value is not the default.
+
+But the field is still excluded from the repr when it is set to the default value
+because `only_non_default_attr_in_repr` overrides `repr=True` or the repr being a
+custom callable when the field is set to its default value.
+
+```{doctest}
+>>> @define(only_non_default_attr_in_repr=True)
+... class C:
+...     x: int = field(default=1, repr=False)
+...     y: int = field(default=2, repr=lambda value: "foo: " + str(value))
+...     z: int = field(default=3, repr=True)
+>>> C()
+C()
+>>> C(y=3)
+C(y=foo: 3)
+>>> C(x=2, y=3)
+C(y=foo: 3)
+>>> C(z=4)
+C(z=4)
+```
+
+The usual attrs order of execution applies. For each variable (in the order they
+are specified), the default factory (or default value) is considered. Then it is
+compared to set value of the field. When converters are applied, this occurs
+after the default factory. So when `only_non_default_attr_in_repr=True` the
+converted value will be checked against the default, meaning this functionality
+expects the defaults in the converted format.
+
+```{doctest}
+>>> @define(only_non_default_attr_in_repr=True)
+... class C:
+...     x: int = field(default=1, converter=lambda value: value + 0.5)
+...     z: int = field(default=12, converter=int)
+>>> C(x=0.5, z="12")
+C()
+>>> C(x=1)
+C(x=1.5)
+```
+
 (examples-validators)=
 
 ## Validators

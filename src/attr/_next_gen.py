@@ -44,6 +44,7 @@ def define(
     on_setattr=None,
     field_transformer=None,
     match_args=True,
+    only_non_default_attr_in_repr=False,
 ):
     r"""
     Define an *attrs* class.
@@ -112,6 +113,7 @@ def define(
             on_setattr=on_setattr,
             field_transformer=field_transformer,
             match_args=match_args,
+            only_non_default_attr_in_repr=only_non_default_attr_in_repr,
         )
 
     def wrap(cls):
