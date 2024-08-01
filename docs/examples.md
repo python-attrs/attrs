@@ -17,7 +17,7 @@ True
 False
 ```
 
-So in other words: *attrs* is useful even without actual attributes!
+So in other words: *attrs* is useful even without actual {term}`fields <field>`!
 
 But you'll usually want some data on your classes, so let's add some:
 
