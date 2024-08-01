@@ -46,8 +46,9 @@ def define(
     match_args=True,
 ):
     r"""
-    A class decorator that adds :term:`dunder methods` according to attributes
-    specified using type annotations, `field()` calls, or the *these* argument.
+    A class decorator that adds :term:`dunder methods` according to
+    :term:`fields <field>` specified using type annotations, `field()` calls,
+    or the *these* argument.
 
     Args:
         slots (bool):
@@ -423,7 +424,7 @@ def field(
     alias=None,
 ):
     """
-    Create a new field / attribute on a class.
+    Create a new :term:`field` / :term:`attribute` on a class.
 
     ..  warning::
 
