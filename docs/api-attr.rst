@@ -4,7 +4,7 @@ API Reference for the ``attr`` Namespace
 .. note::
 
    These are the traditional APIs whose creation predates type annotations.
-   They are **not** deprecated, but we suggest using the :mod:`attrs` namespace for new code.
+   They are **not** deprecated, but we suggest using the :mod:`attrs` namespace for new code, because they look nicer and have better defaults.
 
    See also :doc:`names`.
 
