@@ -5,23 +5,21 @@ API Reference
 
 *attrs* works by decorating a class using `attrs.define` or `attr.s` and then defining attributes on the class using `attrs.field`, `attr.ib`, or type annotations.
 
-What follows is the API explanation, if you'd like a more hands-on tutorial, have a look at `examples`.
+What follows is the dry API explanation for people who understand how *attrs* works.
+If you'd like a hands-on tutorial, have a look at `examples`.
 
 If you're confused by the many names, please check out `names` for clarification, but the `TL;DR <https://en.wikipedia.org/wiki/TL;DR>`_ is that as of version 21.3.0, *attrs* consists of **two** top-level package names:
 
 - The classic ``attr`` that powers the venerable `attr.s` and `attr.ib`.
 - The newer ``attrs`` that only contains most modern APIs and relies on `attrs.define` and `attrs.field` to define your classes.
-  Additionally it offers some ``attr`` APIs with nicer defaults (for example, `attrs.asdict`).
+  Additionally, some of the APIs that also exist in ``attr`` have nicer defaults (for example, `attrs.asdict`).
 
 The ``attrs`` namespace is built *on top of* ``attr`` -- which will *never* go away -- and is just as stable, since it doesn't constitute a rewrite.
-To keep repetition low and this document at a reasonable size, the ``attr`` namespace is `documented on a separate page <api-attr>`, though.
+To keep repetition low and this document at a reasonable size, the ``attr`` namespace is `documented on a separate page <api-attr>`.
 
 
 Core
 ----
-
-.. autodata:: attrs.NOTHING
-   :no-value:
 
 .. autofunction:: attrs.define
 
@@ -92,6 +90,10 @@ Core
       C(x=[], y=set())
       >>> C([1, 2, 3])
       C(x=[1, 2, 3], y={1, 2, 3})
+
+
+.. autodata:: attrs.NOTHING
+   :no-value:
 
 
 Exceptions

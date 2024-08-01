@@ -47,8 +47,7 @@ def define(
 ):
     r"""
     A class decorator that adds :term:`dunder methods` according to attributes
-    specified using type annotations, `field()` calls, or the *these*
-    argument.
+    specified using type annotations, `field()` calls, or the *these* argument.
 
     Args:
         slots (bool):
@@ -262,7 +261,7 @@ def define(
         auto_attribs (bool | None):
             If True, look at type annotations to determine which attributes to
             use, like `dataclasses`. If False, it will only look for explicit
-            `field` class attributes, like classic *attrs*.
+            :func:`field` class attributes, like classic *attrs*.
 
             If left None, it will guess:
 
@@ -273,7 +272,7 @@ def define(
 
             If *attrs* decides to look at type annotations, **all** fields
             **must** be annotated. If *attrs* encounters a field that is set to
-            a `field` / `attr.ib` but lacks a type annotation, an
+            a :func:`field` / `attr.ib` but lacks a type annotation, an
             `attrs.exceptions.UnannotatedAttributeError` is raised.  Use
             ``field_name: typing.Any = field(...)`` if you don't want to set a
             type.
@@ -282,7 +281,7 @@ def define(
 
                 For features that use the attribute name to create decorators
                 (for example, :ref:`validators <validators>`), you still *must*
-                assign `field` / `attr.ib` to them. Otherwise Python will
+                assign :func:`field` / `attr.ib` to them. Otherwise Python will
                 either not find the name or try to use the default value to
                 call, for example, ``validator`` on it.
 
