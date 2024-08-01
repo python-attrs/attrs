@@ -47,8 +47,8 @@ def define(
 ):
     r"""
     A class decorator that adds :term:`dunder methods` according to
-    :term:`fields <field>` specified using type annotations, `field()` calls,
-    or the *these* argument.
+    :term:`fields <field>` specified using :doc:`type annotations <types>`,
+    `field()` calls, or the *these* argument.
 
     Args:
         slots (bool):
