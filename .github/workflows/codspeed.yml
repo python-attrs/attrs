@@ -8,10 +8,12 @@ on:
     paths:
       - src/**.py
       - bench/**
+      - .github/workflows/codspeed.yml
   pull_request:
     paths:
       - src/**.py
       - bench/**
+      - .github/workflows/codspeed.yml
   workflow_dispatch:
 
 
