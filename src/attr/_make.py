@@ -2784,7 +2784,7 @@ class Attribute:
         Copy *self* and apply *changes*.
 
         This works similarly to `attrs.evolve` but that function does not work
-        with `Attribute`.
+        with {class}`Attribute`.
 
         It is mainly meant to be used for `transform-fields`.
 
@@ -3078,8 +3078,8 @@ class Converter:
             as a positional argument. (default: `False`)
 
         takes_field (bool):
-            Pass the field definition (an `Attribute`) into the converter as a
-            positional argument. (default: `False`)
+            Pass the field definition (an :class:`Attribute`) into the
+            converter as a positional argument. (default: `False`)
 
     .. versionadded:: 24.1.0
     """

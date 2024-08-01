@@ -454,9 +454,9 @@ def resolve_types(
     """
     Resolve any strings and forward annotations in type annotations.
 
-    This is only required if you need concrete types in `Attribute`'s *type*
-    field. In other words, you don't need to resolve your types if you only use
-    them for static type checking.
+    This is only required if you need concrete types in :class:`Attribute`'s
+    *type* field. In other words, you don't need to resolve your types if you
+    only use them for static type checking.
 
     With no arguments, names will be looked up in the module in which the class
     was created. If this is not what you want, for example, if the name only

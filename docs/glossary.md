@@ -10,11 +10,13 @@ dunder methods
 
   Its first documented use is a [mailing list posting](https://mail.python.org/pipermail/python-list/2002-September/155836.html) by Mark Jackson from 2002.
 
+
 dict classes
   A regular class whose attributes are stored in the {attr}`object.__dict__` attribute of every single instance.
   This is quite wasteful especially for objects with very few data attributes and the space consumption can become significant when creating large numbers of instances.
 
   This is the type of class you get by default both with and without *attrs* (except with the next APIs {func}`attrs.define()`, [`attrs.mutable()`](attrs.mutable), and [`attrs.frozen()`](attrs.frozen)).
+
 
 slotted classes
   A class whose instances have no {attr}`object.__dict__` attribute and [define](https://docs.python.org/3/reference/datamodel.html#slots) their attributes in a `object.__slots__` attribute instead.
@@ -101,6 +103,22 @@ slotted classes
   - Pickling of slotted classes will fail if you define a class with missing attributes.
 
     This situation can occur if you define an `attrs.field(init=False)` and don't set the attribute by hand before pickling.
+
+
+field
+  As the project name suggests, *attrs* is all about attributes.
+  We especially tried to emphasize that we only care about attributes and not about the classes themselves -- because we believe the class belongs to the user.
+
+  This explains why the traditional API uses an {func}`attr.ib` (or ``attrib``) function to define attributes and we still use the term throughout the documentation.
+
+  However, with the emergence of {mod}`dataclasses`, [Pydantic](https://docs.pydantic.dev/latest/concepts/fields/), and other libraries, the term "field" has become a common term for a predefined attribute on a class in the Python ecosystem.
+
+  So with out new APIs, we've embraced it too by calling the function to create them {func}`attrs.field`, and use the term "field" throughout the documentation interchangeably.
+
+  See also {doc}`names`.
+
+attribute
+  See {term}`field`.
 :::
 
 [^pypy]: On PyPy, there is no memory advantage in using slotted classes.
