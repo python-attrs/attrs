@@ -391,6 +391,7 @@ class TestIn_:
         """
         v = in_([1, 2, 3])
         a = simple_attr("test")
+
         v(1, a, 3)
 
     def test_fail(self):
@@ -432,6 +433,20 @@ class TestIn_:
         """
         v = in_([3, 4, 5])
         assert ("<in_ validator with options [3, 4, 5]>") == repr(v)
+
+    def test_is_hashable(self):
+        """
+        `in_` is hashable, so fields using it can be used with the include and
+        exclude filters..
+        """
+
+        @attr.s
+        class C:
+            x: int = attr.ib(validator=attr.validators.in_({1, 2}))
+
+        i = C(2)
+
+        attr.asdict(i, filter=attr.filters.exclude(lambda val: True))
 
 
 @pytest.fixture(
