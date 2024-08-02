@@ -437,7 +437,7 @@ class TestIn_:
     def test_is_hashable(self):
         """
         `in_` is hashable, so fields using it can be used with the include and
-        exclude filters..
+        exclude filters.
         """
 
         @attr.s
@@ -446,6 +446,7 @@ class TestIn_:
 
         i = C(2)
 
+        attr.asdict(i, filter=attr.filters.include(lambda val: True))
         attr.asdict(i, filter=attr.filters.exclude(lambda val: True))
 
 
