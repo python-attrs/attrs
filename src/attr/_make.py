@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import abc
 import contextlib
 import copy
 import enum
@@ -706,7 +707,7 @@ class _ClassBuilder:
         else:
             cls = self._patch_original_class()
             if PY_3_10_PLUS:
-                cls = self.abc.update_abstractmethods(cls)
+                cls = abc.update_abstractmethods(cls)
 
         if _has_own_attribute(cls, "__attrs_init_subclass__"):
             if isinstance(
@@ -1280,6 +1281,7 @@ def attrs(
        Instances are not compared as tuples of attributes anymore, but using a
        big ``and`` condition. This is faster and has more correct behavior for
        uncomparable values like `math.nan`.
+    .. vers
     """
     if repr_ns is not None:
         import warnings
