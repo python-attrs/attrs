@@ -575,9 +575,9 @@ The base class doesn't even have to be an *attrs* class:
 >>> class Base:
 ...    @classmethod
 ...    def __attrs_init_subclass__(cls):
-...        print(f"Base has been subclassed by attrs class {cls}.")
+...        print(f"Base has been subclassed by attrs {cls}.")
 >>> @define
 ... class Derived(Base):
 ...    pass
-Base has been subclassed by attrs class <class 'Derived'>.
+Base has been subclassed by attrs <class 'Derived'>.
 ```
