@@ -47,7 +47,7 @@ def include(*what):
 
 def exclude(*what):
     """
-    Create a filters that does **not** allow *what*.
+    Create a filter that does **not** allow *what*.
 
     Args:
         what (list[type, str, attrs.Attribute]):
