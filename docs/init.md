@@ -551,7 +551,7 @@ This makes the class more testable.
 
 ## *attrs* and `__init_subclass__`
 
-`object.__init_subclass__` is a special method that is called when a subclass of the class that defined it is created.
+{meth}`object.__init_subclass__` is a special method that is called when a subclass of the class that defined it is created.
 
 For example:
 
