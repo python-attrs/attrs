@@ -50,6 +50,14 @@ def define(
     :term:`fields <field>` specified using :doc:`type annotations <types>`,
     `field()` calls, or the *these* argument.
 
+    Since *attrs* patches or replaces an existing class, you cannot use
+    `object.__init_subclass__` with *attrs* classes, because it runs too early.
+    As a replacement, you can define ``__attrs_init_subclass__`` on your class.
+    It will be called by *attrs* classes that subclass it after they're
+    created. Unlike ``__init_subclass__``, it **must** be a classmethod. The
+    class carrying ``__attrs_init_subclass__`` does *not* have to be an *attrs*
+    class itself.
+
     Args:
         slots (bool):
             Create a :term:`slotted class <slotted classes>` that's more
