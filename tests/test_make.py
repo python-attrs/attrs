@@ -699,13 +699,19 @@ class TestAttributes:
         """
         Default values together with kw_only don't break __attrs__pre_init__.
         """
+        val = None
 
         @attr.define
         class KWOnlyAndDefault:
             kw_and_default: int = attr.field(kw_only=True, default=3)
 
-            def __attrs_pre_init__(self, _):
-                pass
+            def __attrs_pre_init__(self, *, kw_and_default):
+                nonlocal val
+                val = kw_and_default
+
+        inst = KWOnlyAndDefault()
+
+        assert 3 == val == inst.kw_and_default
 
     @pytest.mark.usefixtures("with_and_without_validation")
     def test_post_init(self):
