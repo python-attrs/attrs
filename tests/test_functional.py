@@ -748,7 +748,8 @@ class TestFunctional:
     @pytest.mark.parametrize("make_classmethod", [True, False])
     def test_init_subclass(self, slots, make_classmethod):
         """
-        __attrs_init_subclass__ is called.
+        __attrs_init_subclass__ is called no matter whether it's a classmethod
+        or not.
         """
         REGISTRY = []
 
