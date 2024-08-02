@@ -308,15 +308,12 @@ def define(
     .. versionadded:: 22.2.0
        *unsafe_hash* as an alias for *hash* (for :pep:`681` compliance).
     .. versionchanged:: 24.1.0
-
        Instances are not compared as tuples of attributes anymore, but using a
        big ``and`` condition. This is faster and has more correct behavior for
        uncomparable values like `math.nan`.
-
     .. versionadded:: 24.1.0
-       If a class has a direct method called ``__attrs_init_subclass__``, it
-       is executed after the class is created. The method can be both a
-       classmethod or not.
+       If a class has an *inherited* classmethod called
+       ``__attrs_init_subclass__``, it is executed after the class is created.
 
     .. note::
 

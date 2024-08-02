@@ -4,7 +4,6 @@
 End-to-end tests.
 """
 
-
 import inspect
 import pickle
 
@@ -745,25 +744,20 @@ class TestFunctional:
 
         assert hash(Hashable())
 
-    @pytest.mark.parametrize("make_classmethod", [True, False])
-    def test_init_subclass(self, slots, make_classmethod):
+    def test_init_subclass(self, slots):
         """
-        __attrs_init_subclass__ is called no matter whether it's a classmethod
-        or not.
+        __attrs_init_subclass__ is called on subclasses.
         """
         REGISTRY = []
 
         @attr.s(slots=slots)
-        class ToRegister:
-            if make_classmethod:
+        class Base:
+            @classmethod
+            def __attrs_init_subclass__(cls):
+                REGISTRY.append(cls)
 
-                @classmethod
-                def __attrs_init_subclass__(cls):
-                    REGISTRY.append(cls)
-
-            else:
-
-                def __attrs_init_subclass__(cls):
-                    REGISTRY.append(cls)
+        @attr.s(slots=slots)
+        class ToRegister(Base):
+            pass
 
         assert [ToRegister] == REGISTRY

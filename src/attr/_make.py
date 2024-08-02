@@ -709,14 +709,13 @@ class _ClassBuilder:
             if PY_3_10_PLUS:
                 cls = abc.update_abstractmethods(cls)
 
-        if _has_own_attribute(cls, "__attrs_init_subclass__"):
-            if isinstance(
-                inspect.getattr_static(cls, "__attrs_init_subclass__"),
-                classmethod,
-            ):
-                cls.__attrs_init_subclass__()
-            else:
-                cls.__attrs_init_subclass__(cls)
+        # The method gets only called if it's not inherited from a base class.
+        # _has_own_attribute does NOT work properly for classmethods.
+        if (
+            getattr(cls, "__attrs_init_subclass__", None)
+            and "__attrs_init_subclass__" not in cls.__dict__
+        ):
+            cls.__attrs_init_subclass__()
 
         return cls
 
@@ -1277,14 +1276,12 @@ def attrs(
        *unsafe_hash* as an alias for *hash* (for :pep:`681` compliance).
     .. deprecated:: 24.1.0 *repr_ns*
     .. versionchanged:: 24.1.0
-
        Instances are not compared as tuples of attributes anymore, but using a
        big ``and`` condition. This is faster and has more correct behavior for
        uncomparable values like `math.nan`.
     .. versionadded:: 24.1.0
-       If a class has a direct method called ``__attrs_init_subclass__``, it
-       is executed after the class is created. The method can be both a
-       classmethod or not.
+       If a class has an *inherited* classmethod called
+       ``__attrs_init_subclass__``, it is executed after the class is created.
     """
     if repr_ns is not None:
         import warnings
