@@ -744,3 +744,25 @@ class TestFunctional:
             pass
 
         assert hash(Hashable())
+
+    @pytest.mark.parametrize("make_classmethod", [True, False])
+    def test_init_subclass(self, slots, make_classmethod):
+        """
+        __attrs_init_subclass__ is called.
+        """
+        REGISTRY = []
+
+        @attr.s(slots=slots)
+        class ToRegister:
+            if make_classmethod:
+
+                @classmethod
+                def __attrs_init_subclass__(cls):
+                    REGISTRY.append(cls)
+
+            else:
+
+                def __attrs_init_subclass__(cls):
+                    REGISTRY.append(cls)
+
+        assert [ToRegister] == REGISTRY

@@ -695,34 +695,29 @@ class _ClassBuilder:
     def __repr__(self):
         return f"<_ClassBuilder(cls={self._cls.__name__})>"
 
-    if PY_3_10_PLUS:
-        import abc
+    def build_class(self):
+        """
+        Finalize class based on the accumulated configuration.
 
-        def build_class(self):
-            """
-            Finalize class based on the accumulated configuration.
+        Builder cannot be used after calling this method.
+        """
+        if self._slots is True:
+            cls = self._create_slots_class()
+        else:
+            cls = self._patch_original_class()
+            if PY_3_10_PLUS:
+                cls = self.abc.update_abstractmethods(cls)
 
-            Builder cannot be used after calling this method.
-            """
-            if self._slots is True:
-                return self._create_slots_class()
+        if _has_own_attribute(cls, "__attrs_init_subclass__"):
+            if isinstance(
+                inspect.getattr_static(cls, "__attrs_init_subclass__"),
+                classmethod,
+            ):
+                cls.__attrs_init_subclass__()
+            else:
+                cls.__attrs_init_subclass__(cls)
 
-            return self.abc.update_abstractmethods(
-                self._patch_original_class()
-            )
-
-    else:
-
-        def build_class(self):
-            """
-            Finalize class based on the accumulated configuration.
-
-            Builder cannot be used after calling this method.
-            """
-            if self._slots is True:
-                return self._create_slots_class()
-
-            return self._patch_original_class()
+        return cls
 
     def _patch_original_class(self):
         """
