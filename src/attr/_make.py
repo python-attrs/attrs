@@ -1281,7 +1281,10 @@ def attrs(
        Instances are not compared as tuples of attributes anymore, but using a
        big ``and`` condition. This is faster and has more correct behavior for
        uncomparable values like `math.nan`.
-    .. vers
+    .. versionadded:: 24.1.0
+       If a class has a direct method called ``__attrs_init_subclass__``, it
+       is executed after the class is created. The method can be both a
+       classmethod or not.
     """
     if repr_ns is not None:
         import warnings

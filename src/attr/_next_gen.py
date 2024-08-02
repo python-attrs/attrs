@@ -313,6 +313,11 @@ def define(
        big ``and`` condition. This is faster and has more correct behavior for
        uncomparable values like `math.nan`.
 
+    .. versionadded:: 24.1.0
+       If a class has a direct method called ``__attrs_init_subclass__``, it
+       is executed after the class is created. The method can be both a
+       classmethod or not.
+
     .. note::
 
         The main differences to the classic `attr.s` are:
