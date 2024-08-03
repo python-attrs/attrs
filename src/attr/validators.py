@@ -88,7 +88,7 @@ def disabled():
         set_run_validators(True)
 
 
-@attrs(repr=False, slots=True, hash=True)
+@attrs(repr=False, slots=True, unsafe_hash=True)
 class _InstanceOfValidator:
     type = attrib()
 
@@ -196,7 +196,7 @@ def matches_re(regex, flags=0, func=None):
     return _MatchesReValidator(pattern, match_func)
 
 
-@attrs(repr=False, slots=True, hash=True)
+@attrs(repr=False, slots=True, unsafe_hash=True)
 class _OptionalValidator:
     validator = attrib()
 
@@ -231,7 +231,7 @@ def optional(validator):
     return _OptionalValidator(validator)
 
 
-@attrs(repr=False, slots=True, hash=True)
+@attrs(repr=False, slots=True, unsafe_hash=True)
 class _InValidator:
     options = attrib()
     _original_options = attrib(hash=False)
@@ -290,7 +290,7 @@ def in_(options):
     return _InValidator(options, repr_options)
 
 
-@attrs(repr=False, slots=False, hash=True)
+@attrs(repr=False, slots=False, unsafe_hash=True)
 class _IsCallableValidator:
     def __call__(self, inst, attr, value):
         """
@@ -328,7 +328,7 @@ def is_callable():
     return _IsCallableValidator()
 
 
-@attrs(repr=False, slots=True, hash=True)
+@attrs(repr=False, slots=True, unsafe_hash=True)
 class _DeepIterable:
     member_validator = attrib(validator=is_callable())
     iterable_validator = attrib(
@@ -377,7 +377,7 @@ def deep_iterable(member_validator, iterable_validator=None):
     return _DeepIterable(member_validator, iterable_validator)
 
 
-@attrs(repr=False, slots=True, hash=True)
+@attrs(repr=False, slots=True, unsafe_hash=True)
 class _DeepMapping:
     key_validator = attrib(validator=is_callable())
     value_validator = attrib(validator=is_callable())
@@ -554,7 +554,7 @@ def min_len(length):
     return _MinLengthValidator(length)
 
 
-@attrs(repr=False, slots=True, hash=True)
+@attrs(repr=False, slots=True, unsafe_hash=True)
 class _SubclassOfValidator:
     type = attrib()
 
@@ -592,7 +592,7 @@ def _subclass_of(type):
     return _SubclassOfValidator(type)
 
 
-@attrs(repr=False, slots=True, hash=True)
+@attrs(repr=False, slots=True, unsafe_hash=True)
 class _NotValidator:
     validator = attrib()
     msg = attrib(
@@ -665,7 +665,7 @@ def not_(validator, *, msg=None, exc_types=(ValueError, TypeError)):
     return _NotValidator(validator, msg, exc_types)
 
 
-@attrs(repr=False, slots=True, hash=True)
+@attrs(repr=False, slots=True, unsafe_hash=True)
 class _OrValidator:
     validators = attrib()
 

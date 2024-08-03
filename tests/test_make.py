@@ -69,6 +69,18 @@ def _with_and_without_validation(request):
         attr.validators.set_disabled(False)
 
 
+@pytest.mark.parametrize("hash", [True, False])
+def test_hash_is_deprecated(hash):
+    """
+    Passing anything else than None to hash raises a deprecation warning.
+    """
+    with pytest.deprecated_call():
+
+        @attr.s(hash=hash)
+        class C:
+            pass
+
+
 class TestCountingAttr:
     """
     Tests for `attr`.
@@ -534,7 +546,7 @@ class TestAttributes:
             ("repr", "__repr__"),
             ("eq", "__eq__"),
             ("order", "__le__"),
-            ("hash", "__hash__"),
+            ("unsafe_hash", "__hash__"),
             ("init", "__init__"),
         ],
     )
@@ -550,7 +562,7 @@ class TestAttributes:
             "repr": True,
             "eq": True,
             "order": True,
-            "hash": True,
+            "unsafe_hash": True,
             "init": True,
         }
         am_args[arg_name] = False
@@ -1211,6 +1223,15 @@ class TestMakeClass:
         assert attr.fields(C).a.type is bool
         assert {"a": "bool"} == C.__annotations__
 
+    @pytest.mark.parametrize("hash", [True, False])
+    def test_hash_is_deprecated(self, hash):
+        """
+        Passing anything else than None to hash raises a deprecation warning.
+        """
+        with pytest.deprecated_call():
+
+            make_class("CH", {}, hash=hash)
+
 
 class TestFields:
     """
@@ -1747,12 +1768,12 @@ class TestClassBuilder:
         attributes.
         """
 
-        @attr.s(hash=True, str=True)
+        @attr.s(unsafe_hash=True, str=True)
         class C:
             def organic(self):
                 pass
 
-        @attr.s(hash=True, str=True)
+        @attr.s(unsafe_hash=True, str=True)
         class D:
             pass
 
@@ -1862,7 +1883,7 @@ class TestClassBuilder:
         """
         Generate a list of compatible attr.s arguments for the `copy` tests.
         """
-        options = ["frozen", "hash", "cache_hash"]
+        options = ["frozen", "unsafe_hash", "cache_hash"]
 
         if include_slots:
             options.extend(["slots", "weakref_slot"])
@@ -1871,10 +1892,10 @@ class TestClassBuilder:
         for args in itertools.product([True, False], repeat=len(options)):
             kwargs = dict(zip(options, args))
 
-            kwargs["hash"] = kwargs["hash"] or None
+            kwargs["unsafe_hash"] = kwargs["unsafe_hash"] or None
 
             if kwargs["cache_hash"] and not (
-                kwargs["frozen"] or kwargs["hash"]
+                kwargs["frozen"] or kwargs["unsafe_hash"]
             ):
                 continue
 
@@ -2233,7 +2254,7 @@ class TestAutoDetect:
     def test_make_all_by_default(self, slots, frozen):
         """
         If nothing is there to be detected, imply init=True, repr=True,
-        hash=None, eq=True, order=True.
+        unsafe_hash=None, eq=True, order=True.
         """
 
         @attr.s(auto_detect=True, slots=slots, frozen=frozen)
@@ -2286,11 +2307,11 @@ class TestAutoDetect:
         to generate the hash code.
         """
 
-        @attr.s(slots=slots, frozen=frozen, hash=True)
+        @attr.s(slots=slots, frozen=frozen, unsafe_hash=True)
         class C:
             x = attr.ib(eq=str)
 
-        @attr.s(slots=slots, frozen=frozen, hash=True)
+        @attr.s(slots=slots, frozen=frozen, unsafe_hash=True)
         class D:
             x = attr.ib()
 
@@ -2413,10 +2434,10 @@ class TestAutoDetect:
 
     def test_override_hash(self, slots, frozen):
         """
-        If hash=True is passed, ignore __hash__.
+        If unsafe_hash=True is passed, ignore __hash__.
         """
 
-        @attr.s(hash=True, auto_detect=True, slots=slots, frozen=frozen)
+        @attr.s(unsafe_hash=True, auto_detect=True, slots=slots, frozen=frozen)
         class C:
             x = attr.ib()
 
