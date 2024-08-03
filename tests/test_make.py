@@ -695,6 +695,25 @@ class TestAttributes:
         assert 12 == getattr(c, "z", None)
 
     @pytest.mark.usefixtures("with_and_without_validation")
+    def test_pre_init_kw_only_work_with_defaults(self):
+        """
+        Default values together with kw_only don't break __attrs__pre_init__.
+        """
+        val = None
+
+        @attr.define
+        class KWOnlyAndDefault:
+            kw_and_default: int = attr.field(kw_only=True, default=3)
+
+            def __attrs_pre_init__(self, *, kw_and_default):
+                nonlocal val
+                val = kw_and_default
+
+        inst = KWOnlyAndDefault()
+
+        assert 3 == val == inst.kw_and_default
+
+    @pytest.mark.usefixtures("with_and_without_validation")
     def test_post_init(self):
         """
         Verify that __attrs_post_init__ gets called if defined.
