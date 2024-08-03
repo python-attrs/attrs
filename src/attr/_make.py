@@ -304,26 +304,14 @@ def _has_own_attribute(cls, attrib_name):
     """
     Check whether *cls* defines *attrib_name* (and doesn't just inherit it).
     """
-    attr = getattr(cls, attrib_name, _SENTINEL)
-    if attr is _SENTINEL:
-        return False
-
-    for base_cls in cls.__mro__[1:]:
-        a = getattr(base_cls, attrib_name, None)
-        if attr is a:
-            return False
-
-    return True
+    return attrib_name in cls.__dict__
 
 
 def _get_annotations(cls):
     """
     Get annotations for *cls*.
     """
-    if _has_own_attribute(cls, "__annotations__"):
-        return cls.__annotations__
-
-    return {}
+    return cls.__dict__.get("__annotations__", {})
 
 
 def _collect_base_attrs(cls, taken_attr_names):
