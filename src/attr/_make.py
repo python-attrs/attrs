@@ -1270,20 +1270,30 @@ def attrs(
     .. versionadded:: 24.1.0
        If a class has an *inherited* classmethod called
        ``__attrs_init_subclass__``, it is executed after the class is created.
+    .. deprecated:: 24.1.0 *hash* is deprecated in favor of *unsafe_hash*.
     """
     if repr_ns is not None:
         import warnings
 
         warnings.warn(
             DeprecationWarning(
-                "The `repr_ns` argument is deprecated and will be removed in or after April 2025."
+                "The `repr_ns` argument is deprecated and will be removed in or after August 2025."
             ),
             stacklevel=2,
         )
 
     eq_, order_ = _determine_attrs_eq_order(cmp, eq, order, None)
 
-    # unsafe_hash takes precedence due to PEP 681.
+    # hash is deprecated & unsafe_hash takes precedence due to PEP 681.
+    if hash is not None:
+        import warnings
+
+        warnings.warn(
+            DeprecationWarning(
+                "The `hash` argument is deprecated in favor of `unsafe_hash` and will be removed in or after August 2025."
+            ),
+            stacklevel=2,
+        )
     if unsafe_hash is not None:
         hash = unsafe_hash
 
@@ -2854,6 +2864,19 @@ def make_class(
         True,
     )
 
+    hash = attributes_arguments.pop("hash", _SENTINEL)
+    if hash is not _SENTINEL:
+        import warnings
+
+        warnings.warn(
+            DeprecationWarning(
+                "The `hash` argument is deprecated in favor of `unsafe_hash` and will be removed in or after August 2025."
+            ),
+            stacklevel=2,
+        )
+
+        attributes_arguments["unsafe_hash"] = hash
+
     cls = _attrs(these=cls_dict, **attributes_arguments)(type_)
     # Only add type annotations now or "_attrs()" will complain:
     cls.__annotations__ = {
@@ -2866,7 +2889,7 @@ def make_class(
 # import into .validators / .converters.
 
 
-@attrs(slots=True, hash=True)
+@attrs(slots=True, unsafe_hash=True)
 class _AndValidator:
     """
     Compose many validators to a single one.

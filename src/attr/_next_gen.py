@@ -184,7 +184,7 @@ def define(
                   details.
 
         hash (bool | None):
-            Alias for *unsafe_hash*. *unsafe_hash* takes precedence.
+            Deprecated alias for *unsafe_hash*. *unsafe_hash* takes precedence.
 
         cache_hash (bool):
             Ensure that the object's hash code is computed only once and stored
@@ -320,6 +320,7 @@ def define(
     .. versionadded:: 24.1.0
        If a class has an *inherited* classmethod called
        ``__attrs_init_subclass__``, it is executed after the class is created.
+    .. deprecated:: 24.1.0 *hash* is deprecated in favor of *unsafe_hash*.
 
     .. note::
 

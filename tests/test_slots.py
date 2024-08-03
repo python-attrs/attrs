@@ -50,7 +50,7 @@ class C1:
         return super().__repr__()
 
 
-@attr.s(slots=True, hash=True)
+@attr.s(slots=True, unsafe_hash=True)
 class C1Slots:
     x = attr.ib(validator=attr.validators.instance_of(int))
     y = attr.ib()
@@ -133,7 +133,7 @@ def test_inheritance_from_nonslots():
     the benefits of slotted classes, but it should still work.
     """
 
-    @attr.s(slots=True, hash=True)
+    @attr.s(slots=True, unsafe_hash=True)
     class C2Slots(C1):
         z = attr.ib()
 
@@ -196,7 +196,7 @@ def test_nonslots_these():
         these={"x": attr.ib(), "y": attr.ib(), "z": attr.ib()},
         init=False,
         slots=True,
-        hash=True,
+        unsafe_hash=True,
     )(SimpleOrdinaryClass)
 
     c2 = C2Slots(x=1, y=2, z="test")
@@ -229,11 +229,11 @@ def test_inheritance_from_slots():
     Inheriting from an attrs slotted class works.
     """
 
-    @attr.s(slots=True, hash=True)
+    @attr.s(slots=True, unsafe_hash=True)
     class C2Slots(C1Slots):
         z = attr.ib()
 
-    @attr.s(slots=True, hash=True)
+    @attr.s(slots=True, unsafe_hash=True)
     class C2(C1):
         z = attr.ib()
 
@@ -275,13 +275,13 @@ def test_inheritance_from_slots_with_attribute_override():
     class HasXSlot:
         __slots__ = ("x",)
 
-    @attr.s(slots=True, hash=True)
+    @attr.s(slots=True, unsafe_hash=True)
     class C2Slots(C1Slots):
         # y re-defined here but it shouldn't get a slot
         y = attr.ib()
         z = attr.ib()
 
-    @attr.s(slots=True, hash=True)
+    @attr.s(slots=True, unsafe_hash=True)
     class NonAttrsChild(HasXSlot):
         # Parent class has slot for "x" already, so we skip it
         x = attr.ib()
@@ -337,7 +337,12 @@ def test_bare_inheritance_from_slots():
     """
 
     @attr.s(
-        init=False, eq=False, order=False, hash=False, repr=False, slots=True
+        init=False,
+        eq=False,
+        order=False,
+        unsafe_hash=False,
+        repr=False,
+        slots=True,
     )
     class C1BareSlots:
         x = attr.ib(validator=attr.validators.instance_of(int))
@@ -354,7 +359,7 @@ def test_bare_inheritance_from_slots():
         def staticmethod():
             return "staticmethod"
 
-    @attr.s(init=False, eq=False, order=False, hash=False, repr=False)
+    @attr.s(init=False, eq=False, order=False, unsafe_hash=False, repr=False)
     class C1Bare:
         x = attr.ib(validator=attr.validators.instance_of(int))
         y = attr.ib()
@@ -370,11 +375,11 @@ def test_bare_inheritance_from_slots():
         def staticmethod():
             return "staticmethod"
 
-    @attr.s(slots=True, hash=True)
+    @attr.s(slots=True, unsafe_hash=True)
     class C2Slots(C1BareSlots):
         z = attr.ib()
 
-    @attr.s(slots=True, hash=True)
+    @attr.s(slots=True, unsafe_hash=True)
     class C2(C1Bare):
         z = attr.ib()
 
