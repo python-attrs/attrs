@@ -481,7 +481,7 @@ class TestAddHash:
         exc_args = ("Invalid value for hash.  Must be True, False, or None.",)
 
         with pytest.raises(TypeError) as e:
-            make_class("C", {}, hash=1),
+            make_class("C", {}, unsafe_hash=1),
 
         assert exc_args == e.value.args
 
@@ -501,13 +501,18 @@ class TestAddHash:
             "enabled.",
         )
         with pytest.raises(TypeError) as e:
-            make_class("C", {}, hash=False, cache_hash=True)
+            make_class("C", {}, unsafe_hash=False, cache_hash=True)
         assert exc_args == e.value.args
 
         # unhashable case
         with pytest.raises(TypeError) as e:
             make_class(
-                "C", {}, hash=None, eq=True, frozen=False, cache_hash=True
+                "C",
+                {},
+                unsafe_hash=None,
+                eq=True,
+                frozen=False,
+                cache_hash=True,
             )
         assert exc_args == e.value.args
 
@@ -521,7 +526,7 @@ class TestAddHash:
             " init must be True.",
         )
         with pytest.raises(TypeError) as e:
-            make_class("C", {}, init=False, hash=True, cache_hash=True)
+            make_class("C", {}, init=False, unsafe_hash=True, cache_hash=True)
         assert exc_args == e.value.args
 
     @given(booleans(), booleans())
@@ -533,7 +538,7 @@ class TestAddHash:
             "C",
             {"a": attr.ib(hash=False), "b": attr.ib()},
             slots=slots,
-            hash=True,
+            unsafe_hash=True,
             cache_hash=cache_hash,
         )
 
@@ -629,13 +634,13 @@ class TestAddHash:
         Uncached = make_class(
             "Uncached",
             {"hash_counter": attr.ib(factory=HashCounter)},
-            hash=True,
+            unsafe_hash=True,
             cache_hash=False,
         )
         Cached = make_class(
             "Cached",
             {"hash_counter": attr.ib(factory=HashCounter)},
-            hash=True,
+            unsafe_hash=True,
             cache_hash=True,
         )
 
