@@ -4,7 +4,6 @@
 End-to-end tests.
 """
 
-
 import inspect
 import pickle
 
@@ -744,3 +743,21 @@ class TestFunctional:
             pass
 
         assert hash(Hashable())
+
+    def test_init_subclass(self, slots):
+        """
+        __attrs_init_subclass__ is called on subclasses.
+        """
+        REGISTRY = []
+
+        @attr.s(slots=slots)
+        class Base:
+            @classmethod
+            def __attrs_init_subclass__(cls):
+                REGISTRY.append(cls)
+
+        @attr.s(slots=slots)
+        class ToRegister(Base):
+            pass
+
+        assert [ToRegister] == REGISTRY

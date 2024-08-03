@@ -677,6 +677,21 @@ False
 
 ## Other Goodies
 
+When building systems that have something resembling a plugin interface, you may want to have a registry of all classes that implement a certain interface:
+
+```{doctest}
+>>> REGISTRY = []
+>>> class Base:  # does NOT have to be an attrs class!
+...     @classmethod
+...     def __attrs_init_subclass__(cls):
+...         REGISTRY.append(cls)
+>>> @define
+... class Impl(Base):
+...     pass
+>>> REGISTRY
+[<class 'Impl'>]
+```
+
 Sometimes you may want to create a class programmatically.
 *attrs* gives you {func}`attrs.make_class` for that:
 

@@ -15,7 +15,7 @@ Nevertheless, there are still reasons to prefer *attrs* over Data Classes.
 Whether they're relevant to *you* depends on your circumstances:
 
 - Data Classes are *intentionally* less powerful than *attrs*.
-  There is a long list of features that were sacrificed for the sake of simplicity and while the most obvious ones are validators, converters, {ref}`equality customization <custom-comparison>`, or {doc}`extensibility <extending>` in general, it permeates throughout all APIs.
+  There is a long list of features that were sacrificed for the sake of simplicity and while the most obvious ones are validators, converters, [equality customization](custom-comparison), a solution to the [`__init_subclass__` problem](init-subclass), or {doc}`extensibility <extending>` in general -- it permeates throughout all APIs.
 
   On the other hand, Data Classes currently do not offer any significant feature that *attrs* doesn't already have.
 

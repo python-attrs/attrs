@@ -546,3 +546,38 @@ class APIClient:
 ```
 
 This makes the class more testable.
+
+(init-subclass)=
+
+## *attrs* and `__init_subclass__`
+
+{meth}`object.__init_subclass__` is a special method that is called when a subclass of the class that defined it is created.
+
+For example:
+
+```{doctest}
+>>> class Base:
+...    @classmethod
+...    def __init_subclass__(cls):
+...        print(f"Base has been subclassed by {cls}.")
+>>> class Derived(Base):
+...    pass
+Base has been subclassed by <class 'Derived'>.
+```
+
+Unfortunately, a class decorator-based approach like *attrs* (or `dataclasses`) doesn't play well with `__init_subclass__`.
+With {term}`dict classes`, it is run *before* the class has been processed by *attrs* and in the case of {term}`slotted classes`, where *attrs* has to *replace* the original class, `__init_subclass__` is called *twice*: once for the original class and once for the *attrs* class.
+
+To alleviate this, *attrs* provides `__attrs_init_subclass__` which is also called once the class is done assembling.
+The base class doesn't even have to be an *attrs* class:
+
+```{doctest}
+>>> class Base:
+...    @classmethod
+...    def __attrs_init_subclass__(cls):
+...        print(f"Base has been subclassed by attrs {cls}.")
+>>> @define
+... class Derived(Base):
+...    pass
+Base has been subclassed by attrs <class 'Derived'>.
+```
