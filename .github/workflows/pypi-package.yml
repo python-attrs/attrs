@@ -11,6 +11,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  attestations: write
   contents: read
   id-token: write
 
