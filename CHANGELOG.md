@@ -10,15 +10,64 @@ You can find our backwards-compatibility policy [here](https://github.com/python
 
 Changes for the upcoming release can be found in the [`changelog.d` directory](https://github.com/python-attrs/attrs/tree/main/changelog.d) in our repository.
 
-<!--
-Do *NOT* add changelog entries here!
-
-This changelog is managed by towncrier and is compiled at release time.
-
-See https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md#changelog for details.
--->
-
 <!-- towncrier release notes start -->
+
+## [24.1.0](https://github.com/python-attrs/attrs/tree/24.1.0) - 2024-08-03
+
+### Backwards-incompatible Changes
+
+- `attrs.evolve()` doesn't accept the *inst* argument as a keyword argument anymore.
+  Pass it as the first positional argument instead.
+  [#1264](https://github.com/python-attrs/attrs/issues/1264)
+- `attrs.validators.provides()` has been removed.
+  The removed code is available as a [gist](https://gist.github.com/hynek/9eaaaeb659808f3519870dfa16d2b6b2) for convenient copy and pasting.
+  [#1265](https://github.com/python-attrs/attrs/issues/1265)
+- All packaging metadata except from `__version__` and `__version_info__` has been removed from the `attr` and `attrs` modules (for example, `attrs.__url__`).
+
+  Please use [`importlib.metadata`](https://docs.python.org/3/library/importlib.metadata.html) or [*importlib_metadata*](https://pypi.org/project/importlib-metadata/) instead.
+  [#1268](https://github.com/python-attrs/attrs/issues/1268)
+- Speed up the generated `__eq__` methods significantly by generating a chain of attribute comparisons instead of constructing and comparing tuples.
+  This change arguably makes the behavior more correct,
+  but changes it if an attribute compares equal by identity but not value, like `float('nan')`.
+  [#1310](https://github.com/python-attrs/attrs/issues/1310)
+
+
+### Deprecations
+
+- The *repr_ns* argument to `attr.s` is now deprecated.
+  It was a workaround for nested classes in Python 2 and is pointless in Python 3.
+  [#1263](https://github.com/python-attrs/attrs/issues/1263)
+- The *hash* argument to `@attr.s`, `@attrs.define`, and `make_class()` is now deprecated in favor of *unsafe_hash*, as defined by PEP 681.
+  [#1323](https://github.com/python-attrs/attrs/issues/1323)
+
+
+### Changes
+
+- Allow original slotted `functools.cached_property` classes to be cleaned by garbage collection.
+  Allow `super()` calls in slotted cached properties.
+  [#1221](https://github.com/python-attrs/attrs/issues/1221)
+- Our type stubs now use modern type notation and are organized such that VS Code's quick-fix prefers the `attrs` namespace.
+  [#1234](https://github.com/python-attrs/attrs/issues/1234)
+- Preserve `AttributeError` raised by properties of slotted classes with `functools.cached_properties`.
+  [#1253](https://github.com/python-attrs/attrs/issues/1253)
+- It is now possible to wrap a converter into an `attrs.Converter` and get the current instance and/or the current field definition passed into the converter callable.
+
+  Note that this is not supported by any type checker, yet.
+  [#1267](https://github.com/python-attrs/attrs/issues/1267)
+- `attrs.make_class()` now populates the `__annotations__` dict of the generated class, so that `attrs.resolve_types()` can resolve them.
+  [#1285](https://github.com/python-attrs/attrs/issues/1285)
+- Added the `attrs.validators.or_()` validator.
+  [#1303](https://github.com/python-attrs/attrs/issues/1303)
+- The combination of a `__attrs_pre_init__` that takes arguments, a kw-only field, and a default on that field does not crash anymore.
+  [#1319](https://github.com/python-attrs/attrs/issues/1319)
+- `attrs.validators.in_()` now transforms certain unhashable options to tuples to keep the field hashable.
+
+  This allows fields that use this validator to be used with, for example, `attrs.filters.include()`.
+  [#1320](https://github.com/python-attrs/attrs/issues/1320)
+- If a class has an *inherited* method called `__attrs_init_subclass__`, it is now called once the class is done assembling.
+
+  This is a replacement for Python's `__init_subclass__` and useful for registering classes, and similar.
+  [#1321](https://github.com/python-attrs/attrs/issues/1321)
 
 
 ## [23.2.0](https://github.com/python-attrs/attrs/tree/23.2.0) - 2023-12-31
