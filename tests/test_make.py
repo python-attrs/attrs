@@ -69,6 +69,18 @@ def _with_and_without_validation(request):
         attr.validators.set_disabled(False)
 
 
+@pytest.mark.parametrize("hash", [True, False])
+def test_hash_is_deprecated(hash):
+    """
+    Passing anything else than None to hash raises a deprecation warning.
+    """
+    with pytest.deprecated_call():
+
+        @attr.s(hash=hash)
+        class C:
+            pass
+
+
 class TestCountingAttr:
     """
     Tests for `attr`.
@@ -1210,6 +1222,15 @@ class TestMakeClass:
 
         assert attr.fields(C).a.type is bool
         assert {"a": "bool"} == C.__annotations__
+
+    @pytest.mark.parametrize("hash", [True, False])
+    def test_hash_is_deprecated(self, hash):
+        """
+        Passing anything else than None to hash raises a deprecation warning.
+        """
+        with pytest.deprecated_call():
+
+            make_class("CH", {}, hash=hash)
 
 
 class TestFields:
