@@ -10,6 +10,14 @@ You can find our backwards-compatibility policy [here](https://github.com/python
 
 Changes for the upcoming release can be found in the [`changelog.d` directory](https://github.com/python-attrs/attrs/tree/main/changelog.d) in our repository.
 
+<!--
+Do *NOT* add changelog entries here!
+
+This changelog is managed by towncrier and is compiled at release time.
+
+See https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md#changelog for details.
+-->
+
 <!-- towncrier release notes start -->
 
 ## [24.1.0](https://github.com/python-attrs/attrs/tree/24.1.0) - 2024-08-03
