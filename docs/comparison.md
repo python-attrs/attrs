@@ -14,8 +14,6 @@ For order, *attrs* will:
 - if so, create a tuple of all field values for each instance,
 - and finally perform the desired comparison operation on those tuples.
 
-[^default]: That's the default if you use the {func}`attr.s` decorator, but not with {func}`~attrs.define`.
-
 (custom-comparison)=
 
 ## Customization
