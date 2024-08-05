@@ -2712,7 +2712,6 @@ class Converter:
         "takes_field",
         "_first_param_type",
         "_global_name",
-        "__call__",
     )
 
     def __init__(self, converter, *, takes_self=False, takes_field=False):
@@ -2723,6 +2722,21 @@ class Converter:
         self._first_param_type = _AnnotationExtractor(
             converter
         ).get_first_param_type()
+
+    def __call__(self, value: object, instance: object, field: Attribute):
+        """
+        Call the converter with the appropriate subset of *instance* and
+        *field*.
+        """
+        return self.converter(
+            value,
+            *{
+                (False, False): (),
+                (True, False): (instance,),
+                (False, True): (field,),
+                (True, True): (instance, field),
+            }[self.takes_self, self.takes_field],
+        )
 
     @staticmethod
     def _get_global_name(attr_name: str) -> str:
@@ -2943,18 +2957,7 @@ def pipe(*converters):
 
     def pipe_converter(val, inst, field):
         for c in converters:
-            if isinstance(c, Converter):
-                val = c.converter(
-                    val,
-                    *{
-                        (False, False): (),
-                        (True, False): (c.takes_self,),
-                        (False, True): (c.takes_field,),
-                        (True, True): (c.takes_self, c.takes_field),
-                    }[c.takes_self, c.takes_field],
-                )
-            else:
-                val = c(val)
+            val = c(val, inst, field) if isinstance(c, Converter) else c(val)
 
         return val
 

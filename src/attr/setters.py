@@ -5,6 +5,8 @@ Commonly used hooks for on_setattr.
 """
 
 
+import attrs
+
 from . import _config
 from .exceptions import FrozenAttributeError
 
@@ -63,7 +65,10 @@ def convert(instance, attrib, new_value):
     """
     c = attrib.converter
     if c:
-        return c(new_value)
+        if not isinstance(c, attrs.Converter):
+            return c(new_value)
+
+        return c(new_value, instance, attrib)
 
     return new_value
 
