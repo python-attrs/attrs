@@ -10,15 +10,24 @@ You can find our backwards-compatibility policy [here](https://github.com/python
 
 Changes for the upcoming release can be found in the [`changelog.d` directory](https://github.com/python-attrs/attrs/tree/main/changelog.d) in our repository.
 
-<!--
-Do *NOT* add changelog entries here!
-
-This changelog is managed by towncrier and is compiled at release time.
-
-See https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md#changelog for details.
--->
-
 <!-- towncrier release notes start -->
+
+## [24.2.0](https://github.com/python-attrs/attrs/tree/24.2.0) - 2024-08-06
+
+### Deprecations
+
+- Given the amount of warnings raised in the broader ecosystem, we've decided to only soft-deprecate the *hash* argument to `@define` / `@attr.s`.
+  Please don't use it in new code, but we don't intend to remove it anymore.
+  [#1330](https://github.com/python-attrs/attrs/issues/1330)
+
+
+### Changes
+
+- `attrs.converters.pipe()` (and its syntactic sugar of passing a list for `attrs.field()`'s / `attr.ib()`'s *converter* argument) works again when passing `attrs.setters.convert` to *on_setattr* (which is default for `attrs.define`).
+  [#1328](https://github.com/python-attrs/attrs/issues/1328)
+- Restored support for PEP [649](https://peps.python.org/pep-0649/) / [749](https://peps.python.org/pep-0749/)-implementing Pythons -- currently 3.14-dev.
+  [#1329](https://github.com/python-attrs/attrs/issues/1329)
+
 
 ## [24.1.0](https://github.com/python-attrs/attrs/tree/24.1.0) - 2024-08-03
 
