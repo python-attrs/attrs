@@ -2712,6 +2712,7 @@ class Converter:
         "takes_field",
         "_first_param_type",
         "_global_name",
+        "__call__",
     )
 
     def __init__(self, converter, *, takes_self=False, takes_field=False):
@@ -2723,20 +2724,24 @@ class Converter:
             converter
         ).get_first_param_type()
 
-    def __call__(self, value: object, instance: object, field: Attribute):
-        """
-        Call the converter with the appropriate subset of *instance* and
-        *field*.
-        """
-        return self.converter(
-            value,
-            *{
-                (False, False): (),
-                (True, False): (instance,),
-                (False, True): (field,),
-                (True, True): (instance, field),
-            }[self.takes_self, self.takes_field],
-        )
+        self.__call__ = {
+            (False, False): self._takes_only_value,
+            (True, False): self._takes_instance,
+            (False, True): self._takes_field,
+            (True, True): self._takes_both,
+        }[self.takes_self, self.takes_field]
+
+    def _takes_only_value(self, value, instance, field):
+        return self.converter(value)
+
+    def _takes_instance(self, value, instance, field):
+        return self.converter(value, instance)
+
+    def _takes_field(self, value, instance, field):
+        return self.converter(value, field)
+
+    def _takes_both(self, value, instance, field):
+        return self.converter(value, instance, field)
 
     @staticmethod
     def _get_global_name(attr_name: str) -> str:
