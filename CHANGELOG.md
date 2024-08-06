@@ -32,9 +32,9 @@ See https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md#chan
   [#1265](https://github.com/python-attrs/attrs/issues/1265)
 - All packaging metadata except from `__version__` and `__version_info__` has been removed from the `attr` and `attrs` modules (for example, `attrs.__url__`).
 
-  Please use [`importlib.metadata`](https://docs.python.org/3/library/importlib.metadata.html) or [*importlib_metadata*](https://pypi.org/project/importlib-metadata/) instead.
+  Please use [`importlib.metadata`](https://docs.python.org/3/library/importlib.metadata.html) or [*importlib-metadata*](https://pypi.org/project/importlib-metadata/) instead.
   [#1268](https://github.com/python-attrs/attrs/issues/1268)
-- Speed up the generated `__eq__` methods significantly by generating a chain of attribute comparisons instead of constructing and comparing tuples.
+- The generated `__eq__` methods have been sped up significantly by generating a chain of attribute comparisons instead of constructing and comparing tuples.
   This change arguably makes the behavior more correct,
   but changes it if an attribute compares equal by identity but not value, like `float('nan')`.
   [#1310](https://github.com/python-attrs/attrs/issues/1310)
