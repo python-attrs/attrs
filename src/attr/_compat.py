@@ -26,7 +26,7 @@ if sys.version_info < (3, 8):
 else:
     from typing import Protocol  # noqa: F401
 
-if PY_3_14_PLUS:
+if PY_3_14_PLUS:  # pragma: no cover
     import annotationlib
 
     _get_annotations = annotationlib.get_annotations
