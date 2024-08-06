@@ -1284,16 +1284,7 @@ def attrs(
 
     eq_, order_ = _determine_attrs_eq_order(cmp, eq, order, None)
 
-    # hash is deprecated & unsafe_hash takes precedence due to PEP 681.
-    if hash is not None:
-        import warnings
-
-        warnings.warn(
-            DeprecationWarning(
-                "The `hash` argument is deprecated in favor of `unsafe_hash` and will be removed in or after August 2025."
-            ),
-            stacklevel=2,
-        )
+    #  unsafe_hash takes precedence due to PEP 681.
     if unsafe_hash is not None:
         hash = unsafe_hash
 
@@ -2863,19 +2854,6 @@ def make_class(
         attributes_arguments.get("order"),
         True,
     )
-
-    hash = attributes_arguments.pop("hash", _SENTINEL)
-    if hash is not _SENTINEL:
-        import warnings
-
-        warnings.warn(
-            DeprecationWarning(
-                "The `hash` argument is deprecated in favor of `unsafe_hash` and will be removed in or after August 2025."
-            ),
-            stacklevel=2,
-        )
-
-        attributes_arguments["unsafe_hash"] = hash
 
     cls = _attrs(these=cls_dict, **attributes_arguments)(type_)
     # Only add type annotations now or "_attrs()" will complain:
