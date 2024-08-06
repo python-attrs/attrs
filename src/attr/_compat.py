@@ -15,6 +15,7 @@ PY_3_9_PLUS = sys.version_info[:2] >= (3, 9)
 PY_3_10_PLUS = sys.version_info[:2] >= (3, 10)
 PY_3_12_PLUS = sys.version_info[:2] >= (3, 12)
 PY_3_13_PLUS = sys.version_info[:2] >= (3, 13)
+PY_3_14_PLUS = sys.version_info[:2] >= (3, 14)
 
 
 if sys.version_info < (3, 8):
@@ -24,6 +25,19 @@ if sys.version_info < (3, 8):
         Protocol = object
 else:
     from typing import Protocol  # noqa: F401
+
+if PY_3_14_PLUS:
+    import annotationlib
+
+    _get_annotations = annotationlib.get_annotations
+
+else:
+
+    def _get_annotations(cls):
+        """
+        Get annotations for *cls*.
+        """
+        return cls.__dict__.get("__annotations__", {})
 
 
 class _AnnotationExtractor:

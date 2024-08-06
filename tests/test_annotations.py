@@ -12,6 +12,7 @@ import pytest
 
 import attr
 
+from attr._compat import PY_3_14_PLUS
 from attr._make import _is_class_var
 from attr.exceptions import UnannotatedAttributeError
 
@@ -584,6 +585,11 @@ class TestAnnotations:
         assert typing.List[int] == attr.fields(A).b.type
         assert typing.List[int] == attr.fields(A).c.type
 
+    @pytest.mark.skipif(
+        PY_3_14_PLUS,
+        reason="Forward references are changing a lot in 3.14. "
+        "Passes only for slots=True",
+    )
     def test_self_reference(self, slots):
         """
         References to self class using quotes can be resolved.
@@ -599,6 +605,11 @@ class TestAnnotations:
         assert A == attr.fields(A).a.type
         assert typing.Optional[A] == attr.fields(A).b.type
 
+    @pytest.mark.skipif(
+        PY_3_14_PLUS,
+        reason="Forward references are changing a lot in 3.14."
+        "Passes only for slots=True",
+    )
     def test_forward_reference(self, slots):
         """
         Forward references can be resolved.

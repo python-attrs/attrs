@@ -23,6 +23,7 @@ from ._compat import (
     PY_3_8_PLUS,
     PY_3_10_PLUS,
     _AnnotationExtractor,
+    _get_annotations,
     get_generic_base,
 )
 from .exceptions import (
@@ -306,13 +307,6 @@ def _has_own_attribute(cls, attrib_name):
     Check whether *cls* defines *attrib_name* (and doesn't just inherit it).
     """
     return attrib_name in cls.__dict__
-
-
-def _get_annotations(cls):
-    """
-    Get annotations for *cls*.
-    """
-    return cls.__dict__.get("__annotations__", {})
 
 
 def _collect_base_attrs(cls, taken_attr_names):
