@@ -22,6 +22,7 @@ from . import _compat, _config, setters
 from ._compat import (
     PY_3_8_PLUS,
     PY_3_10_PLUS,
+    PY_3_11_PLUS,
     _AnnotationExtractor,
     _get_annotations,
     get_generic_base,
@@ -2705,28 +2706,27 @@ class Converter:
         self.takes_self = takes_self
         self.takes_field = takes_field
 
-        self._first_param_type = _AnnotationExtractor(
-            converter
-        ).get_first_param_type()
+        ex = _AnnotationExtractor(converter)
+        self._first_param_type = ex.get_first_param_type()
 
-        self.__call__ = {
-            (False, False): self._takes_only_value,
-            (True, False): self._takes_instance,
-            (False, True): self._takes_field,
-            (True, True): self._takes_both,
-        }[self.takes_self, self.takes_field]
+        if not (self.takes_self or self.takes_field):
+            self.__call__ = lambda value, _, __: self.converter(value)
+        elif self.takes_self and not self.takes_field:
+            self.__call__ = lambda value, instance, __: self.converter(
+                value, instance
+            )
+        elif not self.takes_self and self.takes_field:
+            self.__call__ = lambda value, __, field: self.converter(
+                value, field
+            )
+        else:
+            self.__call__ = lambda value, instance, field: self.converter(
+                value, instance, field
+            )
 
-    def _takes_only_value(self, value, instance, field):
-        return self.converter(value)
-
-    def _takes_instance(self, value, instance, field):
-        return self.converter(value, instance)
-
-    def _takes_field(self, value, instance, field):
-        return self.converter(value, field)
-
-    def _takes_both(self, value, instance, field):
-        return self.converter(value, instance, field)
+        rt = ex.get_return_type()
+        if rt is not None:
+            self.__call__.__annotations__["return"] = rt
 
     @staticmethod
     def _get_global_name(attr_name: str) -> str:
@@ -2948,8 +2948,12 @@ def pipe(*converters):
         if t:
             pipe_converter.__annotations__["val"] = t
 
+        last = converters[-1]
+        if not PY_3_11_PLUS and isinstance(last, Converter):
+            last = last.__call__
+
         # Get return type from last converter.
-        rt = _AnnotationExtractor(converters[-1]).get_return_type()
+        rt = _AnnotationExtractor(last).get_return_type()
         if rt:
             pipe_converter.__annotations__["return"] = rt
 

@@ -11,6 +11,7 @@ import pytest
 import attr
 
 from attr import Converter, Factory, attrib
+from attr._compat import _AnnotationExtractor
 from attr.converters import default_if_none, optional, pipe, to_bool
 
 
@@ -90,6 +91,26 @@ class TestConverter:
         )
 
         assert (42, instance, field) == taken
+
+    def test_annotations_if_last_in_pipe(self):
+        """
+        If the wrapped converter has annotations, they are copied to the
+        Converter __call__.
+        """
+
+        def wrapped(_, __, ___) -> float:
+            pass
+
+        c = Converter(wrapped)
+
+        assert float is c.__call__.__annotations__["return"]
+
+        # Doesn't overwrite globally.
+
+        c2 = Converter(int)
+
+        assert float is c.__call__.__annotations__["return"]
+        assert None is c2.__call__.__annotations__.get("return")
 
 
 class TestOptional:
@@ -226,6 +247,29 @@ class TestPipe:
         o = object()
 
         assert o is pipe().converter(o, None, None)
+
+    def test_wrapped_annotation(self):
+        """
+        The return type of the wrapped converter is copied into its __call__
+        and ultimately into pipe's wrapped converter.
+        """
+
+        def last(value) -> bool:
+            return bool(value)
+
+        @attr.s
+        class C:
+            x = attr.ib(converter=[Converter(int), Converter(last)])
+
+        i = C(5)
+
+        assert True is i.x
+        assert (
+            bool
+            is _AnnotationExtractor(
+                attr.fields(C).x.converter.__call__
+            ).get_return_type()
+        )
 
 
 class TestToBool:
