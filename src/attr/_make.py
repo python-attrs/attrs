@@ -2709,6 +2709,25 @@ class Converter:
             converter
         ).get_first_param_type()
 
+        self.__call__ = {
+            (False, False): self._takes_only_value,
+            (True, False): self._takes_instance,
+            (False, True): self._takes_field,
+            (True, True): self._takes_both,
+        }[self.takes_self, self.takes_field]
+
+    def _takes_only_value(self, value, instance, field):
+        return self.converter(value)
+
+    def _takes_instance(self, value, instance, field):
+        return self.converter(value, instance)
+
+    def _takes_field(self, value, instance, field):
+        return self.converter(value, field)
+
+    def _takes_both(self, value, instance, field):
+        return self.converter(value, instance, field)
+
     @staticmethod
     def _get_global_name(attr_name: str) -> str:
         """
@@ -2915,18 +2934,7 @@ def pipe(*converters):
 
     def pipe_converter(val, inst, field):
         for c in converters:
-            if isinstance(c, Converter):
-                val = c.converter(
-                    val,
-                    *{
-                        (False, False): (),
-                        (True, False): (c.takes_self,),
-                        (False, True): (c.takes_field,),
-                        (True, True): (c.takes_self, c.takes_field),
-                    }[c.takes_self, c.takes_field],
-                )
-            else:
-                val = c(val)
+            val = c(val, inst, field) if isinstance(c, Converter) else c(val)
 
         return val
 
