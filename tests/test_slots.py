@@ -3,6 +3,7 @@
 """
 Unit tests for slots-related functionality.
 """
+
 import functools
 import pickle
 import weakref
@@ -14,7 +15,7 @@ import pytest
 import attr
 import attrs
 
-from attr._compat import PY_3_8_PLUS, PYPY
+from attr._compat import PY_3_8_PLUS, PY_3_14_PLUS, PYPY
 
 
 # Pympler doesn't work on PyPy.
@@ -774,6 +775,9 @@ def test_slots_cached_property_works_on_frozen_isntances():
 
 
 @pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
+@pytest.mark.xfail(
+    PY_3_14_PLUS, reason="3.14 returns weird annotation for cached_properies"
+)
 def test_slots_cached_property_infers_type():
     """
     Infers type of cached property.

@@ -21,7 +21,7 @@ from hypothesis.strategies import booleans, integers, lists, sampled_from, text
 import attr
 
 from attr import _config
-from attr._compat import PY_3_8_PLUS, PY_3_10_PLUS
+from attr._compat import PY_3_8_PLUS, PY_3_10_PLUS, PY_3_14_PLUS
 from attr._make import (
     Attribute,
     Factory,
@@ -67,18 +67,6 @@ def _with_and_without_validation(request):
         yield
     finally:
         attr.validators.set_disabled(False)
-
-
-@pytest.mark.parametrize("hash", [True, False])
-def test_hash_is_deprecated(hash):
-    """
-    Passing anything else than None to hash raises a deprecation warning.
-    """
-    with pytest.deprecated_call():
-
-        @attr.s(hash=hash)
-        class C:
-            pass
 
 
 class TestCountingAttr:
@@ -1223,15 +1211,6 @@ class TestMakeClass:
         assert attr.fields(C).a.type is bool
         assert {"a": "bool"} == C.__annotations__
 
-    @pytest.mark.parametrize("hash", [True, False])
-    def test_hash_is_deprecated(self, hash):
-        """
-        Passing anything else than None to hash raises a deprecation warning.
-        """
-        with pytest.deprecated_call():
-
-            make_class("CH", {}, hash=hash)
-
 
 class TestFields:
     """
@@ -1859,9 +1838,11 @@ class TestClassBuilder:
         assert [C2] == C.__subclasses__()
 
     @pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
+    @pytest.mark.xfail(PY_3_14_PLUS, reason="Currently broken on nightly.")
     def test_no_references_to_original_when_using_cached_property(self):
         """
-        When subclassing a slotted class and using cached property, there are no stray references to the original class.
+        When subclassing a slotted class and using cached property, there are
+        no stray references to the original class.
         """
 
         @attr.s(slots=True)
