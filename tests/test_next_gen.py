@@ -226,7 +226,7 @@ class TestNextGen:
         @attrs.define
         class C:
             def __eq__(self, o):
-                raise ValueError()
+                raise ValueError
 
         with pytest.raises(ValueError):
             C() == C()
@@ -316,7 +316,7 @@ class TestNextGen:
 
         with pytest.raises(MyException) as ei:
             try:
-                raise ValueError()
+                raise ValueError
             except ValueError:
                 raise MyException("foo") from None
 
@@ -348,7 +348,7 @@ class TestNextGen:
             yield
 
         with do_nothing(), pytest.raises(MyException) as ei:
-            raise MyException()
+            raise MyException
 
         assert isinstance(ei.value, MyException)
 

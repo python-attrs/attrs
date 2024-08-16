@@ -548,14 +548,14 @@ def _frozen_setattrs(self, name, value):
         BaseException.__setattr__(self, name, value)
         return
 
-    raise FrozenInstanceError()
+    raise FrozenInstanceError
 
 
 def _frozen_delattrs(self, name):
     """
     Attached to frozen classes as __delattr__.
     """
-    raise FrozenInstanceError()
+    raise FrozenInstanceError
 
 
 class _ClassBuilder:
@@ -2354,7 +2354,7 @@ class Attribute:
         bound_setattr("alias", alias)
 
     def __setattr__(self, name, value):
-        raise FrozenInstanceError()
+        raise FrozenInstanceError
 
     @classmethod
     def from_counting_attr(cls, name, ca, type=None):
@@ -2603,7 +2603,7 @@ class _CountingAttr:
         .. versionadded:: 17.1.0
         """
         if self._default is not NOTHING:
-            raise DefaultAlreadySetError()
+            raise DefaultAlreadySetError
 
         self._default = Factory(meth, takes_self=True)
 

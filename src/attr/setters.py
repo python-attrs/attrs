@@ -32,7 +32,7 @@ def frozen(_, __, ___):
 
     .. versionadded:: 20.1.0
     """
-    raise FrozenAttributeError()
+    raise FrozenAttributeError
 
 
 def validate(instance, attrib, new_value):
