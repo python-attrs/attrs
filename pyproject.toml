@@ -51,11 +51,7 @@ cov = [
   # Ensure coverage is new enough for `source_pkgs`.
   "coverage[toml]>=5.3",
 ]
-benchmark = [
-  "pytest-codspeed",
-  "pytest-xdist[psutil]",
-  "attrs[tests]",
-]
+benchmark = ["pytest-codspeed", "pytest-xdist[psutil]", "attrs[tests]"]
 docs = [
   "cogapp",
   "furo",
@@ -63,8 +59,8 @@ docs = [
   "sphinx",
   "sphinx-notfound-page",
   "sphinxcontrib-towncrier",
-   # See https://github.com/sphinx-contrib/sphinxcontrib-towncrier/issues/92
-   # Pin also present in tox.ini
+  # See https://github.com/sphinx-contrib/sphinxcontrib-towncrier/issues/92
+  # Pin also present in tox.ini
   "towncrier<24.7",
 ]
 dev = ["attrs[tests]", "pre-commit"]
@@ -230,27 +226,23 @@ ignore = [
 ]
 "**/test_*" = [
   "ARG005",  # we need stub lambdas
-  "S",
-  "SIM300",  # Yoda rocks in asserts
-  "SIM201",  # sometimes we need to check `not ==`
-  "SIM202",  # sometimes we need to check `not ==`
-  "PT005",   # we always add underscores and explicit names
-  "PT011",   # broad is fine
-  "TRY",     # exception best practices don't matter in tests
-  "EM101",   # no need for exception msg hygiene in tests
-  "B904",    # exception best practices don't matter in tests
   "B015",    # pointless comparison in tests aren't pointless
-  "B018",    # pointless expressions in tests aren't pointless
-  "PLR0124", # pointless comparison in tests aren't pointless
-  "DTZ",     # datetime best practices don't matter in tests
-  "UP037",   # we test some older syntaxes on purpose
   "B017",    # pytest.raises(Exception) is fine
+  "B018",    # pointless expressions in tests aren't pointless
+  "B904",    # exception best practices don't matter in tests
+  "DTZ",     # datetime best practices don't matter in tests
+  "EM101",   # no need for exception msg hygiene in tests
+  "PLE0309", # hash doesn't have to return anything in tests
+  "PLR0124", # pointless comparison in tests aren't pointless
+  "PT011",   # broad is fine
   "PT012",   # sometimes we need more than a single stmt
   "RUF012",  # we don't do ClassVar annotations in tests
-]
-
-"conftest.py" = [
-  "PT005", # we always add underscores and explicit names
+  "S",
+  "SIM201",  # sometimes we need to check `not ==`
+  "SIM202",  # sometimes we need to check `not ==`
+  "SIM300",  # Yoda rocks in asserts
+  "TRY",     # exception best practices don't matter in tests
+  "UP037",   # we test some older syntaxes on purpose
 ]
 
 "src/*/*.pyi" = ["ALL"] # TODO
@@ -266,7 +258,6 @@ ignore = [
 [tool.ruff.lint.isort]
 lines-between-types = 1
 lines-after-imports = 2
-known-first-party = ["attr", "attrs"]
 
 
 [tool.towncrier]
