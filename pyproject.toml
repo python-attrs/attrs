@@ -140,6 +140,11 @@ title = "FilePreviews"
 url = "https://filepreviews.io/"
 img = "FilePreviews.svg"
 
+[[tool.sponcon.sponsors]]
+title = "Polar"
+url = "https://polar.sh/"
+img = "Polar.svg"
+
 
 [tool.pytest.ini_options]
 addopts = ["-ra", "--strict-markers", "--strict-config"]
