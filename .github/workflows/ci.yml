@@ -63,7 +63,7 @@ jobs:
           V=${{ matrix.python-version }}
           DO_MYPY=1
 
-          if [[ "$V" == "3.7" || "$V" == "3.8" ]]; then
+          if [[ "$V" == "3.8" ]]; then
             DO_MYPY=0
           fi
 
@@ -73,7 +73,6 @@ jobs:
           uv pip install --system tox
 
       - run: uv pip install --system tox-uv
-        if: matrix.python-version != '3.7'
 
       - run: python -Im tox run -e ${{ env.TOX_PYTHON }}-mypy
         if: env.DO_MYPY == '1'

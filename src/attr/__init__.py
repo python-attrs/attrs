@@ -5,11 +5,10 @@ Classes Without Boilerplate
 """
 
 from functools import partial
-from typing import Callable
+from typing import Callable, Protocol
 
 from . import converters, exceptions, filters, setters, validators
 from ._cmp import cmp_using
-from ._compat import Protocol
 from ._config import get_run_validators, set_run_validators
 from ._funcs import asdict, assoc, astuple, evolve, has, resolve_types
 from ._make import (
@@ -85,10 +84,7 @@ def _make_getattr(mod_name: str) -> Callable:
             msg = f"module {mod_name} has no attribute {name}"
             raise AttributeError(msg)
 
-        try:
-            from importlib.metadata import metadata
-        except ImportError:
-            from importlib_metadata import metadata
+        from importlib.metadata import metadata
 
         meta = metadata("attrs")
 

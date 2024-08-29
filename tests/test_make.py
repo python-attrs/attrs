@@ -21,7 +21,7 @@ from hypothesis.strategies import booleans, integers, lists, sampled_from, text
 import attr
 
 from attr import _config
-from attr._compat import PY_3_8_PLUS, PY_3_10_PLUS, PY_3_14_PLUS
+from attr._compat import PY_3_10_PLUS, PY_3_14_PLUS
 from attr._make import (
     Attribute,
     Factory,
@@ -1837,7 +1837,6 @@ class TestClassBuilder:
 
         assert [C2] == C.__subclasses__()
 
-    @pytest.mark.skipif(not PY_3_8_PLUS, reason="cached_property is 3.8+")
     @pytest.mark.xfail(PY_3_14_PLUS, reason="Currently broken on nightly.")
     def test_no_references_to_original_when_using_cached_property(self):
         """

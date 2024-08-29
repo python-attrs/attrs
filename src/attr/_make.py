@@ -20,7 +20,6 @@ from operator import itemgetter
 # having the thread-local in the globals here.
 from . import _compat, _config, setters
 from ._compat import (
-    PY_3_8_PLUS,
     PY_3_10_PLUS,
     PY_3_11_PLUS,
     _AnnotationExtractor,
@@ -790,16 +789,11 @@ class _ClassBuilder:
         ):
             names += ("__weakref__",)
 
-        if PY_3_8_PLUS:
-            cached_properties = {
-                name: cached_property.func
-                for name, cached_property in cd.items()
-                if isinstance(cached_property, functools.cached_property)
-            }
-        else:
-            # `functools.cached_property` was introduced in 3.8.
-            # So can't be used before this.
-            cached_properties = {}
+        cached_properties = {
+            name: cached_property.func
+            for name, cached_property in cd.items()
+            if isinstance(cached_property, functools.cached_property)
+        }
 
         # Collect methods with a `__class__` reference that are shadowed in the new class.
         # To know to update them.
@@ -2213,7 +2207,7 @@ def _attrs_to_init_script(
         # If pre init method has arguments, pass same arguments as `__init__`.
         lines[0] = f"self.__attrs_pre_init__({pre_init_args})"
 
-    # Python 3.7 doesn't allow backslashes in f strings.
+    # Python <3.12 doesn't allow backslashes in f-strings.
     NL = "\n    "
     return (
         f"""def {method_name}(self, {args}):
