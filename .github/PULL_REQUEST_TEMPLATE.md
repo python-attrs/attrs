@@ -16,7 +16,7 @@ If your pull request is a documentation fix or a trivial typo, feel free to dele
 
 - [ ] Do **not** open pull requests from your `main` branch – **use a separate branch**!
   - There's a ton of footguns waiting if you don't heed this warning. You can still go back to your project, create a branch from your main branch, push it, and open the pull request from the new branch.
-  - This is not a pre-requisite for your your pull request to be accepted, but **you have been warned**.
+  - This is not a pre-requisite for your pull request to be accepted, but **you have been warned**.
 - [ ] Added **tests** for changed code.
   Our CI fails if coverage is not 100%.
 - [ ] New features have been added to our [Hypothesis testing strategy](https://github.com/python-attrs/attrs/blob/main/tests/strategies.py).
