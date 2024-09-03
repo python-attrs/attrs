@@ -91,6 +91,7 @@ jobs:
         with:
           name: coverage-data-${{ matrix.python-version }}
           path: .coverage.*
+          include-hidden-files: true
           if-no-files-found: ignore
 
   tests-pypy:
