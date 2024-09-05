@@ -4,7 +4,6 @@
 Commonly useful converters.
 """
 
-
 import typing
 
 from ._compat import _AnnotationExtractor

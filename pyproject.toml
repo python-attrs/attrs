@@ -173,10 +173,6 @@ exclude_lines = [
 ]
 
 
-[tool.black]
-line-length = 79
-
-
 [tool.interrogate]
 omit-covered-files = true
 verbose = 2
@@ -190,6 +186,7 @@ toplevel = ["attr", "attrs"]
 
 [tool.ruff]
 src = ["src", "tests", "conftest.py", "docs"]
+line-length = 79
 
 [tool.ruff.lint]
 select = ["ALL"]
@@ -200,12 +197,13 @@ ignore = [
   "ANN",     # Mypy is better at this
   "ARG",     # unused arguments are normal when implementing interfaces
   "C901",    # we're complex software
-  "COM",     # Black takes care of our commas
+  "COM",     # ruff format takes care of our commas
   "D",       # We prefer our own docstring style.
-  "E501",    # leave line-length enforcement to Black
+  "E501",    # leave line-length enforcement to ruff format
   "ERA001",  # we need to keep around some notes
   "FBT",     # we don't hate bool args around here
   "FIX",     # Yes, we want XXX as a marker.
+  "ISC001",  # conflicts with ruff format
   "N",       # we need more naming freedom
   "PD",      # we're not pandas
   "PLR0912", # we're complex software

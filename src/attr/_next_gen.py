@@ -5,7 +5,6 @@ These are keyword-only APIs that call `attr.s` and `attr.ib` with different
 default values.
 """
 
-
 from functools import partial
 
 from . import setters

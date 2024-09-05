@@ -4,7 +4,6 @@
 Commonly useful validators.
 """
 
-
 import operator
 import re
 

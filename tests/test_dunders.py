@@ -4,7 +4,6 @@
 Tests for dunder methods from `attrib._make`.
 """
 
-
 import copy
 import inspect
 import pickle
@@ -481,12 +480,12 @@ class TestAddHash:
         exc_args = ("Invalid value for hash.  Must be True, False, or None.",)
 
         with pytest.raises(TypeError) as e:
-            make_class("C", {}, unsafe_hash=1),
+            make_class("C", {}, unsafe_hash=1)
 
         assert exc_args == e.value.args
 
         with pytest.raises(TypeError) as e:
-            make_class("C", {"a": attr.ib(hash=1)}),
+            make_class("C", {"a": attr.ib(hash=1)})
 
         assert exc_args == e.value.args
 

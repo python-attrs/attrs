@@ -3,6 +3,7 @@
 """
 Tests for `attr._make`.
 """
+
 import copy
 import functools
 import gc

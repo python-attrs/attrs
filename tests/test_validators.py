@@ -4,7 +4,6 @@
 Tests for `attr.validators`.
 """
 
-
 import re
 
 import pytest
