@@ -151,14 +151,16 @@ jobs:
 
       - name: Combine coverage & fail if it's <100%.
         run: |
-          uvx --from=coverage[toml] coverage combine
-          uvx --from=coverage[toml] coverage html --skip-covered --skip-empty
+          uv tool install 'coverage[toml]''
+
+          coverage combine
+          coverage html --skip-covered --skip-empty
 
           # Report and write to summary.
-          uvx --from=coverage[toml] coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
+          coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
 
           # Report again and fail if under 100%.
-          uvx --from=coverage[toml] coverage report --fail-under=100
+          coverage report --fail-under=100
 
       - name: Upload HTML report if check failed.
         uses: actions/upload-artifact@v4
