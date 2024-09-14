@@ -70,18 +70,17 @@ jobs:
           echo DO_MYPY=$DO_MYPY >>$GITHUB_ENV
           echo TOX_PYTHON=py$(echo $V | tr -d .) >>$GITHUB_ENV
 
-          uv pip install --system tox
-
-      - run: uv pip install --system tox-uv
-
-      - run: python -Im tox run -e ${{ env.TOX_PYTHON }}-mypy
+      - run: >
+          uvx --with=tox-uv
+          tox run
+          -e ${{ env.TOX_PYTHON }}-mypy
         if: env.DO_MYPY == '1'
 
       - name: Remove src to ensure tests run against wheel
         run: rm -rf src
 
       - run: >
-          python -Im
+          uvx --with=tox-uv
           tox run
           --installpkg dist/*.whl
           -e ${{ env.TOX_PYTHON }}-tests
@@ -121,10 +120,8 @@ jobs:
           allow-prereleases: true
       - uses: hynek/setup-cached-uv@v2
 
-      - run: uv pip install --system tox-uv
-
       - run: >
-          python -Im
+          uvx --with=tox-uv
           tox run
           --installpkg dist/*.whl
           -e pypy3-tests
@@ -154,16 +151,16 @@ jobs:
 
       - name: Combine coverage & fail if it's <100%.
         run: |
-          uv pip install --system coverage[toml]
+          uv tool install 'coverage[toml]'
 
-          python -Im coverage combine
-          python -Im coverage html --skip-covered --skip-empty
+          coverage combine
+          coverage html --skip-covered --skip-empty
 
           # Report and write to summary.
-          python -Im coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
+          coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
 
           # Report again and fail if under 100%.
-          python -Im coverage report --fail-under=100
+          coverage report --fail-under=100
 
       - name: Upload HTML report if check failed.
         uses: actions/upload-artifact@v4
@@ -189,8 +186,7 @@ jobs:
           python-version: "3.12"
       - uses: hynek/setup-cached-uv@v2
 
-      - run: uv pip install --system tox-uv
-      - run: python -Im tox run -e docs,changelog
+      - run: uvx --with=tox-uv tox run -e docs,changelog
 
   pyright:
     name: Check types using pyright
@@ -202,8 +198,7 @@ jobs:
           python-version-file: .python-version-default
       - uses: hynek/setup-cached-uv@v2
 
-      - run: uv pip install --system tox-uv
-      - run: python -Im tox run -e pyright
+      - run: uvx --with=tox-uv tox run -e pyright
 
   install-dev:
     name: Verify dev env
