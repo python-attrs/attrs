@@ -66,20 +66,23 @@ We don't think that your business model and your serialization format should be 
 ## Private Attributes and Aliases
 
 One thing people tend to find confusing is the treatment of private attributes that start with an underscore.
-*attrs* follows the doctrine that [there is no such thing as a private argument](https://github.com/hynek/characteristic/issues/6) and strips the underscores from the name when writing the `__init__` method signature:
+Although there is [a convention](https://docs.python.org/3/tutorial/classes.html#tut-private) that members of an object that start with an underscore should be treated as private, consider that a core feature of *attrs* is to automatically create an `__init__` method whose arguments correspond to the members.
+There is no corresponding convention for private arguments: the entire signature of a function is its public interface to be used by callers.
+
+However, it is sometimes useful to accept a public argument when an object is constructed, but treat that attribute as private after the object is created, perhaps to maintain some invariant.
+As a convenience for this use case, the default behavior of *attrs* is that if you specify a member that starts with an underscore, it will strip the underscore from the name when it creates the `__init__` method signature:
 
 ```{doctest}
 >>> import inspect
 >>> from attrs import define
 >>> @define
-... class C:
-...    _x: int
->>> inspect.signature(C.__init__)
-<Signature (self, x: int) -> None>
+... class FileDescriptor:
+...    _fd: int
+>>> inspect.signature(FileDescriptor.__init__)
+<Signature (self, fd: int) -> None>
 ```
 
-There really isn't a right or wrong, it's a matter of taste.
-But it's important to be aware of it because it can lead to surprising syntax errors:
+Even if you're not using this feature, it's important to be aware of it because it can lead to surprising syntax errors:
 
 ```{doctest}
 >>> @define
@@ -92,6 +95,7 @@ SyntaxError: invalid syntax
 
 In this case a valid attribute name `_1` got transformed into an invalid argument name `1`.
 
+Whether this feature is useful to you is a matter of taste.
 If your taste differs, you can use the *alias* argument to {func}`attrs.field` to explicitly set the argument name.
 This can be used to override private attribute handling, or make other arbitrary changes to `__init__` argument names.
 
@@ -101,8 +105,9 @@ This can be used to override private attribute handling, or make other arbitrary
 ... class C:
 ...    _x: int = field(alias="_x")
 ...    y: int = field(alias="distasteful_y")
+...    _1: int = field(alias="underscore1")
 >>> inspect.signature(C.__init__)
-<Signature (self, _x: int, distasteful_y: int) -> None>
+<Signature (self, _x: int, distasteful_y: int, underscore1: int) -> None>
 ```
 
 (defaults)=
