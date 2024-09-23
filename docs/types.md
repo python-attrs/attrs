@@ -106,6 +106,7 @@ Your constructive feedback is welcome in both [attrs#795](https://github.com/pyt
 Generally speaking, the decision on improving *attrs* support in Pyright is entirely Microsoft's prerogative and they unequivocally indicated that they'll only add support for features that go through the PEP process, though.
 :::
 
+
 ## Class variables and constants
 
 If you are adding type annotations to all of your code, you might wonder how to define a class variable (as opposed to an instance variable), because a value assigned at class scope becomes a default for that attribute.
