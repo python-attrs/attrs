@@ -106,6 +106,23 @@ Your constructive feedback is welcome in both [attrs#795](https://github.com/pyt
 Generally speaking, the decision on improving *attrs* support in Pyright is entirely Microsoft's prerogative and they unequivocally indicated that they'll only add support for features that go through the PEP process, though.
 :::
 
+## Class variables and constants
+
+If you are adding type annotations to all of your code, you might wonder how to define a class variable (as opposed to an instance variable), because a value assigned at class scope becomes a default for that attribute.
+The proper way to type such a class variable, though, is with {data}`typing.ClassVar`, which indicates that the variable should only be assigned in the class (or its subclasses) and not in instances of the class.
+*attrs* will skip over members annotated with {data}`typing.ClassVar`, allowing you to write a type anotation without turning the member into an attribute.
+Class variables are often used for constants, though they can also be used for mutable singleton data shared across all instances of the class.
+
+```
+@attrs.define
+class PngHeader:
+    SIGNATURE: typing.ClassVar[bytes] = b'\x89PNG\r\n\x1a\n'
+    height: int
+    width: int
+    interlaced: int = 0
+    ...
+```
+
 [Mypy]: http://mypy-lang.org
 [Pyright]: https://github.com/microsoft/pyright
 [*pytype*]: https://google.github.io/pytype/
