@@ -110,7 +110,7 @@ Generally speaking, the decision on improving *attrs* support in Pyright is enti
 
 If you are adding type annotations to all of your code, you might wonder how to define a class variable (as opposed to an instance variable), because a value assigned at class scope becomes a default for that attribute.
 The proper way to type such a class variable, though, is with {data}`typing.ClassVar`, which indicates that the variable should only be assigned in the class (or its subclasses) and not in instances of the class.
-*attrs* will skip over members annotated with {data}`typing.ClassVar`, allowing you to write a type anotation without turning the member into an attribute.
+*attrs* will skip over members annotated with {data}`typing.ClassVar`, allowing you to write a type annotation without turning the member into an attribute.
 Class variables are often used for constants, though they can also be used for mutable singleton data shared across all instances of the class.
 
 ```
