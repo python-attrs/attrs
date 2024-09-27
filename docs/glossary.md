@@ -97,7 +97,7 @@ slotted classes
   - Since it's currently impossible to make a class slotted after it's been created, *attrs* has to replace your class with a new one.
     While it tries to do that as graciously as possible, certain metaclass features like {meth}`object.__init_subclass__` do not work with slotted classes.
 
-  - The {attr}`class.__subclasses__` attribute needs a garbage collection run (which can be manually triggered using {func}`gc.collect`), for the original class to be removed.
+  - The {attr}`type.__subclasses__` attribute needs a garbage collection run (which can be manually triggered using {func}`gc.collect`), for the original class to be removed.
     See issue [#407](https://github.com/python-attrs/attrs/issues/407) for more details.
 
   - Pickling of slotted classes will fail if you define a class with missing attributes.
