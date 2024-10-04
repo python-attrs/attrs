@@ -76,7 +76,7 @@ def define(
             sensible ``__ne__`` by default, so it *should* be enough to only
             implement ``__eq__`` in most cases).
 
-            Passing True or False` to *init*, *repr*, *eq*, *cmp*, or *hash*
+            Passing True or False` to *init*, *repr*, *eq*, or *hash*
             overrides whatever *auto_detect* would determine.
 
         auto_exc (bool):
@@ -150,10 +150,6 @@ def define(
             If `None` mirror value of *eq*.
 
             .. seealso:: `comparison`
-
-        cmp (bool | None):
-            Setting *cmp* is equivalent to setting *eq* and *order* to the same
-            value. Must not be mixed with *eq* or *order*.
 
         unsafe_hash (bool | None):
             If None (default), the ``__hash__`` method is generated according
@@ -501,12 +497,6 @@ def field(
             ``__lt__``, ``__le__``, ``__gt__`` and ``__ge__`` methods. To
             override how the attribute value is ordered, pass a callable that
             takes a single value and returns the value to be ordered.
-
-            .. seealso:: `comparison`
-
-        cmp(bool | ~typing.Callable):
-            Setting *cmp* is equivalent to setting *eq* and *order* to the same
-            value. Must not be mixed with *eq* or *order*.
 
             .. seealso:: `comparison`
 
