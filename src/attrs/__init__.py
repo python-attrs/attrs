@@ -45,6 +45,7 @@ __all__ = [
     "cmp_using",
     "Converter",
     "converters",
+    "custom_fields",
     "define",
     "evolve",
     "exceptions",
