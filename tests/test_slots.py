@@ -1126,6 +1126,7 @@ def test_slots_cached_properties_work_independently():
     assert obj.f_1 == 1
     assert obj.f_2 == 2
 
+
 def test_slots_cached_property_retains_doc():
     """
     Cached property's docstring is retained.
@@ -1143,6 +1144,7 @@ def test_slots_cached_property_retains_doc():
             return self.x
 
     assert "This is a docstring." in A.f.__doc__
+
 
 @attr.s(slots=True)
 class A:

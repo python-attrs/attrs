@@ -67,22 +67,22 @@ class Desc:
         self.__doc__ = func.__doc__
 
     def __get__(self, obj, objtype=None):
-        print(f' getting {obj}, {objtype}')
+        print(f" getting {obj}, {objtype}")
         try:
             result = self.old_desc.__get__(obj)
-            print(f'resulting in {result}')
-            return  result
-        except TypeError as e:
+            print(f"resulting in {result}")
+            return result
+        except TypeError:
             pass
         except AttributeError as e:
-            print(f'exceptions = {e}')
-            pass
+            print(f"exceptions = {e}")
         if obj is None:
             return self
-        print(f'{self.old_desc=}')
+        print(f"{self.old_desc=}")
         result = self.func(obj)
         self.old_desc.__set__(obj, result)
         return result
+
 
 class _Nothing(enum.Enum):
     """
@@ -505,8 +505,6 @@ def _transform_attrs(
     return _Attributes((AttrsClass(attrs), base_attrs, base_attr_map))
 
 
-
-
 def _frozen_setattrs(self, name, value):
     """
     Attached to frozen classes as __setattr__.
@@ -751,7 +749,7 @@ class _ClassBuilder:
                 }
             )
             existing_cached_property.update(
-                getattr(base_cls, '__attrs_cached_properties__', [])
+                getattr(base_cls, "__attrs_cached_properties__", [])
             )
 
         base_names = set(self._base_names)
@@ -771,14 +769,13 @@ class _ClassBuilder:
             if isinstance(cached_property, functools.cached_property)
         }
 
-        cd['__attrs_cached_properties__'] = list(cached_properties.keys())
+        cd["__attrs_cached_properties__"] = list(cached_properties.keys())
 
         # Collect methods with a `__class__` reference that are shadowed in the new class.
         # To know to update them.
         property_calls = {}
         additional_closure_functions_to_update = []
         if cached_properties:
-            ...
             class_annotations = _get_annotations(self._cls)
             for name, func in cached_properties.items():
                 # Add cached properties to names for slotting.
@@ -790,8 +787,6 @@ class _ClassBuilder:
                 annotation = inspect.signature(func).return_annotation
                 if annotation is not inspect.Parameter.empty:
                     class_annotations[name] = annotation
-
-
 
         # We only add the names of attributes that aren't inherited.
         # Setting __slots__ to inherited attributes wastes memory.
