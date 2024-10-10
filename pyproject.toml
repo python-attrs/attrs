@@ -50,6 +50,7 @@ cov = [
   # Ensure coverage is new enough for `source_pkgs`.
   "coverage[toml]>=5.3",
 ]
+pyright = ["attrs[tests]", "pyright<1.1.380"]
 benchmark = ["pytest-codspeed", "pytest-xdist[psutil]", "attrs[tests]"]
 docs = [
   "cogapp",
@@ -59,10 +60,13 @@ docs = [
   "sphinx-notfound-page",
   "sphinxcontrib-towncrier",
   # See https://github.com/sphinx-contrib/sphinxcontrib-towncrier/issues/92
-  # Pin also present in tox.ini
   "towncrier<24.7",
 ]
-dev = ["attrs[tests]", "pre-commit"]
+docs-watch = [
+  "attrs[docs]",
+  "watchfiles",
+]
+dev = ["attrs[tests]"]
 
 [project.urls]
 Documentation = "https://www.attrs.org/"
