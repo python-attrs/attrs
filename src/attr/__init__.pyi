@@ -9,7 +9,6 @@ from typing import (
     Mapping,
     Protocol,
     Sequence,
-    TypeAlias,
     TypeVar,
     overload,
 )
@@ -39,9 +38,9 @@ from attrs import (
 )
 
 if sys.version_info >= (3, 10):
-    from typing import TypeGuard
+    from typing import TypeGuard, TypeAlias
 else:
-    from typing_extensions import TypeGuard
+    from typing_extensions import TypeGuard, TypeAlias
 
 if sys.version_info >= (3, 11):
     from typing import dataclass_transform
