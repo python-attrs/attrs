@@ -5,9 +5,11 @@ from typing import (
     Any,
     Callable,
     Generic,
+    Literal,
     Mapping,
     Protocol,
     Sequence,
+    TypeAlias,
     TypeVar,
     overload,
 )
@@ -72,11 +74,11 @@ class _Nothing(enum.Enum):
     NOTHING = enum.auto()
 
 NOTHING = _Nothing.NOTHING
+NothingType: TypeAlias = Literal[_Nothing.NOTHING]
 
 # NOTE: Factory lies about its return type to make this possible:
 # `x: List[int] # = Factory(list)`
 # Work around mypy issue #4554 in the common case by using an overload.
-from typing import Literal
 
 @overload
 def Factory(factory: Callable[[], _T]) -> _T: ...
