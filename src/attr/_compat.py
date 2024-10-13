@@ -67,7 +67,10 @@ class _AnnotationExtractor:
         """
         Return the return type if it's not empty.
         """
-        if self.sig and self.sig.return_annotation is not inspect.Signature.empty:
+        if (
+            self.sig
+            and self.sig.return_annotation is not inspect.Signature.empty
+        ):
             return self.sig.return_annotation
 
         return None
