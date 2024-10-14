@@ -150,7 +150,7 @@ jobs:
 
       - name: Combine coverage & fail if it's <100%.
         run: |
-          uv tool install 'coverage[toml]'
+          uv tool install coverage
 
           coverage combine
           coverage html --skip-covered --skip-empty
