@@ -62,7 +62,7 @@ docs = [
   # Pin also present in tox.ini
   "towncrier<24.7",
 ]
-dev = ["attrs[tests]", "pre-commit"]
+dev = ["attrs[tests]", "pre-commit-uv"]
 
 [project.urls]
 Documentation = "https://www.attrs.org/"
