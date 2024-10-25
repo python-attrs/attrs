@@ -113,7 +113,7 @@ field
 
   However, with the emergence of {mod}`dataclasses`, [Pydantic](https://docs.pydantic.dev/latest/concepts/fields/), and other libraries, the term "field" has become a common term for a predefined attribute on a class in the Python ecosystem.
 
-  So with out new APIs, we've embraced it too by calling the function to create them {func}`attrs.field`, and use the term "field" throughout the documentation interchangeably.
+  So with our new APIs, we've embraced it too by calling the function to create them {func}`attrs.field`, and use the term "field" throughout the documentation interchangeably.
 
   See also {doc}`names`.
 
