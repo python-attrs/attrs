@@ -544,6 +544,7 @@ def _frozen_setattrs(self, name, value):
         "__context__",
         "__traceback__",
         "__suppress_context__",
+        "__notes__",
     ):
         BaseException.__setattr__(self, name, value)
         return
