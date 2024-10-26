@@ -14,6 +14,8 @@ import pytest
 import attr as _attr  # don't use it by accident
 import attrs
 
+from attr._compat import PY_3_11_PLUS
+
 
 @attrs.define
 class C:
@@ -332,7 +334,7 @@ class TestNextGen:
             attrs.mutable,
         ],
     )
-    def test_setting_traceback_on_exception(self, decorator):
+    def test_setting_exception_mutable_attributes(self, decorator):
         """
         contextlib.contextlib (re-)sets __traceback__ on raised exceptions.
 
@@ -354,6 +356,16 @@ class TestNextGen:
 
         # this should not raise an exception either
         ei.value.__traceback__ = ei.value.__traceback__
+        ei.value.__cause__ = ValueError("cause")
+        ei.value.__context__ = TypeError("context")
+        ei.value.__suppress_context__ = True
+        ei.value.__suppress_context__ = False
+        ei.value.__notes__ = []
+        del ei.value.__notes__
+
+        if PY_3_11_PLUS:
+            ei.value.add_note("note")
+            del ei.value.__notes__
 
     def test_converts_and_validates_by_default(self):
         """

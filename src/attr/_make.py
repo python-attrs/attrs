@@ -543,6 +543,8 @@ def _frozen_setattrs(self, name, value):
         "__cause__",
         "__context__",
         "__traceback__",
+        "__suppress_context__",
+        "__notes__",
     ):
         BaseException.__setattr__(self, name, value)
         return
@@ -554,6 +556,10 @@ def _frozen_delattrs(self, name):
     """
     Attached to frozen classes as __delattr__.
     """
+    if isinstance(self, BaseException) and name in ("__notes__",):
+        BaseException.__delattr__(self, name)
+        return
+
     raise FrozenInstanceError
 
 
