@@ -13,6 +13,7 @@ import pytest
 
 import attr as _attr  # don't use it by accident
 import attrs
+
 from attrs._compat import PY_3_11_PLUS
 
 
