@@ -356,8 +356,8 @@ class TestNextGen:
 
         # this should not raise an exception either
         ei.value.__traceback__ = ei.value.__traceback__
-        ei.value.__cause__ = MyException("cause")
-        ei.value.__context__ = MyException("context")
+        ei.value.__cause__ = ValueError("cause")
+        ei.value.__context__ = TypeError("context")
         ei.value.__suppress_context__ = True
         ei.value.__suppress_context__ = False
         ei.value.__notes__ = []
