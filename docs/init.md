@@ -476,7 +476,7 @@ attrs.exceptions.FrozenInstanceError: can't set attribute
 If you need to set attributes on a frozen class, you'll have to resort to the [same trick](how-frozen) as *attrs* and use {meth}`object.__setattr__`:
 
 ```{doctest}
->>> @define
+>>> @frozen
 ... class Frozen:
 ...     x: int
 ...     y: int = field(init=False)
