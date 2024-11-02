@@ -14,6 +14,7 @@
    <a href="https://pypi.org/project/attrs/"><img src="https://img.shields.io/pypi/v/attrs" /></a>
    <a href="https://pepy.tech/project/attrs"><img src="https://static.pepy.tech/personalized-badge/attrs?period=month&units=international_system&left_color=grey&right_color=blue&left_text=Downloads%20/%20Month" alt="Downloads per month" /></a>
    <a href="https://zenodo.org/badge/latestdoi/29918975"><img src="https://zenodo.org/badge/29918975.svg" alt="DOI"></a>
+   <a href="https://gurubase.io/g/attrs"><img src="https://img.shields.io/badge/Gurubase-Ask%20attrs%20Guru-006BFF" alt="Gurubase"></a>
 </p>
 
 <!-- teaser-begin -->
