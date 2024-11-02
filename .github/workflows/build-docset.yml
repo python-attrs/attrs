@@ -12,6 +12,7 @@ env:
 
 permissions: {}
 
+
 jobs:
   docset:
     runs-on: ubuntu-latest
@@ -19,13 +20,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
+      - uses: hynek/setup-cached-uv@v2
 
-      - run: python -Im pip install tox
-
-      - run: python -Im tox run -e docset
+      - run: uvx --with=tox-uv tox run -e docset
 
       - uses: actions/upload-artifact@v4
         with:

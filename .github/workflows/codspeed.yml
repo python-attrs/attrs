@@ -31,14 +31,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version-file: .python-version-default
-          cache: pip
-      - run: python -Im pip install tox-uv
+      - uses: hynek/setup-cached-uv@v2
 
       - name: Run CodSpeed benchmarks
         uses: CodSpeedHQ/action@v3
         with:
           token: ${{ secrets.CODSPEED_TOKEN }}
-          run: tox run -e codspeed
+          run: uvx --with tox-uv tox run -e codspeed

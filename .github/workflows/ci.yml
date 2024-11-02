@@ -16,6 +16,7 @@ env:
 
 permissions: {}
 
+
 jobs:
   build-package:
     name: Build & verify package
@@ -25,6 +26,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - uses: hynek/build-and-inspect-python-package@v2
         id: baipp
@@ -59,8 +61,9 @@ jobs:
       - uses: hynek/setup-cached-uv@v2
 
       - name: Prepare tox
+        env:
+          V: ${{ matrix.python-version }}
         run: |
-          V=${{ matrix.python-version }}
           DO_MYPY=1
 
           if [[ "$V" == "3.8" ]]; then
@@ -73,7 +76,7 @@ jobs:
       - run: >
           uvx --with=tox-uv
           tox run
-          -e ${{ env.TOX_PYTHON }}-mypy
+          -e $TOX_PYTHON-mypy
         if: env.DO_MYPY == '1'
 
       - name: Remove src to ensure tests run against wheel
@@ -83,7 +86,7 @@ jobs:
           uvx --with=tox-uv
           tox run
           --installpkg dist/*.whl
-          -e ${{ env.TOX_PYTHON }}-tests
+          -e $TOX_PYTHON-tests
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v4
@@ -192,6 +195,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version-file: .python-version-default
@@ -205,6 +210,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version-file: .python-version-default
