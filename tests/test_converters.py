@@ -124,7 +124,7 @@ class TestOptional:
         """
         c = optional(int)
 
-        assert c("42") == 42
+        assert c("42", None, None) == 42
 
     def test_success_with_none(self):
         """
@@ -132,7 +132,7 @@ class TestOptional:
         """
         c = optional(int)
 
-        assert c(None) is None
+        assert c(None, None, None) is None
 
     def test_fail(self):
         """
@@ -141,7 +141,7 @@ class TestOptional:
         c = optional(int)
 
         with pytest.raises(ValueError):
-            c("not_an_int")
+            c("not_an_int", None, None)
 
 
 class TestDefaultIfNone:
@@ -270,6 +270,46 @@ class TestPipe:
                 attr.fields(C).x.converter.__call__
             ).get_return_type()
         )
+
+
+class TestOptionalPipe:
+    def test_optional(self):
+        """
+        Nothing happens if None.
+        """
+        c = optional(pipe(str, Converter(to_bool), bool))
+
+        assert None is c.converter(None, None, None)
+
+    def test_pipe(self):
+        """
+        A value is given, run it through all wrapped converters.
+        """
+        c = optional(pipe(str, Converter(to_bool), bool))
+
+        assert (
+            True
+            is c.converter("True", None, None)
+            is c.converter(True, None, None)
+        )
+
+    def test_instance(self):
+        """
+        Should work when set as an attrib.
+        """
+
+        @attr.s
+        class C:
+            x = attrib(
+                converter=optional(pipe(str, Converter(to_bool), bool)),
+                default=None,
+            )
+
+        c1 = C()
+        assert None is c1.x
+
+        c2 = C("True")
+        assert True is c2.x
 
 
 class TestToBool:

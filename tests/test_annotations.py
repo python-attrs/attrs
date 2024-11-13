@@ -351,22 +351,26 @@ class TestAnnotations:
         def identity(x):
             return x
 
-        assert attr.converters.optional(int2str).__annotations__ == {
+        assert attr.converters.optional(int2str).converter.__annotations__ == {
             "val": typing.Optional[int],
             "return": typing.Optional[str],
         }
-        assert attr.converters.optional(int_identity).__annotations__ == {
-            "val": typing.Optional[int]
-        }
-        assert attr.converters.optional(strify).__annotations__ == {
+        assert attr.converters.optional(
+            int_identity
+        ).converter.__annotations__ == {"val": typing.Optional[int]}
+        assert attr.converters.optional(strify).converter.__annotations__ == {
             "return": typing.Optional[str]
         }
-        assert attr.converters.optional(identity).__annotations__ == {}
+        assert (
+            attr.converters.optional(identity).converter.__annotations__ == {}
+        )
 
         def int2str_(x: int, y: int = 0) -> str:
             return str(x)
 
-        assert attr.converters.optional(int2str_).__annotations__ == {
+        assert attr.converters.optional(
+            int2str_
+        ).converter.__annotations__ == {
             "val": typing.Optional[int],
             "return": typing.Optional[str],
         }
@@ -377,7 +381,7 @@ class TestAnnotations:
         converter.
         """
 
-        assert attr.converters.optional(print).__annotations__ == {}
+        assert attr.converters.optional(print).converter.__annotations__ == {}
 
     def test_optional_nullary(self):
         """
@@ -387,7 +391,7 @@ class TestAnnotations:
         def noop():
             pass
 
-        assert attr.converters.optional(noop).__annotations__ == {}
+        assert attr.converters.optional(noop).converter.__annotations__ == {}
 
     @pytest.mark.skipif(
         sys.version_info[:2] < (3, 11),
