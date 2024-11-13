@@ -124,7 +124,7 @@ class TestOptional:
         """
         c = optional(int)
 
-        assert c("42", None, None) == 42
+        assert c("42") == 42
 
     def test_success_with_none(self):
         """
@@ -132,7 +132,7 @@ class TestOptional:
         """
         c = optional(int)
 
-        assert c(None, None, None) is None
+        assert c(None) is None
 
     def test_fail(self):
         """
@@ -141,7 +141,15 @@ class TestOptional:
         c = optional(int)
 
         with pytest.raises(ValueError):
-            c("not_an_int", None, None)
+            c("not_an_int")
+
+    def test_converter_instance(self):
+        """
+        Works when passed a Converter instance as argument.
+        """
+        c = optional(Converter(to_bool))
+
+        assert True is c("yes", None, None)
 
 
 class TestDefaultIfNone:

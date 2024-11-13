@@ -40,12 +40,18 @@ def optional(converter):
                 return None
             return converter(val, inst, field)
 
+        result = Converter(
+            optional_converter, takes_self=True, takes_field=True
+        )
+
     else:
 
-        def optional_converter(val, inst, field):
+        def optional_converter(val):
             if val is None:
                 return None
             return converter(val)
+
+        result = optional_converter
 
     xtr = _AnnotationExtractor(converter)
 
@@ -57,7 +63,7 @@ def optional(converter):
     if rt:
         optional_converter.__annotations__["return"] = typing.Optional[rt]
 
-    return Converter(optional_converter, takes_self=True, takes_field=True)
+    return result
 
 
 def default_if_none(default=NOTHING, factory=None):
