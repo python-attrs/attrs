@@ -248,11 +248,11 @@ class TestPipe:
 
         # First wrapped converter fails:
         with pytest.raises(ValueError):
-            c.converter(33, None, None)
+            c(33)
 
         # Last wrapped converter fails:
         with pytest.raises(ValueError):
-            c.converter("33", None, None)
+            c("33")
 
     def test_sugar(self):
         """
@@ -273,7 +273,7 @@ class TestPipe:
         """
         o = object()
 
-        assert o is pipe().converter(o, None, None)
+        assert o is pipe()(o)
 
     def test_wrapped_annotation(self):
         """
