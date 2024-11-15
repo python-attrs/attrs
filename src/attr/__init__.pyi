@@ -130,7 +130,7 @@ class Attribute(Generic[_T]):
     order: _EqOrderType
     hash: bool | None
     init: bool
-    converter: _ConverterType | Converter[Any, _T] | None
+    converter: Converter | None
     metadata: dict[Any, Any]
     type: type[_T] | None
     kw_only: bool
@@ -194,7 +194,10 @@ def attrib(
     init: bool = ...,
     metadata: Mapping[Any, Any] | None = ...,
     type: type[_T] | None = ...,
-    converter: _ConverterType | Converter[Any, _T] | None = ...,
+    converter: _ConverterType
+    | list[_ConverterType]
+    | tuple[_ConverterType]
+    | None = ...,
     factory: Callable[[], _T] | None = ...,
     kw_only: bool = ...,
     eq: _EqOrderType | None = ...,
@@ -214,7 +217,10 @@ def attrib(
     init: bool = ...,
     metadata: Mapping[Any, Any] | None = ...,
     type: type[_T] | None = ...,
-    converter: _ConverterType | Converter[Any, _T] | None = ...,
+    converter: _ConverterType
+    | list[_ConverterType]
+    | tuple[_ConverterType]
+    | None = ...,
     factory: Callable[[], _T] | None = ...,
     kw_only: bool = ...,
     eq: _EqOrderType | None = ...,
@@ -234,7 +240,10 @@ def attrib(
     init: bool = ...,
     metadata: Mapping[Any, Any] | None = ...,
     type: object = ...,
-    converter: _ConverterType | Converter[Any, _T] | None = ...,
+    converter: _ConverterType
+    | list[_ConverterType]
+    | tuple[_ConverterType]
+    | None = ...,
     factory: Callable[[], _T] | None = ...,
     kw_only: bool = ...,
     eq: _EqOrderType | None = ...,

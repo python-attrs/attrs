@@ -133,40 +133,52 @@ class AliasExample:
 attr.fields(AliasExample).without_alias.alias
 attr.fields(AliasExample)._with_alias.alias
 
+
 # Converters
-# XXX: Currently converters can only be functions so none of this works
-# although the stubs should be correct.
 
+
+@attr.s
+class ConvCOptional:
+    x: int | None = attr.ib(converter=attr.converters.optional(int))
+
+
+ConvCOptional(1)
+ConvCOptional(None)
+
+
+# XXX: Fails with E: Unsupported converter, only named functions, types and lambdas are currently supported  [misc]
+# See https://github.com/python/mypy/issues/15736
+#
 # @attr.s
-# class ConvCOptional:
-#     x: Optional[int] = attr.ib(converter=attr.converters.optional(int))
-
-
-# ConvCOptional(1)
-# ConvCOptional(None)
-
-
+# class ConvCPipe:
+#     x: str = attr.ib(converter=attr.converters.pipe(int, str))
+#
+#
+# ConvCPipe(3.4)
+# ConvCPipe("09")
+#
+#
 # @attr.s
 # class ConvCDefaultIfNone:
 #     x: int = attr.ib(converter=attr.converters.default_if_none(42))
-
-
+#
+#
 # ConvCDefaultIfNone(1)
 # ConvCDefaultIfNone(None)
 
 
-# @attr.s
-# class ConvCToBool:
-#     x: int = attr.ib(converter=attr.converters.to_bool)
+@attr.s
+class ConvCToBool:
+    x: int = attr.ib(converter=attr.converters.to_bool)
 
 
-# ConvCToBool(1)
-# ConvCToBool(True)
-# ConvCToBool("on")
-# ConvCToBool("yes")
-# ConvCToBool(0)
-# ConvCToBool(False)
-# ConvCToBool("n")
+ConvCToBool(1)
+ConvCToBool(True)
+ConvCToBool("on")
+ConvCToBool("yes")
+ConvCToBool(0)
+ConvCToBool(False)
+ConvCToBool("n")
 
 
 # Validators
