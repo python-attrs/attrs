@@ -112,6 +112,25 @@ class TestConverter:
         assert float is c.__call__.__annotations__["return"]
         assert None is c2.__call__.__annotations__.get("return")
 
+    def test_falsey_converter(self):
+        """
+        Passing a false-y instance still produces a valid converter.
+        """
+
+        class MyConv:
+            def __bool__(self):
+                return False
+
+            def __call__(self, value):
+                return value * 2
+
+        @attr.s
+        class C:
+            a = attrib(converter=MyConv())
+
+        c = C(21)
+        assert 42 == c.a
+
 
 class TestOptional:
     """
