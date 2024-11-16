@@ -1532,8 +1532,6 @@ def _make_eq(cls, attrs):
         "        return NotImplemented",
     ]
 
-    # We can't just do a big self.x = other.x and... clause due to
-    # irregularities like nan == nan is false but (nan,) == (nan,) is true.
     globs = {}
     if attrs:
         lines.append("    return  (")
