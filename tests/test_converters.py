@@ -318,6 +318,7 @@ class TestOptionalPipe:
         assert None is c1.x
 
         c2 = C("True")
+
         assert True is c2.x
 
 
