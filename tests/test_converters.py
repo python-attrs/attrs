@@ -143,6 +143,14 @@ class TestOptional:
         with pytest.raises(ValueError):
             c("not_an_int")
 
+    def test_converter_instance(self):
+        """
+        Works when passed a Converter instance as argument.
+        """
+        c = optional(Converter(to_bool))
+
+        assert True is c("yes", None, None)
+
 
 class TestDefaultIfNone:
     def test_missing_default(self):
@@ -270,6 +278,48 @@ class TestPipe:
                 attr.fields(C).x.converter.__call__
             ).get_return_type()
         )
+
+
+class TestOptionalPipe:
+    def test_optional(self):
+        """
+        Nothing happens if None.
+        """
+        c = optional(pipe(str, Converter(to_bool), bool))
+
+        assert None is c.converter(None, None, None)
+
+    def test_pipe(self):
+        """
+        A value is given, run it through all wrapped converters.
+        """
+        c = optional(pipe(str, Converter(to_bool), bool))
+
+        assert (
+            True
+            is c.converter("True", None, None)
+            is c.converter(True, None, None)
+        )
+
+    def test_instance(self):
+        """
+        Should work when set as an attrib.
+        """
+
+        @attr.s
+        class C:
+            x = attrib(
+                converter=optional(pipe(str, Converter(to_bool), bool)),
+                default=None,
+            )
+
+        c1 = C()
+
+        assert None is c1.x
+
+        c2 = C("True")
+
+        assert True is c2.x
 
 
 class TestToBool:
