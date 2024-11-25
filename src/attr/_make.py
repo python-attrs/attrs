@@ -2021,7 +2021,7 @@ def _attrs_to_init_script(
         has_factory = isinstance(a.default, Factory)
         maybe_self = "self" if has_factory and a.default.takes_self else ""
 
-        if a.converter and not isinstance(a.converter, Converter):
+        if a.converter is not None and not isinstance(a.converter, Converter):
             converter = Converter(a.converter)
         else:
             converter = a.converter
