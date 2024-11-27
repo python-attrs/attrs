@@ -51,7 +51,7 @@ _C = TypeVar("_C", bound=type)
 
 _EqOrderType = bool | Callable[[Any], Any]
 _ValidatorType = Callable[[Any, "Attribute[_T]", _T], Any]
-_ConverterType = Callable[[Any], Any]
+_ConverterType = Callable[[Any], Any] | Converter[Any, _T]
 _ReprType = Callable[[Any], str]
 _ReprArgType = bool | _ReprType
 _OnSetAttrType = Callable[[Any, "Attribute[Any]", Any], Any]
@@ -94,7 +94,10 @@ def field(
     hash: bool | None = ...,
     init: bool = ...,
     metadata: Mapping[Any, Any] | None = ...,
-    converter: _ConverterType | Converter[Any, _T] | None = ...,
+    converter: _ConverterType
+    | list[_ConverterType]
+    | tuple[_ConverterType]
+    | None = ...,
     factory: Callable[[], _T] | None = ...,
     kw_only: bool = ...,
     eq: _EqOrderType | None = ...,
@@ -114,7 +117,10 @@ def field(
     hash: bool | None = ...,
     init: bool = ...,
     metadata: Mapping[Any, Any] | None = ...,
-    converter: _ConverterType | Converter[Any, _T] | None = ...,
+    converter: _ConverterType
+    | list[_ConverterType]
+    | tuple[_ConverterType]
+    | None = ...,
     factory: Callable[[], _T] | None = ...,
     kw_only: bool = ...,
     eq: _EqOrderType | None = ...,
@@ -134,7 +140,10 @@ def field(
     hash: bool | None = ...,
     init: bool = ...,
     metadata: Mapping[Any, Any] | None = ...,
-    converter: _ConverterType | Converter[Any, _T] | None = ...,
+    converter: _ConverterType
+    | list[_ConverterType]
+    | tuple[_ConverterType]
+    | None = ...,
     factory: Callable[[], _T] | None = ...,
     kw_only: bool = ...,
     eq: _EqOrderType | None = ...,
