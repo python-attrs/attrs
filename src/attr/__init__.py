@@ -37,11 +37,11 @@ class AttrsInstance(Protocol):
 
 
 __all__ = [
+    "NOTHING",
     "Attribute",
     "AttrsInstance",
     "Converter",
     "Factory",
-    "NOTHING",
     "asdict",
     "assoc",
     "astuple",

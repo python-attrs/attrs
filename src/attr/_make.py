@@ -578,15 +578,15 @@ class _ClassBuilder:
         "_cls_dict",
         "_delete_attribs",
         "_frozen",
-        "_has_pre_init",
-        "_pre_init_has_args",
+        "_has_custom_setattr",
         "_has_post_init",
+        "_has_pre_init",
         "_is_exc",
         "_on_setattr",
+        "_pre_init_has_args",
         "_slots",
         "_weakref_slot",
         "_wrote_own_setattr",
-        "_has_custom_setattr",
     )
 
     def __init__(
@@ -2276,7 +2276,9 @@ class Attribute:
     For the full version history of the fields, see `attr.ib`.
     """
 
-    __slots__ = (
+    # These slots must NOT be reordered because we use them later for
+    # instantiation.
+    __slots__ = (  # noqa: RUF023
         "name",
         "default",
         "validator",
@@ -2470,22 +2472,22 @@ class _CountingAttr:
     """
 
     __slots__ = (
-        "counter",
         "_default",
-        "repr",
+        "_validator",
+        "alias",
+        "converter",
+        "counter",
         "eq",
         "eq_key",
-        "order",
-        "order_key",
         "hash",
         "init",
-        "metadata",
-        "_validator",
-        "converter",
-        "type",
         "kw_only",
+        "metadata",
         "on_setattr",
-        "alias",
+        "order",
+        "order_key",
+        "repr",
+        "type",
     )
     __attrs_attrs__ = (
         *tuple(
@@ -2691,12 +2693,12 @@ class Converter:
     """
 
     __slots__ = (
-        "converter",
-        "takes_self",
-        "takes_field",
+        "__call__",
         "_first_param_type",
         "_global_name",
-        "__call__",
+        "converter",
+        "takes_field",
+        "takes_self",
     )
 
     def __init__(self, converter, *, takes_self=False, takes_field=False):

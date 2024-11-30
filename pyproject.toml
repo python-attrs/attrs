@@ -213,7 +213,7 @@ ignore = [
   "PLW0603", # sometimes we need globals
   "S307",    # eval FTW
   "SLF001",  # private members are accessed by friendly functions
-  "TCH",     # TYPE_CHECKING blocks break autodocs
+  "TC",      # TYPE_CHECKING blocks break autodocs
   "TD",      # we don't follow other people's todo style
   "TRY301",  # I'm sorry, but this makes not sense for us.
   "UP031",   # format() is slow as molasses; % and f'' FTW.
