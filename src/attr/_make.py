@@ -79,6 +79,8 @@ class _Nothing(enum.Enum):
 NOTHING = _Nothing.NOTHING
 """
 Sentinel to indicate the lack of a value when `None` is ambiguous.
+
+When using in 3rd party code, use `attrs.NothingType` for type annotations.
 """
 
 
