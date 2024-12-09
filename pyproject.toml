@@ -135,6 +135,11 @@ url = "https://klaviyo.com/"
 img = "Klaviyo.svg"
 
 [[tool.sponcon.sponsors]]
+title = "emsys renewables"
+url = "https://www.emsys-renewables.com/"
+img = "emsys-renewables.svg"
+
+[[tool.sponcon.sponsors]]
 title = "FilePreviews"
 url = "https://filepreviews.io/"
 img = "FilePreviews.svg"
