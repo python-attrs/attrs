@@ -1472,3 +1472,16 @@
     reveal_type(A)  # N: Revealed type is "def () -> main.A"
     if has(A):
         reveal_type(A)  # N: Revealed type is "type[attr.AttrsInstance]"
+
+- case: testNothingType
+  regex: true
+  main: |
+    from typing import Optional
+    from attrs import NOTHING, NothingType
+
+    def takes_nothing(arg: Optional[NothingType]) -> None:
+        return None
+
+    takes_nothing(NOTHING)
+    takes_nothing(None)
+    takes_nothing(1)  # E: Argument 1 to "takes_nothing" has incompatible type "Literal\[1\]"; expected "(Optional\[Literal\[_Nothing.NOTHING\]\]|Literal\[_Nothing.NOTHING\] \| None)"  \[arg-type\]
