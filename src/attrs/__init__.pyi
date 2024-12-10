@@ -51,7 +51,8 @@ _C = TypeVar("_C", bound=type)
 
 _EqOrderType = bool | Callable[[Any], Any]
 _ValidatorType = Callable[[Any, "Attribute[_T]", _T], Any]
-_ConverterType = Callable[[Any], Any] | Converter[Any, _T]
+_CallableConverterType = Callable[[Any], Any]
+_ConverterType = _CallableConverterType | Converter[Any, Any]
 _ReprType = Callable[[Any], str]
 _ReprArgType = bool | _ReprType
 _OnSetAttrType = Callable[[Any, "Attribute[Any]", Any], Any]

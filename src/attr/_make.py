@@ -2932,11 +2932,25 @@ def pipe(*converters):
     .. versionadded:: 20.1.0
     """
 
-    def pipe_converter(val, inst, field):
-        for c in converters:
-            val = c(val, inst, field) if isinstance(c, Converter) else c(val)
+    return_instance = any(isinstance(c, Converter) for c in converters)
 
-        return val
+    if return_instance:
+
+        def pipe_converter(val, inst, field):
+            for c in converters:
+                val = (
+                    c(val, inst, field) if isinstance(c, Converter) else c(val)
+                )
+
+            return val
+
+    else:
+
+        def pipe_converter(val):
+            for c in converters:
+                val = c(val)
+
+            return val
 
     if not converters:
         # If the converter list is empty, pipe_converter is the identity.
@@ -2957,4 +2971,6 @@ def pipe(*converters):
         if rt:
             pipe_converter.__annotations__["return"] = rt
 
-    return Converter(pipe_converter, takes_self=True, takes_field=True)
+    if return_instance:
+        return Converter(pipe_converter, takes_self=True, takes_field=True)
+    return pipe_converter
