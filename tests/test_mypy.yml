@@ -1475,9 +1475,10 @@
 
 - case: testNothingType
   main: |
+    from typing import Optional
     from attrs import NOTHING, NothingType
 
-    def takes_nothing(arg: NothingType | None) -> None:
+    def takes_nothing(arg: Optional[NothingType]) -> None:
         return None
 
     takes_nothing(NOTHING)
