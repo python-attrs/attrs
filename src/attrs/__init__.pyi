@@ -40,6 +40,7 @@ from attr import setters as setters
 from attr import validate as validate
 from attr import validators as validators
 from attr import attrib, asdict as asdict, astuple as astuple
+from attr import NothingType as NothingType
 
 if sys.version_info >= (3, 11):
     from typing import dataclass_transform
