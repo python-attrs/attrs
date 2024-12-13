@@ -911,28 +911,28 @@
     main:22: error: No overload variant of "Converter" matches argument types "Callable[[Any], str]", "bool"  [call-overload]
     main:22: note: Possible overload variants:
     main:22: note:     def [In, Out] Converter(self, converter: Callable[[In], Out]) -> Converter[In, Out]
-    main:22: note:     def [In, Out] Converter(self, converter: Callable[[In, AttrsInstance, Attribute[Any]], Out], *, takes_self: Literal[True], takes_field: Literal[True]) -> Converter[In, Out]
+    main:22: note:     def [In, Out, _AttrsInstance: AttrsInstance] Converter(self, converter: Callable[[In, _AttrsInstance, Attribute[Any]], Out], *, takes_self: Literal[True], takes_field: Literal[True]) -> Converter[In, Out]
     main:22: note:     def [In, Out] Converter(self, converter: Callable[[In, Attribute[Any]], Out], *, takes_field: Literal[True]) -> Converter[In, Out]
-    main:22: note:     def [In, Out] Converter(self, converter: Callable[[In, AttrsInstance], Out], *, takes_self: Literal[True]) -> Converter[In, Out]
+    main:22: note:     def [In, Out, _AttrsInstance: AttrsInstance] Converter(self, converter: Callable[[In, _AttrsInstance], Out], *, takes_self: Literal[True]) -> Converter[In, Out]
     main:23: error: No overload variant of "Converter" matches argument types "Callable[[Any, Attribute[Any]], str]", "bool"  [call-overload]
     main:23: note: Possible overload variants:
     main:23: note:     def [In, Out] Converter(self, converter: Callable[[In], Out]) -> Converter[In, Out]
-    main:23: note:     def [In, Out] Converter(self, converter: Callable[[In, AttrsInstance, Attribute[Any]], Out], *, takes_self: Literal[True], takes_field: Literal[True]) -> Converter[In, Out]
+    main:23: note:     def [In, Out, _AttrsInstance: AttrsInstance] Converter(self, converter: Callable[[In, _AttrsInstance, Attribute[Any]], Out], *, takes_self: Literal[True], takes_field: Literal[True]) -> Converter[In, Out]
     main:23: note:     def [In, Out] Converter(self, converter: Callable[[In, Attribute[Any]], Out], *, takes_field: Literal[True]) -> Converter[In, Out]
-    main:23: note:     def [In, Out] Converter(self, converter: Callable[[In, AttrsInstance], Out], *, takes_self: Literal[True]) -> Converter[In, Out]
+    main:23: note:     def [In, Out, _AttrsInstance: AttrsInstance] Converter(self, converter: Callable[[In, _AttrsInstance], Out], *, takes_self: Literal[True]) -> Converter[In, Out]
     main:25: note: Revealed type is "attr.Converter[Any, builtins.str]"
     main:26: error: No overload variant of "Converter" matches argument types "Callable[[Any], str]", "bool"  [call-overload]
     main:26: note: Possible overload variants:
     main:26: note:     def [In, Out] Converter(self, converter: Callable[[In], Out]) -> Converter[In, Out]
-    main:26: note:     def [In, Out] Converter(self, converter: Callable[[In, AttrsInstance, Attribute[Any]], Out], *, takes_self: Literal[True], takes_field: Literal[True]) -> Converter[In, Out]
+    main:26: note:     def [In, Out, _AttrsInstance: AttrsInstance] Converter(self, converter: Callable[[In, _AttrsInstance, Attribute[Any]], Out], *, takes_self: Literal[True], takes_field: Literal[True]) -> Converter[In, Out]
     main:26: note:     def [In, Out] Converter(self, converter: Callable[[In, Attribute[Any]], Out], *, takes_field: Literal[True]) -> Converter[In, Out]
-    main:26: note:     def [In, Out] Converter(self, converter: Callable[[In, AttrsInstance], Out], *, takes_self: Literal[True]) -> Converter[In, Out]
+    main:26: note:     def [In, Out, _AttrsInstance: AttrsInstance] Converter(self, converter: Callable[[In, _AttrsInstance], Out], *, takes_self: Literal[True]) -> Converter[In, Out]
     main:27: error: No overload variant of "Converter" matches argument types "Callable[[Any, AttrsInstance], str]", "bool"  [call-overload]
     main:27: note: Possible overload variants:
     main:27: note:     def [In, Out] Converter(self, converter: Callable[[In], Out]) -> Converter[In, Out]
-    main:27: note:     def [In, Out] Converter(self, converter: Callable[[In, AttrsInstance, Attribute[Any]], Out], *, takes_self: Literal[True], takes_field: Literal[True]) -> Converter[In, Out]
+    main:27: note:     def [In, Out, _AttrsInstance: AttrsInstance] Converter(self, converter: Callable[[In, _AttrsInstance, Attribute[Any]], Out], *, takes_self: Literal[True], takes_field: Literal[True]) -> Converter[In, Out]
     main:27: note:     def [In, Out] Converter(self, converter: Callable[[In, Attribute[Any]], Out], *, takes_field: Literal[True]) -> Converter[In, Out]
-    main:27: note:     def [In, Out] Converter(self, converter: Callable[[In, AttrsInstance], Out], *, takes_self: Literal[True]) -> Converter[In, Out]
+    main:27: note:     def [In, Out, _AttrsInstance: AttrsInstance] Converter(self, converter: Callable[[In, _AttrsInstance], Out], *, takes_self: Literal[True]) -> Converter[In, Out]
 
 - case: testAttrsCmpWithSubclasses
   regex: true

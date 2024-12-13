@@ -181,6 +181,46 @@ ConvCToBool(False)
 ConvCToBool("n")
 
 
+# Converter instances with takes_self=True and/or takes_field=True
+def str2int_self(s: str | int, self_: "CCC") -> int:
+    return int(s)
+
+
+def str2int_field(s: str | int, field_: attrs.Attribute) -> int:
+    return int(s)
+
+
+def str2int_both(s: str | int, self_: "CCC", field_: attrs.Attribute) -> int:
+    return int(s)
+
+
+# XXX: Fails with E: Unsupported converter, only named functions, types and lambdas are currently supported  [misc]
+# See https://github.com/python/mypy/issues/15736
+#
+# So let's suppress the [misc] category, which still tests the [call-override] matching the callables.
+@attrs.define
+class CCC:
+    x: int = attrs.field(
+        converter=attrs.Converter(  # type: ignore[misc]
+            str2int_self,
+            takes_self=True,
+        )
+    )
+    y: int = attrs.field(
+        converter=attrs.Converter(  # type: ignore[misc]
+            str2int_field,
+            takes_field=True,
+        )
+    )
+    z: int = attrs.field(
+        converter=attrs.Converter(  # type: ignore[misc]
+            str2int_both,
+            takes_self=True,
+            takes_field=True,
+        )
+    )
+
+
 # Validators
 @attr.s
 class Validated:
