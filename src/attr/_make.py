@@ -571,6 +571,10 @@ def evolve(*args, **changes):
     Create a new instance, based on the first positional argument with
     *changes* applied.
 
+    .. tip::
+
+       On Python 3.13 and later, you can also use `copy.replace` instead.
+
     Args:
 
         inst:
