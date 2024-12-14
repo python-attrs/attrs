@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   zizmor:
-    name: Zizmor latest via Cargo
+    name: Zizmor latest via PyPI
     runs-on: ubuntu-latest
     permissions:
       security-events: write
@@ -24,8 +24,10 @@ jobs:
           persist-credentials: false
       - uses: hynek/setup-cached-uv@v2
 
-      - name: Run zizmor
+      - name: Run zizmor 🌈
         run: uvx zizmor --format sarif . > results.sarif
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v3
