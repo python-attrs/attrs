@@ -2462,7 +2462,7 @@ class Attribute:
         Copy *self* and apply *changes*.
 
         This works similarly to `attrs.evolve` but that function does not work
-        with `Attribute`.
+        with :class:`attrs.Attribute`.
 
         It is mainly meant to be used for `transform-fields`.
 
