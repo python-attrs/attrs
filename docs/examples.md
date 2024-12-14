@@ -674,6 +674,19 @@ C(x=1, y=3)
 False
 ```
 
+On Python 3.13 and later, you can also use {func}`copy.replace` from the standard library:
+
+```{doctest}
+>>> import copy
+>>> @frozen
+... class C:
+...     x: int
+...     y: int
+>>> i = C(1, 2)
+>>> copy.replace(i, y=3)
+C(x=1, y=3)
+```
+
 
 ## Other Goodies
 

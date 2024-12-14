@@ -10,7 +10,7 @@ from typing import Callable, Literal, Protocol
 from . import converters, exceptions, filters, setters, validators
 from ._cmp import cmp_using
 from ._config import get_run_validators, set_run_validators
-from ._funcs import asdict, assoc, astuple, evolve, has, resolve_types
+from ._funcs import asdict, assoc, astuple, has, resolve_types
 from ._make import (
     NOTHING,
     Attribute,
@@ -19,6 +19,7 @@ from ._make import (
     _Nothing,
     attrib,
     attrs,
+    evolve,
     fields,
     fields_dict,
     make_class,

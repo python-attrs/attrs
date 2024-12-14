@@ -185,7 +185,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           # Keep in sync with tox/docs and .readthedocs.yaml.
-          python-version: "3.12"
+          python-version: "3.13"
       - uses: hynek/setup-cached-uv@v2
 
       - run: uvx --with=tox-uv tox run -e docs,changelog

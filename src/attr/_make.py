@@ -22,6 +22,7 @@ from . import _compat, _config, setters
 from ._compat import (
     PY_3_10_PLUS,
     PY_3_11_PLUS,
+    PY_3_13_PLUS,
     _AnnotationExtractor,
     _get_annotations,
     get_generic_base,
@@ -565,6 +566,64 @@ def _frozen_delattrs(self, name):
     raise FrozenInstanceError
 
 
+def evolve(*args, **changes):
+    """
+    Create a new instance, based on the first positional argument with
+    *changes* applied.
+
+    .. tip::
+
+       On Python 3.13 and later, you can also use `copy.replace` instead.
+
+    Args:
+
+        inst:
+            Instance of a class with *attrs* attributes. *inst* must be passed
+            as a positional argument.
+
+        changes:
+            Keyword changes in the new copy.
+
+    Returns:
+        A copy of inst with *changes* incorporated.
+
+    Raises:
+        TypeError:
+            If *attr_name* couldn't be found in the class ``__init__``.
+
+        attrs.exceptions.NotAnAttrsClassError:
+            If *cls* is not an *attrs* class.
+
+    .. versionadded:: 17.1.0
+    .. deprecated:: 23.1.0
+       It is now deprecated to pass the instance using the keyword argument
+       *inst*. It will raise a warning until at least April 2024, after which
+       it will become an error. Always pass the instance as a positional
+       argument.
+    .. versionchanged:: 24.1.0
+       *inst* can't be passed as a keyword argument anymore.
+    """
+    try:
+        (inst,) = args
+    except ValueError:
+        msg = (
+            f"evolve() takes 1 positional argument, but {len(args)} were given"
+        )
+        raise TypeError(msg) from None
+
+    cls = inst.__class__
+    attrs = fields(cls)
+    for a in attrs:
+        if not a.init:
+            continue
+        attr_name = a.name  # To deal with private attributes.
+        init_name = a.alias
+        if init_name not in changes:
+            changes[init_name] = getattr(inst, attr_name)
+
+    return cls(**changes)
+
+
 class _ClassBuilder:
     """
     Iteratively build *one* class.
@@ -979,6 +1038,12 @@ class _ClassBuilder:
 
         return self
 
+    def add_replace(self):
+        self._cls_dict["__replace__"] = self._add_method_dunders(
+            lambda self, **changes: evolve(self, **changes)
+        )
+        return self
+
     def add_match_args(self):
         self._cls_dict["__match_args__"] = tuple(
             field.name
@@ -1380,6 +1445,9 @@ def attrs(
             if cache_hash:
                 msg = "Invalid value for cache_hash.  To use hash caching, init must be True."
                 raise TypeError(msg)
+
+        if PY_3_13_PLUS and not _has_own_attribute(cls, "__replace__"):
+            builder.add_replace()
 
         if (
             PY_3_10_PLUS
@@ -2394,7 +2462,7 @@ class Attribute:
         Copy *self* and apply *changes*.
 
         This works similarly to `attrs.evolve` but that function does not work
-        with {class}`Attribute`.
+        with :class:`attrs.Attribute`.
 
         It is mainly meant to be used for `transform-fields`.
 
