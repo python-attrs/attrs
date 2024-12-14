@@ -228,6 +228,9 @@ class Validated:
     k: int | str | C = attr.ib(
         validator=attrs.validators.instance_of((int, C, str))
     )
+    kk: int | str | C = attr.ib(
+        validator=attrs.validators.instance_of(int | C | str)
+    )
 
     l: Any = attr.ib(
         validator=attr.validators.not_(attr.validators.in_("abc"))
