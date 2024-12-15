@@ -2870,10 +2870,10 @@ def make_class(
 
     .. note::
 
-        This function is a thin wrapper around `attr.s`, not `attrs.define`
+        ``make_class()`` is a thin wrapper around `attr.s`, not `attrs.define`
         which means that it doesn't come with some of the improved defaults.
 
-        For example, if you want the same `on_setattr` behavior as in
+        For example, if you want the same ``on_setattr`` behavior as in
         `attrs.define`, you have to pass the hooks yourself: ``make_class(...,
         on_setattr=setters.pipe(setters.convert, setters.validate)``
 
