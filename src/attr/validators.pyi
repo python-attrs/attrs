@@ -1,3 +1,4 @@
+from types import UnionType
 from typing import (
     Any,
     AnyStr,
@@ -44,6 +45,8 @@ def instance_of(
 ) -> _ValidatorType[_T1 | _T2 | _T3]: ...
 @overload
 def instance_of(type: tuple[type, ...]) -> _ValidatorType[Any]: ...
+@overload
+def instance_of(type: UnionType) -> _ValidatorType[Any]: ...
 def optional(
     validator: (
         _ValidatorType[_T]
