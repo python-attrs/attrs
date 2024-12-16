@@ -26,6 +26,8 @@ from attr import define, frozen, field, validators, Factory
 """
 
 linkcheck_ignore = [
+    # Fastly blocks this.
+    "https://pypi.org/project/attr/#history",
     # We run into GitHub's rate limits.
     r"https://github.com/.*/(issues|pull)/\d+",
     # Rate limits and the latest tag is missing anyways on release.
