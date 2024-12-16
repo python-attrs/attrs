@@ -95,13 +95,16 @@ def Factory(
 In = TypeVar("In")
 Out = TypeVar("Out")
 
+# Callable might type check against the specific attrs-defined class.
+_AttrsInstance = TypeVar("_AttrsInstance", bound=AttrsInstance)
+
 class Converter(Generic[In, Out]):
     @overload
     def __init__(self, converter: Callable[[In], Out]) -> None: ...
     @overload
     def __init__(
         self,
-        converter: Callable[[In, AttrsInstance, Attribute], Out],
+        converter: Callable[[In, _AttrsInstance, Attribute], Out],
         *,
         takes_self: Literal[True],
         takes_field: Literal[True],
@@ -116,7 +119,7 @@ class Converter(Generic[In, Out]):
     @overload
     def __init__(
         self,
-        converter: Callable[[In, AttrsInstance], Out],
+        converter: Callable[[In, _AttrsInstance], Out],
         *,
         takes_self: Literal[True],
     ) -> None: ...
