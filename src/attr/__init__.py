@@ -5,7 +5,7 @@ Classes Without Boilerplate
 """
 
 from functools import partial
-from typing import Callable, Literal, Protocol
+from typing import Callable, Literal, Protocol, runtime_checkable
 
 from . import converters, exceptions, filters, setters, validators
 from ._cmp import cmp_using
@@ -34,6 +34,7 @@ ib = attr = attrib
 dataclass = partial(attrs, auto_attribs=True)  # happy Easter ;)
 
 
+@runtime_checkable
 class AttrsInstance(Protocol):
     pass
 
