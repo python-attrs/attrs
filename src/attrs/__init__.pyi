@@ -179,6 +179,7 @@ def define(
     on_setattr: _OnSetAttrArgType | None = ...,
     field_transformer: _FieldTransformer | None = ...,
     match_args: bool = ...,
+    resolve_types: bool = ...,
 ) -> _C: ...
 @overload
 @dataclass_transform(field_specifiers=(attrib, field))
@@ -205,6 +206,7 @@ def define(
     on_setattr: _OnSetAttrArgType | None = ...,
     field_transformer: _FieldTransformer | None = ...,
     match_args: bool = ...,
+    resolve_types: bool = ...,
 ) -> Callable[[_C], _C]: ...
 
 mutable = define

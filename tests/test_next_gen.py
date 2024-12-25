@@ -425,6 +425,27 @@ class TestNextGen:
 
         assert d.x == d.xx()
 
+    def test_resolve_types(self):
+        """
+        Types can optionally be resolve directly by the decorator.
+        """
+        @attrs.define(resolve_types=True)
+        class A:
+            x: "int" = 10
+
+        assert attrs.fields(A).x.type is int
+
+    def test_resolve_types_default_off(self):
+        """
+        Types are not resolved by default.
+        """
+
+        @attrs.define(resolve_types=False)
+        class A:
+            x: "int" = 10
+
+        assert attrs.fields(A).x.type == "int"
+
 
 class TestAsTuple:
     def test_smoke(self):

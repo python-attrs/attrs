@@ -645,6 +645,7 @@ class _ClassBuilder:
         "_is_exc",
         "_on_setattr",
         "_pre_init_has_args",
+        "_resolve_types",
         "_slots",
         "_weakref_slot",
         "_wrote_own_setattr",
@@ -666,6 +667,7 @@ class _ClassBuilder:
         on_setattr,
         has_custom_setattr,
         field_transformer,
+        resolve_types,
     ):
         attrs, base_attrs, base_map = _transform_attrs(
             cls,
@@ -683,6 +685,7 @@ class _ClassBuilder:
         self._base_attr_map = base_map
         self._attr_names = tuple(a.name for a in attrs)
         self._slots = slots
+        self._resolve_types = resolve_types
         self._frozen = frozen
         self._weakref_slot = weakref_slot
         self._cache_hash = cache_hash
@@ -765,6 +768,12 @@ class _ClassBuilder:
             and "__attrs_init_subclass__" not in cls.__dict__
         ):
             cls.__attrs_init_subclass__()
+
+        if self._resolve_types:
+            # Need to import here to avoid circular imports
+            from . import _funcs
+
+            cls = _funcs.resolve_types(cls)
 
         return cls
 
@@ -1267,6 +1276,7 @@ def attrs(
     field_transformer=None,
     match_args=True,
     unsafe_hash=None,
+    resolve_types=False,
 ):
     r"""
     A class decorator that adds :term:`dunder methods` according to the
@@ -1333,6 +1343,8 @@ def attrs(
        If a class has an *inherited* classmethod called
        ``__attrs_init_subclass__``, it is executed after the class is created.
     .. deprecated:: 24.1.0 *hash* is deprecated in favor of *unsafe_hash*.
+    .. versionadded:: 25.1.0
+       Added the *resolve_types* argument.
     """
     if repr_ns is not None:
         import warnings
@@ -1385,6 +1397,7 @@ def attrs(
             on_setattr,
             has_own_setattr,
             field_transformer,
+            resolve_types,
         )
         if _determine_whether_to_implement(
             cls, repr, auto_detect, ("__repr__",)
