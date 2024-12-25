@@ -429,6 +429,7 @@ class TestNextGen:
         """
         Types can optionally be resolve directly by the decorator.
         """
+
         @attrs.define(resolve_types=True)
         class A:
             x: "int" = 10
