@@ -59,7 +59,7 @@ In the parlance of [*Form, Command, and Model Validation*](https://verraes.net/2
 
 *attrs* emphatically does **not** try to be a validation library, but a toolkit to write well-behaved classes like you would write yourself.
 If you'd like a powerful library for structuring, unstructuring, and validating data, have a look at [*cattrs*](https://catt.rs/) which is an official member of the *attrs* family.
-One of it's core tenants is that it doesn't couple your classes to external factors.
+One of its core tenets is that it doesn't couple your classes to external factors.
 
 
 ## … namedtuples?
