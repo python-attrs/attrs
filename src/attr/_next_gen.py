@@ -43,6 +43,7 @@ def define(
     on_setattr=None,
     field_transformer=None,
     match_args=True,
+    resolve_types=False,
 ):
     r"""
     A class decorator that adds :term:`dunder methods` according to
@@ -235,6 +236,14 @@ def define(
             non-keyword-only ``__init__`` parameter names on Python 3.10 and
             later. Ignored on older Python versions.
 
+        resolve_types (bool):
+            If True, automatically call :func:`~attrs.resolve_types()` on the
+            class.
+
+            If you need to explicitly pass a global or local namespace, you
+            should leave this at False and explicitly call
+            :func:`~attrs.resolve_types()` instead.
+
         collect_by_mro (bool):
             If True, *attrs* collects attributes from base classes correctly
             according to the `method resolution order
@@ -319,6 +328,8 @@ def define(
     .. versionadded:: 24.3.0
        Unless already present, a ``__replace__`` method is automatically
        created for `copy.replace` (Python 3.13+ only).
+    .. versionadded:: 25.1.0
+       Added the *resolve_types* argument.
 
     .. note::
 
@@ -366,6 +377,7 @@ def define(
             on_setattr=on_setattr,
             field_transformer=field_transformer,
             match_args=match_args,
+            resolve_types=resolve_types,
         )
 
     def wrap(cls):
