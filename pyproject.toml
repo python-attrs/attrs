@@ -57,7 +57,7 @@ cov = [
   # Ensure coverage is new enough for `source_pkgs`.
   "coverage[toml]>=5.3",
 ]
-pyright = ["pyright<1.1.380", { include-group = "tests" }]
+pyright = ["pyright", { include-group = "tests" }]
 benchmark = [
   { include-group = "tests" },
   "pytest-codspeed",

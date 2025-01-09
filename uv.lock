@@ -221,7 +221,7 @@ pyright = [
     { name = "hypothesis" },
     { name = "mypy", marker = "python_full_version >= '3.10' and platform_python_implementation == 'CPython'", specifier = ">=1.11.1" },
     { name = "pympler" },
-    { name = "pyright", specifier = "<1.1.380" },
+    { name = "pyright" },
     { name = "pytest", specifier = ">=4.3.0" },
     { name = "pytest-mypy-plugins", marker = "python_full_version >= '3.10' and platform_python_implementation == 'CPython'" },
 ]
@@ -1218,14 +1218,15 @@ wheels = [
 
 [[package]]
 name = "pyright"
-version = "1.1.379"
+version = "1.1.391"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "nodeenv", marker = "python_full_version < '3.10' or platform_python_implementation == 'CPython'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.10' or platform_python_implementation == 'CPython'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/14/62/fd6f13c417087b8e941c3d7cbc37fcf5ec62b6ae7031837194c0926cb704/pyright-1.1.379.tar.gz", hash = "sha256:6f426cb6443786fa966b930c23ad1941c8cb9fe672e4589daea8d80bb34193ea", size = 17481 }
+sdist = { url = "https://files.pythonhosted.org/packages/11/05/4ea52a8a45cc28897edb485b4102d37cbfd5fce8445d679cdeb62bfad221/pyright-1.1.391.tar.gz", hash = "sha256:66b2d42cdf5c3cbab05f2f4b76e8bec8aa78e679bfa0b6ad7b923d9e027cadb2", size = 21965 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/1e/4b/98bb2d6eb98ca35fa5fe90d787c3181310ed153c996af3a7f158487b9a87/pyright-1.1.379-py3-none-any.whl", hash = "sha256:01954811ac71db8646f50de1577576dc275ffb891a9e7324350e676cf6df323f", size = 18221 },
+    { url = "https://files.pythonhosted.org/packages/ad/89/66f49552fbeb21944c8077d11834b2201514a56fd1b7747ffff9630f1bd9/pyright-1.1.391-py3-none-any.whl", hash = "sha256:54fa186f8b3e8a55a44ebfa842636635688670c6896dcf6cf4a7fc75062f4d15", size = 18579 },
 ]
 
 [[package]]
