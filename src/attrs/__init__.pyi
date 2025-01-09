@@ -40,6 +40,7 @@ from attr import setters as setters
 from attr import validate as validate
 from attr import validators as validators
 from attr import attrib, asdict as asdict, astuple as astuple
+from attr import NothingType as NothingType
 
 if sys.version_info >= (3, 11):
     from typing import dataclass_transform
@@ -51,7 +52,8 @@ _C = TypeVar("_C", bound=type)
 
 _EqOrderType = bool | Callable[[Any], Any]
 _ValidatorType = Callable[[Any, "Attribute[_T]", _T], Any]
-_ConverterType = Callable[[Any], Any]
+_CallableConverterType = Callable[[Any], Any]
+_ConverterType = _CallableConverterType | Converter[Any, Any]
 _ReprType = Callable[[Any], str]
 _ReprArgType = bool | _ReprType
 _OnSetAttrType = Callable[[Any, "Attribute[Any]", Any], Any]
@@ -94,7 +96,10 @@ def field(
     hash: bool | None = ...,
     init: bool = ...,
     metadata: Mapping[Any, Any] | None = ...,
-    converter: _ConverterType | Converter[Any, _T] | None = ...,
+    converter: _ConverterType
+    | list[_ConverterType]
+    | tuple[_ConverterType]
+    | None = ...,
     factory: Callable[[], _T] | None = ...,
     kw_only: bool = ...,
     eq: _EqOrderType | None = ...,
@@ -114,7 +119,10 @@ def field(
     hash: bool | None = ...,
     init: bool = ...,
     metadata: Mapping[Any, Any] | None = ...,
-    converter: _ConverterType | Converter[Any, _T] | None = ...,
+    converter: _ConverterType
+    | list[_ConverterType]
+    | tuple[_ConverterType]
+    | None = ...,
     factory: Callable[[], _T] | None = ...,
     kw_only: bool = ...,
     eq: _EqOrderType | None = ...,
@@ -134,7 +142,10 @@ def field(
     hash: bool | None = ...,
     init: bool = ...,
     metadata: Mapping[Any, Any] | None = ...,
-    converter: _ConverterType | Converter[Any, _T] | None = ...,
+    converter: _ConverterType
+    | list[_ConverterType]
+    | tuple[_ConverterType]
+    | None = ...,
     factory: Callable[[], _T] | None = ...,
     kw_only: bool = ...,
     eq: _EqOrderType | None = ...,

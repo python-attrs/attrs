@@ -4,6 +4,7 @@
 End-to-end tests.
 """
 
+import copy
 import inspect
 import pickle
 
@@ -16,6 +17,7 @@ from hypothesis.strategies import booleans
 
 import attr
 
+from attr._compat import PY_3_13_PLUS
 from attr._make import NOTHING, Attribute
 from attr.exceptions import FrozenInstanceError
 
@@ -766,3 +768,40 @@ class TestFunctional:
             pass
 
         assert [ToRegister] == REGISTRY
+
+
+@pytest.mark.skipif(not PY_3_13_PLUS, reason="requires Python 3.13+")
+class TestReplace:
+    def test_replaces(self):
+        """
+        copy.replace() is added by default and works like `attrs.evolve`.
+        """
+        inst = C1(1, 2)
+
+        assert C1(1, 42) == copy.replace(inst, y=42)
+        assert C1(42, 2) == copy.replace(inst, x=42)
+
+    def test_already_has_one(self):
+        """
+        If the object already has a __replace__, it's left alone.
+        """
+        sentinel = object()
+
+        @attr.s
+        class C:
+            x = attr.ib()
+
+            __replace__ = sentinel
+
+        assert sentinel == C.__replace__
+
+    def test_invalid_field_name(self):
+        """
+        Invalid field names raise a TypeError.
+
+        This is consistent with dataclasses.
+        """
+        inst = C1(1, 2)
+
+        with pytest.raises(TypeError):
+            copy.replace(inst, z=42)

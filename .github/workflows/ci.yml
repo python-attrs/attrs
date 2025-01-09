@@ -66,7 +66,7 @@ jobs:
         run: |
           DO_MYPY=1
 
-          if [[ "$V" == "3.8" ]]; then
+          if [[ "$V" == "3.8" || "$V" == "3.9" ]]; then
             DO_MYPY=0
           fi
 
@@ -185,7 +185,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           # Keep in sync with tox/docs and .readthedocs.yaml.
-          python-version: "3.12"
+          python-version: "3.13"
       - uses: hynek/setup-cached-uv@v2
 
       - run: uvx --with=tox-uv tox run -e docs,changelog

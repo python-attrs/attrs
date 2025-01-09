@@ -112,6 +112,25 @@ class TestConverter:
         assert float is c.__call__.__annotations__["return"]
         assert None is c2.__call__.__annotations__.get("return")
 
+    def test_falsey_converter(self):
+        """
+        Passing a false-y instance still produces a valid converter.
+        """
+
+        class MyConv:
+            def __bool__(self):
+                return False
+
+            def __call__(self, value):
+                return value * 2
+
+        @attr.s
+        class C:
+            a = attrib(converter=MyConv())
+
+        c = C(21)
+        assert 42 == c.a
+
 
 class TestOptional:
     """
@@ -142,6 +161,14 @@ class TestOptional:
 
         with pytest.raises(ValueError):
             c("not_an_int")
+
+    def test_converter_instance(self):
+        """
+        Works when passed a Converter instance as argument.
+        """
+        c = optional(Converter(to_bool))
+
+        assert True is c("yes", None, None)
 
 
 class TestDefaultIfNone:
@@ -221,11 +248,11 @@ class TestPipe:
 
         # First wrapped converter fails:
         with pytest.raises(ValueError):
-            c.converter(33, None, None)
+            c(33)
 
         # Last wrapped converter fails:
         with pytest.raises(ValueError):
-            c.converter("33", None, None)
+            c("33")
 
     def test_sugar(self):
         """
@@ -246,7 +273,7 @@ class TestPipe:
         """
         o = object()
 
-        assert o is pipe().converter(o, None, None)
+        assert o is pipe()(o)
 
     def test_wrapped_annotation(self):
         """
@@ -270,6 +297,48 @@ class TestPipe:
                 attr.fields(C).x.converter.__call__
             ).get_return_type()
         )
+
+
+class TestOptionalPipe:
+    def test_optional(self):
+        """
+        Nothing happens if None.
+        """
+        c = optional(pipe(str, Converter(to_bool), bool))
+
+        assert None is c.converter(None, None, None)
+
+    def test_pipe(self):
+        """
+        A value is given, run it through all wrapped converters.
+        """
+        c = optional(pipe(str, Converter(to_bool), bool))
+
+        assert (
+            True
+            is c.converter("True", None, None)
+            is c.converter(True, None, None)
+        )
+
+    def test_instance(self):
+        """
+        Should work when set as an attrib.
+        """
+
+        @attr.s
+        class C:
+            x = attrib(
+                converter=optional(pipe(str, Converter(to_bool), bool)),
+                default=None,
+            )
+
+        c1 = C()
+
+        assert None is c1.x
+
+        c2 = C("True")
+
+        assert True is c2.x
 
 
 class TestToBool:

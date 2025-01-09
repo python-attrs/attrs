@@ -172,7 +172,7 @@ def matches_re(regex, flags=0, func=None):
     if func not in valid_funcs:
         msg = "'func' must be one of {}.".format(
             ", ".join(
-                sorted(e and e.__name__ or "None" for e in set(valid_funcs))
+                sorted((e and e.__name__) or "None" for e in set(valid_funcs))
             )
         )
         raise ValueError(msg)

@@ -5,6 +5,7 @@ from typing import (
     Any,
     Callable,
     Generic,
+    Literal,
     Mapping,
     Protocol,
     Sequence,
@@ -37,9 +38,9 @@ from attrs import (
 )
 
 if sys.version_info >= (3, 10):
-    from typing import TypeGuard
+    from typing import TypeGuard, TypeAlias
 else:
-    from typing_extensions import TypeGuard
+    from typing_extensions import TypeGuard, TypeAlias
 
 if sys.version_info >= (3, 11):
     from typing import dataclass_transform
@@ -72,11 +73,11 @@ class _Nothing(enum.Enum):
     NOTHING = enum.auto()
 
 NOTHING = _Nothing.NOTHING
+NothingType: TypeAlias = Literal[_Nothing.NOTHING]
 
 # NOTE: Factory lies about its return type to make this possible:
 # `x: List[int] # = Factory(list)`
 # Work around mypy issue #4554 in the common case by using an overload.
-from typing import Literal
 
 @overload
 def Factory(factory: Callable[[], _T]) -> _T: ...
@@ -130,7 +131,7 @@ class Attribute(Generic[_T]):
     order: _EqOrderType
     hash: bool | None
     init: bool
-    converter: _ConverterType | Converter[Any, _T] | None
+    converter: Converter | None
     metadata: dict[Any, Any]
     type: type[_T] | None
     kw_only: bool
@@ -194,7 +195,10 @@ def attrib(
     init: bool = ...,
     metadata: Mapping[Any, Any] | None = ...,
     type: type[_T] | None = ...,
-    converter: _ConverterType | Converter[Any, _T] | None = ...,
+    converter: _ConverterType
+    | list[_ConverterType]
+    | tuple[_ConverterType]
+    | None = ...,
     factory: Callable[[], _T] | None = ...,
     kw_only: bool = ...,
     eq: _EqOrderType | None = ...,
@@ -214,7 +218,10 @@ def attrib(
     init: bool = ...,
     metadata: Mapping[Any, Any] | None = ...,
     type: type[_T] | None = ...,
-    converter: _ConverterType | Converter[Any, _T] | None = ...,
+    converter: _ConverterType
+    | list[_ConverterType]
+    | tuple[_ConverterType]
+    | None = ...,
     factory: Callable[[], _T] | None = ...,
     kw_only: bool = ...,
     eq: _EqOrderType | None = ...,
@@ -234,7 +241,10 @@ def attrib(
     init: bool = ...,
     metadata: Mapping[Any, Any] | None = ...,
     type: object = ...,
-    converter: _ConverterType | Converter[Any, _T] | None = ...,
+    converter: _ConverterType
+    | list[_ConverterType]
+    | tuple[_ConverterType]
+    | None = ...,
     factory: Callable[[], _T] | None = ...,
     kw_only: bool = ...,
     eq: _EqOrderType | None = ...,

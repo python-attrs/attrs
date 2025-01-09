@@ -316,6 +316,9 @@ def define(
        If a class has an *inherited* classmethod called
        ``__attrs_init_subclass__``, it is executed after the class is created.
     .. deprecated:: 24.1.0 *hash* is deprecated in favor of *unsafe_hash*.
+    .. versionadded:: 24.3.0
+       Unless already present, a ``__replace__`` method is automatically
+       created for `copy.replace` (Python 3.13+ only).
 
     .. note::
 

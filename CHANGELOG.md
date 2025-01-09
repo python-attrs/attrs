@@ -12,6 +12,29 @@ Changes for the upcoming release can be found in the [`changelog.d` directory](h
 
 <!-- towncrier release notes start -->
 
+## [24.3.0](https://github.com/python-attrs/attrs/tree/24.3.0) - 2024-12-16
+
+### Backwards-incompatible Changes
+
+- Python 3.7 has been dropped.
+  [#1340](https://github.com/python-attrs/attrs/issues/1340)
+
+
+### Changes
+
+- Introduce `attrs.NothingType`, for annotating types consistent with `attrs.NOTHING`.
+  [#1358](https://github.com/python-attrs/attrs/issues/1358)
+- Allow mutating `__suppress_context__` and `__notes__` on frozen exceptions.
+  [#1365](https://github.com/python-attrs/attrs/issues/1365)
+- `attrs.converters.optional()` works again when taking `attrs.converters.pipe()` or another Converter as its argument.
+  [#1372](https://github.com/python-attrs/attrs/issues/1372)
+- *attrs* instances now support [`copy.replace()`](https://docs.python.org/3/library/copy.html#copy.replace).
+  [#1383](https://github.com/python-attrs/attrs/issues/1383)
+- `attrs.validators.instance_of()`'s type hints now allow for union types.
+  For example: `instance_of(str | int)`
+  [#1385](https://github.com/python-attrs/attrs/issues/1385)
+
+
 ## [24.2.0](https://github.com/python-attrs/attrs/tree/24.2.0) - 2024-08-06
 
 ### Deprecations

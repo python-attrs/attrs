@@ -56,8 +56,7 @@ def test_pyright_baseline():
         (
             "error",
             'Cannot assign to attribute "a" for class '
-            '"Frozen"\n\xa0\xa0"Frozen" is frozen\n\xa0\xa0\xa0\xa0'
-            'Attribute "__set__" is unknown',
+            '"Frozen"\n\xa0\xa0Attribute "a" is read-only',
         ),
         (
             "information",
@@ -66,8 +65,7 @@ def test_pyright_baseline():
         (
             "error",
             'Cannot assign to attribute "a" for class '
-            '"FrozenDefine"\n\xa0\xa0"FrozenDefine" is frozen\n\xa0\xa0\xa0\xa0'
-            'Attribute "__set__" is unknown',
+            '"FrozenDefine"\n\xa0\xa0Attribute "a" is read-only',
         ),
         (
             "information",

@@ -49,7 +49,7 @@ Basically what *attrs* was in 2015.
 Pydantic is first and foremost a *data validation & type coercion library*.
 As such, it is a capable complement to class building libraries like *attrs* (or Data Classes!) for parsing and validating untrusted data.
 
-However, as convenient as it might be, using it for your business or data layer [is problematic in several ways](https://threeofwands.com/why-i-use-attrs-instead-of-pydantic/):
+However, as convenient as it might be, using it for your business or domain layer [is problematic in several ways](https://threeofwands.com/why-i-use-attrs-instead-of-pydantic/):
 Is it really necessary to re-validate all your objects while reading them from a trusted database?
 Should the shape of your web API really apply design pressure on your business objects and therefore business code?
 
@@ -59,7 +59,7 @@ In the parlance of [*Form, Command, and Model Validation*](https://verraes.net/2
 
 *attrs* emphatically does **not** try to be a validation library, but a toolkit to write well-behaved classes like you would write yourself.
 If you'd like a powerful library for structuring, unstructuring, and validating data, have a look at [*cattrs*](https://catt.rs/) which is an official member of the *attrs* family.
-One of it's core tenants is that it doesn't couple your classes to external factors.
+One of its core tenets is that it doesn't couple your classes to external factors.
 
 
 ## … namedtuples?

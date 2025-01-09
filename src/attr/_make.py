@@ -22,6 +22,7 @@ from . import _compat, _config, setters
 from ._compat import (
     PY_3_10_PLUS,
     PY_3_11_PLUS,
+    PY_3_13_PLUS,
     _AnnotationExtractor,
     _get_annotations,
     get_generic_base,
@@ -79,6 +80,8 @@ class _Nothing(enum.Enum):
 NOTHING = _Nothing.NOTHING
 """
 Sentinel to indicate the lack of a value when `None` is ambiguous.
+
+When using in 3rd party code, use `attrs.NothingType` for type annotations.
 """
 
 
@@ -563,6 +566,64 @@ def _frozen_delattrs(self, name):
     raise FrozenInstanceError
 
 
+def evolve(*args, **changes):
+    """
+    Create a new instance, based on the first positional argument with
+    *changes* applied.
+
+    .. tip::
+
+       On Python 3.13 and later, you can also use `copy.replace` instead.
+
+    Args:
+
+        inst:
+            Instance of a class with *attrs* attributes. *inst* must be passed
+            as a positional argument.
+
+        changes:
+            Keyword changes in the new copy.
+
+    Returns:
+        A copy of inst with *changes* incorporated.
+
+    Raises:
+        TypeError:
+            If *attr_name* couldn't be found in the class ``__init__``.
+
+        attrs.exceptions.NotAnAttrsClassError:
+            If *cls* is not an *attrs* class.
+
+    .. versionadded:: 17.1.0
+    .. deprecated:: 23.1.0
+       It is now deprecated to pass the instance using the keyword argument
+       *inst*. It will raise a warning until at least April 2024, after which
+       it will become an error. Always pass the instance as a positional
+       argument.
+    .. versionchanged:: 24.1.0
+       *inst* can't be passed as a keyword argument anymore.
+    """
+    try:
+        (inst,) = args
+    except ValueError:
+        msg = (
+            f"evolve() takes 1 positional argument, but {len(args)} were given"
+        )
+        raise TypeError(msg) from None
+
+    cls = inst.__class__
+    attrs = fields(cls)
+    for a in attrs:
+        if not a.init:
+            continue
+        attr_name = a.name  # To deal with private attributes.
+        init_name = a.alias
+        if init_name not in changes:
+            changes[init_name] = getattr(inst, attr_name)
+
+    return cls(**changes)
+
+
 class _ClassBuilder:
     """
     Iteratively build *one* class.
@@ -578,15 +639,15 @@ class _ClassBuilder:
         "_cls_dict",
         "_delete_attribs",
         "_frozen",
-        "_has_pre_init",
-        "_pre_init_has_args",
+        "_has_custom_setattr",
         "_has_post_init",
+        "_has_pre_init",
         "_is_exc",
         "_on_setattr",
+        "_pre_init_has_args",
         "_slots",
         "_weakref_slot",
         "_wrote_own_setattr",
-        "_has_custom_setattr",
     )
 
     def __init__(
@@ -975,6 +1036,12 @@ class _ClassBuilder:
             )
         )
 
+        return self
+
+    def add_replace(self):
+        self._cls_dict["__replace__"] = self._add_method_dunders(
+            lambda self, **changes: evolve(self, **changes)
+        )
         return self
 
     def add_match_args(self):
@@ -1379,6 +1446,9 @@ def attrs(
                 msg = "Invalid value for cache_hash.  To use hash caching, init must be True."
                 raise TypeError(msg)
 
+        if PY_3_13_PLUS and not _has_own_attribute(cls, "__replace__"):
+            builder.add_replace()
+
         if (
             PY_3_10_PLUS
             and match_args
@@ -1532,8 +1602,6 @@ def _make_eq(cls, attrs):
         "        return NotImplemented",
     ]
 
-    # We can't just do a big self.x = other.x and... clause due to
-    # irregularities like nan == nan is false but (nan,) == (nan,) is true.
     globs = {}
     if attrs:
         lines.append("    return  (")
@@ -2023,7 +2091,7 @@ def _attrs_to_init_script(
         has_factory = isinstance(a.default, Factory)
         maybe_self = "self" if has_factory and a.default.takes_self else ""
 
-        if a.converter and not isinstance(a.converter, Converter):
+        if a.converter is not None and not isinstance(a.converter, Converter):
             converter = Converter(a.converter)
         else:
             converter = a.converter
@@ -2278,7 +2346,9 @@ class Attribute:
     For the full version history of the fields, see `attr.ib`.
     """
 
-    __slots__ = (
+    # These slots must NOT be reordered because we use them later for
+    # instantiation.
+    __slots__ = (  # noqa: RUF023
         "name",
         "default",
         "validator",
@@ -2392,7 +2462,7 @@ class Attribute:
         Copy *self* and apply *changes*.
 
         This works similarly to `attrs.evolve` but that function does not work
-        with {class}`Attribute`.
+        with :class:`attrs.Attribute`.
 
         It is mainly meant to be used for `transform-fields`.
 
@@ -2472,22 +2542,22 @@ class _CountingAttr:
     """
 
     __slots__ = (
-        "counter",
         "_default",
-        "repr",
+        "_validator",
+        "alias",
+        "converter",
+        "counter",
         "eq",
         "eq_key",
-        "order",
-        "order_key",
         "hash",
         "init",
-        "metadata",
-        "_validator",
-        "converter",
-        "type",
         "kw_only",
+        "metadata",
         "on_setattr",
-        "alias",
+        "order",
+        "order_key",
+        "repr",
+        "type",
     )
     __attrs_attrs__ = (
         *tuple(
@@ -2693,12 +2763,12 @@ class Converter:
     """
 
     __slots__ = (
-        "converter",
-        "takes_self",
-        "takes_field",
+        "__call__",
         "_first_param_type",
         "_global_name",
-        "__call__",
+        "converter",
+        "takes_field",
+        "takes_self",
     )
 
     def __init__(self, converter, *, takes_self=False, takes_field=False):
@@ -2798,10 +2868,19 @@ def make_class(
     r"""
     A quick way to create a new class called *name* with *attrs*.
 
+    .. note::
+
+        ``make_class()`` is a thin wrapper around `attr.s`, not `attrs.define`
+        which means that it doesn't come with some of the improved defaults.
+
+        For example, if you want the same ``on_setattr`` behavior as in
+        `attrs.define`, you have to pass the hooks yourself: ``make_class(...,
+        on_setattr=setters.pipe(setters.convert, setters.validate)``
+
     Args:
         name (str): The name for the new class.
 
-        attrs( list | dict):
+        attrs (list | dict):
             A list of names or a dictionary of mappings of names to `attr.ib`\
             s / `attrs.field`\ s.
 
@@ -2932,11 +3011,25 @@ def pipe(*converters):
     .. versionadded:: 20.1.0
     """
 
-    def pipe_converter(val, inst, field):
-        for c in converters:
-            val = c(val, inst, field) if isinstance(c, Converter) else c(val)
+    return_instance = any(isinstance(c, Converter) for c in converters)
 
-        return val
+    if return_instance:
+
+        def pipe_converter(val, inst, field):
+            for c in converters:
+                val = (
+                    c(val, inst, field) if isinstance(c, Converter) else c(val)
+                )
+
+            return val
+
+    else:
+
+        def pipe_converter(val):
+            for c in converters:
+                val = c(val)
+
+            return val
 
     if not converters:
         # If the converter list is empty, pipe_converter is the identity.
@@ -2957,4 +3050,6 @@ def pipe(*converters):
         if rt:
             pipe_converter.__annotations__["return"] = rt
 
-    return Converter(pipe_converter, takes_self=True, takes_field=True)
+    if return_instance:
+        return Converter(pipe_converter, takes_self=True, takes_field=True)
+    return pipe_converter
