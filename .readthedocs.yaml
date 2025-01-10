@@ -12,7 +12,6 @@ build:
     - asdf plugin add uv
     - asdf install uv latest
     - asdf global uv latest
-    - uv tool install --with tox-uv tox
 
-    - tox run -e docs-sponsors
-    - tox run -e docs -- $READTHEDOCS_OUTPUT
+    - uvx --with tox-uv tox run -e docs-sponsors
+    - uvx --with tox-uv tox run -e docs -- $READTHEDOCS_OUTPUT
