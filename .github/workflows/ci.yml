@@ -172,7 +172,7 @@ jobs:
         if: ${{ failure() }}
 
   docs:
-    name: Build docs & run doctests
+    name: Run doctests
     runs-on: ubuntu-latest
     needs: build-package
     steps:
@@ -188,7 +188,7 @@ jobs:
           python-version: "3.13"
       - uses: hynek/setup-cached-uv@v2
 
-      - run: uvx --with=tox-uv tox run -e docs,changelog
+      - run: uvx --with=tox-uv tox run -e docs-doctests,changelog
 
   pyright:
     name: Check types using pyright
