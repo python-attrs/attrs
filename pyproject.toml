@@ -145,6 +145,11 @@ url = "https://filepreviews.io/"
 img = "FilePreviews.svg"
 
 [[tool.sponcon.sponsors]]
+title = "Privacy Solutions"
+url = "https://privacy-solutions.org/"
+img = "Privacy-Solutions.svg"
+
+[[tool.sponcon.sponsors]]
 title = "Polar"
 url = "https://polar.sh/"
 img = "Polar.svg"
