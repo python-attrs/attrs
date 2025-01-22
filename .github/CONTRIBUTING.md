@@ -98,13 +98,19 @@ $ tox run -e docs-watch
 
 This will build the documentation, watch for changes, and rebuild it whenever you save a file.
 
-To just build the documentation and run doctests, use:
+To just build the documentation and exit immediately use:
 
 ```console
-$ tox run -e docs
+$ tox run -e docs-build
 ```
 
 You will find the built documentation in `docs/_build/html`.
+
+To run doctests:
+
+```console
+$ tox run -e docs-doctests
+```
 
 
 ## Code
