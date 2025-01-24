@@ -269,7 +269,7 @@ class Validated2:
 
 @attrs.define
 class Validated3:
-    num: int = attr.field(validator=attr.validators.ge(0))
+    num: int = attrs.field(validator=attrs.validators.ge(0))
 
 
 with attr.validators.disabled():

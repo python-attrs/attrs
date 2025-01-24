@@ -11,6 +11,7 @@ import typing
 import pytest
 
 import attr
+import attrs
 
 from attr._compat import PY_3_14_PLUS
 from attr._make import _is_class_var
@@ -107,7 +108,7 @@ class TestAnnotations:
         class C:
             cls_var: typing.ClassVar[int] = 23
             a: int
-            x: typing.List[int] = attr.Factory(list)
+            x: typing.List[int] = attrs.Factory(list)
             y: int = 2
             z: int = attr.ib(default=3)
             foo: typing.Any = None
@@ -407,7 +408,7 @@ class TestAnnotations:
             cls_var2: "ClassVar[int]" = 23
             cls_var3: "t.ClassVar[int]" = 23
             a: "int"
-            x: "typing.List[int]" = attr.Factory(list)
+            x: "typing.List[int]" = attrs.Factory(list)
             y: "int" = 2
             z: "int" = attr.ib(default=3)
             foo: "typing.Any" = None
@@ -500,7 +501,7 @@ class TestAnnotations:
 
         @attr.s(auto_attribs=True)
         class C:
-            x: typing.Any = NonComparable()
+            x: typing.Any = NonComparable()  # noqa: RUF009
 
     def test_basic_resolve(self):
         """

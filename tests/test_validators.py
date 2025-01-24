@@ -1074,8 +1074,7 @@ class TestNot_:
         v = not_(wrapped)
 
         assert (
-            f"<not_ validator wrapping {wrapped!r}, "
-            f"capturing {v.exc_types!r}>"
+            f"<not_ validator wrapping {wrapped!r}, capturing {v.exc_types!r}>"
         ) == repr(v)
 
     def test_success_because_fails(self):

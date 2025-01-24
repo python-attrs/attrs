@@ -2285,7 +2285,7 @@ def _attrs_to_init_script(
     NL = "\n    "
     return (
         f"""def {method_name}(self, {args}):
-    {NL.join(lines) if lines else 'pass'}
+    {NL.join(lines) if lines else "pass"}
 """,
         names_for_globals,
         annotations,
