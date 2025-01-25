@@ -12,6 +12,14 @@ Changes for the upcoming release can be found in the [`changelog.d` directory](h
 
 <!-- towncrier release notes start -->
 
+## [25.1.0](https://github.com/python-attrs/attrs/tree/25.1.0) - 2025-01-25
+
+### Changes
+
+- This release only ensures correct PyPI licensing metadata.
+  [#1386](https://github.com/python-attrs/attrs/issues/1386)
+
+
 ## [24.3.0](https://github.com/python-attrs/attrs/tree/24.3.0) - 2024-12-16
 
 ### Backwards-incompatible Changes
