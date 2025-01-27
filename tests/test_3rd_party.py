@@ -8,17 +8,12 @@ import pytest
 
 from hypothesis import given
 
-from attr._compat import PY_3_14_PLUS
-
 from .strategies import simple_classes
 
 
 cloudpickle = pytest.importorskip("cloudpickle")
 
 
-@pytest.mark.xfail(
-    PY_3_14_PLUS, reason="cloudpickle is currently broken on 3.14."
-)
 class TestCloudpickleCompat:
     """
     Tests for compatibility with ``cloudpickle``.
