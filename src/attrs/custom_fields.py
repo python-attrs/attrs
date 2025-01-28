@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import typing
-
-from typing_extensions import Protocol
+from typing import Protocol, TypeVar
 
 from attr._make import _make_attr_tuple_class
 from attrs import Attribute, AttrsInstance, fields
@@ -11,7 +9,7 @@ from attrs import resolve_types as _resolve_types
 
 __all__ = ["custom_fields"]
 
-T = typing.TypeVar("T")
+T = TypeVar("T")
 
 
 class AttributeModel(Protocol[T]):
@@ -35,17 +33,20 @@ def custom_fields(
     """
     Return the attrs fields tuple for cls with the provided attribute model.
 
-    :param type cls: Class to introspect.
-    :param attribute_model: The attribute model to use.
-    :param resolve_types: Whether to resolve the class types first.
+    Args:
+        cls: Class to introspect.
+        attribute_model: The attribute model to use.
+        resolve_types: Whether to resolve the class types first.
 
-    :raise TypeError: If *cls* is not a class.
-    :raise attrs.exceptions.NotAnAttrsClassError: If *cls* is not an *attrs*
-        class.
+    Raises:
+        TypeError: If *cls* is not a class.
+        attrs.exceptions.NotAnAttrsClassError: If *cls* is not an *attrs*
+            class.
 
-    :rtype: tuple (with name accessors) of `attribute_model`.
+    Returns:
+        tuple (with name accessors) of `attribute_model`.
 
-    .. versionadded:: 23.2.0
+    .. versionadded:: 25.1.0
     """
     attrs = getattr(cls, f"__attrs_{id(attribute_model)}__", None)
 
