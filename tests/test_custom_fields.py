@@ -1,4 +1,5 @@
 """Tests for the custom attributes functionality."""
+
 from __future__ import annotations
 
 from functools import partial
