@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from datetime import datetime
 
+import pytest
+
 import attr
 
 
@@ -117,6 +119,66 @@ class TestTransformHook:
         assert NameCase(public=1, _private=2, __dunder__=3) == NameCase(
             1, 2, 3
         )
+
+    def test_hook_reorder_fields(self):
+        """
+        It is possible to reorder fields via the hook.
+        """
+
+        def hook(cls, attribs):
+            return sorted(attribs, key=lambda x: x.metadata["field_order"])
+
+        @attr.s(field_transformer=hook)
+        class C:
+            x: int = attr.ib(metadata={"field_order": 1})
+            y: int = attr.ib(metadata={"field_order": 0})
+
+        assert attr.asdict(C(1, 0)) == {"x": 0, "y": 1}
+
+    def test_hook_reorder_fields_before_order_check(self):
+        """
+        It is possible to reorder fields via the hook before order-based errors are raised.
+
+        Regression test for #1147.
+        """
+
+        def hook(cls, attribs):
+            return sorted(attribs, key=lambda x: x.metadata["field_order"])
+
+        @attr.s(field_transformer=hook)
+        class C:
+            x: int = attr.ib(metadata={"field_order": 1}, default=0)
+            y: int = attr.ib(metadata={"field_order": 0})
+
+        assert attr.asdict(C(1)) == {"x": 0, "y": 1}
+
+    def test_hook_conflicting_defaults_after_reorder(self):
+        """
+        Raises `ValueError` if attributes with defaults are followed by
+        mandatory attributes after the hook reorders fields.
+
+        Regression test for #1147.
+        """
+
+        def hook(cls, attribs):
+            return sorted(attribs, key=lambda x: x.metadata["field_order"])
+
+        with pytest.raises(ValueError) as e:
+
+            @attr.s(field_transformer=hook)
+            class C:
+                x: int = attr.ib(metadata={"field_order": 1})
+                y: int = attr.ib(metadata={"field_order": 0}, default=0)
+
+        assert (
+            "No mandatory attributes allowed after an attribute with a "
+            "default value or factory.  Attribute in question: Attribute"
+            "(name='x', default=NOTHING, validator=None, repr=True, "
+            "eq=True, eq_key=None, order=True, order_key=None, "
+            "hash=None, init=True, "
+            "metadata=mappingproxy({'field_order': 1}), type='int', converter=None, "
+            "kw_only=False, inherited=False, on_setattr=None, alias=None)",
+        ) == e.value.args
 
     def test_hook_with_inheritance(self):
         """
