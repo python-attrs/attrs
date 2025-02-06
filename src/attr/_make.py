@@ -2877,6 +2877,12 @@ def make_class(
         `attrs.define`, you have to pass the hooks yourself: ``make_class(...,
         on_setattr=setters.pipe(setters.convert, setters.validate)``
 
+    .. warning::
+
+        It is *your* duty to ensure that the class name and the attribute names
+        are valid identifiers. ``make_class()`` will *not* validate them for
+        you.
+
     Args:
         name (str): The name for the new class.
 
