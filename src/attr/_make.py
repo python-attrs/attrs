@@ -13,6 +13,7 @@ import linecache
 import sys
 import types
 import typing
+import unicodedata
 
 from operator import itemgetter
 
@@ -2908,6 +2909,9 @@ def make_class(
     .. versionchanged:: 18.1.0 If *attrs* is ordered, the order is retained.
     .. versionchanged:: 23.2.0 *class_body*
     """
+    # Class identifiers are converted into the normal form NFKC while parsing
+    name = unicodedata.normalize("NFKC", name)
+
     if isinstance(attrs, dict):
         cls_dict = attrs
     elif isinstance(attrs, (list, tuple)):
