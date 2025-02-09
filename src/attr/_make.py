@@ -449,6 +449,10 @@ def _transform_attrs(
 
     attrs = base_attrs + own_attrs
 
+    if field_transformer is not None:
+        attrs = field_transformer(cls, attrs)
+
+    # Check attr order after executing the field_transformer.
     # Mandatory vs non-mandatory attr order only matters when they are part of
     # the __init__ signature and when they aren't kw_only (which are moved to
     # the end and can be mandatory or non-mandatory in any order, as they will
@@ -461,9 +465,6 @@ def _transform_attrs(
 
         if had_default is False and a.default is not NOTHING:
             had_default = True
-
-    if field_transformer is not None:
-        attrs = field_transformer(cls, attrs)
 
     # Resolve default field alias after executing field_transformer.
     # This allows field_transformer to differentiate between explicit vs
