@@ -2908,6 +2908,7 @@ def make_class(
     .. versionadded:: 17.1.0 *bases*
     .. versionchanged:: 18.1.0 If *attrs* is ordered, the order is retained.
     .. versionchanged:: 23.2.0 *class_body*
+    .. versionchanged:: 25.2.0 Class names can now be unicode.
     """
     # Class identifiers are converted into the normal form NFKC while parsing
     name = unicodedata.normalize("NFKC", name)
