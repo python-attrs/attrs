@@ -15,6 +15,7 @@ import types
 import typing
 import unicodedata
 
+from collections.abc import Callable
 from operator import itemgetter
 
 # We need to import _compat itself in addition to the _compat members to avoid
@@ -209,7 +210,12 @@ def attrib(
     )
 
 
-def _compile_and_eval(script, globs, locs=None, filename=""):
+def _compile_and_eval(
+    script: str,
+    globs: dict[str, typing.Any] | None,
+    locs=None,
+    filename: str = "",
+) -> None:
     """
     Evaluate the script with the given global (globs) and local (locs)
     variables.
@@ -218,7 +224,7 @@ def _compile_and_eval(script, globs, locs=None, filename=""):
     eval(bytecode, globs, locs)
 
 
-def _make_method(name, script, filename, globs, locals=None):
+def _make_method(script, filename, globs, locals=None) -> dict:
     """
     Create the method with the script given and return the method object.
     """
@@ -244,7 +250,7 @@ def _make_method(name, script, filename, globs, locals=None):
 
     _compile_and_eval(script, globs, locs, filename)
 
-    return locs[name]
+    return locs
 
 
 def _make_attr_tuple_class(cls_name, attr_names):
@@ -313,7 +319,9 @@ def _has_own_attribute(cls, attrib_name):
     return attrib_name in cls.__dict__
 
 
-def _collect_base_attrs(cls, taken_attr_names):
+def _collect_base_attrs(
+    cls, taken_attr_names
+) -> tuple[list[Attribute], dict[str, type]]:
     """
     Collect attr.ibs from base classes of *cls*, except *taken_attr_names*.
     """
@@ -374,7 +382,11 @@ def _collect_base_attrs_broken(cls, taken_attr_names):
 
 def _transform_attrs(
     cls, these, auto_attribs, kw_only, collect_by_mro, field_transformer
-):
+) -> tuple[
+    tuple,
+    list[Attribute],
+    dict[str, type],
+]:
     """
     Transform all `_CountingAttr`s on a class into `Attribute`s.
 
@@ -409,7 +421,7 @@ def _transform_attrs(
             ca_list.append((attr_name, a))
 
         unannotated = ca_names - annot_names
-        if len(unannotated) > 0:
+        if unannotated:
             raise UnannotatedAttributeError(
                 "The following `attr.ib`s lack a type annotation: "
                 + ", ".join(
@@ -530,14 +542,13 @@ def _make_cached_property_getattr(cached_properties, original_getattr, cls):
     }
 
     return _make_method(
-        "__getattr__",
         "\n".join(lines),
         unique_filename,
         glob,
         locals={
             "_cls": cls,
         },
-    )
+    )["__getattr__"]
 
 
 def _frozen_setattrs(self, name, value):
@@ -647,6 +658,8 @@ class _ClassBuilder:
         "_is_exc",
         "_on_setattr",
         "_pre_init_has_args",
+        "_repr_added",
+        "_script_snippets",
         "_slots",
         "_weakref_slot",
         "_wrote_own_setattr",
@@ -744,8 +757,30 @@ class _ClassBuilder:
                 self._cls_dict["__setstate__"],
             ) = self._make_getstate_setstate()
 
+        # tuples of script, globs, hook
+        self._script_snippets: list[
+            tuple[str, dict, Callable[[dict, dict], typing.Any]]
+        ] = []
+        self._repr_added = False
+
     def __repr__(self):
         return f"<_ClassBuilder(cls={self._cls.__name__})>"
+
+    def _eval_snippets(self) -> None:
+        """Evaluate any registered snippets in one go."""
+        script = "\n".join([snippet[0] for snippet in self._script_snippets])
+        globs = {}
+        for _, snippet_globs, _ in self._script_snippets:
+            globs.update(snippet_globs)
+
+        locs = _make_method(
+            script,
+            filename=_generate_unique_filename(self._cls, "methods"),
+            globs=globs,
+        )
+
+        for _, _, hook in self._script_snippets:
+            hook(self._cls_dict, locs)
 
     def build_class(self):
         """
@@ -753,6 +788,7 @@ class _ClassBuilder:
 
         Builder cannot be used after calling this method.
         """
+        self._eval_snippets()
         if self._slots is True:
             cls = self._create_slots_class()
         else:
@@ -946,14 +982,17 @@ class _ClassBuilder:
         return cls
 
     def add_repr(self, ns):
-        self._cls_dict["__repr__"] = self._add_method_dunders(
-            _make_repr(self._attrs, ns, self._cls)
-        )
+        script, globs = _make_repr_script(self._attrs, ns)
+
+        def _attach_repr(cls_dict, globs):
+            cls_dict["__repr__"] = self._add_method_dunders(globs["__repr__"])
+
+        self._script_snippets.append((script, globs, _attach_repr))
+        self._repr_added = True
         return self
 
     def add_str(self):
-        repr = self._cls_dict.get("__repr__")
-        if repr is None:
+        if not self._repr_added:
             msg = "__str__ can only be generated if a __repr__ exists."
             raise ValueError(msg)
 
@@ -1009,34 +1048,42 @@ class _ClassBuilder:
         return self
 
     def add_hash(self):
-        self._cls_dict["__hash__"] = self._add_method_dunders(
-            _make_hash(
-                self._cls,
-                self._attrs,
-                frozen=self._frozen,
-                cache_hash=self._cache_hash,
-            )
+        script, globs = _make_hash_script(
+            self._cls,
+            self._attrs,
+            frozen=self._frozen,
+            cache_hash=self._cache_hash,
         )
+
+        def attach_hash(cls_dict: dict, locs: dict) -> None:
+            cls_dict["__hash__"] = self._add_method_dunders(locs["__hash__"])
+
+        self._script_snippets.append((script, globs, attach_hash))
 
         return self
 
     def add_init(self):
-        self._cls_dict["__init__"] = self._add_method_dunders(
-            _make_init(
-                self._cls,
-                self._attrs,
-                self._has_pre_init,
-                self._pre_init_has_args,
-                self._has_post_init,
-                self._frozen,
-                self._slots,
-                self._cache_hash,
-                self._base_attr_map,
-                self._is_exc,
-                self._on_setattr,
-                attrs_init=False,
-            )
+        script, globs, annotations = _make_init_script(
+            self._cls,
+            self._attrs,
+            self._has_pre_init,
+            self._pre_init_has_args,
+            self._has_post_init,
+            self._frozen,
+            self._slots,
+            self._cache_hash,
+            self._base_attr_map,
+            self._is_exc,
+            self._on_setattr,
+            attrs_init=False,
         )
+
+        def _attach_init(cls_dict, globs):
+            init = globs["__init__"]
+            init.__annotations__ = annotations
+            cls_dict["__init__"] = self._add_method_dunders(init)
+
+        self._script_snippets.append((script, globs, _attach_init))
 
         return self
 
@@ -1054,32 +1101,41 @@ class _ClassBuilder:
         )
 
     def add_attrs_init(self):
-        self._cls_dict["__attrs_init__"] = self._add_method_dunders(
-            _make_init(
-                self._cls,
-                self._attrs,
-                self._has_pre_init,
-                self._pre_init_has_args,
-                self._has_post_init,
-                self._frozen,
-                self._slots,
-                self._cache_hash,
-                self._base_attr_map,
-                self._is_exc,
-                self._on_setattr,
-                attrs_init=True,
-            )
+        script, globs, annotations = _make_init_script(
+            self._cls,
+            self._attrs,
+            self._has_pre_init,
+            self._pre_init_has_args,
+            self._has_post_init,
+            self._frozen,
+            self._slots,
+            self._cache_hash,
+            self._base_attr_map,
+            self._is_exc,
+            self._on_setattr,
+            attrs_init=True,
         )
+
+        def _attach_attrs_init(cls_dict, globs):
+            init = globs["__attrs_init__"]
+            init.__annotations__ = annotations
+            cls_dict["__attrs_init__"] = self._add_method_dunders(init)
+
+        self._script_snippets.append((script, globs, _attach_attrs_init))
 
         return self
 
     def add_eq(self):
         cd = self._cls_dict
 
-        cd["__eq__"] = self._add_method_dunders(
-            _make_eq(self._cls, self._attrs)
-        )
-        cd["__ne__"] = self._add_method_dunders(_make_ne())
+        script, globs = _make_eq_script(self._attrs)
+
+        def _attach_eq(cls_dict, globs):
+            cls_dict["__eq__"] = self._add_method_dunders(globs["__eq__"])
+
+        self._script_snippets.append((script, globs, _attach_eq))
+
+        cd["__ne__"] = __ne__
 
         return self
 
@@ -1094,9 +1150,6 @@ class _ClassBuilder:
         return self
 
     def add_setattr(self):
-        if self._frozen:
-            return self
-
         sa_attrs = {}
         for a in self._attrs:
             on_setattr = a.on_setattr or self._on_setattr
@@ -1128,7 +1181,7 @@ class _ClassBuilder:
 
         return self
 
-    def _add_method_dunders(self, method):
+    def _add_method_dunders(self, method: Callable) -> Callable:
         """
         Add __module__ and __qualname__ to a *method* if possible.
         """
@@ -1388,10 +1441,12 @@ def attrs(
             has_own_setattr,
             field_transformer,
         )
+
         if _determine_whether_to_implement(
             cls, repr, auto_detect, ("__repr__",)
         ):
             builder.add_repr(repr_ns)
+
         if str is True:
             builder.add_str()
 
@@ -1405,7 +1460,8 @@ def attrs(
         ):
             builder.add_order()
 
-        builder.add_setattr()
+        if not frozen:
+            builder.add_setattr()
 
         nonlocal hash
         if (
@@ -1483,7 +1539,7 @@ def _has_frozen_base_class(cls):
     return cls.__setattr__ is _frozen_setattrs
 
 
-def _generate_unique_filename(cls, func_name):
+def _generate_unique_filename(cls: type, func_name: str) -> str:
     """
     Create a "filename" suitable for a function being generated.
     """
@@ -1493,15 +1549,16 @@ def _generate_unique_filename(cls, func_name):
     )
 
 
-def _make_hash(cls, attrs, frozen, cache_hash):
+def _make_hash_script(
+    cls: type, attrs: list[Attribute], frozen: bool, cache_hash: bool
+) -> tuple[str, dict]:
     attrs = tuple(
         a for a in attrs if a.hash is True or (a.hash is None and a.eq is True)
     )
 
     tab = "        "
 
-    unique_filename = _generate_unique_filename(cls, "hash")
-    type_hash = hash(unique_filename)
+    type_hash = hash(str(id(cls)))
     # If eq is custom generated, we need to include the functions in globs
     globs = {}
 
@@ -1561,43 +1618,41 @@ def _make_hash(cls, attrs, frozen, cache_hash):
         append_hash_computation_lines("return ", tab)
 
     script = "\n".join(method_lines)
-    return _make_method("__hash__", script, unique_filename, globs)
+    return script, globs
 
 
-def _add_hash(cls, attrs):
+def _add_hash(cls: type, attrs: list[Attribute]):
     """
     Add a hash method to *cls*.
     """
-    cls.__hash__ = _make_hash(cls, attrs, frozen=False, cache_hash=False)
+    script, globs = _make_hash_script(
+        cls, attrs, frozen=False, cache_hash=False
+    )
+    _compile_and_eval(
+        script, globs, filename=_generate_unique_filename(cls, "__hash__")
+    )
+    cls.__hash__ = globs["__hash__"]
     return cls
 
 
-def _make_ne():
+def __ne__(self, other):
     """
-    Create __ne__ method.
+    Check equality and either forward a NotImplemented or
+    return the result negated.
     """
+    result = self.__eq__(other)
+    if result is NotImplemented:
+        return NotImplemented
 
-    def __ne__(self, other):
-        """
-        Check equality and either forward a NotImplemented or
-        return the result negated.
-        """
-        result = self.__eq__(other)
-        if result is NotImplemented:
-            return NotImplemented
-
-        return not result
-
-    return __ne__
+    return not result
 
 
-def _make_eq(cls, attrs):
+def _make_eq_script(attrs: list) -> tuple[str, dict]:
     """
     Create __eq__ method for *cls* with *attrs*.
     """
     attrs = [a for a in attrs if a.eq]
 
-    unique_filename = _generate_unique_filename(cls, "eq")
     lines = [
         "def __eq__(self, other):",
         "    if other.__class__ is not self.__class__:",
@@ -1626,7 +1681,7 @@ def _make_eq(cls, attrs):
 
     script = "\n".join(lines)
 
-    return _make_method("__eq__", script, unique_filename, globs)
+    return script, globs
 
 
 def _make_order(cls, attrs):
@@ -1692,14 +1747,18 @@ def _add_eq(cls, attrs=None):
     if attrs is None:
         attrs = cls.__attrs_attrs__
 
-    cls.__eq__ = _make_eq(cls, attrs)
-    cls.__ne__ = _make_ne()
+    script, globs = _make_eq_script(attrs)
+    _compile_and_eval(
+        script, globs, filename=_generate_unique_filename(cls, "__eq__")
+    )
+    cls.__eq__ = globs["__eq__"]
+    cls.__ne__ = __ne__
 
     return cls
 
 
-def _make_repr(attrs, ns, cls):
-    unique_filename = _generate_unique_filename(cls, "repr")
+def _make_repr_script(attrs, ns) -> tuple[str, dict]:
+    """Create the source and globs for a __repr__ and return it."""
     # Figure out which attributes to include, and which function to use to
     # format them. The a.repr value can be either bool or a custom
     # callable.
@@ -1750,9 +1809,7 @@ def _make_repr(attrs, ns, cls):
         "    already_repring.remove(id(self))",
     ]
 
-    return _make_method(
-        "__repr__", "\n".join(lines), unique_filename, globs=globs
-    )
+    return "\n".join(lines), globs
 
 
 def _add_repr(cls, ns=None, attrs=None):
@@ -1762,7 +1819,11 @@ def _add_repr(cls, ns=None, attrs=None):
     if attrs is None:
         attrs = cls.__attrs_attrs__
 
-    cls.__repr__ = _make_repr(attrs, ns, cls)
+    script, globs = _make_repr_script(attrs, ns)
+    _compile_and_eval(
+        script, globs, filename=_generate_unique_filename(cls, "__repr__")
+    )
+    cls.__repr__ = globs["__repr__"]
     return cls
 
 
@@ -1867,7 +1928,7 @@ def _is_slot_attr(a_name, base_attr_map):
     return cls and "__slots__" in cls.__dict__
 
 
-def _make_init(
+def _make_init_script(
     cls,
     attrs,
     pre_init,
@@ -1880,7 +1941,7 @@ def _make_init(
     is_exc,
     cls_on_setattr,
     attrs_init,
-):
+) -> tuple[str, dict, dict]:
     has_cls_on_setattr = (
         cls_on_setattr is not None and cls_on_setattr is not setters.NO_OP
     )
@@ -1908,8 +1969,6 @@ def _make_init(
         elif has_cls_on_setattr and a.on_setattr is not setters.NO_OP:
             needs_cached_setattr = True
 
-    unique_filename = _generate_unique_filename(cls, "init")
-
     script, globs, annotations = _attrs_to_init_script(
         filtered_attrs,
         frozen,
@@ -1935,15 +1994,7 @@ def _make_init(
         # setattr hooks.
         globs["_cached_setattr_get"] = _OBJ_SETATTR.__get__
 
-    init = _make_method(
-        "__attrs_init__" if attrs_init else "__init__",
-        script,
-        unique_filename,
-        globs,
-    )
-    init.__annotations__ = annotations
-
-    return init
+    return script, globs, annotations
 
 
 def _setattr(attr_name: str, value_var: str, has_on_setattr: bool) -> str:

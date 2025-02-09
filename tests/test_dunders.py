@@ -19,7 +19,8 @@ from attr._make import (
     NOTHING,
     Factory,
     _add_repr,
-    _make_init,
+    _compile_and_eval,
+    _make_init_script,
     fields,
     make_class,
 )
@@ -85,7 +86,7 @@ def _add_init(cls, frozen):
     """
     has_pre_init = bool(getattr(cls, "__attrs_pre_init__", False))
 
-    cls.__init__ = _make_init(
+    script, globs, annots = _make_init_script(
         cls,
         cls.__attrs_attrs__,
         has_pre_init,
@@ -103,6 +104,9 @@ def _add_init(cls, frozen):
         cls_on_setattr=None,
         attrs_init=False,
     )
+    _compile_and_eval(script, globs, filename="__init__")
+    cls.__init__ = globs["__init__"]
+    cls.__init__.__annotations__ = annots
     return cls
 
 
@@ -1002,37 +1006,37 @@ class TestFilenames:
         """
         assert (
             OriginalC.__init__.__code__.co_filename
-            == "<attrs generated init tests.test_dunders.C>"
+            == "<attrs generated methods tests.test_dunders.C>"
         )
         assert (
             OriginalC.__eq__.__code__.co_filename
-            == "<attrs generated eq tests.test_dunders.C>"
+            == "<attrs generated methods tests.test_dunders.C>"
         )
         assert (
             OriginalC.__hash__.__code__.co_filename
-            == "<attrs generated hash tests.test_dunders.C>"
+            == "<attrs generated methods tests.test_dunders.C>"
         )
         assert (
             CopyC.__init__.__code__.co_filename
-            == "<attrs generated init tests.test_dunders.C>"
+            == "<attrs generated methods tests.test_dunders.C-1>"
         )
         assert (
             CopyC.__eq__.__code__.co_filename
-            == "<attrs generated eq tests.test_dunders.C>"
+            == "<attrs generated methods tests.test_dunders.C-1>"
         )
         assert (
             CopyC.__hash__.__code__.co_filename
-            == "<attrs generated hash tests.test_dunders.C>"
+            == "<attrs generated methods tests.test_dunders.C-1>"
         )
         assert (
             C.__init__.__code__.co_filename
-            == "<attrs generated init tests.test_dunders.C-1>"
+            == "<attrs generated methods tests.test_dunders.C-2>"
         )
         assert (
             C.__eq__.__code__.co_filename
-            == "<attrs generated eq tests.test_dunders.C-1>"
+            == "<attrs generated methods tests.test_dunders.C-2>"
         )
         assert (
             C.__hash__.__code__.co_filename
-            == "<attrs generated hash tests.test_dunders.C-1>"
+            == "<attrs generated methods tests.test_dunders.C-2>"
         )
