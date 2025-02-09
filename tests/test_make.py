@@ -1103,12 +1103,14 @@ class TestMakeClass:
 
     def test_normalized_unicode_attr_args(self):
         """
-        Unicode identifiers are valid in Python
+        Unicode identifiers are valid in Python.
         """
         clsname = "ü"
+
         assert clsname == unicodedata.normalize("NFKC", clsname)
 
         attrname = "ß"
+
         assert attrname == unicodedata.normalize("NFKC", attrname)
 
         C = make_class(clsname, [attrname], repr=False)
@@ -1118,17 +1120,19 @@ class TestMakeClass:
         kwargs = {"ß": 1}
         c = C(**kwargs)
 
-        assert c.ß == 1
+        assert 1 == c.ß
 
     def test_unnormalized_unicode_attr_args(self):
         """
-        Unicode identifiers are normalized to NFKC form in Python
+        Unicode identifiers are normalized to NFKC form in Python.
         """
 
         clsname = "Ŀ"
+
         assert clsname != unicodedata.normalize("NFKC", clsname)
 
         attrname = "ㅁ"
+
         assert attrname != unicodedata.normalize("NFKC", attrname)
 
         C = make_class(clsname, [attrname], repr=False)
@@ -1137,7 +1141,7 @@ class TestMakeClass:
         kwargs = {unicodedata.normalize("NFKC", attrname): 1}
         c = C(**kwargs)
 
-        assert c.ㅁ == 1
+        assert 1 == c.ㅁ
 
     def test_catches_wrong_attrs_type(self):
         """
