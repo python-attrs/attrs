@@ -10,6 +10,7 @@ import gc
 import inspect
 import itertools
 import sys
+import unicodedata
 
 from operator import attrgetter
 from typing import Generic, TypeVar
@@ -1099,6 +1100,48 @@ class TestMakeClass:
         C = make_class("C", ["x"], repr=False)
 
         assert repr(C(1)).startswith("<tests.test_make.C object at 0x")
+
+    def test_normalized_unicode_attr_args(self):
+        """
+        Unicode identifiers are valid in Python.
+        """
+        clsname = "ü"
+
+        assert clsname == unicodedata.normalize("NFKC", clsname)
+
+        attrname = "ß"
+
+        assert attrname == unicodedata.normalize("NFKC", attrname)
+
+        C = make_class(clsname, [attrname], repr=False)
+
+        assert repr(C(1)).startswith("<tests.test_make.ü object at 0x")
+
+        kwargs = {"ß": 1}
+        c = C(**kwargs)
+
+        assert 1 == c.ß
+
+    def test_unnormalized_unicode_attr_args(self):
+        """
+        Unicode identifiers are normalized to NFKC form in Python.
+        """
+
+        clsname = "Ŀ"
+
+        assert clsname != unicodedata.normalize("NFKC", clsname)
+
+        attrname = "ㅁ"
+
+        assert attrname != unicodedata.normalize("NFKC", attrname)
+
+        C = make_class(clsname, [attrname], repr=False)
+        assert repr(C(1)).startswith("<tests.test_make.L· object at 0x")
+
+        kwargs = {unicodedata.normalize("NFKC", attrname): 1}
+        c = C(**kwargs)
+
+        assert 1 == c.ㅁ
 
     def test_catches_wrong_attrs_type(self):
         """
