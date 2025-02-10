@@ -223,7 +223,7 @@ def _compile_and_eval(
     eval(bytecode, globs, locs)
 
 
-def _make_method(script, scriptlines, filename, globs, locals=None) -> dict:
+def _make_method(script, filename, globs, locals=None) -> dict:
     """
     Create the method with the script given and return the method object.
     """
@@ -237,7 +237,7 @@ def _make_method(script, scriptlines, filename, globs, locals=None) -> dict:
         linecache_tuple = (
             len(script),
             None,
-            scriptlines,
+            script.splitlines(True),
             filename,
         )
         old_val = linecache.cache.setdefault(filename, linecache_tuple)
@@ -534,7 +534,6 @@ def _make_cached_property_getattr(cached_properties, original_getattr, cls):
 
     return _make_method(
         "\n".join(lines),
-        lines,
         unique_filename,
         glob,
         locals={
@@ -770,15 +769,13 @@ class _ClassBuilder:
 
     def _eval_snippets(self) -> None:
         """Evaluate any registered snippets in one go."""
-        script_lines = [snippet[0] for snippet in self._script_snippets]
-        script = "\n".join(script_lines)
+        script = "\n".join([snippet[0] for snippet in self._script_snippets])
         globs = {}
         for _, snippet_globs, _ in self._script_snippets:
             globs.update(snippet_globs)
 
         locs = _make_method(
             script,
-            script_lines,
             filename=_generate_unique_filename(self._cls, "methods"),
             globs=globs,
         )
