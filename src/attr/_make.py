@@ -6,7 +6,6 @@ import abc
 import contextlib
 import copy
 import enum
-import functools
 import inspect
 import itertools
 import linecache
@@ -16,6 +15,7 @@ import typing
 import unicodedata
 
 from collections.abc import Callable
+from functools import cached_property
 
 # We need to import _compat itself in addition to the _compat members to avoid
 # having the thread-local in the globals here.
@@ -399,7 +399,7 @@ def _transform_attrs(
         ca_names = {
             name
             for name, attr in cd.items()
-            if isinstance(attr, _CountingAttr)
+            if attr.__class__ is _CountingAttr
         }
         ca_list = []
         annot_names = set()
@@ -409,8 +409,8 @@ def _transform_attrs(
             annot_names.add(attr_name)
             a = cd.get(attr_name, NOTHING)
 
-            if not isinstance(a, _CountingAttr):
-                a = attrib() if a is NOTHING else attrib(default=a)
+            if a.__class__ is not _CountingAttr:
+                a = attrib(default=a)
             ca_list.append((attr_name, a))
 
         unannotated = ca_names - annot_names
@@ -427,16 +427,14 @@ def _transform_attrs(
             (
                 (name, attr)
                 for name, attr in cd.items()
-                if isinstance(attr, _CountingAttr)
+                if attr.__class__ is _CountingAttr
             ),
             key=lambda e: e[1].counter,
         )
 
+    fca = Attribute.from_counting_attr
     own_attrs = [
-        Attribute.from_counting_attr(
-            name=attr_name, ca=ca, type=anns.get(attr_name)
-        )
-        for attr_name, ca in ca_list
+        fca(attr_name, ca, anns.get(attr_name)) for attr_name, ca in ca_list
     ]
 
     if collect_by_mro:
@@ -888,9 +886,9 @@ class _ClassBuilder:
             names += ("__weakref__",)
 
         cached_properties = {
-            name: cached_property.func
-            for name, cached_property in cd.items()
-            if isinstance(cached_property, functools.cached_property)
+            name: cached_prop.func
+            for name, cached_prop in cd.items()
+            if isinstance(cached_prop, cached_property)
         }
 
         # Collect methods with a `__class__` reference that are shadowed in the new class.
@@ -2469,33 +2467,32 @@ class Attribute:
         raise FrozenInstanceError
 
     @classmethod
-    def from_counting_attr(cls, name, ca, type=None):
+    def from_counting_attr(cls, name: str, ca: _CountingAttr, type=None):
         # type holds the annotated value. deal with conflicts:
         if type is None:
             type = ca.type
         elif ca.type is not None:
             msg = "Type annotation and type argument cannot both be present"
             raise ValueError(msg)
-        inst_dict = {
-            k: getattr(ca, k)
-            for k in Attribute.__slots__
-            if k
-            not in (
-                "name",
-                "validator",
-                "default",
-                "type",
-                "inherited",
-            )  # exclude methods and deprecated alias
-        }
         return cls(
-            name=name,
-            validator=ca._validator,
-            default=ca._default,
-            type=type,
-            cmp=None,
-            inherited=False,
-            **inst_dict,
+            name,
+            ca._default,
+            ca._validator,
+            ca.repr,
+            None,
+            ca.hash,
+            ca.init,
+            False,
+            ca.metadata,
+            type,
+            ca.converter,
+            ca.kw_only,
+            ca.eq,
+            ca.eq_key,
+            ca.order,
+            ca.order_key,
+            ca.on_setattr,
+            ca.alias,
         )
 
     # Don't use attrs.evolve since fields(Attribute) doesn't work
