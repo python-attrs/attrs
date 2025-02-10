@@ -253,7 +253,7 @@ def _make_method(script, filename, globs, locals=None) -> dict:
     return locs
 
 
-def _make_attr_tuple_class(cls_name, attr_names):
+def _make_attr_tuple_class(cls_name: str, attr_names: list[str]) -> type:
     """
     Create a tuple subclass to hold `Attribute`s for an `attrs` class.
 
@@ -264,20 +264,14 @@ def _make_attr_tuple_class(cls_name, attr_names):
         x = property(itemgetter(0))
     """
     attr_class_name = f"{cls_name}Attributes"
-    attr_class_template = [
-        f"class {attr_class_name}(tuple):",
-        "    __slots__ = ()",
-    ]
-    if attr_names:
-        for i, attr_name in enumerate(attr_names):
-            attr_class_template.append(
-                f"    {attr_name} = _attrs_property(_attrs_itemgetter({i}))"
-            )
-    else:
-        attr_class_template.append("    pass")
-    globs = {"_attrs_itemgetter": itemgetter, "_attrs_property": property}
-    _compile_and_eval("\n".join(attr_class_template), globs)
-    return globs[attr_class_name]
+    body = {}
+    for i, attr_name in enumerate(attr_names):
+
+        def getter(self, i=i):
+            return self[i]
+
+        body[attr_name] = property(getter)
+    return type(attr_class_name, (tuple,), body)
 
 
 # Tuple class for extracted attributes from a class definition.
@@ -667,7 +661,7 @@ class _ClassBuilder:
 
     def __init__(
         self,
-        cls,
+        cls: type,
         these,
         slots,
         frozen,
