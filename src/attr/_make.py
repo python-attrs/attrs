@@ -16,7 +16,6 @@ import typing
 import unicodedata
 
 from collections.abc import Callable
-from operator import itemgetter
 
 # We need to import _compat itself in addition to the _compat members to avoid
 # having the thread-local in the globals here.
