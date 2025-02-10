@@ -1018,25 +1018,25 @@ class TestFilenames:
         )
         assert (
             CopyC.__init__.__code__.co_filename
-            == "<attrs generated methods tests.test_dunders.C-1>"
+            == "<attrs generated methods tests.test_dunders.C>"
         )
         assert (
             CopyC.__eq__.__code__.co_filename
-            == "<attrs generated methods tests.test_dunders.C-1>"
+            == "<attrs generated methods tests.test_dunders.C>"
         )
         assert (
             CopyC.__hash__.__code__.co_filename
-            == "<attrs generated methods tests.test_dunders.C-1>"
+            == "<attrs generated methods tests.test_dunders.C>"
         )
         assert (
             C.__init__.__code__.co_filename
-            == "<attrs generated methods tests.test_dunders.C-2>"
+            == "<attrs generated methods tests.test_dunders.C-1>"
         )
         assert (
             C.__eq__.__code__.co_filename
-            == "<attrs generated methods tests.test_dunders.C-2>"
+            == "<attrs generated methods tests.test_dunders.C-1>"
         )
         assert (
             C.__hash__.__code__.co_filename
-            == "<attrs generated methods tests.test_dunders.C-2>"
+            == "<attrs generated methods tests.test_dunders.C-1>"
         )

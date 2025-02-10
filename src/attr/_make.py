@@ -223,7 +223,7 @@ def _compile_and_eval(
     eval(bytecode, globs, locs)
 
 
-def _make_method(script: str, filename, globs, locals=None) -> dict:
+def _make_method(script: str, filename: str, globs, locals=None) -> dict:
     """
     Create the method with the script given and return the method object.
     """

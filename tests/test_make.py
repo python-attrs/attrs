@@ -1856,6 +1856,8 @@ class TestClassBuilder:
         fake_meth.__module__ = "42"
         fake_meth.__qualname__ = "23"
 
+        b._cls = {}  # No module and qualname
+
         rv = b._add_method_dunders(fake_meth)
 
         assert "42" == rv.__module__ == fake_meth.__module__
