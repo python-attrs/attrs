@@ -104,7 +104,7 @@ def _add_init(cls, frozen):
         cls_on_setattr=None,
         attrs_init=False,
     )
-    _compile_and_eval(script, globs, filename="__init__")
+    _compile_and_eval("\n".join(script), globs, filename="__init__")
     cls.__init__ = globs["__init__"]
     cls.__init__.__annotations__ = annots
     return cls
@@ -1018,25 +1018,25 @@ class TestFilenames:
         )
         assert (
             CopyC.__init__.__code__.co_filename
-            == "<attrs generated methods tests.test_dunders.C-1>"
+            == "<attrs generated methods tests.test_dunders.C>"
         )
         assert (
             CopyC.__eq__.__code__.co_filename
-            == "<attrs generated methods tests.test_dunders.C-1>"
+            == "<attrs generated methods tests.test_dunders.C>"
         )
         assert (
             CopyC.__hash__.__code__.co_filename
-            == "<attrs generated methods tests.test_dunders.C-1>"
+            == "<attrs generated methods tests.test_dunders.C>"
         )
         assert (
             C.__init__.__code__.co_filename
-            == "<attrs generated methods tests.test_dunders.C-2>"
+            == "<attrs generated methods tests.test_dunders.C-1>"
         )
         assert (
             C.__eq__.__code__.co_filename
-            == "<attrs generated methods tests.test_dunders.C-2>"
+            == "<attrs generated methods tests.test_dunders.C-1>"
         )
         assert (
             C.__hash__.__code__.co_filename
-            == "<attrs generated methods tests.test_dunders.C-2>"
+            == "<attrs generated methods tests.test_dunders.C-1>"
         )

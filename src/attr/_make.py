@@ -752,7 +752,7 @@ class _ClassBuilder:
 
         # tuples of script, globs, hook
         self._script_snippets: list[
-            tuple[str, dict, Callable[[dict, dict], typing.Any]]
+            tuple[list[str], dict, Callable[[dict, dict], typing.Any]]
         ] = []
         self._repr_added = False
 
@@ -770,7 +770,9 @@ class _ClassBuilder:
 
     def _eval_snippets(self) -> None:
         """Evaluate any registered snippets in one go."""
-        script_lines = [snippet[0] for snippet in self._script_snippets]
+        script_lines = [
+            line for tup in self._script_snippets for line in tup[0]
+        ]
         script = "\n".join(script_lines)
         globs = {}
         for _, snippet_globs, _ in self._script_snippets:
@@ -1565,7 +1567,7 @@ def _generate_unique_filename(cls: type, func_name: str) -> str:
 
 def _make_hash_script(
     cls: type, attrs: list[Attribute], frozen: bool, cache_hash: bool
-) -> tuple[str, dict]:
+) -> tuple[list[str], dict]:
     attrs = tuple(
         a for a in attrs if a.hash is True or (a.hash is None and a.eq is True)
     )
@@ -1631,8 +1633,7 @@ def _make_hash_script(
     else:
         append_hash_computation_lines("return ", tab)
 
-    script = "\n".join(method_lines)
-    return script, globs
+    return method_lines, globs
 
 
 def _add_hash(cls: type, attrs: list[Attribute]):
@@ -1643,7 +1644,9 @@ def _add_hash(cls: type, attrs: list[Attribute]):
         cls, attrs, frozen=False, cache_hash=False
     )
     _compile_and_eval(
-        script, globs, filename=_generate_unique_filename(cls, "__hash__")
+        "\n".join(script),
+        globs,
+        filename=_generate_unique_filename(cls, "__hash__"),
     )
     cls.__hash__ = globs["__hash__"]
     return cls
@@ -1661,7 +1664,7 @@ def __ne__(self, other):
     return not result
 
 
-def _make_eq_script(attrs: list) -> tuple[str, dict]:
+def _make_eq_script(attrs: list) -> tuple[list[str], dict]:
     """
     Create __eq__ method for *cls* with *attrs*.
     """
@@ -1693,9 +1696,7 @@ def _make_eq_script(attrs: list) -> tuple[str, dict]:
     else:
         lines.append("    return True")
 
-    script = "\n".join(lines)
-
-    return script, globs
+    return lines, globs
 
 
 def _make_order(cls, attrs):
@@ -1763,7 +1764,9 @@ def _add_eq(cls, attrs=None):
 
     script, globs = _make_eq_script(attrs)
     _compile_and_eval(
-        script, globs, filename=_generate_unique_filename(cls, "__eq__")
+        "\n".join(script),
+        globs,
+        filename=_generate_unique_filename(cls, "__eq__"),
     )
     cls.__eq__ = globs["__eq__"]
     cls.__ne__ = __ne__
@@ -1771,7 +1774,7 @@ def _add_eq(cls, attrs=None):
     return cls
 
 
-def _make_repr_script(attrs, ns) -> tuple[str, dict]:
+def _make_repr_script(attrs, ns) -> tuple[list[str], dict]:
     """Create the source and globs for a __repr__ and return it."""
     # Figure out which attributes to include, and which function to use to
     # format them. The a.repr value can be either bool or a custom
@@ -1823,7 +1826,7 @@ def _make_repr_script(attrs, ns) -> tuple[str, dict]:
         "    already_repring.remove(id(self))",
     ]
 
-    return "\n".join(lines), globs
+    return lines, globs
 
 
 def _add_repr(cls, ns=None, attrs=None):
@@ -1835,7 +1838,9 @@ def _add_repr(cls, ns=None, attrs=None):
 
     script, globs = _make_repr_script(attrs, ns)
     _compile_and_eval(
-        script, globs, filename=_generate_unique_filename(cls, "__repr__")
+        "\n".join(script),
+        globs,
+        filename=_generate_unique_filename(cls, "__repr__"),
     )
     cls.__repr__ = globs["__repr__"]
     return cls
@@ -1955,7 +1960,7 @@ def _make_init_script(
     is_exc,
     cls_on_setattr,
     attrs_init,
-) -> tuple[str, dict, dict]:
+) -> tuple[list[str], dict, dict]:
     has_cls_on_setattr = (
         cls_on_setattr is not None and cls_on_setattr is not setters.NO_OP
     )
@@ -2112,7 +2117,7 @@ def _attrs_to_init_script(
     needs_cached_setattr: bool,
     has_cls_on_setattr: bool,
     method_name: str,
-) -> tuple[str, dict, dict]:
+) -> tuple[list[str], dict, dict]:
     """
     Return a script of an initializer for *attrs*, a dict of globals, and
     annotations for the initializer.
@@ -2349,11 +2354,10 @@ def _attrs_to_init_script(
         lines[0] = f"self.__attrs_pre_init__({pre_init_args})"
 
     # Python <3.12 doesn't allow backslashes in f-strings.
-    NL = "\n    "
+    lines = [f"    {line}" for line in lines] if lines else ["    pass"]
+    lines = [f"def {method_name}(self, {args}):", *lines]
     return (
-        f"""def {method_name}(self, {args}):
-    {NL.join(lines) if lines else "pass"}
-""",
+        lines,
         names_for_globals,
         annotations,
     )
