@@ -1572,7 +1572,7 @@ def _make_hash_script(
 
     tab = "        "
 
-    type_hash = hash(str(id(cls)))
+    type_hash = hash(_generate_unique_filename(cls, "hash"))
     # If eq is custom generated, we need to include the functions in globs
     globs = {}
 
