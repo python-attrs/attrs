@@ -481,10 +481,10 @@ def _transform_attrs(
     # Resolve default field alias after executing field_transformer.
     # This allows field_transformer to differentiate between explicit vs
     # default aliases and supply their own defaults.
-    attrs = [
-        a.evolve(alias=_default_init_alias_for(a.name)) if not a.alias else a
-        for a in attrs
-    ]
+    for a in attrs:
+        if not a.alias:
+            # Evolve is very slow, so we hold our nose and do it dirty.
+            _OBJ_SETATTR.__get__(a)("alias", _default_init_alias_for(a.name))
 
     # Create AttrsClass *after* applying the field_transformer since it may
     # add or remove attributes!
