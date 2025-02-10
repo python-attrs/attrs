@@ -1809,7 +1809,9 @@ class TestClassBuilder:
         organic_prefix = C.organic.__qualname__.rsplit(".", 1)[0]
         assert organic_prefix + "." + meth_name == meth_C.__qualname__
 
-    def test_handles_missing_meta_on_class(self):
+    def test_handles_missing_meta_on_class(
+        self, monkeypatch: pytest.MonkeyPatch
+    ):
         """
         If the class hasn't a __module__ or __qualname__, the method hasn't
         either.
@@ -1817,6 +1819,19 @@ class TestClassBuilder:
 
         class C:
             pass
+
+        orig_hasattr = __builtins__["hasattr"]
+
+        def our_hasattr(obj, name, /) -> bool:
+            if name in ("__module__", "__qualname__"):
+                return False
+            return orig_hasattr(obj, name)
+
+        monkeypatch.setitem(
+            _ClassBuilder.__init__.__globals__["__builtins__"],
+            "hasattr",
+            our_hasattr,
+        )
 
         b = _ClassBuilder(
             C,
@@ -1834,7 +1849,6 @@ class TestClassBuilder:
             has_custom_setattr=False,
             field_transformer=None,
         )
-        b._cls = {}  # no __module__; no __qualname__
 
         def fake_meth(self):
             pass
