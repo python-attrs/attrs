@@ -399,7 +399,7 @@ def _transform_attrs(
             a = cd.get(attr_name, NOTHING)
 
             if a.__class__ is not _CountingAttr:
-                a = attrib(default=a)
+                a = attrib(a)
             ca_list.append((attr_name, a))
 
         unannotated = ca_names - annot_names
