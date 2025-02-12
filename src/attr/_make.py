@@ -227,11 +227,12 @@ def _linecache_and_compile(
     script: str,
     filename: str,
     globs: dict[str, Any] | None,
-    locs: Mapping[str, object] | None = None,
+    locals: Mapping[str, object] | None = None,
 ) -> dict[str, Any]:
     """
     Cache the script with _linecache_, compile it and return the _locals_.
     """
+
     locs = {} if locals is None else locals
 
     # In order of debuggers like PDB being able to step through the code,
@@ -767,8 +768,8 @@ class _ClassBuilder:
 
         locs = _linecache_and_compile(
             script,
-            filename=_generate_unique_filename(self._cls, "methods"),
-            globs=globs,
+            _generate_unique_filename(self._cls, "methods"),
+            globs,
         )
 
         for _, _, hook in self._script_snippets:
