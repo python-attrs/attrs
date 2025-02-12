@@ -752,7 +752,9 @@ class _ClassBuilder:
         return f"<_ClassBuilder(cls={self._cls.__name__})>"
 
     def _eval_snippets(self) -> None:
-        """Evaluate any registered snippets in one go."""
+        """
+        Evaluate any registered snippets in one go.
+        """
         script = "\n".join([snippet[0] for snippet in self._script_snippets])
         globs = {}
         for _, snippet_globs, _ in self._script_snippets:
@@ -1754,7 +1756,9 @@ def _add_eq(cls, attrs=None):
 
 
 def _make_repr_script(attrs, ns) -> tuple[str, dict]:
-    """Create the source and globs for a __repr__ and return it."""
+    """
+    Create the source and globs for a __repr__ and return it.
+    """
     # Figure out which attributes to include, and which function to use to
     # format them. The a.repr value can be either bool or a custom
     # callable.
