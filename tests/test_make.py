@@ -201,7 +201,7 @@ class TestTransformAttrs:
         class C:
             pass
 
-        assert _Attributes(((), [], {})) == _transform_attrs(
+        assert _Attributes((), [], {}) == _transform_attrs(
             C, None, False, False, True, None
         )
 

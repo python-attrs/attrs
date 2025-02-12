@@ -275,17 +275,10 @@ def _make_attr_tuple_class(cls_name: str, attr_names: list[str]) -> type:
 
 # Tuple class for extracted attributes from a class definition.
 # `base_attrs` is a subset of `attrs`.
-_Attributes = _make_attr_tuple_class(
-    "_Attributes",
-    [
-        # all attributes to build dunder methods for
-        "attrs",
-        # attributes that have been inherited
-        "base_attrs",
-        # map inherited attributes to their originating classes
-        "base_attrs_map",
-    ],
-)
+class _Attributes(typing.NamedTuple):
+    attrs: type
+    base_attrs: list[Attribute]
+    base_attrs_map: dict[str, type]
 
 
 def _is_class_var(annot):
@@ -375,11 +368,7 @@ def _collect_base_attrs_broken(cls, taken_attr_names):
 
 def _transform_attrs(
     cls, these, auto_attribs, kw_only, collect_by_mro, field_transformer
-) -> tuple[
-    tuple,
-    list[Attribute],
-    dict[str, type],
-]:
+) -> _Attributes:
     """
     Transform all `_CountingAttr`s on a class into `Attribute`s.
 
@@ -482,7 +471,7 @@ def _transform_attrs(
     attr_names = [a.name for a in attrs]
     AttrsClass = _make_attr_tuple_class(cls.__name__, attr_names)
 
-    return _Attributes((AttrsClass(attrs), base_attrs, base_attr_map))
+    return _Attributes(AttrsClass(attrs), base_attrs, base_attr_map)
 
 
 def _make_cached_property_getattr(cached_properties, original_getattr, cls):
