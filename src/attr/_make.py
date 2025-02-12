@@ -11,11 +11,11 @@ import itertools
 import linecache
 import sys
 import types
-import typing
 import unicodedata
 
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from functools import cached_property
+from typing import Any, NamedTuple, TypeVar
 
 # We need to import _compat itself in addition to the _compat members to avoid
 # having the thread-local in the globals here.
@@ -211,8 +211,8 @@ def attrib(
 
 def _compile_and_eval(
     script: str,
-    globs: dict[str, typing.Any] | None,
-    locs=None,
+    globs: dict[str, Any] | None,
+    locs: Mapping[str, object] | None = None,
     filename: str = "",
 ) -> None:
     """
@@ -223,9 +223,14 @@ def _compile_and_eval(
     eval(bytecode, globs, locs)
 
 
-def _make_method(script: str, filename: str, globs, locals=None) -> dict:
+def _linecache_and_compile(
+    script: str,
+    filename: str,
+    globs: dict[str, Any] | None,
+    locs: Mapping[str, object] | None = None,
+) -> dict[str, Any]:
     """
-    Create the method with the script given and return the method object.
+    Cache the script with _linecache_, compile it and return the _locals_.
     """
     locs = {} if locals is None else locals
 
@@ -275,7 +280,7 @@ def _make_attr_tuple_class(cls_name: str, attr_names: list[str]) -> type:
 
 # Tuple class for extracted attributes from a class definition.
 # `base_attrs` is a subset of `attrs`.
-class _Attributes(typing.NamedTuple):
+class _Attributes(NamedTuple):
     attrs: type
     base_attrs: list[Attribute]
     base_attrs_map: dict[str, type]
@@ -521,7 +526,7 @@ def _make_cached_property_getattr(cached_properties, original_getattr, cls):
         "original_getattr": original_getattr,
     }
 
-    return _make_method(
+    return _linecache_and_compile(
         "\n".join(lines), unique_filename, glob, locals={"_cls": cls}
     )["__getattr__"]
 
@@ -735,7 +740,7 @@ class _ClassBuilder:
 
         # tuples of script, globs, hook
         self._script_snippets: list[
-            tuple[str, dict, Callable[[dict, dict], typing.Any]]
+            tuple[str, dict, Callable[[dict, dict], Any]]
         ] = []
         self._repr_added = False
 
@@ -760,7 +765,7 @@ class _ClassBuilder:
         for _, snippet_globs, _ in self._script_snippets:
             globs.update(snippet_globs)
 
-        locs = _make_method(
+        locs = _linecache_and_compile(
             script,
             filename=_generate_unique_filename(self._cls, "methods"),
             globs=globs,
@@ -3095,7 +3100,7 @@ def pipe(*converters):
 
     if not converters:
         # If the converter list is empty, pipe_converter is the identity.
-        A = typing.TypeVar("A")
+        A = TypeVar("A")
         pipe_converter.__annotations__.update({"val": A, "return": A})
     else:
         # Get parameter type from first converter.
