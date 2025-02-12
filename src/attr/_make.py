@@ -522,12 +522,7 @@ def _make_cached_property_getattr(cached_properties, original_getattr, cls):
     }
 
     return _make_method(
-        "\n".join(lines),
-        unique_filename,
-        glob,
-        locals={
-            "_cls": cls,
-        },
+        "\n".join(lines), unique_filename, glob, locals={"_cls": cls}
     )["__getattr__"]
 
 
