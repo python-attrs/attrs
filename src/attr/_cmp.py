@@ -4,7 +4,7 @@
 import functools
 import types
 
-from ._make import _make_ne
+from ._make import __ne__
 
 
 _operation_names = {"eq": "==", "lt": "<", "le": "<=", "gt": ">", "ge": ">="}
@@ -71,7 +71,7 @@ def cmp_using(
     if eq is not None:
         has_eq_function = True
         body["__eq__"] = _make_operator("eq", eq)
-        body["__ne__"] = _make_ne()
+        body["__ne__"] = __ne__
 
     if lt is not None:
         num_order_functions += 1
