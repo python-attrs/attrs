@@ -132,9 +132,6 @@ jobs:
           name: Packages
           path: dist
       - run: tar xf dist/*.tar.gz --strip-components=1
-      - uses: actions/setup-python@v5
-        with:
-          python-version-file: .python-version-default
       - uses: hynek/setup-cached-uv@v2
 
       - name: Download coverage data
@@ -145,7 +142,7 @@ jobs:
 
       - name: Combine coverage & fail if it's <100%.
         run: |
-          uv tool install coverage
+          uv tool install --python $(cat .python-version-default) coverage
 
           coverage combine
           coverage html --skip-covered --skip-empty
@@ -185,12 +182,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v5
-        with:
-          python-version-file: .python-version-default
       - uses: hynek/setup-cached-uv@v2
 
-      - run: uvx --with=tox-uv tox run -e pyright
+      - run: >
+          uvx --with=tox-uv
+          --python $(cat .python-version-default)
+          tox run -e pyright
 
   install-dev:
     name: Verify dev env
@@ -200,9 +197,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v5
-        with:
-          python-version-file: .python-version-default
       - uses: hynek/setup-cached-uv@v2
 
       - run: uv venv --python $(cat .python-version-default)
