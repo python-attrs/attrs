@@ -54,10 +54,6 @@ jobs:
           name: Packages
           path: dist
       - run: tar xf dist/*.tar.gz --strip-components=1
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          allow-prereleases: true
       - uses: hynek/setup-cached-uv@v2
 
       - name: Prepare tox
@@ -116,10 +112,6 @@ jobs:
       - run: |
           tar xf dist/*.tar.gz --strip-components=1
           rm -rf src  # ensure tests run against wheel
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          allow-prereleases: true
       - uses: hynek/setup-cached-uv@v2
 
       - run: >
@@ -182,10 +174,6 @@ jobs:
           name: Packages
           path: dist
       - run: tar xf dist/*.tar.gz --strip-components=1
-      - uses: actions/setup-python@v5
-        with:
-          # Keep in sync with tox/docs and .readthedocs.yaml.
-          python-version: "3.13"
       - uses: hynek/setup-cached-uv@v2
 
       - run: uvx --with=tox-uv tox run -e docs-doctests,changelog

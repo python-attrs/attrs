@@ -4,7 +4,7 @@ version: 2
 build:
   os: ubuntu-lts-latest
   tools:
-    # Keep version in sync with tox.ini/docs and ci.yml/docs.
+    # Keep version in sync with tox.ini/docs.
     python: "3.13"
   jobs:
     create_environment:
