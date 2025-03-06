@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: MITpyp
 
 [build-system]
 requires = ["hatchling", "hatch-vcs", "hatch-fancy-pypi-readme>=23.2.0"]
@@ -58,9 +58,7 @@ docs = [
   "sphinx",
   "sphinx-notfound-page",
   "sphinxcontrib-towncrier",
-  # See https://github.com/sphinx-contrib/sphinxcontrib-towncrier/issues/92
-  # Pin also present in tox.ini
-  "towncrier<24.7",
+  "towncrier",
 ]
 dev = ["attrs[tests]", "pre-commit-uv"]
 
