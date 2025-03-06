@@ -135,6 +135,11 @@ url = "https://klaviyo.com/"
 img = "Klaviyo.svg"
 
 [[tool.sponcon.sponsors]]
+title = "Privacy Solutions"
+url = "https://privacy-solutions.org/"
+img = "Privacy-Solutions.svg"
+
+[[tool.sponcon.sponsors]]
 title = "emsys renewables"
 url = "https://www.emsys-renewables.com/"
 img = "emsys-renewables.svg"
@@ -143,11 +148,6 @@ img = "emsys-renewables.svg"
 title = "FilePreviews"
 url = "https://filepreviews.io/"
 img = "FilePreviews.svg"
-
-[[tool.sponcon.sponsors]]
-title = "Privacy Solutions"
-url = "https://privacy-solutions.org/"
-img = "Privacy-Solutions.svg"
 
 [[tool.sponcon.sponsors]]
 title = "Polar"
