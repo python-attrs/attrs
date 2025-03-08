@@ -62,7 +62,7 @@ class TestAnnotations:
                 x: int = attr.ib(type=int)
 
         assert (
-            "Type annotation and type argument cannot both be present",
+            "Type annotation and type argument cannot both be present for 'x'.",
         ) == e.value.args
 
     def test_typing_annotations(self):

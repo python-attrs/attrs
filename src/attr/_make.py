@@ -2491,7 +2491,7 @@ class Attribute:
         if type is None:
             type = ca.type
         elif ca.type is not None:
-            msg = "Type annotation and type argument cannot both be present"
+            msg = f"Type annotation and type argument cannot both be present for '{name}'."
             raise ValueError(msg)
         return cls(
             name,
