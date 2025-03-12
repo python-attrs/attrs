@@ -450,6 +450,9 @@ def _transform_attrs(
     if field_transformer is not None:
         attrs = field_transformer(cls, attrs)
 
+        if inspect.isgenerator(attrs):
+            attrs = tuple(attrs)
+
     # Check attr order after executing the field_transformer.
     # Mandatory vs non-mandatory attr order only matters when they are part of
     # the __init__ signature and when they aren't kw_only (which are moved to
