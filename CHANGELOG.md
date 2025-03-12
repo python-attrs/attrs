@@ -12,6 +12,20 @@ Changes for the upcoming release can be found in the [`changelog.d` directory](h
 
 <!-- towncrier release notes start -->
 
+## [25.2.0](https://github.com/python-attrs/attrs/tree/25.2.0) - 2025-03-12
+
+### Changes
+
+- Checking mandatory vs non-mandatory attribute order is now performed after the field transformer, since the field transformer may change attributes and/or their order.
+  [#1147](https://github.com/python-attrs/attrs/issues/1147)
+- `attrs.make_class()` now allows for Unicode class names.
+  [#1406](https://github.com/python-attrs/attrs/issues/1406)
+- Speed up class creation by 30%-50% by compiling methods only once and using a variety of other techniques.
+  [#1407](https://github.com/python-attrs/attrs/issues/1407)
+- The error message if an attribute has both an annotation and a type argument will now disclose _what_ attribute seems to be the problem.
+  [#1410](https://github.com/python-attrs/attrs/issues/1410)
+
+
 ## [25.1.0](https://github.com/python-attrs/attrs/tree/25.1.0) - 2025-01-25
 
 ### Changes
