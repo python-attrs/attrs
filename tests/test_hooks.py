@@ -219,9 +219,9 @@ class TestTransformHook:
 
     def test_hook_generator(self):
         """
-        Ensure that `attrs.fields` are correctly recorded when field_transformer is a generator
+        field_transfromers can be a generators.
 
-        Regression test for #1417
+        Regression test for #1416.
         """
 
         def hook(cls, attribs):
