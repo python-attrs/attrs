@@ -32,6 +32,8 @@ linkcheck_ignore = [
     r"https://github.com/.*/(issues|pull)/\d+",
     # Rate limits and the latest tag is missing anyways on release.
     "https://github.com/python-attrs/attrs/tree/.*",
+    # GitHub just completely broke anchors hashtag modern web dev.
+    "https://github.com/python-attrs/attrs/commit/88aa1c897dfe2ee4aa987e4a56f2ba1344a17238#diff-4fc63db1f2fcb7c6e464ee9a77c3c74e90dd191d1c9ffc3bdd1234d3a6663dc0R48",
 ]
 
 # In nitpick mode (-n), still ignore any of the following "broken" references
