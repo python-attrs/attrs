@@ -12,6 +12,14 @@ Changes for the upcoming release can be found in the [`changelog.d` directory](h
 
 <!-- towncrier release notes start -->
 
+## [25.3.0](https://github.com/python-attrs/attrs/tree/25.3.0) - 2025-03-13
+
+### Changes
+
+- Restore support for generator-based `field_transformer`s.
+  [#1417](https://github.com/python-attrs/attrs/issues/1417)
+
+
 ## [25.2.0](https://github.com/python-attrs/attrs/tree/25.2.0) - 2025-03-12
 
 ### Changes
