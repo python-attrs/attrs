@@ -448,7 +448,7 @@ def _transform_attrs(
     attrs = base_attrs + own_attrs
 
     if field_transformer is not None:
-        attrs = field_transformer(cls, attrs)
+        attrs = tuple(field_transformer(cls, attrs))
 
     # Check attr order after executing the field_transformer.
     # Mandatory vs non-mandatory attr order only matters when they are part of
@@ -2491,7 +2491,7 @@ class Attribute:
         if type is None:
             type = ca.type
         elif ca.type is not None:
-            msg = "Type annotation and type argument cannot both be present"
+            msg = f"Type annotation and type argument cannot both be present for '{name}'."
             raise ValueError(msg)
         return cls(
             name,

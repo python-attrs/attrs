@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MITpyp
+# SPDX-License-Identifier: MIT
 
 [build-system]
 requires = ["hatchling", "hatch-vcs", "hatch-fancy-pypi-readme>=23.2.0"]
