@@ -10,12 +10,11 @@ name = "attrs"
 authors = [{ name = "Hynek Schlawack", email = "hs@ox.cx" }]
 license = "MIT"
 license-files = ["LICENSE"]
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 description = "Classes Without Boilerplate"
 keywords = ["class", "attribute", "boilerplate"]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
-  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
@@ -28,7 +27,15 @@ classifiers = [
 dependencies = []
 dynamic = ["version", "readme"]
 
-[project.optional-dependencies]
+[project.urls]
+Documentation = "https://www.attrs.org/"
+Changelog = "https://www.attrs.org/en/stable/changelog.html"
+GitHub = "https://github.com/python-attrs/attrs"
+Funding = "https://github.com/sponsors/hynek"
+Tidelift = "https://tidelift.com/subscription/pkg/pypi-attrs?utm_source=pypi-attrs&utm_medium=pypi"
+
+
+[dependency-groups]
 tests-mypy = [
   'pytest-mypy-plugins; platform_python_implementation == "CPython" and python_version >= "3.10"',
   # Since the mypy error messages keep changing, we have to keep updating this
@@ -36,21 +43,25 @@ tests-mypy = [
   'mypy>=1.11.1; platform_python_implementation == "CPython" and python_version >= "3.10"',
 ]
 tests = [
+  { include-group = "tests-mypy" },
   # For regression test to ensure cloudpickle compat doesn't break.
   'cloudpickle; platform_python_implementation == "CPython"',
   "hypothesis",
   "pympler",
   # 4.3.0 dropped last use of `convert`
   "pytest>=4.3.0",
-  "pytest-xdist[psutil]",
-  "attrs[tests-mypy]",
 ]
 cov = [
-  "attrs[tests]",
+  { include-group = "tests" },
   # Ensure coverage is new enough for `source_pkgs`.
   "coverage[toml]>=5.3",
 ]
-benchmark = ["pytest-codspeed", "pytest-xdist[psutil]", "attrs[tests]"]
+pyright = ["pyright", { include-group = "tests" }]
+benchmark = [
+  { include-group = "tests" },
+  "pytest-codspeed",
+  "pytest-xdist[psutil]",
+]
 docs = [
   "cogapp",
   "furo",
@@ -60,14 +71,8 @@ docs = [
   "sphinxcontrib-towncrier",
   "towncrier",
 ]
-dev = ["attrs[tests]", "pre-commit-uv"]
-
-[project.urls]
-Documentation = "https://www.attrs.org/"
-Changelog = "https://www.attrs.org/en/stable/changelog.html"
-GitHub = "https://github.com/python-attrs/attrs"
-Funding = "https://github.com/sponsors/hynek"
-Tidelift = "https://tidelift.com/subscription/pkg/pypi-attrs?utm_source=pypi-attrs&utm_medium=pypi"
+docs-watch = [{ include-group = "docs" }, "watchfiles"]
+dev = [{ include-group = "tests" }]
 
 
 [tool.hatch.version]
@@ -225,6 +230,8 @@ ignore = [
   "TD",      # we don't follow other people's todo style
   "TRY301",  # I'm sorry, but this makes not sense for us.
   "UP031",   # format() is slow as molasses; % and f'' FTW.
+  "UP006",   # replace Dict etc by dict etc later.
+  "UP035",   # replace Dict etc by dict etc later.
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -252,10 +259,10 @@ ignore = [
 "src/*/*.pyi" = ["ALL"] # TODO
 "tests/test_annotations.py" = ["FA100"]
 "tests/typing_example.py" = [
-  "E741",   # ambiguous variable names don't matter in type checks
-  "B018",   # useless expressions aren't useless in type checks
-  "B015",   # pointless comparison in type checks aren't pointless
-  "UP037",  # we test some older syntaxes on purpose
+  "E741",  # ambiguous variable names don't matter in type checks
+  "B018",  # useless expressions aren't useless in type checks
+  "B015",  # pointless comparison in type checks aren't pointless
+  "UP037", # we test some older syntaxes on purpose
 ]
 
 [tool.ruff.lint.isort]

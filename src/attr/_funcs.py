@@ -3,7 +3,7 @@
 
 import copy
 
-from ._compat import PY_3_9_PLUS, get_generic_base
+from ._compat import get_generic_base
 from ._make import _OBJ_SETATTR, NOTHING, fields
 from .exceptions import AttrsAttributeNotFoundError
 
@@ -450,10 +450,11 @@ def resolve_types(
     if getattr(cls, "__attrs_types_resolved__", None) != cls:
         import typing
 
-        kwargs = {"globalns": globalns, "localns": localns}
-
-        if PY_3_9_PLUS:
-            kwargs["include_extras"] = include_extras
+        kwargs = {
+            "globalns": globalns,
+            "localns": localns,
+            "include_extras": include_extras,
+        }
 
         hints = typing.get_type_hints(cls, **kwargs)
         for field in fields(cls) if attribs is None else attribs:
