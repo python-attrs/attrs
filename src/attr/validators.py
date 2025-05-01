@@ -485,7 +485,7 @@ def gt(val):
     A validator that raises `ValueError` if the initializer is called with a
     number smaller or equal to *val*.
 
-    The validator uses `operator.ge` to compare the values.
+    The validator uses `operator.gt` to compare the values.
 
     Args:
        val: Exclusive lower bound for values

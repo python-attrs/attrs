@@ -34,6 +34,10 @@ linkcheck_ignore = [
     "https://github.com/python-attrs/attrs/tree/.*",
 ]
 
+linkcheck_anchors_ignore_for_url = [
+    r"^https?://(www\.)?github\.com/.*",
+]
+
 # In nitpick mode (-n), still ignore any of the following "broken" references
 # to non-types.
 nitpick_ignore = [
