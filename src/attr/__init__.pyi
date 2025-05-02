@@ -139,6 +139,7 @@ class Attribute(Generic[_T]):
     alias: str | None
 
     def evolve(self, **changes: Any) -> "Attribute[Any]": ...
+    def to_field(self) -> Any: ...
 
 # NOTE: We had several choices for the annotation to use for type arg:
 # 1) Type[_T]

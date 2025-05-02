@@ -429,6 +429,7 @@ def field(
     order=None,
     on_setattr=None,
     alias=None,
+    inherited=None,
 ):
     """
     Create a new :term:`field` / :term:`attribute` on a class.
@@ -565,6 +566,11 @@ def field(
             ``__init__`` method. If left None, default to ``name`` stripped
             of leading underscores. See `private-attributes`.
 
+        inherited (bool | None):
+            Ensure this attribute inherits the ordering of the parent attribute
+            with the same name. If no parent attribute with the same name 
+            exists, this field is treated as normal.
+
     .. versionadded:: 20.1.0
     .. versionchanged:: 21.1.0
        *eq*, *order*, and *cmp* also accept a custom callable
@@ -572,6 +578,7 @@ def field(
     .. versionadded:: 23.1.0
        The *type* parameter has been re-added; mostly for `attrs.make_class`.
        Please note that type checkers ignore this metadata.
+    .. versionadded:: 25.4.0 *inherited*
 
     .. seealso::
 
@@ -592,6 +599,7 @@ def field(
         order=order,
         on_setattr=on_setattr,
         alias=alias,
+        inherited=inherited,
     )
 
 

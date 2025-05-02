@@ -118,6 +118,7 @@ def attrib(
     order=None,
     on_setattr=None,
     alias=None,
+    inherited=False,
 ):
     """
     Create a new field / attribute on a class.
@@ -206,6 +207,7 @@ def attrib(
         order_key=order_key,
         on_setattr=on_setattr,
         alias=alias,
+        inherited=inherited,
     )
 
 
@@ -434,16 +436,32 @@ def _transform_attrs(
 
     if collect_by_mro:
         base_attrs, base_attr_map = _collect_base_attrs(
-            cls, {a.name for a in own_attrs}
+            cls, {a.name for a in own_attrs if a.inherited is False}
         )
     else:
         base_attrs, base_attr_map = _collect_base_attrs_broken(
-            cls, {a.name for a in own_attrs}
+            cls, {a.name for a in own_attrs if a.inherited is False}
         )
 
     if kw_only:
         own_attrs = [a.evolve(kw_only=True) for a in own_attrs]
         base_attrs = [a.evolve(kw_only=True) for a in base_attrs]
+
+    own_attr_map = {attr.name: attr for attr in own_attrs}
+
+    # Overwrite explicitly inherited attributes in `base` with their versions in `own`
+    base_attrs = [
+        base_attr
+        if base_attr.name not in own_attr_map
+        else own_attr_map[base_attr.name]
+        for base_attr in base_attrs
+    ]
+    # Strip explicitly inherited attributes from `own`, as they now live in `base`
+    own_attrs = [
+        own_attr
+        for own_attr in own_attrs
+        if own_attr.name not in base_attr_map
+    ]
 
     attrs = base_attrs + own_attrs
 
@@ -2501,7 +2519,7 @@ class Attribute:
             None,
             ca.hash,
             ca.init,
-            False,
+            ca.inherited,
             ca.metadata,
             type,
             ca.converter,
@@ -2531,6 +2549,35 @@ class Attribute:
         new._setattrs(changes.items())
 
         return new
+
+    def to_field(self):
+        """
+        Converts this attribute back into a raw :py:class:`_CountingAttr` object,
+        such that it can be used to annotate newly `define`d classes. This is
+        useful if you want to reuse part (or all) of fields defined in other
+        attrs classes that have already been resolved into their finalized state.
+
+        .. versionadded:: 25.4.0
+        """
+        return _CountingAttr(
+            default=self.default,
+            validator=self.validator,
+            repr=self.repr,
+            cmp=None,
+            hash=self.hash,
+            init=self.init,
+            converter=self.converter,
+            metadata=self.metadata,
+            type=self.type,
+            kw_only=self.kw_only,
+            eq=self.eq,
+            eq_key=self.eq_key,
+            order=self.order,
+            order_key=self.order_key,
+            on_setattr=self.on_setattr,
+            alias=self.alias,
+            inherited=self.inherited,
+        )
 
     # Don't use _add_pickle since fields(Attribute) doesn't work
     def __getstate__(self):
@@ -2608,6 +2655,7 @@ class _CountingAttr:
         "eq",
         "eq_key",
         "hash",
+        "inherited",
         "init",
         "kw_only",
         "metadata",
@@ -2646,6 +2694,7 @@ class _CountingAttr:
                 "init",
                 "on_setattr",
                 "alias",
+                "inherited",
             )
         ),
         Attribute(
@@ -2665,6 +2714,23 @@ class _CountingAttr:
             inherited=False,
             on_setattr=None,
         ),
+        # Attribute(
+        #     name="inherited",
+        #     alias="inherited",
+        #     default=None,
+        #     validator=None,
+        #     repr=True,
+        #     cmp=None,
+        #     hash=True,
+        #     init=True,
+        #     kw_only=False,
+        #     eq=True,
+        #     eq_key=None,
+        #     order=False,
+        #     order_key=None,
+        #     inherited=False,
+        #     on_setattr=None,
+        # ),
     )
     cls_counter = 0
 
@@ -2686,6 +2752,7 @@ class _CountingAttr:
         order_key,
         on_setattr,
         alias,
+        inherited,
     ):
         _CountingAttr.cls_counter += 1
         self.counter = _CountingAttr.cls_counter
@@ -2704,6 +2771,7 @@ class _CountingAttr:
         self.kw_only = kw_only
         self.on_setattr = on_setattr
         self.alias = alias
+        self.inherited = inherited
 
     def validator(self, meth):
         """

@@ -834,6 +834,209 @@ class TestAttributes:
         assert hash(ba) == hash(sa)
 
 
+class TestEvolveAttributes:
+    """
+    Test reusing/evolving attributes from already `define`d attrs classes when
+    constructing new ones.
+    """
+
+    def test_make_class(self):
+        """
+        `to_field` should permit users to construct new classes with existing
+        attributes using `make_class`.
+        """
+
+        @attr.define
+        class Example:
+            a: int
+
+        ExampleCopy = attr.make_class(
+            "ExampleCopy", attrs={"a": attr.fields(Example).a.to_field()}
+        )
+
+        assert int is attr.fields(ExampleCopy).a.type
+        assert 1 == ExampleCopy(1).a
+        assert "ExampleCopy(a=1)" == repr(ExampleCopy(1))
+
+    def test_these(self):
+        """
+        `to_field` should permit users to construct new classes with existing
+        attributes using `these`.
+        """
+
+        @attr.define
+        class Example:
+            a: int
+
+        @attr.define(these={"a": attr.fields(Example).a.to_field()})
+        class ExampleCopy:
+            pass
+
+        assert int is attr.fields(ExampleCopy).a.type
+        assert 1 == ExampleCopy(1).a
+        assert "ExampleCopy(a=1)" == repr(ExampleCopy(1))
+
+    def test_evolve_unrelated(self):
+        """
+        You can use `to_field()` to set fields from entirely unrelated classes.
+        """
+
+        @attr.define
+        class A:
+            x: int = attr.ib(default=1)
+
+        @attr.define
+        class B:
+            y = attr.fields(A).x.evolve(default=100).to_field()
+
+        assert int is attr.fields(B).y.type
+        assert 100 == attr.fields(B).y.default
+
+    def test_evolve_inherit_order(self):
+        """
+        Ensure that by specifying `inherited=True` we preserve the order of
+        attributes from the parent class.
+        """
+
+        @attr.s
+        class BaseClass:
+            x: int = attr.ib(default=1)
+            y: int = attr.ib(default=2)
+
+        # "Normal" ordering
+        @attr.s
+        class SubClass(BaseClass):
+            x = attr.fields(BaseClass).x.evolve(default=3).to_field()
+
+        assert "SubClass(y=2, x=3)" == repr(SubClass())
+
+        # Inherited ordering
+        @attr.s
+        class SubClass(BaseClass):
+            x = (
+                attr.fields(BaseClass)
+                .x.evolve(default=3, inherited=True)
+                .to_field()
+            )
+
+        assert "SubClass(x=3, y=2)" == repr(SubClass())
+
+    def test_inherited_on_attr_not_in_parent(self):
+        """
+        Specifying `inherited` on a field which does not have a matching field
+        in it's parent classes has no effect - the field is simply considered an
+        attribute of the child.
+        """
+
+        @attr.define
+        class BaseClass:
+            x: int = 1
+            y: int = 2
+
+        @attr.define
+        class SubClass(BaseClass):
+            z = (
+                attr.fields(BaseClass)
+                .x.evolve(
+                    default=3,
+                    alias="z",  # This is populated with "x" from BaseClass, attrs
+                    # complains if we don't specify it properly here
+                    inherited=True,
+                )
+                .to_field()
+            )
+
+        assert "SubClass(x=1, y=2, z=3)" == repr(SubClass())
+
+    def test_evolve_defaults(self):
+        """
+        Ensure you can change the defaults of attributes defined in parent
+        classes. The syntax is a little clunky, but functional.
+        """
+
+        @attr.s
+        class BaseClass:
+            x: int = attr.ib(default=1)
+
+        # Static default
+        @attr.s
+        class SubClass(BaseClass):
+            x = attr.fields(BaseClass).x.evolve(default=2).to_field()
+
+        assert 2 == SubClass().x
+
+        # Factory(takes_self=False)
+        @attr.s
+        class SubClass(BaseClass):
+            x = (
+                attr.fields(BaseClass)
+                .x.evolve(default=Factory(lambda: 3))
+                .to_field()
+            )
+
+        assert 3 == SubClass().x
+
+        # Factory(takes_self=True)
+        @attr.s
+        class SubClass(BaseClass):
+            x = (
+                attr.fields(BaseClass)
+                .x.evolve(default=attr.NOTHING)
+                .to_field()
+            )
+
+            @x.default
+            def x_default(self):
+                return 4
+
+        assert 4 == SubClass().x
+
+    def test_evolve_validators(self):
+        """
+        Ensure that you can add or replace validators of parent attributes from
+        subclasses.
+        """
+        validators_called = 0
+
+        @attr.s
+        class BaseClass:
+            x: int = attr.ib(default=None)
+
+            @x.validator
+            def x_validator(self, attr, value):
+                nonlocal validators_called
+                validators_called += 1
+
+        # Run BaseClass and SubClass validators
+        @attr.s
+        class SubClass(BaseClass):
+            # Bring x into scope so we can attach more validators to it
+            x = attr.fields(BaseClass).x.to_field()
+
+            @x.validator
+            def x_validator(self, _attr, _value):
+                nonlocal validators_called
+                validators_called += 1
+
+        SubClass()
+        assert 2 == validators_called
+
+        # Only run SubClass validators
+        validators_called = 0
+
+        @attr.s
+        class SubClass(BaseClass):
+            x = attr.fields(BaseClass).x.evolve(validator=None).to_field()
+
+            @x.validator
+            def x_validator(self, _attr, _value):
+                nonlocal validators_called
+                validators_called += 1
+
+        SubClass()
+        assert 1 == validators_called
+
+
 class TestKeywordOnlyAttributes:
     """
     Tests for keyword-only attributes.
