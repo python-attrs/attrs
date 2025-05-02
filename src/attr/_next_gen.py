@@ -568,7 +568,7 @@ def field(
 
         inherited (bool | None):
             Ensure this attribute inherits the ordering of the parent attribute
-            with the same name. If no parent attribute with the same name 
+            with the same name. If no parent attribute with the same name
             exists, this field is treated as normal.
 
     .. versionadded:: 20.1.0
