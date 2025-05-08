@@ -157,6 +157,7 @@ def attrib(
        *eq*, *order*, and *cmp* also accept a custom callable
     .. versionchanged:: 21.1.0 *cmp* undeprecated
     .. versionadded:: 22.2.0 *alias*
+    .. versionadded:: 25.4.0 *inherited*
     """
     eq, eq_key, order, order_key = _determine_attrib_eq_order(
         cmp, eq, order, True
@@ -2550,34 +2551,55 @@ class Attribute:
 
         return new
 
-    def to_field(self):
+    def reuse(
+        self,
+        **field_kwargs,
+    ):
         """
-        Converts this attribute back into a raw :py:class:`_CountingAttr` object,
-        such that it can be used to annotate newly `define`d classes. This is
-        useful if you want to reuse part (or all) of fields defined in other
-        attrs classes that have already been resolved into their finalized state.
+        Converts this attribute back into a raw :py:func:`attrs.field` object,
+        such that it can be used to annotate newly ``@define``-d classes. This
+        is useful if you want to reuse part (or all) of fields defined in other
+        attrs classes that have already been resolved into their finalized
+        :py:class:`.Attribute`.
+
+        Args:
+            field_kwargs: Any valid keyword argument to :py:func:`attrs.field`.
 
         .. versionadded:: 25.4.0
         """
-        return _CountingAttr(
-            default=self.default,
-            validator=self.validator,
-            repr=self.repr,
-            cmp=None,
-            hash=self.hash,
-            init=self.init,
-            converter=self.converter,
-            metadata=self.metadata,
-            type=self.type,
-            kw_only=self.kw_only,
-            eq=self.eq,
-            eq_key=self.eq_key,
-            order=self.order,
-            order_key=self.order_key,
-            on_setattr=self.on_setattr,
-            alias=self.alias,
-            inherited=self.inherited,
-        )
+        args = {
+            "validator": self.validator,
+            "repr": self.repr,
+            "cmp": None,
+            "hash": self.hash,
+            "init": self.init,
+            "converter": self.converter,
+            "metadata": self.metadata,
+            "type": self.type,
+            "kw_only": self.kw_only,
+            "eq": self.eq,
+            "order": self.order,
+            "on_setattr": self.on_setattr,
+            "alias": self.alias,
+            "inherited": self.inherited,
+        }
+
+        # Map the single "validator" object back down to it's aliased pair.
+        # Additionally, we help the user out a little bit by automatically
+        # overwriting the compliment `default` or `factory` function when
+        # overriding; so if a field already has a `default=3`, using
+        # `reuse(factory=lambda: 3)` won't complain about having both kinds of
+        # defaults defined.
+        if "default" not in field_kwargs and "factory" not in field_kwargs:
+            if isinstance(self.default, Factory):
+                field_kwargs["factory"] = self.default.factory
+            else:
+                field_kwargs["default"] = self.default
+
+        args.update(field_kwargs)
+
+        # Send through attrib so we reuse the same errors + syntax sugar
+        return attrib(**args)
 
     # Don't use _add_pickle since fields(Attribute) doesn't work
     def __getstate__(self):

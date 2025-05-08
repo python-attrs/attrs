@@ -429,7 +429,7 @@ def field(
     order=None,
     on_setattr=None,
     alias=None,
-    inherited=None,
+    inherited=False,
 ):
     """
     Create a new :term:`field` / :term:`attribute` on a class.
@@ -566,7 +566,7 @@ def field(
             ``__init__`` method. If left None, default to ``name`` stripped
             of leading underscores. See `private-attributes`.
 
-        inherited (bool | None):
+        inherited (bool):
             Ensure this attribute inherits the ordering of the parent attribute
             with the same name. If no parent attribute with the same name
             exists, this field is treated as normal.

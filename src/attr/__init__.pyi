@@ -139,7 +139,14 @@ class Attribute(Generic[_T]):
     alias: str | None
 
     def evolve(self, **changes: Any) -> "Attribute[Any]": ...
-    def to_field(self) -> Any: ...
+    @overload
+    def reuse(self, **changes: Any) -> Any: ...
+    @overload
+    def reuse(self, type: _T, **changes: Any) -> _T: ...
+    @overload
+    def reuse(self, default: _T, **changes: Any) -> _T: ...
+    @overload
+    def reuse(self, type: _T | None, **changes: Any) -> _T: ...
 
 # NOTE: We had several choices for the annotation to use for type arg:
 # 1) Type[_T]
@@ -182,6 +189,7 @@ def attrib(
     order: _EqOrderType | None = ...,
     on_setattr: _OnSetAttrArgType | None = ...,
     alias: str | None = ...,
+    inherited: bool | None = ...,
 ) -> Any: ...
 
 # This form catches an explicit None or no default and infers the type from the
@@ -206,6 +214,7 @@ def attrib(
     order: _EqOrderType | None = ...,
     on_setattr: _OnSetAttrArgType | None = ...,
     alias: str | None = ...,
+    inherited: bool | None = ...,
 ) -> _T: ...
 
 # This form catches an explicit default argument.
@@ -229,6 +238,7 @@ def attrib(
     order: _EqOrderType | None = ...,
     on_setattr: _OnSetAttrArgType | None = ...,
     alias: str | None = ...,
+    inherited: bool | None = ...,
 ) -> _T: ...
 
 # This form covers type=non-Type: e.g. forward references (str), Any
@@ -252,6 +262,7 @@ def attrib(
     order: _EqOrderType | None = ...,
     on_setattr: _OnSetAttrArgType | None = ...,
     alias: str | None = ...,
+    inherited: bool | None = ...,
 ) -> Any: ...
 @overload
 @dataclass_transform(order_default=True, field_specifiers=(attrib, field))

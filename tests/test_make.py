@@ -834,7 +834,7 @@ class TestAttributes:
         assert hash(ba) == hash(sa)
 
 
-class TestEvolveAttributes:
+class TestReuseAttributes:
     """
     Test reusing/evolving attributes from already `define`d attrs classes when
     constructing new ones.
@@ -851,7 +851,7 @@ class TestEvolveAttributes:
             a: int
 
         ExampleCopy = attr.make_class(
-            "ExampleCopy", attrs={"a": attr.fields(Example).a.to_field()}
+            "ExampleCopy", attrs={"a": attr.fields(Example).a.reuse()}
         )
 
         assert int is attr.fields(ExampleCopy).a.type
@@ -866,15 +866,23 @@ class TestEvolveAttributes:
 
         @attr.define
         class Example:
-            a: int
+            a: int = 1
+            b: int = attr.field(factory=lambda: 2)
 
-        @attr.define(these={"a": attr.fields(Example).a.to_field()})
+        @attr.define(
+            these={
+                "a": attr.fields(Example).a.reuse(),
+                "b": attr.fields(Example).b.reuse(),
+            }
+        )
         class ExampleCopy:
             pass
 
         assert int is attr.fields(ExampleCopy).a.type
-        assert 1 == ExampleCopy(1).a
-        assert "ExampleCopy(a=1)" == repr(ExampleCopy(1))
+        assert 1 == ExampleCopy().a
+        assert int is attr.fields(ExampleCopy).b.type
+        assert 2 == ExampleCopy().b
+        assert "ExampleCopy(a=1, b=2)" == repr(ExampleCopy())
 
     def test_evolve_unrelated(self):
         """
@@ -887,7 +895,7 @@ class TestEvolveAttributes:
 
         @attr.define
         class B:
-            y = attr.fields(A).x.evolve(default=100).to_field()
+            y = attr.fields(A).x.reuse(default=100)
 
         assert int is attr.fields(B).y.type
         assert 100 == attr.fields(B).y.default
@@ -906,18 +914,14 @@ class TestEvolveAttributes:
         # "Normal" ordering
         @attr.s
         class SubClass(BaseClass):
-            x = attr.fields(BaseClass).x.evolve(default=3).to_field()
+            x = attr.fields(BaseClass).x.reuse(default=3)
 
         assert "SubClass(y=2, x=3)" == repr(SubClass())
 
         # Inherited ordering
         @attr.s
         class SubClass(BaseClass):
-            x = (
-                attr.fields(BaseClass)
-                .x.evolve(default=3, inherited=True)
-                .to_field()
-            )
+            x = attr.fields(BaseClass).x.reuse(default=3, inherited=True)
 
         assert "SubClass(x=3, y=2)" == repr(SubClass())
 
@@ -935,15 +939,11 @@ class TestEvolveAttributes:
 
         @attr.define
         class SubClass(BaseClass):
-            z = (
-                attr.fields(BaseClass)
-                .x.evolve(
-                    default=3,
-                    alias="z",  # This is populated with "x" from BaseClass, attrs
-                    # complains if we don't specify it properly here
-                    inherited=True,
-                )
-                .to_field()
+            z = attr.fields(BaseClass).x.reuse(
+                default=3,
+                alias="z",  # This is populated with "x" from BaseClass,
+                # behavior is incorrect if we don't specify it here
+                inherited=True,
             )
 
         assert "SubClass(x=1, y=2, z=3)" == repr(SubClass())
@@ -961,35 +961,35 @@ class TestEvolveAttributes:
         # Static default
         @attr.s
         class SubClass(BaseClass):
-            x = attr.fields(BaseClass).x.evolve(default=2).to_field()
+            x = attr.fields(BaseClass).x.reuse(default=2)
 
         assert 2 == SubClass().x
 
         # Factory(takes_self=False)
         @attr.s
         class SubClass(BaseClass):
-            x = (
-                attr.fields(BaseClass)
-                .x.evolve(default=Factory(lambda: 3))
-                .to_field()
-            )
+            x = attr.fields(BaseClass).x.reuse(factory=lambda: 3)
 
         assert 3 == SubClass().x
 
         # Factory(takes_self=True)
         @attr.s
         class SubClass(BaseClass):
-            x = (
-                attr.fields(BaseClass)
-                .x.evolve(default=attr.NOTHING)
-                .to_field()
-            )
+            x = attr.fields(BaseClass).x.reuse(default=attr.NOTHING)
 
             @x.default
             def x_default(self):
                 return 4
 
         assert 4 == SubClass().x
+
+        # Test uninherited
+        @attr.s
+        class Different:
+            x = attr.fields(BaseClass).x.reuse(factory=lambda: 5)
+
+        print(attr.fields(Different))
+        assert 5 == Different().x
 
     def test_evolve_validators(self):
         """
@@ -1011,7 +1011,7 @@ class TestEvolveAttributes:
         @attr.s
         class SubClass(BaseClass):
             # Bring x into scope so we can attach more validators to it
-            x = attr.fields(BaseClass).x.to_field()
+            x = attr.fields(BaseClass).x.reuse()
 
             @x.validator
             def x_validator(self, _attr, _value):
@@ -1026,7 +1026,7 @@ class TestEvolveAttributes:
 
         @attr.s
         class SubClass(BaseClass):
-            x = attr.fields(BaseClass).x.evolve(validator=None).to_field()
+            x = attr.fields(BaseClass).x.reuse(validator=None)
 
             @x.validator
             def x_validator(self, _attr, _value):
