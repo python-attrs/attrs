@@ -31,6 +31,7 @@ dynamic = ["version", "readme"]
 
 [project.optional-dependencies]
 tests-mypy = [
+  # A transitive dependency of pytest-mypy-plugins doesn't build on 3.14 yet.
   'pytest-mypy-plugins; platform_python_implementation == "CPython" and python_version >= "3.10" and python_version < "3.14"',
   # Since the mypy error messages keep changing, we have to keep updating this
   # pin.
