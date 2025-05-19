@@ -52,20 +52,28 @@ First, **fork** the repository on GitHub and **clone** it using one of the alter
 You can (and should) run our test suite using [*tox*](https://tox.wiki/).
 However, you'll probably want a more traditional environment as well.
 
-We recommend using the Python version from the `.python-version-default` file in the project's root directory, because that's the one that is used in the CI by default, too.
+We recommend using the Python version from the `.python-version-default` file in the project's root directory.
 
-If you're using [*direnv*](https://direnv.net), you can automate the creation of the project virtual environment with the correct Python version by adding the following `.envrc` to the project root:
+We use a fully-locked development environment using [*uv*](https://docs.astral.sh/uv/) so the easiest way to get started is to [install *uv*](https://docs.astral.sh/uv/getting-started/installation/) and you can run `uv run pytest` to run the tests immediately.
 
-```bash
-layout python python$(cat .python-version-default)
-```
+I you'd like a traditional virtual environment, you can run `uv sync` and it will create a virtual environment named `.venv` with the correct Python version and install all the dependencies in the root directory.
 
-or, if you like [*uv*](https://github.com/astral-sh/uv):
+If you're using [*direnv*](https://direnv.net), you can automate the creation and activation of the project's virtual environment with the correct Python version by adding the following `.envrc` to the project root:
 
 ```bash
-test -d .venv || uv venv --python python$(cat .python-version-default)
+uv sync
 . .venv/bin/activate
 ```
+
+---
+
+If you don't want to use *uv*, you can use Pip 25.1 (that added support for dependency groups) or newer and install the dependencies manually:
+
+```bash
+pip install -e . --group dev
+```
+
+---
 
 > [!WARNING]
 > - **Before** you start working on a new pull request, use the "*Sync fork*" button in GitHub's web UI to ensure your fork is up to date.
@@ -73,20 +81,6 @@ test -d .venv || uv venv --python python$(cat .python-version-default)
 > - **Always create a new branch off `main` for each new pull request.**
 >   Yes, you can work on `main` in your fork and submit pull requests.
 >   But this will *inevitably* lead to you not being able to synchronize your fork with upstream and having to start over.
-
-Change into the newly created directory and after activating a virtual environment, install an editable version of this project along with its tests requirements:
-
-```console
-$ pip install -e .[dev]  # or `uv pip install -e .[dev]`
-```
-
-Now you can run the test suite:
-
-```console
-$ python -Im pytest
-```
-
-You can *significantly* speed up the test suite by passing `-n auto` to *pytest* which activates [*pytest-xdist*](https://github.com/pytest-dev/pytest-xdist) and takes advantage of all your CPU cores.
 
 ---
 
@@ -121,7 +115,6 @@ $ tox run -e docs-doctests
   If you don't, CI will catch it for you -- but that seems like a waste of your time!
 
 - If you've changed or added public APIs, please update our type stubs (files ending in `.pyi`).
-
 
 
 ## Tests
