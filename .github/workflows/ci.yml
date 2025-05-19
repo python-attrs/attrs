@@ -54,6 +54,10 @@ jobs:
           name: Packages
           path: dist
       - run: tar xf dist/*.tar.gz --strip-components=1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
       - uses: hynek/setup-cached-uv@v2
 
       - name: Prepare tox
