@@ -1,9 +1,0 @@
----
-rules:
-  unpinned-uses:
-    config:
-      policies:
-        "actions/*": ref-pin
-        "github/*": ref-pin
-        "hynek/*": ref-pin
-        "pypa/*": ref-pin
