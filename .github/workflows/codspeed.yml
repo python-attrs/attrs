@@ -39,8 +39,7 @@ jobs:
       - uses: hynek/setup-cached-uv@757bedc3f972eb7227a1aa657651f15a8527c817 # v2.3.0
 
       - name: Run CodSpeed benchmarks
-        # v3.5.0
-        uses: CodSpeedHQ/action@0010eb0ca6e89b80c88e8edaaa07cfe5f3e6664d
+        uses: CodSpeedHQ/action@0010eb0ca6e89b80c88e8edaaa07cfe5f3e6664d # v3.5.0
         with:
           token: ${{ secrets.CODSPEED_TOKEN }}
           run: uvx --with tox-uv tox run -e codspeed
