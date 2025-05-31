@@ -13,7 +13,6 @@ import pytest
 import attr
 import attrs
 
-from attr._compat import PY_3_14_PLUS
 from attr._make import _is_class_var
 from attr.exceptions import UnannotatedAttributeError
 
@@ -588,8 +587,6 @@ class TestAnnotations:
         """
         References to self class using quotes can be resolved.
         """
-        if PY_3_14_PLUS and not slots:
-            pytest.xfail("References are changing a lot in 3.14.")
 
         @attr.s(slots=slots, auto_attribs=True)
         class A:
@@ -605,8 +602,6 @@ class TestAnnotations:
         """
         Forward references can be resolved.
         """
-        if PY_3_14_PLUS and not slots:
-            pytest.xfail("Forward references are changing a lot in 3.14.")
 
         @attr.s(slots=slots, auto_attribs=True)
         class A:

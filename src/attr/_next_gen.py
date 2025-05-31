@@ -76,7 +76,7 @@ def define(
             sensible ``__ne__`` by default, so it *should* be enough to only
             implement ``__eq__`` in most cases).
 
-            Passing True or False` to *init*, *repr*, *eq*, or *hash*
+            Passing :data:`True` or :data:`False` to *init*, *repr*, *eq*, or *hash*
             overrides whatever *auto_detect* would determine.
 
         auto_exc (bool):
