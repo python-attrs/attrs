@@ -2126,8 +2126,9 @@ def _attrs_to_init_script(
     )
     lines.extend(extra_lines)
 
-    args = []
-    kw_only_args = []
+    args = []  # Parameters in the definition of __init__
+    pre_init_args = []  # Parameters in the call to __attrs_pre_init__
+    kw_only_args = []  # Used for both 'args' and 'pre_init_args' above
     attrs_to_validate = []
 
     # This is a dictionary of names to validator and converter callables.
@@ -2205,6 +2206,7 @@ def _attrs_to_init_script(
                 kw_only_args.append(arg)
             else:
                 args.append(arg)
+                pre_init_args.append(arg_name)
 
             if converter is not None:
                 lines.append(
@@ -2224,6 +2226,7 @@ def _attrs_to_init_script(
                 kw_only_args.append(arg)
             else:
                 args.append(arg)
+                pre_init_args.append(arg_name)
             lines.append(f"if {arg_name} is not NOTHING:")
 
             init_factory_name = _INIT_FACTORY_PAT % (a.name,)
@@ -2266,6 +2269,7 @@ def _attrs_to_init_script(
                 kw_only_args.append(arg_name)
             else:
                 args.append(arg_name)
+                pre_init_args.append(arg_name)
 
             if converter is not None:
                 lines.append(
@@ -2322,7 +2326,7 @@ def _attrs_to_init_script(
         lines.append(f"BaseException.__init__(self, {vals})")
 
     args = ", ".join(args)
-    pre_init_args = args
+    pre_init_args = ", ".join(pre_init_args)
     if kw_only_args:
         # leading comma & kw_only args
         args += f"{', ' if args else ''}*, {', '.join(kw_only_args)}"
@@ -2337,7 +2341,7 @@ def _attrs_to_init_script(
         pre_init_args += pre_init_kw_only_args
 
     if call_pre_init and pre_init_has_args:
-        # If pre init method has arguments, pass same arguments as `__init__`.
+        # If pre init method has arguments, pass the values given to __init__.
         lines[0] = f"self.__attrs_pre_init__({pre_init_args})"
 
     # Python <3.12 doesn't allow backslashes in f-strings.
