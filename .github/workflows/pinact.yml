@@ -1,0 +1,23 @@
+---
+name: Pinact
+
+on:
+  schedule:
+    - cron: "30 22 * * 4"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  pinact:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Pin actions
+        uses: suzuki-shunsuke/pinact-action@49cbd6acd0dbab6a6be2585d1dbdaa43b4410133 # v1.0.0
