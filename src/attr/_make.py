@@ -452,10 +452,7 @@ def _transform_attrs(
 
     # Overwrite explicitly inherited attributes in `base` with their versions in `own`
     base_attrs = [
-        base_attr
-        if base_attr.name not in own_attr_map
-        else own_attr_map[base_attr.name]
-        for base_attr in base_attrs
+        own_attr_map.get(base_attr.name, base_attr) for base_attr in base_attrs
     ]
     # Strip explicitly inherited attributes from `own`, as they now live in `base`
     own_attrs = [

@@ -988,7 +988,6 @@ class TestReuseAttributes:
         class Different:
             x = attr.fields(BaseClass).x.reuse(factory=lambda: 5)
 
-        print(attr.fields(Different))
         assert 5 == Different().x
 
     def test_evolve_validators(self):
