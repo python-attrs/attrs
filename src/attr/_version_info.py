@@ -84,3 +84,6 @@ class VersionInfo:
         # Since alphabetically "dev0" < "final" < "post1" < "post2", we don't
         # have to do anything special with releaselevel for now.
         return us < them
+
+    def __hash__(self):
+        return hash((self.year, self.minor, self.micro, self.releaselevel))

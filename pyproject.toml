@@ -203,6 +203,9 @@ toplevel = ["attr", "attrs"]
 src = ["src", "tests", "conftest.py", "docs"]
 line-length = 79
 
+[tool.ruff.per-file-target-version]
+"tests/test_pattern_matching.py" = "py310"
+
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
@@ -221,6 +224,7 @@ ignore = [
   "ISC001",  # conflicts with ruff format
   "N",       # we need more naming freedom
   "PD",      # we're not pandas
+  "PLC0415", # sometimes, imports have to live elsewhere
   "PLR0912", # we're complex software
   "PLR0913", # yes, many arguments, but most have defaults
   "PLR0915", # we're complex software
@@ -247,6 +251,7 @@ ignore = [
   "DTZ",     # datetime best practices don't matter in tests
   "EM",      # no need for exception msg hygiene in tests
   "PLE0309", # hash doesn't have to return anything in tests
+  "PLW1641", # it's OK to rely object's __hash__
   "PLR0124", # pointless comparison in tests aren't pointless
   "PT011",   # broad is fine
   "PT012",   # sometimes we need more than a single stmt
