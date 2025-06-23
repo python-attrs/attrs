@@ -7,7 +7,7 @@ from attr import VersionInfo
 
 
 @pytest.fixture(name="vi")
-def fixture_vi():
+def _vi():
     return VersionInfo(19, 2, 0, "final")
 
 
@@ -55,3 +55,9 @@ class TestVersionInfo:
         assert vi >= (19, 2)
         assert vi > (19, 2, 0, "dev0")
         assert vi < (19, 2, 0, "post1")
+
+    def test_hash(self, vi):
+        """
+        Same values, same hash.
+        """
+        assert hash(vi) == hash(VersionInfo(19, 2, 0, "final"))
