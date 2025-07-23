@@ -865,9 +865,9 @@ class _ClassBuilder:
                 del self._cls.__weakref__
 
             # Manually bump internal version tag.
-            if hasattr(self._cls, "__abstractmethods__"):
+            try:
                 self._cls.__abstractmethods__ = self._cls.__abstractmethods__
-            else:
+            except AttributeError:
                 self._cls.__abstractmethods__ = frozenset({"__init__"})
                 del self._cls.__abstractmethods__
 
