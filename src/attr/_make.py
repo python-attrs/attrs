@@ -865,7 +865,11 @@ class _ClassBuilder:
                 del self._cls.__weakref__
 
             # Manually bump internal version tag.
-            self._cls.__name__ = self._cls.__name__
+            if hasattr(self._cls, "__abstractmethods__"):
+                self._cls.__abstractmethods__ = self._cls.__abstractmethods__
+            else:
+                self._cls.__abstractmethods__ = frozenset({"__init__"})
+                del self._cls.__abstractmethods__
 
         # If our class doesn't have its own implementation of __setattr__
         # (either from the user or by us), check the bases, if one of them has
