@@ -60,12 +60,12 @@ We recommend using the Python version from the `.python-version-default` file in
 
 We use a fully-locked development environment using [*uv*](https://docs.astral.sh/uv/) so the easiest way to get started is to [install *uv*] and you can run `uv run pytest` to run the tests immediately.
 
-I you'd like a traditional virtual environment, you can run `uv sync` and it will create a virtual environment named `.venv` with the correct Python version and install all the dependencies in the root directory.
+I you'd like a traditional virtual environment, you can run `uv sync --python=$(cat .python-version-default)` and it will create a virtual environment named `.venv` with the correct Python version and install all the dependencies in the root directory.
 
 If you're using [*direnv*](https://direnv.net), you can automate the creation and activation of the project's virtual environment with the correct Python version by adding the following `.envrc` to the project root:
 
 ```bash
-uv sync
+uv sync --python=$(cat .python-version-default)
 . .venv/bin/activate
 ```
 
