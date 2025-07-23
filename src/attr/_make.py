@@ -864,6 +864,9 @@ class _ClassBuilder:
             if "__weakref__" in self._cls.__dict__:
                 del self._cls.__weakref__
 
+            # Manually bump internal version tag.
+            self._cls.__name__ = self._cls.__name__
+
         # If our class doesn't have its own implementation of __setattr__
         # (either from the user or by us), check the bases, if one of them has
         # an attrs-made __setattr__, that needs to be reset. We don't walk the
