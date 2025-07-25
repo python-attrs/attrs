@@ -24,6 +24,7 @@ from ._compat import (
     PY_3_10_PLUS,
     PY_3_11_PLUS,
     PY_3_13_PLUS,
+    PY_3_14_PLUS,
     _AnnotationExtractor,
     _get_annotations,
     get_generic_base,
@@ -618,6 +619,17 @@ def evolve(*args, **changes):
     return cls(**changes)
 
 
+# Hack to the get the underlying dict out of a mappingproxy
+# Use it with: cls.__dict__ | _deproxier
+# See: https://github.com/python/cpython/pull/136893
+class _Deproxier:
+    def __ror__(self, other):
+        return other
+
+
+_deproxier = _Deproxier()
+
+
 class _ClassBuilder:
     """
     Iteratively build *one* class.
@@ -844,6 +856,20 @@ class _ClassBuilder:
             for k, v in self._cls_dict.items()
             if k not in (*tuple(self._attr_names), "__dict__", "__weakref__")
         }
+
+        if PY_3_14_PLUS:
+            # Clean up old dict to avoid leaks.
+            old_cls_dict = self._cls.__dict__ | _deproxier
+            old_cls_dict.pop("__dict__", None)
+            if "__weakref__" in self._cls.__dict__:
+                del self._cls.__weakref__
+
+            # Manually bump internal version tag.
+            try:
+                self._cls.__abstractmethods__ = self._cls.__abstractmethods__
+            except AttributeError:
+                self._cls.__abstractmethods__ = frozenset({"__init__"})
+                del self._cls.__abstractmethods__
 
         # If our class doesn't have its own implementation of __setattr__
         # (either from the user or by us), check the bases, if one of them has
