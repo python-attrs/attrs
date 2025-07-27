@@ -216,6 +216,16 @@ class Validated:
             attr.validators.instance_of(C), attr.validators.instance_of(D)
         ),
     )
+    d2 = attr.ib(
+        type=Dict[C, D],
+        validator=attr.validators.deep_mapping(attr.validators.instance_of(C)),
+    )
+    d3 = attr.ib(
+        type=Dict[C, D],
+        validator=attr.validators.deep_mapping(
+            value_validator=attr.validators.instance_of(C)
+        ),
+    )
     e: str = attr.ib(validator=attr.validators.matches_re(re.compile(r"foo")))
     f: str = attr.ib(
         validator=attr.validators.matches_re(r"foo", flags=42, func=re.search)
