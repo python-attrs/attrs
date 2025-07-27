@@ -37,14 +37,17 @@ Tidelift = "https://tidelift.com/subscription/pkg/pypi-attrs?utm_source=pypi-att
 
 
 [dependency-groups]
-tests-mypy = ['pytest-mypy-plugins; platform_python_implementation == "CPython" and python_version >= "3.10"']
+mypy = [
+  { include-group = "tests" },
+  'pytest-mypy-plugins; platform_python_implementation == "CPython" and python_version >= "3.10"'
+]
 tests = [
-  { include-group = "tests-mypy" },
   # For regression test to ensure cloudpickle compat doesn't break.
   'cloudpickle; platform_python_implementation == "CPython"',
   "hypothesis",
   "pympler",
   "pytest",
+  "pytest-xdist[psutil]",
 ]
 cov = [
   { include-group = "tests" },
@@ -162,6 +165,7 @@ filterwarnings = ["once::Warning", "ignore:::pympler[.*]"]
 [tool.coverage.run]
 parallel = true
 branch = true
+patch = ["subprocess"]
 source_pkgs = ["attr", "attrs"]
 
 [tool.coverage.paths]
