@@ -49,19 +49,23 @@ It's people like *you* who make this project such a great tool for everyone.
 
 First, **fork** the repository on GitHub and **clone** it using one of the alternatives that you can copy-paste by pressing the big green button labeled `<> Code`.
 
-You can (and should) run our test suite using [*tox*](https://tox.wiki/).
+You can (and should) run our test suite using [*tox*](https://tox.wiki/) with the [*tox-uv*](https://github.com/tox-dev/tox-uv) plugin.
+The easiest way is to [install *uv*] which is needed in any case and then run `uv tool install --with tox-uv tox` to have it globally available or `uvx --with tox-uv tox` to use a temporary environment.
+
+---
+
 However, you'll probably want a more traditional environment as well.
 
 We recommend using the Python version from the `.python-version-default` file in the project's root directory.
 
-We use a fully-locked development environment using [*uv*](https://docs.astral.sh/uv/) so the easiest way to get started is to [install *uv*](https://docs.astral.sh/uv/getting-started/installation/) and you can run `uv run pytest` to run the tests immediately.
+We use a fully-locked development environment using [*uv*](https://docs.astral.sh/uv/) so the easiest way to get started is to [install *uv*] and you can run `uv run pytest` to run the tests immediately.
 
-I you'd like a traditional virtual environment, you can run `uv sync` and it will create a virtual environment named `.venv` with the correct Python version and install all the dependencies in the root directory.
+I you'd like a traditional virtual environment, you can run `uv sync --python=$(cat .python-version-default)` and it will create a virtual environment named `.venv` with the correct Python version and install all the dependencies in the root directory.
 
 If you're using [*direnv*](https://direnv.net), you can automate the creation and activation of the project's virtual environment with the correct Python version by adding the following `.envrc` to the project root:
 
 ```bash
-uv sync
+uv sync --python=$(cat .python-version-default)
 . .venv/bin/activate
 ```
 
@@ -264,3 +268,4 @@ By participating in this project you agree to abide by its terms.
 Please report any harm to Hynek Schlawack in any way you find appropriate.
 
 [semantic newlines]: https://rhodesmill.org/brandon/2012/one-sentence-per-line/
+[install *uv*]: https://docs.astral.sh/uv/getting-started/installation/

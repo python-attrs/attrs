@@ -37,26 +37,18 @@ Tidelift = "https://tidelift.com/subscription/pkg/pypi-attrs?utm_source=pypi-att
 
 
 [dependency-groups]
-tests-mypy = [
-  # A transitive dependency of pytest-mypy-plugins doesn't build on 3.14 yet.
-  'pytest-mypy-plugins; platform_python_implementation == "CPython" and python_version >= "3.10" and python_version < "3.14"',
-  # Since the mypy error messages keep changing, we have to keep updating this
-  # pin.
-  'mypy>=1.11.1; platform_python_implementation == "CPython" and python_version >= "3.10"',
-]
+tests-mypy = ['pytest-mypy-plugins; platform_python_implementation == "CPython" and python_version >= "3.10"']
 tests = [
   { include-group = "tests-mypy" },
   # For regression test to ensure cloudpickle compat doesn't break.
   'cloudpickle; platform_python_implementation == "CPython"',
   "hypothesis",
   "pympler",
-  # 4.3.0 dropped last use of `convert`
-  "pytest>=4.3.0",
+  "pytest",
 ]
 cov = [
   { include-group = "tests" },
-  # Ensure coverage is new enough for `source_pkgs`.
-  "coverage[toml]>=5.3",
+  "coverage[toml]",
 ]
 pyright = ["pyright", { include-group = "tests" }]
 benchmark = [

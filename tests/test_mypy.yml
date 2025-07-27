@@ -604,7 +604,7 @@
         parent: Optional[A]
 
     reveal_type(A) # N: Revealed type is "def (parent: main.B) -> main.A"
-    reveal_type(B) # N: Revealed type is "def (parent: Union[main.A, None]) -> main.B"
+    reveal_type(B) # N: Revealed type is "def (parent: main.A | None) -> main.B"
     A(B(None))
 
 - case: testAttrsForwardReferenceInClass
@@ -620,7 +620,7 @@
             parent: Optional[A]
 
     reveal_type(A) # N: Revealed type is "def (parent: main.A.B) -> main.A"
-    reveal_type(A.B) # N: Revealed type is "def (parent: Union[main.A, None]) -> main.A.B"
+    reveal_type(A.B) # N: Revealed type is "def (parent: main.A | None) -> main.A.B"
     A(A.B(None))
 
 - case: testAttrsImporting
@@ -739,7 +739,7 @@
 
     AOrB = Union[A, B]
 
-    reveal_type(A)  # N: Revealed type is "def (frob: builtins.list[Union[main.A, main.B]]) -> main.A"
+    reveal_type(A)  # N: Revealed type is "def (frob: builtins.list[main.A | main.B]) -> main.A"
     reveal_type(B)  # N: Revealed type is "def () -> main.B"
 
     A([B()])
