@@ -716,6 +716,49 @@ class TestAttributes:
         assert 3 == val == inst.kw_and_default
 
     @pytest.mark.usefixtures("with_and_without_validation")
+    def test_pre_init_with_mixture_of_defaults_and_kw_only(self):
+        """
+        Attrs should properly handle a mixture of positional, positional with
+        default, keyword-only, and keyword-only with default attributes when
+        passing values to __attrs_pre_init__.
+        """
+        g_val1 = None
+        g_val2 = None
+        g_val3 = None
+        g_val4 = None
+        g_val5 = None
+        g_val6 = None
+
+        @attr.define
+        class MixtureClass:
+            val1: int
+            val2: int = 100
+            val3: int = attr.field(factory=int)
+            val4: int = attr.field(kw_only=True)
+            val5: int = attr.field(default=100, kw_only=True)
+            val6: int = attr.field(factory=int, kw_only=True)
+
+            def __attrs_pre_init__(self, val1, val2, val3, val4, val5, val6):
+                nonlocal g_val1, g_val2, g_val3, g_val4, g_val5, g_val6
+                g_val1 = val1
+                g_val2 = val2
+                g_val3 = val3
+                g_val4 = val4
+                g_val5 = val5
+                g_val6 = val6
+
+        inst = MixtureClass(
+            val1=200, val2=200, val3=200, val4=200, val5=200, val6=200
+        )
+
+        assert 200 == g_val1 == inst.val1
+        assert 200 == g_val2 == inst.val2
+        assert 200 == g_val3 == inst.val3
+        assert 200 == g_val4 == inst.val4
+        assert 200 == g_val5 == inst.val5
+        assert 200 == g_val6 == inst.val6
+
+    @pytest.mark.usefixtures("with_and_without_validation")
     def test_post_init(self):
         """
         Verify that __attrs_post_init__ gets called if defined.
