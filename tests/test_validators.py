@@ -651,6 +651,8 @@ class TestDeepMapping:
             (instance_of(str), instance_of(int), 42),
             (42, 42, None),
             (42, 42, 42),
+            (42, None, None),
+            (None, 42, None),
         ],
     )
     def test_noncallable_validators(
@@ -719,7 +721,39 @@ class TestDeepMapping:
             "<deep_mapping validator for objects mapping "
             f"{key_repr} to {value_repr}>"
         )
+
         assert expected_repr == repr(v)
+
+    def test_error_neither_validator_provided(self):
+        """
+        Raise ValueError if neither key_validator nor value_validator is
+        provided.
+        """
+        with pytest.raises(ValueError) as e:
+            deep_mapping()
+
+        assert (
+            "At least one of key_validator or value_validator must be provided"
+            == e.value.args[0]
+        )
+
+    def test_key_validator_can_be_none(self):
+        """
+        The key validator can be None.
+        """
+        v = deep_mapping(value_validator=instance_of(int))
+        a = simple_attr("test")
+
+        v(None, a, {"a": 6, "b": 7})
+
+    def test_value_validator_can_be_none(self):
+        """
+        The value validator can be None.
+        """
+        v = deep_mapping(key_validator=instance_of(str))
+        a = simple_attr("test")
+
+        v(None, a, {"a": 6, "b": 7})
 
 
 class TestIsCallable:

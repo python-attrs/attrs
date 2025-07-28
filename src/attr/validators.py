@@ -378,9 +378,9 @@ def deep_iterable(member_validator, iterable_validator=None):
 
 @attrs(repr=False, slots=True, unsafe_hash=True)
 class _DeepMapping:
-    key_validator = attrib(validator=is_callable())
-    value_validator = attrib(validator=is_callable())
-    mapping_validator = attrib(default=None, validator=optional(is_callable()))
+    key_validator = attrib(validator=optional(is_callable()))
+    value_validator = attrib(validator=optional(is_callable()))
+    mapping_validator = attrib(validator=optional(is_callable()))
 
     def __call__(self, inst, attr, value):
         """
@@ -390,16 +390,23 @@ class _DeepMapping:
             self.mapping_validator(inst, attr, value)
 
         for key in value:
-            self.key_validator(inst, attr, key)
-            self.value_validator(inst, attr, value[key])
+            if self.key_validator is not None:
+                self.key_validator(inst, attr, key)
+            if self.value_validator is not None:
+                self.value_validator(inst, attr, value[key])
 
     def __repr__(self):
         return f"<deep_mapping validator for objects mapping {self.key_validator!r} to {self.value_validator!r}>"
 
 
-def deep_mapping(key_validator, value_validator, mapping_validator=None):
+def deep_mapping(
+    key_validator=None, value_validator=None, mapping_validator=None
+):
     """
     A validator that performs deep validation of a dictionary.
+
+    All validators are optional, but at least one of *key_validator* or
+    *value_validator* must be provided.
 
     Args:
         key_validator: Validator to apply to dictionary keys.
@@ -407,13 +414,27 @@ def deep_mapping(key_validator, value_validator, mapping_validator=None):
         value_validator: Validator to apply to dictionary values.
 
         mapping_validator:
-            Validator to apply to top-level mapping attribute (optional).
+            Validator to apply to top-level mapping attribute.
 
     .. versionadded:: 19.1.0
 
+    .. versionchanged:: 25.4.0
+       *key_validator* and *value_validator* are now optional, but at least one
+       of them must be provided.
+
     Raises:
-        TypeError: if any sub-validators fail
+        TypeError: If any sub-validator fails on validation.
+
+        ValueError:
+            If neither *key_validator* nor *value_validator* is provided on
+            instantiation.
     """
+    if key_validator is None and value_validator is None:
+        msg = (
+            "At least one of key_validator or value_validator must be provided"
+        )
+        raise ValueError(msg)
+
     return _DeepMapping(key_validator, value_validator, mapping_validator)
 
 
