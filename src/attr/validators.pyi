@@ -65,9 +65,16 @@ def deep_iterable(
     member_validator: _ValidatorArgType[_T],
     iterable_validator: _ValidatorType[_I] | None = ...,
 ) -> _ValidatorType[_I]: ...
+@overload
 def deep_mapping(
     key_validator: _ValidatorType[_K],
-    value_validator: _ValidatorType[_V],
+    value_validator: _ValidatorType[_V] | None = ...,
+    mapping_validator: _ValidatorType[_M] | None = ...,
+) -> _ValidatorType[_M]: ...
+@overload
+def deep_mapping(
+    key_validator: _ValidatorType[_K] | None = ...,
+    value_validator: _ValidatorType[_V] = ...,
     mapping_validator: _ValidatorType[_M] | None = ...,
 ) -> _ValidatorType[_M]: ...
 def is_callable() -> _ValidatorType[_T]: ...
