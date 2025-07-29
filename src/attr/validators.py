@@ -363,7 +363,8 @@ def deep_iterable(member_validator, iterable_validator=None):
     Args:
         member_validator: Validator(s) to apply to iterable members.
 
-        iterable_validator: Validator(s) to apply to iterable itself (optional).
+        iterable_validator:
+            Validator(s) to apply to iterable itself (optional).
 
     Raises
         TypeError: if any sub-validators fail
