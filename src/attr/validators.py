@@ -361,18 +361,23 @@ def deep_iterable(member_validator, iterable_validator=None):
     A validator that performs deep validation of an iterable.
 
     Args:
-        member_validator: Validator to apply to iterable members.
+        member_validator: Validator(s) to apply to iterable members.
 
-        iterable_validator:
-            Validator to apply to iterable itself (optional).
+        iterable_validator: Validator(s) to apply to iterable itself (optional).
 
     Raises
         TypeError: if any sub-validators fail
 
     .. versionadded:: 19.1.0
+
+    .. versionchanged:: 25.4.0
+       *member_validator* and *iterable_validator* can now be a list or tuple
+       of validators.
     """
     if isinstance(member_validator, (list, tuple)):
         member_validator = and_(*member_validator)
+    if isinstance(iterable_validator, (list, tuple)):
+        iterable_validator = and_(*iterable_validator)
     return _DeepIterable(member_validator, iterable_validator)
 
 
@@ -409,18 +414,22 @@ def deep_mapping(
     *value_validator* must be provided.
 
     Args:
-        key_validator: Validator to apply to dictionary keys.
+        key_validator: Validator(s) to apply to dictionary keys.
 
-        value_validator: Validator to apply to dictionary values.
+        value_validator: Validator(s) to apply to dictionary values.
 
         mapping_validator:
-            Validator to apply to top-level mapping attribute.
+            Validator(s) to apply to top-level mapping attribute.
 
     .. versionadded:: 19.1.0
 
     .. versionchanged:: 25.4.0
        *key_validator* and *value_validator* are now optional, but at least one
        of them must be provided.
+
+    .. versionchanged:: 25.4.0
+       *key_validator*, *value_validator*, and *mapping_validator* can now be a
+       list or tuple of validators.
 
     Raises:
         TypeError: If any sub-validator fails on validation.
@@ -434,6 +443,13 @@ def deep_mapping(
             "At least one of key_validator or value_validator must be provided"
         )
         raise ValueError(msg)
+
+    if isinstance(key_validator, (list, tuple)):
+        key_validator = and_(*key_validator)
+    if isinstance(value_validator, (list, tuple)):
+        value_validator = and_(*value_validator)
+    if isinstance(mapping_validator, (list, tuple)):
+        mapping_validator = and_(*mapping_validator)
 
     return _DeepMapping(key_validator, value_validator, mapping_validator)
 
