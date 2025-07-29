@@ -19,7 +19,6 @@ for sponsor in tomllib.loads(pathlib.Path("pyproject.toml").read_text())["tool"]
 <a href="https://tidelift.com/?utm_source=lifter&utm_medium=referral&utm_campaign=hynek"><img title="Tidelift" src="_static/sponsors/Tidelift.svg" width="190" /></a>
 <a href="https://klaviyo.com/"><img title="Klaviyo" src="_static/sponsors/Klaviyo.svg" width="190" /></a>
 <a href="https://privacy-solutions.org/"><img title="Privacy Solutions" src="_static/sponsors/Privacy-Solutions.svg" width="190" /></a>
-<a href="https://www.emsys-renewables.com/"><img title="emsys renewables" src="_static/sponsors/emsys-renewables.svg" width="190" /></a>
 <a href="https://filepreviews.io/"><img title="FilePreviews" src="_static/sponsors/FilePreviews.svg" width="190" /></a>
 <a href="https://polar.sh/"><img title="Polar" src="_static/sponsors/Polar.svg" width="190" /></a>
 <!-- [[[end]]] -->

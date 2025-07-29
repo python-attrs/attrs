@@ -140,11 +140,6 @@ url = "https://privacy-solutions.org/"
 img = "Privacy-Solutions.svg"
 
 [[tool.sponcon.sponsors]]
-title = "emsys renewables"
-url = "https://www.emsys-renewables.com/"
-img = "emsys-renewables.svg"
-
-[[tool.sponcon.sponsors]]
 title = "FilePreviews"
 url = "https://filepreviews.io/"
 img = "FilePreviews.svg"
