@@ -63,19 +63,19 @@ def matches_re(
 ) -> _ValidatorType[AnyStr]: ...
 def deep_iterable(
     member_validator: _ValidatorArgType[_T],
-    iterable_validator: _ValidatorType[_I] | None = ...,
+    iterable_validator: _ValidatorArgType[_I] | None = ...,
 ) -> _ValidatorType[_I]: ...
 @overload
 def deep_mapping(
-    key_validator: _ValidatorType[_K],
-    value_validator: _ValidatorType[_V] | None = ...,
-    mapping_validator: _ValidatorType[_M] | None = ...,
+    key_validator: _ValidatorArgType[_K],
+    value_validator: _ValidatorArgType[_V] | None = ...,
+    mapping_validator: _ValidatorArgType[_M] | None = ...,
 ) -> _ValidatorType[_M]: ...
 @overload
 def deep_mapping(
-    key_validator: _ValidatorType[_K] | None = ...,
-    value_validator: _ValidatorType[_V] = ...,
-    mapping_validator: _ValidatorType[_M] | None = ...,
+    key_validator: _ValidatorArgType[_K] | None = ...,
+    value_validator: _ValidatorArgType[_V] = ...,
+    mapping_validator: _ValidatorArgType[_M] | None = ...,
 ) -> _ValidatorType[_M]: ...
 def is_callable() -> _ValidatorType[_T]: ...
 def lt(val: _T) -> _ValidatorType[_T]: ...

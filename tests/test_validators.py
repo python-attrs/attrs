@@ -621,6 +621,19 @@ class TestDeepIterable:
 
         assert expected_repr == repr(v)
 
+    @pytest.mark.parametrize("conv", [list, tuple])
+    def test_validators_iterables(self, conv):
+        """
+        If iterables are passed as validators, they are combined with and_.
+        """
+        member_validator = (instance_of(int),)
+        iterable_validator = (instance_of(list), min_len(1))
+
+        v = deep_iterable(conv(member_validator), conv(iterable_validator))
+
+        assert and_(*member_validator) == v.member_validator
+        assert and_(*iterable_validator) == v.iterable_validator
+
 
 class TestDeepMapping:
     """
@@ -754,6 +767,25 @@ class TestDeepMapping:
         a = simple_attr("test")
 
         v(None, a, {"a": 6, "b": 7})
+
+    @pytest.mark.parametrize("conv", [list, tuple])
+    def test_validators_iterables(self, conv):
+        """
+        If iterables are passed as validators, they are combined with and_.
+        """
+        key_validator = (instance_of(str), min_len(2))
+        value_validator = (instance_of(int), ge(10))
+        mapping_validator = (instance_of(dict), max_len(2))
+
+        v = deep_mapping(
+            conv(key_validator),
+            conv(value_validator),
+            conv(mapping_validator),
+        )
+
+        assert and_(*key_validator) == v.key_validator
+        assert and_(*value_validator) == v.value_validator
+        assert and_(*mapping_validator) == v.mapping_validator
 
 
 class TestIsCallable:

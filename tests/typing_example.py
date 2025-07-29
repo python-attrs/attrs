@@ -190,10 +190,17 @@ class Validated:
             attr.validators.instance_of(C), attr.validators.instance_of(list)
         ),
     )
-    aa = attr.ib(
+    a2 = attr.ib(
         type=Tuple[C],
         validator=attr.validators.deep_iterable(
             attr.validators.instance_of(C), attr.validators.instance_of(tuple)
+        ),
+    )
+    a3 = attr.ib(
+        type=Tuple[C],
+        validator=attr.validators.deep_iterable(
+            [attr.validators.instance_of(C)],
+            [attr.validators.instance_of(tuple)],
         ),
     )
     b = attr.ib(
@@ -224,6 +231,14 @@ class Validated:
         type=Dict[C, D],
         validator=attr.validators.deep_mapping(
             value_validator=attr.validators.instance_of(C)
+        ),
+    )
+    d4 = attr.ib(
+        type=Dict[C, D],
+        validator=attr.validators.deep_mapping(
+            key_validator=[attr.validators.instance_of(C)],
+            value_validator=[attr.validators.instance_of(C)],
+            mapping_validator=[attr.validators.instance_of(dict)],
         ),
     )
     e: str = attr.ib(validator=attr.validators.matches_re(re.compile(r"foo")))
