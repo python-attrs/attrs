@@ -2,7 +2,7 @@
 Tests for behavior specific to forward references via PEP 749.
 """
 
-from attrs import define
+from attrs import define, fields, resolve_types
 
 
 def test_forward_class_reference():
@@ -16,3 +16,7 @@ def test_forward_class_reference():
 
     class B:
         pass
+
+    resolve_types(A)
+
+    assert fields(A).b.type is B
