@@ -25,7 +25,7 @@ if PY_3_14_PLUS:
 
     def _get_annotations(cls):
         return annotationlib.get_annotations(
-            cls, format=annotationlib.Format.STRING
+            cls, format=annotationlib.Format.FORWARDREF
         )
 
 else:
