@@ -20,7 +20,7 @@ PY_3_14_PLUS = sys.version_info[:2] >= (3, 14)
 if PY_3_14_PLUS:
     import annotationlib
 
-    # We request stringified annotations to not break in the presence of
+    # We request forward-ref annotations to not break in the presence of
     # forward references.
 
     def _get_annotations(cls):
