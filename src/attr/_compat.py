@@ -17,10 +17,16 @@ PY_3_13_PLUS = sys.version_info[:2] >= (3, 13)
 PY_3_14_PLUS = sys.version_info[:2] >= (3, 14)
 
 
-if PY_3_14_PLUS:  # pragma: no cover
+if PY_3_14_PLUS:
     import annotationlib
 
-    _get_annotations = annotationlib.get_annotations
+    # We request forward-ref annotations to not break in the presence of
+    # forward references.
+
+    def _get_annotations(cls):
+        return annotationlib.get_annotations(
+            cls, format=annotationlib.Format.FORWARDREF
+        )
 
 else:
 
