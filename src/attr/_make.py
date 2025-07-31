@@ -103,6 +103,45 @@ class _CacheHashWrapper(int):
         return _none_constructor, _args
 
 
+class _Hashability(enum.Enum):
+    """
+    The hashability of a class.
+    """
+
+    HASHABLE = "hashable"  # write a __hash__
+    UNHASHABLE = "unhashable"  # set __hash__ to None
+    LEAVE_ALONE = "leave_alone"  # don't touch __hash__
+
+
+class _AttrsParams(NamedTuple):
+    """
+    Effective parameters to attrs() or define() decorators.
+    """
+
+    exception: bool
+    slots: bool
+    frozen: bool
+    init: bool
+    repr: bool
+    eq: bool
+    order: bool
+    hash: _Hashability
+    match_args: bool
+    kw_only: bool
+    force_kw_only: bool
+    weakref_slot: bool
+    auto_attribs: bool
+    collect_by_mro: bool
+    auto_detect: bool
+    auto_exc: bool
+    cache_hash: bool
+    str: bool
+    getstate_setstate: bool
+    has_custom_setattr: bool
+    on_setattr: Callable[[str, Any], Any]
+    field_transformer: Callable[[Attribute], Attribute]
+
+
 def attrib(
     default=NOTHING,
     validator=None,
@@ -673,40 +712,28 @@ class _ClassBuilder:
         self,
         cls: type,
         these,
-        slots,
-        frozen,
-        weakref_slot,
-        getstate_setstate,
-        auto_attribs,
-        kw_only,
-        force_kw_only,
-        cache_hash,
-        is_exc,
-        collect_by_mro,
-        on_setattr,
-        has_custom_setattr,
-        field_transformer,
+        attrs_params: _AttrsParams,
     ):
         attrs, base_attrs, base_map = _transform_attrs(
             cls,
             these,
-            auto_attribs,
-            kw_only,
-            force_kw_only,
-            collect_by_mro,
-            field_transformer,
+            attrs_params.auto_attribs,
+            attrs_params.kw_only,
+            attrs_params.force_kw_only,
+            attrs_params.collect_by_mro,
+            attrs_params.field_transformer,
         )
 
         self._cls = cls
-        self._cls_dict = dict(cls.__dict__) if slots else {}
+        self._cls_dict = dict(cls.__dict__) if attrs_params.slots else {}
         self._attrs = attrs
         self._base_names = {a.name for a in base_attrs}
         self._base_attr_map = base_map
         self._attr_names = tuple(a.name for a in attrs)
-        self._slots = slots
-        self._frozen = frozen
-        self._weakref_slot = weakref_slot
-        self._cache_hash = cache_hash
+        self._slots = attrs_params.slots
+        self._frozen = attrs_params.frozen
+        self._weakref_slot = attrs_params.weakref_slot
+        self._cache_hash = attrs_params.cache_hash
         self._has_pre_init = bool(getattr(cls, "__attrs_pre_init__", False))
         self._pre_init_has_args = False
         if self._has_pre_init:
@@ -717,20 +744,21 @@ class _ClassBuilder:
             self._pre_init_has_args = len(pre_init_signature.parameters) > 1
         self._has_post_init = bool(getattr(cls, "__attrs_post_init__", False))
         self._delete_attribs = not bool(these)
-        self._is_exc = is_exc
-        self._on_setattr = on_setattr
+        self._is_exc = attrs_params.exception
+        self._on_setattr = attrs_params.on_setattr
 
-        self._has_custom_setattr = has_custom_setattr
+        self._has_custom_setattr = attrs_params.has_custom_setattr
         self._wrote_own_setattr = False
 
         self._cls_dict["__attrs_attrs__"] = self._attrs
+        self._cls_dict["__attrs_params__"] = attrs_params
 
-        if frozen:
+        if attrs_params.frozen:
             self._cls_dict["__setattr__"] = _frozen_setattrs
             self._cls_dict["__delattr__"] = _frozen_delattrs
 
             self._wrote_own_setattr = True
-        elif on_setattr in (
+        elif self._on_setattr in (
             _DEFAULT_ON_SETATTR,
             setters.validate,
             setters.convert,
@@ -746,18 +774,18 @@ class _ClassBuilder:
                     break
             if (
                 (
-                    on_setattr == _DEFAULT_ON_SETATTR
+                    self._on_setattr == _DEFAULT_ON_SETATTR
                     and not (has_validator or has_converter)
                 )
-                or (on_setattr == setters.validate and not has_validator)
-                or (on_setattr == setters.convert and not has_converter)
+                or (self._on_setattr == setters.validate and not has_validator)
+                or (self._on_setattr == setters.convert and not has_converter)
             ):
                 # If class-level on_setattr is set to convert + validate, but
                 # there's no field to convert or validate, pretend like there's
                 # no on_setattr.
                 self._on_setattr = None
 
-        if getstate_setstate:
+        if attrs_params.getstate_setstate:
             (
                 self._cls_dict["__getstate__"],
                 self._cls_dict["__setstate__"],
@@ -1456,6 +1484,7 @@ def attrs(
         on_setattr = setters.pipe(*on_setattr)
 
     def wrap(cls):
+        nonlocal hash
         is_frozen = frozen or _has_frozen_base_class(cls)
         is_exc = auto_exc is True and issubclass(cls, BaseException)
         has_own_setattr = auto_detect and _has_own_attribute(
@@ -1466,85 +1495,96 @@ def attrs(
             msg = "Can't freeze a class with a custom __setattr__."
             raise ValueError(msg)
 
-        builder = _ClassBuilder(
-            cls,
-            these,
-            slots,
-            is_frozen,
-            weakref_slot,
-            _determine_whether_to_implement(
+        eq = not is_exc and _determine_whether_to_implement(
+            cls, eq_, auto_detect, ("__eq__", "__ne__")
+        )
+
+        if is_exc:
+            hashability = _Hashability.LEAVE_ALONE
+        elif hash is True:
+            hashability = _Hashability.HASHABLE
+        elif hash is False:
+            hashability = _Hashability.LEAVE_ALONE
+        elif hash is None:
+            if auto_detect is True and _has_own_attribute(cls, "__hash__"):
+                hashability = _Hashability.LEAVE_ALONE
+            elif eq is True and is_frozen is True:
+                hashability = _Hashability.HASHABLE
+            elif eq is False:
+                hashability = _Hashability.LEAVE_ALONE
+            else:
+                hashability = _Hashability.UNHASHABLE
+        else:
+            msg = "Invalid value for hash.  Must be True, False, or None."
+            raise TypeError(msg)
+
+        if hashability is not _Hashability.HASHABLE and cache_hash:
+            msg = "Invalid value for cache_hash.  To use hash caching, hashing must be either explicitly or implicitly enabled."
+            raise TypeError(msg)
+
+        attrs_params = _AttrsParams(
+            exception=is_exc,
+            frozen=is_frozen,
+            slots=slots,
+            init=_determine_whether_to_implement(
+                cls, init, auto_detect, ("__init__",)
+            ),
+            repr=_determine_whether_to_implement(
+                cls, repr, auto_detect, ("__repr__",)
+            ),
+            eq=eq,
+            order=not is_exc
+            and _determine_whether_to_implement(
+                cls,
+                order_,
+                auto_detect,
+                ("__lt__", "__le__", "__gt__", "__ge__"),
+            ),
+            hash=hashability,
+            match_args=match_args,
+            kw_only=kw_only,
+            force_kw_only=force_kw_only,
+            weakref_slot=weakref_slot,
+            auto_attribs=auto_attribs if auto_attribs is not None else False,
+            collect_by_mro=collect_by_mro,
+            auto_detect=auto_detect,
+            auto_exc=is_exc,
+            cache_hash=cache_hash,
+            str=str,
+            getstate_setstate=_determine_whether_to_implement(
                 cls,
                 getstate_setstate,
                 auto_detect,
                 ("__getstate__", "__setstate__"),
                 default=slots,
             ),
-            auto_attribs,
-            kw_only,
-            force_kw_only,
-            cache_hash,
-            is_exc,
-            collect_by_mro,
-            on_setattr,
-            has_own_setattr,
-            field_transformer,
+            has_custom_setattr=has_own_setattr,
+            on_setattr=on_setattr,
+            field_transformer=field_transformer,
         )
 
-        if _determine_whether_to_implement(
-            cls, repr, auto_detect, ("__repr__",)
-        ):
+        builder = _ClassBuilder(cls, these, attrs_params)
+
+        if attrs_params.repr is True:
             builder.add_repr(repr_ns)
 
-        if str is True:
+        if attrs_params.str is True:
             builder.add_str()
 
-        eq = _determine_whether_to_implement(
-            cls, eq_, auto_detect, ("__eq__", "__ne__")
-        )
-        if not is_exc and eq is True:
+        if attrs_params.eq is True:
             builder.add_eq()
-        if not is_exc and _determine_whether_to_implement(
-            cls, order_, auto_detect, ("__lt__", "__le__", "__gt__", "__ge__")
-        ):
+        if attrs_params.order is True:
             builder.add_order()
 
         if not frozen:
             builder.add_setattr()
 
-        nonlocal hash
-        if (
-            hash is None
-            and auto_detect is True
-            and _has_own_attribute(cls, "__hash__")
-        ):
-            hash = False
-
-        if hash is not True and hash is not False and hash is not None:
-            # Can't use `hash in` because 1 == True for example.
-            msg = "Invalid value for hash.  Must be True, False, or None."
-            raise TypeError(msg)
-
-        if hash is False or (hash is None and eq is False) or is_exc:
-            # Don't do anything. Should fall back to __object__'s __hash__
-            # which is by id.
-            if cache_hash:
-                msg = "Invalid value for cache_hash.  To use hash caching, hashing must be either explicitly or implicitly enabled."
-                raise TypeError(msg)
-        elif hash is True or (
-            hash is None and eq is True and is_frozen is True
-        ):
-            # Build a __hash__ if told so, or if it's safe.
+        if attrs_params.hash is _Hashability.HASHABLE:
             builder.add_hash()
-        else:
-            # Raise TypeError on attempts to hash.
-            if cache_hash:
-                msg = "Invalid value for cache_hash.  To use hash caching, hashing must be either explicitly or implicitly enabled."
-                raise TypeError(msg)
+        elif attrs_params.hash is _Hashability.UNHASHABLE:
             builder.make_unhashable()
 
-        if _determine_whether_to_implement(
-            cls, init, auto_detect, ("__init__",)
-        ):
+        if attrs_params.init:
             builder.add_init()
         else:
             builder.add_attrs_init()

@@ -15,6 +15,7 @@ import attr as _attr  # don't use it by accident
 import attrs
 
 from attr._compat import PY_3_11_PLUS
+from attr._make import _AttrsParams, _Hashability
 
 
 @attrs.define
@@ -445,6 +446,98 @@ class TestAsDict:
 
         assert attrs.asdict(inst) == _attr.asdict(
             inst, retain_collection_types=True
+        )
+
+
+class TestParams:
+    """
+    Tests for __attrs_params__ in define-style classes.
+    """
+
+    def test_define_params_custom(self):
+        """
+        define() sets __attrs_params__ with custom parameters.
+        """
+
+        @attrs.define(
+            slots=False,
+            frozen=True,
+            order=True,
+            unsafe_hash=True,
+            init=True,
+            repr=True,
+            eq=True,
+            match_args=False,
+            kw_only=True,
+            cache_hash=True,
+            str=True,
+        )
+        class C:
+            x: int
+
+        assert (
+            _AttrsParams(
+                exception=False,
+                slots=False,
+                frozen=True,
+                init=True,
+                repr=True,
+                eq=True,
+                order=True,
+                hash=_Hashability.HASHABLE,
+                match_args=False,
+                kw_only=True,
+                force_kw_only=False,
+                weakref_slot=True,
+                auto_attribs=True,
+                collect_by_mro=True,
+                auto_detect=True,
+                auto_exc=False,
+                cache_hash=True,
+                str=True,
+                getstate_setstate=False,  # because slots=False
+                has_custom_setattr=False,
+                on_setattr=None,
+                field_transformer=None,
+            )
+            == C.__attrs_params__
+        )
+
+    def test_define_params_defaults(self):
+        """
+        frozen() sets default __attrs_params__ values.
+        """
+
+        @attrs.frozen
+        class C:
+            x: int
+
+        assert (
+            _AttrsParams(
+                exception=False,
+                slots=True,
+                frozen=True,
+                init=True,
+                repr=True,
+                eq=True,
+                order=False,
+                hash=_Hashability.HASHABLE,  # frozen
+                match_args=True,
+                kw_only=False,
+                force_kw_only=False,
+                weakref_slot=True,
+                auto_attribs=True,
+                collect_by_mro=True,
+                auto_detect=True,
+                auto_exc=False,
+                cache_hash=False,
+                str=False,
+                getstate_setstate=True,
+                has_custom_setattr=False,
+                on_setattr=None,
+                field_transformer=None,
+            )
+            == C.__attrs_params__
         )
 
 
