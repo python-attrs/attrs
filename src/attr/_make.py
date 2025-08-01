@@ -114,7 +114,7 @@ def attrib(
     type=None,
     converter=None,
     factory=None,
-    kw_only=False,
+    kw_only=None,
     eq=None,
     order=None,
     on_setattr=None,
@@ -157,6 +157,9 @@ def attrib(
        *eq*, *order*, and *cmp* also accept a custom callable
     .. versionchanged:: 21.1.0 *cmp* undeprecated
     .. versionadded:: 22.2.0 *alias*
+    .. versionchanged:: 25.3.0
+       `kw_only` can now be None, and its default is also changed from False to
+       None.
     """
     eq, eq_key, order, order_key = _determine_attrib_eq_order(
         cmp, eq, order, True
@@ -374,7 +377,13 @@ def _collect_base_attrs_broken(cls, taken_attr_names):
 
 
 def _transform_attrs(
-    cls, these, auto_attribs, kw_only, collect_by_mro, field_transformer
+    cls,
+    these,
+    auto_attribs,
+    kw_only,
+    force_kw_only,
+    collect_by_mro,
+    field_transformer,
 ) -> _Attributes:
     """
     Transform all `_CountingAttr`s on a class into `Attribute`s.
@@ -430,7 +439,8 @@ def _transform_attrs(
 
     fca = Attribute.from_counting_attr
     own_attrs = [
-        fca(attr_name, ca, anns.get(attr_name)) for attr_name, ca in ca_list
+        fca(attr_name, ca, kw_only, anns.get(attr_name))
+        for attr_name, ca in ca_list
     ]
 
     if collect_by_mro:
@@ -442,7 +452,7 @@ def _transform_attrs(
             cls, {a.name for a in own_attrs}
         )
 
-    if kw_only:
+    if kw_only and force_kw_only:
         own_attrs = [a.evolve(kw_only=True) for a in own_attrs]
         base_attrs = [a.evolve(kw_only=True) for a in base_attrs]
 
@@ -669,6 +679,7 @@ class _ClassBuilder:
         getstate_setstate,
         auto_attribs,
         kw_only,
+        force_kw_only,
         cache_hash,
         is_exc,
         collect_by_mro,
@@ -681,6 +692,7 @@ class _ClassBuilder:
             these,
             auto_attribs,
             kw_only,
+            force_kw_only,
             collect_by_mro,
             field_transformer,
         )
@@ -1352,6 +1364,7 @@ def attrs(
     field_transformer=None,
     match_args=True,
     unsafe_hash=None,
+    force_kw_only=True,
 ):
     r"""
     A class decorator that adds :term:`dunder methods` according to the
@@ -1418,6 +1431,10 @@ def attrs(
        If a class has an *inherited* classmethod called
        ``__attrs_init_subclass__``, it is executed after the class is created.
     .. deprecated:: 24.1.0 *hash* is deprecated in favor of *unsafe_hash*.
+    .. versionchanged:: 25.3.0
+       `kw_only` now only applies to attributes defined in the current class,
+       and respects attribute-level `kw_only=False` settings.
+    .. versionadded:: 25.3.0 `force_kw_only`
     """
     if repr_ns is not None:
         import warnings
@@ -1464,6 +1481,7 @@ def attrs(
             ),
             auto_attribs,
             kw_only,
+            force_kw_only,
             cache_hash,
             is_exc,
             collect_by_mro,
@@ -2516,7 +2534,11 @@ class Attribute:
         raise FrozenInstanceError
 
     @classmethod
-    def from_counting_attr(cls, name: str, ca: _CountingAttr, type=None):
+    def from_counting_attr(
+        cls, name: str, ca: _CountingAttr, kw_only: bool, type=None
+    ):
+        # The 'kw_only' argument is the class-level setting, and is used if the
+        # attribute itself does not explicitly set 'kw_only'.
         # type holds the annotated value. deal with conflicts:
         if type is None:
             type = ca.type
@@ -2535,7 +2557,7 @@ class Attribute:
             ca.metadata,
             type,
             ca.converter,
-            ca.kw_only,
+            kw_only if ca.kw_only is None else ca.kw_only,
             ca.eq,
             ca.eq_key,
             ca.order,
