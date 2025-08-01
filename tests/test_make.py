@@ -279,9 +279,9 @@ class TestTransformAttrs:
             None,
             False,
             True,
+            True,  # force kw-only
             True,
-            True,
-            None,  # force kw-only
+            None,
         )
 
         assert len(attrs) == 3
