@@ -119,6 +119,7 @@ def attrib(
     order=None,
     on_setattr=None,
     alias=None,
+    inherited=False,
 ):
     """
     Create a new field / attribute on a class.
@@ -157,6 +158,7 @@ def attrib(
        *eq*, *order*, and *cmp* also accept a custom callable
     .. versionchanged:: 21.1.0 *cmp* undeprecated
     .. versionadded:: 22.2.0 *alias*
+    .. versionadded:: 25.4.0 *inherited*
     """
     eq, eq_key, order, order_key = _determine_attrib_eq_order(
         cmp, eq, order, True
@@ -207,6 +209,7 @@ def attrib(
         order_key=order_key,
         on_setattr=on_setattr,
         alias=alias,
+        inherited=inherited,
     )
 
 
@@ -435,16 +438,29 @@ def _transform_attrs(
 
     if collect_by_mro:
         base_attrs, base_attr_map = _collect_base_attrs(
-            cls, {a.name for a in own_attrs}
+            cls, {a.name for a in own_attrs if a.inherited is False}
         )
     else:
         base_attrs, base_attr_map = _collect_base_attrs_broken(
-            cls, {a.name for a in own_attrs}
+            cls, {a.name for a in own_attrs if a.inherited is False}
         )
 
     if kw_only:
         own_attrs = [a.evolve(kw_only=True) for a in own_attrs]
         base_attrs = [a.evolve(kw_only=True) for a in base_attrs]
+
+    own_attr_map = {attr.name: attr for attr in own_attrs}
+
+    # Overwrite explicitly inherited attributes in `base` with their versions in `own`
+    base_attrs = [
+        own_attr_map.get(base_attr.name, base_attr) for base_attr in base_attrs
+    ]
+    # Strip explicitly inherited attributes from `own`, as they now live in `base`
+    own_attrs = [
+        own_attr
+        for own_attr in own_attrs
+        if own_attr.name not in base_attr_map
+    ]
 
     attrs = base_attrs + own_attrs
 
@@ -2531,7 +2547,7 @@ class Attribute:
             None,
             ca.hash,
             ca.init,
-            False,
+            ca.inherited,
             ca.metadata,
             type,
             ca.converter,
@@ -2561,6 +2577,56 @@ class Attribute:
         new._setattrs(changes.items())
 
         return new
+
+    def reuse(
+        self,
+        **field_kwargs,
+    ):
+        """
+        Converts this attribute back into a raw :py:func:`attrs.field` object,
+        such that it can be used to annotate newly ``@define``-d classes. This
+        is useful if you want to reuse part (or all) of fields defined in other
+        attrs classes that have already been resolved into their finalized
+        :py:class:`.Attribute`.
+
+        Args:
+            field_kwargs: Any valid keyword argument to :py:func:`attrs.field`.
+
+        .. versionadded:: 25.4.0
+        """
+        args = {
+            "validator": self.validator,
+            "repr": self.repr,
+            "cmp": None,
+            "hash": self.hash,
+            "init": self.init,
+            "converter": self.converter,
+            "metadata": self.metadata,
+            "type": self.type,
+            "kw_only": self.kw_only,
+            "eq": self.eq,
+            "order": self.order,
+            "on_setattr": self.on_setattr,
+            "alias": self.alias,
+            "inherited": self.inherited,
+        }
+
+        # Map the single "validator" object back down to it's aliased pair.
+        # Additionally, we help the user out a little bit by automatically
+        # overwriting the compliment `default` or `factory` function when
+        # overriding; so if a field already has a `default=3`, using
+        # `reuse(factory=lambda: 3)` won't complain about having both kinds of
+        # defaults defined.
+        if "default" not in field_kwargs and "factory" not in field_kwargs:
+            if isinstance(self.default, Factory):
+                field_kwargs["factory"] = self.default.factory
+            else:
+                field_kwargs["default"] = self.default
+
+        args.update(field_kwargs)
+
+        # Send through attrib so we reuse the same errors + syntax sugar
+        return attrib(**args)
 
     # Don't use _add_pickle since fields(Attribute) doesn't work
     def __getstate__(self):
@@ -2638,6 +2704,7 @@ class _CountingAttr:
         "eq",
         "eq_key",
         "hash",
+        "inherited",
         "init",
         "kw_only",
         "metadata",
@@ -2676,6 +2743,7 @@ class _CountingAttr:
                 "init",
                 "on_setattr",
                 "alias",
+                "inherited",
             )
         ),
         Attribute(
@@ -2695,6 +2763,23 @@ class _CountingAttr:
             inherited=False,
             on_setattr=None,
         ),
+        # Attribute(
+        #     name="inherited",
+        #     alias="inherited",
+        #     default=None,
+        #     validator=None,
+        #     repr=True,
+        #     cmp=None,
+        #     hash=True,
+        #     init=True,
+        #     kw_only=False,
+        #     eq=True,
+        #     eq_key=None,
+        #     order=False,
+        #     order_key=None,
+        #     inherited=False,
+        #     on_setattr=None,
+        # ),
     )
     cls_counter = 0
 
@@ -2716,6 +2801,7 @@ class _CountingAttr:
         order_key,
         on_setattr,
         alias,
+        inherited,
     ):
         _CountingAttr.cls_counter += 1
         self.counter = _CountingAttr.cls_counter
@@ -2734,6 +2820,7 @@ class _CountingAttr:
         self.kw_only = kw_only
         self.on_setattr = on_setattr
         self.alias = alias
+        self.inherited = inherited
 
     def validator(self, meth):
         """
