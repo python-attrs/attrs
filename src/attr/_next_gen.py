@@ -220,7 +220,7 @@ def define(
             explicitly set ``kw_only=False`` are not affected; base class
             attributes are also not affected.
 
-            Also see ``force_kw_only``.
+            Also see *force_kw_only*.
 
         weakref_slot (bool):
             Make instances weak-referenceable.  This has no effect unless
@@ -334,10 +334,10 @@ def define(
        Unless already present, a ``__replace__`` method is automatically
        created for `copy.replace` (Python 3.13+ only).
     .. versionchanged:: 25.3.0
-       `kw_only` now only applies to attributes defined in the current class,
-       and respects attribute-level `kw_only=False` settings.
+       *kw_only* now only applies to attributes defined in the current class,
+       and respects attribute-level ``kw_only=False`` settings.
     .. versionadded:: 25.3.0
-       Added `force_kw_only` to go back to the previous `kw_only` behavior.
+       Added *force_kw_only* to go back to the previous *kw_only* behavior.
 
     .. note::
 
@@ -573,7 +573,7 @@ def field(
 
         kw_only (bool | None):
             Make this attribute keyword-only in the generated ``__init__`` (if
-            ``init`` is False, this parameter is ignored).  If None (default),
+            *init* is False, this parameter is ignored).  If None (default),
             mirror the setting from `attr.s`.
 
         on_setattr (~typing.Callable | list[~typing.Callable] | None | ~typing.Literal[attrs.setters.NO_OP]):
@@ -595,7 +595,7 @@ def field(
        The *type* parameter has been re-added; mostly for `attrs.make_class`.
        Please note that type checkers ignore this metadata.
     .. versionchanged:: 25.3.0
-       `kw_only` can now be None, and its default is also changed from False to
+       *kw_only* can now be None, and its default is also changed from False to
        None.
 
     .. seealso::
