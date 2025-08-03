@@ -1152,12 +1152,14 @@ class TestKeywordOnlyAttributes:
             no = attr.field(kw_only=False)
 
         for cls in [OldClassNewBehavior, NewClassNewBehavior]:
+
             fs = fields_dict(cls)
             assert fs["yes"].kw_only is True
             assert fs["no"].kw_only is False
 
         for cls in [OldClassOldBehavior, NewClassOldBehavior]:
             fs = fields_dict(cls)
+
             assert fs["yes"].kw_only is True
             assert fs["no"].kw_only is True
 
@@ -1186,11 +1188,13 @@ class TestKeywordOnlyAttributes:
             c_f = attr.field(kw_only=False)
 
         fs = fields_dict(A)
+
         assert fs["a"].kw_only is False
         assert fs["a_t"].kw_only is True
         assert fs["a_f"].kw_only is False
 
         fs = fields_dict(B)
+
         assert fs["a"].kw_only is False
         assert fs["a_t"].kw_only is True
         assert fs["a_f"].kw_only is False
@@ -1199,6 +1203,7 @@ class TestKeywordOnlyAttributes:
         assert fs["b_f"].kw_only is False
 
         fs = fields_dict(C)
+
         assert fs["a"].kw_only is False
         assert fs["a_t"].kw_only is True
         assert fs["a_f"].kw_only is False
@@ -1233,11 +1238,13 @@ class TestKeywordOnlyAttributes:
             c_f = attr.field(kw_only=False)
 
         fs = fields_dict(A)
+
         assert fs["a"].kw_only is False
         assert fs["a_t"].kw_only is True
         assert fs["a_f"].kw_only is False
 
         fs = fields_dict(B)
+
         assert fs["a"].kw_only is True
         assert fs["a_t"].kw_only is True
         assert fs["a_f"].kw_only is True
@@ -1246,6 +1253,7 @@ class TestKeywordOnlyAttributes:
         assert fs["b_f"].kw_only is True
 
         fs = fields_dict(C)
+
         assert fs["a"].kw_only is False
         assert fs["a_t"].kw_only is True
         assert fs["a_f"].kw_only is False

@@ -157,7 +157,7 @@ def attrib(
        *eq*, *order*, and *cmp* also accept a custom callable
     .. versionchanged:: 21.1.0 *cmp* undeprecated
     .. versionadded:: 22.2.0 *alias*
-    .. versionchanged:: 25.3.0
+    .. versionchanged:: 25.4.0
        *kw_only* can now be None, and its default is also changed from False to
        None.
     """
@@ -1431,10 +1431,10 @@ def attrs(
        If a class has an *inherited* classmethod called
        ``__attrs_init_subclass__``, it is executed after the class is created.
     .. deprecated:: 24.1.0 *hash* is deprecated in favor of *unsafe_hash*.
-    .. versionchanged:: 25.3.0
+    .. versionchanged:: 25.4.0
        *kw_only* now only applies to attributes defined in the current class,
        and respects attribute-level ``kw_only=False`` settings.
-    .. versionadded:: 25.3.0 *force_kw_only*
+    .. versionadded:: 25.4.0 *force_kw_only*
     """
     if repr_ns is not None:
         import warnings

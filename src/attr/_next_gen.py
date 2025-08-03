@@ -333,10 +333,10 @@ def define(
     .. versionadded:: 24.3.0
        Unless already present, a ``__replace__`` method is automatically
        created for `copy.replace` (Python 3.13+ only).
-    .. versionchanged:: 25.3.0
+    .. versionchanged:: 25.4.0
        *kw_only* now only applies to attributes defined in the current class,
        and respects attribute-level ``kw_only=False`` settings.
-    .. versionadded:: 25.3.0
+    .. versionadded:: 25.4.0
        Added *force_kw_only* to go back to the previous *kw_only* behavior.
 
     .. note::
@@ -574,7 +574,7 @@ def field(
         kw_only (bool | None):
             Make this attribute keyword-only in the generated ``__init__`` (if
             *init* is False, this parameter is ignored).  If None (default),
-            mirror the setting from `attr.s`.
+            mirror the setting from `attrs.define`.
 
         on_setattr (~typing.Callable | list[~typing.Callable] | None | ~typing.Literal[attrs.setters.NO_OP]):
             Allows to overwrite the *on_setattr* setting from `attr.s`. If left
@@ -594,7 +594,7 @@ def field(
     .. versionadded:: 23.1.0
        The *type* parameter has been re-added; mostly for `attrs.make_class`.
        Please note that type checkers ignore this metadata.
-    .. versionchanged:: 25.3.0
+    .. versionchanged:: 25.4.0
        *kw_only* can now be None, and its default is also changed from False to
        None.
 
