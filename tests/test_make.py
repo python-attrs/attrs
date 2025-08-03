@@ -1152,7 +1152,6 @@ class TestKeywordOnlyAttributes:
             no = attr.field(kw_only=False)
 
         for cls in [OldClassNewBehavior, NewClassNewBehavior]:
-
             fs = fields_dict(cls)
             assert fs["yes"].kw_only is True
             assert fs["no"].kw_only is False
