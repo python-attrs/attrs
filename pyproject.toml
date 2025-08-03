@@ -196,6 +196,7 @@ line-length = 79
 
 [tool.ruff.per-file-target-version]
 "tests/test_pattern_matching.py" = "py310"
+"tests/test_forward_references.py" = "py314"
 
 [tool.ruff.lint]
 select = ["ALL"]

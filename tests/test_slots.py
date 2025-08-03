@@ -772,11 +772,13 @@ def test_slots_cached_property_works_on_frozen_isntances():
 
 
 @pytest.mark.xfail(
-    PY_3_14_PLUS, reason="3.14 returns weird annotation for cached_properies"
+    PY_3_14_PLUS, reason="3.14 does not infer the type anymore."
 )
 def test_slots_cached_property_infers_type():
     """
-    Infers type of cached property.
+    Infers type of cached property on Python 3.13 and earlier.
+
+    See also #1431.
     """
 
     @attrs.frozen(slots=True)
