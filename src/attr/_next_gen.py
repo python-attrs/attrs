@@ -250,7 +250,7 @@ def define(
             <https://github.com/python-attrs/attrs/issues/428>`_.
 
         force_kw_only (bool):
-            A back-compat flag for restoring old behavior.  If True and
+            A back-compat flag for restoring pre-25.4.0 behavior.  If True and
             ``kw_only=True``, all attributes are made keyword-only, including
             base class attributes, and those set to ``kw_only=False`` at the
             attribute level.  Defaults to False.
