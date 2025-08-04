@@ -43,6 +43,7 @@ def define(
     on_setattr=None,
     field_transformer=None,
     match_args=True,
+    force_kw_only=False,
 ):
     r"""
     A class decorator that adds :term:`dunder methods` according to
@@ -214,8 +215,12 @@ def define(
                 5. Subclasses of a frozen class are frozen too.
 
         kw_only (bool):
-            Make all attributes keyword-only in the generated ``__init__`` (if
-            *init* is False, this parameter is ignored).
+            Make attributes keyword-only in the generated ``__init__`` (if
+            *init* is False, this parameter is ignored).  Attributes that
+            explicitly set ``kw_only=False`` are not affected; base class
+            attributes are also not affected.
+
+            Also see *force_kw_only*.
 
         weakref_slot (bool):
             Make instances weak-referenceable.  This has no effect unless
@@ -243,6 +248,15 @@ def define(
 
             See also `issue #428
             <https://github.com/python-attrs/attrs/issues/428>`_.
+
+        force_kw_only (bool):
+            A back-compat flag for restoring pre-25.4.0 behavior.  If True and
+            ``kw_only=True``, all attributes are made keyword-only, including
+            base class attributes, and those set to ``kw_only=False`` at the
+            attribute level.  Defaults to False.
+
+            See also `issue #980
+            <https://github.com/python-attrs/attrs/issues/980>`_.
 
         getstate_setstate (bool | None):
             .. note::
@@ -319,6 +333,11 @@ def define(
     .. versionadded:: 24.3.0
        Unless already present, a ``__replace__`` method is automatically
        created for `copy.replace` (Python 3.13+ only).
+    .. versionchanged:: 25.4.0
+       *kw_only* now only applies to attributes defined in the current class,
+       and respects attribute-level ``kw_only=False`` settings.
+    .. versionadded:: 25.4.0
+       Added *force_kw_only* to go back to the previous *kw_only* behavior.
 
     .. note::
 
@@ -337,6 +356,7 @@ def define(
         - *auto_exc=True*
         - *auto_detect=True*
         - *order=False*
+        - *force_kw_only=False*
         - Some options that were only relevant on Python 2 or were kept around
           for backwards-compatibility have been removed.
 
@@ -366,6 +386,7 @@ def define(
             on_setattr=on_setattr,
             field_transformer=field_transformer,
             match_args=match_args,
+            force_kw_only=force_kw_only,
         )
 
     def wrap(cls):
@@ -424,7 +445,7 @@ def field(
     type=None,
     converter=None,
     factory=None,
-    kw_only=False,
+    kw_only=None,
     eq=None,
     order=None,
     on_setattr=None,
@@ -550,9 +571,10 @@ def field(
             itself. You can use it as part of your own code or for `static type
             checking <types>`.
 
-        kw_only (bool):
+        kw_only (bool | None):
             Make this attribute keyword-only in the generated ``__init__`` (if
-            ``init`` is False, this parameter is ignored).
+            *init* is False, this parameter is ignored).  If None (default),
+            mirror the setting from `attrs.define`.
 
         on_setattr (~typing.Callable | list[~typing.Callable] | None | ~typing.Literal[attrs.setters.NO_OP]):
             Allows to overwrite the *on_setattr* setting from `attr.s`. If left
@@ -572,6 +594,9 @@ def field(
     .. versionadded:: 23.1.0
        The *type* parameter has been re-added; mostly for `attrs.make_class`.
        Please note that type checkers ignore this metadata.
+    .. versionchanged:: 25.4.0
+       *kw_only* can now be None, and its default is also changed from False to
+       None.
 
     .. seealso::
 

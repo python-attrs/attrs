@@ -77,7 +77,7 @@ def field(
     metadata: Mapping[Any, Any] | None = ...,
     converter: None = ...,
     factory: None = ...,
-    kw_only: bool = ...,
+    kw_only: bool | None = ...,
     eq: bool | None = ...,
     order: bool | None = ...,
     on_setattr: _OnSetAttrArgType | None = ...,
@@ -101,7 +101,7 @@ def field(
     | tuple[_ConverterType]
     | None = ...,
     factory: Callable[[], _T] | None = ...,
-    kw_only: bool = ...,
+    kw_only: bool | None = ...,
     eq: _EqOrderType | None = ...,
     order: _EqOrderType | None = ...,
     on_setattr: _OnSetAttrArgType | None = ...,
@@ -124,7 +124,7 @@ def field(
     | tuple[_ConverterType]
     | None = ...,
     factory: Callable[[], _T] | None = ...,
-    kw_only: bool = ...,
+    kw_only: bool | None = ...,
     eq: _EqOrderType | None = ...,
     order: _EqOrderType | None = ...,
     on_setattr: _OnSetAttrArgType | None = ...,
@@ -147,7 +147,7 @@ def field(
     | tuple[_ConverterType]
     | None = ...,
     factory: Callable[[], _T] | None = ...,
-    kw_only: bool = ...,
+    kw_only: bool | None = ...,
     eq: _EqOrderType | None = ...,
     order: _EqOrderType | None = ...,
     on_setattr: _OnSetAttrArgType | None = ...,

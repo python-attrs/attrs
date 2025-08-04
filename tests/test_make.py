@@ -55,7 +55,9 @@ from .strategies import (
 from .utils import simple_attr
 
 
-attrs_st = simple_attrs.map(lambda c: Attribute.from_counting_attr("name", c))
+attrs_st = simple_attrs.map(
+    lambda c: Attribute.from_counting_attr("name", c, False)
+)
 
 
 @pytest.fixture(name="with_and_without_validation", params=[True, False])
@@ -179,7 +181,7 @@ class TestTransformAttrs:
         Does not attach __attrs_attrs__ to the class.
         """
         C = make_tc()
-        _transform_attrs(C, None, False, False, True, None)
+        _transform_attrs(C, None, False, False, False, True, None)
 
         assert None is getattr(C, "__attrs_attrs__", None)
 
@@ -188,7 +190,9 @@ class TestTransformAttrs:
         Transforms every `_CountingAttr` and leaves others (a) be.
         """
         C = make_tc()
-        attrs, _, _ = _transform_attrs(C, None, False, False, True, None)
+        attrs, _, _ = _transform_attrs(
+            C, None, False, False, False, True, None
+        )
 
         assert ["z", "y", "x"] == [a.name for a in attrs]
 
@@ -202,7 +206,7 @@ class TestTransformAttrs:
             pass
 
         assert _Attributes((), [], {}) == _transform_attrs(
-            C, None, False, False, True, None
+            C, None, False, False, False, True, None
         )
 
     def test_transforms_to_attribute(self):
@@ -211,7 +215,7 @@ class TestTransformAttrs:
         """
         C = make_tc()
         attrs, base_attrs, _ = _transform_attrs(
-            C, None, False, False, True, None
+            C, None, False, False, False, True, None
         )
 
         assert [] == base_attrs
@@ -229,7 +233,7 @@ class TestTransformAttrs:
             y = attr.ib()
 
         with pytest.raises(ValueError) as e:
-            _transform_attrs(C, None, False, False, True, None)
+            _transform_attrs(C, None, False, False, False, True, None)
         assert (
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
@@ -242,11 +246,8 @@ class TestTransformAttrs:
 
     def test_kw_only(self):
         """
-        Converts all attributes, including base class' attributes, if `kw_only`
-        is provided. Therefore, `kw_only` allows attributes with defaults to
-        precede mandatory attributes.
-
-        Updates in the subclass *don't* affect the base class attributes.
+        Converts all attributes in the current class if `kw_only` is provided.
+        Base class attributes are **not** affected.
         """
 
         @attr.s
@@ -261,7 +262,26 @@ class TestTransformAttrs:
             y = attr.ib()
 
         attrs, base_attrs, _ = _transform_attrs(
-            C, None, False, True, True, None
+            C, None, False, True, False, True, None
+        )
+
+        assert len(attrs) == 3
+        assert len(base_attrs) == 1
+
+        for a in attrs:
+            if a.name == "b":
+                assert a.kw_only is False
+            else:
+                assert a.kw_only is True
+
+        attrs, base_attrs, _ = _transform_attrs(
+            C,
+            None,
+            False,
+            True,
+            True,  # force kw-only
+            True,
+            None,
         )
 
         assert len(attrs) == 3
@@ -285,7 +305,7 @@ class TestTransformAttrs:
             y = attr.ib()
 
         attrs, base_attrs, _ = _transform_attrs(
-            C, {"x": attr.ib()}, False, False, True, None
+            C, {"x": attr.ib()}, False, False, False, True, None
         )
 
         assert [] == base_attrs
@@ -1018,8 +1038,8 @@ class TestKeywordOnlyAttributes:
 
     def test_keyword_only_class_level_subclassing(self):
         """
-        Subclass `kw_only` propagates to attrs inherited from the base,
-        allowing non-default following default.
+        When `force_kw_only=True`, subclass `kw_only` propagates to attrs
+        inherited from the base, allowing non-default following default.
         """
 
         @attr.s
@@ -1032,8 +1052,19 @@ class TestKeywordOnlyAttributes:
 
         with pytest.raises(TypeError):
             C(1)
+        with pytest.raises(TypeError):
+            C(0, y=1)
 
         c = C(x=0, y=1)
+
+        assert c.x == 0
+        assert c.y == 1
+
+        @attr.s(kw_only=True, force_kw_only=False)
+        class C(Base):
+            y = attr.ib()
+
+        c = C(0, y=1)
 
         assert c.x == 0
         assert c.y == 1
@@ -1093,6 +1124,144 @@ class TestKeywordOnlyAttributes:
         assert c.kwarg == "a"
         assert c.non_init_function_default == "ab"
         assert c.non_init_keyword_default == "default-by-keyword"
+
+    def test_attr_level_kw_only_and_class_level_kw_only(self):
+        """
+        If a field explicitly sets 'kw_only=False', it should not be made
+        keyword-only even if the class sets 'kw_only=True'.
+        """
+
+        @attr.s(kw_only=True)
+        class OldClassOldBehavior:
+            yes = attr.ib()
+            no = attr.ib(kw_only=False)
+
+        @attr.s(kw_only=True, force_kw_only=False)
+        class OldClassNewBehavior:
+            yes = attr.ib()
+            no = attr.ib(kw_only=False)
+
+        @attr.define(kw_only=True, force_kw_only=True)
+        class NewClassOldBehavior:
+            yes = attr.field()
+            no = attr.field(kw_only=False)
+
+        @attr.define(kw_only=True)
+        class NewClassNewBehavior:
+            yes = attr.field()
+            no = attr.field(kw_only=False)
+
+        for cls in [OldClassNewBehavior, NewClassNewBehavior]:
+            fs = fields_dict(cls)
+            assert fs["yes"].kw_only is True
+            assert fs["no"].kw_only is False
+
+        for cls in [OldClassOldBehavior, NewClassOldBehavior]:
+            fs = fields_dict(cls)
+
+            assert fs["yes"].kw_only is True
+            assert fs["no"].kw_only is True
+
+    def test_kw_only_inheritance(self):
+        """
+        Comprehensive test about how `kw_only` works when there's multiple
+        levels of inheritance with different `kw_only` settings.
+        """
+
+        @attr.define()
+        class A:
+            a = attr.field()
+            a_t = attr.field(kw_only=True)
+            a_f = attr.field(kw_only=False)
+
+        @attr.define(kw_only=True)
+        class B(A):
+            b = attr.field()
+            b_t = attr.field(kw_only=True)
+            b_f = attr.field(kw_only=False)
+
+        @attr.define(kw_only=False)
+        class C(B):
+            c = attr.field()
+            c_t = attr.field(kw_only=True)
+            c_f = attr.field(kw_only=False)
+
+        fs = fields_dict(A)
+
+        assert fs["a"].kw_only is False
+        assert fs["a_t"].kw_only is True
+        assert fs["a_f"].kw_only is False
+
+        fs = fields_dict(B)
+
+        assert fs["a"].kw_only is False
+        assert fs["a_t"].kw_only is True
+        assert fs["a_f"].kw_only is False
+        assert fs["b"].kw_only is True
+        assert fs["b_t"].kw_only is True
+        assert fs["b_f"].kw_only is False
+
+        fs = fields_dict(C)
+
+        assert fs["a"].kw_only is False
+        assert fs["a_t"].kw_only is True
+        assert fs["a_f"].kw_only is False
+        assert fs["b"].kw_only is True
+        assert fs["b_t"].kw_only is True
+        assert fs["b_f"].kw_only is False
+        assert fs["c"].kw_only is False
+        assert fs["c_t"].kw_only is True
+        assert fs["c_f"].kw_only is False
+
+    def test_kw_only_inheritance_force_kw_only(self):
+        """
+        Similar to above, but when `force_kw_only` (pre-25.3.0 behavior).
+        """
+
+        @attr.define(force_kw_only=True)
+        class A:
+            a = attr.field()
+            a_t = attr.field(kw_only=True)
+            a_f = attr.field(kw_only=False)
+
+        @attr.define(kw_only=True, force_kw_only=True)
+        class B(A):
+            b = attr.field()
+            b_t = attr.field(kw_only=True)
+            b_f = attr.field(kw_only=False)
+
+        @attr.define(kw_only=False, force_kw_only=True)
+        class C(B):
+            c = attr.field()
+            c_t = attr.field(kw_only=True)
+            c_f = attr.field(kw_only=False)
+
+        fs = fields_dict(A)
+
+        assert fs["a"].kw_only is False
+        assert fs["a_t"].kw_only is True
+        assert fs["a_f"].kw_only is False
+
+        fs = fields_dict(B)
+
+        assert fs["a"].kw_only is True
+        assert fs["a_t"].kw_only is True
+        assert fs["a_f"].kw_only is True
+        assert fs["b"].kw_only is True
+        assert fs["b_t"].kw_only is True
+        assert fs["b_f"].kw_only is True
+
+        fs = fields_dict(C)
+
+        assert fs["a"].kw_only is False
+        assert fs["a_t"].kw_only is True
+        assert fs["a_f"].kw_only is False
+        assert fs["b"].kw_only is True
+        assert fs["b_t"].kw_only is True
+        assert fs["b_f"].kw_only is True
+        assert fs["c"].kw_only is False
+        assert fs["c_t"].kw_only is True
+        assert fs["c_f"].kw_only is False
 
 
 @attr.s
@@ -1767,6 +1936,7 @@ class TestClassBuilder:
             False,
             False,
             False,
+            False,
             True,
             None,
             False,
@@ -1788,6 +1958,7 @@ class TestClassBuilder:
             None,
             True,
             True,
+            False,
             False,
             False,
             False,
@@ -1886,6 +2057,7 @@ class TestClassBuilder:
             auto_attribs=False,
             is_exc=False,
             kw_only=False,
+            force_kw_only=False,
             cache_hash=False,
             collect_by_mro=True,
             on_setattr=None,
