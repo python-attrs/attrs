@@ -12,6 +12,7 @@ import linecache
 import sys
 import types
 import unicodedata
+import weakref
 
 from collections.abc import Callable, Mapping
 from functools import cached_property
@@ -836,6 +837,7 @@ class _ClassBuilder:
         self._eval_snippets()
         if self._slots is True:
             cls = self._create_slots_class()
+            self._cls.__attrs_base_of_slotted__ = weakref.ref(cls)
         else:
             cls = self._patch_original_class()
             if PY_3_10_PLUS:
