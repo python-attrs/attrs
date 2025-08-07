@@ -182,12 +182,12 @@ Helpers
 
    .. doctest::
 
-      >>> @attr.s
+      >>> @define
       ... class C:
       ...     pass
-      >>> attr.has(C)
+      >>> attrs.has(C)
       True
-      >>> attr.has(object)
+      >>> attrs.has(object)
       False
 
 .. autofunction:: attrs.resolve_types
