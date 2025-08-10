@@ -123,18 +123,18 @@ class ClassProps(NamedTuple):
 
     is_exception: bool
     is_slotted: bool
+    has_weakref_slot: bool
     is_frozen: bool
     is_kw_only: bool
     force_kw_only: bool
+    collect_by_mro: bool
     init: bool
     repr: bool
     eq: bool
     order: bool
     hash: _Hashability
-    match_args: bool
-    has_weakref_slot: bool
-    collect_by_mro: bool
     cache_hash: bool
+    match_args: bool
     str: bool
     getstate_setstate: bool
     has_custom_setattr: bool
