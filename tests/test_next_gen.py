@@ -15,7 +15,7 @@ import attr as _attr  # don't use it by accident
 import attrs
 
 from attr._compat import PY_3_11_PLUS
-from attr._make import _AttrsParams, _Hashability
+from attr._make import ClassProps, _Hashability
 
 
 @attrs.define
@@ -449,14 +449,14 @@ class TestAsDict:
         )
 
 
-class TestParams:
+class TestProps:
     """
-    Tests for __attrs_params__ in define-style classes.
+    Tests for __attrs_props__ in define-style classes.
     """
 
-    def test_define_params_custom(self):
+    def test_define_props_custom(self):
         """
-        define() sets __attrs_params__ with custom parameters.
+        define() sets __attrs_props__ with custom parameters.
         """
 
         @attrs.define(
@@ -476,7 +476,7 @@ class TestParams:
             x: int
 
         assert (
-            _AttrsParams(
+            ClassProps(
                 exception=False,
                 slots=False,
                 frozen=True,
@@ -500,12 +500,12 @@ class TestParams:
                 on_setattr=None,
                 field_transformer=None,
             )
-            == C.__attrs_params__
+            == C.__attrs_props__
         )
 
-    def test_define_params_defaults(self):
+    def test_define_props_defaults(self):
         """
-        frozen() sets default __attrs_params__ values.
+        frozen() sets default __attrs_props__ values.
         """
 
         @attrs.frozen
@@ -513,7 +513,7 @@ class TestParams:
             x: int
 
         assert (
-            _AttrsParams(
+            ClassProps(
                 exception=False,
                 slots=True,
                 frozen=True,
@@ -521,7 +521,7 @@ class TestParams:
                 repr=True,
                 eq=True,
                 order=False,
-                hash=_Hashability.HASHABLE,  # frozen
+                hash=_Hashability.HASHABLE,  # b/c frozen
                 match_args=True,
                 kw_only=False,
                 force_kw_only=False,
@@ -537,7 +537,7 @@ class TestParams:
                 on_setattr=None,
                 field_transformer=None,
             )
-            == C.__attrs_params__
+            == C.__attrs_props__
         )
 
 
