@@ -113,9 +113,10 @@ class _Hashability(enum.Enum):
     LEAVE_ALONE = "leave_alone"  # don't touch __hash__
 
 
-class _AttrsParams(NamedTuple):
+class ClassProps(NamedTuple):
     """
-    Effective parameters to attrs() or define() decorators.
+    Effective class properties as derived from parameters to attr.s() or
+    define() decorators.
     """
 
     exception: bool
@@ -701,7 +702,7 @@ class _ClassBuilder:
         self,
         cls: type,
         these,
-        attrs_params: _AttrsParams,
+        attrs_params: ClassProps,
     ):
         attrs, base_attrs, base_map = _transform_attrs(
             cls,
@@ -740,7 +741,7 @@ class _ClassBuilder:
         self._wrote_own_setattr = False
 
         self._cls_dict["__attrs_attrs__"] = self._attrs
-        self._cls_dict["__attrs_params__"] = attrs_params
+        self._cls_dict["__attrs_props__"] = attrs_params
 
         if attrs_params.frozen:
             self._cls_dict["__setattr__"] = _frozen_setattrs
@@ -1502,7 +1503,7 @@ def attrs(
             msg = "Invalid value for cache_hash.  To use hash caching, hashing must be either explicitly or implicitly enabled."
             raise TypeError(msg)
 
-        attrs_params = _AttrsParams(
+        attrs_params = ClassProps(
             exception=is_exc,
             frozen=is_frozen,
             slots=slots,
