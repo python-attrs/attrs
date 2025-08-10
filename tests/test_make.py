@@ -26,10 +26,10 @@ from attr import _config
 from attr._compat import PY_3_10_PLUS
 from attr._make import (
     Attribute,
+    ClassProps,
     Factory,
     _AndValidator,
     _Attributes,
-    _AttrsParams,
     _ClassBuilder,
     _CountingAttr,
     _determine_attrib_eq_order,
@@ -508,9 +508,10 @@ class TestAttributes:
         assert "x" == C.__attrs_attrs__[0].name
         assert all(isinstance(a, Attribute) for a in C.__attrs_attrs__)
 
-    def test_sets_attrs_params(self):
+    def test_sets_attrs_props(self):
         """
-        Sets the `__attrs_params__` class attribute with the decorator parameters.
+        Sets the `__attrs_props__` class attribute with the effective decorator
+        properties.
         """
 
         @attr.s(
@@ -531,7 +532,7 @@ class TestAttributes:
             x: int = attr.ib()
 
         assert (
-            _AttrsParams(
+            ClassProps(
                 exception=False,
                 slots=True,
                 frozen=True,
@@ -555,12 +556,13 @@ class TestAttributes:
                 on_setattr=None,
                 field_transformer=None,
             )
-            == C.__attrs_params__
+            == C.__attrs_props__
         )
 
-    def test_sets_attrs_params_defaults(self):
+    def test_sets_attrs_props_defaults(self):
         """
-        Sets default values in `__attrs_params__` when not specified.
+        Default values are derived in `__attrs_props__` when not specified in
+        the decorator.
         """
 
         @attr.s
@@ -568,7 +570,7 @@ class TestAttributes:
             x = attr.ib()
 
         assert (
-            _AttrsParams(
+            ClassProps(
                 exception=False,
                 slots=False,
                 frozen=False,
@@ -592,7 +594,7 @@ class TestAttributes:
                 on_setattr=None,
                 field_transformer=None,
             )
-            == CDef.__attrs_params__
+            == CDef.__attrs_props__
         )
 
     def test_empty(self):
@@ -2017,7 +2019,7 @@ class TestClassBuilder:
         b = _ClassBuilder(
             C,
             None,
-            _AttrsParams(
+            ClassProps(
                 exception=False,
                 slots=True,
                 frozen=True,
@@ -2056,7 +2058,7 @@ class TestClassBuilder:
         b = _ClassBuilder(
             C,
             None,
-            _AttrsParams(
+            ClassProps(
                 exception=False,
                 slots=True,
                 frozen=True,
@@ -2161,7 +2163,7 @@ class TestClassBuilder:
         b = _ClassBuilder(
             C,
             these=None,
-            attrs_params=_AttrsParams(
+            attrs_params=ClassProps(
                 exception=False,
                 slots=False,
                 frozen=False,
