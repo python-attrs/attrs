@@ -117,24 +117,23 @@ class ClassProps(NamedTuple):
     """
     Effective class properties as derived from parameters to attr.s() or
     define() decorators.
+
+    .. versionadded:: 25.4.0
     """
 
-    exception: bool
-    slots: bool
-    frozen: bool
+    is_exception: bool
+    is_slotted: bool
+    is_frozen: bool
+    is_kw_only: bool
+    force_kw_only: bool
     init: bool
     repr: bool
     eq: bool
     order: bool
     hash: _Hashability
     match_args: bool
-    kw_only: bool
-    force_kw_only: bool
-    weakref_slot: bool
-    auto_attribs: bool
+    has_weakref_slot: bool
     collect_by_mro: bool
-    auto_detect: bool
-    auto_exc: bool
     cache_hash: bool
     str: bool
     getstate_setstate: bool
@@ -702,28 +701,29 @@ class _ClassBuilder:
         self,
         cls: type,
         these,
-        attrs_params: ClassProps,
+        auto_attribs: bool,
+        props: ClassProps,
     ):
         attrs, base_attrs, base_map = _transform_attrs(
             cls,
             these,
-            attrs_params.auto_attribs,
-            attrs_params.kw_only,
-            attrs_params.force_kw_only,
-            attrs_params.collect_by_mro,
-            attrs_params.field_transformer,
+            auto_attribs,
+            props.is_kw_only,
+            props.force_kw_only,
+            props.collect_by_mro,
+            props.field_transformer,
         )
 
         self._cls = cls
-        self._cls_dict = dict(cls.__dict__) if attrs_params.slots else {}
+        self._cls_dict = dict(cls.__dict__) if props.is_slotted else {}
         self._attrs = attrs
         self._base_names = {a.name for a in base_attrs}
         self._base_attr_map = base_map
         self._attr_names = tuple(a.name for a in attrs)
-        self._slots = attrs_params.slots
-        self._frozen = attrs_params.frozen
-        self._weakref_slot = attrs_params.weakref_slot
-        self._cache_hash = attrs_params.cache_hash
+        self._slots = props.is_slotted
+        self._frozen = props.is_frozen
+        self._weakref_slot = props.has_weakref_slot
+        self._cache_hash = props.cache_hash
         self._has_pre_init = bool(getattr(cls, "__attrs_pre_init__", False))
         self._pre_init_has_args = False
         if self._has_pre_init:
@@ -734,16 +734,16 @@ class _ClassBuilder:
             self._pre_init_has_args = len(pre_init_signature.parameters) > 1
         self._has_post_init = bool(getattr(cls, "__attrs_post_init__", False))
         self._delete_attribs = not bool(these)
-        self._is_exc = attrs_params.exception
-        self._on_setattr = attrs_params.on_setattr
+        self._is_exc = props.is_exception
+        self._on_setattr = props.on_setattr
 
-        self._has_custom_setattr = attrs_params.has_custom_setattr
+        self._has_custom_setattr = props.has_custom_setattr
         self._wrote_own_setattr = False
 
         self._cls_dict["__attrs_attrs__"] = self._attrs
-        self._cls_dict["__attrs_props__"] = attrs_params
+        self._cls_dict["__attrs_props__"] = props
 
-        if attrs_params.frozen:
+        if props.is_frozen:
             self._cls_dict["__setattr__"] = _frozen_setattrs
             self._cls_dict["__delattr__"] = _frozen_delattrs
 
@@ -775,7 +775,7 @@ class _ClassBuilder:
                 # no on_setattr.
                 self._on_setattr = None
 
-        if attrs_params.getstate_setstate:
+        if props.getstate_setstate:
             (
                 self._cls_dict["__getstate__"],
                 self._cls_dict["__setstate__"],
@@ -1503,10 +1503,11 @@ def attrs(
             msg = "Invalid value for cache_hash.  To use hash caching, hashing must be either explicitly or implicitly enabled."
             raise TypeError(msg)
 
-        attrs_params = ClassProps(
-            exception=is_exc,
-            frozen=is_frozen,
-            slots=slots,
+        props = ClassProps(
+            is_exception=is_exc,
+            is_frozen=is_frozen,
+            is_slotted=slots,
+            collect_by_mro=collect_by_mro,
             init=_determine_whether_to_implement(
                 cls, init, auto_detect, ("__init__",)
             ),
@@ -1523,13 +1524,9 @@ def attrs(
             ),
             hash=hashability,
             match_args=match_args,
-            kw_only=kw_only,
+            is_kw_only=kw_only,
             force_kw_only=force_kw_only,
-            weakref_slot=weakref_slot,
-            auto_attribs=auto_attribs if auto_attribs is not None else False,
-            collect_by_mro=collect_by_mro,
-            auto_detect=auto_detect,
-            auto_exc=is_exc,
+            has_weakref_slot=weakref_slot,
             cache_hash=cache_hash,
             str=str,
             getstate_setstate=_determine_whether_to_implement(
@@ -1544,28 +1541,30 @@ def attrs(
             field_transformer=field_transformer,
         )
 
-        builder = _ClassBuilder(cls, these, attrs_params)
+        builder = _ClassBuilder(
+            cls, these, auto_attribs=auto_attribs, props=props
+        )
 
-        if attrs_params.repr is True:
+        if props.repr is True:
             builder.add_repr(repr_ns)
 
-        if attrs_params.str is True:
+        if props.str is True:
             builder.add_str()
 
-        if attrs_params.eq is True:
+        if props.eq is True:
             builder.add_eq()
-        if attrs_params.order is True:
+        if props.order is True:
             builder.add_order()
 
         if not frozen:
             builder.add_setattr()
 
-        if attrs_params.hash is _Hashability.HASHABLE:
+        if props.hash is _Hashability.HASHABLE:
             builder.add_hash()
-        elif attrs_params.hash is _Hashability.UNHASHABLE:
+        elif props.hash is _Hashability.UNHASHABLE:
             builder.make_unhashable()
 
-        if attrs_params.init:
+        if props.init:
             builder.add_init()
         else:
             builder.add_attrs_init()
