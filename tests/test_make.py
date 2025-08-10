@@ -549,7 +549,6 @@ class TestAttributes:
                 cache_hash=True,
                 str=True,
                 getstate_setstate=True,
-                has_custom_setattr=False,
                 on_setattr=None,
                 field_transformer=None,
             )
@@ -584,7 +583,6 @@ class TestAttributes:
                 cache_hash=False,
                 str=False,
                 getstate_setstate=False,
-                has_custom_setattr=False,
                 on_setattr=None,
                 field_transformer=None,
             )
@@ -2031,10 +2029,10 @@ class TestClassBuilder:
                 cache_hash=False,
                 str=False,
                 getstate_setstate=True,
-                has_custom_setattr=False,
                 on_setattr=None,
                 field_transformer=None,
             ),
+            has_custom_setattr=False,
         )
 
         assert "<_ClassBuilder(cls=C)>" == repr(b)
@@ -2068,10 +2066,10 @@ class TestClassBuilder:
                 cache_hash=False,
                 str=False,
                 getstate_setstate=True,
-                has_custom_setattr=False,
                 on_setattr=None,
                 field_transformer=None,
             ),
+            has_custom_setattr=False,
         )
 
         cls = (
@@ -2171,10 +2169,10 @@ class TestClassBuilder:
                 cache_hash=False,
                 str=False,
                 getstate_setstate=True,
-                has_custom_setattr=False,
                 on_setattr=None,
                 field_transformer=None,
             ),
+            has_custom_setattr=False,
         )
 
         def fake_meth(self):
