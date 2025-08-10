@@ -493,7 +493,6 @@ class TestProps:
                 cache_hash=True,
                 str=True,
                 getstate_setstate=False,  # because slots=False
-                has_custom_setattr=False,
                 on_setattr=None,
                 field_transformer=None,
             )
@@ -527,7 +526,6 @@ class TestProps:
                 cache_hash=False,
                 str=False,
                 getstate_setstate=True,
-                has_custom_setattr=False,
                 on_setattr=None,
                 field_transformer=None,
             )
