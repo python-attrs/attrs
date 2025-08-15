@@ -870,18 +870,22 @@ class _ClassBuilder:
         }
 
         if PY_3_14_PLUS:
-            # Clean up old dict to avoid leaks.
-            old_cls_dict = self._cls.__dict__ | _deproxier
-            old_cls_dict.pop("__dict__", None)
-            if "__weakref__" in self._cls.__dict__:
-                del self._cls.__weakref__
+            # 3.14.0rc2+
+            if hasattr(sys, "_clear_type_descriptors"):
+                sys._clear_type_descriptors(self._cls)
+            else:
+                # Clean up old dict to avoid leaks.
+                old_cls_dict = self._cls.__dict__ | _deproxier
+                old_cls_dict.pop("__dict__", None)
+                if "__weakref__" in self._cls.__dict__:
+                    del self._cls.__weakref__
 
-            # Manually bump internal version tag.
-            try:
-                self._cls.__abstractmethods__ = self._cls.__abstractmethods__
-            except AttributeError:
-                self._cls.__abstractmethods__ = frozenset({"__init__"})
-                del self._cls.__abstractmethods__
+                # Manually bump internal version tag.
+                try:
+                    self._cls.__abstractmethods__ = self._cls.__abstractmethods__
+                except AttributeError:
+                    self._cls.__abstractmethods__ = frozenset({"__init__"})
+                    del self._cls.__abstractmethods__
 
         # If our class doesn't have its own implementation of __setattr__
         # (either from the user or by us), check the bases, if one of them has
