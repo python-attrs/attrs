@@ -882,7 +882,9 @@ class _ClassBuilder:
 
                 # Manually bump internal version tag.
                 try:
-                    self._cls.__abstractmethods__ = self._cls.__abstractmethods__
+                    self._cls.__abstractmethods__ = (
+                        self._cls.__abstractmethods__
+                    )
                 except AttributeError:
                     self._cls.__abstractmethods__ = frozenset({"__init__"})
                     del self._cls.__abstractmethods__
