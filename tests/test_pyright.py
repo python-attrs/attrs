@@ -134,5 +134,7 @@ class SomeClass:
 """
     )
 
-    diagnostics = parse_pyright_output(test_pyright_field_converters_tuple_path)
+    diagnostics = parse_pyright_output(
+        test_pyright_field_converters_tuple_path
+    )
     assert not diagnostics
