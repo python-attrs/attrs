@@ -11,7 +11,7 @@ from .exceptions import AttrsAttributeNotFoundError
 
 _ATOMIC_TYPES = frozenset(
     {
-        types.NoneType,
+        type(None),
         bool,
         int,
         float,
