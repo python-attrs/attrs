@@ -70,8 +70,10 @@ class TestAsDict:
         """
         Test subclasses of atomic types
         """
+
         class Int(int):
             pass
+
         c = C(Int(10), [Int(1), 2])
         expected = {"x": 10, "y": [1, 2]}
         assert expected == asdict(c)
