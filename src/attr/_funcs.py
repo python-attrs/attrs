@@ -8,23 +8,27 @@ from ._compat import get_generic_base
 from ._make import _OBJ_SETATTR, NOTHING, fields
 from .exceptions import AttrsAttributeNotFoundError
 
-_ATOMIC_TYPES = frozenset({
-    types.NoneType,
-    bool,
-    int,
-    float,
-    str,
-    complex,
-    bytes,
-    types.EllipsisType,
-    types.NotImplementedType,
-    types.CodeType,
-    types.BuiltinFunctionType,
-    types.FunctionType,
-    type,
-    range,
-    property,
-})
+
+_ATOMIC_TYPES = frozenset(
+    {
+        types.NoneType,
+        bool,
+        int,
+        float,
+        str,
+        complex,
+        bytes,
+        types.EllipsisType,
+        types.NotImplementedType,
+        types.CodeType,
+        types.BuiltinFunctionType,
+        types.FunctionType,
+        type,
+        range,
+        property,
+    }
+)
+
 
 def asdict(
     inst,
