@@ -2,7 +2,6 @@
 
 
 import copy
-import types
 
 from ._compat import get_generic_base
 from ._make import _OBJ_SETATTR, NOTHING, fields
