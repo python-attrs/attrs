@@ -66,6 +66,16 @@ class C:
     z: dict[str, int] = attrs.Factory(dict)
 
 
+def test_asdict():
+    """
+    Benchmark conversion of attrs class to dict
+    """
+    c = C()
+
+    for _ in range(ROUNDS):
+        attrs.asdict(c)
+
+
 def test_instantiate_no_defaults():
     """
     Benchmark instantiating a class without using any defaults.
