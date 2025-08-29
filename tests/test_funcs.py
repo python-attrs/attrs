@@ -67,13 +67,16 @@ class TestAsDict:
         )
 
     def test_non_atomic_types(self, C):
+        """
+        Test subclasses of atomic types
+        """
         class Int(int):
             pass
-
         c = C(Int(10), [Int(1), 2])
         expected = {"x": 10, "y": [1, 2]}
         assert expected == asdict(c)
         assert type(asdict(c)["x"]) is Int
+        assert type(asdict(c)["y"][0]) is Int
 
     def test_nested_lists(self, C):
         """
