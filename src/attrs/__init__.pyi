@@ -98,7 +98,7 @@ def field(
     metadata: Mapping[Any, Any] | None = ...,
     converter: _ConverterType
     | list[_ConverterType]
-    | tuple[_ConverterType]
+    | tuple[_ConverterType, ...]
     | None = ...,
     factory: Callable[[], _T] | None = ...,
     kw_only: bool | None = ...,
@@ -121,7 +121,7 @@ def field(
     metadata: Mapping[Any, Any] | None = ...,
     converter: _ConverterType
     | list[_ConverterType]
-    | tuple[_ConverterType]
+    | tuple[_ConverterType, ...]
     | None = ...,
     factory: Callable[[], _T] | None = ...,
     kw_only: bool | None = ...,
@@ -144,7 +144,7 @@ def field(
     metadata: Mapping[Any, Any] | None = ...,
     converter: _ConverterType
     | list[_ConverterType]
-    | tuple[_ConverterType]
+    | tuple[_ConverterType, ...]
     | None = ...,
     factory: Callable[[], _T] | None = ...,
     kw_only: bool | None = ...,

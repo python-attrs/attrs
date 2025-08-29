@@ -106,3 +106,36 @@ reveal_type(attrs.AttrsInstance)
         )
     }
     assert diagnostics == expected_diagnostics
+
+
+def test_pyright_field_converters_tuple(tmp_path):
+    """
+    Test that `field(converter=(_, _, ...))` raises no FPs in Pyright.
+    """
+    test_pyright_field_converters_tuple_path = (
+        tmp_path / "test_pyright_field_converters_tuple.py"
+    )
+    test_pyright_field_converters_tuple_path.write_text(
+        """\
+import attrs
+
+
+def square(value: int) -> int:
+    return value * value
+
+def negate(value: int) -> int:
+    return -value
+
+
+@attrs.define
+class SomeClass:
+
+    value: int = attrs.field(converter=(square, negate))
+"""
+    )
+
+    diagnostics = parse_pyright_output(
+        test_pyright_field_converters_tuple_path
+    )
+
+    assert not diagnostics
