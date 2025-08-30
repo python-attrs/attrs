@@ -39,7 +39,7 @@ Tidelift = "https://tidelift.com/subscription/pkg/pypi-attrs?utm_source=pypi-att
 [dependency-groups]
 mypy = [
   { include-group = "tests" },
-  'pytest-mypy-plugins; platform_python_implementation == "CPython" and python_version >= "3.10"'
+  'pytest-mypy-plugins; platform_python_implementation == "CPython" and python_version >= "3.10"',
 ]
 tests = [
   # For regression test to ensure cloudpickle compat doesn't break.
@@ -49,10 +49,7 @@ tests = [
   "pytest",
   "pytest-xdist[psutil]",
 ]
-cov = [
-  { include-group = "tests" },
-  "coverage[toml]",
-]
+cov = [{ include-group = "tests" }, "coverage[toml]"]
 pyright = ["pyright", { include-group = "tests" }]
 benchmark = [
   { include-group = "tests" },
@@ -69,7 +66,7 @@ docs = [
   "towncrier",
 ]
 docs-watch = [{ include-group = "docs" }, "watchfiles"]
-dev = [{ include-group = "tests" }]
+dev = [{ include-group = "tests" }, "ruff"]
 
 
 [tool.hatch.version]
@@ -151,7 +148,12 @@ img = "Polar.svg"
 
 
 [tool.pytest.ini_options]
-addopts = ["-ra", "--strict-markers", "--strict-config"]
+addopts = [
+  "-ra",
+  "--strict-markers",
+  "--strict-config",
+  "--import-mode=importlib", # make src truly unimportable
+]
 xfail_strict = true
 testpaths = "tests"
 filterwarnings = ["once::Warning", "ignore:::pympler[.*]"]
