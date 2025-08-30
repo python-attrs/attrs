@@ -66,7 +66,7 @@ class TestAsDict:
             C(C(1, 2), C(3, 4)), dict_factory=dict_class
         )
 
-    def test_non_atomic_types(self, C):
+    def test_subclasses_of_atomic_types(self, C):
         """
         Test subclasses of atomic types
         """
