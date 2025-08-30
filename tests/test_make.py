@@ -26,6 +26,7 @@ from attr import _config
 from attr._compat import PY_3_10_PLUS
 from attr._make import (
     Attribute,
+    ClassProps,
     Factory,
     _AndValidator,
     _Attributes,
@@ -34,6 +35,7 @@ from attr._make import (
     _determine_attrib_eq_order,
     _determine_attrs_eq_order,
     _determine_whether_to_implement,
+    _Hashability,
     _transform_attrs,
     and_,
     fields,
@@ -505,6 +507,87 @@ class TestAttributes:
 
         assert "x" == C.__attrs_attrs__[0].name
         assert all(isinstance(a, Attribute) for a in C.__attrs_attrs__)
+
+    def test_sets_attrs_props(self):
+        """
+        Sets the `__attrs_props__` class attribute with the effective decorator
+        properties.
+        """
+
+        @attr.s(
+            slots=True,
+            frozen=True,
+            repr=True,
+            eq=True,
+            order=True,
+            unsafe_hash=True,
+            init=True,
+            match_args=False,
+            kw_only=True,
+            auto_attribs=True,
+            cache_hash=True,
+            str=True,
+        )
+        class C:
+            x: int = attr.ib()
+
+        assert (
+            ClassProps(
+                is_exception=False,
+                is_slotted=True,
+                is_frozen=True,
+                init=True,
+                repr=True,
+                eq=True,
+                order=True,
+                hash=_Hashability.HASHABLE,
+                match_args=False,
+                is_kw_only=True,
+                force_kw_only=True,
+                has_weakref_slot=True,
+                collect_by_mro=False,
+                cache_hash=True,
+                str=True,
+                getstate_setstate=True,
+                on_setattr=None,
+                field_transformer=None,
+            )
+            == C.__attrs_props__
+        )
+
+    def test_sets_attrs_props_defaults(self):
+        """
+        Default values are derived in `__attrs_props__` when not specified in
+        the decorator.
+        """
+
+        @attr.s
+        class CDef:
+            x = attr.ib()
+
+        assert (
+            ClassProps(
+                is_exception=False,
+                is_slotted=False,
+                is_frozen=False,
+                init=True,
+                repr=True,
+                eq=True,
+                order=True,
+                hash=_Hashability.UNHASHABLE,
+                match_args=True,
+                is_kw_only=False,
+                force_kw_only=True,
+                has_weakref_slot=True,
+                collect_by_mro=False,
+                cache_hash=False,
+                str=False,
+                getstate_setstate=False,
+                on_setattr=None,
+                field_transformer=None,
+            )
+            == CDef.__attrs_props__
+        )
 
     def test_empty(self):
         """
@@ -1929,18 +2012,27 @@ class TestClassBuilder:
             C,
             None,
             True,
-            True,
-            False,
-            False,
-            False,
-            False,
-            False,
-            False,
-            False,
-            True,
-            None,
-            False,
-            None,
+            ClassProps(
+                is_exception=False,
+                is_slotted=True,
+                is_frozen=True,
+                init=True,
+                repr=True,
+                eq=True,
+                order=False,
+                hash=False,
+                match_args=True,
+                is_kw_only=False,
+                force_kw_only=False,
+                has_weakref_slot=False,
+                collect_by_mro=True,
+                cache_hash=False,
+                str=False,
+                getstate_setstate=True,
+                on_setattr=None,
+                field_transformer=None,
+            ),
+            has_custom_setattr=False,
         )
 
         assert "<_ClassBuilder(cls=C)>" == repr(b)
@@ -1956,19 +2048,28 @@ class TestClassBuilder:
         b = _ClassBuilder(
             C,
             None,
-            True,
-            True,
             False,
-            False,
-            False,
-            False,
-            False,
-            False,
-            False,
-            True,
-            None,
-            False,
-            None,
+            ClassProps(
+                is_exception=False,
+                is_slotted=True,
+                is_frozen=True,
+                init=True,
+                repr=True,
+                eq=True,
+                order=False,
+                hash=False,
+                match_args=True,
+                is_kw_only=False,
+                force_kw_only=False,
+                has_weakref_slot=False,
+                collect_by_mro=True,
+                cache_hash=False,
+                str=False,
+                getstate_setstate=True,
+                on_setattr=None,
+                field_transformer=None,
+            ),
+            has_custom_setattr=False,
         )
 
         cls = (
@@ -2050,19 +2151,28 @@ class TestClassBuilder:
         b = _ClassBuilder(
             C,
             these=None,
-            slots=False,
-            frozen=False,
-            weakref_slot=True,
-            getstate_setstate=False,
             auto_attribs=False,
-            is_exc=False,
-            kw_only=False,
-            force_kw_only=False,
-            cache_hash=False,
-            collect_by_mro=True,
-            on_setattr=None,
+            props=ClassProps(
+                is_exception=False,
+                is_slotted=False,
+                is_frozen=False,
+                init=True,
+                repr=True,
+                eq=True,
+                order=False,
+                hash=False,
+                match_args=True,
+                is_kw_only=False,
+                force_kw_only=False,
+                has_weakref_slot=True,
+                collect_by_mro=True,
+                cache_hash=False,
+                str=False,
+                getstate_setstate=True,
+                on_setattr=None,
+                field_transformer=None,
+            ),
             has_custom_setattr=False,
-            field_transformer=None,
         )
 
         def fake_meth(self):

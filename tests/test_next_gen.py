@@ -15,6 +15,7 @@ import attr as _attr  # don't use it by accident
 import attrs
 
 from attr._compat import PY_3_11_PLUS
+from attr._make import ClassProps, _Hashability
 
 
 @attrs.define
@@ -445,6 +446,90 @@ class TestAsDict:
 
         assert attrs.asdict(inst) == _attr.asdict(
             inst, retain_collection_types=True
+        )
+
+
+class TestProps:
+    """
+    Tests for __attrs_props__ in define-style classes.
+    """
+
+    def test_define_props_custom(self):
+        """
+        define() sets __attrs_props__ with custom parameters.
+        """
+
+        @attrs.define(
+            slots=False,
+            frozen=True,
+            order=True,
+            unsafe_hash=True,
+            init=True,
+            repr=True,
+            eq=True,
+            match_args=False,
+            kw_only=True,
+            cache_hash=True,
+            str=True,
+        )
+        class C:
+            x: int
+
+        assert (
+            ClassProps(
+                is_exception=False,
+                is_slotted=False,
+                is_frozen=True,
+                is_kw_only=True,
+                force_kw_only=False,
+                init=True,
+                repr=True,
+                eq=True,
+                order=True,
+                hash=_Hashability.HASHABLE,
+                match_args=False,
+                has_weakref_slot=True,
+                collect_by_mro=True,
+                cache_hash=True,
+                str=True,
+                getstate_setstate=False,  # because slots=False
+                on_setattr=None,
+                field_transformer=None,
+            )
+            == C.__attrs_props__
+        )
+
+    def test_define_props_defaults(self):
+        """
+        frozen() sets default __attrs_props__ values.
+        """
+
+        @attrs.frozen
+        class C:
+            x: int
+
+        assert (
+            ClassProps(
+                is_exception=False,
+                is_slotted=True,
+                is_frozen=True,
+                init=True,
+                repr=True,
+                eq=True,
+                order=False,
+                hash=_Hashability.HASHABLE,  # b/c frozen
+                match_args=True,
+                is_kw_only=False,
+                force_kw_only=False,
+                has_weakref_slot=True,
+                collect_by_mro=True,
+                cache_hash=False,
+                str=False,
+                getstate_setstate=True,
+                on_setattr=None,
+                field_transformer=None,
+            )
+            == C.__attrs_props__
         )
 
 
