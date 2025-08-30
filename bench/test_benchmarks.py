@@ -119,3 +119,56 @@ def test_hash():
 
     for _ in range(ROUNDS):
         hash(c)
+
+
+def test_asdict_complicated():
+    """
+    Benchmark instances with non-shortcut fields.
+    """
+    c = C()
+    ad = attrs.asdict
+
+    for _ in range(ROUNDS):
+        ad(c)
+
+
+def test_astuple_complicated():
+    """
+    Benchmark instances with non-shortcut fields.
+    """
+    c = C()
+    at = attrs.astuple
+
+    for _ in range(ROUNDS):
+        at(c)
+
+
+@attrs.define
+class AtomicFields:
+    a: int = 0
+    b: Ellipsis = ...
+    c: str = "foo"
+    d: tuple[str] = "bar"
+    e: complex = complex()
+
+
+def test_asdict_atomic():
+    """
+    Benchmark atomic-only instances.
+    """
+    c = AtomicFields()
+    ad = attrs.asdict
+
+    for _ in range(ROUNDS):
+        ad(c)
+
+
+def test_astuple_atomic():
+    """
+    Benchmark atomic-only instances.
+    """
+    c = AtomicFields()
+    at = attrs.astuple
+
+    for _ in range(ROUNDS):
+        at(c)
