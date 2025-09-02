@@ -69,7 +69,7 @@ docs = [
   "towncrier",
 ]
 docs-watch = [{ include-group = "docs" }, "watchfiles"]
-dev = [{ include-group = "tests" }]
+dev = [{ include-group = "tests" }, "ruff"]
 
 
 [tool.hatch.version]
