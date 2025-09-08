@@ -516,6 +516,7 @@ class TestAsTuple:
         assert type(result[0]) is Int
         assert type(result[1][0]) is Int
 
+
 class TestHas:
     """
     Tests for `has`.
