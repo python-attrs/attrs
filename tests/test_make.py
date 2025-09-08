@@ -28,6 +28,8 @@ from attr._make import (
     Attribute,
     ClassProps,
     Factory,
+    Hashability,
+    KeywordOnly,
     _AndValidator,
     _Attributes,
     _ClassBuilder,
@@ -35,7 +37,6 @@ from attr._make import (
     _determine_attrib_eq_order,
     _determine_attrs_eq_order,
     _determine_whether_to_implement,
-    _Hashability,
     _transform_attrs,
     and_,
     fields,
@@ -183,7 +184,7 @@ class TestTransformAttrs:
         Does not attach __attrs_attrs__ to the class.
         """
         C = make_tc()
-        _transform_attrs(C, None, False, False, False, True, None)
+        _transform_attrs(C, None, False, KeywordOnly.NO, True, None)
 
         assert None is getattr(C, "__attrs_attrs__", None)
 
@@ -193,7 +194,7 @@ class TestTransformAttrs:
         """
         C = make_tc()
         attrs, _, _ = _transform_attrs(
-            C, None, False, False, False, True, None
+            C, None, False, KeywordOnly.NO, True, None
         )
 
         assert ["z", "y", "x"] == [a.name for a in attrs]
@@ -208,7 +209,7 @@ class TestTransformAttrs:
             pass
 
         assert _Attributes((), [], {}) == _transform_attrs(
-            C, None, False, False, False, True, None
+            C, None, False, KeywordOnly.NO, True, None
         )
 
     def test_transforms_to_attribute(self):
@@ -217,7 +218,7 @@ class TestTransformAttrs:
         """
         C = make_tc()
         attrs, base_attrs, _ = _transform_attrs(
-            C, None, False, False, False, True, None
+            C, None, False, KeywordOnly.NO, True, None
         )
 
         assert [] == base_attrs
@@ -235,7 +236,7 @@ class TestTransformAttrs:
             y = attr.ib()
 
         with pytest.raises(ValueError) as e:
-            _transform_attrs(C, None, False, False, False, True, None)
+            _transform_attrs(C, None, False, KeywordOnly.NO, True, None)
         assert (
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
@@ -264,7 +265,7 @@ class TestTransformAttrs:
             y = attr.ib()
 
         attrs, base_attrs, _ = _transform_attrs(
-            C, None, False, True, False, True, None
+            C, None, False, KeywordOnly.YES, True, None
         )
 
         assert len(attrs) == 3
@@ -280,8 +281,7 @@ class TestTransformAttrs:
             C,
             None,
             False,
-            True,
-            True,  # force kw-only
+            KeywordOnly.FORCE,
             True,
             None,
         )
@@ -307,7 +307,7 @@ class TestTransformAttrs:
             y = attr.ib()
 
         attrs, base_attrs, _ = _transform_attrs(
-            C, {"x": attr.ib()}, False, False, False, True, None
+            C, {"x": attr.ib()}, False, KeywordOnly.NO, True, None
         )
 
         assert [] == base_attrs
@@ -540,10 +540,9 @@ class TestAttributes:
                 repr=True,
                 eq=True,
                 order=True,
-                hash=_Hashability.HASHABLE,
+                hash=Hashability.HASHABLE,
                 match_args=False,
-                is_kw_only=True,
-                force_kw_only=True,
+                kw_only=KeywordOnly.FORCE,
                 has_weakref_slot=True,
                 collect_by_mro=False,
                 cache_hash=True,
@@ -574,10 +573,9 @@ class TestAttributes:
                 repr=True,
                 eq=True,
                 order=True,
-                hash=_Hashability.UNHASHABLE,
+                hash=Hashability.UNHASHABLE,
                 match_args=True,
-                is_kw_only=False,
-                force_kw_only=True,
+                kw_only=KeywordOnly.NO,
                 has_weakref_slot=True,
                 collect_by_mro=False,
                 cache_hash=False,
@@ -2022,8 +2020,7 @@ class TestClassBuilder:
                 order=False,
                 hash=False,
                 match_args=True,
-                is_kw_only=False,
-                force_kw_only=False,
+                kw_only=KeywordOnly.NO,
                 has_weakref_slot=False,
                 collect_by_mro=True,
                 cache_hash=False,
@@ -2059,8 +2056,7 @@ class TestClassBuilder:
                 order=False,
                 hash=False,
                 match_args=True,
-                is_kw_only=False,
-                force_kw_only=False,
+                kw_only=KeywordOnly.NO,
                 has_weakref_slot=False,
                 collect_by_mro=True,
                 cache_hash=False,
@@ -2162,8 +2158,7 @@ class TestClassBuilder:
                 order=False,
                 hash=False,
                 match_args=True,
-                is_kw_only=False,
-                force_kw_only=False,
+                kw_only=KeywordOnly.NO,
                 has_weakref_slot=True,
                 collect_by_mro=True,
                 cache_hash=False,

@@ -15,7 +15,7 @@ import attr as _attr  # don't use it by accident
 import attrs
 
 from attr._compat import PY_3_11_PLUS
-from attr._make import ClassProps, _Hashability
+from attr._make import ClassProps, Hashability, KeywordOnly
 
 
 @attrs.define
@@ -480,13 +480,12 @@ class TestProps:
                 is_exception=False,
                 is_slotted=False,
                 is_frozen=True,
-                is_kw_only=True,
-                force_kw_only=False,
+                kw_only=KeywordOnly.YES,
                 init=True,
                 repr=True,
                 eq=True,
                 order=True,
-                hash=_Hashability.HASHABLE,
+                hash=Hashability.HASHABLE,
                 match_args=False,
                 has_weakref_slot=True,
                 collect_by_mro=True,
@@ -517,10 +516,9 @@ class TestProps:
                 repr=True,
                 eq=True,
                 order=False,
-                hash=_Hashability.HASHABLE,  # b/c frozen
+                hash=Hashability.HASHABLE,  # b/c frozen
                 match_args=True,
-                is_kw_only=False,
-                force_kw_only=False,
+                kw_only=KeywordOnly.NO,
                 has_weakref_slot=True,
                 collect_by_mro=True,
                 cache_hash=False,

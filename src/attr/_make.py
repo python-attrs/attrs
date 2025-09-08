@@ -103,7 +103,7 @@ class _CacheHashWrapper(int):
         return _none_constructor, _args
 
 
-class _Hashability(enum.Enum):
+class Hashability(enum.Enum):
     """
     The hashability of a class.
     """
@@ -111,6 +111,16 @@ class _Hashability(enum.Enum):
     HASHABLE = "hashable"  # write a __hash__
     UNHASHABLE = "unhashable"  # set __hash__ to None
     LEAVE_ALONE = "leave_alone"  # don't touch __hash__
+
+
+class KeywordOnly(enum.Enum):
+    """
+    How attributes should be treated regarding keyword-only parameters.
+    """
+
+    NO = "no"  # attributes are not keyword-only
+    YES = "yes"  # attributes in current class without kw_only=False are keyword-only
+    FORCE = "force"  # all attributes are keyword-only
 
 
 class ClassProps(NamedTuple):
@@ -125,14 +135,13 @@ class ClassProps(NamedTuple):
     is_slotted: bool
     has_weakref_slot: bool
     is_frozen: bool
-    is_kw_only: bool
-    force_kw_only: bool
+    kw_only: KeywordOnly
     collect_by_mro: bool
     init: bool
     repr: bool
     eq: bool
     order: bool
-    hash: _Hashability
+    hash: Hashability
     cache_hash: bool
     match_args: bool
     str: bool
@@ -419,7 +428,6 @@ def _transform_attrs(
     these,
     auto_attribs,
     kw_only,
-    force_kw_only,
     collect_by_mro,
     field_transformer,
 ) -> _Attributes:
@@ -477,7 +485,7 @@ def _transform_attrs(
 
     fca = Attribute.from_counting_attr
     own_attrs = [
-        fca(attr_name, ca, kw_only, anns.get(attr_name))
+        fca(attr_name, ca, kw_only is not KeywordOnly.NO, anns.get(attr_name))
         for attr_name, ca in ca_list
     ]
 
@@ -490,7 +498,7 @@ def _transform_attrs(
             cls, {a.name for a in own_attrs}
         )
 
-    if kw_only and force_kw_only:
+    if kw_only is KeywordOnly.FORCE:
         own_attrs = [a.evolve(kw_only=True) for a in own_attrs]
         base_attrs = [a.evolve(kw_only=True) for a in base_attrs]
 
@@ -708,8 +716,7 @@ class _ClassBuilder:
             cls,
             these,
             auto_attribs,
-            props.is_kw_only,
-            props.force_kw_only,
+            props.kw_only,
             props.collect_by_mro,
             props.field_transformer,
         )
@@ -1481,27 +1488,32 @@ def attrs(
         )
 
         if is_exc:
-            hashability = _Hashability.LEAVE_ALONE
+            hashability = Hashability.LEAVE_ALONE
         elif hash is True:
-            hashability = _Hashability.HASHABLE
+            hashability = Hashability.HASHABLE
         elif hash is False:
-            hashability = _Hashability.LEAVE_ALONE
+            hashability = Hashability.LEAVE_ALONE
         elif hash is None:
             if auto_detect is True and _has_own_attribute(cls, "__hash__"):
-                hashability = _Hashability.LEAVE_ALONE
+                hashability = Hashability.LEAVE_ALONE
             elif eq is True and is_frozen is True:
-                hashability = _Hashability.HASHABLE
+                hashability = Hashability.HASHABLE
             elif eq is False:
-                hashability = _Hashability.LEAVE_ALONE
+                hashability = Hashability.LEAVE_ALONE
             else:
-                hashability = _Hashability.UNHASHABLE
+                hashability = Hashability.UNHASHABLE
         else:
             msg = "Invalid value for hash.  Must be True, False, or None."
             raise TypeError(msg)
 
-        if hashability is not _Hashability.HASHABLE and cache_hash:
+        if hashability is not Hashability.HASHABLE and cache_hash:
             msg = "Invalid value for cache_hash.  To use hash caching, hashing must be either explicitly or implicitly enabled."
             raise TypeError(msg)
+
+        if kw_only:
+            kwo = KeywordOnly.YES if not force_kw_only else KeywordOnly.FORCE
+        else:
+            kwo = KeywordOnly.NO
 
         props = ClassProps(
             is_exception=is_exc,
@@ -1524,8 +1536,7 @@ def attrs(
             ),
             hash=hashability,
             match_args=match_args,
-            is_kw_only=kw_only,
-            force_kw_only=force_kw_only,
+            kw_only=kwo,
             has_weakref_slot=weakref_slot,
             cache_hash=cache_hash,
             str=str,
@@ -1562,9 +1573,9 @@ def attrs(
         if not frozen:
             builder.add_setattr()
 
-        if props.hash is _Hashability.HASHABLE:
+        if props.hash is Hashability.HASHABLE:
             builder.add_hash()
-        elif props.hash is _Hashability.UNHASHABLE:
+        elif props.hash is Hashability.UNHASHABLE:
             builder.make_unhashable()
 
         if props.init:
