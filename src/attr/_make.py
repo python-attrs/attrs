@@ -109,6 +109,7 @@ class Hashability(enum.Enum):
     """
 
     HASHABLE = "hashable"  # write a __hash__
+    HASHABLE_CACHED = "hashable_cache"  # write a __hash__ and cache the hash
     UNHASHABLE = "unhashable"  # set __hash__ to None
     LEAVE_ALONE = "leave_alone"  # don't touch __hash__
 
@@ -142,12 +143,18 @@ class ClassProps(NamedTuple):
     eq: bool
     order: bool
     hash: Hashability
-    cache_hash: bool
     match_args: bool
     str: bool
     getstate_setstate: bool
     on_setattr: Callable[[str, Any], Any]
     field_transformer: Callable[[Attribute], Attribute]
+
+    @property
+    def is_hashable(self):
+        return (
+            self.hash is Hashability.HASHABLE
+            or self.hash is Hashability.HASHABLE_CACHED
+        )
 
 
 def attrib(
@@ -730,7 +737,7 @@ class _ClassBuilder:
         self._slots = props.is_slotted
         self._frozen = props.is_frozen
         self._weakref_slot = props.has_weakref_slot
-        self._cache_hash = props.cache_hash
+        self._cache_hash = props.hash is Hashability.HASHABLE_CACHED
         self._has_pre_init = bool(getattr(cls, "__attrs_pre_init__", False))
         self._pre_init_has_args = False
         if self._has_pre_init:
@@ -1490,14 +1497,22 @@ def attrs(
         if is_exc:
             hashability = Hashability.LEAVE_ALONE
         elif hash is True:
-            hashability = Hashability.HASHABLE
+            hashability = (
+                Hashability.HASHABLE_CACHED
+                if cache_hash
+                else Hashability.HASHABLE
+            )
         elif hash is False:
             hashability = Hashability.LEAVE_ALONE
         elif hash is None:
             if auto_detect is True and _has_own_attribute(cls, "__hash__"):
                 hashability = Hashability.LEAVE_ALONE
             elif eq is True and is_frozen is True:
-                hashability = Hashability.HASHABLE
+                hashability = (
+                    Hashability.HASHABLE_CACHED
+                    if cache_hash
+                    else Hashability.HASHABLE
+                )
             elif eq is False:
                 hashability = Hashability.LEAVE_ALONE
             else:
@@ -1506,12 +1521,8 @@ def attrs(
             msg = "Invalid value for hash.  Must be True, False, or None."
             raise TypeError(msg)
 
-        if hashability is not Hashability.HASHABLE and cache_hash:
-            msg = "Invalid value for cache_hash.  To use hash caching, hashing must be either explicitly or implicitly enabled."
-            raise TypeError(msg)
-
         if kw_only:
-            kwo = KeywordOnly.YES if not force_kw_only else KeywordOnly.FORCE
+            kwo = KeywordOnly.FORCE if force_kw_only else KeywordOnly.YES
         else:
             kwo = KeywordOnly.NO
 
@@ -1538,7 +1549,6 @@ def attrs(
             match_args=match_args,
             kw_only=kwo,
             has_weakref_slot=weakref_slot,
-            cache_hash=cache_hash,
             str=str,
             getstate_setstate=_determine_whether_to_implement(
                 cls,
@@ -1550,6 +1560,10 @@ def attrs(
             on_setattr=on_setattr,
             field_transformer=field_transformer,
         )
+
+        if not props.is_hashable and cache_hash:
+            msg = "Invalid value for cache_hash.  To use hash caching, hashing must be either explicitly or implicitly enabled."
+            raise TypeError(msg)
 
         builder = _ClassBuilder(
             cls,
@@ -1573,7 +1587,7 @@ def attrs(
         if not frozen:
             builder.add_setattr()
 
-        if props.hash is Hashability.HASHABLE:
+        if props.is_hashable:
             builder.add_hash()
         elif props.hash is Hashability.UNHASHABLE:
             builder.make_unhashable()
