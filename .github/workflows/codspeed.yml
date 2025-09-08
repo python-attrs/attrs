@@ -41,5 +41,6 @@ jobs:
       - name: Run CodSpeed benchmarks
         uses: CodSpeedHQ/action@6eeb021fd0f305388292348b775d96d95253adf4 # v4.0.0
         with:
+          mode: instrumentation
           token: ${{ secrets.CODSPEED_TOKEN }}
           run: uvx --with tox-uv tox run -e codspeed
