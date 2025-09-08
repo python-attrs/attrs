@@ -499,6 +499,23 @@ class TestAsTuple:
         with pytest.raises(TypeError, match=re.escape(message)):
             attr.astuple(instance, retain_collection_types=True)
 
+    def test_non_atomic_types(self, C):
+        """
+        Non-atomic types that don't have special treatment for are serialized
+        and the types are retained.
+        """
+
+        class Int(int):
+            pass
+
+        c = C(Int(10), [Int(1), 2])
+        expected = (Int(10), [Int(1), 2])
+
+        result = astuple(c)
+        assert expected == result
+        assert type(result[0]) is Int
+        assert type(result[1][0]) is Int
+
 
 class TestHas:
     """

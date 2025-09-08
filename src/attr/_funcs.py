@@ -278,8 +278,11 @@ def astuple(
         v = getattr(inst, a.name)
         if filter is not None and not filter(a, v):
             continue
+        value_type = type(v)
         if recurse is True:
-            if has(v.__class__):
+            if value_type in _ATOMIC_TYPES:
+                rv.append(v)
+            elif has(value_type):
                 rv.append(
                     astuple(
                         v,
@@ -289,7 +292,7 @@ def astuple(
                         retain_collection_types=retain,
                     )
                 )
-            elif isinstance(v, (tuple, list, set, frozenset)):
+            elif issubclass(value_type, (tuple, list, set, frozenset)):
                 cf = v.__class__ if retain is True else list
                 items = [
                     (
@@ -313,8 +316,8 @@ def astuple(
                     # Workaround for TypeError: cf.__new__() missing 1 required
                     # positional argument (which appears, for a namedturle)
                     rv.append(cf(*items))
-            elif isinstance(v, dict):
-                df = v.__class__ if retain is True else dict
+            elif issubclass(value_type, dict):
+                df = value_type if retain is True else dict
                 rv.append(
                     df(
                         (
