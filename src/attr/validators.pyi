@@ -50,6 +50,7 @@ def instance_of(
 def instance_of(type: tuple[type, ...]) -> _ValidatorType[Any]: ...
 
 _U = TypeVar("_U", bound=UnionType)
+
 @overload
 def instance_of(type: _U) -> _ValidatorType[_U]: ...
 def optional(
@@ -97,46 +98,46 @@ def not_(
 ) -> _ValidatorType[_T]: ...
 @overload
 def or_(
-    __v1: _ValidatorType[_T1], 
+    __v1: _ValidatorType[_T1],
     __v2: _ValidatorType[_T2],
 ) -> _ValidatorType[_T1 | _T2]: ...
 @overload
 def or_(
-    __v1: _ValidatorType[_T1], 
-    __v2: _ValidatorType[_T2], 
+    __v1: _ValidatorType[_T1],
+    __v2: _ValidatorType[_T2],
     __v3: _ValidatorType[_T3],
 ) -> _ValidatorType[_T1 | _T2 | _T3]: ...
 @overload
 def or_(
-    __v1: _ValidatorType[_T1], 
-    __v2: _ValidatorType[_T2], 
-    __v3: _ValidatorType[_T3], 
+    __v1: _ValidatorType[_T1],
+    __v2: _ValidatorType[_T2],
+    __v3: _ValidatorType[_T3],
     __v4: _ValidatorType[_T4],
 ) -> _ValidatorType[_T1 | _T2 | _T3 | _T4]: ...
 @overload
 def or_(
-    __v1: _ValidatorType[_T1], 
-    __v2: _ValidatorType[_T2], 
-    __v3: _ValidatorType[_T3], 
-    __v4: _ValidatorType[_T4], 
+    __v1: _ValidatorType[_T1],
+    __v2: _ValidatorType[_T2],
+    __v3: _ValidatorType[_T3],
+    __v4: _ValidatorType[_T4],
     __v5: _ValidatorType[_T5],
 ) -> _ValidatorType[_T1 | _T2 | _T3 | _T4 | _T5]: ...
 @overload
 def or_(
-    __v1: _ValidatorType[_T1], 
-    __v2: _ValidatorType[_T2], 
-    __v3: _ValidatorType[_T3], 
-    __v4: _ValidatorType[_T4], 
-    __v5: _ValidatorType[_T5], 
+    __v1: _ValidatorType[_T1],
+    __v2: _ValidatorType[_T2],
+    __v3: _ValidatorType[_T3],
+    __v4: _ValidatorType[_T4],
+    __v5: _ValidatorType[_T5],
     __v6: _ValidatorType[_T6],
 ) -> _ValidatorType[_T1 | _T2 | _T3 | _T4 | _T5 | _T6]: ...
 @overload
 def or_(
-    __v1: _ValidatorType[Any], 
-    __v2: _ValidatorType[Any], 
-    __v3: _ValidatorType[Any], 
-    __v4: _ValidatorType[Any], 
-    __v5: _ValidatorType[Any], 
+    __v1: _ValidatorType[Any],
+    __v2: _ValidatorType[Any],
+    __v3: _ValidatorType[Any],
+    __v4: _ValidatorType[Any],
+    __v5: _ValidatorType[Any],
     __v6: _ValidatorType[Any],
     *validators: _ValidatorType[Any],
 ) -> _ValidatorType[Any]: ...
