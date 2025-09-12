@@ -27,6 +27,7 @@ _I = TypeVar("_I", bound=Iterable)
 _K = TypeVar("_K")
 _V = TypeVar("_V")
 _M = TypeVar("_M", bound=Mapping)
+_U = TypeVar("_U", bound=UnionType)
 
 def set_disabled(run: bool) -> None: ...
 def get_disabled() -> bool: ...
@@ -48,9 +49,6 @@ def instance_of(
 ) -> _ValidatorType[_T1 | _T2 | _T3]: ...
 @overload
 def instance_of(type: tuple[type, ...]) -> _ValidatorType[Any]: ...
-
-_U = TypeVar("_U", bound=UnionType)
-
 @overload
 def instance_of(type: _U) -> _ValidatorType[_U]: ...
 def optional(
