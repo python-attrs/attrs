@@ -477,8 +477,8 @@
     reveal_type(a.x)  # N: Revealed type is "builtins\.list\[builtins\.int\]"
     reveal_type(a.y)  # N: Revealed type is "builtins\.int"
 
-    A(['str'], 7)  # E: Cannot infer type argument 1 of "A"  \[misc\]
-    A([1], '2')  # E: Cannot infer type argument 1 of "A"  \[misc\]
+    A(['str'], 7)  # E: Cannot infer value of type parameter "T" of "A"  \[misc\]
+    A([1], '2')  # E: Cannot infer value of type parameter "T" of "A"  \[misc\]
 
 - case: testAttrsUntypedGenericInheritance
   main: |
