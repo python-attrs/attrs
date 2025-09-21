@@ -2363,7 +2363,7 @@ class TestDetermineAttrsEqOrder:
         eq=False, order=True raises a meaningful ValueError.
         """
         with pytest.raises(
-            ValueError, match="`order` can only be True if `eq` is True too."
+            ValueError, match="`order` can only be True if `eq` is True too"
         ):
             _determine_attrs_eq_order(None, False, True, True)
 
@@ -2375,7 +2375,7 @@ class TestDetermineAttrsEqOrder:
         assume(eq is not None or order is not None)
 
         with pytest.raises(
-            ValueError, match="Don't mix `cmp` with `eq' and `order`."
+            ValueError, match="Don't mix `cmp` with `eq' and `order`"
         ):
             _determine_attrs_eq_order(cmp, eq, order, True)
 
@@ -2430,7 +2430,7 @@ class TestDetermineAttribEqOrder:
         eq=False, order=True raises a meaningful ValueError.
         """
         with pytest.raises(
-            ValueError, match="`order` can only be True if `eq` is True too."
+            ValueError, match="`order` can only be True if `eq` is True too"
         ):
             _determine_attrib_eq_order(None, False, True, True)
 
@@ -2442,7 +2442,7 @@ class TestDetermineAttribEqOrder:
         assume(eq is not None or order is not None)
 
         with pytest.raises(
-            ValueError, match="Don't mix `cmp` with `eq' and `order`."
+            ValueError, match="Don't mix `cmp` with `eq' and `order`"
         ):
             _determine_attrib_eq_order(cmp, eq, order, True)
 
