@@ -21,6 +21,7 @@ from hypothesis import assume, given
 from hypothesis.strategies import booleans, integers, lists, sampled_from, text
 
 import attr
+import attrs
 
 from attr import _config
 from attr._compat import PY_3_10_PLUS
@@ -531,27 +532,24 @@ class TestAttributes:
         class C:
             x: int = attr.ib()
 
-        assert (
-            ClassProps(
-                is_exception=False,
-                is_slotted=True,
-                is_frozen=True,
-                init=True,
-                repr=True,
-                eq=True,
-                order=True,
-                hash=Hashability.HASHABLE_CACHED,
-                match_args=False,
-                kw_only=KeywordOnly.FORCE,
-                has_weakref_slot=True,
-                collect_by_mro=False,
-                str=True,
-                getstate_setstate=True,
-                on_setattr=None,
-                field_transformer=None,
-            )
-            == C.__attrs_props__
-        )
+        assert ClassProps(
+            is_exception=False,
+            is_slotted=True,
+            is_frozen=True,
+            init=True,
+            repr=True,
+            eq=True,
+            order=True,
+            hash=Hashability.HASHABLE_CACHED,
+            match_args=False,
+            kw_only=KeywordOnly.FORCE,
+            has_weakref_slot=True,
+            collect_by_mro=False,
+            str=True,
+            getstate_setstate=True,
+            on_setattr=None,
+            field_transformer=None,
+        ) == attrs.inspect(C)
 
     def test_sets_attrs_props_defaults(self):
         """
@@ -563,27 +561,24 @@ class TestAttributes:
         class CDef:
             x = attr.ib()
 
-        assert (
-            ClassProps(
-                is_exception=False,
-                is_slotted=False,
-                is_frozen=False,
-                init=True,
-                repr=True,
-                eq=True,
-                order=True,
-                hash=Hashability.UNHASHABLE,
-                match_args=True,
-                kw_only=KeywordOnly.NO,
-                has_weakref_slot=True,
-                collect_by_mro=False,
-                str=False,
-                getstate_setstate=False,
-                on_setattr=None,
-                field_transformer=None,
-            )
-            == CDef.__attrs_props__
-        )
+        assert ClassProps(
+            is_exception=False,
+            is_slotted=False,
+            is_frozen=False,
+            init=True,
+            repr=True,
+            eq=True,
+            order=True,
+            hash=Hashability.UNHASHABLE,
+            match_args=True,
+            kw_only=KeywordOnly.NO,
+            has_weakref_slot=True,
+            collect_by_mro=False,
+            str=False,
+            getstate_setstate=False,
+            on_setattr=None,
+            field_transformer=None,
+        ) == attrs.inspect(CDef)
 
     def test_empty(self):
         """
