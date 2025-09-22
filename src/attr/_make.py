@@ -18,6 +18,8 @@ from collections.abc import Callable, Mapping
 from functools import cached_property
 from typing import Any, NamedTuple, TypeVar
 
+from attr._props import ClassProps, Hashability, KeywordOnly
+
 # We need to import _compat itself in addition to the _compat members to avoid
 # having the thread-local in the globals here.
 from . import _compat, _config, setters
@@ -101,60 +103,6 @@ class _CacheHashWrapper(int):
 
     def __reduce__(self, _none_constructor=type(None), _args=()):  # noqa: B008
         return _none_constructor, _args
-
-
-class Hashability(enum.Enum):
-    """
-    The hashability of a class.
-    """
-
-    HASHABLE = "hashable"  # write a __hash__
-    HASHABLE_CACHED = "hashable_cache"  # write a __hash__ and cache the hash
-    UNHASHABLE = "unhashable"  # set __hash__ to None
-    LEAVE_ALONE = "leave_alone"  # don't touch __hash__
-
-
-class KeywordOnly(enum.Enum):
-    """
-    How attributes should be treated regarding keyword-only parameters.
-    """
-
-    NO = "no"  # attributes are not keyword-only
-    YES = "yes"  # attributes in current class without kw_only=False are keyword-only
-    FORCE = "force"  # all attributes are keyword-only
-
-
-class ClassProps(NamedTuple):
-    """
-    Effective class properties as derived from parameters to attr.s() or
-    define() decorators.
-
-    .. versionadded:: 25.4.0
-    """
-
-    is_exception: bool
-    is_slotted: bool
-    has_weakref_slot: bool
-    is_frozen: bool
-    kw_only: KeywordOnly
-    collect_by_mro: bool
-    init: bool
-    repr: bool
-    eq: bool
-    order: bool
-    hash: Hashability
-    match_args: bool
-    str: bool
-    getstate_setstate: bool
-    on_setattr: Callable[[str, Any], Any]
-    field_transformer: Callable[[Attribute], Attribute]
-
-    @property
-    def is_hashable(self):
-        return (
-            self.hash is Hashability.HASHABLE
-            or self.hash is Hashability.HASHABLE_CACHED
-        )
 
 
 def attrib(
