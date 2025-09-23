@@ -25,23 +25,32 @@ class ClassProps(NamedTuple):
     class Hashability(enum.Enum):
         """
         The hashability of a class.
+
+        .. versionadded:: 25.4.0
         """
 
-        HASHABLE = "hashable"  # write a __hash__
-        HASHABLE_CACHED = (
-            "hashable_cache"  # write a __hash__ and cache the hash
-        )
-        UNHASHABLE = "unhashable"  # set __hash__ to None
-        LEAVE_ALONE = "leave_alone"  # don't touch __hash__
+        HASHABLE = "hashable"
+        """Write a ``__hash__``."""
+        HASHABLE_CACHED = "hashable_cache"
+        """Write a ``__hash__`` and cache the hash."""
+        UNHASHABLE = "unhashable"
+        """Set ``__hash__`` to ``None``."""
+        LEAVE_ALONE = "leave_alone"
+        """Don't touch ``__hash__``."""
 
     class KeywordOnly(enum.Enum):
         """
         How attributes should be treated regarding keyword-only parameters.
+
+        .. versionadded:: 25.4.0
         """
 
-        NO = "no"  # attributes are not keyword-only
-        YES = "yes"  # attributes in current class without kw_only=False are keyword-only
-        FORCE = "force"  # all attributes are keyword-only
+        NO = "no"
+        """Attributes are not keyword-only."""
+        YES = "yes"
+        """Attributes in current class without kw_only=False are keyword-only."""
+        FORCE = "force"
+        """All attributes are keyword-only."""
 
     is_exception: bool
     is_slotted: bool
