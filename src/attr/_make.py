@@ -18,7 +18,7 @@ from collections.abc import Callable, Mapping
 from functools import cached_property
 from typing import Any, NamedTuple, TypeVar
 
-from attr._props import ClassProps, Hashability, KeywordOnly
+from attr._props import ClassProps
 
 # We need to import _compat itself in addition to the _compat members to avoid
 # having the thread-local in the globals here.
@@ -440,7 +440,12 @@ def _transform_attrs(
 
     fca = Attribute.from_counting_attr
     own_attrs = [
-        fca(attr_name, ca, kw_only is not KeywordOnly.NO, anns.get(attr_name))
+        fca(
+            attr_name,
+            ca,
+            kw_only is not ClassProps.KeywordOnly.NO,
+            anns.get(attr_name),
+        )
         for attr_name, ca in ca_list
     ]
 
@@ -453,7 +458,7 @@ def _transform_attrs(
             cls, {a.name for a in own_attrs}
         )
 
-    if kw_only is KeywordOnly.FORCE:
+    if kw_only is ClassProps.KeywordOnly.FORCE:
         own_attrs = [a.evolve(kw_only=True) for a in own_attrs]
         base_attrs = [a.evolve(kw_only=True) for a in base_attrs]
 
@@ -685,7 +690,7 @@ class _ClassBuilder:
         self._slots = props.is_slotted
         self._frozen = props.is_frozen
         self._weakref_slot = props.has_weakref_slot
-        self._cache_hash = props.hash is Hashability.HASHABLE_CACHED
+        self._cache_hash = props.hash is ClassProps.Hashability.HASHABLE_CACHED
         self._has_pre_init = bool(getattr(cls, "__attrs_pre_init__", False))
         self._pre_init_has_args = False
         if self._has_pre_init:
@@ -1443,36 +1448,40 @@ def attrs(
         )
 
         if is_exc:
-            hashability = Hashability.LEAVE_ALONE
+            hashability = ClassProps.Hashability.LEAVE_ALONE
         elif hash is True:
             hashability = (
-                Hashability.HASHABLE_CACHED
+                ClassProps.Hashability.HASHABLE_CACHED
                 if cache_hash
-                else Hashability.HASHABLE
+                else ClassProps.Hashability.HASHABLE
             )
         elif hash is False:
-            hashability = Hashability.LEAVE_ALONE
+            hashability = ClassProps.Hashability.LEAVE_ALONE
         elif hash is None:
             if auto_detect is True and _has_own_attribute(cls, "__hash__"):
-                hashability = Hashability.LEAVE_ALONE
+                hashability = ClassProps.Hashability.LEAVE_ALONE
             elif eq is True and is_frozen is True:
                 hashability = (
-                    Hashability.HASHABLE_CACHED
+                    ClassProps.Hashability.HASHABLE_CACHED
                     if cache_hash
-                    else Hashability.HASHABLE
+                    else ClassProps.Hashability.HASHABLE
                 )
             elif eq is False:
-                hashability = Hashability.LEAVE_ALONE
+                hashability = ClassProps.Hashability.LEAVE_ALONE
             else:
-                hashability = Hashability.UNHASHABLE
+                hashability = ClassProps.Hashability.UNHASHABLE
         else:
             msg = "Invalid value for hash.  Must be True, False, or None."
             raise TypeError(msg)
 
         if kw_only:
-            kwo = KeywordOnly.FORCE if force_kw_only else KeywordOnly.YES
+            kwo = (
+                ClassProps.KeywordOnly.FORCE
+                if force_kw_only
+                else ClassProps.KeywordOnly.YES
+            )
         else:
-            kwo = KeywordOnly.NO
+            kwo = ClassProps.KeywordOnly.NO
 
         props = ClassProps(
             is_exception=is_exc,
@@ -1537,7 +1546,7 @@ def attrs(
 
         if props.is_hashable:
             builder.add_hash()
-        elif props.hash is Hashability.UNHASHABLE:
+        elif props.hash is ClassProps.Hashability.UNHASHABLE:
             builder.make_unhashable()
 
         if props.init:

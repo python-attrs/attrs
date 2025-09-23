@@ -14,27 +14,6 @@ if TYPE_CHECKING:
     from ._make import Attribute
 
 
-class Hashability(enum.Enum):
-    """
-    The hashability of a class.
-    """
-
-    HASHABLE = "hashable"  # write a __hash__
-    HASHABLE_CACHED = "hashable_cache"  # write a __hash__ and cache the hash
-    UNHASHABLE = "unhashable"  # set __hash__ to None
-    LEAVE_ALONE = "leave_alone"  # don't touch __hash__
-
-
-class KeywordOnly(enum.Enum):
-    """
-    How attributes should be treated regarding keyword-only parameters.
-    """
-
-    NO = "no"  # attributes are not keyword-only
-    YES = "yes"  # attributes in current class without kw_only=False are keyword-only
-    FORCE = "force"  # all attributes are keyword-only
-
-
 class ClassProps(NamedTuple):
     """
     Effective class properties as derived from parameters to attr.s() or
@@ -43,17 +22,38 @@ class ClassProps(NamedTuple):
     .. versionadded:: 25.4.0
     """
 
+    class Hashability(enum.Enum):
+        """
+        The hashability of a class.
+        """
+
+        HASHABLE = "hashable"  # write a __hash__
+        HASHABLE_CACHED = (
+            "hashable_cache"  # write a __hash__ and cache the hash
+        )
+        UNHASHABLE = "unhashable"  # set __hash__ to None
+        LEAVE_ALONE = "leave_alone"  # don't touch __hash__
+
+    class KeywordOnly(enum.Enum):
+        """
+        How attributes should be treated regarding keyword-only parameters.
+        """
+
+        NO = "no"  # attributes are not keyword-only
+        YES = "yes"  # attributes in current class without kw_only=False are keyword-only
+        FORCE = "force"  # all attributes are keyword-only
+
     is_exception: bool
     is_slotted: bool
     has_weakref_slot: bool
     is_frozen: bool
-    kw_only: KeywordOnly
+    kw_only: ClassProps.KeywordOnly
     collect_by_mro: bool
     init: bool
     repr: bool
     eq: bool
     order: bool
-    hash: Hashability
+    hash: ClassProps.Hashability
     match_args: bool
     str: bool
     getstate_setstate: bool
@@ -63,8 +63,8 @@ class ClassProps(NamedTuple):
     @property
     def is_hashable(self):
         return (
-            self.hash is Hashability.HASHABLE
-            or self.hash is Hashability.HASHABLE_CACHED
+            self.hash is ClassProps.Hashability.HASHABLE
+            or self.hash is ClassProps.Hashability.HASHABLE_CACHED
         )
 
 
