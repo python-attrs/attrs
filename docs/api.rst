@@ -203,6 +203,10 @@ Helpers
       ClassProps(is_exception=False, is_slotted=True, has_weakref_slot=True, is_frozen=False, kw_only=ClassProps.KeywordOnly.NO, collect_by_mro=False, init=True, repr=True, eq=True, order=True, hash=ClassProps.Hashability.UNHASHABLE, match_args=True, str=False, getstate_setstate=False, on_setattr=None, field_transformer=None)
 
 .. autoclass:: attrs.ClassProps
+.. autoclass:: attrs.ClassProps.Hashability
+   :members: HASHABLE, HASHABLE_CACHED, UNHASHABLE, LEAVE_ALONE
+.. autoclass:: attrs.ClassProps.KeywordOnly
+   :members: NO, YES, FORCE
 
 .. autofunction:: attrs.resolve_types
 
