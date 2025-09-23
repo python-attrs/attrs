@@ -200,7 +200,7 @@ Helpers
       ... class C:
       ...     pass
       >>> attrs.inspect(C)
-      ClassProps(is_exception=False, is_slotted=True, has_weakref_slot=True, is_frozen=False, kw_only=KeywordOnly.NO, collect_by_mro=False, init=True, repr=True, eq=True, order=True, hash=Hashability.UNHASHABLE, match_args=True, str=False, getstate_setstate=False, on_setattr=None, field_transformer=None)
+      ClassProps(is_exception=False, is_slotted=True, has_weakref_slot=True, is_frozen=False, kw_only=ClassProps.KeywordOnly.NO, collect_by_mro=False, init=True, repr=True, eq=True, order=True, hash=ClassProps.Hashability.UNHASHABLE, match_args=True, str=False, getstate_setstate=False, on_setattr=None, field_transformer=None)
 
 .. autoclass:: attrs.ClassProps
 
