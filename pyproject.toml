@@ -127,11 +127,6 @@ url = "https://tidelift.com/?utm_source=lifter&utm_medium=referral&utm_campaign=
 img = "Tidelift.svg"
 
 [[tool.sponcon.sponsors]]
-title = "Klaviyo"
-url = "https://klaviyo.com/"
-img = "Klaviyo.svg"
-
-[[tool.sponcon.sponsors]]
 title = "Privacy Solutions"
 url = "https://privacy-solutions.org/"
 img = "Privacy-Solutions.svg"
