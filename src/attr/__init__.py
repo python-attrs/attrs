@@ -26,6 +26,7 @@ from ._make import (
     validate,
 )
 from ._next_gen import define, field, frozen, mutable
+from ._props import ClassProps, inspect
 from ._version_info import VersionInfo
 
 
@@ -44,6 +45,7 @@ __all__ = [
     "NOTHING",
     "Attribute",
     "AttrsInstance",
+    "ClassProps",
     "Converter",
     "Factory",
     "NothingType",
@@ -67,6 +69,7 @@ __all__ = [
     "get_run_validators",
     "has",
     "ib",
+    "inspect",
     "make_class",
     "mutable",
     "resolve_types",
