@@ -5,7 +5,7 @@ import copy
 
 from ._compat import get_generic_base
 from ._make import _OBJ_SETATTR, NOTHING, fields
-from .exceptions import AttrsAttributeNotFoundError, NotAnAttrsClassError
+from .exceptions import AttrsAttributeNotFoundError
 
 
 _ATOMIC_TYPES = frozenset(
@@ -377,32 +377,6 @@ def has(cls):
             cls.__attrs_attrs__ = generic_attrs
         return generic_attrs is not None
     return False
-
-
-def inspect(cls):
-    """
-    Inspect the class and return its effective build parameters.
-
-    Warning:
-        This feature is currently **experimental** and is not covered by our
-        strict backwards-compatibility guarantees.
-
-    Args:
-        cls: The *attrs*-decorated class to inspect.
-
-    Returns:
-        The effective build parameters of the class.
-
-    Raises:
-        NotAnAttrsClassError: If the class is not an *attrs*-decorated class.
-
-    .. versionadded:: 25.4.0
-    """
-    try:
-        return cls.__dict__["__attrs_props__"]
-    except KeyError:
-        msg = f"{cls!r} is not an attrs-decorated class."
-        raise NotAnAttrsClassError(msg) from None
 
 
 def assoc(inst, **changes):

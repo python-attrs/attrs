@@ -22,9 +22,8 @@ from attr import (
     resolve_types,
     validate,
 )
-from attr._funcs import inspect
 from attr._make import ClassProps
-from attr._next_gen import asdict, astuple
+from attr._next_gen import asdict, astuple, inspect
 
 from . import converters, exceptions, filters, setters, validators
 
