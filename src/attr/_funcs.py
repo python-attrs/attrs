@@ -385,7 +385,8 @@ def inspect(cls):
 
     Warning:
 
-        This feature is currently **experimental** and is not covered by our strict backwards-compatibility guarantees.
+        This feature is currently **experimental** and is not covered by our
+        strict backwards-compatibility guarantees.
 
     Args:
         cls: The class to inspect.

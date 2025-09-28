@@ -2802,6 +2802,12 @@ class ClassProps:
     Effective class properties as derived from parameters to `attr.s()` or
     `define()` decorators.
 
+    Warning:
+
+        This feature is currently **experimental** and is not covered by our
+        strict backwards-compatibility guarantees.
+
+
     Attributes:
         is_exception (bool):
             Whether the class is treated as an exception class.
