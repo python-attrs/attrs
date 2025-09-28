@@ -2829,8 +2829,8 @@ class ClassProps:
             ``__init__`` method.
 
         collected_fields_by_mro (bool):
-            Whether the class fields are collected by the method resolution
-            order (that is, correctly but unlike `dataclasses`).
+            Whether the class fields were collected by method resolution order.
+            That is, correctly but unlike `dataclasses`.
 
         added_init (bool):
             Whether the class has an *attrs*-generated ``__init__`` method.
@@ -2839,10 +2839,10 @@ class ClassProps:
             Whether the class has an *attrs*-generated ``__repr__`` method.
 
         added_eq (bool):
-            Whether the class has an *attrs*-generated equality methods.
+            Whether the class has *attrs*-generated equality methods.
 
         added_ordering (bool):
-            Whether the class has an *attrs*-generated ordering methods.
+            Whether the class has *attrs*-generated ordering methods.
 
         hashability (Hashability): How `hashable <hashing>` the class is.
 
