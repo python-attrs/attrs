@@ -1447,41 +1447,40 @@ def attrs(
             cls, eq_, auto_detect, ("__eq__", "__ne__")
         )
 
+        Hashability = ClassProps.Hashability
+
         if is_exc:
-            hashability = ClassProps.Hashability.LEAVE_ALONE
+            hashability = Hashability.LEAVE_ALONE
         elif hash is True:
             hashability = (
-                ClassProps.Hashability.HASHABLE_CACHED
+                Hashability.HASHABLE_CACHED
                 if cache_hash
-                else ClassProps.Hashability.HASHABLE
+                else Hashability.HASHABLE
             )
         elif hash is False:
-            hashability = ClassProps.Hashability.LEAVE_ALONE
+            hashability = Hashability.LEAVE_ALONE
         elif hash is None:
             if auto_detect is True and _has_own_attribute(cls, "__hash__"):
-                hashability = ClassProps.Hashability.LEAVE_ALONE
+                hashability = Hashability.LEAVE_ALONE
             elif eq is True and is_frozen is True:
                 hashability = (
-                    ClassProps.Hashability.HASHABLE_CACHED
+                    Hashability.HASHABLE_CACHED
                     if cache_hash
-                    else ClassProps.Hashability.HASHABLE
+                    else Hashability.HASHABLE
                 )
             elif eq is False:
-                hashability = ClassProps.Hashability.LEAVE_ALONE
+                hashability = Hashability.LEAVE_ALONE
             else:
-                hashability = ClassProps.Hashability.UNHASHABLE
+                hashability = Hashability.UNHASHABLE
         else:
             msg = "Invalid value for hash.  Must be True, False, or None."
             raise TypeError(msg)
 
+        KeywordOnly = ClassProps.KeywordOnly
         if kw_only:
-            kwo = (
-                ClassProps.KeywordOnly.FORCE
-                if force_kw_only
-                else ClassProps.KeywordOnly.YES
-            )
+            kwo = KeywordOnly.FORCE if force_kw_only else KeywordOnly.YES
         else:
-            kwo = ClassProps.KeywordOnly.NO
+            kwo = KeywordOnly.NO
 
         props = ClassProps(
             is_exception=is_exc,
@@ -1546,7 +1545,7 @@ def attrs(
 
         if props.is_hashable:
             builder.add_hash()
-        elif props.hashability is ClassProps.Hashability.UNHASHABLE:
+        elif props.hashability is Hashability.UNHASHABLE:
             builder.make_unhashable()
 
         if props.has_init:
