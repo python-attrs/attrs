@@ -95,11 +95,11 @@ class Validated:
 
 @attrs.define
 class ValidatedInconsistentOr:
-    num: int = attrs.field(
+    num: int | str = attrs.field(
         validator=attrs.validators.or_(
             # Various types of validators.
             attrs.validators.ge(0),
-            attrs.validators.instance_of(object),
+            attrs.validators.instance_of(str),
         )
     )
 
