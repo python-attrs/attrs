@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: MIT
+# pyright: strict
 
 """
 Baseline features that should be supported by all type checkers.
@@ -143,8 +144,8 @@ class OrderFlags:
 
 # field_transformer
 def ft_hook2(
-    cls: type, attribs: list[attrs.Attribute]
-) -> list[attrs.Attribute]:
+    cls: type, attribs: list[attrs.Attribute[Any]]
+) -> list[attrs.Attribute[Any]]:
     return attribs
 
 
@@ -155,9 +156,12 @@ class TransformedAttrs2:
 
 @attrs.define
 class FactoryTest:
-    a: list[int] = attrs.field(default=attrs.Factory(list))
-    b: list[Any] = attrs.field(default=attrs.Factory(list, False))
+    a: list[int] = attrs.field(factory=list)  # pyright:ignore[reportUnknownVariableType]
+    b: list[str] = attrs.field(  # pyright:ignore[reportUnknownVariableType]
+        default=attrs.Factory(list, takes_self=False)  # pyright:ignore[reportUnknownArgumentType]
+    )
     c: list[int] = attrs.field(default=attrs.Factory((lambda s: s.a), True))
+    d: list[int] = attrs.Factory(list)  # pyright:ignore[reportUnknownVariableType]
 
 
 attrs.asdict(FactoryTest())

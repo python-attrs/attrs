@@ -302,3 +302,7 @@ showcontent = true
 pretty = true
 disallow_untyped_defs = true
 check_untyped_defs = true
+
+
+[tool.pyright]
+include = ["typing-examples/baseline_examples.py"]
