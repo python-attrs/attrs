@@ -268,8 +268,8 @@ class ClassProps:
     and causes tons of errors.
     """
 
-    # class Hashability(enum.Enum): ...
-    # class KeywordOnly(enum.Enum): ...
+    Hashability: Any
+    KeywordOnly: Any
 
     is_exception: bool
     is_slotted: bool
