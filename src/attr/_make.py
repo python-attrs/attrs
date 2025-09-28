@@ -437,11 +437,12 @@ def _transform_attrs(
         )
 
     fca = Attribute.from_counting_attr
+    no = ClassProps.KeywordOnly.NO
     own_attrs = [
         fca(
             attr_name,
             ca,
-            kw_only is not ClassProps.KeywordOnly.NO,
+            kw_only is not no,
             anns.get(attr_name),
         )
         for attr_name, ca in ca_list
