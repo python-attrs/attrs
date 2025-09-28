@@ -384,7 +384,6 @@ def inspect(cls):
     Inspect the class and return its effective build parameters.
 
     Warning:
-
         This feature is currently **experimental** and is not covered by our
         strict backwards-compatibility guarantees.
 
