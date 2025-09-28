@@ -426,9 +426,3 @@ class Hashable:
 def test(cls: type) -> None:
     if attr.has(cls):
         attr.resolve_types(cls)
-
-
-cp: attrs.ClassProps = attrs.inspect(Hashable)
-cp.added_init
-if cp.hashability is attrs.ClassProps.Hashability.UNHASHABLE:
-    cp.is_slotted
