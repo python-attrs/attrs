@@ -675,7 +675,7 @@ class _ClassBuilder:
             these,
             auto_attribs,
             props.kw_only,
-            props.collect_by_mro,
+            props.collected_fields_by_mro,
             props.field_transformer,
         )
 
@@ -742,7 +742,7 @@ class _ClassBuilder:
                 # no on_setattr.
                 self._on_setattr = None
 
-        if props.is_pickleable:
+        if props.added_pickling:
             (
                 self._cls_dict["__getstate__"],
                 self._cls_dict["__setstate__"],
@@ -1486,15 +1486,15 @@ def attrs(
             is_exception=is_exc,
             is_frozen=is_frozen,
             is_slotted=slots,
-            collect_by_mro=collect_by_mro,
-            has_init=_determine_whether_to_implement(
+            collected_fields_by_mro=collect_by_mro,
+            added_init=_determine_whether_to_implement(
                 cls, init, auto_detect, ("__init__",)
             ),
-            has_repr=_determine_whether_to_implement(
+            added_repr=_determine_whether_to_implement(
                 cls, repr, auto_detect, ("__repr__",)
             ),
-            has_eq=eq,
-            is_orderable=not is_exc
+            added_eq=eq,
+            added_ordering=not is_exc
             and _determine_whether_to_implement(
                 cls,
                 order_,
@@ -1502,11 +1502,11 @@ def attrs(
                 ("__lt__", "__le__", "__gt__", "__ge__"),
             ),
             hashability=hashability,
-            can_match=match_args,
+            added_match_args=match_args,
             kw_only=kwo,
             has_weakref_slot=weakref_slot,
-            has_str=str,
-            is_pickleable=_determine_whether_to_implement(
+            added_str=str,
+            added_pickling=_determine_whether_to_implement(
                 cls,
                 getstate_setstate,
                 auto_detect,
@@ -1529,15 +1529,15 @@ def attrs(
             has_custom_setattr=has_own_setattr,
         )
 
-        if props.has_repr:
+        if props.added_repr:
             builder.add_repr(repr_ns)
 
-        if props.has_str:
+        if props.added_str:
             builder.add_str()
 
-        if props.has_eq:
+        if props.added_eq:
             builder.add_eq()
-        if props.is_orderable:
+        if props.added_ordering:
             builder.add_order()
 
         if not frozen:
@@ -1548,7 +1548,7 @@ def attrs(
         elif props.hashability is Hashability.UNHASHABLE:
             builder.make_unhashable()
 
-        if props.has_init:
+        if props.added_init:
             builder.add_init()
         else:
             builder.add_attrs_init()
@@ -2816,31 +2816,35 @@ class ClassProps:
             Whether the class is frozen.
 
         kw_only (KeywordOnly):
-            Whether the class is keyword-only.
+            Whether / how the class enforces keyword-only arguments on the
+            ``__init__`` method.
 
-        collect_by_mro (bool):
+        collected_fields_by_mro (bool):
             Whether the class fields are collected by the method resolution
             order (that is, correctly but unlike `dataclasses`).
 
-        has_init (bool):
+        added_init (bool):
             Whether the class has an *attrs*-generated ``__init__`` method.
 
-        has_repr (bool):
+        added_repr (bool):
             Whether the class has an *attrs*-generated ``__repr__`` method.
 
-        has_eq (bool): Whether the class has an *attrs*-generated equality methods.
+        added_eq (bool):
+            Whether the class has an *attrs*-generated equality methods.
 
-        is_orderable (bool):
+        added_ordering (bool):
             Whether the class has an *attrs*-generated ordering methods.
 
         hashability (Hashability): How `hashable <hashing>` the class is.
 
-        can_match (bool): Whether the class supports `match` over its fields.
+        added_match_args (bool):
+            Whether the class supports positional `match <match>` over its
+            fields.
 
-        has_str (bool):
+        added_str (bool):
             Whether the class has an *attrs*-generated ``__str__`` method.
 
-        is_pickleable (bool):
+        added_pickling (bool):
             Whether the class has *attrs*-generated ``__getstate__`` and
             ``__setstate__`` methods for `pickle`.
 
@@ -2889,15 +2893,15 @@ class ClassProps:
         "has_weakref_slot",
         "is_frozen",
         "kw_only",
-        "collect_by_mro",
-        "has_init",
-        "has_repr",
-        "has_eq",
-        "is_orderable",
+        "collected_fields_by_mro",
+        "added_init",
+        "added_repr",
+        "added_eq",
+        "added_ordering",
         "hashability",
-        "can_match",
-        "has_str",
-        "is_pickleable",
+        "added_match_args",
+        "added_str",
+        "added_pickling",
         "on_setattr_hook",
         "field_transformer",
     )
@@ -2909,15 +2913,15 @@ class ClassProps:
         has_weakref_slot,
         is_frozen,
         kw_only,
-        collect_by_mro,
-        has_init,
-        has_repr,
-        has_eq,
-        is_orderable,
+        collected_fields_by_mro,
+        added_init,
+        added_repr,
+        added_eq,
+        added_ordering,
         hashability,
-        can_match,
-        has_str,
-        is_pickleable,
+        added_match_args,
+        added_str,
+        added_pickling,
         on_setattr_hook,
         field_transformer,
     ):
@@ -2926,15 +2930,15 @@ class ClassProps:
         self.has_weakref_slot = has_weakref_slot
         self.is_frozen = is_frozen
         self.kw_only = kw_only
-        self.collect_by_mro = collect_by_mro
-        self.has_init = has_init
-        self.has_repr = has_repr
-        self.has_eq = has_eq
-        self.is_orderable = is_orderable
+        self.collected_fields_by_mro = collected_fields_by_mro
+        self.added_init = added_init
+        self.added_repr = added_repr
+        self.added_eq = added_eq
+        self.added_ordering = added_ordering
         self.hashability = hashability
-        self.can_match = can_match
-        self.has_str = has_str
-        self.is_pickleable = is_pickleable
+        self.added_match_args = added_match_args
+        self.added_str = added_str
+        self.added_pickling = added_pickling
         self.on_setattr_hook = on_setattr_hook
         self.field_transformer = field_transformer
 

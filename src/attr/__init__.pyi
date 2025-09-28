@@ -156,16 +156,16 @@ class ClassProps:
     is_frozen: bool
     # kw_only: ClassProps.KeywordOnly
     kw_only: Any
-    collect_by_mro: bool
-    has_init: bool
-    has_repr: bool
-    has_eq: bool
-    is_orderable: bool
+    collected_fields_by_mro: bool
+    added_init: bool
+    added_repr: bool
+    added_eq: bool
+    added_ordering: bool
     # hashability: ClassProps.Hashability
     hashability: Any
-    can_match: bool
-    has_str: bool
-    is_pickleable: bool
+    added_match_args: bool
+    added_str: bool
+    added_pickling: bool
     on_setattr_hook: _OnSetAttrType | None
     field_transformer: Callable[[Attribute[Any]], Attribute[Any]] | None
 
@@ -177,16 +177,16 @@ class ClassProps:
         is_frozen: bool,
         # kw_only: ClassProps.KeywordOnly
         kw_only: Any,
-        collect_by_mro: bool,
-        has_init: bool,
-        has_repr: bool,
-        has_eq: bool,
-        is_orderable: bool,
+        collected_fields_by_mro: bool,
+        added_init: bool,
+        added_repr: bool,
+        added_eq: bool,
+        added_ordering: bool,
         # hashability: ClassProps.Hashability
         hashability: Any,
-        can_match: bool,
-        has_str: bool,
-        is_pickleable: bool,
+        added_match_args: bool,
+        added_str: bool,
+        added_pickling: bool,
         on_setattr_hook: _OnSetAttrType,
         field_transformer: Callable[[Attribute[Any]], Attribute[Any]],
     ) -> None: ...
