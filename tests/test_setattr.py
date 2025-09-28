@@ -366,7 +366,7 @@ class TestSetAttr:
         frozen=True together with a detected custom __setattr__ are rejected.
         """
         with pytest.raises(
-            ValueError, match="Can't freeze a class with a custom __setattr__."
+            ValueError, match="Can't freeze a class with a custom __setattr__"
         ):
 
             @attr.s(auto_detect=True, slots=slots, frozen=True)
@@ -381,7 +381,7 @@ class TestSetAttr:
         """
         with pytest.raises(
             ValueError,
-            match="Can't combine custom __setattr__ with on_setattr hooks.",
+            match="Can't combine custom __setattr__ with on_setattr hooks",
         ):
 
             @attr.s(auto_detect=True, slots=slots)

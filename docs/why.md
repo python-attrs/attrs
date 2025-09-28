@@ -23,6 +23,8 @@ Whether they're relevant to *you* depends on your circumstances:
 
   This includes stepping through generated methods using a debugger, cell rewriting to make bare `super()` calls work, or making {func}`functools.cached_property` work on slotted classes.
 
+  Our obsession with developer experience and quality-of-life features is what *attrs* users report missing most when forced to use Data Classes.
+
 - *attrs* supports all mainstream Python versions including PyPy.
 
 - *attrs* doesn't force type annotations on you if you don't like them.
@@ -250,30 +252,6 @@ is roughly
 ...         else:
 ...             return not result
 ...
-...     def __lt__(self, other):
-...         if other.__class__ is self.__class__:
-...             return (self.a, self.b) < (other.a, other.b)
-...         else:
-...             return NotImplemented
-...
-...     def __le__(self, other):
-...         if other.__class__ is self.__class__:
-...             return (self.a, self.b) <= (other.a, other.b)
-...         else:
-...             return NotImplemented
-...
-...     def __gt__(self, other):
-...         if other.__class__ is self.__class__:
-...             return (self.a, self.b) > (other.a, other.b)
-...         else:
-...             return NotImplemented
-...
-...     def __ge__(self, other):
-...         if other.__class__ is self.__class__:
-...             return (self.a, self.b) >= (other.a, other.b)
-...         else:
-...             return NotImplemented
-...
 ...     def __hash__(self):
 ...         return hash((self.__class__, self.a, self.b))
 >>> ArtisanalClass(a=1, b=2)
@@ -281,8 +259,12 @@ ArtisanalClass(a=1, b=2)
 ```
 
 That's quite a mouthful and it doesn't even use any of *attrs*'s more advanced features like validators or default values.
-Also: no tests whatsoever.
+If you pass `order=True`, there's even four more methods: `__lt__`, `__le__`, `__gt__`, and `__ge__`.
 And who will guarantee you, that you don't accidentally flip the `<` in your tenth implementation of `__gt__`?
+*attrs* will also do the right thing around [hashing](hashing):
+It will write a `__hash__` for you if your class should be hashable and marks your class as unhashable if not.
+
+Also: no tests whatsoever.
 
 It also should be noted that *attrs* is not an all-or-nothing solution.
 You can freely choose which features you want and disable those that you want more control over:
@@ -300,7 +282,7 @@ You can freely choose which features you want and disable those that you want mo
 ```
 
 :::{admonition} Summary
-If you don't care and like typing, we're not gonna stop you.
+If you don't care and like the sound of your mechanical keyboard, we're not gonna stop you.
 
 However it takes a lot of bias and determined rationalization to claim that *attrs* raises the mental burden on a project given how difficult it is to find the important bits in a hand-written class and how annoying it is to ensure you've copy-pasted your code correctly over all your classes.
 

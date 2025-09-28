@@ -179,8 +179,8 @@ jobs:
 
       - run: uvx --with=tox-uv tox run -e docs-doctests,changelog
 
-  pyright:
-    name: Check types using pyright
+  typing:
+    name: Check types using supported type checkers
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -191,7 +191,7 @@ jobs:
       - run: >
           uvx --with=tox-uv
           --python $(cat .python-version-default)
-          tox run -e pyright
+          tox run -f typing
 
   install-dev:
     name: Verify dev env
@@ -222,7 +222,7 @@ jobs:
       - tests-pypy
       - docs
       - install-dev
-      - pyright
+      - typing
 
     runs-on: ubuntu-latest
 

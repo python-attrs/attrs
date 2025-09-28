@@ -277,7 +277,7 @@ class TestNextGen:
             pass
 
         with pytest.raises(
-            ValueError, match="Frozen classes can't use on_setattr."
+            ValueError, match="Frozen classes can't use on_setattr"
         ):
 
             @attrs.define(frozen=True, on_setattr=attrs.setters.validate)
