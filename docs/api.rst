@@ -200,7 +200,7 @@ Helpers
       ... class CInspect:
       ...     pass
       >>> attrs.inspect(CInspect)  # doctest: +ELLIPSIS
-      ClassProps(is_exception=False, is_slotted=True, has_weakref_slot=True, is_frozen=False, kw_only=<KeywordOnly.NO: 'no'>, collect_by_mro=True, init=True, repr=True, eq=True, order=False, hash=<Hashability.UNHASHABLE: 'unhashable'>, match_args=True, str=False, getstate_setstate=True, on_setattr=<function pipe.<locals>.wrapped_pipe at ...>, field_transformer=None)
+      ClassProps(is_exception=False, is_slotted=True, has_weakref_slot=True, is_frozen=False, kw_only=<KeywordOnly.NO: 'no'>, collect_by_mro=True, has_init=True, has_repr=True, has_eq=True, is_orderable=False, hashability=<Hashability.UNHASHABLE: 'unhashable'>, can_match=True, has_str=False, is_pickleable=True, on_setattr_hook=<function pipe.<locals>.wrapped_pipe at ...>, field_transformer=None)
 
 .. autoclass:: attrs.ClassProps
 .. autoclass:: attrs.ClassProps.Hashability

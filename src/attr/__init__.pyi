@@ -157,16 +157,16 @@ class ClassProps:
     # kw_only: ClassProps.KeywordOnly
     kw_only: Any
     collect_by_mro: bool
-    init: bool
-    repr: bool
-    eq: bool
-    order: bool
-    # hash: ClassProps.Hashability
-    hash: Any
-    match_args: bool
-    str: bool
-    getstate_setstate: bool
-    on_setattr: _OnSetAttrType | None
+    has_init: bool
+    has_repr: bool
+    has_eq: bool
+    is_orderable: bool
+    # hashability: ClassProps.Hashability
+    hashability: Any
+    can_match: bool
+    has_str: bool
+    is_pickleable: bool
+    on_setattr_hook: _OnSetAttrType | None
     field_transformer: Callable[[Attribute[Any]], Attribute[Any]] | None
 
     def __init__(
@@ -178,16 +178,16 @@ class ClassProps:
         # kw_only: ClassProps.KeywordOnly
         kw_only: Any,
         collect_by_mro: bool,
-        init: bool,
-        repr: bool,
-        eq: bool,
-        order: bool,
-        # hash: ClassProps.Hashability
-        hash: Any,
-        match_args: bool,
-        str: bool,
-        getstate_setstate: bool,
-        on_setattr: _OnSetAttrType,
+        has_init: bool,
+        has_repr: bool,
+        has_eq: bool,
+        is_orderable: bool,
+        # hashability: ClassProps.Hashability
+        hashability: Any,
+        can_match: bool,
+        has_str: bool,
+        is_pickleable: bool,
+        on_setattr_hook: _OnSetAttrType,
         field_transformer: Callable[[Attribute[Any]], Attribute[Any]],
     ) -> None: ...
     @property

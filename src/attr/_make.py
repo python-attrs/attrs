@@ -688,7 +688,9 @@ class _ClassBuilder:
         self._slots = props.is_slotted
         self._frozen = props.is_frozen
         self._weakref_slot = props.has_weakref_slot
-        self._cache_hash = props.hash is ClassProps.Hashability.HASHABLE_CACHED
+        self._cache_hash = (
+            props.hashability is ClassProps.Hashability.HASHABLE_CACHED
+        )
         self._has_pre_init = bool(getattr(cls, "__attrs_pre_init__", False))
         self._pre_init_has_args = False
         if self._has_pre_init:
@@ -700,7 +702,7 @@ class _ClassBuilder:
         self._has_post_init = bool(getattr(cls, "__attrs_post_init__", False))
         self._delete_attribs = not bool(these)
         self._is_exc = props.is_exception
-        self._on_setattr = props.on_setattr
+        self._on_setattr = props.on_setattr_hook
 
         self._has_custom_setattr = has_custom_setattr
         self._wrote_own_setattr = False
@@ -740,7 +742,7 @@ class _ClassBuilder:
                 # no on_setattr.
                 self._on_setattr = None
 
-        if props.getstate_setstate:
+        if props.is_pickleable:
             (
                 self._cls_dict["__getstate__"],
                 self._cls_dict["__setstate__"],
@@ -1486,33 +1488,33 @@ def attrs(
             is_frozen=is_frozen,
             is_slotted=slots,
             collect_by_mro=collect_by_mro,
-            init=_determine_whether_to_implement(
+            has_init=_determine_whether_to_implement(
                 cls, init, auto_detect, ("__init__",)
             ),
-            repr=_determine_whether_to_implement(
+            has_repr=_determine_whether_to_implement(
                 cls, repr, auto_detect, ("__repr__",)
             ),
-            eq=eq,
-            order=not is_exc
+            has_eq=eq,
+            is_orderable=not is_exc
             and _determine_whether_to_implement(
                 cls,
                 order_,
                 auto_detect,
                 ("__lt__", "__le__", "__gt__", "__ge__"),
             ),
-            hash=hashability,
-            match_args=match_args,
+            hashability=hashability,
+            can_match=match_args,
             kw_only=kwo,
             has_weakref_slot=weakref_slot,
-            str=str,
-            getstate_setstate=_determine_whether_to_implement(
+            has_str=str,
+            is_pickleable=_determine_whether_to_implement(
                 cls,
                 getstate_setstate,
                 auto_detect,
                 ("__getstate__", "__setstate__"),
                 default=slots,
             ),
-            on_setattr=on_setattr,
+            on_setattr_hook=on_setattr,
             field_transformer=field_transformer,
         )
 
@@ -1528,15 +1530,15 @@ def attrs(
             has_custom_setattr=has_own_setattr,
         )
 
-        if props.repr is True:
+        if props.has_repr:
             builder.add_repr(repr_ns)
 
-        if props.str is True:
+        if props.has_str:
             builder.add_str()
 
-        if props.eq is True:
+        if props.has_eq:
             builder.add_eq()
-        if props.order is True:
+        if props.is_orderable:
             builder.add_order()
 
         if not frozen:
@@ -1544,10 +1546,10 @@ def attrs(
 
         if props.is_hashable:
             builder.add_hash()
-        elif props.hash is ClassProps.Hashability.UNHASHABLE:
+        elif props.hashability is ClassProps.Hashability.UNHASHABLE:
             builder.make_unhashable()
 
-        if props.init:
+        if props.has_init:
             builder.add_init()
         else:
             builder.add_attrs_init()
@@ -2821,29 +2823,29 @@ class ClassProps:
             Whether the class fields are collected by the method resolution
             order (that is, correctly but unlike `dataclasses`).
 
-        init (bool):
+        has_init (bool):
             Whether the class has an *attrs*-generated ``__init__`` method.
 
-        repr (bool):
+        has_repr (bool):
             Whether the class has an *attrs*-generated ``__repr__`` method.
 
-        eq (bool): Whether the class has an *attrs*-generated equality methods.
+        has_eq (bool): Whether the class has an *attrs*-generated equality methods.
 
-        order (bool):
+        is_orderable (bool):
             Whether the class has an *attrs*-generated ordering methods.
 
-        hash (Hashability): How `hashable <hashing>` the class is.
+        hashability (Hashability): How `hashable <hashing>` the class is.
 
-        match_args (bool): Whether the class supports `match` over its fields.
+        can_match (bool): Whether the class supports `match` over its fields.
 
-        str (bool):
+        has_str (bool):
             Whether the class has an *attrs*-generated ``__str__`` method.
 
-        getstate_setstate (bool):
+        is_pickleable (bool):
             Whether the class has *attrs*-generated ``__getstate__`` and
             ``__setstate__`` methods for `pickle`.
 
-        on_setattr (Callable[[Any, Attribute[Any], Any], Any] | None):
+        on_setattr_hook (Callable[[Any, Attribute[Any], Any], Any] | None):
             The class's ``__setattr__`` hook.
 
         field_transformer (Callable[[Attribute[Any]], Attribute[Any]] | None):
@@ -2889,15 +2891,15 @@ class ClassProps:
         "is_frozen",
         "kw_only",
         "collect_by_mro",
-        "init",
-        "repr",
-        "eq",
-        "order",
-        "hash",
-        "match_args",
-        "str",
-        "getstate_setstate",
-        "on_setattr",
+        "has_init",
+        "has_repr",
+        "has_eq",
+        "is_orderable",
+        "hashability",
+        "can_match",
+        "has_str",
+        "is_pickleable",
+        "on_setattr_hook",
         "field_transformer",
     )
 
@@ -2909,15 +2911,15 @@ class ClassProps:
         is_frozen,
         kw_only,
         collect_by_mro,
-        init,
-        repr,
-        eq,
-        order,
-        hash,
-        match_args,
-        str,
-        getstate_setstate,
-        on_setattr,
+        has_init,
+        has_repr,
+        has_eq,
+        is_orderable,
+        hashability,
+        can_match,
+        has_str,
+        is_pickleable,
+        on_setattr_hook,
         field_transformer,
     ):
         self.is_exception = is_exception
@@ -2926,22 +2928,22 @@ class ClassProps:
         self.is_frozen = is_frozen
         self.kw_only = kw_only
         self.collect_by_mro = collect_by_mro
-        self.init = init
-        self.repr = repr
-        self.eq = eq
-        self.order = order
-        self.hash = hash
-        self.match_args = match_args
-        self.str = str
-        self.getstate_setstate = getstate_setstate
-        self.on_setattr = on_setattr
+        self.has_init = has_init
+        self.has_repr = has_repr
+        self.has_eq = has_eq
+        self.is_orderable = is_orderable
+        self.hashability = hashability
+        self.can_match = can_match
+        self.has_str = has_str
+        self.is_pickleable = is_pickleable
+        self.on_setattr_hook = on_setattr_hook
         self.field_transformer = field_transformer
 
     @property
     def is_hashable(self):
         return (
-            self.hash is ClassProps.Hashability.HASHABLE
-            or self.hash is ClassProps.Hashability.HASHABLE_CACHED
+            self.hashability is ClassProps.Hashability.HASHABLE
+            or self.hashability is ClassProps.Hashability.HASHABLE_CACHED
         )
 
 
