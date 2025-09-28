@@ -2802,42 +2802,52 @@ class ClassProps:
     `define()` decorators.
 
     Attributes:
-        is_exception: Whether the class is treated as an exception class.
+        is_exception (bool):
+            Whether the class is treated as an exception class.
 
-        is_slotted: Whether the class is `slotted <slotted classes>`.
+        is_slotted (bool):
+            Whether the class is `slotted <slotted classes>`.
 
-        has_weakref_slot: Whether the class has a weakref slot.
+        has_weakref_slot (bool):
+            Whether the class has a slot for weak references.
 
-        is_frozen: Whether the class is frozen.
+        is_frozen (bool):
+            Whether the class is frozen.
 
-        kw_only: Whether the class is keyword-only.
+        kw_only (KeywordOnly):
+            Whether the class is keyword-only.
 
-        collect_by_mro:
+        collect_by_mro (bool):
             Whether the class fields are collected by the method resolution
             order (that is, correctly but unlike `dataclasses`).
 
-        init: Whether the class has an *attrs*-generated ``__init__`` method.
+        init (bool):
+            Whether the class has an *attrs*-generated ``__init__`` method.
 
-        repr: Whether the class has an *attrs*-generated ``__repr__`` method.
+        repr (bool):
+            Whether the class has an *attrs*-generated ``__repr__`` method.
 
-        eq: Whether the class has an *attrs*-generated equality methods.
+        eq (bool): Whether the class has an *attrs*-generated equality methods.
 
-        order: Whether the class has an *attrs*-generated ordering methods.
+        order (bool):
+            Whether the class has an *attrs*-generated ordering methods.
 
-        hash: How `hashable <hashing>` the class is.
+        hash (Hashability): How `hashable <hashing>` the class is.
 
-        match_args: Whether the class supports `match` over its fields.
+        match_args (bool): Whether the class supports `match` over its fields.
 
-        str: Whether the class has an *attrs*-generated ``__str__`` method.
+        str (bool):
+            Whether the class has an *attrs*-generated ``__str__`` method.
 
-        getstate_setstate:
+        getstate_setstate (bool):
             Whether the class has *attrs*-generated ``__getstate__`` and
             ``__setstate__`` methods for `pickle`.
 
-        on_setattr: Whether the class has a ``__setattr__`` hook.
+        on_setattr (Callable[[Any, Attribute[Any], Any], Any] | None):
+            The class's ``__setattr__`` hook.
 
-        field_transformer:
-            Whether the class has `field transformers <transform-fields>`.
+        field_transformer (Callable[[Attribute[Any]], Attribute[Any]] | None):
+            The class's `field transformers <transform-fields>`.
 
     .. versionadded:: 25.4.0
     """

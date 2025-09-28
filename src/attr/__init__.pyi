@@ -166,8 +166,8 @@ class ClassProps:
     match_args: bool
     str: bool
     getstate_setstate: bool
-    on_setattr: _OnSetAttrType
-    field_transformer: Callable[[Attribute[Any]], Attribute[Any]]
+    on_setattr: _OnSetAttrType | None
+    field_transformer: Callable[[Attribute[Any]], Attribute[Any]] | None
 
     def __init__(
         self,
