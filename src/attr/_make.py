@@ -2802,7 +2802,7 @@ class ClassProps:
     Effective class properties as derived from parameters to `attr.s()` or
     `define()` decorators.
 
-    This is the same datastructure that *attrs* uses internally to decide how
+    This is the same data structure that *attrs* uses internally to decide how
     to construct the final class.
 
     Warning:
