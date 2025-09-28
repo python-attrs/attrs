@@ -389,7 +389,7 @@ def inspect(cls):
         strict backwards-compatibility guarantees.
 
     Args:
-        cls: The class to inspect.
+        cls: The *attrs*-decorated class to inspect.
 
     Returns:
         The effective build parameters of the class.
