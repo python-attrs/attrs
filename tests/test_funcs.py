@@ -18,7 +18,7 @@ import attr
 
 from attr import asdict, assoc, astuple, evolve, fields, has
 from attr._compat import Mapping, Sequence
-from attr.exceptions import AttrsAttributeNotFoundError
+from attr.exceptions import AttrsAttributeNotFoundError, NotAnAttrsClassError
 from attr.validators import instance_of
 
 from .strategies import nested_classes, simple_classes
@@ -844,3 +844,11 @@ class TestEvolve:
             inst: int
 
         assert C(42) == evolve(C(23), inst=42)
+
+
+def test_inspect_not_attrs_class():
+    """
+    inspect() raises an error if the class is not an attrs class.
+    """
+    with pytest.raises(NotAnAttrsClassError):
+        attr.inspect(object)

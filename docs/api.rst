@@ -197,10 +197,10 @@ Helpers
    .. doctest::
 
       >>> @define
-      ... class C:
+      ... class CInspect:
       ...     pass
-      >>> attrs.inspect(C)
-      ClassProps(is_exception=False, is_slotted=True, has_weakref_slot=True, is_frozen=False, kw_only=ClassProps.KeywordOnly.NO, collect_by_mro=False, init=True, repr=True, eq=True, order=True, hash=ClassProps.Hashability.UNHASHABLE, match_args=True, str=False, getstate_setstate=False, on_setattr=None, field_transformer=None)
+      >>> attrs.inspect(CInspect)  # doctest: +ELLIPSIS
+      ClassProps(is_exception=False, is_slotted=True, has_weakref_slot=True, is_frozen=False, kw_only=<KeywordOnly.NO: 'no'>, collect_by_mro=True, init=True, repr=True, eq=True, order=False, hash=<Hashability.UNHASHABLE: 'unhashable'>, match_args=True, str=False, getstate_setstate=True, on_setattr=<function pipe.<locals>.wrapped_pipe at ...>, field_transformer=None)
 
 .. autoclass:: attrs.ClassProps
 .. autoclass:: attrs.ClassProps.Hashability

@@ -18,8 +18,6 @@ from collections.abc import Callable, Mapping
 from functools import cached_property
 from typing import Any, NamedTuple, TypeVar
 
-from attr._props import ClassProps
-
 # We need to import _compat itself in addition to the _compat members to avoid
 # having the thread-local in the globals here.
 from . import _compat, _config, setters
@@ -2796,6 +2794,127 @@ class _CountingAttr:
 
 
 _CountingAttr = _add_eq(_add_repr(_CountingAttr))
+
+
+class ClassProps:
+    """
+    Effective class properties as derived from parameters to attr.s() or
+    define() decorators.
+
+    .. versionadded:: 25.4.0
+    """
+
+    class Hashability(enum.Enum):
+        """
+        The hashability of a class.
+
+        .. versionadded:: 25.4.0
+        """
+
+        HASHABLE = "hashable"
+        """Write a ``__hash__``."""
+        HASHABLE_CACHED = "hashable_cache"
+        """Write a ``__hash__`` and cache the hash."""
+        UNHASHABLE = "unhashable"
+        """Set ``__hash__`` to ``None``."""
+        LEAVE_ALONE = "leave_alone"
+        """Don't touch ``__hash__``."""
+
+    class KeywordOnly(enum.Enum):
+        """
+        How attributes should be treated regarding keyword-only parameters.
+
+        .. versionadded:: 25.4.0
+        """
+
+        NO = "no"
+        """Attributes are not keyword-only."""
+        YES = "yes"
+        """Attributes in current class without kw_only=False are keyword-only."""
+        FORCE = "force"
+        """All attributes are keyword-only."""
+
+    __slots__ = (  # noqa: RUF023 -- order matters for __init__
+        "is_exception",
+        "is_slotted",
+        "has_weakref_slot",
+        "is_frozen",
+        "kw_only",
+        "collect_by_mro",
+        "init",
+        "repr",
+        "eq",
+        "order",
+        "hash",
+        "match_args",
+        "str",
+        "getstate_setstate",
+        "on_setattr",
+        "field_transformer",
+    )
+
+    def __init__(
+        self,
+        is_exception,
+        is_slotted,
+        has_weakref_slot,
+        is_frozen,
+        kw_only,
+        collect_by_mro,
+        init,
+        repr,
+        eq,
+        order,
+        hash,
+        match_args,
+        str,
+        getstate_setstate,
+        on_setattr,
+        field_transformer,
+    ):
+        self.is_exception = is_exception
+        self.is_slotted = is_slotted
+        self.has_weakref_slot = has_weakref_slot
+        self.is_frozen = is_frozen
+        self.kw_only = kw_only
+        self.collect_by_mro = collect_by_mro
+        self.init = init
+        self.repr = repr
+        self.eq = eq
+        self.order = order
+        self.hash = hash
+        self.match_args = match_args
+        self.str = str
+        self.getstate_setstate = getstate_setstate
+        self.on_setattr = on_setattr
+        self.field_transformer = field_transformer
+
+    @property
+    def is_hashable(self):
+        return (
+            self.hash is ClassProps.Hashability.HASHABLE
+            or self.hash is ClassProps.Hashability.HASHABLE_CACHED
+        )
+
+
+_cas = [
+    Attribute(
+        name=name,
+        default=NOTHING,
+        validator=None,
+        repr=True,
+        cmp=None,
+        eq=True,
+        order=False,
+        hash=True,
+        init=True,
+        inherited=False,
+        alias=_default_init_alias_for(name),
+    )
+    for name in ClassProps.__slots__
+]
+
+ClassProps = _add_eq(_add_repr(ClassProps, attrs=_cas), attrs=_cas)
 
 
 class Factory:

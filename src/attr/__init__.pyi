@@ -20,8 +20,7 @@ from . import filters as filters
 from . import setters as setters
 from . import validators as validators
 from ._cmp import cmp_using as cmp_using
-from ._funcs import inspect as inspect
-from ._props import ClassProps as ClassProps
+
 from ._typing_compat import AttrsInstance_
 from ._version_info import VersionInfo
 from attrs import (
@@ -141,6 +140,58 @@ class Attribute(Generic[_T]):
     alias: str | None
 
     def evolve(self, **changes: Any) -> "Attribute[Any]": ...
+
+class ClassProps:
+    """
+    XXX: somehow defining/using enums Mypy starts looking at our own code
+    and causes tons of errors.
+    """
+
+    # class Hashability(enum.Enum): ...
+    # class KeywordOnly(enum.Enum): ...
+
+    is_exception: bool
+    is_slotted: bool
+    has_weakref_slot: bool
+    is_frozen: bool
+    # kw_only: ClassProps.KeywordOnly
+    kw_only: Any
+    collect_by_mro: bool
+    init: bool
+    repr: bool
+    eq: bool
+    order: bool
+    # hash: ClassProps.Hashability
+    hash: Any
+    match_args: bool
+    str: bool
+    getstate_setstate: bool
+    on_setattr: _OnSetAttrType
+    field_transformer: Callable[[Attribute[Any]], Attribute[Any]]
+
+    def __init__(
+        self,
+        is_exception: bool,
+        is_slotted: bool,
+        has_weakref_slot: bool,
+        is_frozen: bool,
+        # kw_only: ClassProps.KeywordOnly
+        kw_only: Any,
+        collect_by_mro: bool,
+        init: bool,
+        repr: bool,
+        eq: bool,
+        order: bool,
+        # hash: ClassProps.Hashability
+        hash: Any,
+        match_args: bool,
+        str: bool,
+        getstate_setstate: bool,
+        on_setattr: _OnSetAttrType,
+        field_transformer: Callable[[Attribute[Any]], Attribute[Any]],
+    ) -> None: ...
+    @property
+    def is_hashable(self) -> bool: ...
 
 # NOTE: We had several choices for the annotation to use for type arg:
 # 1) Type[_T]
@@ -376,6 +427,7 @@ def astuple(
     retain_collection_types: bool = ...,
 ) -> tuple[Any, ...]: ...
 def has(cls: type) -> TypeGuard[type[AttrsInstance]]: ...
+def inspect(cls: type) -> ClassProps: ...
 def assoc(inst: _T, **changes: Any) -> _T: ...
 def evolve(inst: _T, **changes: Any) -> _T: ...
 
