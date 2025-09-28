@@ -23,6 +23,8 @@ Whether they're relevant to *you* depends on your circumstances:
 
   This includes stepping through generated methods using a debugger, cell rewriting to make bare `super()` calls work, or making {func}`functools.cached_property` work on slotted classes.
 
+  Our obsession with developer experience and quality-of-life features is what *attrs* users report missing most when forced to use Data Classes.
+
 - *attrs* supports all mainstream Python versions including PyPy.
 
 - *attrs* doesn't force type annotations on you if you don't like them.
