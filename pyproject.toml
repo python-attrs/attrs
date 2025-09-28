@@ -51,6 +51,8 @@ tests = [
 ]
 cov = [{ include-group = "tests" }, "coverage[toml]"]
 pyright = ["pyright", { include-group = "tests" }]
+ty = ["ty", { include-group = "tests" }]
+pyrefly = ["pyrefly", { include-group = "tests" }]
 benchmark = [
   { include-group = "tests" },
   "pytest-codspeed",
@@ -254,11 +256,12 @@ ignore = [
 
 "src/*/*.pyi" = ["ALL"] # TODO
 "tests/test_annotations.py" = ["FA100"]
-"tests/typing_example.py" = [
-  "E741",  # ambiguous variable names don't matter in type checks
-  "B018",  # useless expressions aren't useless in type checks
-  "B015",  # pointless comparison in type checks aren't pointless
-  "UP037", # we test some older syntaxes on purpose
+"typing-examples/*" = [
+  "INP001", # not for imports
+  "E741",   # ambiguous variable names don't matter in type checks
+  "B018",   # useless expressions aren't useless in type checks
+  "B015",   # pointless comparison in type checks aren't pointless
+  "UP037",  # we test some older syntaxes on purpose
 ]
 
 [tool.ruff.lint.isort]
