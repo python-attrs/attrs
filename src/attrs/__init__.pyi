@@ -263,11 +263,8 @@ def frozen(
 ) -> Callable[[_C], _C]: ...
 
 class ClassProps:
-    """
-    XXX: somehow defining/using enums Mypy starts looking at our own code
-    and causes tons of errors.
-    """
-
+    # XXX: somehow when defining/using enums Mypy starts looking at our own
+    # (untyped) code and causes tons of errors.
     Hashability: Any
     KeywordOnly: Any
 
