@@ -141,58 +141,6 @@ class Attribute(Generic[_T]):
 
     def evolve(self, **changes: Any) -> "Attribute[Any]": ...
 
-class ClassProps:
-    """
-    XXX: somehow defining/using enums Mypy starts looking at our own code
-    and causes tons of errors.
-    """
-
-    # class Hashability(enum.Enum): ...
-    # class KeywordOnly(enum.Enum): ...
-
-    is_exception: bool
-    is_slotted: bool
-    has_weakref_slot: bool
-    is_frozen: bool
-    # kw_only: ClassProps.KeywordOnly
-    kw_only: Any
-    collected_fields_by_mro: bool
-    added_init: bool
-    added_repr: bool
-    added_eq: bool
-    added_ordering: bool
-    # hashability: ClassProps.Hashability
-    hashability: Any
-    added_match_args: bool
-    added_str: bool
-    added_pickling: bool
-    on_setattr_hook: _OnSetAttrType | None
-    field_transformer: Callable[[Attribute[Any]], Attribute[Any]] | None
-
-    def __init__(
-        self,
-        is_exception: bool,
-        is_slotted: bool,
-        has_weakref_slot: bool,
-        is_frozen: bool,
-        # kw_only: ClassProps.KeywordOnly
-        kw_only: Any,
-        collected_fields_by_mro: bool,
-        added_init: bool,
-        added_repr: bool,
-        added_eq: bool,
-        added_ordering: bool,
-        # hashability: ClassProps.Hashability
-        hashability: Any,
-        added_match_args: bool,
-        added_str: bool,
-        added_pickling: bool,
-        on_setattr_hook: _OnSetAttrType,
-        field_transformer: Callable[[Attribute[Any]], Attribute[Any]],
-    ) -> None: ...
-    @property
-    def is_hashable(self) -> bool: ...
-
 # NOTE: We had several choices for the annotation to use for type arg:
 # 1) Type[_T]
 #   - Pros: Handles simple cases correctly
@@ -427,7 +375,6 @@ def astuple(
     retain_collection_types: bool = ...,
 ) -> tuple[Any, ...]: ...
 def has(cls: type) -> TypeGuard[type[AttrsInstance]]: ...
-def inspect(cls: type) -> ClassProps: ...
 def assoc(inst: _T, **changes: Any) -> _T: ...
 def evolve(inst: _T, **changes: Any) -> _T: ...
 

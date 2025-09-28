@@ -573,3 +573,11 @@ class TestImports:
         from attrs.validators import and_
 
         assert and_ is _attr.validators.and_
+
+
+def test_inspect_not_attrs_class():
+    """
+    inspect() raises an error if the class is not an attrs class.
+    """
+    with pytest.raises(attrs.exceptions.NotAnAttrsClassError):
+        attrs.inspect(object)
