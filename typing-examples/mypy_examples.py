@@ -426,3 +426,6 @@ class Hashable:
 def test(cls: type) -> None:
     if attr.has(cls):
         attr.resolve_types(cls)
+
+
+cp: attrs.ClassProps = attrs.inspect(Hashable)
