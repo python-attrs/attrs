@@ -18,8 +18,6 @@ from collections.abc import Callable, Mapping
 from functools import cached_property
 from typing import Any, NamedTuple, TypeVar
 
-from attr._props import ClassProps
-
 # We need to import _compat itself in addition to the _compat members to avoid
 # having the thread-local in the globals here.
 from . import _compat, _config, setters
@@ -1313,6 +1311,69 @@ def _determine_whether_to_implement(
             return False
 
     return default
+
+
+class ClassProps(NamedTuple):
+    """
+    Effective class properties as derived from parameters to attr.s() or
+    define() decorators.
+
+    .. versionadded:: 25.4.0
+    """
+
+    class Hashability(enum.Enum):
+        """
+        The hashability of a class.
+
+        .. versionadded:: 25.4.0
+        """
+
+        HASHABLE = "hashable"
+        """Write a ``__hash__``."""
+        HASHABLE_CACHED = "hashable_cache"
+        """Write a ``__hash__`` and cache the hash."""
+        UNHASHABLE = "unhashable"
+        """Set ``__hash__`` to ``None``."""
+        LEAVE_ALONE = "leave_alone"
+        """Don't touch ``__hash__``."""
+
+    class KeywordOnly(enum.Enum):
+        """
+        How attributes should be treated regarding keyword-only parameters.
+
+        .. versionadded:: 25.4.0
+        """
+
+        NO = "no"
+        """Attributes are not keyword-only."""
+        YES = "yes"
+        """Attributes in current class without kw_only=False are keyword-only."""
+        FORCE = "force"
+        """All attributes are keyword-only."""
+
+    is_exception: bool
+    is_slotted: bool
+    has_weakref_slot: bool
+    is_frozen: bool
+    kw_only: ClassProps.KeywordOnly
+    collect_by_mro: bool
+    init: bool
+    repr: bool
+    eq: bool
+    order: bool
+    hash: ClassProps.Hashability
+    match_args: bool
+    str: bool
+    getstate_setstate: bool
+    on_setattr: Callable[[str, Any], Any]
+    field_transformer: Callable[[Attribute], Attribute]
+
+    @property
+    def is_hashable(self):
+        return (
+            self.hash is ClassProps.Hashability.HASHABLE
+            or self.hash is ClassProps.Hashability.HASHABLE_CACHED
+        )
 
 
 def attrs(
