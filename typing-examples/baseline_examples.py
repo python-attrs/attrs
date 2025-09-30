@@ -190,3 +190,19 @@ def accessing_from_attrs() -> None:
     attrs.setters.frozen
     attrs.validators.and_
     attrs.cmp_using
+
+
+@attrs.define(unsafe_hash=True)
+class Hashable:
+    pass
+
+
+cp: attrs.ClassProps = attrs.inspect(Hashable)
+cp.added_init
+if cp.hashability is attrs.ClassProps.Hashability.UNHASHABLE:
+    cp.is_slotted
+
+
+def test(cls: type) -> None:
+    if attrs.has(cls):
+        attrs.resolve_types(cls)

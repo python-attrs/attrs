@@ -22,7 +22,8 @@ from attr import (
     resolve_types,
     validate,
 )
-from attr._next_gen import asdict, astuple
+from attr._make import ClassProps
+from attr._next_gen import asdict, astuple, inspect
 
 from . import converters, exceptions, filters, setters, validators
 
@@ -31,6 +32,7 @@ __all__ = [
     "NOTHING",
     "Attribute",
     "AttrsInstance",
+    "ClassProps",
     "Converter",
     "Factory",
     "NothingType",
@@ -58,6 +60,7 @@ __all__ = [
     "filters",
     "frozen",
     "has",
+    "inspect",
     "make_class",
     "mutable",
     "resolve_types",

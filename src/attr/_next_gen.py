@@ -17,7 +17,7 @@ from ._make import (
     attrib,
     attrs,
 )
-from .exceptions import UnannotatedAttributeError
+from .exceptions import NotAnAttrsClassError, UnannotatedAttributeError
 
 
 def define(
@@ -646,3 +646,29 @@ def astuple(inst, *, recurse=True, filter=None):
     return _astuple(
         inst=inst, recurse=recurse, filter=filter, retain_collection_types=True
     )
+
+
+def inspect(cls):
+    """
+    Inspect the class and return its effective build parameters.
+
+    Warning:
+        This feature is currently **experimental** and is not covered by our
+        strict backwards-compatibility guarantees.
+
+    Args:
+        cls: The *attrs*-decorated class to inspect.
+
+    Returns:
+        The effective build parameters of the class.
+
+    Raises:
+        NotAnAttrsClassError: If the class is not an *attrs*-decorated class.
+
+    .. versionadded:: 25.4.0
+    """
+    try:
+        return cls.__dict__["__attrs_props__"]
+    except KeyError:
+        msg = f"{cls!r} is not an attrs-decorated class."
+        raise NotAnAttrsClassError(msg) from None

@@ -21,11 +21,13 @@ from hypothesis import assume, given
 from hypothesis.strategies import booleans, integers, lists, sampled_from, text
 
 import attr
+import attrs
 
 from attr import _config
 from attr._compat import PY_3_10_PLUS
 from attr._make import (
     Attribute,
+    ClassProps,
     Factory,
     _AndValidator,
     _Attributes,
@@ -181,7 +183,7 @@ class TestTransformAttrs:
         Does not attach __attrs_attrs__ to the class.
         """
         C = make_tc()
-        _transform_attrs(C, None, False, False, False, True, None)
+        _transform_attrs(C, None, False, ClassProps.KeywordOnly.NO, True, None)
 
         assert None is getattr(C, "__attrs_attrs__", None)
 
@@ -191,7 +193,7 @@ class TestTransformAttrs:
         """
         C = make_tc()
         attrs, _, _ = _transform_attrs(
-            C, None, False, False, False, True, None
+            C, None, False, ClassProps.KeywordOnly.NO, True, None
         )
 
         assert ["z", "y", "x"] == [a.name for a in attrs]
@@ -206,7 +208,7 @@ class TestTransformAttrs:
             pass
 
         assert _Attributes((), [], {}) == _transform_attrs(
-            C, None, False, False, False, True, None
+            C, None, False, ClassProps.KeywordOnly.NO, True, None
         )
 
     def test_transforms_to_attribute(self):
@@ -215,7 +217,7 @@ class TestTransformAttrs:
         """
         C = make_tc()
         attrs, base_attrs, _ = _transform_attrs(
-            C, None, False, False, False, True, None
+            C, None, False, ClassProps.KeywordOnly.NO, True, None
         )
 
         assert [] == base_attrs
@@ -233,7 +235,9 @@ class TestTransformAttrs:
             y = attr.ib()
 
         with pytest.raises(ValueError) as e:
-            _transform_attrs(C, None, False, False, False, True, None)
+            _transform_attrs(
+                C, None, False, ClassProps.KeywordOnly.NO, True, None
+            )
         assert (
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
@@ -262,7 +266,7 @@ class TestTransformAttrs:
             y = attr.ib()
 
         attrs, base_attrs, _ = _transform_attrs(
-            C, None, False, True, False, True, None
+            C, None, False, ClassProps.KeywordOnly.YES, True, None
         )
 
         assert len(attrs) == 3
@@ -278,8 +282,7 @@ class TestTransformAttrs:
             C,
             None,
             False,
-            True,
-            True,  # force kw-only
+            ClassProps.KeywordOnly.FORCE,
             True,
             None,
         )
@@ -305,7 +308,7 @@ class TestTransformAttrs:
             y = attr.ib()
 
         attrs, base_attrs, _ = _transform_attrs(
-            C, {"x": attr.ib()}, False, False, False, True, None
+            C, {"x": attr.ib()}, False, ClassProps.KeywordOnly.NO, True, None
         )
 
         assert [] == base_attrs
@@ -505,6 +508,77 @@ class TestAttributes:
 
         assert "x" == C.__attrs_attrs__[0].name
         assert all(isinstance(a, Attribute) for a in C.__attrs_attrs__)
+
+    def test_sets_attrs_props(self):
+        """
+        Sets the `__attrs_props__` class attribute with the effective decorator
+        properties.
+        """
+
+        @attr.s(
+            slots=True,
+            frozen=True,
+            repr=True,
+            eq=True,
+            order=True,
+            unsafe_hash=True,
+            init=True,
+            match_args=False,
+            kw_only=True,
+            auto_attribs=True,
+            cache_hash=True,
+            str=True,
+        )
+        class C:
+            x: int = attr.ib()
+
+        assert ClassProps(
+            is_exception=False,
+            is_slotted=True,
+            is_frozen=True,
+            added_init=True,
+            added_repr=True,
+            added_eq=True,
+            added_ordering=True,
+            hashability=ClassProps.Hashability.HASHABLE_CACHED,
+            added_match_args=False,
+            kw_only=ClassProps.KeywordOnly.FORCE,
+            has_weakref_slot=True,
+            collected_fields_by_mro=False,
+            added_str=True,
+            added_pickling=True,
+            on_setattr_hook=None,
+            field_transformer=None,
+        ) == attrs.inspect(C)
+
+    def test_sets_attrs_props_defaults(self):
+        """
+        Default values are derived in `__attrs_props__` when not specified in
+        the decorator.
+        """
+
+        @attr.s
+        class CDef:
+            x = attr.ib()
+
+        assert ClassProps(
+            is_exception=False,
+            is_slotted=False,
+            is_frozen=False,
+            added_init=True,
+            added_repr=True,
+            added_eq=True,
+            added_ordering=True,
+            hashability=ClassProps.Hashability.UNHASHABLE,
+            added_match_args=True,
+            kw_only=ClassProps.KeywordOnly.NO,
+            has_weakref_slot=True,
+            collected_fields_by_mro=False,
+            added_str=False,
+            added_pickling=False,
+            on_setattr_hook=None,
+            field_transformer=None,
+        ) == attrs.inspect(CDef)
 
     def test_empty(self):
         """
@@ -1929,18 +2003,25 @@ class TestClassBuilder:
             C,
             None,
             True,
-            True,
-            False,
-            False,
-            False,
-            False,
-            False,
-            False,
-            False,
-            True,
-            None,
-            False,
-            None,
+            ClassProps(
+                is_exception=False,
+                is_slotted=True,
+                is_frozen=True,
+                added_init=True,
+                added_repr=True,
+                added_eq=True,
+                added_ordering=False,
+                hashability=ClassProps.Hashability.UNHASHABLE,
+                added_match_args=True,
+                kw_only=ClassProps.KeywordOnly.NO,
+                has_weakref_slot=False,
+                collected_fields_by_mro=True,
+                added_str=False,
+                added_pickling=True,
+                on_setattr_hook=None,
+                field_transformer=None,
+            ),
+            has_custom_setattr=False,
         )
 
         assert "<_ClassBuilder(cls=C)>" == repr(b)
@@ -1956,19 +2037,26 @@ class TestClassBuilder:
         b = _ClassBuilder(
             C,
             None,
-            True,
-            True,
             False,
-            False,
-            False,
-            False,
-            False,
-            False,
-            False,
-            True,
-            None,
-            False,
-            None,
+            ClassProps(
+                is_exception=False,
+                is_slotted=True,
+                is_frozen=True,
+                added_init=True,
+                added_repr=True,
+                added_eq=True,
+                added_ordering=False,
+                hashability=ClassProps.Hashability.UNHASHABLE,
+                added_match_args=True,
+                kw_only=ClassProps.KeywordOnly.NO,
+                has_weakref_slot=False,
+                collected_fields_by_mro=True,
+                added_str=False,
+                added_pickling=True,
+                on_setattr_hook=None,
+                field_transformer=None,
+            ),
+            has_custom_setattr=False,
         )
 
         cls = (
@@ -2050,19 +2138,26 @@ class TestClassBuilder:
         b = _ClassBuilder(
             C,
             these=None,
-            slots=False,
-            frozen=False,
-            weakref_slot=True,
-            getstate_setstate=False,
             auto_attribs=False,
-            is_exc=False,
-            kw_only=False,
-            force_kw_only=False,
-            cache_hash=False,
-            collect_by_mro=True,
-            on_setattr=None,
+            props=ClassProps(
+                is_exception=False,
+                is_slotted=False,
+                is_frozen=False,
+                added_init=True,
+                added_repr=True,
+                added_eq=True,
+                added_ordering=False,
+                hashability=ClassProps.Hashability.UNHASHABLE,
+                added_match_args=True,
+                kw_only=ClassProps.KeywordOnly.NO,
+                has_weakref_slot=True,
+                collected_fields_by_mro=True,
+                added_str=False,
+                added_pickling=True,
+                on_setattr_hook=None,
+                field_transformer=None,
+            ),
             has_custom_setattr=False,
-            field_transformer=None,
         )
 
         def fake_meth(self):

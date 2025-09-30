@@ -15,6 +15,7 @@ import attr as _attr  # don't use it by accident
 import attrs
 
 from attr._compat import PY_3_11_PLUS
+from attr._make import ClassProps
 
 
 @attrs.define
@@ -448,6 +449,86 @@ class TestAsDict:
         )
 
 
+class TestProps:
+    """
+    Tests for __attrs_props__ in define-style classes.
+    """
+
+    def test_define_props_custom(self):
+        """
+        define() sets __attrs_props__ with custom parameters.
+        """
+
+        @attrs.define(
+            slots=False,
+            frozen=True,
+            order=True,
+            unsafe_hash=True,
+            init=True,
+            repr=True,
+            eq=True,
+            match_args=False,
+            kw_only=True,
+            cache_hash=True,
+            str=True,
+        )
+        class C:
+            x: int
+
+        assert (
+            ClassProps(
+                is_exception=False,
+                is_slotted=False,
+                is_frozen=True,
+                kw_only=ClassProps.KeywordOnly.YES,
+                added_init=True,
+                added_repr=True,
+                added_eq=True,
+                added_ordering=True,
+                hashability=ClassProps.Hashability.HASHABLE_CACHED,
+                added_match_args=False,
+                has_weakref_slot=True,
+                collected_fields_by_mro=True,
+                added_str=True,
+                added_pickling=False,  # because slots=False
+                on_setattr_hook=None,
+                field_transformer=None,
+            )
+            == C.__attrs_props__
+        )
+
+    def test_define_props_defaults(self):
+        """
+        frozen() sets default __attrs_props__ values.
+        """
+
+        @attrs.frozen
+        class C:
+            x: int
+
+        assert (
+            ClassProps(
+                is_exception=False,
+                is_slotted=True,
+                is_frozen=True,
+                added_init=True,
+                added_repr=True,
+                added_eq=True,
+                added_ordering=False,
+                hashability=ClassProps.Hashability.HASHABLE,  # b/c frozen
+                added_match_args=True,
+                kw_only=ClassProps.KeywordOnly.NO,
+                has_weakref_slot=True,
+                collected_fields_by_mro=True,
+                added_str=False,
+                added_pickling=True,
+                on_setattr_hook=None,
+                field_transformer=None,
+            )
+            == C.__attrs_props__
+        )
+
+
 class TestImports:
     """
     Verify our re-imports and mirroring works.
@@ -492,3 +573,11 @@ class TestImports:
         from attrs.validators import and_
 
         assert and_ is _attr.validators.and_
+
+
+def test_inspect_not_attrs_class():
+    """
+    inspect() raises an error if the class is not an attrs class.
+    """
+    with pytest.raises(attrs.exceptions.NotAnAttrsClassError):
+        attrs.inspect(object)

@@ -104,6 +104,20 @@ def test_slots_being_used():
     assert attr.asdict(slot_instance) == attr.asdict(non_slot_instance)
 
 
+def test_slots_base_of_slotted():
+    """
+    The (hopefully gc'ed) temporary base class of a slotted class contains a
+    reference to the slotted class.
+    """
+
+    class Base:
+        pass
+
+    Slotted = attr.s(slots=True)(Base)
+
+    assert Slotted is Base.__attrs_base_of_slotted__()
+
+
 def test_basic_attr_funcs():
     """
     Comparison, `__eq__`, `__hash__`, `__repr__`, `attrs.asdict` work.
@@ -755,7 +769,7 @@ def test_slots_cached_property_class_does_not_have__dict__():
     assert "__dict__" not in dir(A)
 
 
-def test_slots_cached_property_works_on_frozen_isntances():
+def test_slots_cached_property_works_on_frozen_instances():
     """
     Infers type of cached property.
     """
