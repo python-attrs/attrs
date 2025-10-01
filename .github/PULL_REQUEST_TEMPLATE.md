@@ -21,7 +21,7 @@ If your pull request is a documentation fix or a trivial typo, feel free to dele
   Our CI fails if coverage is not 100%.
 - [ ] New features have been added to our [Hypothesis testing strategy](https://github.com/python-attrs/attrs/blob/main/tests/strategies.py).
 - [ ] Changes or additions to public APIs are reflected in our type stubs (files ending in ``.pyi``).
-    - [ ] ...and used in the stub test file `tests/typing_example.py`.
+    - [ ] ...and used in the stub test file `typing-examples/baseline.py` or, if necessary, `typing-examples/mypy.py`.
     - [ ] If they've been added to `attr/__init__.pyi`, they've *also* been re-imported in `attrs/__init__.pyi`.
 - [ ] Updated **documentation** for changed code.
     - [ ] New functions/classes have to be added to `docs/api.rst` by hand.

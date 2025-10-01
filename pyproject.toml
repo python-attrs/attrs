@@ -305,4 +305,4 @@ check_untyped_defs = true
 
 
 [tool.pyright]
-include = ["typing-examples/baseline_examples.py"]
+include = ["typing-examples/baseline.py"]
