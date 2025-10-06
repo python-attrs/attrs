@@ -21,6 +21,9 @@ It's people like *you* who make this project such a great tool for everyone.
 - No contribution is too small!
   Please submit as many fixes for typos and grammar bloopers as you can!
 
+- We do not care how you write your code, but you're taking full responsibility for it by submitting a pull request.
+  Do not waste our time with LLM/"AI" slop that you don't understand yourself.
+
 - Try to limit each pull request to *one* change only.
 
 - Since we squash on merge, it's up to you how you handle updates to the `main` branch.
