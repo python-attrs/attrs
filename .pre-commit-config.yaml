@@ -4,7 +4,7 @@ ci:
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.13.2
+    rev: v0.13.3
     hooks:
       - id: ruff-check
         args: [--fix, --exit-non-zero-on-fix]
