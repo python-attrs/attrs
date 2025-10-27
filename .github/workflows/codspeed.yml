@@ -39,7 +39,7 @@ jobs:
       - uses: hynek/setup-cached-uv@757bedc3f972eb7227a1aa657651f15a8527c817 # v2.3.0
 
       - name: Run CodSpeed benchmarks
-        uses: CodSpeedHQ/action@3959e9e296ef25296e93e32afcc97196f966e57f # v4.1.0
+        uses: CodSpeedHQ/action@4348f634fa7309fe23aac9502e88b999ec90a164 # v4.3.1
         with:
           mode: instrumentation
           token: ${{ secrets.CODSPEED_TOKEN }}
