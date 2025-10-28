@@ -139,6 +139,11 @@ url = "https://filepreviews.io/"
 img = "FilePreviews.svg"
 
 [[tool.sponcon.sponsors]]
+title = "LambdaTest"
+url = "https://www.lambdatest.com/?utm_source=structlog&utm_medium=sponsor"
+img = "LambdaTest.svg"
+
+[[tool.sponcon.sponsors]]
 title = "Polar"
 url = "https://polar.sh/"
 img = "Polar.svg"
