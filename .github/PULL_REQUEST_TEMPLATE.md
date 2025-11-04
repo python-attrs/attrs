@@ -14,12 +14,11 @@ If an item doesn't apply to your pull request, **check it anyway** to make it ap
 If your pull request is a documentation fix or a trivial typo, feel free to delete the whole thing.
 -->
 
-- [ ] Do **not** open pull requests from your `main` branch – **use a separate branch**!
+- [ ] Do **not** open pull requests from your `main` branch – [**use a separate branch**](https://hynek.me/articles/pull-requests-branch/)!
   - There's a ton of footguns waiting if you don't heed this warning. You can still go back to your project, create a branch from your main branch, push it, and open the pull request from the new branch.
   - This is not a pre-requisite for your pull request to be accepted, but **you have been warned**.
 - [ ] Added **tests** for changed code.
   Our CI fails if coverage is not 100%.
-- [ ] New features have been added to our [Hypothesis testing strategy](https://github.com/python-attrs/attrs/blob/main/tests/strategies.py).
 - [ ] Changes or additions to public APIs are reflected in our type stubs (files ending in ``.pyi``).
     - [ ] ...and used in the stub test file `typing-examples/baseline.py` or, if necessary, `typing-examples/mypy.py`.
     - [ ] If they've been added to `attr/__init__.pyi`, they've *also* been re-imported in `attrs/__init__.pyi`.
