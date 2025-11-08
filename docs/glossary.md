@@ -104,6 +104,10 @@ slotted classes
 
     This situation can occur if you define an `attrs.field(init=False)` and don't set the attribute by hand before pickling.
 
+  - You can't call a bare `super()` in a decorated method like `contextlib.contextmanager`.
+    Use `super(YourClass, self)` until we get a way to work around this from Python.
+    See also [#1038](https://github.com/python-attrs/attrs/issues/1038) for more details.
+
 
 field
   As the project name suggests, *attrs* is all about attributes.
