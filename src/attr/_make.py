@@ -15,7 +15,7 @@ import unicodedata
 import weakref
 
 from collections.abc import Callable, Mapping
-from functools import cached_property
+from functools import cached_property, update_wrapper
 from typing import Any, NamedTuple, TypeVar
 
 # We need to import _compat itself in addition to the _compat members to avoid
@@ -496,56 +496,40 @@ def _transform_attrs(
     return _Attributes(AttrsClass(attrs), base_attrs, base_attr_map)
 
 
-def _make_cached_property_getattr(cached_properties, original_getattr, cls):
-    lines = [
-        # Wrapped to get `__class__` into closure cell for super()
-        # (It will be replaced with the newly constructed class after construction).
-        "def wrapper(_cls):",
-        "    __class__ = _cls",
-        "    def __getattr__(self, item, cached_properties=cached_properties, original_getattr=original_getattr, _cached_setattr_get=_cached_setattr_get):",
-        "         func = cached_properties.get(item)",
-        "         if func is not None:",
-        "              result = func(self)",
-        "              _setter = _cached_setattr_get(self)",
-        "              _setter(item, result)",
-        "              return result",
-    ]
-    if original_getattr is not None:
-        lines.append(
-            "         return original_getattr(self, item)",
-        )
-    else:
-        lines.extend(
-            [
-                "         try:",
-                "             return super().__getattribute__(item)",
-                "         except AttributeError:",
-                "             if not hasattr(super(), '__getattr__'):",
-                "                 raise",
-                "             return super().__getattr__(item)",
-                "         original_error = f\"'{self.__class__.__name__}' object has no attribute '{item}'\"",
-                "         raise AttributeError(original_error)",
-            ]
-        )
+class _SlottedCachedProperty:
+    # This is a class that is used to wrap both a slot and a cached property
+    # externally, users should just use `functools.cached_property` but
+    # attrs' slotting behaviour will remove those, add the names to `__slots__`
+    # and after constructing the class, replace those slot descriptors with these
+    # special slotted cached property attributes
 
-    lines.extend(
-        [
-            "    return __getattr__",
-            "__getattr__ = wrapper(_cls)",
-        ]
-    )
+    def __init__(self, slot, func):
+        self.slot = slot
+        self.func = func
 
-    unique_filename = _generate_unique_filename(cls, "getattr")
+    def __get__(self, instance, owner=None):
+        if instance is None:
+            return self
 
-    glob = {
-        "cached_properties": cached_properties,
-        "_cached_setattr_get": _OBJ_SETATTR.__get__,
-        "original_getattr": original_getattr,
-    }
+        try:
+            return self.slot.__get__(instance, owner)
+        except AttributeError:
+            pass
 
-    return _linecache_and_compile(
-        "\n".join(lines), unique_filename, glob, locals={"_cls": cls}
-    )["__getattr__"]
+        result = self.func(instance)
+
+        self.slot.__set__(instance, result)
+
+        return result
+
+    def __repr__(self):
+        return f"<slotted cached_property wrapper for {self.func!r}>"
+
+    def __set__(self, obj, value):
+        self.slot.__set__(obj, value)
+
+    def __delete__(self, obj):
+        self.slot.__delete__(obj)
 
 
 def _frozen_setattrs(self, name, value):
@@ -912,24 +896,12 @@ class _ClassBuilder:
         # To know to update them.
         additional_closure_functions_to_update = []
         if cached_properties:
-            class_annotations = _get_annotations(self._cls)
             for name, func in cached_properties.items():
                 # Add cached properties to names for slotting.
                 names += (name,)
                 # Clear out function from class to avoid clashing.
                 del cd[name]
                 additional_closure_functions_to_update.append(func)
-                annotation = inspect.signature(func).return_annotation
-                if annotation is not inspect.Parameter.empty:
-                    class_annotations[name] = annotation
-
-            original_getattr = cd.get("__getattr__")
-            if original_getattr is not None:
-                additional_closure_functions_to_update.append(original_getattr)
-
-            cd["__getattr__"] = _make_cached_property_getattr(
-                cached_properties, original_getattr, self._cls
-            )
 
         # We only add the names of attributes that aren't inherited.
         # Setting __slots__ to inherited attributes wastes memory.
@@ -955,6 +927,15 @@ class _ClassBuilder:
 
         # Create new class based on old class and our methods.
         cls = type(self._cls)(self._cls.__name__, self._cls.__bases__, cd)
+
+        # Now add back the wrapped cached properties
+        for name, func in cached_properties.items():
+            slot = getattr(cls, name)
+            if isinstance(slot, _SlottedCachedProperty):
+                slot = slot.slot
+            slotted_property = _SlottedCachedProperty(slot, func)
+            update_wrapper(slotted_property, func)
+            setattr(cls, name, slotted_property)
 
         # The following is a fix for
         # <https://github.com/python-attrs/attrs/issues/102>.
