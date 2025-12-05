@@ -948,6 +948,22 @@ def test_slots_cached_property_skips_child_getattr():
     assert b.howdy == 3
 
 
+def test_slots_cached_property_direct():
+    """
+    Test getting the wrapped cached property directly and the repr
+    """
+    from attr._make import _SlottedCachedProperty
+
+    @attr.s(slots=True)
+    class Parent:
+        @functools.cached_property
+        def name(self) -> str:
+            return "Alice"
+
+    assert isinstance(Parent.name, _SlottedCachedProperty)
+    assert repr(Parent.name).startswith("<slotted cached_property wrapper for")
+
+
 def test_slots_getattr_in_superclass__is_called_for_missing_attributes_when_cached_property_present():
     """
     Ensure __getattr__ implementation is maintained in subclass.
