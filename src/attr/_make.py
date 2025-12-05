@@ -500,8 +500,8 @@ class _SlottedCachedProperty:
     # This is a class that is used to wrap both a slot and a cached property
     # externally, users should just use `functools.cached_property` but
     # attrs' slotting behaviour will remove those, add the names to `__slots__`
-    # and after constructing the class, replace those slot descriptors with these
-    # special slotted cached property attributes
+    # and after constructing the class, replace those slot descriptors with
+    # these special slotted cached property attributes
 
     def __init__(self, slot, func):
         self.slot = slot
@@ -521,6 +521,19 @@ class _SlottedCachedProperty:
         self.slot.__set__(instance, result)
 
         return result
+
+    if sys.version_info >= (3, 14):
+        # As __annotate__ exists on the instance and not a class
+        # due to wrapping, Python 3.14 won't have __annotations__
+        # Use a property to provide them in this case
+        @property
+        def __annotations__(self):
+            return self.func.__annotations__
+
+    def __call__(self):
+        # Trick inspect.get_annotations into thinking this is callable
+        exc_msg = f"{self.__class__.__name__!r} object is not callable"
+        raise TypeError(exc_msg)
 
     def __repr__(self):
         return f"<slotted cached_property wrapper for {self.func!r}>"

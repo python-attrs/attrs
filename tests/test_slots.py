@@ -5,6 +5,7 @@ Unit tests for slots-related functionality.
 """
 
 import functools
+import inspect
 import pickle
 import weakref
 
@@ -15,7 +16,7 @@ import pytest
 import attr
 import attrs
 
-from attr._compat import PY_3_14_PLUS, PYPY
+from attr._compat import PY_3_10_PLUS, PYPY
 
 
 # Pympler doesn't work on PyPy.
@@ -869,6 +870,7 @@ def test_slots_cached_property_has_annotations():
     The slotted cached property wrapper should have the annotations
     from the wrapped object
     """
+
     @attrs.frozen(slots=True)
     class A:
         x: int
@@ -879,6 +881,10 @@ def test_slots_cached_property_has_annotations():
 
     assert A.__annotations__ == {"x": int}
     assert A.f.__annotations__ == {"return": int}
+
+    if PY_3_10_PLUS:
+        # This requires making the class "callable" for inspect
+        assert inspect.get_annotations(A.f) == {"return": int}
 
 
 def test_slots_cached_property_retains_doc():
@@ -908,6 +914,7 @@ def test_slots_cached_property_super_works():
 
     See: https://github.com/python-attrs/attrs/issues/1333
     """
+
     @attr.s(slots=True)
     class Parent:
         @functools.cached_property
@@ -945,6 +952,7 @@ def test_slots_cached_property_skips_child_getattr():
             raise AttributeError(name)
 
     b = Sup()
+
     assert b.howdy == 3
 
 
