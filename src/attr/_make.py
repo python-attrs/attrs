@@ -25,6 +25,7 @@ from ._compat import (
     PY_3_10_PLUS,
     PY_3_11_PLUS,
     PY_3_13_PLUS,
+    PY_3_14_PLUS,
     _AnnotationExtractor,
     _get_annotations,
     get_generic_base,
@@ -522,7 +523,7 @@ class _SlottedCachedProperty:
 
         return result
 
-    if sys.version_info >= (3, 14):
+    if PY_3_14_PLUS:
         # As __annotate__ exists on the instance and not a class
         # due to wrapping, Python 3.14 won't have __annotations__
         # Use a property to provide them in this case
