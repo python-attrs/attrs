@@ -865,28 +865,6 @@ def test_slots_cached_property_with_getattr_calls_getattr_for_missing_attributes
     assert a.z == "z"
 
 
-def test_slots_cached_property_has_annotations():
-    """
-    The slotted cached property wrapper should have the annotations
-    from the wrapped object
-    """
-
-    @attrs.frozen(slots=True)
-    class A:
-        x: int
-
-        @functools.cached_property
-        def f(self) -> int:
-            return self.x
-
-    assert A.__annotations__ == {"x": int}
-    assert A.f.__annotations__ == {"return": int}
-
-    if PY_3_10_PLUS:
-        # This requires making the class "callable" for inspect
-        assert inspect.get_annotations(A.f) == {"return": int}
-
-
 def test_slots_cached_property_retains_doc():
     """
     Cached property's docstring is retained
@@ -958,7 +936,7 @@ def test_slots_cached_property_skips_child_getattr():
 
 def test_slots_cached_property_direct():
     """
-    Test getting the wrapped cached property directly and the repr
+    Test getting the wrapped cached property directly
     """
     from attr._make import _SlottedCachedProperty
 
@@ -969,9 +947,6 @@ def test_slots_cached_property_direct():
             return "Alice"
 
     assert isinstance(Parent.name, _SlottedCachedProperty)
-    assert repr(Parent.name).startswith("<slotted cached_property wrapper for")
-    with pytest.raises(TypeError):
-        Parent.name()
 
 
 def test_slots_cached_property_set_delete():

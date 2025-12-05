@@ -507,6 +507,8 @@ class _SlottedCachedProperty:
     def __init__(self, slot, func):
         self.slot = slot
         self.func = func
+        self.__doc__ = self.func.__doc__
+        self.__module__ = self.func.__module__
 
     def __get__(self, instance, owner=None):
         if instance is None:
@@ -522,22 +524,6 @@ class _SlottedCachedProperty:
         self.slot.__set__(instance, result)
 
         return result
-
-    if PY_3_14_PLUS:
-        # As __annotate__ exists on the instance and not a class
-        # due to wrapping, Python 3.14 won't have __annotations__
-        # Use a property to provide them in this case
-        @property
-        def __annotations__(self):
-            return self.func.__annotations__
-
-    def __call__(self):
-        # Trick inspect.get_annotations into thinking this is callable
-        exc_msg = f"{self.__class__.__name__!r} object is not callable"
-        raise TypeError(exc_msg)
-
-    def __repr__(self):
-        return f"<slotted cached_property wrapper for {self.func!r}>"
 
     def __set__(self, obj, value):
         self.slot.__set__(obj, value)
@@ -948,7 +934,6 @@ class _ClassBuilder:
             if isinstance(slot, _SlottedCachedProperty):
                 slot = slot.slot
             slotted_property = _SlottedCachedProperty(slot, func)
-            update_wrapper(slotted_property, func)
             setattr(cls, name, slotted_property)
 
         # The following is a fix for
