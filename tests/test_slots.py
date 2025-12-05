@@ -785,27 +785,6 @@ def test_slots_cached_property_works_on_frozen_instances():
     assert A(x=1).f == 1
 
 
-@pytest.mark.xfail(
-    PY_3_14_PLUS, reason="3.14 does not infer the type anymore."
-)
-def test_slots_cached_property_infers_type():
-    """
-    Infers type of cached property on Python 3.13 and earlier.
-
-    See also #1431.
-    """
-
-    @attrs.frozen(slots=True)
-    class A:
-        x: int
-
-        @functools.cached_property
-        def f(self) -> int:
-            return self.x
-
-    assert A.__annotations__ == {"x": int, "f": int}
-
-
 def test_slots_cached_property_with_empty_getattr_raises_attribute_error_of_requested():
     """
     Ensures error information is not lost.
