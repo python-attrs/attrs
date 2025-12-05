@@ -896,11 +896,16 @@ class _ClassBuilder:
         # To know to update them.
         additional_closure_functions_to_update = []
         if cached_properties:
+            class_annotations = _get_annotations(self._cls)
             for name, func in cached_properties.items():
                 # Add cached properties to names for slotting.
                 names += (name,)
                 # Clear out function from class to avoid clashing.
                 del cd[name]
+                annotation = inspect.signature(func).return_annotation
+                if annotation is not inspect.Parameter.empty:
+                    class_annotations[name] = annotation
+
                 additional_closure_functions_to_update.append(func)
 
         # We only add the names of attributes that aren't inherited.
