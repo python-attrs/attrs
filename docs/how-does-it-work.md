@@ -110,8 +110,9 @@ Therefore, *attrs* converts `cached_property`-decorated methods when constructin
 
 Getting this working is achieved by:
 
+* Removing the wrapped methods from the original class and storing them.
 * Adding names to `__slots__` for the wrapped methods.
-* Adding a `__getattr__` method to set values on the wrapped methods.
+* Creating new `_SlottedCachedProperty` wrappers that wrap the slot descriptors together with the original functions.
 
 For most users, this should mean that it works transparently.
 
