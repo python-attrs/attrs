@@ -5,7 +5,6 @@ Unit tests for slots-related functionality.
 """
 
 import functools
-import inspect
 import pickle
 import weakref
 
