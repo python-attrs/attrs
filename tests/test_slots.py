@@ -864,6 +864,90 @@ def test_slots_cached_property_with_getattr_calls_getattr_for_missing_attributes
     assert a.z == "z"
 
 
+def test_slots_cached_property_has_annotations():
+    """
+    The slotted cached property wrapper should have the annotations
+    from the wrapped object
+    """
+    @attrs.frozen(slots=True)
+    class A:
+        x: int
+
+        @functools.cached_property
+        def f(self) -> int:
+            return self.x
+
+    assert A.__annotations__ == {"x": int}
+    assert A.f.__annotations__ == {"return": int}
+
+
+def test_slots_cached_property_retains_doc():
+    """
+    Cached property's docstring is retained
+
+    See: https://github.com/python-attrs/attrs/issues/1325
+    """
+
+    @attr.s(slots=True)
+    class A:
+        x = attr.ib()
+
+        @functools.cached_property
+        def f(self):
+            """
+            This is a docstring.
+            """
+            return self.x
+
+    assert "This is a docstring." in A.f.__doc__
+
+
+def test_slots_cached_property_super_works():
+    """
+    Calling super() with a cached property should correctly call from the parent
+
+    See: https://github.com/python-attrs/attrs/issues/1333
+    """
+    @attr.s(slots=True)
+    class Parent:
+        @functools.cached_property
+        def name(self) -> str:
+            return "Alice"
+
+    @attr.s(slots=True)
+    class Child(Parent):
+        @functools.cached_property
+        def name(self) -> str:
+            return f"Bob (son of {super().name})"
+
+    p = Parent()
+    c = Child()
+
+    assert p.name == "Alice"
+    assert c.name == "Bob (son of Alice)"
+
+
+def test_slots_cached_property_skips_child_getattr():
+    """
+    __getattr__ on child should not interfere with cached_properties
+
+    See: https://github.com/python-attrs/attrs/issues/1288
+    """
+
+    @attrs.define
+    class Bob:
+        @functools.cached_property
+        def howdy(self):
+            return 3
+
+    class Sup(Bob):
+        def __getattr__(self, name):
+            raise AttributeError(name)
+
+    b = Sup()
+    assert b.howdy == 3
+
+
 def test_slots_getattr_in_superclass__is_called_for_missing_attributes_when_cached_property_present():
     """
     Ensure __getattr__ implementation is maintained in subclass.
