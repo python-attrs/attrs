@@ -970,6 +970,27 @@ def test_slots_cached_property_direct():
 
     assert isinstance(Parent.name, _SlottedCachedProperty)
     assert repr(Parent.name).startswith("<slotted cached_property wrapper for")
+    with pytest.raises(TypeError):
+        Parent.name()
+
+
+def test_slots_cached_property_set_delete():
+    """
+    Set and Delete should work on the descriptor as on a regular
+    cached property
+    """
+
+    @attr.s(slots=True)
+    class Parent:
+        @functools.cached_property
+        def name(self) -> str:
+            return "Alice"
+
+    p = Parent()
+    p.name = "Bob"
+    assert p.name == "Bob"
+    del p.name
+    assert p.name == "Alice"
 
 
 def test_slots_getattr_in_superclass__is_called_for_missing_attributes_when_cached_property_present():
