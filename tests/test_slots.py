@@ -988,6 +988,74 @@ def test_slots_cached_property_set_delete():
     assert p.name == "Alice"
 
 
+@pytest.mark.parametrize(
+    "slotted",
+    [
+        pytest.param(
+            True,
+            marks=pytest.mark.xfail(
+                reason="field names are not checked for cached properties"
+            ),
+        ),
+        False,
+    ],
+)
+def test_cached_property_overriding_field(slotted):
+    """
+    Discrepency in cached property overriding behaviour
+
+    attrs only considers fields that are not fields to become
+    cached properties.
+
+    c.name is not converted to a cached property
+    """
+
+    @attrs.define(slots=slotted)
+    class Parent:
+        name: str = "Alice"
+
+    @attrs.define(slots=slotted)
+    class Child(Parent):
+        @functools.cached_property
+        def name(self):
+            return "Bob"
+
+    # This isn't to imply that this is good
+    # just that it's consistent
+    p = Parent()
+    c = Child()
+
+    assert p.name == "Alice"
+    assert c.name == "Alice"
+    del c.name
+    assert c.name == "Bob"  # Errors under slots
+
+
+@pytest.mark.parametrize("slotted", [True, False])
+def test_field_overriding_cached_property(slotted):
+    """
+    Check that overriding a cached property with a field
+    works the same slotted or unslotted
+    """
+    @attrs.define(slots=slotted)
+    class Parent:
+        @functools.cached_property
+        def name(self):
+            return "Alice"
+
+    @attrs.define(slots=slotted)
+    class Child(Parent):
+        name: str = "Bob"
+
+    p = Parent()
+    c = Child()
+
+    assert p.name == "Alice"
+    assert c.name == "Bob"
+    del c.name
+    assert c.name == "Alice"
+
+
 def test_slots_getattr_in_superclass__is_called_for_missing_attributes_when_cached_property_present():
     """
     Ensure __getattr__ implementation is maintained in subclass.
