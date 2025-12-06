@@ -1002,7 +1002,7 @@ def test_slots_cached_property_set_delete():
 )
 def test_cached_property_overriding_field(slotted):
     """
-    Discrepency in cached property overriding behaviour
+    Discrepancy in cached property overriding behaviour
 
     attrs only considers fields that are not fields to become
     cached properties.
