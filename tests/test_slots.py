@@ -1037,6 +1037,7 @@ def test_field_overriding_cached_property(slotted):
     Check that overriding a cached property with a field
     works the same slotted or unslotted
     """
+
     @attrs.define(slots=slotted)
     class Parent:
         @functools.cached_property
