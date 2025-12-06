@@ -497,11 +497,15 @@ def _transform_attrs(
 
 
 class _SlottedCachedProperty:
-    # This is a class that is used to wrap both a slot and a cached property
-    # externally, users should just use `functools.cached_property` but
-    # attrs' slotting behaviour will remove those, add the names to `__slots__`
-    # and after constructing the class, replace those slot descriptors with
-    # these special slotted cached property attributes
+    """
+    This is a class that is used to wrap both a slot and a cached property.
+    *It is not to be used directly.*
+    Users should just use `functools.cached_property`.
+
+    attrs' slotting behaviour will remove cached_property instances,
+    add the names to `__slots__` and after constructing the class,
+    replace those slot descriptors with instances of this class
+    """
 
     def __init__(self, slot, func):
         self.slot = slot
