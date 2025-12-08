@@ -4,6 +4,9 @@ Benchmark attrs using CodSpeed.
 
 from __future__ import annotations
 
+import functools
+import time
+
 import pytest
 
 import attrs
@@ -172,3 +175,42 @@ def test_astuple_atomic():
 
     for _ in range(ROUNDS):
         at(c)
+
+
+class TestCachedProperties:
+    @attrs.define
+    class Slotted:
+        x: int = 0
+
+        @functools.cached_property
+        def cached(self):
+            time.sleep(0.1)
+            return 42
+
+    @attrs.define(slots=False)
+    class Unslotted:
+        x: int = 0
+
+        @functools.cached_property
+        def cached(self):
+            time.sleep(0.1)
+            return 42
+
+    def test_first_access(self):
+        """
+        Benchmark first access to a cached property (computation + storage).
+        """
+        for _ in range(ROUNDS):
+            c = self.Slotted(42)
+            _ = c.cached
+
+    def test_repeated_access(self):
+        """
+        Benchmark repeated access to a cached property (should use stored
+        value).
+        """
+        c = self.Slotted(42)
+        _ = c.cached  # Prime the cache
+
+        for _ in range(ROUNDS):
+            _ = c.cached
