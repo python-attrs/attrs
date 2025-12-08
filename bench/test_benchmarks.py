@@ -214,3 +214,18 @@ class TestCachedProperties:
 
         for _ in range(ROUNDS):
             _ = c.cached
+
+    def test_create_cached_property_class(self):
+        """
+        Benchmark creating a class with a cached property
+        """
+        for _ in range(ROUNDS):
+
+            @attrs.define
+            class LocalC:
+                x: int
+                y: str
+                z: dict[str, int]
+                @functools.cached_property
+                def cached(self):
+                    return 42
