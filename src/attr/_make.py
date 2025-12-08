@@ -513,26 +513,30 @@ class _SlottedCachedProperty:
         self.__doc__ = self.func.__doc__
         self.__module__ = self.func.__module__
 
+        self._slotget = slot.__get__
+        self._slotset = slot.__set__
+        self._slotdelete = slot.__delete__
+
     def __get__(self, instance, owner=None):
         if instance is None:
             return self
 
         try:
-            return self.slot.__get__(instance, owner)
+            return self._slotget(instance, owner)
         except AttributeError:
             pass
 
         result = self.func(instance)
 
-        self.slot.__set__(instance, result)
+        self._slotset(instance, result)
 
         return result
 
     def __set__(self, obj, value):
-        self.slot.__set__(obj, value)
+        self._slotset(obj, value)
 
     def __delete__(self, obj):
-        self.slot.__delete__(obj)
+        self._slotdelete(obj)
 
 
 def _frozen_setattrs(self, name, value):
