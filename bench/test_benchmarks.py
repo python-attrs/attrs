@@ -226,6 +226,7 @@ class TestCachedProperties:
                 x: int
                 y: str
                 z: dict[str, int]
+
                 @functools.cached_property
                 def cached(self):
                     return 42
