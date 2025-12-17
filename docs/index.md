@@ -17,6 +17,7 @@ for sponsor in tomllib.loads(pathlib.Path("pyproject.toml").read_text())["tool"]
 ]]] -->
 <a href="https://www.variomedia.de/"><img title="Variomedia AG" src="_static/sponsors/Variomedia.svg" width="190" /></a>
 <a href="https://tidelift.com/?utm_source=lifter&utm_medium=referral&utm_campaign=hynek"><img title="Tidelift" src="_static/sponsors/Tidelift.svg" width="190" /></a>
+<a href="https://kraken.tech/"><img title="Kraken Tech" src="_static/sponsors/Kraken.svg" width="190" /></a>
 <a href="https://privacy-solutions.org/"><img title="Privacy Solutions" src="_static/sponsors/Privacy-Solutions.svg" width="190" /></a>
 <a href="https://filepreviews.io/"><img title="FilePreviews" src="_static/sponsors/FilePreviews.svg" width="190" /></a>
 <a href="https://www.lambdatest.com/?utm_source=structlog&utm_medium=sponsor"><img title="LambdaTest" src="_static/sponsors/LambdaTest.svg" width="190" /></a>

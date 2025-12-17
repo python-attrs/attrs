@@ -12,7 +12,7 @@
    <a href="https://bestpractices.coreinfrastructure.org/projects/6482"><img src="https://bestpractices.coreinfrastructure.org/projects/6482/badge"></a>
    <a href="https://pypi.org/project/attrs/"><img src="https://img.shields.io/pypi/v/attrs" /></a>
    <a href="https://pepy.tech/project/attrs"><img src="https://static.pepy.tech/personalized-badge/attrs?period=month&units=international_system&left_color=grey&right_color=blue&left_text=Downloads%20/%20Month" alt="Downloads per month" /></a>
-   <a href="https://zenodo.org/badge/latestdoi/29918975"><img src="https://zenodo.org/badge/29918975.svg" alt="DOI"></a>
+   <a href="https://zenodo.org/badge/latestdoi/29918975"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.17279527.svg" alt="DOI"></a>
 </p>
 
 <!-- teaser-begin -->
@@ -40,6 +40,7 @@ for sponsor in tomllib.loads(pathlib.Path("pyproject.toml").read_text())["tool"]
 ]]] -->
 <a href="https://www.variomedia.de/"><img title="Variomedia AG" src="docs/_static/sponsors/Variomedia.svg" width="190" /></a>
 <a href="https://tidelift.com/?utm_source=lifter&utm_medium=referral&utm_campaign=hynek"><img title="Tidelift" src="docs/_static/sponsors/Tidelift.svg" width="190" /></a>
+<a href="https://kraken.tech/"><img title="Kraken Tech" src="docs/_static/sponsors/Kraken.svg" width="190" /></a>
 <a href="https://privacy-solutions.org/"><img title="Privacy Solutions" src="docs/_static/sponsors/Privacy-Solutions.svg" width="190" /></a>
 <a href="https://filepreviews.io/"><img title="FilePreviews" src="docs/_static/sponsors/FilePreviews.svg" width="190" /></a>
 <a href="https://www.lambdatest.com/?utm_source=structlog&utm_medium=sponsor"><img title="LambdaTest" src="docs/_static/sponsors/LambdaTest.svg" width="190" /></a>
