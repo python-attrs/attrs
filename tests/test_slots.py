@@ -885,6 +885,178 @@ def test_slots_cached_property_with_getattr_calls_getattr_for_missing_attributes
     assert a.z == "z"
 
 
+def test_slots_cached_property_retains_doc():
+    """
+    Cached property's docstring is retained
+
+    See: https://github.com/python-attrs/attrs/issues/1325
+    """
+
+    @attr.s(slots=True)
+    class A:
+        x = attr.ib()
+
+        @functools.cached_property
+        def f(self):
+            """
+            This is a docstring.
+            """
+            return self.x
+
+    assert "This is a docstring." in A.f.__doc__
+
+
+def test_slots_cached_property_super_works():
+    """
+    Calling super() with a cached property should correctly call from the parent
+
+    See: https://github.com/python-attrs/attrs/issues/1333
+    """
+
+    @attr.s(slots=True)
+    class Parent:
+        @functools.cached_property
+        def name(self) -> str:
+            return "Alice"
+
+    @attr.s(slots=True)
+    class Child(Parent):
+        @functools.cached_property
+        def name(self) -> str:
+            return f"Bob (son of {super().name})"
+
+    p = Parent()
+    c = Child()
+
+    assert p.name == "Alice"
+    assert c.name == "Bob (son of Alice)"
+
+
+def test_slots_cached_property_skips_child_getattr():
+    """
+    __getattr__ on child should not interfere with cached_properties
+
+    See: https://github.com/python-attrs/attrs/issues/1288
+    """
+
+    @attrs.define
+    class Bob:
+        @functools.cached_property
+        def howdy(self):
+            return 3
+
+    class Sup(Bob):
+        def __getattr__(self, name):
+            raise AttributeError(name)
+
+    b = Sup()
+
+    assert b.howdy == 3
+
+
+def test_slots_cached_property_direct():
+    """
+    Test getting the wrapped cached property directly
+    """
+    from attr._make import _SlottedCachedProperty
+
+    @attr.s(slots=True)
+    class Parent:
+        @functools.cached_property
+        def name(self) -> str:
+            return "Alice"
+
+    assert isinstance(Parent.name, _SlottedCachedProperty)
+
+
+def test_slots_cached_property_set_delete():
+    """
+    Set and Delete should work on the descriptor as on a regular
+    cached property
+    """
+
+    @attr.s(slots=True)
+    class Parent:
+        @functools.cached_property
+        def name(self) -> str:
+            return "Alice"
+
+    p = Parent()
+    p.name = "Bob"
+    assert p.name == "Bob"
+    del p.name
+    assert p.name == "Alice"
+
+
+@pytest.mark.parametrize(
+    "slotted",
+    [
+        pytest.param(
+            True,
+            marks=pytest.mark.xfail(
+                reason="field names are not checked for cached properties"
+            ),
+        ),
+        False,
+    ],
+)
+def test_cached_property_overriding_field(slotted):
+    """
+    Discrepancy in cached property overriding behaviour
+
+    attrs only considers fields that are not fields to become
+    cached properties.
+
+    c.name is not converted to a cached property
+    """
+
+    @attrs.define(slots=slotted)
+    class Parent:
+        name: str = "Alice"
+
+    @attrs.define(slots=slotted)
+    class Child(Parent):
+        @functools.cached_property
+        def name(self):
+            return "Bob"
+
+    # This isn't to imply that this is good
+    # just that it's consistent
+    p = Parent()
+    c = Child()
+
+    assert p.name == "Alice"
+    assert c.name == "Alice"
+    del c.name
+    assert c.name == "Bob"  # Errors under slots
+
+
+@pytest.mark.parametrize("slotted", [True, False])
+def test_field_overriding_cached_property(slotted):
+    """
+    Check that overriding a cached property with a field
+    works the same slotted or unslotted
+    """
+
+    @attrs.define(slots=slotted)
+    class Parent:
+        @functools.cached_property
+        def name(self):
+            return "Alice"
+
+    @attrs.define(slots=slotted)
+    class Child(Parent):
+        name: str = "Bob"
+
+    p = Parent()
+    c = Child()
+
+    assert p.name == "Alice"
+    assert c.name == "Bob"
+    del c.name
+    assert c.name == "Alice"
+
+
 def test_slots_getattr_in_superclass__is_called_for_missing_attributes_when_cached_property_present():
     """
     Ensure __getattr__ implementation is maintained in subclass.
