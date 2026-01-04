@@ -97,10 +97,10 @@ class Validated:
 @attrs.define
 class ValidatedOptionalOverTuple:
     num: int | None = attrs.field(
-            validator=attrs.validators.optional(
-                (attrs.validators.instance_of(int), attrs.validators.ge(0))
-                )
-            )
+        validator=attrs.validators.optional(
+            (attrs.validators.instance_of(int), attrs.validators.ge(0))
+        )
+    )
 
 
 @attrs.define
