@@ -2280,6 +2280,7 @@ def _attrs_to_init_script(
 
             init_factory_name = _INIT_FACTORY_PAT % (a.name,)
             if converter is not None:
+                # arg was passed explicitly → validate immediately
                 lines.append(
                     "    "
                     + fmt_setter_with_converter(
@@ -2287,11 +2288,25 @@ def _attrs_to_init_script(
                     )
                 )
                 lines.append("else:")
+                # no arg passed → run factory → validate → assign
+                lines.append(
+                    "    "
+                    + f"val = {init_factory_name}({maybe_self})"
+                )
+                if a.validator is not None:
+                    val_name = "__attr_validator_" + a.name
+                    attr_name_ref = "__attr_" + a.name
+                    lines.append(
+                        "    "
+                        + f"{val_name}(self, {attr_name_ref}, val)"
+                    )
+                    names_for_globals[val_name] = a.validator
+                    names_for_globals[attr_name_ref] = a
                 lines.append(
                     "    "
                     + fmt_setter_with_converter(
                         attr_name,
-                        init_factory_name + "(" + maybe_self + ")",
+                        "val",
                         has_on_setattr,
                         converter,
                     )
@@ -2300,37 +2315,30 @@ def _attrs_to_init_script(
                     converter.converter
                 )
             else:
+                # arg passed explicitly → validate immediately
                 lines.append(
                     "    " + fmt_setter(attr_name, arg_name, has_on_setattr)
                 )
                 lines.append("else:")
+                # no arg passed → run factory → validate → assign
+                lines.append(
+                    "    "
+                    + f"val = {init_factory_name}({maybe_self})"
+                )
+                lines.append(
+                    "    "
+                    + f"{validator_name}(self, a, val)"
+                )
                 lines.append(
                     "    "
                     + fmt_setter(
                         attr_name,
-                        init_factory_name + "(" + maybe_self + ")",
+                        "val",
                         has_on_setattr,
                     )
                 )
-            names_for_globals[init_factory_name] = a.default.factory
-        else:
-            if a.kw_only:
-                kw_only_args.append(arg_name)
-            else:
-                args.append(arg_name)
-                pre_init_args.append(arg_name)
 
-            if converter is not None:
-                lines.append(
-                    fmt_setter_with_converter(
-                        attr_name, arg_name, has_on_setattr, converter
-                    )
-                )
-                names_for_globals[converter._get_global_name(a.name)] = (
-                    converter.converter
-                )
-            else:
-                lines.append(fmt_setter(attr_name, arg_name, has_on_setattr))
+            names_for_globals[init_factory_name] = a.default.factory
 
         if a.init is True:
             if a.type is not None and converter is None:
