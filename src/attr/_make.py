@@ -2289,17 +2289,11 @@ def _attrs_to_init_script(
                 )
                 lines.append("else:")
                 # no arg passed → run factory → validate → assign
-                lines.append(
-                    "    "
-                    + f"val = {init_factory_name}({maybe_self})"
-                )
+                lines.append(f"    val = {init_factory_name}({maybe_self})")
                 if a.validator is not None:
                     val_name = "__attr_validator_" + a.name
                     attr_name_ref = "__attr_" + a.name
-                    lines.append(
-                        "    "
-                        + f"{val_name}(self, {attr_name_ref}, val)"
-                    )
+                    lines.append(f"    {val_name}(self, {attr_name_ref}, val)")
                     names_for_globals[val_name] = a.validator
                     names_for_globals[attr_name_ref] = a
                 lines.append(
@@ -2321,17 +2315,11 @@ def _attrs_to_init_script(
                 )
                 lines.append("else:")
                 # no arg passed → run factory → validate → assign
-                lines.append(
-                    "    "
-                    + f"val = {init_factory_name}({maybe_self})"
-                )
+                lines.append(f"    val = {init_factory_name}({maybe_self})")
                 if a.validator is not None:
                     val_name = "__attr_validator_" + a.name
                     attr_name_ref = "__attr_" + a.name
-                    lines.append(
-                        "    "
-                        + f"{val_name}(self, {attr_name_ref}, val)"
-                    )
+                    lines.append(f"    {val_name}(self, {attr_name_ref}, val)")
                     names_for_globals[val_name] = a.validator
                     names_for_globals[attr_name_ref] = a
                 lines.append(
