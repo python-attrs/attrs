@@ -1,5 +1,7 @@
-from attrs import define, field, validators
 import pytest
+
+from attrs import define, field, validators
+
 
 def test_default_factory_runs_after_required_validation():
     def make_b():
@@ -8,8 +10,9 @@ def test_default_factory_runs_after_required_validation():
     @define
     class Item:
         a: int = field(validator=validators.gt(0))
-        b: int = field(default=None, factory=make_b,
-                       validator=validators.gt(0))
+        b: int = field(
+            default=None, factory=make_b, validator=validators.gt(0)
+        )
 
     obj = Item(5)
     assert obj.b == 10
@@ -24,8 +27,9 @@ def test_cross_field_validator_sees_final_defaults():
     @define
     class Item:
         a: int = field()
-        b: int = field(default=None, factory=lambda: 5,
-                       validator=cross_validate)
+        b: int = field(
+            default=None, factory=lambda: 5, validator=cross_validate
+        )
 
     with pytest.raises(ValueError):
         Item(5)
