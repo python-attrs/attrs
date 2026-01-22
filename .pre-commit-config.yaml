@@ -20,7 +20,7 @@ repos:
     rev: v2.4.1
     hooks:
       - id: codespell
-        args: [--exclude-file=tests/test_mypy.yml]
+        args: [--exclude-file=tests/test_mypy.yml, --skip=*.svg]
 
   - repo: https://github.com/abravalheri/validate-pyproject
     rev: v0.24.1
