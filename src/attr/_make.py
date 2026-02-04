@@ -569,7 +569,7 @@ def _frozen_delattrs(self, name):
     """
     Attached to frozen classes as __delattr__.
     """
-    if isinstance(self, BaseException) and name in ("__notes__",):
+    if isinstance(self, BaseException) and name == "__notes__":
         BaseException.__delattr__(self, name)
         return
 
@@ -1096,9 +1096,7 @@ class _ClassBuilder:
         return self
 
     def add_replace(self):
-        self._cls_dict["__replace__"] = self._add_method_dunders(
-            lambda self, **changes: evolve(self, **changes)
-        )
+        self._cls_dict["__replace__"] = self._add_method_dunders(evolve)
         return self
 
     def add_match_args(self):
@@ -3087,9 +3085,7 @@ class Converter:
                 value, field
             )
         else:
-            self.__call__ = lambda value, instance, field: self.converter(
-                value, instance, field
-            )
+            self.__call__ = self.converter
 
         rt = ex.get_return_type()
         if rt is not None:
