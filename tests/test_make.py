@@ -116,9 +116,7 @@ class TestCountingAttr:
 
         assert v == a._validator
 
-    @pytest.mark.parametrize(
-        "wrap", [lambda v: v, lambda v: [v], lambda v: and_(v)]
-    )
+    @pytest.mark.parametrize("wrap", [lambda v: v, lambda v: [v], and_])
     def test_validator_decorator(self, wrap):
         """
         If _CountingAttr.validator is used as a decorator and there is already
@@ -1775,9 +1773,7 @@ class TestConverter:
         """
         Converters circumvent immutability.
         """
-        C = make_class(
-            "C", {"x": attr.ib(converter=lambda v: int(v))}, frozen=True
-        )
+        C = make_class("C", {"x": attr.ib(converter=int)}, frozen=True)
         C("1")
 
 
