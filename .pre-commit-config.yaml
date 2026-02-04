@@ -4,7 +4,7 @@ ci:
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.10
+    rev: v0.15.0
     hooks:
       - id: ruff-check
         args: [--fix, --exit-non-zero-on-fix]
@@ -20,10 +20,10 @@ repos:
     rev: v2.4.1
     hooks:
       - id: codespell
-        args: [--exclude-file=tests/test_mypy.yml]
+        args: [--exclude-file=tests/test_mypy.yml, --skip=*.svg]
 
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.24.1
+    rev: v0.25
     hooks:
       - id: validate-pyproject
         # Optional extra validations from SchemaStore:
