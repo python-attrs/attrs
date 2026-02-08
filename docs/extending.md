@@ -248,13 +248,13 @@ Data(a=3, b='spam', c=datetime.datetime(2020, 5, 4, 13, 37))
 ```
 
 Or, perhaps you would prefer to generate dataclass-compatible `__init__` signatures via a default field *alias*.
-Note, *field_transformer* operates on {class}`attrs.Attribute` instances before the default private-attribute handling is applied so explicit user-provided aliases can be detected.
+Note, *field_transformer* receives {class}`attrs.Attribute` instances with default aliases already resolved (e.g., leading-underscore stripping has been applied), so you can compare against the default to detect explicit user-provided aliases.
 
 ```{doctest}
 >>> def dataclass_names(cls, fields):
 ...     return [
 ...         field.evolve(alias=field.name)
-...         if not field.alias
+...         if field.alias == field.name.lstrip("_")
 ...         else field
 ...         for field in fields
 ...     ]
