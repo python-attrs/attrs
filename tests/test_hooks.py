@@ -292,6 +292,44 @@ class TestTransformHook:
 
         assert "my_alias" == attr.fields(C).renamed.alias
 
+    def test_hook_new_field_without_alias(self):
+        """
+        When a field_transformer adds a brand-new field without setting an
+        alias, the post-transformer alias resolution fills it in.
+
+        Regression test for #1479.
+        """
+
+        def hook(cls, attribs):
+            return list(attribs) + [
+                attr.Attribute(
+                    name="_extra",
+                    default=0,
+                    validator=None,
+                    repr=True,
+                    cmp=None,
+                    hash=None,
+                    init=True,
+                    metadata={},
+                    type=int,
+                    converter=None,
+                    kw_only=False,
+                    eq=True,
+                    eq_key=None,
+                    order=True,
+                    order_key=None,
+                    on_setattr=None,
+                    alias=None,
+                    inherited=False,
+                )
+            ]
+
+        @attr.s(auto_attribs=True, field_transformer=hook)
+        class C:
+            x: int
+
+        assert "extra" == attr.fields(C)._extra.alias
+
 
 class TestAsDictHook:
     def test_asdict(self):
