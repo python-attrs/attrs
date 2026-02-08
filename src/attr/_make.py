@@ -463,6 +463,15 @@ def _transform_attrs(
 
     attrs = base_attrs + own_attrs
 
+    # Resolve default field alias before executing field_transformer,
+    # so that the transformer receives fully populated Attribute objects
+    # with usable alias values instead of None.
+    # See: https://github.com/python-attrs/attrs/issues/1479
+    for a in attrs:
+        if not a.alias:
+            # Evolve is very slow, so we hold our nose and do it dirty.
+            _OBJ_SETATTR.__get__(a)("alias", _default_init_alias_for(a.name))
+
     if field_transformer is not None:
         attrs = tuple(field_transformer(cls, attrs))
 
@@ -480,12 +489,10 @@ def _transform_attrs(
         if had_default is False and a.default is not NOTHING:
             had_default = True
 
-    # Resolve default field alias after executing field_transformer.
-    # This allows field_transformer to differentiate between explicit vs
-    # default aliases and supply their own defaults.
+    # Resolve default field alias for any new attributes that the
+    # field_transformer may have added without setting an alias.
     for a in attrs:
         if not a.alias:
-            # Evolve is very slow, so we hold our nose and do it dirty.
             _OBJ_SETATTR.__get__(a)("alias", _default_init_alias_for(a.name))
 
     # Create AttrsClass *after* applying the field_transformer since it may
@@ -2584,6 +2591,18 @@ class Attribute:
         new = copy.copy(self)
 
         new._setattrs(changes.items())
+
+        # If the name changed but alias was not explicitly provided in
+        # changes, update the alias if it was auto-generated (i.e., it
+        # matches the default alias for the *old* name).
+        if (
+            "name" in changes
+            and "alias" not in changes
+            and self.alias == _default_init_alias_for(self.name)
+        ):
+            _OBJ_SETATTR.__get__(new)(
+                "alias", _default_init_alias_for(new.name)
+            )
 
         return new
 
