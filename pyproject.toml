@@ -145,7 +145,7 @@ img = "FilePreviews.svg"
 
 [[tool.sponcon.sponsors]]
 title = "TestMu AI"
-url = "https://www.testmu.ai/?utm_source=structlog&utm_medium=sponsor"
+url = "https://www.testmuai.com/?utm_medium=sponsor&utm_source=structlog"
 img = "TestMu-AI.svg"
 
 [[tool.sponcon.sponsors]]
