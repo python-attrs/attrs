@@ -95,6 +95,19 @@ class Validated:
 
 
 @attrs.define
+class ValidatedOptionalOverTuple:
+    num: int | None = attrs.field(
+        validator=attrs.validators.optional(
+            (attrs.validators.instance_of(int), attrs.validators.ge(0))
+            # `int(0)` needed to avoid false positive
+            #     `invalid-argument-type` when checking with
+            #     ty 0.0.8 (aa7559db8 2025-12-29): ty assumes `ge`'s
+            #     specialization is `Literal[0]` rather than `int`
+        )
+    )
+
+
+@attrs.define
 class ValidatedInconsistentOr:
     num: int | str = attrs.field(
         validator=attrs.validators.or_(

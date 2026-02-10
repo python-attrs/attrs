@@ -54,7 +54,7 @@ def optional(
     validator: (
         _ValidatorType[_T]
         | list[_ValidatorType[_T]]
-        | tuple[_ValidatorType[_T]]
+        | tuple[_ValidatorType[_T], ...]
     ),
 ) -> _ValidatorType[_T | None]: ...
 def in_(options: Container[_T]) -> _ValidatorType[_T]: ...
