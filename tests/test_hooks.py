@@ -301,7 +301,7 @@ class TestTransformHook:
         """
 
         def hook(cls, attribs):
-            return list(attribs) + [
+            return [*attribs,
                 attr.Attribute(
                     name="_extra",
                     default=0,
