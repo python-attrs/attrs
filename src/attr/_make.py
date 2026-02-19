@@ -527,7 +527,6 @@ def _make_cached_property_uncached(original_cached_property_func, cls):
     annotation = inspect.signature(
         original_cached_property_func
     ).return_annotation
-    name = original_cached_property_func.__name__
     if annotation is inspect.Parameter.empty:
         defline = f"def {name}(self):"
     elif isinstance(
