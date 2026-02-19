@@ -768,6 +768,31 @@ def test_slots_cached_property_has_docstring():
     assert A(11).f.__doc__ == "What an informative docstring!"
 
 
+def test_slots_cached_property_has_multiline_docstring():
+    """
+    cached_property in slotted class carries the original, multiline docstring
+    """
+
+    @attr.s(slots=True)
+    class A:
+        x = attr.ib()
+
+        @functools.cached_property
+        def f(self):
+            """This function is so well documented,
+
+            I had to put newlines in
+
+            """
+            return self.x
+
+    assert A(22).f.__doc__ == """This function is so well documented,
+
+            I had to put newlines in
+
+            """
+
+
 
 def test_slots_cached_property_class_does_not_have__dict__():
     """
