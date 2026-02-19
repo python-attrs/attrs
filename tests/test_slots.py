@@ -765,7 +765,7 @@ def test_slots_cached_property_has_docstring():
             """What an informative docstring!"""
             return self.x
 
-    assert A(11).f.__doc__ == "What an informative docstring!"
+    assert A.f.__doc__ == "What an informative docstring!"
 
 
 def test_slots_cached_property_has_multiline_docstring():
@@ -786,11 +786,7 @@ def test_slots_cached_property_has_multiline_docstring():
             """
             return self.x
 
-    assert A(22).f.__doc__ == """This function is so well documented,
-
-            I had to put newlines in
-
-            """
+    assert A.f.__doc__ == """This function is so well documented,\n\nI had to put newlines in\n\n"""
 
 
 
