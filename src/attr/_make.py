@@ -495,64 +495,6 @@ def _transform_attrs(
 
     return _Attributes(AttrsClass(attrs), base_attrs, base_attr_map)
 
-
-def _make_cached_property_getattr(cached_properties, original_getattr, cls):
-    lines = [
-        # Wrapped to get `__class__` into closure cell for super()
-        # (It will be replaced with the newly constructed class after construction).
-        "def wrapper(_cls):",
-        "    __class__ = _cls",
-        "    def __getattr__(self, item, cached_properties=cached_properties, original_getattr=original_getattr, _cached_setattr_get=_cached_setattr_get):",
-        "         func = cached_properties.get(item)",
-        "         if func is not None:",
-        "              cache = item + '_cache'",
-        "              cached = _cls.__dict__[cache]",
-        "              try:",
-        "                  return cached.__get__(self, _cls)",
-        "              except AttributeError:",
-        "                  pass",
-        "              result = func(self)",
-        "              cached.__set__(self, result)",
-        "              return result",
-    ]
-    if original_getattr is not None:
-        lines.append(
-            "         return original_getattr(self, item)",
-        )
-    else:
-        lines.extend(
-            [
-                "         try:",
-                "             return super().__getattribute__(item)",
-                "         except AttributeError:",
-                "             if not hasattr(super(), '__getattr__'):",
-                "                 raise",
-                "             return super().__getattr__(item)",
-                "         original_error = f\"'{self.__class__.__name__}' object has no attribute '{item}'\"",
-                "         raise AttributeError(original_error)",
-            ]
-        )
-
-    lines.extend(
-        [
-            "    return __getattr__",
-            "__getattr__ = wrapper(_cls)",
-        ]
-    )
-
-    unique_filename = _generate_unique_filename(cls, "getattr")
-
-    glob = {
-        "cached_properties": cached_properties,
-        "_cached_setattr_get": _OBJ_SETATTR.__get__,
-        "original_getattr": original_getattr,
-    }
-
-    return _linecache_and_compile(
-        "\n".join(lines), unique_filename, glob, locals={"_cls": cls}
-    )["__getattr__"]
-
-
 def _make_cached_property_uncached(original_cached_property_func, cls):
     """Make an ordinary :deco:`property` to replace a :deco:`cached_property`
 
@@ -585,6 +527,7 @@ def _make_cached_property_uncached(original_cached_property_func, cls):
     annotation = inspect.signature(
         original_cached_property_func
     ).return_annotation
+    name = original_cached_property_func.__name__
     if annotation is inspect.Parameter.empty:
         defline = f"def {name}(self):"
     elif isinstance(
@@ -601,7 +544,19 @@ def _make_cached_property_uncached(original_cached_property_func, cls):
         "@property",
         defline,
         *doc_lines,
-        "    raise AttributeError('Use __getattr__ instead')",
+        "    for entry in type.__dict__['__mro__'].__get__(self.__class__):",
+        f"        if '{name}_cache' in entry.__dict__:",
+        f"            descriptor = entry.__dict__['{name}_cache']",
+        "            break",
+        "    else:",
+        "        raise AttributeError('No descriptor')",
+        "    try:",
+        "        return descriptor.__get__(self, self.__class__)",
+        "    except AttributeError:",
+        "        pass",
+        "    result = original_cached_property(self)",
+        "    descriptor.__set__(self, result)",
+        "    return result",
     ]
     unique_filename = _generate_unique_filename(
         cls, original_cached_property_func
@@ -991,10 +946,6 @@ class _ClassBuilder:
             original_getattr = cd.get("__getattr__")
             if original_getattr is not None:
                 additional_closure_functions_to_update.append(original_getattr)
-
-            cd["__getattr__"] = _make_cached_property_getattr(
-                cached_properties, original_getattr, self._cls
-            )
 
         # We only add the names of attributes that aren't inherited.
         # Setting __slots__ to inherited attributes wastes memory.
