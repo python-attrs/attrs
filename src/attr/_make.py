@@ -508,11 +508,12 @@ def _make_cached_property_getattr(cached_properties, original_getattr, cls):
         "              cache = item + '_cache'",
         "              cached = _cls.__dict__[cache]",
         "              try:",
-        "                  return cached.__get__(self, type(self))",
+        "                  return cached.__get__(self, _cls)",
         "              except AttributeError:",
-        "                  result = func(self)",
-        "                  cached.__set__(self, result)",
-        "                  return result",
+        "                  pass",
+        "              result = func(self)",
+        "              cached.__set__(self, result)",
+        "              return result",
     ]
     if original_getattr is not None:
         lines.append(
