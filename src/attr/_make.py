@@ -505,6 +505,7 @@ def _make_cached_property_getattr(cached_properties, original_getattr, cls):
         "    def __getattr__(self, item, cached_properties=cached_properties, original_getattr=original_getattr, _cached_setattr_get=_cached_setattr_get):",
         "         func = cached_properties.get(item)",
         "         if func is not None:",
+        "              item = item + '_cache'",
         "              result = func(self)",
         "              _setter = _cached_setattr_get(self)",
         "              _setter(item, result)",
@@ -546,6 +547,40 @@ def _make_cached_property_getattr(cached_properties, original_getattr, cls):
     return _linecache_and_compile(
         "\n".join(lines), unique_filename, glob, locals={"_cls": cls}
     )["__getattr__"]
+
+
+def _make_cached_property_uncached(original_cached_property_func, cls):
+    """Make an ordinary :deco:`property` to replace a :deco:`cached_property`
+
+    This is mainly done for documentation purposes. The generated
+    :deco:`property` won't be called, because of our custom :meth:`__getattr__`.
+    We still want it there, so that its docstring is accessible, both to
+    :function:`help` and to documentation generators, such as Sphinx.
+
+    """
+    name = original_cached_property_func.__name__
+    doc = original_cached_property_func.__doc__
+    doc_lines = []
+    if doc is not None:
+        doc_lines = doc.splitlines(True)
+        doc_lines[0] = '"""' + doc_lines[0]
+        doc_lines.append("\n")
+        doc_lines.append('"""')
+
+    annotation = inspect.signature(original_cached_property_func).return_annotation
+    if annotation is inspect.Parameter.empty:
+        defline = f"def {name}(self):"
+    else:
+        defline = f"def {name}(self) -> {annotation}:"
+    lines = [
+        "@property",
+        defline,
+        *("    " + line for line in doc_lines),
+        f"    return self.__getattr__('{name}_cache')"
+    ]
+    unique_filename = _generate_unique_filename(cls, original_cached_property_func)
+    glob = {"original_cached_property": original_cached_property_func}
+    return _linecache_and_compile("\n".join(lines), unique_filename, glob)[name]
 
 
 def _frozen_setattrs(self, name, value):
@@ -915,13 +950,14 @@ class _ClassBuilder:
             class_annotations = _get_annotations(self._cls)
             for name, func in cached_properties.items():
                 # Add cached properties to names for slotting.
-                names += (name,)
+                names += (name + '_cache',)
                 # Clear out function from class to avoid clashing.
                 del cd[name]
                 additional_closure_functions_to_update.append(func)
                 annotation = inspect.signature(func).return_annotation
                 if annotation is not inspect.Parameter.empty:
                     class_annotations[name] = annotation
+                cd[name] = _make_cached_property_uncached(func, self._cls)
 
             original_getattr = cd.get("__getattr__")
             if original_getattr is not None:
