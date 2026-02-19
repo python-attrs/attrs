@@ -570,8 +570,12 @@ def _make_cached_property_uncached(original_cached_property_func, cls):
     annotation = inspect.signature(original_cached_property_func).return_annotation
     if annotation is inspect.Parameter.empty:
         defline = f"def {name}(self):"
-    else:
+    elif isinstance(annotation, str):
         defline = f"def {name}(self) -> {annotation}:"
+    else:
+        import annotationlib
+
+        defline = f"def {name}(self) -> {annotationlib.type_repr(annotation)}:"
     lines = [
         "@property",
         defline,
