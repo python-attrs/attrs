@@ -751,6 +751,7 @@ def test_slots_cached_property_allows_call():
 
     assert A(11).f == 11
 
+
 def test_slots_cached_property_has_docstring():
     """
     cached_property in slotted class carries its original docstring
@@ -766,7 +767,6 @@ def test_slots_cached_property_has_docstring():
             return self.x
 
     assert A(11).f.__doc__ == "What an informative docstring!"
-
 
 
 def test_slots_cached_property_class_does_not_have__dict__():
