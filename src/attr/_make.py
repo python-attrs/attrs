@@ -591,7 +591,7 @@ def _make_cached_property_uncached(original_cached_property_func, cls):
         "@property",
         defline,
         *("    " + line for line in doc_lines),
-        f"    return self.__getattr__('{name}_cache')"
+        f"    return self.__getattr__('{name}')"
     ]
     unique_filename = _generate_unique_filename(cls, original_cached_property_func)
     glob = {"original_cached_property": original_cached_property_func}
