@@ -5,6 +5,7 @@ Unit tests for slots-related functionality.
 """
 
 import functools
+import inspect
 import pickle
 import weakref
 
@@ -750,6 +751,34 @@ def test_slots_cached_property_allows_call():
             return self.x
 
     assert A(11).f == 11
+
+
+def test_slots_cached_property_return_annotation():
+    """
+    cached_property in slotted class preserves return annotation
+    """
+
+    @attr.s(slots=True)
+    class A:
+        @functools.cached_property
+        def f(self) -> int:
+            return 33
+
+    return_annotation = inspect.signature(A.f.fget).return_annotation
+    if isinstance(return_annotation, str):
+        return_annotation = eval(return_annotation)
+    assert return_annotation is int
+
+    @attr.s(slots=True)
+    class B:
+        @functools.cached_property
+        def f(self) -> functools.partial:
+            return functools.partial(print, "Hello, world!")
+
+    return_annotation = inspect.signature(B.f.fget).return_annotation
+    if isinstance(return_annotation, str):
+        return_annotation = eval(return_annotation)
+    assert return_annotation is functools.partial
 
 
 def test_slots_cached_property_has_docstring():
