@@ -498,10 +498,9 @@ def _transform_attrs(
 def _make_cached_property_uncached(original_cached_property_func, cls):
     """Make an ordinary :deco:`property` to replace a :deco:`cached_property`
 
-    This is mainly done for documentation purposes. The generated
-    :deco:`property` won't be called, because of our custom :meth:`__getattr__`.
-    We still want it there, so that its docstring is accessible, both to
-    :function:`help` and to documentation generators, such as Sphinx.
+    The :deco:`property` will work on slotted instances. We'll make a slot
+    to keep the result of :func:`original_cached_property_func`, named like it,
+    with the suffix ``_cached``.
 
     """
     name = original_cached_property_func.__name__
