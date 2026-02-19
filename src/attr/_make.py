@@ -573,9 +573,10 @@ def _make_cached_property_uncached(original_cached_property_func, cls):
         else:
             doc_lines[0] = '"""' + doc_lines[0]
             for i, line in enumerate(doc_lines):
-                if line:
-                    doc_lines[i] = "    " + line
-            doc_lines.append("")
+                if line.strip():
+                    doc_lines[i] = "    " + line.rstrip()
+                else:
+                    doc_lines[i] = line.rstrip()
             doc_lines.append('    """')
 
     annotation = inspect.signature(
