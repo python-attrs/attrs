@@ -1055,7 +1055,7 @@ def test_slots_sub_class_with_actual_slot():
         f: int = attr.ib()
 
     assert B(1, 2).f == 2
-    assert B.__slots__ == ()
+    assert B.__slots__ == ("f",)
 
 
 def test_slots_cached_property_is_not_called_at_construction():
