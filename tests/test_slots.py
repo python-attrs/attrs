@@ -780,6 +780,15 @@ def test_slots_cached_property_return_annotation():
         return_annotation = eval(return_annotation)
     assert return_annotation is functools.partial
 
+    @attr.s(slots=True)
+    class C:
+        @functools.cached_property
+        def f(self) -> "wow":
+            return "wow"
+
+    return_annotation = inspect.signature(C.f.fget).return_annotation
+    assert return_annotation == "wow"
+
 
 def test_slots_cached_property_has_docstring():
     """
