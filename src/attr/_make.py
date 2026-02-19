@@ -590,8 +590,8 @@ def _make_cached_property_uncached(original_cached_property_func, cls):
     if annotation is inspect.Parameter.empty:
         defline = f"def {name}(self):"
     elif isinstance(
-            annotation,
-            (type, types.FunctionType, types.BuiltinFunctionType),
+        annotation,
+        (type, types.FunctionType, types.BuiltinFunctionType),
     ):
         if annotation.__module__ == "builtins":
             defline = f"def {name}(self) -> {annotation.__qualname__}:"
