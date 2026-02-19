@@ -568,9 +568,15 @@ def _make_cached_property_uncached(original_cached_property_func, cls):
     doc_lines = []
     if doc is not None:
         doc_lines = doc.splitlines(True)
-        doc_lines[0] = '"""' + doc_lines[0]
-        doc_lines.append("\n")
-        doc_lines.append('"""')
+        if len(doc_lines) == 1:
+            doc_lines = ['"""' + doc_lines[0] + '"""']
+        else:
+            doc_lines[0] = '"""' + doc_lines[0]
+            for i, line in enumerate(doc_lines):
+                if line:
+                    doc_lines[i] = "    " + line
+            doc_lines.append("")
+            doc_lines.append('    """')
 
     annotation = inspect.signature(
         original_cached_property_func
@@ -602,7 +608,7 @@ def _make_cached_property_uncached(original_cached_property_func, cls):
     lines = [
         "@property",
         defline,
-        *("    " + line for line in doc_lines),
+        *doc_lines,
         "    raise AttributeError('Use __getattr__ instead')",
     ]
     unique_filename = _generate_unique_filename(
