@@ -783,11 +783,11 @@ def test_slots_cached_property_return_annotation():
     @attr.s(slots=True)
     class C:
         @functools.cached_property
-        def f(self) -> "wow":
+        def f(self) -> "attr.NOTHING":
             return "wow"
 
     return_annotation = inspect.signature(C.f.fget).return_annotation
-    assert return_annotation == "wow"
+    assert return_annotation == "attr.NOTHING"
 
 
 def test_slots_cached_property_has_docstring():
