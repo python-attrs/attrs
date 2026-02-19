@@ -10,6 +10,7 @@ import inspect
 import itertools
 import linecache
 import sys
+import textwrap
 import types
 import unicodedata
 import weakref
@@ -567,17 +568,21 @@ def _make_cached_property_uncached(original_cached_property_func, cls):
     doc = original_cached_property_func.__doc__
     doc_lines = []
     if doc is not None:
-        doc_lines = doc.splitlines(True)
+        doc_lines = doc.splitlines()
         if len(doc_lines) == 1:
             doc_lines = ['    """' + doc_lines[0] + '"""']
         else:
-            doc_lines[0] = '    """' + doc_lines[0].rstrip()
+            line0 = '    """' + doc_lines[0].strip()
             for i, line in enumerate(doc_lines[1:], start=1):
-                if line.strip():
-                    doc_lines[i] = "    " + line.rstrip()
+                line = line.strip()
+                if line:
+                    doc_lines[i] = "    " + line
                 else:
-                    doc_lines[i] = line.rstrip()
-            doc_lines.append('    """')
+                    doc_lines[i] = ""
+            if len(doc_lines) > 2 and doc_lines[-2] == doc_lines[-1] == "":
+                doc_lines = [line0] + doc_lines[1:-1] + ['    """']
+            else:
+                doc_lines = [line0] + doc_lines[1:] + ['    """']
 
     annotation = inspect.signature(
         original_cached_property_func

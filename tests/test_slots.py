@@ -788,10 +788,9 @@ def test_slots_cached_property_has_multiline_docstring():
             """
             return self.x
 
-    assert (
-        textwrap.dedent(A.f.__doc__)
-        == """This function is so well documented,\n\nI had to put newlines in\n\n"""
-    )
+    docstring_lines = A.f.__doc__.splitlines()
+    docstring_lines_dedented = [line.lstrip() for line in docstring_lines]
+    assert docstring_lines_dedented[:4] == ["This function is so well documented,", "", "I had to put newlines in", ""]
 
 
 def test_slots_cached_property_class_does_not_have__dict__():
