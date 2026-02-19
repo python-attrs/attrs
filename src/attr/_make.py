@@ -505,10 +505,10 @@ def _make_cached_property_getattr(cached_properties, original_getattr, cls):
         "    def __getattr__(self, item, cached_properties=cached_properties, original_getattr=original_getattr, _cached_setattr_get=_cached_setattr_get):",
         "         func = cached_properties.get(item)",
         "         if func is not None:",
-        "              item = item + '_cache'",
+        "              cache = item + '_cache'",
         "              result = func(self)",
         "              _setter = _cached_setattr_get(self)",
-        "              _setter(item, result)",
+        "              _setter(cache, result)",
         "              return result",
     ]
     if original_getattr is not None:
@@ -573,9 +573,20 @@ def _make_cached_property_uncached(original_cached_property_func, cls):
     elif isinstance(annotation, str):
         defline = f"def {name}(self) -> {annotation}:"
     else:
-        import annotationlib
+        try:
+            import annotationlib
 
-        defline = f"def {name}(self) -> {annotationlib.type_repr(annotation)}:"
+            defline = f"def {name}(self) -> {annotationlib.type_repr(annotation)}:"
+        except ModuleNotFoundError:
+            if isinstance(annotation, (type, types.FunctionType, types.BuiltinFunctionType)):
+                if annotation.__module__ == "builtins":
+                    defline = f"def {name}(self) -> {annotation.__qualname__}:"
+                else:
+                    defline = f"def {name}(self) -> {annotation.__module__}.{annotation.__qualname__}"
+            elif annotation in (..., types.EllipsisType):
+                defline = f"def {name}(self) -> ...:"
+            else:
+                defline = f"def {name}(self) -> {annotation}"
     lines = [
         "@property",
         defline,
