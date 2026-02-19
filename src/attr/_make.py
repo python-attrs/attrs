@@ -10,7 +10,6 @@ import inspect
 import itertools
 import linecache
 import sys
-import textwrap
 import types
 import unicodedata
 import weakref
