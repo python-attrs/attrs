@@ -590,26 +590,16 @@ def _make_cached_property_uncached(original_cached_property_func, cls):
     assert not isinstance(annotation, str)
     if annotation is inspect.Parameter.empty:
         defline = f"def {name}(self):"
+    elif isinstance(
+            annotation,
+            (type, types.FunctionType, types.BuiltinFunctionType),
+    ):
+        if annotation.__module__ == "builtins":
+            defline = f"def {name}(self) -> {annotation.__qualname__}:"
+        else:
+            defline = f"def {name}(self) -> {annotation.__module__}.{annotation.__qualname__}:"
     else:
-        try:
-            import annotationlib
-
-            defline = (
-                f"def {name}(self) -> {annotationlib.type_repr(annotation)}:"
-            )
-        except ModuleNotFoundError:
-            if isinstance(
-                annotation,
-                (type, types.FunctionType, types.BuiltinFunctionType),
-            ):
-                if annotation.__module__ == "builtins":
-                    defline = f"def {name}(self) -> {annotation.__qualname__}:"
-                else:
-                    defline = f"def {name}(self) -> {annotation.__module__}.{annotation.__qualname__}:"
-            elif annotation in (..., types.EllipsisType):
-                defline = f"def {name}(self) -> ...:"
-            else:
-                defline = f"def {name}(self) -> {annotation}:"
+        defline = f"def {name}(self) -> {annotation}:"
     lines = [
         "@property",
         defline,
