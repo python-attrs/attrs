@@ -941,10 +941,6 @@ class _ClassBuilder:
                     class_annotations[name] = annotation
                 cd[name] = _make_cached_property_uncached(func, self._cls)
 
-            original_getattr = cd.get("__getattr__")
-            if original_getattr is not None:
-                additional_closure_functions_to_update.append(original_getattr)
-
         # We only add the names of attributes that aren't inherited.
         # Setting __slots__ to inherited attributes wastes memory.
         slot_names = [name for name in names if name not in base_names]
