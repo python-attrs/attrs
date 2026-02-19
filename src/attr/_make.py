@@ -495,6 +495,7 @@ def _transform_attrs(
 
     return _Attributes(AttrsClass(attrs), base_attrs, base_attr_map)
 
+
 def _make_cached_property_uncached(original_cached_property_func, cls):
     """Make an ordinary :deco:`property` to replace a :deco:`cached_property`
 
