@@ -570,7 +570,9 @@ def _make_cached_property_uncached(original_cached_property_func, cls):
         doc_lines.append("\n")
         doc_lines.append('"""')
 
-    annotation = inspect.signature(original_cached_property_func).return_annotation
+    annotation = inspect.signature(
+        original_cached_property_func
+    ).return_annotation
     if annotation is inspect.Parameter.empty:
         defline = f"def {name}(self):"
     elif isinstance(annotation, str):
@@ -579,9 +581,14 @@ def _make_cached_property_uncached(original_cached_property_func, cls):
         try:
             import annotationlib
 
-            defline = f"def {name}(self) -> {annotationlib.type_repr(annotation)}:"
+            defline = (
+                f"def {name}(self) -> {annotationlib.type_repr(annotation)}:"
+            )
         except ModuleNotFoundError:
-            if isinstance(annotation, (type, types.FunctionType, types.BuiltinFunctionType)):
+            if isinstance(
+                annotation,
+                (type, types.FunctionType, types.BuiltinFunctionType),
+            ):
                 if annotation.__module__ == "builtins":
                     defline = f"def {name}(self) -> {annotation.__qualname__}:"
                 else:
@@ -594,11 +601,15 @@ def _make_cached_property_uncached(original_cached_property_func, cls):
         "@property",
         defline,
         *("    " + line for line in doc_lines),
-        f"    raise AttributeError('Use __getattr__ instead')"
+        "    raise AttributeError('Use __getattr__ instead')",
     ]
-    unique_filename = _generate_unique_filename(cls, original_cached_property_func)
+    unique_filename = _generate_unique_filename(
+        cls, original_cached_property_func
+    )
     glob = {"original_cached_property": original_cached_property_func}
-    return _linecache_and_compile("\n".join(lines), unique_filename, glob)[name]
+    return _linecache_and_compile("\n".join(lines), unique_filename, glob)[
+        name
+    ]
 
 
 def _frozen_setattrs(self, name, value):
@@ -968,7 +979,7 @@ class _ClassBuilder:
             class_annotations = _get_annotations(self._cls)
             for name, func in cached_properties.items():
                 # Add cached properties to names for slotting.
-                names += (name + '_cache',)
+                names += (name + "_cache",)
                 # Clear out function from class to avoid clashing.
                 del cd[name]
                 additional_closure_functions_to_update.append(func)
