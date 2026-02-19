@@ -571,8 +571,8 @@ def _make_cached_property_uncached(original_cached_property_func, cls):
         if len(doc_lines) == 1:
             doc_lines = ['    """' + doc_lines[0] + '"""']
         else:
-            doc_lines[0] = '    """' + doc_lines[0]
-            for i, line in enumerate(doc_lines):
+            doc_lines[0] = '    """' + doc_lines[0].rstrip()
+            for i, line in enumerate(doc_lines[1:], start=1):
                 if line.strip():
                     doc_lines[i] = "    " + line.rstrip()
                 else:
