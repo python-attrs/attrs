@@ -506,9 +506,10 @@ def _make_cached_property_getattr(cached_properties, original_getattr, cls):
         "         func = cached_properties.get(item)",
         "         if func is not None:",
         "              cache = item + '_cache'",
-        "              if cache in self.__slots__:",
-        "                  return self.__getattribute__(cache)",
-        "              else:",
+        "              cached = getattr_static(self, cache)",
+        "              try:",
+        "                  return cached.__get__(self, type(self))",
+        "              except AttributeError:",
         "                  result = func(self)",
         "                  _setter = _cached_setattr_get(self)",
         "                  _setter(cache, result)",
@@ -545,6 +546,7 @@ def _make_cached_property_getattr(cached_properties, original_getattr, cls):
         "cached_properties": cached_properties,
         "_cached_setattr_get": _OBJ_SETATTR.__get__,
         "original_getattr": original_getattr,
+        "getattr_static": inspect.getattr_static,
     }
 
     return _linecache_and_compile(
