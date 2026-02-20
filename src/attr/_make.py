@@ -2014,11 +2014,13 @@ def _make_init_script(
         attr_dict[a.name] = a
 
         if a.on_setattr is not None:
-            if frozen is True:
+            if a.on_setattr is setters.NO_OP:
+                pass
+            elif frozen is True:
                 msg = "Frozen classes can't use on_setattr."
                 raise ValueError(msg)
-
-            needs_cached_setattr = True
+            else:
+                needs_cached_setattr = True
         elif has_cls_on_setattr and a.on_setattr is not setters.NO_OP:
             needs_cached_setattr = True
 
