@@ -555,8 +555,11 @@ def _make_cached_property_uncached(original_cached_property_func, cls):
     unique_filename = _generate_unique_filename(
         cls, original_cached_property_func
     )
-    glob = {"original_cached_property": original_cached_property_func,
-            "cached_property_results": _cached_property_results, "NOTHING": NOTHING}
+    glob = {
+        "original_cached_property": original_cached_property_func,
+        "cached_property_results": _cached_property_results,
+        "NOTHING": NOTHING,
+    }
     return _linecache_and_compile("\n".join(lines), unique_filename, glob)[
         name
     ]
