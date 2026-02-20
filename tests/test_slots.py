@@ -1034,7 +1034,7 @@ def test_slots_sub_class_avoids_duplicated_slots():
             return self.x * 2
 
     assert B(1).f == 2
-    assert B.__slots__ == ()
+    assert list(B.__slots__) == []
 
 
 def test_slots_sub_class_with_actual_slot():
@@ -1055,7 +1055,7 @@ def test_slots_sub_class_with_actual_slot():
         f: int = attr.ib()
 
     assert B(1, 2).f == 2
-    assert B.__slots__ == ()
+    assert list(B.__slots__) == []
 
 
 def test_slots_cached_property_is_not_called_at_construction():
