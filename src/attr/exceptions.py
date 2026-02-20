@@ -19,6 +19,9 @@ class FrozenError(AttributeError):
     msg = "can't set attribute"
     args: ClassVar[tuple[str]] = [msg]
 
+    def __init__(self):
+        super().__init__(self.msg)
+
 
 class FrozenInstanceError(FrozenError):
     """
