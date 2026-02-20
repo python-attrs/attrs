@@ -987,6 +987,10 @@ class _ClassBuilder:
                 else:
                     if match:
                         cell.cell_contents = cls
+        # Add the cached properties back to the __dict__ again --
+        # they won't be used, not being in the *instance* __dict__, but
+        # Sphinx checks __dict__ directly, and will therefore see these.
+        cd.update(cached_properties)
         return cls
 
     def add_repr(self, ns):
