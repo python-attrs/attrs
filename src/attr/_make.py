@@ -926,7 +926,11 @@ class _ClassBuilder:
                 else:
                     doclines = []
                 if func.__doc__ is not None:
-                    doclines.extend(textwrap.indent(textwrap.dedent(func.__doc__), "    ").splitlines())
+                    doclines.extend(
+                        textwrap.indent(
+                            textwrap.dedent(func.__doc__), "    "
+                        ).splitlines()
+                    )
                 names[name] = "\n".join(doclines)
 
             original_getattr = cd.get("__getattr__")
