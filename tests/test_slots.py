@@ -848,7 +848,7 @@ def test_slots_cached_property_class_does_not_have__dict__():
         def f(self):
             return self.x
 
-    assert set(A.__slots__) == {"x", "f_cache", "__weakref__"}
+    assert set(A.__slots__) == {"x", "__weakref__"}
     assert "__dict__" not in dir(A)
 
 

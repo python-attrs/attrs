@@ -496,7 +496,7 @@ def _transform_attrs(
     return _Attributes(AttrsClass(attrs), base_attrs, base_attr_map)
 
 
-_cached_property_descriptors = {}
+_cached_property_results = {}
 
 
 def _make_cached_property_uncached(original_cached_property_func, cls):
@@ -547,26 +547,16 @@ def _make_cached_property_uncached(original_cached_property_func, cls):
         defline,
         *doc_lines,
         "    cls = self.__class__",
-        f"    descriptor = cached_property_descriptors.get((cls, '{name}'))",
-        "    if descriptor is None:",
-        "        for entry in type.__dict__['__mro__'].__get__(cls):",
-        f"            descriptor = entry.__dict__.get('{name}_cache')",
-        "            if descriptor is not None:",
-        f"                cached_property_descriptors[cls, '{name}'] = descriptor",
-        "                break",
-        "    try:",
-        "        return descriptor.__get__(self, cls)",
-        "    except AttributeError:",
-        "        pass",
-        "    result = original_cached_property(self)",
-        "    descriptor.__set__(self, result)",
+        f"    result = cached_property_results.get((cls, '{name}', id(self)), NOTHING)",
+        "    if result is NOTHING:",
+        f"        result = cached_property_results[cls, '{name}', id(self)] = original_cached_property(self)",
         "    return result",
     ]
     unique_filename = _generate_unique_filename(
         cls, original_cached_property_func
     )
     glob = {"original_cached_property": original_cached_property_func,
-            "cached_property_descriptors": _cached_property_descriptors}
+            "cached_property_results": _cached_property_results, "NOTHING": NOTHING}
     return _linecache_and_compile("\n".join(lines), unique_filename, glob)[
         name
     ]
@@ -938,8 +928,6 @@ class _ClassBuilder:
         if cached_properties:
             class_annotations = _get_annotations(self._cls)
             for name, func in cached_properties.items():
-                # Add cached properties to names for slotting.
-                names += (name + "_cache",)
                 # Clear out function from class to avoid clashing.
                 del cd[name]
                 additional_closure_functions_to_update.append(func)
