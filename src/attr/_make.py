@@ -10,6 +10,7 @@ import inspect
 import itertools
 import linecache
 import sys
+import textwrap
 import types
 import unicodedata
 import weakref
@@ -893,14 +894,14 @@ class _ClassBuilder:
 
         base_names = set(self._base_names)
 
-        names = self._attr_names
+        names = dict.fromkeys(self._attr_names)
         if (
             self._weakref_slot
             and "__weakref__" not in getattr(self._cls, "__slots__", ())
             and "__weakref__" not in names
             and not weakref_inherited
         ):
-            names += ("__weakref__",)
+            names["__weakref__"] = ""
 
         cached_properties = {
             name: cached_prop.func
@@ -915,13 +916,18 @@ class _ClassBuilder:
             class_annotations = _get_annotations(self._cls)
             for name, func in cached_properties.items():
                 # Add cached properties to names for slotting.
-                names += (name,)
                 # Clear out function from class to avoid clashing.
                 del cd[name]
                 additional_closure_functions_to_update.append(func)
                 annotation = inspect.signature(func).return_annotation
                 if annotation is not inspect.Parameter.empty:
                     class_annotations[name] = annotation
+                    doclines = [f"    :type: {annotation}"]
+                else:
+                    doclines = []
+                if func.__doc__ is not None:
+                    doclines.extend(textwrap.indent(textwrap.dedent(func.__doc__), "    ").splitlines())
+                names[name] = "\n".join(doclines)
 
             original_getattr = cd.get("__getattr__")
             if original_getattr is not None:
@@ -949,7 +955,7 @@ class _ClassBuilder:
         if self._cache_hash:
             slot_names.append(_HASH_CACHE_FIELD)
 
-        cd["__slots__"] = tuple(slot_names)
+        cd["__slots__"] = {slot: names.get(slot) for slot in slot_names}
 
         cd["__qualname__"] = self._cls.__qualname__
 
