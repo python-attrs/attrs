@@ -922,7 +922,7 @@ class _ClassBuilder:
                 annotation = inspect.signature(func).return_annotation
                 if annotation is not inspect.Parameter.empty:
                     class_annotations[name] = annotation
-                    doclines = [f"    :type: {annotation}"]
+                    doclines = [f"    :type:`{annotation}`", ""]
                 else:
                     doclines = []
                 if func.__doc__ is not None:
