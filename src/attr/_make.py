@@ -496,6 +496,9 @@ def _transform_attrs(
     return _Attributes(AttrsClass(attrs), base_attrs, base_attr_map)
 
 
+_cached_property_descriptors = {}
+
+
 def _make_cached_property_uncached(original_cached_property_func, cls):
     """Make an ordinary :deco:`property` to replace a :deco:`cached_property`
 
@@ -544,11 +547,12 @@ def _make_cached_property_uncached(original_cached_property_func, cls):
         defline,
         *doc_lines,
         "    cls = self.__class__",
-        f"    descriptor = cls.__dict__.get('{name}_cache')",
+        f"    descriptor = cached_property_descriptors.get((cls, '{name}'))",
         "    if descriptor is None:",
-        "        for entry in type.__dict__['__mro__'].__get__(cls)[1:]:",
+        "        for entry in type.__dict__['__mro__'].__get__(cls):",
         f"            descriptor = entry.__dict__.get('{name}_cache')",
         "            if descriptor is not None:",
+        f"                cached_property_descriptors[cls, '{name}'] = descriptor",
         "                break",
         "    try:",
         "        return descriptor.__get__(self, cls)",
@@ -561,7 +565,8 @@ def _make_cached_property_uncached(original_cached_property_func, cls):
     unique_filename = _generate_unique_filename(
         cls, original_cached_property_func
     )
-    glob = {"original_cached_property": original_cached_property_func}
+    glob = {"original_cached_property": original_cached_property_func,
+            "cached_property_descriptors": _cached_property_descriptors}
     return _linecache_and_compile("\n".join(lines), unique_filename, glob)[
         name
     ]
