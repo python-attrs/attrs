@@ -922,9 +922,7 @@ class _ClassBuilder:
                 annotation = inspect.signature(func).return_annotation
                 if annotation is not inspect.Parameter.empty:
                     class_annotations[name] = annotation
-                    doclines = [f":type:`{annotation}`", ""]
-                else:
-                    doclines = []
+                doclines = []
                 if func.__doc__ is not None:
                     doclines.extend(textwrap.dedent(func.__doc__).splitlines())
                 names[name] = "\n".join(doclines)
@@ -993,6 +991,10 @@ class _ClassBuilder:
                 else:
                     if match:
                         cell.cell_contents = cls
+        # Add the cached properties back to the __dict__ again --
+        # they won't be used, not being in the *instance* __dict__, but
+        # Sphinx checks __dict__ directly, and will therefore see these.
+        cd.update(cached_properties)
         return cls
 
     def add_repr(self, ns):
