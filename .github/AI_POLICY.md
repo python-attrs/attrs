@@ -11,7 +11,7 @@ However, due to both legal and human reasons, we have to establish boundaries.
 >   This used to be a given, but it changed now that a pull request is just one prompt away.
 >
 > - Every contribution has to be backed by a human who unequivocally owns the copyright for all changes.
->   No LLM `Co-authored-by:`s.
+>   No LLM bots in `Co-authored-by:`s.
 >
 > - DoS-by-slop leads to a permanent ban.
 >
