@@ -8,6 +8,7 @@ import functools
 import pickle
 import weakref
 
+from pathlib import Path
 from unittest import mock
 
 import pytest
@@ -734,6 +735,35 @@ def test_slots_super_property_get_shortcut():
 
     assert B(11).f == 121
     assert B(17).f == 289
+
+
+@attr.s(slots=True)
+class SphinxDocTest:
+    """Test that slotted cached_property shows up in Sphinx docs"""
+
+    @functools.cached_property
+    def documented(self):
+        """A very well documented function"""
+        return True
+
+
+def test_sphinx_autodocuments_cached_property():
+    from tempfile import TemporaryDirectory
+
+    from sphinx.application import Sphinx
+
+    here = Path(__file__).parent
+    with TemporaryDirectory() as td:
+        tmp_path = Path(td)
+        app = Sphinx(
+            here, here.parent.joinpath("docs"), tmp_path, tmp_path, "text"
+        )
+        app.build(force_all=True)
+        with (
+            open(tmp_path.joinpath("index.txt")) as written,
+            open(Path(__file__).parent.joinpath("index.txt")) as good,
+        ):
+            assert written.read() == good.read()
 
 
 def test_slots_cached_property_allows_call():

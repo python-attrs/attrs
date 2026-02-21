@@ -955,6 +955,13 @@ class _ClassBuilder:
 
         # Create new class based on old class and our methods.
         cls = type(self._cls)(self._cls.__name__, self._cls.__bases__, cd)
+        # Add the cached properties back to the __dict__ again --
+        # Sphinx checks __dict__ directly, and will therefore see these.
+        for name, prop in cached_properties.items():
+            setattr(cls, name, prop)
+            assert cls.__dict__.get(name) is prop, (
+                f"{cls.__dict__.get(name)} is not {prop}"
+            )
 
         # The following is a fix for
         # <https://github.com/python-attrs/attrs/issues/102>.

@@ -1,0 +1,7 @@
+class tests.test_slots.SphinxDocTest
+
+   Test that slotted cached_property shows up in Sphinx docs
+
+   property documented
+
+      A very well documented function
