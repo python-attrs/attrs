@@ -15,6 +15,8 @@ However, due to both legal and human reasons, we have to establish boundaries.
 >
 > - DoS-by-slop leads to a permanent ban.
 >
+> - Absolutely **no** unsupervised agentic tools like OpenClaw.
+>
 > ---
 >
 > By submitting a pull request, you certify that:
