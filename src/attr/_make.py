@@ -903,7 +903,7 @@ class _ClassBuilder:
             names += ("__weakref__",)
 
         cached_properties = {
-            name: cached_prop.func
+            name: cached_prop
             for name, cached_prop in cd.items()
             if isinstance(cached_prop, cached_property)
         }
@@ -912,8 +912,11 @@ class _ClassBuilder:
         # To know to update them.
         additional_closure_functions_to_update = []
         if cached_properties:
+            # Store cached property functions for the autodoc extension to read
+            cd["__attrs_cached_properties__"] = cached_properties
             class_annotations = _get_annotations(self._cls)
-            for name, func in cached_properties.items():
+            for name, prop in cached_properties.items():
+                func = prop.func
                 # Add cached properties to names for slotting.
                 names += (name,)
                 # Clear out function from class to avoid clashing.
@@ -928,7 +931,12 @@ class _ClassBuilder:
                 additional_closure_functions_to_update.append(original_getattr)
 
             cd["__getattr__"] = _make_cached_property_getattr(
-                cached_properties, original_getattr, self._cls
+                {
+                    name: prop.func
+                    for (name, prop) in cached_properties.items()
+                },
+                original_getattr,
+                self._cls,
             )
 
         # We only add the names of attributes that aren't inherited.
