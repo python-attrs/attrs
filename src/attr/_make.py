@@ -903,7 +903,7 @@ class _ClassBuilder:
             names += ("__weakref__",)
 
         cached_properties = {
-            name: cached_prop.func
+            name: cached_prop
             for name, cached_prop in cd.items()
             if isinstance(cached_prop, cached_property)
         }
@@ -913,7 +913,8 @@ class _ClassBuilder:
         additional_closure_functions_to_update = []
         if cached_properties:
             class_annotations = _get_annotations(self._cls)
-            for name, func in cached_properties.items():
+            for name, prop in cached_properties.items():
+                func = prop.func
                 # Add cached properties to names for slotting.
                 names += (name,)
                 # Clear out function from class to avoid clashing.
@@ -955,6 +956,11 @@ class _ClassBuilder:
 
         # Create new class based on old class and our methods.
         cls = type(self._cls)(self._cls.__name__, self._cls.__bases__, cd)
+        # Add the cached properties back to the __dict__ again --
+        # Sphinx checks __dict__ directly, and will therefore see these.
+        for name, prop in cached_properties.items():
+            setattr(cls, name, prop)
+            assert cls.__dict__.get(name) is prop, f"{cls.__dict__.get(name)} is not {prop}"
 
         # The following is a fix for
         # <https://github.com/python-attrs/attrs/issues/102>.
@@ -987,10 +993,6 @@ class _ClassBuilder:
                 else:
                     if match:
                         cell.cell_contents = cls
-        # Add the cached properties back to the __dict__ again --
-        # they won't be used, not being in the *instance* __dict__, but
-        # Sphinx checks __dict__ directly, and will therefore see these.
-        cd.update(cached_properties)
         return cls
 
     def add_repr(self, ns):
