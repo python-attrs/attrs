@@ -12,6 +12,7 @@ from tempfile import TemporaryDirectory
 from unittest import mock
 
 import pytest
+
 try:
     from sphinx.application import Sphinx
 except ImportError:
@@ -740,6 +741,7 @@ def test_slots_super_property_get_shortcut():
     assert B(11).f == 121
     assert B(17).f == 289
 
+
 @attr.s(slots=True)
 class SphinxDocTest:
     """Test that slotted cached_property shows up in Sphinx docs"""
@@ -755,7 +757,9 @@ def test_sphinx_autodocuments_cached_property():
     here = Path(__file__).parent
     with TemporaryDirectory() as td:
         tmp_path = Path(td)
-        app = Sphinx(here, here.parent.joinpath("docs"), tmp_path, tmp_path, "text")
+        app = Sphinx(
+            here, here.parent.joinpath("docs"), tmp_path, tmp_path, "text"
+        )
         app.build(force_all=True)
         with (
             tmp_path.joinpath("index.txt").open() as written,
