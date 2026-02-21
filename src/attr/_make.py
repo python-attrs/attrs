@@ -903,7 +903,7 @@ class _ClassBuilder:
             names += ("__weakref__",)
 
         cached_properties = {
-            name: cached_prop
+            name: cached_prop.func
             for name, cached_prop in cd.items()
             if isinstance(cached_prop, cached_property)
         }
@@ -913,8 +913,7 @@ class _ClassBuilder:
         additional_closure_functions_to_update = []
         if cached_properties:
             class_annotations = _get_annotations(self._cls)
-            for name, prop in cached_properties.items():
-                func = prop.func
+            for name, func in cached_properties.items():
                 # Add cached properties to names for slotting.
                 names += (name,)
                 # Clear out function from class to avoid clashing.
