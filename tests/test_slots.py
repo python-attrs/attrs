@@ -7,10 +7,15 @@ Unit tests for slots-related functionality.
 import functools
 import pickle
 import weakref
-
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest import mock
 
 import pytest
+try:
+    from sphinx.application import Sphinx
+except ImportError:
+    Sphinx = None
 
 import attr
 import attrs
@@ -734,6 +739,29 @@ def test_slots_super_property_get_shortcut():
 
     assert B(11).f == 121
     assert B(17).f == 289
+
+@attr.s(slots=True)
+class SphinxDocTest:
+    """Test that slotted cached_property shows up in Sphinx docs"""
+
+    @functools.cached_property
+    def documented(self):
+        """A very well documented function"""
+        return True
+
+
+@pytest.mark.skipif(Sphinx is None, reason="Sphinx is not installed")
+def test_sphinx_autodocuments_cached_property():
+    here = Path(__file__).parent
+    with TemporaryDirectory() as td:
+        tmp_path = Path(td)
+        app = Sphinx(here, here.parent.joinpath("docs"), tmp_path, tmp_path, "text")
+        app.build(force_all=True)
+        with (
+            tmp_path.joinpath("index.txt").open() as written,
+            Path(__file__).parent.joinpath("index.txt").open() as good,
+        ):
+            assert written.read() == good.read()
 
 
 def test_slots_cached_property_allows_call():
