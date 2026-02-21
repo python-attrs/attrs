@@ -959,7 +959,9 @@ class _ClassBuilder:
         # Sphinx checks __dict__ directly, and will therefore see these.
         for name, prop in cached_properties.items():
             setattr(cls, name, prop)
-            assert cls.__dict__.get(name) is prop, f"{cls.__dict__.get(name)} is not {prop}"
+            assert cls.__dict__.get(name) is prop, (
+                f"{cls.__dict__.get(name)} is not {prop}"
+            )
 
         # The following is a fix for
         # <https://github.com/python-attrs/attrs/issues/102>.
