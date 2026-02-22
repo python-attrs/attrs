@@ -762,6 +762,7 @@ def test_tuple_proxy(t):
     for i in range(len(prox)):
         assert t[i] is prox[i]
     assert t == prox
+    assert hash(t) == hash(prox)
     assert not isinstance(prox, tuple)
 
 
