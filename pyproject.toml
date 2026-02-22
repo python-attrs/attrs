@@ -51,12 +51,6 @@ tests = [
   "sphinx",
   "sphinx-notfound-page",
   "sphinx-basic-ng",
-  "sphinxcontrib-applehelp",
-  "sphinxcontrib-devhelp",
-  "sphinxcontrib-htmlhelp",
-  "sphinxcontrib-jsmath",
-  "sphinxcontrib-serializinghtml",
-  "sphinxcontrib-towncrier",
   "myst-parser",
 ]
 cov = [{ include-group = "tests" }, "coverage[toml]"]
