@@ -127,9 +127,6 @@ class _TupleProxy(Sequence):
     def __eq__(self, other):
         return self._tup == other
 
-    def __ne__(self, other):
-        return self._tup != other
-
     def __hash__(self):
         return hash(self._tup)
 
