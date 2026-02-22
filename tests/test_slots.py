@@ -748,7 +748,7 @@ def test_slots_super_property_get_shortcut():
     assert B(17).f == 289
 
 
-@given(st.tuples())
+@given(st.tuples(st.integers() | st.text() | st.floats()))
 def test_tuple_proxy(t):
     """
     The `_TupleProxy` class acts just like a normal tuple, but isn't one
