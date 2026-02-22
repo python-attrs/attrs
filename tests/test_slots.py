@@ -759,6 +759,9 @@ need_sphinx = pytest.mark.skipif(
 
 @need_sphinx
 def test_sphinx_autodocuments_cached_property():
+    """
+    Sphinx can generate autodocs for cached properties in slots classes
+    """
     here = Path(__file__).parent
     with TemporaryDirectory() as td:
         tmp_path = Path(td)
@@ -782,6 +785,9 @@ def test_sphinx_autodocuments_cached_property():
 
 @need_sphinx
 def test_sphinx_automembers_cached_property():
+    """
+    Sphinx can find cached properties in the :members: of slots classes
+    """
     here = Path(__file__).parent
     with TemporaryDirectory() as td:
         tmp_path = Path(td)
