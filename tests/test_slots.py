@@ -752,18 +752,53 @@ class SphinxDocTest:
         return True
 
 
-@pytest.mark.skipif(Sphinx is None, reason="Sphinx is not installed")
+need_sphinx = pytest.mark.skipif(
+    Sphinx is None, reason="Sphinx is not installed"
+)
+
+
+@need_sphinx
 def test_sphinx_autodocuments_cached_property():
     here = Path(__file__).parent
     with TemporaryDirectory() as td:
         tmp_path = Path(td)
+        rst = here.joinpath("explicit-autoproperty-cached.rst")
+        index = tmp_path.joinpath("index.rst")
+        with rst.open("r") as inf, index.open("w") as outf:
+            for line in inf:
+                outf.write(line)
+        outdir = tmp_path.joinpath("docs")
+        outdir.mkdir()
         app = Sphinx(
-            here, here.parent.joinpath("docs"), tmp_path, tmp_path, "text"
+            tmp_path, here.parent.joinpath("docs"), outdir, tmp_path, "text"
         )
         app.build(force_all=True)
         with (
-            tmp_path.joinpath("index.txt").open() as written,
-            Path(__file__).parent.joinpath("index.txt").open() as good,
+            outdir.joinpath("index.txt").open("r") as written,
+            here.joinpath("index.txt").open("r") as good,
+        ):
+            assert written.read() == good.read()
+
+
+@need_sphinx
+def test_sphinx_automembers_cached_property():
+    here = Path(__file__).parent
+    with TemporaryDirectory() as td:
+        tmp_path = Path(td)
+        rst = here.joinpath("members-cached-property.rst")
+        index = tmp_path.joinpath("index.rst")
+        with rst.open("r") as inf, index.open("w") as outf:
+            for line in inf:
+                outf.write(line)
+        outdir = tmp_path.joinpath("docs")
+        outdir.mkdir()
+        app = Sphinx(
+            tmp_path, here.parent.joinpath("docs"), outdir, tmp_path, "text"
+        )
+        app.build(force_all=True)
+        with (
+            outdir.joinpath("index.txt").open("r") as written,
+            here.joinpath("index.txt").open("r") as good,
         ):
             assert written.read() == good.read()
 
