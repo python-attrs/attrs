@@ -1,4 +1,10 @@
 # SPDX-License-Identifier: MIT
+"""A Sphinx extension to document cached properties on slots classes
+
+Add ``"attrs.sphinx_cached_property"`` to the ``extensions`` list in Sphinx's
+conf.py to use this.
+
+"""
 
 from sphinx.application import Sphinx
 
