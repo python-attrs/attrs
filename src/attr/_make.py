@@ -124,6 +124,12 @@ class _TupleProxy(Sequence):
     def __getitem__(self, item):
         return self._tup[item]
 
+    def __eq__(self, other):
+        return self._tup == other
+
+    def __ne__(self, other):
+        return self._tup != other
+
 
 def attrib(
     default=NOTHING,
