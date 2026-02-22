@@ -14,7 +14,7 @@ import types
 import unicodedata
 import weakref
 
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from functools import cached_property
 from typing import Any, NamedTuple, TypeVar
 
@@ -101,6 +101,28 @@ class _CacheHashWrapper(int):
 
     def __reduce__(self, _none_constructor=type(None), _args=()):  # noqa: B008
         return _none_constructor, _args
+
+
+class _TupleProxy(Sequence):
+    __slots__ = ("_tup",)
+    """A wrapper for a tuple that makes it not type-check as a tuple
+    
+    This is a hack to make Sphinx document all cached properties on slots
+    classes as if they were regular properties.
+    
+    """
+
+    def __init__(self, tup: tuple):
+        self._tup = tup
+
+    def __iter__(self):
+        return iter(self._tup)
+
+    def __len__(self):
+        return len(self._tup)
+
+    def __getitem__(self, item):
+        return self._tup[item]
 
 
 def attrib(
@@ -957,7 +979,7 @@ class _ClassBuilder:
         if self._cache_hash:
             slot_names.append(_HASH_CACHE_FIELD)
 
-        cd["__slots__"] = tuple(slot_names)
+        cd["__slots__"] = _TupleProxy(tuple(slot_names))
 
         cd["__qualname__"] = self._cls.__qualname__
 
