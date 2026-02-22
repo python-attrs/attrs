@@ -48,10 +48,7 @@ tests = [
   "pympler",
   "pytest",
   "pytest-xdist[psutil]",
-  "sphinx",
-  "sphinx-notfound-page",
-  "sphinx-basic-ng",
-  "myst-parser",
+  { include-group = "docs" }
 ]
 cov = [{ include-group = "tests" }, "coverage[toml]"]
 pyright = ["pyright", { include-group = "tests" }]
