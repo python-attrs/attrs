@@ -114,6 +114,9 @@ Getting this working is achieved by:
 * Adding a `__getattr__` method to set values on the wrapped methods.
 
 For most users, this should mean that it works transparently.
+However, the docstring for the wrapped function is inaccessible.
+If you need it for your documentation, you can use the bundled {mod}`Sphinx` extension.
+Add `"attrs.sphinx_cached_property"` to the `extensions` list in your Sphinx `conf.py`.
 
 :::{note}
 The implementation does not guarantee that the wrapped method is called only once in multi-threaded usage.
