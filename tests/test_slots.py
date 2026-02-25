@@ -10,7 +10,6 @@ import weakref
 from itertools import zip_longest
 
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from unittest import mock
 
 import hypothesis.strategies as st
@@ -776,54 +775,50 @@ class SphinxDocTest:
         return True
 
 
-def test_sphinx_autodocuments_cached_property():
+def test_sphinx_autodocuments_cached_property(tmp_path):
     """
     Sphinx can generate autodocs for cached properties in slots classes
     """
     here = Path(__file__).parent
-    with TemporaryDirectory() as td:
-        tmp_path = Path(td)
-        rst = here.joinpath("explicit-autoproperty-cached.rst")
-        index = tmp_path.joinpath("index.rst")
-        with rst.open("r") as inf, index.open("w") as outf:
-            for line in inf:
-                outf.write(line)
-        outdir = tmp_path.joinpath("docs")
-        outdir.mkdir()
-        app = Sphinx(
-            tmp_path, here.parent.joinpath("docs"), outdir, tmp_path, "text"
-        )
-        app.build(force_all=True)
-        with (
-            outdir.joinpath("index.txt").open("r") as written,
-            here.joinpath("index.txt").open("r") as good,
-        ):
-            assert written.read() == good.read()
+    rst = here.joinpath("explicit-autoproperty-cached.rst")
+    index = tmp_path.joinpath("index.rst")
+    with rst.open("r") as inf, index.open("w") as outf:
+        for line in inf:
+            outf.write(line)
+    outdir = tmp_path.joinpath("docs")
+    outdir.mkdir()
+    app = Sphinx(
+        tmp_path, here.parent.joinpath("docs"), outdir, tmp_path, "text"
+    )
+    app.build(force_all=True)
+    with (
+        outdir.joinpath("index.txt").open("r") as written,
+        here.joinpath("index.txt").open("r") as good,
+    ):
+        assert written.read() == good.read()
 
 
-def test_sphinx_automembers_cached_property():
+def test_sphinx_automembers_cached_property(tmp_path):
     """
     Sphinx can find cached properties in the :members: of slots classes
     """
     here = Path(__file__).parent
-    with TemporaryDirectory() as td:
-        tmp_path = Path(td)
-        rst = here.joinpath("members-cached-property.rst")
-        index = tmp_path.joinpath("index.rst")
-        with rst.open("r") as inf, index.open("w") as outf:
-            for line in inf:
-                outf.write(line)
-        outdir = tmp_path.joinpath("docs")
-        outdir.mkdir()
-        app = Sphinx(
-            tmp_path, here.parent.joinpath("docs"), outdir, tmp_path, "text"
-        )
-        app.build(force_all=True)
-        with (
-            outdir.joinpath("index.txt").open("r") as written,
-            here.joinpath("index.txt").open("r") as good,
-        ):
-            assert written.read() == good.read()
+    rst = here.joinpath("members-cached-property.rst")
+    index = tmp_path.joinpath("index.rst")
+    with rst.open("r") as inf, index.open("w") as outf:
+        for line in inf:
+            outf.write(line)
+    outdir = tmp_path.joinpath("docs")
+    outdir.mkdir()
+    app = Sphinx(
+        tmp_path, here.parent.joinpath("docs"), outdir, tmp_path, "text"
+    )
+    app.build(force_all=True)
+    with (
+        outdir.joinpath("index.txt").open("r") as written,
+        here.joinpath("index.txt").open("r") as good,
+    ):
+        assert written.read() == good.read()
 
 
 def test_slots_cached_property_allows_call():
