@@ -776,12 +776,6 @@ class SphinxDocTest:
         return True
 
 
-need_sphinx = pytest.mark.skipif(
-    Sphinx is None, reason="Sphinx is not installed"
-)
-
-
-@need_sphinx
 def test_sphinx_autodocuments_cached_property():
     """
     Sphinx can generate autodocs for cached properties in slots classes
@@ -807,7 +801,6 @@ def test_sphinx_autodocuments_cached_property():
             assert written.read() == good.read()
 
 
-@need_sphinx
 def test_sphinx_automembers_cached_property():
     """
     Sphinx can find cached properties in the :members: of slots classes
