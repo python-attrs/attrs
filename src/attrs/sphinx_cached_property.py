@@ -2,7 +2,8 @@
 """A Sphinx extension to document cached properties on slots classes
 
 Add ``"attrs.sphinx_cached_property"`` to the ``extensions`` list in Sphinx's
-conf.py to use this.
+conf.py to use this. Otherwise, cached properties of ``@define(slots=True)``
+classes will be inaccessible.
 
 """
 
