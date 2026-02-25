@@ -783,9 +783,7 @@ def test_sphinx_autodocuments_cached_property(tmp_path):
     here = Path(__file__).parent
     rst = here.joinpath("explicit-autoproperty-cached.rst")
     index = tmp_path.joinpath("index.rst")
-    with rst.open("r") as inf, index.open("w") as outf:
-        for line in inf:
-            outf.write(line)
+    shutil.copy(rst, index)
     outdir = tmp_path.joinpath("docs")
     outdir.mkdir()
     app = Sphinx(
@@ -805,9 +803,7 @@ def test_sphinx_automembers_cached_property(tmp_path):
     here = Path(__file__).parent
     rst = here.joinpath("members-cached-property.rst")
     index = tmp_path.joinpath("index.rst")
-    with rst.open("r") as inf, index.open("w") as outf:
-        for line in inf:
-            outf.write(line)
+    shutil.copy(rst, index)
     outdir = tmp_path.joinpath("docs")
     outdir.mkdir()
     app = Sphinx(
