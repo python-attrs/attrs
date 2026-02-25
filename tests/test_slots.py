@@ -6,6 +6,7 @@ Unit tests for slots-related functionality.
 
 import functools
 import pickle
+import shutil
 import weakref
 from itertools import zip_longest
 
@@ -791,11 +792,10 @@ def test_sphinx_autodocuments_cached_property(tmp_path):
         tmp_path, here.parent.joinpath("docs"), outdir, tmp_path, "text"
     )
     app.build(force_all=True)
-    with (
-        outdir.joinpath("index.txt").open("r") as written,
-        here.joinpath("index.txt").open("r") as good,
-    ):
-        assert written.read() == good.read()
+    assert (
+        outdir.joinpath("index.txt").read_text()
+        == here.joinpath("index.txt").read_text()
+    )
 
 
 def test_sphinx_automembers_cached_property(tmp_path):
