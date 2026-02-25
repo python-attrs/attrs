@@ -19,10 +19,8 @@ from hypothesis import given
 
 from attr._make import _TupleProxy
 
-try:
-    from sphinx.application import Sphinx
-except ImportError:
-    Sphinx = None
+
+from sphinx.application import Sphinx
 
 import attr
 import attrs
