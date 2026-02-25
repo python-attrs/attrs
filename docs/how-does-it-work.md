@@ -115,7 +115,7 @@ Getting this working is achieved by:
 
 For most users, this should mean that it works transparently.
 However, the docstring for the wrapped function is inaccessible.
-If you need it for your documentation, you can use the bundled {mod}`Sphinx` extension.
+If you need it for your documentation, you can use the bundled Sphinx extension.
 Add `"attrs.sphinx_cached_property"` to the `extensions` list in your Sphinx `conf.py`.
 
 :::{note}
