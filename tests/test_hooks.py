@@ -240,10 +240,10 @@ class TestTransformHook:
 
         Regression test for #1479.
         """
-        seen_aliases = []
+        seen = []
 
         def hook(cls, attribs):
-            seen_aliases[:] = [(a.name, a.alias) for a in attribs]
+            seen[:] = [(a.name, a.alias, a.alias_is_default) for a in attribs]
             return attribs
 
         @attr.s(auto_attribs=True, field_transformer=hook)
@@ -253,10 +253,10 @@ class TestTransformHook:
             public: int
 
         assert [
-            ("_private", "private"),
-            ("_explicit", "_explicit"),
-            ("public", "public"),
-        ] == seen_aliases
+            ("_private", "private", True),
+            ("_explicit", "_explicit", False),
+            ("public", "public", True),
+        ] == seen
 
     def test_hook_evolve_name_updates_auto_alias(self):
         """
@@ -273,7 +273,10 @@ class TestTransformHook:
         class C:
             _original: int
 
-        assert "renamed" == attr.fields(C).renamed.alias
+        f = attr.fields(C).renamed
+
+        assert "renamed" == f.alias
+        assert f.alias_is_default is True
 
     def test_hook_evolve_name_keeps_explicit_alias(self):
         """
@@ -290,7 +293,10 @@ class TestTransformHook:
         class C:
             original: int = attr.ib(alias="my_alias")
 
-        assert "my_alias" == attr.fields(C).renamed.alias
+        f = attr.fields(C).renamed
+
+        assert "my_alias" == f.alias
+        assert f.alias_is_default is False
 
     def test_hook_new_field_without_alias(self):
         """
@@ -329,7 +335,47 @@ class TestTransformHook:
         class C:
             x: int
 
-        assert "extra" == attr.fields(C)._extra.alias
+        f = attr.fields(C)._extra
+
+        assert "extra" == f.alias
+        assert f.alias_is_default is True
+
+    def test_hook_explicit_alias_matching_default(self):
+        """
+        When a user explicitly sets an alias that happens to equal the
+        auto-generated default, alias_is_default is still False.
+
+        Regression test for #1479.
+        """
+
+        @attr.s(auto_attribs=True)
+        class C:
+            _private: int = attr.ib(alias="private")
+
+        f = attr.fields(C)._private
+
+        assert "private" == f.alias
+        assert f.alias_is_default is False
+
+    def test_hook_evolve_alias_sets_not_default(self):
+        """
+        When a field_transformer uses evolve() to set an explicit alias,
+        alias_is_default becomes False.
+
+        Regression test for #1479.
+        """
+
+        def hook(cls, attribs):
+            return [a.evolve(alias="custom") for a in attribs]
+
+        @attr.s(auto_attribs=True, field_transformer=hook)
+        class C:
+            x: int
+
+        f = attr.fields(C).x
+
+        assert "custom" == f.alias
+        assert f.alias_is_default is False
 
 
 class TestAsDictHook:
