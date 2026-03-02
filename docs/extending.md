@@ -249,7 +249,7 @@ Data(a=3, b='spam', c=datetime.datetime(2020, 5, 4, 13, 37))
 
 Or, perhaps you would prefer to generate dataclass-compatible `__init__` signatures via a default field *alias*.
 Note, *field_transformer* receives {class}`attrs.Attribute` instances with default aliases already resolved, so the leading-underscore stripping has already been applied.
-You can use the {attr}`attrs.Attribute.alias_is_default` flag to detect whether an alias was explicitly provided by the user or auto-generated.
+You can use the `attrs.Attribute.alias_is_default` flag to detect whether an alias was explicitly provided by the user or auto-generated.
 
 ```{doctest}
 >>> def dataclass_names(cls, fields):
