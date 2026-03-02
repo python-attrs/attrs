@@ -71,7 +71,7 @@ jobs:
           fi
 
           echo DO_MYPY=$DO_MYPY >>$GITHUB_ENV
-          echo TOX_PYTHON=py$(echo $V | tr -d .) >>$GITHUB_ENV
+          echo TOX_PYTHON=$V >>$GITHUB_ENV
 
       - run: >
           uvx --with=tox-uv
