@@ -66,7 +66,7 @@ If you don't, our test suite will fail because we use Git tags for packaging.
 
 Finally, **clone** your fork using one of the alternatives that you can copy-paste by pressing the big green button labeled `<> Code`.
 
-You can (and should) run our test suite using [*tox*](https://tox.wiki/) with the [*tox-uv*](https://github.com/tox-dev/tox-uv) plugin.
+You can (and should) run our test suite using [*tox*](https://tox.wiki/).
 The easiest way is to [install *uv*] which is needed in any case and then run `uv tool install --with tox-uv tox` to have it globally available or `uvx --with tox-uv tox` to use a temporary environment.
 
 ---
