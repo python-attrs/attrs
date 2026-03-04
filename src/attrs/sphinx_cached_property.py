@@ -15,6 +15,11 @@ from . import __version__
 def get_cached_property_for_member_descriptor(
     cls: type, name: str, default=None
 ):
+    """If the attribute is for a cached property, return the ``cached_property``
+
+    Otherwise, delegate to normal ``getattr``
+
+    """
     props = getattr(cls, "__attrs_cached_properties__", None)
     if props is None or name not in props:
         return getattr(cls, name, default)
@@ -22,6 +27,7 @@ def get_cached_property_for_member_descriptor(
 
 
 def setup(app: Sphinx):
+    """Install the special attribute getter for cached properties of slotted classes"""
     app.add_autodoc_attrgetter(
         object, get_cached_property_for_member_descriptor
     )
