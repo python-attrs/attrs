@@ -634,6 +634,37 @@ def evolve(*args, **changes):
     return cls(**changes)
 
 
+def _reconstruct_exc(cls, kwargs):
+    """
+    Reconstruct an attrs exception from keyword arguments.
+
+    Used by pickle to properly handle keyword-only arguments.
+    """
+    return cls(**kwargs)
+
+
+def _make_exc_reduce(attrs):
+    """
+    Create a ``__reduce__`` for exception classes that properly handles
+    keyword-only arguments during pickling.
+
+    BaseException's default ``__reduce__`` passes all values as positional
+    args, which fails when some attrs are keyword-only.
+    """
+    init_attrs = tuple(a for a in attrs if a.init)
+
+    def __reduce__(self):
+        return (
+            _reconstruct_exc,
+            (
+                self.__class__,
+                {a.name: getattr(self, a.name) for a in init_attrs},
+            ),
+        )
+
+    return __reduce__
+
+
 class _ClassBuilder:
     """
     Iteratively build *one* class.
@@ -748,6 +779,9 @@ class _ClassBuilder:
                 self._cls_dict["__getstate__"],
                 self._cls_dict["__setstate__"],
             ) = self._make_getstate_setstate()
+
+        if props.is_exception:
+            self._cls_dict["__reduce__"] = _make_exc_reduce(attrs)
 
         # tuples of script, globs, hook
         self._script_snippets: list[

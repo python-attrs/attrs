@@ -107,6 +107,28 @@ class WithMetaSlots(metaclass=Meta):
 FromMakeClass = attr.make_class("FromMakeClass", ["x"])
 
 
+@attr.s(auto_exc=True, kw_only=True)
+class KwOnlyExc(Exception):
+    x = attr.ib()
+
+
+@attr.s(auto_exc=True, slots=True, kw_only=True)
+class KwOnlyExcSlots(Exception):
+    x = attr.ib()
+
+
+@attr.s(auto_exc=True)
+class MixedExc(Exception):
+    x = attr.ib()
+    y = attr.ib(kw_only=True)
+
+
+@attr.s(auto_exc=True, slots=True)
+class MixedExcSlots(Exception):
+    x = attr.ib()
+    y = attr.ib(kw_only=True)
+
+
 class TestFunctional:
     """
     Functional tests.
@@ -612,6 +634,40 @@ class TestFunctional:
             x = attr.ib()
 
         FooError(1)
+
+    @pytest.mark.parametrize(
+        "cls",
+        [KwOnlyExc, KwOnlyExcSlots],
+    )
+    def test_auto_exc_kw_only_pickle(self, cls):
+        """
+        Exceptions with kw_only=True can be pickled and unpickled.
+
+        Regression test for #734.
+        """
+        exc = cls(x=42)
+        exc2 = pickle.loads(pickle.dumps(exc))
+
+        assert exc2.x == 42
+        assert isinstance(exc2, cls)
+
+    @pytest.mark.parametrize(
+        "cls",
+        [MixedExc, MixedExcSlots],
+    )
+    def test_auto_exc_mixed_kw_only_pickle(self, cls):
+        """
+        Exceptions with a mix of positional and kw_only attrs can be
+        pickled and unpickled.
+
+        Regression test for #734.
+        """
+        exc = cls(1, y=2)
+        exc2 = pickle.loads(pickle.dumps(exc))
+
+        assert exc2.x == 1
+        assert exc2.y == 2
+        assert isinstance(exc2, cls)
 
     def test_eq_only(self, slots, frozen):
         """
