@@ -104,6 +104,10 @@ The Pyright inferred types are a tiny subset of those supported by Mypy, includi
 
 Your constructive feedback is welcome in both [attrs#795](https://github.com/python-attrs/attrs/issues/795) and [pyright#1782](https://github.com/microsoft/pyright/discussions/1782).
 Generally speaking, the decision on improving *attrs* support in Pyright is entirely Microsoft's prerogative and they unequivocally indicated that they'll only add support for features that go through the PEP process, though.
+
+If behavior differs only in static analysis, please prefer filing the report with
+Pyright first. attrs can only guarantee support up to what
+`dataclass_transform` / {pep}`681` can express.
 :::
 
 
