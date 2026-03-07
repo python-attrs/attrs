@@ -2633,7 +2633,7 @@ class Attribute:
         """
         Play nice with pickle.
         """
-        if len(state) < len(self.__slots__):  # pragma: no cover
+        if len(state) < len(self.__slots__):
             # Pre-26.1.0 pickle without alias_is_default -- infer it
             # heuristically.
             state_dict = dict(zip(self.__slots__, state))
