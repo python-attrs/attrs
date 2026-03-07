@@ -48,6 +48,7 @@ tests = [
   "pympler",
   "pytest",
   "pytest-xdist[psutil]",
+  { include-group = "docs" }
 ]
 cov = [{ include-group = "tests" }, "coverage[toml]"]
 pyright = ["pyright", { include-group = "tests" }]

@@ -6,16 +6,24 @@ Unit tests for slots-related functionality.
 
 import functools
 import pickle
+import shutil
 import weakref
 
+from itertools import zip_longest
+from pathlib import Path
 from unittest import mock
 
+import hypothesis.strategies as st
 import pytest
+
+from hypothesis import given
+from sphinx.application import Sphinx
 
 import attr
 import attrs
 
 from attr._compat import PY_3_14_PLUS, PYPY
+from attr._make import _TupleProxy
 
 
 # Pympler doesn't work on PyPy.
@@ -734,6 +742,75 @@ def test_slots_super_property_get_shortcut():
 
     assert B(11).f == 121
     assert B(17).f == 289
+
+
+@given(st.tuples(st.integers() | st.text() | st.floats()))
+def test_tuple_proxy(t):
+    """
+    The `_TupleProxy` class acts just like a normal tuple, but isn't one
+
+    It's not a tuple for the purposes of :func:`isinstance` and that's about it
+    """
+    prox = _TupleProxy(t)
+    assert len(t) == len(prox)
+    for a, b in zip_longest(t, prox):
+        assert a is b
+    for i in range(len(prox)):
+        assert t[i] is prox[i]
+    assert t == prox
+    assert hash(t) == hash(prox)
+    assert not isinstance(prox, tuple)
+
+
+@attr.s(slots=True)
+class SphinxDocTest:
+    """Test that slotted cached_property shows up in Sphinx docs"""
+
+    @functools.cached_property
+    def documented(self):
+        """A very well documented function"""
+        return True
+
+
+def test_sphinx_autodocuments_cached_property(tmp_path):
+    """
+    Sphinx can generate autodocs for cached properties in slots classes
+    """
+    here = Path(__file__).parent
+    rst = here.joinpath("explicit-autoproperty-cached.rst")
+    index = tmp_path.joinpath("index.rst")
+    shutil.copy(rst, index)
+    outdir = tmp_path.joinpath("docs")
+    outdir.mkdir()
+    app = Sphinx(
+        tmp_path, here.parent.joinpath("docs"), outdir, tmp_path, "text"
+    )
+    app.build(force_all=True)
+    assert (
+        outdir.joinpath("index.txt").read_text()
+        == here.joinpath("index.txt").read_text()
+    )
+
+
+def test_sphinx_automembers_cached_property(tmp_path):
+    """
+    Sphinx can find cached properties in the :members: of slots classes
+    """
+    here = Path(__file__).parent
+    rst = here.joinpath("members-cached-property.rst")
+    index = tmp_path.joinpath("index.rst")
+    shutil.copy(rst, index)
+    outdir = tmp_path.joinpath("docs")
+    outdir.mkdir()
+    app = Sphinx(
+        tmp_path, here.parent.joinpath("docs"), outdir, tmp_path, "text"
+    )
+    app.build(force_all=True)
+    with (
+        outdir.joinpath("index.txt").open("r") as written,
+        here.joinpath("index.txt").open("r") as good,
+    ):
+        assert written.read() == good.read()
 
 
 def test_slots_cached_property_allows_call():

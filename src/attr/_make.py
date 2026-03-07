@@ -14,7 +14,7 @@ import types
 import unicodedata
 import weakref
 
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from functools import cached_property
 from typing import Any, NamedTuple, TypeVar
 
@@ -101,6 +101,34 @@ class _CacheHashWrapper(int):
 
     def __reduce__(self, _none_constructor=type(None), _args=()):  # noqa: B008
         return _none_constructor, _args
+
+
+class _TupleProxy(Sequence):
+    __slots__ = ("_tup",)
+    """A wrapper for a tuple that makes it not type-check as a tuple
+
+    This is a hack to make Sphinx document all cached properties on slots
+    classes as if they were regular properties.
+
+    """
+
+    def __init__(self, tup: tuple):
+        self._tup = tup
+
+    def __iter__(self):
+        return iter(self._tup)
+
+    def __len__(self):
+        return len(self._tup)
+
+    def __getitem__(self, item):
+        return self._tup[item]
+
+    def __eq__(self, other):
+        return self._tup == other
+
+    def __hash__(self):
+        return hash(self._tup)
 
 
 def attrib(
@@ -911,7 +939,7 @@ class _ClassBuilder:
             names += ("__weakref__",)
 
         cached_properties = {
-            name: cached_prop.func
+            name: cached_prop
             for name, cached_prop in cd.items()
             if isinstance(cached_prop, cached_property)
         }
@@ -920,8 +948,11 @@ class _ClassBuilder:
         # To know to update them.
         additional_closure_functions_to_update = []
         if cached_properties:
+            # Store cached property functions for the autodoc extension to read
+            cd["__attrs_cached_properties__"] = cached_properties
             class_annotations = _get_annotations(self._cls)
-            for name, func in cached_properties.items():
+            for name, prop in cached_properties.items():
+                func = prop.func
                 # Add cached properties to names for slotting.
                 names += (name,)
                 # Clear out function from class to avoid clashing.
@@ -936,7 +967,12 @@ class _ClassBuilder:
                 additional_closure_functions_to_update.append(original_getattr)
 
             cd["__getattr__"] = _make_cached_property_getattr(
-                cached_properties, original_getattr, self._cls
+                {
+                    name: prop.func
+                    for (name, prop) in cached_properties.items()
+                },
+                original_getattr,
+                self._cls,
             )
 
         # We only add the names of attributes that aren't inherited.
@@ -957,7 +993,7 @@ class _ClassBuilder:
         if self._cache_hash:
             slot_names.append(_HASH_CACHE_FIELD)
 
-        cd["__slots__"] = tuple(slot_names)
+        cd["__slots__"] = _TupleProxy(tuple(slot_names))
 
         cd["__qualname__"] = self._cls.__qualname__
 
