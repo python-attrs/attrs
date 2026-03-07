@@ -778,14 +778,14 @@ def test_sphinx_autodocuments_cached_property(tmp_path):
     """
     Sphinx can generate autodocs for cached properties in slots classes
     """
-    here = Path(__file__).parent
+    here = Path(__file__).parent / "doctest_data"
     rst = here.joinpath("explicit-autoproperty-cached.rst")
     index = tmp_path.joinpath("index.rst")
     shutil.copy(rst, index)
     outdir = tmp_path.joinpath("docs")
     outdir.mkdir()
     app = Sphinx(
-        tmp_path, here.parent.joinpath("docs"), outdir, tmp_path, "text"
+        tmp_path, here.parent.parent / "docs", outdir, tmp_path, "text"
     )
     app.build(force_all=True)
     assert (
@@ -798,14 +798,14 @@ def test_sphinx_automembers_cached_property(tmp_path):
     """
     Sphinx can find cached properties in the :members: of slots classes
     """
-    here = Path(__file__).parent
+    here = Path(__file__).parent / "doctest_data"
     rst = here.joinpath("members-cached-property.rst")
     index = tmp_path.joinpath("index.rst")
     shutil.copy(rst, index)
     outdir = tmp_path.joinpath("docs")
     outdir.mkdir()
     app = Sphinx(
-        tmp_path, here.parent.joinpath("docs"), outdir, tmp_path, "text"
+        tmp_path, here.parent.parent / "docs", outdir, tmp_path, "text"
     )
     app.build(force_all=True)
     with (
