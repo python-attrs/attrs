@@ -123,7 +123,7 @@ Unfortunately, better *attrs* support doesn't appear to be part of their goals.
 ### *ty*
 
 [*ty*] is a fairly new Rust-based type checker from [Astral](https://astral.sh), the makers of Ruff and *uv*.
-Currently it only supports {pep}`681`, but [they intend]((https://github.com/astral-sh/ty/issues/2404)) to support more of *attrs*'s features.
+Currently it only supports {pep}`681`, but [they intend](https://github.com/astral-sh/ty/issues/2404) to support more of *attrs*'s features.
 
 
 ### Pyrefly
