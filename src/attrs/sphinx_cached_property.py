@@ -6,6 +6,9 @@ conf.py to use this. Otherwise, cached properties of ``@define(slots=True)``
 classes will be inaccessible.
 
 """
+
+from __future__ import annotations
+
 from functools import cached_property
 from typing import Any
 

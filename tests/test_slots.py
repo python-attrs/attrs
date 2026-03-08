@@ -8,24 +8,22 @@ import functools
 import pickle
 import shutil
 import weakref
-from itertools import zip_longest
 
+from itertools import zip_longest
 from pathlib import Path
 from unittest import mock
 
 import hypothesis.strategies as st
 import pytest
+
 from hypothesis import given
-
-from attr._make import _TupleProxy
-
-
 from sphinx.application import Sphinx
 
 import attr
 import attrs
 
 from attr._compat import PY_3_14_PLUS, PYPY
+from attr._make import _TupleProxy
 
 
 # Pympler doesn't work on PyPy.
