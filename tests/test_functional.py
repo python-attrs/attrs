@@ -130,6 +130,7 @@ class TestFunctional:
                 hash=None,
                 init=True,
                 inherited=False,
+                alias_is_default=True,
             ),
             Attribute(
                 name="y",
@@ -143,6 +144,7 @@ class TestFunctional:
                 hash=None,
                 init=True,
                 inherited=False,
+                alias_is_default=True,
             ),
         ) == attr.fields(cls)
 
@@ -201,6 +203,7 @@ class TestFunctional:
                 hash=None,
                 init=True,
                 inherited=False,
+                alias_is_default=True,
             ),
             Attribute(
                 name="b",
@@ -214,6 +217,7 @@ class TestFunctional:
                 hash=None,
                 init=True,
                 inherited=False,
+                alias_is_default=True,
             ),
         ) == attr.fields(PC)
 
