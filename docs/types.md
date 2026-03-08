@@ -18,7 +18,7 @@ However, they will remain *optional* forever, therefore the example from the [RE
 SomeClass(a_number=1, list_of_numbers=[1, 2, 3])
 ```
 
-You can choose freely between the approaches, but  remember that if you choose to use type annotations, you **must** annotate **all** attributes!
+You can choose freely between the approaches, but remember that if you choose to use type annotations, you **must** annotate **all** attributes!
 
 :::{caution}
 If you define a class with a {func}`attrs.field` that **lacks** a type annotation, *attrs* will **ignore** other fields that have a type annotation, but are not defined using {func}`attrs.field`:
@@ -95,15 +95,15 @@ class SomeClass:
     list_of_numbers = attr.ib(factory=list, type=list[int])
 ```
 
-The approach used for `list_of_numbers` one is only a available in our [old-style API](names.md) which is why the example still uses it.
+The approach used for `list_of_numbers` one is only available in our [old-style API](names.md) which is why the example still uses it.
 
 
 ### Pyright
 
 *attrs* integrates with Microsoft's [Pyright] via {pep}`681`.
-While Pyright's not commonly used as a type-checker, it's widely used as the foundation of VS Code's proprietary [Pylance](https://github.com/microsoft/pylance-release) language server that powers its Python support.
+While Pyright's not as commonly used as a type-checker, it's widely used as the foundation of VS Code's proprietary [Pylance](https://github.com/microsoft/pylance-release) language server that powers its Python support.
 
-Pyright grew several *attrs*-specific features over the years, but its inferred types are still a tiny subset of those supported by Mypy, including:
+Pyright has grown several *attrs*-specific features over the years, but its inferred types are still a tiny subset of those supported by Mypy, including:
 
 - Our auto-aliasing of private attributes is not supported.
   You have to manually tell Pyright about it: `_x: int = attrs.field(alias="x")`
@@ -116,24 +116,23 @@ Your constructive feedback is welcome in both [attrs#795](https://github.com/pyt
 Keep in mind that the decision on improving *attrs* support in Pyright is entirely Microsoft's prerogative and they unequivocally indicated that they'll only add support for features that go through the PEP process.
 We as the *attrs* project unfortunately have no influence over that.
 
-Note that there's a community fork called [*basedpyright*](https://docs.basedpyright.com/) that implements some of Microsoft's closed-sourced Pylance features such that they're available in other editors like [Zed](https://zed.dev).
+Note that there's a community fork called [*basedpyright*](https://docs.basedpyright.com/) that implements some of Microsoft's closed-source Pylance features such that they're available in other editors like [Zed](https://zed.dev).
 Unfortunately, better *attrs* support doesn't appear to be part of their goals.
 
 
 ### *ty*
 
-Astral's [*ty*] is a fairly new type checker that currently only supports {pep}`681`, but is extremely fast.
-They do intend to support more of *attrs* features so go and give [the tracking issue](https://github.com/astral-sh/ty/issues/2404) a heart or thumbs up (don't spam them, please)!
+[*ty*] is a fairly new Rust-based type checker from [Astral](https://astral.sh), the makers of Ruff and *uv*. 
+Currently it only supports {pep}`681`, but [they intend]((https://github.com/astral-sh/ty/issues/2404)) to support more of *attrs*'s features.
 
 
 ### Pyrefly
 
-Facebook's take on a Rust-based type checker for Python.
-It also only implements {pep}`681`, but unfortunately they don't show any ambition to do anything more than that.
+[Pyrefly] is Meta's take on a Rust-based type checker for Python.
+It also only implements {pep}`681` and based on the (lack of) activity on *attrs*-related issues on their bug tracker it doesn't seem like they have immediate ambition to do more than that at the moment.
 
 
 [Mypy]: http://mypy-lang.org
 [Pyright]: https://github.com/microsoft/pyright
-[*pytype*]: https://google.github.io/pytype/
 [*ty*]: https://docs.astral.sh/ty/
 [Pyrefly]: https://pyrefly.org/
