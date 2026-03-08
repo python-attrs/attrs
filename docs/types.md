@@ -81,7 +81,9 @@ class PngHeader:
 ## Overview of type checkers
 
 Types -- regardless how added -- are *only metadata* that can be queried from the class and they aren't used for anything out of the box.
-So, in practice, types show their biggest usefulness in combination with type-checking tools or IDE support.
+Some packages like [*cattrs*](https://catt.rs/) or Pydantic use this metadata for runtime type validation and (de-)serialization.
+
+But their original purpose is to support static type-checking tools and IDEs.
 
 Over the years, the type-checking community has come up with {pep}`681` that defines `dataclass_transform` to offer a baseline way to define dataclass-like class generators.
 All modern type-checking implementations support that, but in practice it's not enough to make the most out of *attrs*, so some offer further *attrs*-specific support.
