@@ -117,7 +117,7 @@ Keep in mind that the decision on improving *attrs* support in Pyright is entire
 We as the *attrs* project unfortunately have no influence over that.
 
 Note that there's a community fork called [*basedpyright*](https://docs.basedpyright.com/) that implements some of Microsoft's closed-sourced Pylance features such that they're available in other editors like [Zed](https://zed.dev).
-Unfortuantely, better *attrs* support doesn't appear to be part of their goals.
+Unfortunately, better *attrs* support doesn't appear to be part of their goals.
 
 
 ### *ty*
