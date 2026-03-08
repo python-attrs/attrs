@@ -65,7 +65,7 @@ In practice, this means:
 
 - Accounts that exercise bot-like behavior – like automated mass pull requests – will be permanently banned, whether they belong to a human or not.
 
-- Do **not** post LLM-generated review comments unless you agree with them.
-  Do **not** post summaries unless you take responsibility for 100% of their content.
+- Do **not** post LLM-generated review comments -- we can prompt LLMs ourselves if we desire their wisdom.
+  Do **not** post summaries unless you've fact-checked them and take responsibility for 100% of their content.
   Remember that *all* LLM output *looks* **plausible**.
-  When using these tools, it's **your** responsibility to ensure that it's also **correct**.
+  When using these tools, it's **your** responsibility to ensure that it's also **correct** and has a reasonable signal-to-noise ratio.
