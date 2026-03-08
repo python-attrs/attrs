@@ -108,8 +108,6 @@ Pyright has grown several *attrs*-specific features over the years, but its infe
 - Our auto-aliasing of private attributes is not supported.
   You have to manually tell Pyright about it: `_x: int = attrs.field(alias="x")`
 
-- The `attrs.frozen` decorator is not typed with frozen attributes, which are properly typed via `attrs.define(frozen=True)`.
-
 - None of the decorator-based features (like `@_x.default` or `@_x.validator`) are supported.
 
 Your constructive feedback is welcome in both [attrs#795](https://github.com/python-attrs/attrs/issues/795) and [pyright#1782](https://github.com/microsoft/pyright/discussions/1782).
