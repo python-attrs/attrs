@@ -41,15 +41,22 @@ The decorators are implemented using an object that is returned by the call to {
 
 Attributes that only carry a class annotation do not have that object so trying to call a method on it will inevitably fail.
 
----
 
-Because Python does not allow references to a class object before the class is defined,
-types may be defined as string literals, so-called *forward references* ({pep}`526`).
-You can enable this automatically for a whole module by using `from __future__ import annotations` ({pep}`563`) or by running Python 3.14 or later.
-In this case *attrs* simply puts these string literals into the `type` attributes[^314-str].
-If you need to resolve these to real types, you can call {func}`attrs.resolve_types` which will update the attributes in place.
+## Forward references
 
-[^314-str]: It's not strings on 3.14 and later, but it's the same concept.
+Python doesn't allow referencing classes in type annotations that haven't been defined yet.
+Since it's a common requirement in real-world code, though, there's been traditionally the workaround of defining them using string literals:
+
+```python
+class C:
+    another_c: "C"
+```
+
+This is called a *forward references* ({pep}`526`) and can be enabled automatically for a whole file by using `from __future__ import annotations` ({pep}`563`).
+
+As of Python 3.14 this is not necessary anymore since it introduced [*deferred evaluation of annotations*](https://docs.python.org/3/whatsnew/3.14.html#whatsnew314-deferred-annotations) ({pep}`649` and {pep}`749`) that has a more sophisticated system based on {class}`annotationlib.ForwardRef`s but serves to solve the same problem.
+
+In both cases, if you need to resolve these to real types, you can call {func}`attrs.resolve_types` which will update the attributes in place.
 
 
 ## Class variables and constants
@@ -101,11 +108,11 @@ The approach used for `list_of_numbers` one is only available in our [old-style 
 ### Pyright / VS Code
 
 *attrs* integrates with Microsoft's [Pyright] via {pep}`681`.
-While Pyright's not as commonly used as a type-checker, it's widely used as the foundation of [VS Code](https://code.visualstudio.com/)'s proprietary [Pylance](https://github.com/microsoft/pylance-release) language server that powers its Python support.
+While Pyright's not as commonly used as a type-checker, it's widely used as the foundation of [VS Code](https://code.visualstudio.com/)'s proprietary [Pylance](https://github.com/microsoft/pylance-release) language server that powers [its Python support](https://marketplace.visualstudio.com/items?itemName=ms-python.python).
 
 Pyright has grown several *attrs*-specific features over the years, but its inferred types are still a tiny subset of those supported by Mypy, including:
 
-- Our auto-aliasing of private attributes is not supported.
+- Auto-aliasing of private attributes is not supported.
   You have to manually tell Pyright about it: `_x: int = attrs.field(alias="x")`
 
 - None of the decorator-based features (like `@_x.default` or `@_x.validator`) are supported.
