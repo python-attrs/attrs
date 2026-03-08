@@ -98,10 +98,10 @@ class SomeClass:
 The approach used for `list_of_numbers` one is only available in our [old-style API](names.md) which is why the example still uses it.
 
 
-### Pyright
+### Pyright / VS Code
 
 *attrs* integrates with Microsoft's [Pyright] via {pep}`681`.
-While Pyright's not as commonly used as a type-checker, it's widely used as the foundation of VS Code's proprietary [Pylance](https://github.com/microsoft/pylance-release) language server that powers its Python support.
+While Pyright's not as commonly used as a type-checker, it's widely used as the foundation of [VS Code](https://code.visualstudio.com/)'s proprietary [Pylance](https://github.com/microsoft/pylance-release) language server that powers its Python support.
 
 Pyright has grown several *attrs*-specific features over the years, but its inferred types are still a tiny subset of those supported by Mypy, including:
 
@@ -116,7 +116,7 @@ Your constructive feedback is welcome in both [attrs#795](https://github.com/pyt
 Keep in mind that the decision on improving *attrs* support in Pyright is entirely Microsoft's prerogative and they unequivocally indicated that they'll only add support for features that go through the PEP process.
 We as the *attrs* project unfortunately have no influence over that.
 
-Note that there's a community fork called [*basedpyright*](https://docs.basedpyright.com/) that implements some of Microsoft's closed-source Pylance features such that they're available in other editors like [Zed](https://zed.dev).
+Note that there's a community fork called [*basedpyright*](https://docs.basedpyright.com/) that implements some of Microsoft's closed-source Pylance features, so they're available in other editors like [Zed](https://zed.dev) or other VS Code forks that are not allowed to use Pylance.
 Unfortunately, better *attrs* support doesn't appear to be part of their goals.
 
 
