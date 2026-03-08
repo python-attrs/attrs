@@ -35,28 +35,27 @@ SomeClass(a_number=42)
 
 Even when going all-in on type annotations, you will need {func}`attrs.field` for some advanced features, though.
 
-One of those features are decorator-based features like defaults.
-It's important to remember that *attrs* doesn't do any magic behind your back here:
-The decorators are implemented using an object that is returned by the call to {func}`attrs.field`.
-
-Attributes that only carry a class annotation do not have that object so trying to call a method on it will inevitably fail.
+One of those features is decorator-based functionality like defaults.
+It's important to remember that *attrs* does not perform any hidden magic here:
+The decorators are implemented using the object returned by the call to {func}`attrs.field`.
+Attributes that only carry a class annotation do not have that object, so trying to call a method on it will inevitably fail.
 
 
 ## Forward references
 
 Python doesn't allow referencing classes in type annotations that haven't been defined yet.
-Since it's a common requirement in real-world code, though, there's been traditionally the workaround of defining them using string literals:
+Since this is a common requirement in real-world code, the traditional workaround has been defining them using string literals:
 
 ```python
 class C:
     another_c: "C"
 ```
 
-This is called a *forward references* ({pep}`526`) and can be enabled automatically for a whole file by using `from __future__ import annotations` ({pep}`563`).
+These are called *forward references* ({pep}`526`) and can be enabled automatically for a whole file by using `from __future__ import annotations` ({pep}`563`).
 
-As of Python 3.14 this is not necessary anymore since it introduced [*deferred evaluation of annotations*](https://docs.python.org/3/whatsnew/3.14.html#whatsnew314-deferred-annotations) ({pep}`649` and {pep}`749`) that has a more sophisticated system based on {class}`annotationlib.ForwardRef`s but serves to solve the same problem.
+As of Python 3.14, this is no longer necessary because it introduced [*deferred evaluation of annotations*](https://docs.python.org/3/whatsnew/3.14.html#whatsnew314-deferred-annotations) ({pep}`649` and {pep}`749`) that has a more sophisticated system based on {class}`annotationlib.ForwardRef`s, but ultimately solves the same problem.
 
-In both cases, if you need to resolve these to real types, you can call {func}`attrs.resolve_types` which will update the attributes in place.
+In both cases, if you need to resolve these to real types, you can call {func}`attrs.resolve_types`, which will update the attributes in place.
 
 
 ## Class variables and constants
@@ -102,13 +101,13 @@ class SomeClass:
     list_of_numbers = attr.ib(factory=list, type=list[int])
 ```
 
-The approach used for `list_of_numbers` one is only available in our [old-style API](names.md) which is why the example still uses it.
+The approach used for `list_of_numbers` is only available in our [old-style API](names.md) which is why the example still uses it.
 
 
 ### Pyright / VS Code
 
 *attrs* integrates with Microsoft's [Pyright] via {pep}`681`.
-While Pyright's not as commonly used as a type-checker, it's widely used as the foundation of [VS Code](https://code.visualstudio.com/)'s proprietary [Pylance](https://github.com/microsoft/pylance-release) language server that powers [its Python support](https://marketplace.visualstudio.com/items?itemName=ms-python.python).
+While Pyright is not as commonly used as a standalone type checker, it's widely used as the foundation of [VS Code](https://code.visualstudio.com/)'s proprietary [Pylance](https://github.com/microsoft/pylance-release) language server that powers [its Python support](https://marketplace.visualstudio.com/items?itemName=ms-python.python).
 
 Pyright has grown several *attrs*-specific features over the years, but its inferred types are still a tiny subset of those supported by Mypy, including:
 
@@ -121,7 +120,7 @@ Your constructive feedback is welcome in both [attrs#795](https://github.com/pyt
 Keep in mind that the decision on improving *attrs* support in Pyright is entirely Microsoft's prerogative and they unequivocally indicated that they'll only add support for features that go through the PEP process.
 We as the *attrs* project unfortunately have no influence over that.
 
-Note that there's a community fork called [*basedpyright*](https://docs.basedpyright.com/) that implements some of Microsoft's closed-source Pylance features, so they're available in other editors like [Zed](https://zed.dev) or other VS Code forks that are not allowed to use Pylance.
+Note that there's a community fork called [*basedpyright*](https://docs.basedpyright.com/) that implements some of Microsoft's closed-source Pylance features, so they're available in other editors like [Zed](https://zed.dev) and VS Code forks that are not allowed to use Pylance.
 Unfortunately, better *attrs* support doesn't appear to be part of their goals.
 
 
@@ -134,7 +133,7 @@ Currently it only supports {pep}`681`, but [they intend](https://github.com/astr
 ### Pyrefly
 
 [Pyrefly] is Meta's take on a Rust-based type checker for Python.
-It also only implements {pep}`681` and based on the (lack of) activity on *attrs*-related issues on their bug tracker it doesn't seem like they have immediate ambition to do more than that at the moment.
+It also only implements {pep}`681` and based on the (lack of) activity on *attrs*-related issues on their bug tracker there is currently no indication that they plan to support additional *attrs* features.
 
 
 [Mypy]: http://mypy-lang.org
