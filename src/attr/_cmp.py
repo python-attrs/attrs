@@ -15,6 +15,14 @@ def my_f():
     b = 0
     return a/b
 
+
+def my_f():
+    c = 3
+    d = 0
+    return c/d
+
+
+
 def cmp_using(
     eq=None,
     lt=None,
