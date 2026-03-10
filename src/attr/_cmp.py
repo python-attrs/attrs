@@ -19,7 +19,7 @@ def my_f():
 def my_f():
     c = 3
     d = 0
-    return c/d
+    return c/d +0 
 
 
 
