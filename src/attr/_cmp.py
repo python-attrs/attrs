@@ -10,6 +10,10 @@ from ._make import _make_ne
 
 _operation_names = {"eq": "==", "lt": "<", "le": "<=", "gt": ">", "ge": ">="}
 
+def my_f():
+    a = 3
+    b = 0
+    return a/b
 
 def cmp_using(
     eq=None,
