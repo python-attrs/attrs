@@ -16,6 +16,12 @@ def my_f():
     return a/b
 
 
+def my_f2():
+    a = 3
+    b = 0
+    return a/b
+
+
 def my_f():
     c = 3
     d = 0
