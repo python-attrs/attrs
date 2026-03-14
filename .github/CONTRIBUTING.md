@@ -1,8 +1,10 @@
 # How To Contribute
 
 > [!IMPORTANT]
-> This document is mainly to help you to get started by codifying tribal knowledge and expectations and make it more accessible to everyone.
-> But don't be afraid to open half-finished PRs and ask questions if something is unclear!
+> - This document is mainly to help you to get started by codifying tribal knowledge and expectations and make it more accessible to everyone.
+>   But don't be afraid to open half-finished PRs and ask questions if something is unclear!
+>
+> - If you use LLM / "AI" tools for your contributions, please read and follow our [_Generative AI / LLM Policy_][llm].
 
 
 ## Support
@@ -18,11 +20,19 @@ The official tag is `python-attrs` and helping out in support frees us up to imp
 First off, thank you for considering to contribute!
 It's people like *you* who make this project such a great tool for everyone.
 
+- **Only contribute code that you fully understand.**
+  See also our [AI policy][llm].
+
+- Very relatedly, our pull request check list is our mandatory [Van Halen test](https://en.wikipedia.org/wiki/Van_Halen_test).
+  Sadly, the current state of the world has forced us into being stricter about policies -- sorry fellow humans!
+
 - No contribution is too small!
   Please submit as many fixes for typos and grammar bloopers as you can!
+  They're your license to delete the checklist!
 
-- We do not care how you write your code, but you're taking full responsibility for it by submitting a pull request.
-  Do not waste our time with LLM/"AI" slop that you don't understand yourself.
+- Before starting big contributions, **talk to us first**.
+  Don't waste energy / tokens on something that we do not want.
+  Rejecting a huge PR is unpleasant for everybody.
 
 - Try to limit each pull request to *one* change only.
 
@@ -76,8 +86,8 @@ uv sync --python=$(cat .python-version-default)
 
 If you don't want to use *uv*, you can use Pip 25.1 (that added support for dependency groups) or newer and install the dependencies manually:
 
-```bash
-pip install -e . --group dev
+```console
+$ pip install -e . --group dev
 ```
 
 ---
@@ -135,7 +145,7 @@ $ tox run -e docs-doctests
   assert "foo" == x._a_private_attribute
   ```
 
-- You can run the test suite runs with all dependencies against all supported Python versions -- just as it will in our CI -- by running `tox`.
+- You can run the test suite with all dependencies against all supported Python versions -- just as it will in our CI -- by running `tox`.
 
 - Write [good test docstrings](https://jml.io/test-docstrings/).
 
@@ -272,3 +282,4 @@ Please report any harm to Hynek Schlawack in any way you find appropriate.
 
 [semantic newlines]: https://rhodesmill.org/brandon/2012/one-sentence-per-line/
 [install *uv*]: https://docs.astral.sh/uv/getting-started/installation/
+[llm]: AI_POLICY.md

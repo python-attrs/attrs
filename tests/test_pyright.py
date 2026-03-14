@@ -51,7 +51,7 @@ def test_pyright_baseline():
             "information",
             'Type of "DefineConverter.__init__" is '
             '"(self: DefineConverter, with_converter: str | Buffer | '
-            'SupportsInt | SupportsIndex | SupportsTrunc) -> None"',
+            'SupportsInt | SupportsIndex) -> None"',
         ),
         (
             "error",

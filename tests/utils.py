@@ -64,4 +64,5 @@ def simple_attr(
         kw_only=kw_only,
         inherited=inherited,
         alias=_default_init_alias_for(name),
+        alias_is_default=True,
     )
