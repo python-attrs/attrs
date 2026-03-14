@@ -6,12 +6,13 @@
 # Pull Request Check List
 
 <!--
-This is just a friendly reminder about the most common mistakes.
-Please make sure that you tick all boxes.
+This list is our brown M&M test:
+Ignoring -- or even deleting -- leads to instant closing of this pull request.
+The only exception are pure documentation fixes.
+
 But please read our [contribution guide](https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md) at least once, it will save you unnecessary review cycles!
 
-If an item doesn't apply to your pull request, **check it anyway** to make it apparent that there's nothing left to do.
-If your pull request is a documentation fix or a trivial typo, feel free to delete the whole thing.
+You may check boxes that don't apply to your pull request to indicate that there isn't anything left to do.
 -->
 
 - [ ] I acknowledge this project's [**AI policy**](https://github.com/python-attrs/attrs/blob/main/.github/AI_POLICY.md).
@@ -34,5 +35,5 @@ If your pull request is a documentation fix or a trivial typo, feel free to dele
 
 <!--
 If you have *any* questions to *any* of the points above, just **submit and ask**!
-This checklist is here to *help* you, not to deter you from contributing!
+Given the ongoing AI slop wave we need to be strict about policies, but we're happy to help out fellow humans.
 -->
