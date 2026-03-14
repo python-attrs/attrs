@@ -1550,12 +1550,19 @@ class TestFields:
     @given(simple_classes())
     def test_instance(self, C):
         """
-        Raises `TypeError` on non-classes.
+        Returns the class fields for *attrs* instances too.
         """
-        with pytest.raises(TypeError) as e:
-            fields(C())
+        assert fields(C()) is fields(C)
 
-        assert "Passed object must be a class." == e.value.args[0]
+    def test_handler_non_attrs_instance(self):
+        """
+        Raises `TypeError` on non-*attrs* instances.
+        """
+        with pytest.raises(
+            TypeError,
+            match=r"Passed object must be a class or attrs instance\.",
+        ):
+            fields(object())
 
     def test_handler_non_attrs_class(self):
         """
