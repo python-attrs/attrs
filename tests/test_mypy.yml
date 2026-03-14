@@ -1431,6 +1431,17 @@
 
     reveal_type(fields(A))  # N: Revealed type is "[Tt]uple\[attr.Attribute\[builtins.int\], attr.Attribute\[builtins.str\], fallback=main.A.__main_A_AttrsAttributes__\]"
 
+- case: testFieldsInstance
+  main: |
+    from attrs import define, fields
+
+    @define
+    class A:
+      a: int
+      b: str
+
+    fields(A(1, "x"))
+
 - case: testFieldsError
   regex: true
   main: |
@@ -1440,7 +1451,7 @@
       a: int
       b: str
 
-    fields(A)  # E: Argument 1 to "fields" has incompatible type "[Tt]ype\[A\]"; expected "[Tt]ype\[AttrsInstance\]"  \[arg-type\]
+    fields(A)  # E: Argument 1 to "fields" has incompatible type "type\[A\]"; expected "type\[AttrsInstance\] \| AttrsInstance"  \[arg-type\]
 
 - case: testAsDict
   main: |
