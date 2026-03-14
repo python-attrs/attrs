@@ -264,13 +264,20 @@ class TestFunctional:
         """
         frozen = frozen_class(1)
 
-        with pytest.raises(FrozenInstanceError) as e:
+        with pytest.raises(
+            FrozenInstanceError, match="can't set attribute"
+        ) as e:
             frozen.x = 2
 
-        with pytest.raises(FrozenInstanceError) as e:
+        assert e.value.msg == e.value.args[0] == "can't set attribute"
+        assert 1 == frozen.x
+
+        with pytest.raises(
+            FrozenInstanceError, match="can't set attribute"
+        ) as e:
             del frozen.x
 
-        assert e.value.args[0] == "can't set attribute"
+        assert e.value.msg == e.value.args[0] == "can't set attribute"
         assert 1 == frozen.x
 
     @pytest.mark.parametrize(
