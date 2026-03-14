@@ -60,7 +60,11 @@ It's people like *you* who make this project such a great tool for everyone.
 
 ## Local Development Environment
 
-First, **fork** the repository on GitHub and **clone** it using one of the alternatives that you can copy-paste by pressing the big green button labeled `<> Code`.
+First, **fork** the repository on GitHub.
+Make sure to **uncheck** the `Copy the main branch only` radio button on the `Create a new fork` page.
+If you don't, our test suite will fail because we use Git tags for packaging.
+
+Finally, **clone** your fork using one of the alternatives that you can copy-paste by pressing the big green button labeled `<> Code`.
 
 You can (and should) run our test suite using [*tox*](https://tox.wiki/) with the [*tox-uv*](https://github.com/tox-dev/tox-uv) plugin.
 The easiest way is to [install *uv*] which is needed in any case and then run `uv tool install --with tox-uv tox` to have it globally available or `uvx --with tox-uv tox` to use a temporary environment.
@@ -88,6 +92,16 @@ If you don't want to use *uv*, you can use Pip 25.1 (that added support for depe
 
 ```console
 $ pip install -e . --group dev
+```
+
+---
+
+If the test suite fails with errors in `test_packaging.py`, you're lacking Git tags.
+You can retroactively fetch them using:
+
+```console
+$ git remote add upstream git@github.com:python-attrs/attrs.git
+$ git fetch upstream --tags
 ```
 
 ---
