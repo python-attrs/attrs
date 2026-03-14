@@ -2022,7 +2022,7 @@ def _make_init_script(
         attr_dict[a.name] = a
 
         if a.on_setattr is not None:
-            if frozen is True:
+            if frozen is True and a.on_setattr is not setters.NO_OP:
                 msg = "Frozen classes can't use on_setattr."
                 raise ValueError(msg)
 
