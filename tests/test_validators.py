@@ -97,6 +97,22 @@ class TestDisableValidators:
 
         assert _config._run_validators is True
 
+    def test_disabled_ctx_nested(self):
+        """
+        Nested contextmanagers restore correct state.
+        """
+        assert _config._run_validators is True
+
+        with validator_module.disabled():
+            assert _config._run_validators is False
+
+            with validator_module.disabled():
+                assert _config._run_validators is False
+
+            assert _config._run_validators is False
+
+        assert _config._run_validators is True
+
 
 class TestInstanceOf:
     """
