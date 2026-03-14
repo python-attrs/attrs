@@ -10,6 +10,7 @@
 <p align="center">
    <a href="https://www.attrs.org/en/stable/"><img src="https://img.shields.io/badge/Docs-RTD-black" alt="Documentation" /></a>
    <a href="https://bestpractices.coreinfrastructure.org/projects/6482"><img src="https://bestpractices.coreinfrastructure.org/projects/6482/badge"></a>
+   <a href="https://github.com/python-attrs/attrs/blob/main/.github/AI_POLICY.md"><img src="https://img.shields.io/badge/no-slop-purple" alt="No AI slop inside."></a>
    <a href="https://pypi.org/project/attrs/"><img src="https://img.shields.io/pypi/v/attrs" /></a>
    <a href="https://pepy.tech/project/attrs"><img src="https://static.pepy.tech/personalized-badge/attrs?period=month&units=international_system&left_color=grey&right_color=blue&left_text=Downloads%20/%20Month" alt="Downloads per month" /></a>
    <a href="https://zenodo.org/badge/latestdoi/29918975"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.17279527.svg" alt="DOI"></a>

@@ -9,7 +9,9 @@ import functools
 import gc
 import inspect
 import itertools
+import pickle
 import sys
+import types
 import unicodedata
 
 from operator import attrgetter
@@ -243,7 +245,7 @@ class TestTransformAttrs:
             "eq=True, eq_key=None, order=True, order_key=None, "
             "hash=None, init=True, "
             "metadata=mappingproxy({}), type=None, converter=None, "
-            "kw_only=False, inherited=False, on_setattr=None, alias=None)",
+            "kw_only=False, inherited=False, on_setattr=None, alias='y')",
         ) == e.value.args
 
     def test_kw_only(self):
@@ -2384,6 +2386,101 @@ class TestInitAlias:
             EvolveCase__mangled=4,
             dunder__=5,
         ) == EvolveCase(1, 4, 5)
+
+    def test_alias_is_default(self):
+        """
+        alias_is_default is True for auto-generated aliases and False for
+        explicitly provided ones -- even if the explicit value matches the
+        auto-generated default.
+        """
+
+        @attrs.define
+        class C:
+            auto: int
+            _private_auto: int
+            explicit: int = attrs.field(alias="custom")
+            _matches_default: int = attrs.field(alias="matches_default")
+
+        fields = attr.fields_dict(C)
+
+        assert fields["auto"].alias_is_default is True
+        assert fields["_private_auto"].alias_is_default is True
+        assert fields["explicit"].alias_is_default is False
+        assert fields["_matches_default"].alias_is_default is False
+
+    def test_alias_is_default_pickle_roundtrip(self):
+        """
+        alias_is_default survives pickle round-tripping.
+        """
+
+        @attrs.define
+        class C:
+            auto: int
+            explicit: int = attrs.field(alias="custom")
+
+        fields = attr.fields(C)
+
+        for a in fields:
+            restored = pickle.loads(pickle.dumps(a))
+
+            assert a.alias == restored.alias
+            assert a.alias_is_default == restored.alias_is_default
+
+    X = (
+        b"\x80\x05\x95_\x00\x00\x00\x00\x00\x00\x00\x8c\nattr._make\x94\x8c\tAttrib"
+        b"ute\x94\x93\x94)\x81\x94(\x8c\x01x\x94h\x00\x8c\x08_Nothing\x94\x93"
+        b"\x94K\x01\x85\x94R\x94N\x88\x88N\x88NN\x88}\x94\x8c\x08builtins\x94"
+        b"\x8c\x03int\x94\x93\x94N\x89\x89Nh\x04t\x94b."
+    )
+    Y = (
+        b"\x80\x05\x95b\x00\x00\x00\x00\x00\x00\x00\x8c\nattr._make\x94\x8c\tAttrib"
+        b"ute\x94\x93\x94)\x81\x94(\x8c\x02_y\x94h\x00\x8c\x08_Nothing\x94"
+        b"\x93\x94K\x01\x85\x94R\x94N\x88\x88N\x88NN\x88}\x94\x8c\x08builtins"
+        b"\x94\x8c\x03int\x94\x93\x94N\x89\x89N\x8c\x01y\x94t\x94b."
+    )
+    Z = (
+        b"\x80\x05\x95c\x00\x00\x00\x00\x00\x00\x00\x8c\nattr._make\x94\x8c\tAttrib"
+        b"ute\x94\x93\x94)\x81\x94(\x8c\x01z\x94h\x00\x8c\x08_Nothing\x94\x93"
+        b"\x94K\x01\x85\x94R\x94N\x88\x88N\x88NN\x88}\x94\x8c\x08builtins\x94"
+        b"\x8c\x03int\x94\x93\x94N\x89\x89N\x8c\x03_z_\x94t\x94b."
+    )
+
+    @pytest.mark.parametrize(
+        ("pickle_data", "name", "alias", "alias_is_default"),
+        [
+            (X, "x", "x", True),
+            (Y, "_y", "y", True),
+            (Z, "z", "_z_", False),
+        ],
+    )
+    def test_can_unpickle_25_3_attributes(
+        self, pickle_data, name, alias, alias_is_default
+    ):
+        """
+        Can unpickle attributes created in 25.3.
+        """
+
+        assert Attribute(
+            name=name,
+            alias=alias,
+            alias_is_default=alias_is_default,
+            default=attrs.NOTHING,
+            validator=None,
+            repr=True,
+            cmp=None,
+            eq=True,
+            eq_key=None,
+            order=True,
+            order_key=None,
+            hash=None,
+            init=True,
+            metadata=types.MappingProxyType({}),
+            type=int,
+            converter=None,
+            kw_only=False,
+            inherited=False,
+            on_setattr=None,
+        ) == pickle.loads(pickle_data)
 
 
 class TestMakeOrder:
