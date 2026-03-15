@@ -4,6 +4,9 @@ Benchmark attrs using CodSpeed.
 
 from __future__ import annotations
 
+import functools
+import time
+
 import pytest
 
 import attrs
@@ -119,3 +122,111 @@ def test_hash():
 
     for _ in range(ROUNDS):
         hash(c)
+
+
+def test_asdict_complicated():
+    """
+    Benchmark instances with non-shortcut fields.
+    """
+    c = C()
+    ad = attrs.asdict
+
+    for _ in range(ROUNDS):
+        ad(c)
+
+
+def test_astuple_complicated():
+    """
+    Benchmark instances with non-shortcut fields.
+    """
+    c = C()
+    at = attrs.astuple
+
+    for _ in range(ROUNDS):
+        at(c)
+
+
+@attrs.define
+class AtomicFields:
+    a: int = 0
+    b: Ellipsis = ...
+    c: str = "foo"
+    d: tuple[str] = "bar"
+    e: complex = complex()
+
+
+def test_asdict_atomic():
+    """
+    Benchmark atomic-only instances.
+    """
+    c = AtomicFields()
+    ad = attrs.asdict
+
+    for _ in range(ROUNDS):
+        ad(c)
+
+
+def test_astuple_atomic():
+    """
+    Benchmark atomic-only instances.
+    """
+    c = AtomicFields()
+    at = attrs.astuple
+
+    for _ in range(ROUNDS):
+        at(c)
+
+
+class TestCachedProperties:
+    @attrs.define
+    class Slotted:
+        x: int = 0
+
+        @functools.cached_property
+        def cached(self):
+            time.sleep(0.1)
+            return 42
+
+    @attrs.define(slots=False)
+    class Unslotted:
+        x: int = 0
+
+        @functools.cached_property
+        def cached(self):
+            time.sleep(0.1)
+            return 42
+
+    def test_first_access(self):
+        """
+        Benchmark first access to a cached property (computation + storage).
+        """
+        for _ in range(ROUNDS):
+            c = self.Slotted(42)
+            _ = c.cached
+
+    def test_repeated_access(self):
+        """
+        Benchmark repeated access to a cached property (should use stored
+        value).
+        """
+        c = self.Slotted(42)
+        _ = c.cached  # Prime the cache
+
+        for _ in range(ROUNDS):
+            _ = c.cached
+
+    def test_create_cached_property_class(self):
+        """
+        Benchmark creating a class with a cached property
+        """
+        for _ in range(ROUNDS):
+
+            @attrs.define
+            class LocalC:
+                x: int
+                y: str
+                z: dict[str, int]
+
+                @functools.cached_property
+                def cached(self):
+                    return 42

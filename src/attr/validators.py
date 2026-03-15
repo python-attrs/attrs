@@ -79,12 +79,14 @@ def disabled():
         This context manager is not thread-safe!
 
     .. versionadded:: 21.3.0
+    .. versionchanged:: 26.1.0 The contextmanager is nestable.
     """
+    prev = get_run_validators()
     set_run_validators(False)
     try:
         yield
     finally:
-        set_run_validators(True)
+        set_run_validators(prev)
 
 
 @attrs(repr=False, slots=True, unsafe_hash=True)
@@ -361,26 +363,32 @@ def deep_iterable(member_validator, iterable_validator=None):
     A validator that performs deep validation of an iterable.
 
     Args:
-        member_validator: Validator to apply to iterable members.
+        member_validator: Validator(s) to apply to iterable members.
 
         iterable_validator:
-            Validator to apply to iterable itself (optional).
+            Validator(s) to apply to iterable itself (optional).
 
     Raises
         TypeError: if any sub-validators fail
 
     .. versionadded:: 19.1.0
+
+    .. versionchanged:: 25.4.0
+       *member_validator* and *iterable_validator* can now be a list or tuple
+       of validators.
     """
     if isinstance(member_validator, (list, tuple)):
         member_validator = and_(*member_validator)
+    if isinstance(iterable_validator, (list, tuple)):
+        iterable_validator = and_(*iterable_validator)
     return _DeepIterable(member_validator, iterable_validator)
 
 
 @attrs(repr=False, slots=True, unsafe_hash=True)
 class _DeepMapping:
-    key_validator = attrib(validator=is_callable())
-    value_validator = attrib(validator=is_callable())
-    mapping_validator = attrib(default=None, validator=optional(is_callable()))
+    key_validator = attrib(validator=optional(is_callable()))
+    value_validator = attrib(validator=optional(is_callable()))
+    mapping_validator = attrib(validator=optional(is_callable()))
 
     def __call__(self, inst, attr, value):
         """
@@ -390,30 +398,62 @@ class _DeepMapping:
             self.mapping_validator(inst, attr, value)
 
         for key in value:
-            self.key_validator(inst, attr, key)
-            self.value_validator(inst, attr, value[key])
+            if self.key_validator is not None:
+                self.key_validator(inst, attr, key)
+            if self.value_validator is not None:
+                self.value_validator(inst, attr, value[key])
 
     def __repr__(self):
         return f"<deep_mapping validator for objects mapping {self.key_validator!r} to {self.value_validator!r}>"
 
 
-def deep_mapping(key_validator, value_validator, mapping_validator=None):
+def deep_mapping(
+    key_validator=None, value_validator=None, mapping_validator=None
+):
     """
     A validator that performs deep validation of a dictionary.
 
-    Args:
-        key_validator: Validator to apply to dictionary keys.
+    All validators are optional, but at least one of *key_validator* or
+    *value_validator* must be provided.
 
-        value_validator: Validator to apply to dictionary values.
+    Args:
+        key_validator: Validator(s) to apply to dictionary keys.
+
+        value_validator: Validator(s) to apply to dictionary values.
 
         mapping_validator:
-            Validator to apply to top-level mapping attribute (optional).
+            Validator(s) to apply to top-level mapping attribute.
 
     .. versionadded:: 19.1.0
 
+    .. versionchanged:: 25.4.0
+       *key_validator* and *value_validator* are now optional, but at least one
+       of them must be provided.
+
+    .. versionchanged:: 25.4.0
+       *key_validator*, *value_validator*, and *mapping_validator* can now be a
+       list or tuple of validators.
+
     Raises:
-        TypeError: if any sub-validators fail
+        TypeError: If any sub-validator fails on validation.
+
+        ValueError:
+            If neither *key_validator* nor *value_validator* is provided on
+            instantiation.
     """
+    if key_validator is None and value_validator is None:
+        msg = (
+            "At least one of key_validator or value_validator must be provided"
+        )
+        raise ValueError(msg)
+
+    if isinstance(key_validator, (list, tuple)):
+        key_validator = and_(*key_validator)
+    if isinstance(value_validator, (list, tuple)):
+        value_validator = and_(*value_validator)
+    if isinstance(mapping_validator, (list, tuple)):
+        mapping_validator = and_(*mapping_validator)
+
     return _DeepMapping(key_validator, value_validator, mapping_validator)
 
 

@@ -97,6 +97,22 @@ class TestDisableValidators:
 
         assert _config._run_validators is True
 
+    def test_disabled_ctx_nested(self):
+        """
+        Nested contextmanagers restore correct state.
+        """
+        assert _config._run_validators is True
+
+        with validator_module.disabled():
+            assert _config._run_validators is False
+
+            with validator_module.disabled():
+                assert _config._run_validators is False
+
+            assert _config._run_validators is False
+
+        assert _config._run_validators is True
+
 
 class TestInstanceOf:
     """
@@ -621,6 +637,19 @@ class TestDeepIterable:
 
         assert expected_repr == repr(v)
 
+    @pytest.mark.parametrize("conv", [list, tuple])
+    def test_validators_iterables(self, conv):
+        """
+        If iterables are passed as validators, they are combined with and_.
+        """
+        member_validator = (instance_of(int),)
+        iterable_validator = (instance_of(list), min_len(1))
+
+        v = deep_iterable(conv(member_validator), conv(iterable_validator))
+
+        assert and_(*member_validator) == v.member_validator
+        assert and_(*iterable_validator) == v.iterable_validator
+
 
 class TestDeepMapping:
     """
@@ -651,6 +680,8 @@ class TestDeepMapping:
             (instance_of(str), instance_of(int), 42),
             (42, 42, None),
             (42, 42, 42),
+            (42, None, None),
+            (None, 42, None),
         ],
     )
     def test_noncallable_validators(
@@ -719,7 +750,58 @@ class TestDeepMapping:
             "<deep_mapping validator for objects mapping "
             f"{key_repr} to {value_repr}>"
         )
+
         assert expected_repr == repr(v)
+
+    def test_error_neither_validator_provided(self):
+        """
+        Raise ValueError if neither key_validator nor value_validator is
+        provided.
+        """
+        with pytest.raises(ValueError) as e:
+            deep_mapping()
+
+        assert (
+            "At least one of key_validator or value_validator must be provided"
+            == e.value.args[0]
+        )
+
+    def test_key_validator_can_be_none(self):
+        """
+        The key validator can be None.
+        """
+        v = deep_mapping(value_validator=instance_of(int))
+        a = simple_attr("test")
+
+        v(None, a, {"a": 6, "b": 7})
+
+    def test_value_validator_can_be_none(self):
+        """
+        The value validator can be None.
+        """
+        v = deep_mapping(key_validator=instance_of(str))
+        a = simple_attr("test")
+
+        v(None, a, {"a": 6, "b": 7})
+
+    @pytest.mark.parametrize("conv", [list, tuple])
+    def test_validators_iterables(self, conv):
+        """
+        If iterables are passed as validators, they are combined with and_.
+        """
+        key_validator = (instance_of(str), min_len(2))
+        value_validator = (instance_of(int), ge(10))
+        mapping_validator = (instance_of(dict), max_len(2))
+
+        v = deep_mapping(
+            conv(key_validator),
+            conv(value_validator),
+            conv(mapping_validator),
+        )
+
+        assert and_(*key_validator) == v.key_validator
+        assert and_(*value_validator) == v.value_validator
+        assert and_(*mapping_validator) == v.mapping_validator
 
 
 class TestIsCallable:

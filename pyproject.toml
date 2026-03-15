@@ -37,28 +37,22 @@ Tidelift = "https://tidelift.com/subscription/pkg/pypi-attrs?utm_source=pypi-att
 
 
 [dependency-groups]
-tests-mypy = [
-  # A transitive dependency of pytest-mypy-plugins doesn't build on 3.14 yet.
-  'pytest-mypy-plugins; platform_python_implementation == "CPython" and python_version >= "3.10" and python_version < "3.14"',
-  # Since the mypy error messages keep changing, we have to keep updating this
-  # pin.
-  'mypy>=1.11.1; platform_python_implementation == "CPython" and python_version >= "3.10"',
+mypy = [
+  { include-group = "tests" },
+  'pytest-mypy-plugins; platform_python_implementation == "CPython" and python_version >= "3.10"',
 ]
 tests = [
-  { include-group = "tests-mypy" },
   # For regression test to ensure cloudpickle compat doesn't break.
   'cloudpickle; platform_python_implementation == "CPython"',
   "hypothesis",
   "pympler",
-  # 4.3.0 dropped last use of `convert`
-  "pytest>=4.3.0",
+  "pytest",
+  "pytest-xdist[psutil]",
 ]
-cov = [
-  { include-group = "tests" },
-  # Ensure coverage is new enough for `source_pkgs`.
-  "coverage[toml]>=5.3",
-]
+cov = [{ include-group = "tests" }, "coverage[toml]"]
 pyright = ["pyright", { include-group = "tests" }]
+ty = ["ty", { include-group = "tests" }]
+pyrefly = ["pyrefly", { include-group = "tests" }]
 benchmark = [
   { include-group = "tests" },
   "pytest-codspeed",
@@ -74,7 +68,7 @@ docs = [
   "towncrier",
 ]
 docs-watch = [{ include-group = "docs" }, "watchfiles"]
-dev = [{ include-group = "tests" }]
+dev = [{ include-group = "tests" }, "ruff"]
 
 
 [tool.hatch.version]
@@ -135,9 +129,9 @@ url = "https://tidelift.com/?utm_source=lifter&utm_medium=referral&utm_campaign=
 img = "Tidelift.svg"
 
 [[tool.sponcon.sponsors]]
-title = "Klaviyo"
-url = "https://klaviyo.com/"
-img = "Klaviyo.svg"
+title = "Kraken Tech"
+url = "https://kraken.tech/"
+img = "Kraken.svg"
 
 [[tool.sponcon.sponsors]]
 title = "Privacy Solutions"
@@ -145,14 +139,14 @@ url = "https://privacy-solutions.org/"
 img = "Privacy-Solutions.svg"
 
 [[tool.sponcon.sponsors]]
-title = "emsys renewables"
-url = "https://www.emsys-renewables.com/"
-img = "emsys-renewables.svg"
-
-[[tool.sponcon.sponsors]]
 title = "FilePreviews"
 url = "https://filepreviews.io/"
 img = "FilePreviews.svg"
+
+[[tool.sponcon.sponsors]]
+title = "TestMu AI"
+url = "https://www.testmuai.com/?utm_medium=sponsor&utm_source=structlog"
+img = "TestMu-AI.svg"
 
 [[tool.sponcon.sponsors]]
 title = "Polar"
@@ -161,7 +155,12 @@ img = "Polar.svg"
 
 
 [tool.pytest.ini_options]
-addopts = ["-ra", "--strict-markers", "--strict-config"]
+addopts = [
+  "-ra",
+  "--strict-markers",
+  "--strict-config",
+  "--import-mode=importlib", # make src truly unimportable
+]
 xfail_strict = true
 testpaths = "tests"
 filterwarnings = ["once::Warning", "ignore:::pympler[.*]"]
@@ -170,6 +169,7 @@ filterwarnings = ["once::Warning", "ignore:::pympler[.*]"]
 [tool.coverage.run]
 parallel = true
 branch = true
+patch = ["subprocess"]
 source_pkgs = ["attr", "attrs"]
 
 [tool.coverage.paths]
@@ -205,6 +205,7 @@ line-length = 79
 
 [tool.ruff.per-file-target-version]
 "tests/test_pattern_matching.py" = "py310"
+"tests/test_forward_references.py" = "py314"
 
 [tool.ruff.lint]
 select = ["ALL"]
@@ -265,11 +266,12 @@ ignore = [
 
 "src/*/*.pyi" = ["ALL"] # TODO
 "tests/test_annotations.py" = ["FA100"]
-"tests/typing_example.py" = [
-  "E741",  # ambiguous variable names don't matter in type checks
-  "B018",  # useless expressions aren't useless in type checks
-  "B015",  # pointless comparison in type checks aren't pointless
-  "UP037", # we test some older syntaxes on purpose
+"typing-examples/*" = [
+  "INP001", # not for imports
+  "E741",   # ambiguous variable names don't matter in type checks
+  "B018",   # useless expressions aren't useless in type checks
+  "B015",   # pointless comparison in type checks aren't pointless
+  "UP037",  # we test some older syntaxes on purpose
 ]
 
 [tool.ruff.lint.isort]
@@ -310,3 +312,7 @@ showcontent = true
 pretty = true
 disallow_untyped_defs = true
 check_untyped_defs = true
+
+
+[tool.pyright]
+include = ["typing-examples/baseline.py"]

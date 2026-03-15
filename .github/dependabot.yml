@@ -5,3 +5,10 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    cooldown:
+      # https://blog.yossarian.net/2025/11/21/We-should-all-be-using-dependency-cooldowns
+      default-days: 7
+    groups:
+      github-actions:
+        patterns:
+          - "*"

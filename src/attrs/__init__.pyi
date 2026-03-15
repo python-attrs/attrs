@@ -77,7 +77,7 @@ def field(
     metadata: Mapping[Any, Any] | None = ...,
     converter: None = ...,
     factory: None = ...,
-    kw_only: bool = ...,
+    kw_only: bool | None = ...,
     eq: bool | None = ...,
     order: bool | None = ...,
     on_setattr: _OnSetAttrArgType | None = ...,
@@ -98,10 +98,10 @@ def field(
     metadata: Mapping[Any, Any] | None = ...,
     converter: _ConverterType
     | list[_ConverterType]
-    | tuple[_ConverterType]
+    | tuple[_ConverterType, ...]
     | None = ...,
     factory: Callable[[], _T] | None = ...,
-    kw_only: bool = ...,
+    kw_only: bool | None = ...,
     eq: _EqOrderType | None = ...,
     order: _EqOrderType | None = ...,
     on_setattr: _OnSetAttrArgType | None = ...,
@@ -121,10 +121,10 @@ def field(
     metadata: Mapping[Any, Any] | None = ...,
     converter: _ConverterType
     | list[_ConverterType]
-    | tuple[_ConverterType]
+    | tuple[_ConverterType, ...]
     | None = ...,
     factory: Callable[[], _T] | None = ...,
-    kw_only: bool = ...,
+    kw_only: bool | None = ...,
     eq: _EqOrderType | None = ...,
     order: _EqOrderType | None = ...,
     on_setattr: _OnSetAttrArgType | None = ...,
@@ -144,10 +144,10 @@ def field(
     metadata: Mapping[Any, Any] | None = ...,
     converter: _ConverterType
     | list[_ConverterType]
-    | tuple[_ConverterType]
+    | tuple[_ConverterType, ...]
     | None = ...,
     factory: Callable[[], _T] | None = ...,
-    kw_only: bool = ...,
+    kw_only: bool | None = ...,
     eq: _EqOrderType | None = ...,
     order: _EqOrderType | None = ...,
     on_setattr: _OnSetAttrArgType | None = ...,
@@ -261,3 +261,54 @@ def frozen(
     field_transformer: _FieldTransformer | None = ...,
     match_args: bool = ...,
 ) -> Callable[[_C], _C]: ...
+
+class ClassProps:
+    # XXX: somehow when defining/using enums Mypy starts looking at our own
+    # (untyped) code and causes tons of errors.
+    Hashability: Any
+    KeywordOnly: Any
+
+    is_exception: bool
+    is_slotted: bool
+    has_weakref_slot: bool
+    is_frozen: bool
+    # kw_only: ClassProps.KeywordOnly
+    kw_only: Any
+    collected_fields_by_mro: bool
+    added_init: bool
+    added_repr: bool
+    added_eq: bool
+    added_ordering: bool
+    # hashability: ClassProps.Hashability
+    hashability: Any
+    added_match_args: bool
+    added_str: bool
+    added_pickling: bool
+    on_setattr_hook: _OnSetAttrType | None
+    field_transformer: Callable[[Attribute[Any]], Attribute[Any]] | None
+
+    def __init__(
+        self,
+        is_exception: bool,
+        is_slotted: bool,
+        has_weakref_slot: bool,
+        is_frozen: bool,
+        # kw_only: ClassProps.KeywordOnly
+        kw_only: Any,
+        collected_fields_by_mro: bool,
+        added_init: bool,
+        added_repr: bool,
+        added_eq: bool,
+        added_ordering: bool,
+        # hashability: ClassProps.Hashability
+        hashability: Any,
+        added_match_args: bool,
+        added_str: bool,
+        added_pickling: bool,
+        on_setattr_hook: _OnSetAttrType,
+        field_transformer: Callable[[Attribute[Any]], Attribute[Any]],
+    ) -> None: ...
+    @property
+    def is_hashable(self) -> bool: ...
+
+def inspect(cls: type) -> ClassProps: ...

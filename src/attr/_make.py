@@ -12,6 +12,7 @@ import linecache
 import sys
 import types
 import unicodedata
+import weakref
 
 from collections.abc import Callable, Mapping
 from functools import cached_property
@@ -113,7 +114,7 @@ def attrib(
     type=None,
     converter=None,
     factory=None,
-    kw_only=False,
+    kw_only=None,
     eq=None,
     order=None,
     on_setattr=None,
@@ -158,6 +159,9 @@ def attrib(
     .. versionchanged:: 21.1.0 *cmp* undeprecated
     .. versionadded:: 22.2.0 *alias*
     .. versionadded:: 25.4.0 *inherited*
+    .. versionchanged:: 25.4.0
+       *kw_only* can now be None, and its default is also changed from False to
+       None.
     """
     eq, eq_key, order, order_key = _determine_attrib_eq_order(
         cmp, eq, order, True
@@ -376,7 +380,12 @@ def _collect_base_attrs_broken(cls, taken_attr_names):
 
 
 def _transform_attrs(
-    cls, these, auto_attribs, kw_only, collect_by_mro, field_transformer
+    cls,
+    these,
+    auto_attribs,
+    kw_only,
+    collect_by_mro,
+    field_transformer,
 ) -> _Attributes:
     """
     Transform all `_CountingAttr`s on a class into `Attribute`s.
@@ -431,8 +440,15 @@ def _transform_attrs(
         )
 
     fca = Attribute.from_counting_attr
+    no = ClassProps.KeywordOnly.NO
     own_attrs = [
-        fca(attr_name, ca, anns.get(attr_name)) for attr_name, ca in ca_list
+        fca(
+            attr_name,
+            ca,
+            kw_only is not no,
+            anns.get(attr_name),
+        )
+        for attr_name, ca in ca_list
     ]
 
     if collect_by_mro:
@@ -444,7 +460,7 @@ def _transform_attrs(
             cls, {a.name for a in own_attrs if a.inherited is False}
         )
 
-    if kw_only:
+    if kw_only is ClassProps.KeywordOnly.FORCE:
         own_attrs = [a.evolve(kw_only=True) for a in own_attrs]
         base_attrs = [a.evolve(kw_only=True) for a in base_attrs]
 
@@ -463,6 +479,15 @@ def _transform_attrs(
 
     attrs = base_attrs + own_attrs
 
+    # Resolve default field alias before executing field_transformer, so that
+    # the transformer receives fully populated Attribute objects with usable
+    # alias values.
+    for a in attrs:
+        if not a.alias:
+            # Evolve is very slow, so we hold our nose and do it dirty.
+            _OBJ_SETATTR.__get__(a)("alias", _default_init_alias_for(a.name))
+            _OBJ_SETATTR.__get__(a)("alias_is_default", True)
+
     if field_transformer is not None:
         attrs = tuple(field_transformer(cls, attrs))
 
@@ -480,13 +505,12 @@ def _transform_attrs(
         if had_default is False and a.default is not NOTHING:
             had_default = True
 
-    # Resolve default field alias after executing field_transformer.
-    # This allows field_transformer to differentiate between explicit vs
-    # default aliases and supply their own defaults.
+    # Resolve default field alias for any new attributes that the
+    # field_transformer may have added without setting an alias.
     for a in attrs:
         if not a.alias:
-            # Evolve is very slow, so we hold our nose and do it dirty.
             _OBJ_SETATTR.__get__(a)("alias", _default_init_alias_for(a.name))
+            _OBJ_SETATTR.__get__(a)("alias_is_default", True)
 
     # Create AttrsClass *after* applying the field_transformer since it may
     # add or remove attributes!
@@ -569,7 +593,7 @@ def _frozen_delattrs(self, name):
     """
     Attached to frozen classes as __delattr__.
     """
-    if isinstance(self, BaseException) and name in ("__notes__",):
+    if isinstance(self, BaseException) and name == "__notes__":
         BaseException.__delattr__(self, name)
         return
 
@@ -667,38 +691,31 @@ class _ClassBuilder:
         self,
         cls: type,
         these,
-        slots,
-        frozen,
-        weakref_slot,
-        getstate_setstate,
-        auto_attribs,
-        kw_only,
-        cache_hash,
-        is_exc,
-        collect_by_mro,
-        on_setattr,
-        has_custom_setattr,
-        field_transformer,
+        auto_attribs: bool,
+        props: ClassProps,
+        has_custom_setattr: bool,
     ):
         attrs, base_attrs, base_map = _transform_attrs(
             cls,
             these,
             auto_attribs,
-            kw_only,
-            collect_by_mro,
-            field_transformer,
+            props.kw_only,
+            props.collected_fields_by_mro,
+            props.field_transformer,
         )
 
         self._cls = cls
-        self._cls_dict = dict(cls.__dict__) if slots else {}
+        self._cls_dict = dict(cls.__dict__) if props.is_slotted else {}
         self._attrs = attrs
         self._base_names = {a.name for a in base_attrs}
         self._base_attr_map = base_map
         self._attr_names = tuple(a.name for a in attrs)
-        self._slots = slots
-        self._frozen = frozen
-        self._weakref_slot = weakref_slot
-        self._cache_hash = cache_hash
+        self._slots = props.is_slotted
+        self._frozen = props.is_frozen
+        self._weakref_slot = props.has_weakref_slot
+        self._cache_hash = (
+            props.hashability is ClassProps.Hashability.HASHABLE_CACHED
+        )
         self._has_pre_init = bool(getattr(cls, "__attrs_pre_init__", False))
         self._pre_init_has_args = False
         if self._has_pre_init:
@@ -709,20 +726,21 @@ class _ClassBuilder:
             self._pre_init_has_args = len(pre_init_signature.parameters) > 1
         self._has_post_init = bool(getattr(cls, "__attrs_post_init__", False))
         self._delete_attribs = not bool(these)
-        self._is_exc = is_exc
-        self._on_setattr = on_setattr
+        self._is_exc = props.is_exception
+        self._on_setattr = props.on_setattr_hook
 
         self._has_custom_setattr = has_custom_setattr
         self._wrote_own_setattr = False
 
         self._cls_dict["__attrs_attrs__"] = self._attrs
+        self._cls_dict["__attrs_props__"] = props
 
-        if frozen:
+        if props.is_frozen:
             self._cls_dict["__setattr__"] = _frozen_setattrs
             self._cls_dict["__delattr__"] = _frozen_delattrs
 
             self._wrote_own_setattr = True
-        elif on_setattr in (
+        elif self._on_setattr in (
             _DEFAULT_ON_SETATTR,
             setters.validate,
             setters.convert,
@@ -738,18 +756,18 @@ class _ClassBuilder:
                     break
             if (
                 (
-                    on_setattr == _DEFAULT_ON_SETATTR
+                    self._on_setattr == _DEFAULT_ON_SETATTR
                     and not (has_validator or has_converter)
                 )
-                or (on_setattr == setters.validate and not has_validator)
-                or (on_setattr == setters.convert and not has_converter)
+                or (self._on_setattr == setters.validate and not has_validator)
+                or (self._on_setattr == setters.convert and not has_converter)
             ):
                 # If class-level on_setattr is set to convert + validate, but
                 # there's no field to convert or validate, pretend like there's
                 # no on_setattr.
                 self._on_setattr = None
 
-        if getstate_setstate:
+        if props.added_pickling:
             (
                 self._cls_dict["__getstate__"],
                 self._cls_dict["__setstate__"],
@@ -800,6 +818,7 @@ class _ClassBuilder:
         self._eval_snippets()
         if self._slots is True:
             cls = self._create_slots_class()
+            self._cls.__attrs_base_of_slotted__ = weakref.ref(cls)
         else:
             cls = self._patch_original_class()
             if PY_3_10_PLUS:
@@ -860,6 +879,10 @@ class _ClassBuilder:
             for k, v in self._cls_dict.items()
             if k not in (*tuple(self._attr_names), "__dict__", "__weakref__")
         }
+
+        # 3.14.0rc2+
+        if hasattr(sys, "_clear_type_descriptors"):
+            sys._clear_type_descriptors(self._cls)
 
         # If our class doesn't have its own implementation of __setattr__
         # (either from the user or by us), check the bases, if one of them has
@@ -1097,9 +1120,7 @@ class _ClassBuilder:
         return self
 
     def add_replace(self):
-        self._cls_dict["__replace__"] = self._add_method_dunders(
-            lambda self, **changes: evolve(self, **changes)
-        )
+        self._cls_dict["__replace__"] = self._add_method_dunders(evolve)
         return self
 
     def add_match_args(self):
@@ -1342,6 +1363,7 @@ def attrs(
     field_transformer=None,
     match_args=True,
     unsafe_hash=None,
+    force_kw_only=True,
 ):
     r"""
     A class decorator that adds :term:`dunder methods` according to the
@@ -1408,6 +1430,10 @@ def attrs(
        If a class has an *inherited* classmethod called
        ``__attrs_init_subclass__``, it is executed after the class is created.
     .. deprecated:: 24.1.0 *hash* is deprecated in favor of *unsafe_hash*.
+    .. versionchanged:: 25.4.0
+       *kw_only* now only applies to attributes defined in the current class,
+       and respects attribute-level ``kw_only=False`` settings.
+    .. versionadded:: 25.4.0 *force_kw_only*
     """
     if repr_ns is not None:
         import warnings
@@ -1429,6 +1455,7 @@ def attrs(
         on_setattr = setters.pipe(*on_setattr)
 
     def wrap(cls):
+        nonlocal hash
         is_frozen = frozen or _has_frozen_base_class(cls)
         is_exc = auto_exc is True and issubclass(cls, BaseException)
         has_own_setattr = auto_detect and _has_own_attribute(
@@ -1439,84 +1466,112 @@ def attrs(
             msg = "Can't freeze a class with a custom __setattr__."
             raise ValueError(msg)
 
-        builder = _ClassBuilder(
-            cls,
-            these,
-            slots,
-            is_frozen,
-            weakref_slot,
-            _determine_whether_to_implement(
+        eq = not is_exc and _determine_whether_to_implement(
+            cls, eq_, auto_detect, ("__eq__", "__ne__")
+        )
+
+        Hashability = ClassProps.Hashability
+
+        if is_exc:
+            hashability = Hashability.LEAVE_ALONE
+        elif hash is True:
+            hashability = (
+                Hashability.HASHABLE_CACHED
+                if cache_hash
+                else Hashability.HASHABLE
+            )
+        elif hash is False:
+            hashability = Hashability.LEAVE_ALONE
+        elif hash is None:
+            if auto_detect is True and _has_own_attribute(cls, "__hash__"):
+                hashability = Hashability.LEAVE_ALONE
+            elif eq is True and is_frozen is True:
+                hashability = (
+                    Hashability.HASHABLE_CACHED
+                    if cache_hash
+                    else Hashability.HASHABLE
+                )
+            elif eq is False:
+                hashability = Hashability.LEAVE_ALONE
+            else:
+                hashability = Hashability.UNHASHABLE
+        else:
+            msg = "Invalid value for hash.  Must be True, False, or None."
+            raise TypeError(msg)
+
+        KeywordOnly = ClassProps.KeywordOnly
+        if kw_only:
+            kwo = KeywordOnly.FORCE if force_kw_only else KeywordOnly.YES
+        else:
+            kwo = KeywordOnly.NO
+
+        props = ClassProps(
+            is_exception=is_exc,
+            is_frozen=is_frozen,
+            is_slotted=slots,
+            collected_fields_by_mro=collect_by_mro,
+            added_init=_determine_whether_to_implement(
+                cls, init, auto_detect, ("__init__",)
+            ),
+            added_repr=_determine_whether_to_implement(
+                cls, repr, auto_detect, ("__repr__",)
+            ),
+            added_eq=eq,
+            added_ordering=not is_exc
+            and _determine_whether_to_implement(
+                cls,
+                order_,
+                auto_detect,
+                ("__lt__", "__le__", "__gt__", "__ge__"),
+            ),
+            hashability=hashability,
+            added_match_args=match_args,
+            kw_only=kwo,
+            has_weakref_slot=weakref_slot,
+            added_str=str,
+            added_pickling=_determine_whether_to_implement(
                 cls,
                 getstate_setstate,
                 auto_detect,
                 ("__getstate__", "__setstate__"),
                 default=slots,
             ),
-            auto_attribs,
-            kw_only,
-            cache_hash,
-            is_exc,
-            collect_by_mro,
-            on_setattr,
-            has_own_setattr,
-            field_transformer,
+            on_setattr_hook=on_setattr,
+            field_transformer=field_transformer,
         )
 
-        if _determine_whether_to_implement(
-            cls, repr, auto_detect, ("__repr__",)
-        ):
+        if not props.is_hashable and cache_hash:
+            msg = "Invalid value for cache_hash.  To use hash caching, hashing must be either explicitly or implicitly enabled."
+            raise TypeError(msg)
+
+        builder = _ClassBuilder(
+            cls,
+            these,
+            auto_attribs=auto_attribs,
+            props=props,
+            has_custom_setattr=has_own_setattr,
+        )
+
+        if props.added_repr:
             builder.add_repr(repr_ns)
 
-        if str is True:
+        if props.added_str:
             builder.add_str()
 
-        eq = _determine_whether_to_implement(
-            cls, eq_, auto_detect, ("__eq__", "__ne__")
-        )
-        if not is_exc and eq is True:
+        if props.added_eq:
             builder.add_eq()
-        if not is_exc and _determine_whether_to_implement(
-            cls, order_, auto_detect, ("__lt__", "__le__", "__gt__", "__ge__")
-        ):
+        if props.added_ordering:
             builder.add_order()
 
         if not frozen:
             builder.add_setattr()
 
-        nonlocal hash
-        if (
-            hash is None
-            and auto_detect is True
-            and _has_own_attribute(cls, "__hash__")
-        ):
-            hash = False
-
-        if hash is not True and hash is not False and hash is not None:
-            # Can't use `hash in` because 1 == True for example.
-            msg = "Invalid value for hash.  Must be True, False, or None."
-            raise TypeError(msg)
-
-        if hash is False or (hash is None and eq is False) or is_exc:
-            # Don't do anything. Should fall back to __object__'s __hash__
-            # which is by id.
-            if cache_hash:
-                msg = "Invalid value for cache_hash.  To use hash caching, hashing must be either explicitly or implicitly enabled."
-                raise TypeError(msg)
-        elif hash is True or (
-            hash is None and eq is True and is_frozen is True
-        ):
-            # Build a __hash__ if told so, or if it's safe.
+        if props.is_hashable:
             builder.add_hash()
-        else:
-            # Raise TypeError on attempts to hash.
-            if cache_hash:
-                msg = "Invalid value for cache_hash.  To use hash caching, hashing must be either explicitly or implicitly enabled."
-                raise TypeError(msg)
+        elif props.hashability is Hashability.UNHASHABLE:
             builder.make_unhashable()
 
-        if _determine_whether_to_implement(
-            cls, init, auto_detect, ("__init__",)
-        ):
+        if props.added_init:
             builder.add_init()
         else:
             builder.add_attrs_init()
@@ -1851,16 +1906,16 @@ def _add_repr(cls, ns=None, attrs=None):
 
 def fields(cls):
     """
-    Return the tuple of *attrs* attributes for a class.
+    Return the tuple of *attrs* attributes for a class or instance.
 
     The tuple also allows accessing the fields by their names (see below for
     examples).
 
     Args:
-        cls (type): Class to introspect.
+        cls (type): Class or instance to introspect.
 
     Raises:
-        TypeError: If *cls* is not a class.
+        TypeError: If *cls* is neither a class nor an *attrs* instance.
 
         attrs.exceptions.NotAnAttrsClassError:
             If *cls* is not an *attrs* class.
@@ -1871,12 +1926,17 @@ def fields(cls):
     .. versionchanged:: 16.2.0 Returned tuple allows accessing the fields
        by name.
     .. versionchanged:: 23.1.0 Add support for generic classes.
+    .. versionchanged:: 26.1.0 Add support for instances.
     """
     generic_base = get_generic_base(cls)
 
     if generic_base is None and not isinstance(cls, type):
-        msg = "Passed object must be a class."
-        raise TypeError(msg)
+        type_ = type(cls)
+        if getattr(type_, "__attrs_attrs__", None) is None:
+            msg = "Passed object must be a class or attrs instance."
+            raise TypeError(msg)
+
+        return fields(type_)
 
     attrs = getattr(cls, "__attrs_attrs__", None)
 
@@ -1983,7 +2043,7 @@ def _make_init_script(
         attr_dict[a.name] = a
 
         if a.on_setattr is not None:
-            if frozen is True:
+            if frozen is True and a.on_setattr is not setters.NO_OP:
                 msg = "Frozen classes can't use on_setattr."
                 raise ValueError(msg)
 
@@ -2142,8 +2202,9 @@ def _attrs_to_init_script(
     )
     lines.extend(extra_lines)
 
-    args = []
-    kw_only_args = []
+    args = []  # Parameters in the definition of __init__
+    pre_init_args = []  # Parameters in the call to __attrs_pre_init__
+    kw_only_args = []  # Used for both 'args' and 'pre_init_args' above
     attrs_to_validate = []
 
     # This is a dictionary of names to validator and converter callables.
@@ -2221,6 +2282,7 @@ def _attrs_to_init_script(
                 kw_only_args.append(arg)
             else:
                 args.append(arg)
+                pre_init_args.append(arg_name)
 
             if converter is not None:
                 lines.append(
@@ -2240,6 +2302,7 @@ def _attrs_to_init_script(
                 kw_only_args.append(arg)
             else:
                 args.append(arg)
+                pre_init_args.append(arg_name)
             lines.append(f"if {arg_name} is not NOTHING:")
 
             init_factory_name = _INIT_FACTORY_PAT % (a.name,)
@@ -2282,6 +2345,7 @@ def _attrs_to_init_script(
                 kw_only_args.append(arg_name)
             else:
                 args.append(arg_name)
+                pre_init_args.append(arg_name)
 
             if converter is not None:
                 lines.append(
@@ -2338,7 +2402,7 @@ def _attrs_to_init_script(
         lines.append(f"BaseException.__init__(self, {vals})")
 
     args = ", ".join(args)
-    pre_init_args = args
+    pre_init_args = ", ".join(pre_init_args)
     if kw_only_args:
         # leading comma & kw_only args
         args += f"{', ' if args else ''}*, {', '.join(kw_only_args)}"
@@ -2353,7 +2417,7 @@ def _attrs_to_init_script(
         pre_init_args += pre_init_kw_only_args
 
     if call_pre_init and pre_init_has_args:
-        # If pre init method has arguments, pass same arguments as `__init__`.
+        # If pre init method has arguments, pass the values given to __init__.
         lines[0] = f"self.__attrs_pre_init__({pre_init_args})"
 
     # Python <3.12 doesn't allow backslashes in f-strings.
@@ -2392,6 +2456,8 @@ class Attribute:
     - ``name`` (`str`): The name of the attribute.
     - ``alias`` (`str`): The __init__ parameter name of the attribute, after
       any explicit overrides and default private-attribute-name handling.
+    - ``alias_is_default`` (`bool`): Whether the ``alias`` was automatically
+      generated (``True``) or explicitly provided by the user (``False``).
     - ``inherited`` (`bool`): Whether or not that attribute has been inherited
       from a base class.
     - ``eq_key`` and ``order_key`` (`typing.Callable` or `None`): The
@@ -2417,6 +2483,7 @@ class Attribute:
         equality checks and hashing anymore.
     .. versionadded:: 21.1.0 *eq_key* and *order_key*
     .. versionadded:: 22.2.0 *alias*
+    .. versionadded:: 26.1.0 *alias_is_default*
 
     For the full version history of the fields, see `attr.ib`.
     """
@@ -2441,6 +2508,7 @@ class Attribute:
         "inherited",
         "on_setattr",
         "alias",
+        "alias_is_default",
     )
 
     def __init__(
@@ -2463,6 +2531,7 @@ class Attribute:
         order_key=None,
         on_setattr=None,
         alias=None,
+        alias_is_default=None,
     ):
         eq, eq_key, order, order_key = _determine_attrib_eq_order(
             cmp, eq_key or eq, order_key or order, True
@@ -2497,12 +2566,20 @@ class Attribute:
         bound_setattr("inherited", inherited)
         bound_setattr("on_setattr", on_setattr)
         bound_setattr("alias", alias)
+        bound_setattr(
+            "alias_is_default",
+            alias is None if alias_is_default is None else alias_is_default,
+        )
 
     def __setattr__(self, name, value):
         raise FrozenInstanceError
 
     @classmethod
-    def from_counting_attr(cls, name: str, ca: _CountingAttr, type=None):
+    def from_counting_attr(
+        cls, name: str, ca: _CountingAttr, kw_only: bool, type=None
+    ):
+        # The 'kw_only' argument is the class-level setting, and is used if the
+        # attribute itself does not explicitly set 'kw_only'.
         # type holds the annotated value. deal with conflicts:
         if type is None:
             type = ca.type
@@ -2521,13 +2598,14 @@ class Attribute:
             ca.metadata,
             type,
             ca.converter,
-            ca.kw_only,
+            kw_only if ca.kw_only is None else ca.kw_only,
             ca.eq,
             ca.eq_key,
             ca.order,
             ca.order_key,
             ca.on_setattr,
             ca.alias,
+            ca.alias is None,
         )
 
     # Don't use attrs.evolve since fields(Attribute) doesn't work
@@ -2545,6 +2623,20 @@ class Attribute:
         new = copy.copy(self)
 
         new._setattrs(changes.items())
+
+        if "alias" in changes and "alias_is_default" not in changes:
+            # Explicit alias provided -- no longer the default.
+            _OBJ_SETATTR.__get__(new)("alias_is_default", False)
+        elif (
+            "name" in changes
+            and "alias" not in changes
+            # Don't auto-generate alias if the user picked picked the old one.
+            and self.alias_is_default
+        ):
+            # Name changed, alias was auto-generated -- update it.
+            _OBJ_SETATTR.__get__(new)(
+                "alias", _default_init_alias_for(new.name)
+            )
 
         return new
 
@@ -2612,6 +2704,17 @@ class Attribute:
         """
         Play nice with pickle.
         """
+        if len(state) < len(self.__slots__):
+            # Pre-26.1.0 pickle without alias_is_default -- infer it
+            # heuristically.
+            state_dict = dict(zip(self.__slots__, state))
+            alias_is_default = state_dict.get(
+                "alias"
+            ) is None or state_dict.get("alias") == _default_init_alias_for(
+                state_dict["name"]
+            )
+            state = (*state, alias_is_default)
+
         self._setattrs(zip(self.__slots__, state))
 
     def _setattrs(self, name_values_pairs):
@@ -2635,7 +2738,7 @@ _a = [
         name=name,
         default=NOTHING,
         validator=None,
-        repr=True,
+        repr=(name != "alias_is_default"),
         cmp=None,
         eq=True,
         order=False,
@@ -2828,6 +2931,188 @@ class _CountingAttr:
 _CountingAttr = _add_eq(_add_repr(_CountingAttr))
 
 
+class ClassProps:
+    """
+    Effective class properties as derived from parameters to `attr.s()` or
+    `define()` decorators.
+
+    This is the same data structure that *attrs* uses internally to decide how
+    to construct the final class.
+
+    Warning:
+
+        This feature is currently **experimental** and is not covered by our
+        strict backwards-compatibility guarantees.
+
+
+    Attributes:
+        is_exception (bool):
+            Whether the class is treated as an exception class.
+
+        is_slotted (bool):
+            Whether the class is `slotted <slotted classes>`.
+
+        has_weakref_slot (bool):
+            Whether the class has a slot for weak references.
+
+        is_frozen (bool):
+            Whether the class is frozen.
+
+        kw_only (KeywordOnly):
+            Whether / how the class enforces keyword-only arguments on the
+            ``__init__`` method.
+
+        collected_fields_by_mro (bool):
+            Whether the class fields were collected by method resolution order.
+            That is, correctly but unlike `dataclasses`.
+
+        added_init (bool):
+            Whether the class has an *attrs*-generated ``__init__`` method.
+
+        added_repr (bool):
+            Whether the class has an *attrs*-generated ``__repr__`` method.
+
+        added_eq (bool):
+            Whether the class has *attrs*-generated equality methods.
+
+        added_ordering (bool):
+            Whether the class has *attrs*-generated ordering methods.
+
+        hashability (Hashability): How `hashable <hashing>` the class is.
+
+        added_match_args (bool):
+            Whether the class supports positional `match <match>` over its
+            fields.
+
+        added_str (bool):
+            Whether the class has an *attrs*-generated ``__str__`` method.
+
+        added_pickling (bool):
+            Whether the class has *attrs*-generated ``__getstate__`` and
+            ``__setstate__`` methods for `pickle`.
+
+        on_setattr_hook (Callable[[Any, Attribute[Any], Any], Any] | None):
+            The class's ``__setattr__`` hook.
+
+        field_transformer (Callable[[Attribute[Any]], Attribute[Any]] | None):
+            The class's `field transformers <transform-fields>`.
+
+    .. versionadded:: 25.4.0
+    """
+
+    class Hashability(enum.Enum):
+        """
+        The hashability of a class.
+
+        .. versionadded:: 25.4.0
+        """
+
+        HASHABLE = "hashable"
+        """Write a ``__hash__``."""
+        HASHABLE_CACHED = "hashable_cache"
+        """Write a ``__hash__`` and cache the hash."""
+        UNHASHABLE = "unhashable"
+        """Set ``__hash__`` to ``None``."""
+        LEAVE_ALONE = "leave_alone"
+        """Don't touch ``__hash__``."""
+
+    class KeywordOnly(enum.Enum):
+        """
+        How attributes should be treated regarding keyword-only parameters.
+
+        .. versionadded:: 25.4.0
+        """
+
+        NO = "no"
+        """Attributes are not keyword-only."""
+        YES = "yes"
+        """Attributes in current class without kw_only=False are keyword-only."""
+        FORCE = "force"
+        """All attributes are keyword-only."""
+
+    __slots__ = (  # noqa: RUF023 -- order matters for __init__
+        "is_exception",
+        "is_slotted",
+        "has_weakref_slot",
+        "is_frozen",
+        "kw_only",
+        "collected_fields_by_mro",
+        "added_init",
+        "added_repr",
+        "added_eq",
+        "added_ordering",
+        "hashability",
+        "added_match_args",
+        "added_str",
+        "added_pickling",
+        "on_setattr_hook",
+        "field_transformer",
+    )
+
+    def __init__(
+        self,
+        is_exception,
+        is_slotted,
+        has_weakref_slot,
+        is_frozen,
+        kw_only,
+        collected_fields_by_mro,
+        added_init,
+        added_repr,
+        added_eq,
+        added_ordering,
+        hashability,
+        added_match_args,
+        added_str,
+        added_pickling,
+        on_setattr_hook,
+        field_transformer,
+    ):
+        self.is_exception = is_exception
+        self.is_slotted = is_slotted
+        self.has_weakref_slot = has_weakref_slot
+        self.is_frozen = is_frozen
+        self.kw_only = kw_only
+        self.collected_fields_by_mro = collected_fields_by_mro
+        self.added_init = added_init
+        self.added_repr = added_repr
+        self.added_eq = added_eq
+        self.added_ordering = added_ordering
+        self.hashability = hashability
+        self.added_match_args = added_match_args
+        self.added_str = added_str
+        self.added_pickling = added_pickling
+        self.on_setattr_hook = on_setattr_hook
+        self.field_transformer = field_transformer
+
+    @property
+    def is_hashable(self):
+        return (
+            self.hashability is ClassProps.Hashability.HASHABLE
+            or self.hashability is ClassProps.Hashability.HASHABLE_CACHED
+        )
+
+
+_cas = [
+    Attribute(
+        name=name,
+        default=NOTHING,
+        validator=None,
+        repr=True,
+        cmp=None,
+        eq=True,
+        order=False,
+        hash=True,
+        init=True,
+        inherited=False,
+        alias=_default_init_alias_for(name),
+    )
+    for name in ClassProps.__slots__
+]
+
+ClassProps = _add_eq(_add_repr(ClassProps, attrs=_cas), attrs=_cas)
+
+
 class Factory:
     """
     Stores a factory callable.
@@ -2935,9 +3220,7 @@ class Converter:
                 value, field
             )
         else:
-            self.__call__ = lambda value, instance, field: self.converter(
-                value, instance, field
-            )
+            self.__call__ = self.converter
 
         rt = ex.get_return_type()
         if rt is not None:

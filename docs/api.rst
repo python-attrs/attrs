@@ -154,6 +154,8 @@ Helpers
       ...     y = field()
       >>> attrs.fields(C)
       (Attribute(name='x', default=NOTHING, validator=None, repr=True, eq=True, eq_key=None, order=True, order_key=None, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False, on_setattr=None, alias='x'), Attribute(name='y', default=NOTHING, validator=None, repr=True, eq=True, eq_key=None, order=True, order_key=None, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False, on_setattr=None, alias='y'))
+      >>> attrs.fields(C(1, 2)) is attrs.fields(C)
+      True
       >>> attrs.fields(C)[1]
       Attribute(name='y', default=NOTHING, validator=None, repr=True, eq=True, eq_key=None, order=True, order_key=None, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False, inherited=False, on_setattr=None, alias='y')
       >>> attrs.fields(C).y is attrs.fields(C)[1]
@@ -182,13 +184,31 @@ Helpers
 
    .. doctest::
 
-      >>> @attr.s
+      >>> @define
       ... class C:
       ...     pass
-      >>> attr.has(C)
+      >>> attrs.has(C)
       True
-      >>> attr.has(object)
+      >>> attrs.has(object)
       False
+
+.. autofunction:: attrs.inspect
+
+   For example:
+
+   .. doctest::
+
+      >>> @define
+      ... class CInspect:
+      ...     pass
+      >>> attrs.inspect(CInspect)  # doctest: +ELLIPSIS
+      ClassProps(is_exception=False, is_slotted=True, has_weakref_slot=True, is_frozen=False, kw_only=<KeywordOnly.NO: 'no'>, collected_fields_by_mro=True, added_init=True, added_repr=True, added_eq=True, added_ordering=False, hashability=<Hashability.UNHASHABLE: 'unhashable'>, added_match_args=True, added_str=False, added_pickling=True, on_setattr_hook=<function pipe.<locals>.wrapped_pipe at ...>, field_transformer=None)
+
+.. autoclass:: attrs.ClassProps
+.. autoclass:: attrs.ClassProps.Hashability
+   :members: HASHABLE, HASHABLE_CACHED, UNHASHABLE, LEAVE_ALONE
+.. autoclass:: attrs.ClassProps.KeywordOnly
+   :members: NO, YES, FORCE
 
 .. autofunction:: attrs.resolve_types
 

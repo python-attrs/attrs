@@ -1,8 +1,10 @@
 # How To Contribute
 
 > [!IMPORTANT]
-> This document is mainly to help you to get started by codifying tribal knowledge and expectations and make it more accessible to everyone.
-> But don't be afraid to open half-finished PRs and ask questions if something is unclear!
+> - This document is mainly to help you to get started by codifying tribal knowledge and expectations and make it more accessible to everyone.
+>   But don't be afraid to open half-finished PRs and ask questions if something is unclear!
+>
+> - If you use LLM / "AI" tools for your contributions, please read and follow our [_Generative AI / LLM Policy_][llm].
 
 
 ## Support
@@ -18,8 +20,19 @@ The official tag is `python-attrs` and helping out in support frees us up to imp
 First off, thank you for considering to contribute!
 It's people like *you* who make this project such a great tool for everyone.
 
+- **Only contribute code that you fully understand.**
+  See also our [AI policy][llm].
+
+- Very relatedly, our pull request check list is our mandatory [Van Halen test](https://en.wikipedia.org/wiki/Van_Halen_test).
+  Sadly, the current state of the world has forced us into being stricter about policies -- sorry fellow humans!
+
 - No contribution is too small!
   Please submit as many fixes for typos and grammar bloopers as you can!
+  They're your license to delete the checklist!
+
+- Before starting big contributions, **talk to us first**.
+  Don't waste energy / tokens on something that we do not want.
+  Rejecting a huge PR is unpleasant for everybody.
 
 - Try to limit each pull request to *one* change only.
 
@@ -47,21 +60,29 @@ It's people like *you* who make this project such a great tool for everyone.
 
 ## Local Development Environment
 
-First, **fork** the repository on GitHub and **clone** it using one of the alternatives that you can copy-paste by pressing the big green button labeled `<> Code`.
+First, **fork** the repository on GitHub.
+Make sure to **uncheck** the `Copy the main branch only` radio button on the `Create a new fork` page.
+If you don't, our test suite will fail because we use Git tags for packaging.
 
-You can (and should) run our test suite using [*tox*](https://tox.wiki/).
+Finally, **clone** your fork using one of the alternatives that you can copy-paste by pressing the big green button labeled `<> Code`.
+
+You can (and should) run our test suite using [*tox*](https://tox.wiki/) with the [*tox-uv*](https://github.com/tox-dev/tox-uv) plugin.
+The easiest way is to [install *uv*] which is needed in any case and then run `uv tool install --with tox-uv tox` to have it globally available or `uvx --with tox-uv tox` to use a temporary environment.
+
+---
+
 However, you'll probably want a more traditional environment as well.
 
 We recommend using the Python version from the `.python-version-default` file in the project's root directory.
 
-We use a fully-locked development environment using [*uv*](https://docs.astral.sh/uv/) so the easiest way to get started is to [install *uv*](https://docs.astral.sh/uv/getting-started/installation/) and you can run `uv run pytest` to run the tests immediately.
+We use a fully-locked development environment using [*uv*](https://docs.astral.sh/uv/) so the easiest way to get started is to [install *uv*] and you can run `uv run pytest` to run the tests immediately.
 
-I you'd like a traditional virtual environment, you can run `uv sync` and it will create a virtual environment named `.venv` with the correct Python version and install all the dependencies in the root directory.
+I you'd like a traditional virtual environment, you can run `uv sync --python=$(cat .python-version-default)` and it will create a virtual environment named `.venv` with the correct Python version and install all the dependencies in the root directory.
 
 If you're using [*direnv*](https://direnv.net), you can automate the creation and activation of the project's virtual environment with the correct Python version by adding the following `.envrc` to the project root:
 
 ```bash
-uv sync
+uv sync --python=$(cat .python-version-default)
 . .venv/bin/activate
 ```
 
@@ -69,8 +90,18 @@ uv sync
 
 If you don't want to use *uv*, you can use Pip 25.1 (that added support for dependency groups) or newer and install the dependencies manually:
 
-```bash
-pip install -e . --group dev
+```console
+$ pip install -e . --group dev
+```
+
+---
+
+If the test suite fails with errors in `test_packaging.py`, you're lacking Git tags.
+You can retroactively fetch them using:
+
+```console
+$ git remote add upstream git@github.com:python-attrs/attrs.git
+$ git fetch upstream --tags
 ```
 
 ---
@@ -128,7 +159,7 @@ $ tox run -e docs-doctests
   assert "foo" == x._a_private_attribute
   ```
 
-- You can run the test suite runs with all dependencies against all supported Python versions -- just as it will in our CI -- by running `tox`.
+- You can run the test suite with all dependencies against all supported Python versions -- just as it will in our CI -- by running `tox`.
 
 - Write [good test docstrings](https://jml.io/test-docstrings/).
 
@@ -264,3 +295,5 @@ By participating in this project you agree to abide by its terms.
 Please report any harm to Hynek Schlawack in any way you find appropriate.
 
 [semantic newlines]: https://rhodesmill.org/brandon/2012/one-sentence-per-line/
+[install *uv*]: https://docs.astral.sh/uv/getting-started/installation/
+[llm]: AI_POLICY.md

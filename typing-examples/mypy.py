@@ -1,5 +1,9 @@
 # SPDX-License-Identifier: MIT
 
+"""
+Typing examples that rely on Mypy-specific features (mostly the attrs plugin).
+"""
+
 from __future__ import annotations
 
 import re
@@ -190,10 +194,17 @@ class Validated:
             attr.validators.instance_of(C), attr.validators.instance_of(list)
         ),
     )
-    aa = attr.ib(
+    a2 = attr.ib(
         type=Tuple[C],
         validator=attr.validators.deep_iterable(
             attr.validators.instance_of(C), attr.validators.instance_of(tuple)
+        ),
+    )
+    a3 = attr.ib(
+        type=Tuple[C],
+        validator=attr.validators.deep_iterable(
+            [attr.validators.instance_of(C)],
+            [attr.validators.instance_of(tuple)],
         ),
     )
     b = attr.ib(
@@ -214,6 +225,24 @@ class Validated:
         type=Dict[C, D],
         validator=attr.validators.deep_mapping(
             attr.validators.instance_of(C), attr.validators.instance_of(D)
+        ),
+    )
+    d2 = attr.ib(
+        type=Dict[C, D],
+        validator=attr.validators.deep_mapping(attr.validators.instance_of(C)),
+    )
+    d3 = attr.ib(
+        type=Dict[C, D],
+        validator=attr.validators.deep_mapping(
+            value_validator=attr.validators.instance_of(C)
+        ),
+    )
+    d4 = attr.ib(
+        type=Dict[C, D],
+        validator=attr.validators.deep_mapping(
+            key_validator=[attr.validators.instance_of(C)],
+            value_validator=[attr.validators.instance_of(C)],
+            mapping_validator=[attr.validators.instance_of(dict)],
         ),
     )
     e: str = attr.ib(validator=attr.validators.matches_re(re.compile(r"foo")))
@@ -267,16 +296,9 @@ class Validated2:
     num: int = attr.field(validator=attr.validators.ge(0))
 
 
-@attrs.define
-class Validated3:
-    num: int = attrs.field(validator=attrs.validators.ge(0))
-
-
 with attr.validators.disabled():
     Validated2(num=-1)
 
-with attrs.validators.disabled():
-    Validated3(num=-1)
 
 try:
     attr.validators.set_disabled(True)
@@ -292,14 +314,6 @@ class WithCustomRepr:
     b: str = attr.ib(repr=False)
     c: str = attr.ib(repr=lambda value: "c is for cookie")
     d: bool = attr.ib(repr=str)
-
-
-@attrs.define
-class WithCustomRepr2:
-    a: int = attrs.field(repr=True)
-    b: str = attrs.field(repr=False)
-    c: str = attrs.field(repr=lambda value: "c is for cookie")
-    d: bool = attrs.field(repr=str)
 
 
 # Check some of our own types
@@ -323,40 +337,13 @@ class ValidatedSetter:
     )
 
 
-@attrs.define(on_setattr=attr.setters.validate)
-class ValidatedSetter2:
-    a: int
-    b: str = attrs.field(on_setattr=attrs.setters.NO_OP)
-    c: bool = attrs.field(on_setattr=attrs.setters.frozen)
-    d: int = attrs.field(
-        on_setattr=[attrs.setters.convert, attrs.setters.validate]
-    )
-    e: bool = attrs.field(
-        on_setattr=attrs.setters.pipe(
-            attrs.setters.convert, attrs.setters.validate
-        )
-    )
-
-
 # field_transformer
 def ft_hook(cls: type, attribs: list[attr.Attribute]) -> list[attr.Attribute]:
     return attribs
 
 
-# field_transformer
-def ft_hook2(
-    cls: type, attribs: list[attrs.Attribute]
-) -> list[attrs.Attribute]:
-    return attribs
-
-
 @attr.s(field_transformer=ft_hook)
 class TransformedAttrs:
-    x: int
-
-
-@attrs.define(field_transformer=ft_hook2)
-class TransformedAttrs2:
     x: int
 
 
@@ -369,7 +356,6 @@ class AutoDetect:
         self.x = x
 
 
-# Provisional APIs
 @attr.define(order=True)
 class NGClass:
     x: int = attr.field(default=42)
@@ -378,27 +364,12 @@ class NGClass:
 ngc = NGClass(1)
 
 
-@attr.mutable(slots=False)
-class NGClass2:
-    x: int
-
-
-ngc2 = NGClass2(1)
-
-
 @attr.frozen(str=True)
 class NGFrozen:
     x: int
 
 
-ngf = NGFrozen(1)
-
 attr.fields(NGFrozen).x.evolve(eq=False)
-a = attr.fields(NGFrozen).x
-a.evolve(repr=False)
-
-
-attrs.fields(NGFrozen).x.evolve(eq=False)
 a = attrs.fields(NGFrozen).x
 a.evolve(repr=False)
 
@@ -415,14 +386,6 @@ class FactoryTest:
     c: list[int] = attr.ib(default=attr.Factory((lambda s: s.a), True))
 
 
-@attrs.define
-class FactoryTest2:
-    a: list[int] = attrs.field(default=attrs.Factory(list))
-    b: list[Any] = attrs.field(default=attrs.Factory(list, False))
-    c: list[int] = attrs.field(default=attrs.Factory((lambda s: s.a), True))
-
-
-attrs.asdict(FactoryTest2())
 attr.asdict(FactoryTest(), tuple_keys=True)
 
 
@@ -437,18 +400,6 @@ attr.asdict(FactoryTest())
 attr.asdict(FactoryTest(), retain_collection_types=False)
 
 
-# Check match_args stub
-@attrs.define(match_args=False)
-class MatchArgs2:
-    a: int
-    b: int
-
-
-# NG versions of asdict/astuple
-attrs.asdict(MatchArgs2(1, 2))
-attrs.astuple(MatchArgs2(1, 2))
-
-
 def accessing_from_attr() -> None:
     """
     Use a function to keep the ns clean.
@@ -460,19 +411,6 @@ def accessing_from_attr() -> None:
     attr.setters.frozen
     attr.validators.and_
     attr.cmp_using
-
-
-def accessing_from_attrs() -> None:
-    """
-    Use a function to keep the ns clean.
-    """
-    attrs.converters.optional
-    attrs.exceptions.FrozenError
-    attrs.filters.include
-    attrs.filters.exclude
-    attrs.setters.frozen
-    attrs.validators.and_
-    attrs.cmp_using
 
 
 foo = object

@@ -221,6 +221,16 @@ class TestSetAttr:
 
         assert "Frozen classes can't use on_setattr." == ei.value.args[0]
 
+    @pytest.mark.parametrize("nop", [None, setters.NO_OP])
+    def test_frozen_on_setattr_nops(self, nop):
+        """
+        on_setattr on frozen classes can be used for None and NO_OP.
+        """
+
+        @attr.s(frozen=True)
+        class C:
+            x = attr.ib(on_setattr=nop)
+
     def test_setattr_reset_if_no_custom_setattr(self, slots):
         """
         If a class with an active setattr is subclassed and no new setattr
@@ -366,7 +376,7 @@ class TestSetAttr:
         frozen=True together with a detected custom __setattr__ are rejected.
         """
         with pytest.raises(
-            ValueError, match="Can't freeze a class with a custom __setattr__."
+            ValueError, match="Can't freeze a class with a custom __setattr__"
         ):
 
             @attr.s(auto_detect=True, slots=slots, frozen=True)
@@ -381,7 +391,7 @@ class TestSetAttr:
         """
         with pytest.raises(
             ValueError,
-            match="Can't combine custom __setattr__ with on_setattr hooks.",
+            match="Can't combine custom __setattr__ with on_setattr hooks",
         ):
 
             @attr.s(auto_detect=True, slots=slots)

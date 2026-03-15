@@ -1,3 +1,5 @@
 ---
 github: hynek
-tidelift: "pypi/attrs"
+tidelift: pypi/attrs
+thanks_dev: u/gh/python-attrs
+custom: https://hynek.me/say-thanks/

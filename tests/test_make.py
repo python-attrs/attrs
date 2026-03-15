@@ -9,7 +9,9 @@ import functools
 import gc
 import inspect
 import itertools
+import pickle
 import sys
+import types
 import unicodedata
 
 from operator import attrgetter
@@ -21,11 +23,13 @@ from hypothesis import assume, given
 from hypothesis.strategies import booleans, integers, lists, sampled_from, text
 
 import attr
+import attrs
 
 from attr import _config
-from attr._compat import PY_3_10_PLUS, PY_3_14_PLUS
+from attr._compat import PY_3_10_PLUS
 from attr._make import (
     Attribute,
+    ClassProps,
     Factory,
     _AndValidator,
     _Attributes,
@@ -55,7 +59,9 @@ from .strategies import (
 from .utils import simple_attr
 
 
-attrs_st = simple_attrs.map(lambda c: Attribute.from_counting_attr("name", c))
+attrs_st = simple_attrs.map(
+    lambda c: Attribute.from_counting_attr("name", c, False)
+)
 
 
 @pytest.fixture(name="with_and_without_validation", params=[True, False])
@@ -112,9 +118,7 @@ class TestCountingAttr:
 
         assert v == a._validator
 
-    @pytest.mark.parametrize(
-        "wrap", [lambda v: v, lambda v: [v], lambda v: and_(v)]
-    )
+    @pytest.mark.parametrize("wrap", [lambda v: v, lambda v: [v], and_])
     def test_validator_decorator(self, wrap):
         """
         If _CountingAttr.validator is used as a decorator and there is already
@@ -179,7 +183,7 @@ class TestTransformAttrs:
         Does not attach __attrs_attrs__ to the class.
         """
         C = make_tc()
-        _transform_attrs(C, None, False, False, True, None)
+        _transform_attrs(C, None, False, ClassProps.KeywordOnly.NO, True, None)
 
         assert None is getattr(C, "__attrs_attrs__", None)
 
@@ -188,7 +192,9 @@ class TestTransformAttrs:
         Transforms every `_CountingAttr` and leaves others (a) be.
         """
         C = make_tc()
-        attrs, _, _ = _transform_attrs(C, None, False, False, True, None)
+        attrs, _, _ = _transform_attrs(
+            C, None, False, ClassProps.KeywordOnly.NO, True, None
+        )
 
         assert ["z", "y", "x"] == [a.name for a in attrs]
 
@@ -202,7 +208,7 @@ class TestTransformAttrs:
             pass
 
         assert _Attributes((), [], {}) == _transform_attrs(
-            C, None, False, False, True, None
+            C, None, False, ClassProps.KeywordOnly.NO, True, None
         )
 
     def test_transforms_to_attribute(self):
@@ -211,7 +217,7 @@ class TestTransformAttrs:
         """
         C = make_tc()
         attrs, base_attrs, _ = _transform_attrs(
-            C, None, False, False, True, None
+            C, None, False, ClassProps.KeywordOnly.NO, True, None
         )
 
         assert [] == base_attrs
@@ -229,7 +235,9 @@ class TestTransformAttrs:
             y = attr.ib()
 
         with pytest.raises(ValueError) as e:
-            _transform_attrs(C, None, False, False, True, None)
+            _transform_attrs(
+                C, None, False, ClassProps.KeywordOnly.NO, True, None
+            )
         assert (
             "No mandatory attributes allowed after an attribute with a "
             "default value or factory.  Attribute in question: Attribute"
@@ -237,16 +245,13 @@ class TestTransformAttrs:
             "eq=True, eq_key=None, order=True, order_key=None, "
             "hash=None, init=True, "
             "metadata=mappingproxy({}), type=None, converter=None, "
-            "kw_only=False, inherited=False, on_setattr=None, alias=None)",
+            "kw_only=False, inherited=False, on_setattr=None, alias='y')",
         ) == e.value.args
 
     def test_kw_only(self):
         """
-        Converts all attributes, including base class' attributes, if `kw_only`
-        is provided. Therefore, `kw_only` allows attributes with defaults to
-        precede mandatory attributes.
-
-        Updates in the subclass *don't* affect the base class attributes.
+        Converts all attributes in the current class if `kw_only` is provided.
+        Base class attributes are **not** affected.
         """
 
         @attr.s
@@ -261,7 +266,25 @@ class TestTransformAttrs:
             y = attr.ib()
 
         attrs, base_attrs, _ = _transform_attrs(
-            C, None, False, True, True, None
+            C, None, False, ClassProps.KeywordOnly.YES, True, None
+        )
+
+        assert len(attrs) == 3
+        assert len(base_attrs) == 1
+
+        for a in attrs:
+            if a.name == "b":
+                assert a.kw_only is False
+            else:
+                assert a.kw_only is True
+
+        attrs, base_attrs, _ = _transform_attrs(
+            C,
+            None,
+            False,
+            ClassProps.KeywordOnly.FORCE,
+            True,
+            None,
         )
 
         assert len(attrs) == 3
@@ -285,7 +308,7 @@ class TestTransformAttrs:
             y = attr.ib()
 
         attrs, base_attrs, _ = _transform_attrs(
-            C, {"x": attr.ib()}, False, False, True, None
+            C, {"x": attr.ib()}, False, ClassProps.KeywordOnly.NO, True, None
         )
 
         assert [] == base_attrs
@@ -485,6 +508,77 @@ class TestAttributes:
 
         assert "x" == C.__attrs_attrs__[0].name
         assert all(isinstance(a, Attribute) for a in C.__attrs_attrs__)
+
+    def test_sets_attrs_props(self):
+        """
+        Sets the `__attrs_props__` class attribute with the effective decorator
+        properties.
+        """
+
+        @attr.s(
+            slots=True,
+            frozen=True,
+            repr=True,
+            eq=True,
+            order=True,
+            unsafe_hash=True,
+            init=True,
+            match_args=False,
+            kw_only=True,
+            auto_attribs=True,
+            cache_hash=True,
+            str=True,
+        )
+        class C:
+            x: int = attr.ib()
+
+        assert ClassProps(
+            is_exception=False,
+            is_slotted=True,
+            is_frozen=True,
+            added_init=True,
+            added_repr=True,
+            added_eq=True,
+            added_ordering=True,
+            hashability=ClassProps.Hashability.HASHABLE_CACHED,
+            added_match_args=False,
+            kw_only=ClassProps.KeywordOnly.FORCE,
+            has_weakref_slot=True,
+            collected_fields_by_mro=False,
+            added_str=True,
+            added_pickling=True,
+            on_setattr_hook=None,
+            field_transformer=None,
+        ) == attrs.inspect(C)
+
+    def test_sets_attrs_props_defaults(self):
+        """
+        Default values are derived in `__attrs_props__` when not specified in
+        the decorator.
+        """
+
+        @attr.s
+        class CDef:
+            x = attr.ib()
+
+        assert ClassProps(
+            is_exception=False,
+            is_slotted=False,
+            is_frozen=False,
+            added_init=True,
+            added_repr=True,
+            added_eq=True,
+            added_ordering=True,
+            hashability=ClassProps.Hashability.UNHASHABLE,
+            added_match_args=True,
+            kw_only=ClassProps.KeywordOnly.NO,
+            has_weakref_slot=True,
+            collected_fields_by_mro=False,
+            added_str=False,
+            added_pickling=False,
+            on_setattr_hook=None,
+            field_transformer=None,
+        ) == attrs.inspect(CDef)
 
     def test_empty(self):
         """
@@ -714,6 +808,49 @@ class TestAttributes:
         inst = KWOnlyAndDefault()
 
         assert 3 == val == inst.kw_and_default
+
+    @pytest.mark.usefixtures("with_and_without_validation")
+    def test_pre_init_with_mixture_of_defaults_and_kw_only(self):
+        """
+        Attrs should properly handle a mixture of positional, positional with
+        default, keyword-only, and keyword-only with default attributes when
+        passing values to __attrs_pre_init__.
+        """
+        g_val1 = None
+        g_val2 = None
+        g_val3 = None
+        g_val4 = None
+        g_val5 = None
+        g_val6 = None
+
+        @attr.define
+        class MixtureClass:
+            val1: int
+            val2: int = 100
+            val3: int = attr.field(factory=int)
+            val4: int = attr.field(kw_only=True)
+            val5: int = attr.field(default=100, kw_only=True)
+            val6: int = attr.field(factory=int, kw_only=True)
+
+            def __attrs_pre_init__(self, val1, val2, val3, val4, val5, val6):
+                nonlocal g_val1, g_val2, g_val3, g_val4, g_val5, g_val6
+                g_val1 = val1
+                g_val2 = val2
+                g_val3 = val3
+                g_val4 = val4
+                g_val5 = val5
+                g_val6 = val6
+
+        inst = MixtureClass(
+            val1=200, val2=200, val3=200, val4=200, val5=200, val6=200
+        )
+
+        assert 200 == g_val1 == inst.val1
+        assert 200 == g_val2 == inst.val2
+        assert 200 == g_val3 == inst.val3
+        assert 200 == g_val4 == inst.val4
+        assert 200 == g_val5 == inst.val5
+        assert 200 == g_val6 == inst.val6
 
     @pytest.mark.usefixtures("with_and_without_validation")
     def test_post_init(self):
@@ -1177,8 +1314,8 @@ class TestKeywordOnlyAttributes:
 
     def test_keyword_only_class_level_subclassing(self):
         """
-        Subclass `kw_only` propagates to attrs inherited from the base,
-        allowing non-default following default.
+        When `force_kw_only=True`, subclass `kw_only` propagates to attrs
+        inherited from the base, allowing non-default following default.
         """
 
         @attr.s
@@ -1191,8 +1328,19 @@ class TestKeywordOnlyAttributes:
 
         with pytest.raises(TypeError):
             C(1)
+        with pytest.raises(TypeError):
+            C(0, y=1)
 
         c = C(x=0, y=1)
+
+        assert c.x == 0
+        assert c.y == 1
+
+        @attr.s(kw_only=True, force_kw_only=False)
+        class C(Base):
+            y = attr.ib()
+
+        c = C(0, y=1)
 
         assert c.x == 0
         assert c.y == 1
@@ -1252,6 +1400,144 @@ class TestKeywordOnlyAttributes:
         assert c.kwarg == "a"
         assert c.non_init_function_default == "ab"
         assert c.non_init_keyword_default == "default-by-keyword"
+
+    def test_attr_level_kw_only_and_class_level_kw_only(self):
+        """
+        If a field explicitly sets 'kw_only=False', it should not be made
+        keyword-only even if the class sets 'kw_only=True'.
+        """
+
+        @attr.s(kw_only=True)
+        class OldClassOldBehavior:
+            yes = attr.ib()
+            no = attr.ib(kw_only=False)
+
+        @attr.s(kw_only=True, force_kw_only=False)
+        class OldClassNewBehavior:
+            yes = attr.ib()
+            no = attr.ib(kw_only=False)
+
+        @attr.define(kw_only=True, force_kw_only=True)
+        class NewClassOldBehavior:
+            yes = attr.field()
+            no = attr.field(kw_only=False)
+
+        @attr.define(kw_only=True)
+        class NewClassNewBehavior:
+            yes = attr.field()
+            no = attr.field(kw_only=False)
+
+        for cls in [OldClassNewBehavior, NewClassNewBehavior]:
+            fs = fields_dict(cls)
+            assert fs["yes"].kw_only is True
+            assert fs["no"].kw_only is False
+
+        for cls in [OldClassOldBehavior, NewClassOldBehavior]:
+            fs = fields_dict(cls)
+
+            assert fs["yes"].kw_only is True
+            assert fs["no"].kw_only is True
+
+    def test_kw_only_inheritance(self):
+        """
+        Comprehensive test about how `kw_only` works when there's multiple
+        levels of inheritance with different `kw_only` settings.
+        """
+
+        @attr.define()
+        class A:
+            a = attr.field()
+            a_t = attr.field(kw_only=True)
+            a_f = attr.field(kw_only=False)
+
+        @attr.define(kw_only=True)
+        class B(A):
+            b = attr.field()
+            b_t = attr.field(kw_only=True)
+            b_f = attr.field(kw_only=False)
+
+        @attr.define(kw_only=False)
+        class C(B):
+            c = attr.field()
+            c_t = attr.field(kw_only=True)
+            c_f = attr.field(kw_only=False)
+
+        fs = fields_dict(A)
+
+        assert fs["a"].kw_only is False
+        assert fs["a_t"].kw_only is True
+        assert fs["a_f"].kw_only is False
+
+        fs = fields_dict(B)
+
+        assert fs["a"].kw_only is False
+        assert fs["a_t"].kw_only is True
+        assert fs["a_f"].kw_only is False
+        assert fs["b"].kw_only is True
+        assert fs["b_t"].kw_only is True
+        assert fs["b_f"].kw_only is False
+
+        fs = fields_dict(C)
+
+        assert fs["a"].kw_only is False
+        assert fs["a_t"].kw_only is True
+        assert fs["a_f"].kw_only is False
+        assert fs["b"].kw_only is True
+        assert fs["b_t"].kw_only is True
+        assert fs["b_f"].kw_only is False
+        assert fs["c"].kw_only is False
+        assert fs["c_t"].kw_only is True
+        assert fs["c_f"].kw_only is False
+
+    def test_kw_only_inheritance_force_kw_only(self):
+        """
+        Similar to above, but when `force_kw_only` (pre-25.3.0 behavior).
+        """
+
+        @attr.define(force_kw_only=True)
+        class A:
+            a = attr.field()
+            a_t = attr.field(kw_only=True)
+            a_f = attr.field(kw_only=False)
+
+        @attr.define(kw_only=True, force_kw_only=True)
+        class B(A):
+            b = attr.field()
+            b_t = attr.field(kw_only=True)
+            b_f = attr.field(kw_only=False)
+
+        @attr.define(kw_only=False, force_kw_only=True)
+        class C(B):
+            c = attr.field()
+            c_t = attr.field(kw_only=True)
+            c_f = attr.field(kw_only=False)
+
+        fs = fields_dict(A)
+
+        assert fs["a"].kw_only is False
+        assert fs["a_t"].kw_only is True
+        assert fs["a_f"].kw_only is False
+
+        fs = fields_dict(B)
+
+        assert fs["a"].kw_only is True
+        assert fs["a_t"].kw_only is True
+        assert fs["a_f"].kw_only is True
+        assert fs["b"].kw_only is True
+        assert fs["b_t"].kw_only is True
+        assert fs["b_f"].kw_only is True
+
+        fs = fields_dict(C)
+
+        assert fs["a"].kw_only is False
+        assert fs["a_t"].kw_only is True
+        assert fs["a_f"].kw_only is False
+        assert fs["b"].kw_only is True
+        assert fs["b_t"].kw_only is True
+        assert fs["b_f"].kw_only is True
+        assert fs["c"].kw_only is False
+        assert fs["c_t"].kw_only is True
+        assert fs["c_f"].kw_only is False
 
 
 @attr.s
@@ -1466,12 +1752,19 @@ class TestFields:
     @given(simple_classes())
     def test_instance(self, C):
         """
-        Raises `TypeError` on non-classes.
+        Returns the class fields for *attrs* instances too.
         """
-        with pytest.raises(TypeError) as e:
-            fields(C())
+        assert fields(C()) is fields(C)
 
-        assert "Passed object must be a class." == e.value.args[0]
+    def test_handler_non_attrs_instance(self):
+        """
+        Raises `TypeError` on non-*attrs* instances.
+        """
+        with pytest.raises(
+            TypeError,
+            match=r"Passed object must be a class or attrs instance\.",
+        ):
+            fields(object())
 
     def test_handler_non_attrs_class(self):
         """
@@ -1691,9 +1984,7 @@ class TestConverter:
         """
         Converters circumvent immutability.
         """
-        C = make_class(
-            "C", {"x": attr.ib(converter=lambda v: int(v))}, frozen=True
-        )
+        C = make_class("C", {"x": attr.ib(converter=int)}, frozen=True)
         C("1")
 
 
@@ -1919,17 +2210,25 @@ class TestClassBuilder:
             C,
             None,
             True,
-            True,
-            False,
-            False,
-            False,
-            False,
-            False,
-            False,
-            True,
-            None,
-            False,
-            None,
+            ClassProps(
+                is_exception=False,
+                is_slotted=True,
+                is_frozen=True,
+                added_init=True,
+                added_repr=True,
+                added_eq=True,
+                added_ordering=False,
+                hashability=ClassProps.Hashability.UNHASHABLE,
+                added_match_args=True,
+                kw_only=ClassProps.KeywordOnly.NO,
+                has_weakref_slot=False,
+                collected_fields_by_mro=True,
+                added_str=False,
+                added_pickling=True,
+                on_setattr_hook=None,
+                field_transformer=None,
+            ),
+            has_custom_setattr=False,
         )
 
         assert "<_ClassBuilder(cls=C)>" == repr(b)
@@ -1945,18 +2244,26 @@ class TestClassBuilder:
         b = _ClassBuilder(
             C,
             None,
-            True,
-            True,
             False,
-            False,
-            False,
-            False,
-            False,
-            False,
-            True,
-            None,
-            False,
-            None,
+            ClassProps(
+                is_exception=False,
+                is_slotted=True,
+                is_frozen=True,
+                added_init=True,
+                added_repr=True,
+                added_eq=True,
+                added_ordering=False,
+                hashability=ClassProps.Hashability.UNHASHABLE,
+                added_match_args=True,
+                kw_only=ClassProps.KeywordOnly.NO,
+                has_weakref_slot=False,
+                collected_fields_by_mro=True,
+                added_str=False,
+                added_pickling=True,
+                on_setattr_hook=None,
+                field_transformer=None,
+            ),
+            has_custom_setattr=False,
         )
 
         cls = (
@@ -2038,18 +2345,26 @@ class TestClassBuilder:
         b = _ClassBuilder(
             C,
             these=None,
-            slots=False,
-            frozen=False,
-            weakref_slot=True,
-            getstate_setstate=False,
             auto_attribs=False,
-            is_exc=False,
-            kw_only=False,
-            cache_hash=False,
-            collect_by_mro=True,
-            on_setattr=None,
+            props=ClassProps(
+                is_exception=False,
+                is_slotted=False,
+                is_frozen=False,
+                added_init=True,
+                added_repr=True,
+                added_eq=True,
+                added_ordering=False,
+                hashability=ClassProps.Hashability.UNHASHABLE,
+                added_match_args=True,
+                kw_only=ClassProps.KeywordOnly.NO,
+                has_weakref_slot=True,
+                collected_fields_by_mro=True,
+                added_str=False,
+                added_pickling=True,
+                on_setattr_hook=None,
+                field_transformer=None,
+            ),
             has_custom_setattr=False,
-            field_transformer=None,
         )
 
         def fake_meth(self):
@@ -2098,7 +2413,6 @@ class TestClassBuilder:
 
         assert [C2] == C.__subclasses__()
 
-    @pytest.mark.xfail(PY_3_14_PLUS, reason="Currently broken on nightly.")
     def test_no_references_to_original_when_using_cached_property(self):
         """
         When subclassing a slotted class and using cached property, there are
@@ -2282,6 +2596,101 @@ class TestInitAlias:
             dunder__=5,
         ) == EvolveCase(1, 4, 5)
 
+    def test_alias_is_default(self):
+        """
+        alias_is_default is True for auto-generated aliases and False for
+        explicitly provided ones -- even if the explicit value matches the
+        auto-generated default.
+        """
+
+        @attrs.define
+        class C:
+            auto: int
+            _private_auto: int
+            explicit: int = attrs.field(alias="custom")
+            _matches_default: int = attrs.field(alias="matches_default")
+
+        fields = attr.fields_dict(C)
+
+        assert fields["auto"].alias_is_default is True
+        assert fields["_private_auto"].alias_is_default is True
+        assert fields["explicit"].alias_is_default is False
+        assert fields["_matches_default"].alias_is_default is False
+
+    def test_alias_is_default_pickle_roundtrip(self):
+        """
+        alias_is_default survives pickle round-tripping.
+        """
+
+        @attrs.define
+        class C:
+            auto: int
+            explicit: int = attrs.field(alias="custom")
+
+        fields = attr.fields(C)
+
+        for a in fields:
+            restored = pickle.loads(pickle.dumps(a))
+
+            assert a.alias == restored.alias
+            assert a.alias_is_default == restored.alias_is_default
+
+    X = (
+        b"\x80\x05\x95_\x00\x00\x00\x00\x00\x00\x00\x8c\nattr._make\x94\x8c\tAttrib"
+        b"ute\x94\x93\x94)\x81\x94(\x8c\x01x\x94h\x00\x8c\x08_Nothing\x94\x93"
+        b"\x94K\x01\x85\x94R\x94N\x88\x88N\x88NN\x88}\x94\x8c\x08builtins\x94"
+        b"\x8c\x03int\x94\x93\x94N\x89\x89Nh\x04t\x94b."
+    )
+    Y = (
+        b"\x80\x05\x95b\x00\x00\x00\x00\x00\x00\x00\x8c\nattr._make\x94\x8c\tAttrib"
+        b"ute\x94\x93\x94)\x81\x94(\x8c\x02_y\x94h\x00\x8c\x08_Nothing\x94"
+        b"\x93\x94K\x01\x85\x94R\x94N\x88\x88N\x88NN\x88}\x94\x8c\x08builtins"
+        b"\x94\x8c\x03int\x94\x93\x94N\x89\x89N\x8c\x01y\x94t\x94b."
+    )
+    Z = (
+        b"\x80\x05\x95c\x00\x00\x00\x00\x00\x00\x00\x8c\nattr._make\x94\x8c\tAttrib"
+        b"ute\x94\x93\x94)\x81\x94(\x8c\x01z\x94h\x00\x8c\x08_Nothing\x94\x93"
+        b"\x94K\x01\x85\x94R\x94N\x88\x88N\x88NN\x88}\x94\x8c\x08builtins\x94"
+        b"\x8c\x03int\x94\x93\x94N\x89\x89N\x8c\x03_z_\x94t\x94b."
+    )
+
+    @pytest.mark.parametrize(
+        ("pickle_data", "name", "alias", "alias_is_default"),
+        [
+            (X, "x", "x", True),
+            (Y, "_y", "y", True),
+            (Z, "z", "_z_", False),
+        ],
+    )
+    def test_can_unpickle_25_3_attributes(
+        self, pickle_data, name, alias, alias_is_default
+    ):
+        """
+        Can unpickle attributes created in 25.3.
+        """
+
+        assert Attribute(
+            name=name,
+            alias=alias,
+            alias_is_default=alias_is_default,
+            default=attrs.NOTHING,
+            validator=None,
+            repr=True,
+            cmp=None,
+            eq=True,
+            eq_key=None,
+            order=True,
+            order_key=None,
+            hash=None,
+            init=True,
+            metadata=types.MappingProxyType({}),
+            type=int,
+            converter=None,
+            kw_only=False,
+            inherited=False,
+            on_setattr=None,
+        ) == pickle.loads(pickle_data)
+
 
 class TestMakeOrder:
     """
@@ -2351,7 +2760,7 @@ class TestDetermineAttrsEqOrder:
         eq=False, order=True raises a meaningful ValueError.
         """
         with pytest.raises(
-            ValueError, match="`order` can only be True if `eq` is True too."
+            ValueError, match="`order` can only be True if `eq` is True too"
         ):
             _determine_attrs_eq_order(None, False, True, True)
 
@@ -2363,7 +2772,7 @@ class TestDetermineAttrsEqOrder:
         assume(eq is not None or order is not None)
 
         with pytest.raises(
-            ValueError, match="Don't mix `cmp` with `eq' and `order`."
+            ValueError, match="Don't mix `cmp` with `eq' and `order`"
         ):
             _determine_attrs_eq_order(cmp, eq, order, True)
 
@@ -2418,7 +2827,7 @@ class TestDetermineAttribEqOrder:
         eq=False, order=True raises a meaningful ValueError.
         """
         with pytest.raises(
-            ValueError, match="`order` can only be True if `eq` is True too."
+            ValueError, match="`order` can only be True if `eq` is True too"
         ):
             _determine_attrib_eq_order(None, False, True, True)
 
@@ -2430,7 +2839,7 @@ class TestDetermineAttribEqOrder:
         assume(eq is not None or order is not None)
 
         with pytest.raises(
-            ValueError, match="Don't mix `cmp` with `eq' and `order`."
+            ValueError, match="Don't mix `cmp` with `eq' and `order`"
         ):
             _determine_attrib_eq_order(cmp, eq, order, True)
 
