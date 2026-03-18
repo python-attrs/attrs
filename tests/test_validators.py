@@ -5,6 +5,7 @@ Tests for `attr.validators`.
 """
 
 import re
+import sys
 
 import pytest
 
@@ -243,10 +244,13 @@ class TestMatchesRe:
         with pytest.raises(ValueError) as ei:
             matches_re("a", 0, lambda: None)
 
-        assert (
-            "'func' must be one of None, fullmatch, match, search."
-            == ei.value.args[0]
-        )
+        if sys.version_info >= (3, 15):
+            errmsg = (
+                "'func' must be one of None, fullmatch, prefixmatch, search."
+            )
+        else:
+            errmsg = "'func' must be one of None, fullmatch, match, search."
+        assert errmsg == ei.value.args[0]
 
     @pytest.mark.parametrize(
         "func", [None, getattr(re, "fullmatch", None), re.match, re.search]
