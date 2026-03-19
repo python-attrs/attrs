@@ -8,9 +8,9 @@
 <!--
 This list is our brown M&M test:
 Ignoring -- or even deleting -- leads to instant closing of this pull request.
-The only exception are pure documentation fixes.
+The only exceptions are pure documentation fixes.
 
-But please read our [contribution guide](https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md) at least once, it will save you unnecessary review cycles!
+Please read our [contribution guide](https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md) at least once, it will save you unnecessary review cycles!
 
 You may check boxes that don't apply to your pull request to indicate that there isn't anything left to do.
 -->
