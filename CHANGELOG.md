@@ -12,6 +12,27 @@ Changes for the upcoming release can be found in the [`changelog.d` directory](h
 
 <!-- towncrier release notes start -->
 
+## [26.1.0](https://github.com/python-attrs/attrs/tree/26.1.0) - 2026-03-19
+
+### Backwards-incompatible Changes
+
+- Field aliases are now resolved *before* calling `field_transformer`, so transformers receive fully populated `Attribute` objects with usable `alias` values instead of `None`.
+  The new `Attribute.alias_is_default` flag indicates whether the alias was auto-generated (`True`) or explicitly set by the user (`False`).
+  [#1509](https://github.com/python-attrs/attrs/issues/1509)
+
+
+### Changes
+
+- Fix type annotations for `attrs.validators.optional()`, so it no longer rejects tuples with more than one validator.
+  [#1496](https://github.com/python-attrs/attrs/issues/1496)
+- The `attrs.validators.disabled()` contextmanager can now be nested.
+  [#1513](https://github.com/python-attrs/attrs/issues/1513)
+- Frozen classes can set `on_setattr=attrs.setters.NO_OP` in addition to `None`.
+  [#1515](https://github.com/python-attrs/attrs/issues/1515)
+- It's now possible to pass *attrs* **instances** in addition to *attrs* **classes** to `attrs.fields()`.
+  [#1529](https://github.com/python-attrs/attrs/issues/1529)
+
+
 ## [25.4.0](https://github.com/python-attrs/attrs/tree/25.4.0) - 2025-10-06
 
 ### Backwards-incompatible Changes
