@@ -407,13 +407,17 @@ class _DeepMapping:
                 try:
                     self.key_validator(inst, attr, key)
                 except (ValueError, TypeError) as e:
-                    msg = str(e).replace(f"'{attr.name}'", f"'{attr.name}[key:{key!r}]'")
+                    msg = str(e).replace(
+                        f"'{attr.name}'", f"'{attr.name}[key:{key!r}]'"
+                    )
                     raise type(e)(msg) from None
             if self.value_validator is not None:
                 try:
                     self.value_validator(inst, attr, value[key])
                 except (ValueError, TypeError) as e:
-                    msg = str(e).replace(f"'{attr.name}'", f"'{attr.name}[{key!r}]'")
+                    msg = str(e).replace(
+                        f"'{attr.name}'", f"'{attr.name}[{key!r}]'"
+                    )
                     raise type(e)(msg) from None
 
     def __repr__(self):
