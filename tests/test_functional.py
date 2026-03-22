@@ -624,6 +624,45 @@ class TestFunctional:
 
         FooError(1)
 
+    @pytest.mark.parametrize("protocol", range(pickle.HIGHEST_PROTOCOL + 1))
+    def test_auto_exc_kw_only_pickle(self, slots, frozen, protocol):
+        """
+        Exception classes with kw_only attributes can be pickled.
+
+        BaseException.__reduce__ passes positional args, which kw_only
+        rejects. Our custom __reduce__ handles this correctly.
+        Regression test for GH#734.
+        """
+
+        @attr.s(auto_exc=True, slots=slots, frozen=frozen, kw_only=True)
+        class KwOnlyError(Exception):
+            msg = attr.ib()
+            x = attr.ib()
+
+        e = KwOnlyError(msg="hello", x=42)
+        e2 = pickle.loads(pickle.dumps(e, protocol))
+
+        assert e2.msg == "hello"
+        assert e2.x == 42
+        assert e2.args == e.args
+
+    def test_auto_exc_mixed_kw_only_pickle(self, slots):
+        """
+        Exception classes with mixed positional and kw_only attributes
+        can be pickled.
+        """
+
+        @attr.s(auto_exc=True, slots=slots, kw_only=False)
+        class MixedError(Exception):
+            pos = attr.ib()
+            kw = attr.ib(kw_only=True)
+
+        e = MixedError(10, kw=20)
+        e2 = pickle.loads(pickle.dumps(e))
+
+        assert e2.pos == 10
+        assert e2.kw == 20
+
     def test_eq_only(self, slots, frozen):
         """
         Classes with order=False cannot be ordered.

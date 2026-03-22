@@ -103,6 +103,31 @@ class _CacheHashWrapper(int):
         return _none_constructor, _args
 
 
+def _rebuild_exc(cls, state):
+    """
+    Rebuild an exception instance without calling ``__init__``.
+
+    Used by ``__reduce__`` for exception classes with ``kw_only`` attributes,
+    where ``BaseException.__reduce__`` would pass positional args that
+    ``kw_only`` rejects.
+    """
+    obj = cls.__new__(cls)
+    for name, value in state.items():
+        try:
+            object.__setattr__(obj, name, value)
+        except AttributeError:
+            pass
+    # Restore BaseException.args which is set by __init__ via
+    # BaseException.__init__(self, val1, val2, ...).
+    init_values = tuple(
+        state[a.name]
+        for a in cls.__attrs_attrs__
+        if a.init and a.name in state
+    )
+    BaseException.__init__(obj, *init_values)
+    return obj
+
+
 def attrib(
     default=NOTHING,
     validator=None,
@@ -756,6 +781,26 @@ class _ClassBuilder:
                 self._cls_dict["__getstate__"],
                 self._cls_dict["__setstate__"],
             ) = self._make_getstate_setstate()
+
+        # Fix pickling for exception classes with kw_only attributes.
+        # BaseException.__reduce__ returns (cls, self.args, state) which calls
+        # cls(*args) on unpickle, but kw_only attrs reject positional args.
+        # Override __reduce__ to use __new__ + state instead of __init__.
+        if props.is_exception and any(
+            a.kw_only for a in attrs if a.init
+        ):
+            _attr_names = self._attr_names
+
+            def __reduce__(self, *, _attr_names=_attr_names):
+                state = {
+                    name: getattr(self, name)
+                    for name in _attr_names
+                    if name != "__weakref__"
+                    and hasattr(self, name)
+                }
+                return (_rebuild_exc, (self.__class__, state))
+
+            self._cls_dict["__reduce__"] = __reduce__
 
         # tuples of script, globs, hook
         self._script_snippets: list[
