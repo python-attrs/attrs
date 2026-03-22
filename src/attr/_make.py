@@ -786,17 +786,14 @@ class _ClassBuilder:
         # BaseException.__reduce__ returns (cls, self.args, state) which calls
         # cls(*args) on unpickle, but kw_only attrs reject positional args.
         # Override __reduce__ to use __new__ + state instead of __init__.
-        if props.is_exception and any(
-            a.kw_only for a in attrs if a.init
-        ):
+        if props.is_exception and any(a.kw_only for a in attrs if a.init):
             _attr_names = self._attr_names
 
             def __reduce__(self, *, _attr_names=_attr_names):
                 state = {
                     name: getattr(self, name)
                     for name in _attr_names
-                    if name != "__weakref__"
-                    and hasattr(self, name)
+                    if name != "__weakref__" and hasattr(self, name)
                 }
                 return (_rebuild_exc, (self.__class__, state))
 
