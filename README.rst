@@ -1,7 +1,7 @@
 .. raw:: html
 
 eeexxx
-xxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
    <p align="center">
       <a href="https://www.attrs.org/">
          <img src="./docs/_static/attrs_logo.svg" width="35%" alt="attrs" />
