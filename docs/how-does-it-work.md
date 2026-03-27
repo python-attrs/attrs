@@ -7,8 +7,8 @@
 *attrs* isn't the first library that aims to simplify class definition in Python.
 But its **declarative** approach combined with **no runtime overhead** lets it stand out.
 
-Once you apply the `@attrs.define` (or `@attr.s`) decorator to a class, *attrs* searches the class object for instances of `attr.ib`s.
-Internally they're a representation of the data passed into `attr.ib` along with a counter to preserve the order of the attributes.
+Once you apply the `@attrs.define` (or `@attr.s`) decorator to a class, *attrs* searches the class object for instances of `attrs.field`s.
+Internally they're a representation of the data passed into `field` along with a counter to preserve the order of the attributes.
 Alternatively, it's possible to define them using {doc}`types`.
 
 In order to ensure that subclassing works as you'd expect it to work, *attrs* also walks the class hierarchy and collects the attributes of all base classes.
