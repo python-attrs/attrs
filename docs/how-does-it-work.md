@@ -8,7 +8,7 @@
 But its **declarative** approach combined with **no runtime overhead** lets it stand out.
 
 Once you apply the `@attrs.define` (or `@attr.s`) decorator to a class, *attrs* searches the class object for {doc}`types` and instances of `attrs.field`s.
-Internally they're a representation of the data passed into `field` along with a counter to preserve the order of the attributes.
+Internally `field`s are a representation of the data passed, along with a counter to preserve the order of the attributes.
 
 In order to ensure that subclassing works as you'd expect it to work, *attrs* also walks the class hierarchy and collects the attributes of all base classes.
 Please note that *attrs* does *not* call `super()` *ever*.
