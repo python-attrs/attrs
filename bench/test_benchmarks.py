@@ -152,7 +152,7 @@ class AtomicFields:
     b: Ellipsis = ...
     c: str = "foo"
     d: tuple[str] = "bar"
-    e: complex = complex()
+    e: complex = 0j
 
 
 def test_asdict_atomic():
