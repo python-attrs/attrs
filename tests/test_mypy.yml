@@ -712,6 +712,18 @@
     C(42)
     C(43)
 
+- case: testAttrsConverterDecorator
+  main: |
+    import attr
+    @attr.s
+    class C:
+        x = attr.ib()
+        @x.converter
+        def convert(self, attribute, value):
+            return value + 1
+
+    C(42)
+
 - case: testAttrsLocalVariablesInClassMethod
   main: |
     import attr

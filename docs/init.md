@@ -384,6 +384,19 @@ If you need more control over the conversion process, you can wrap the converter
 C(x=410)
 ```
 
+Or as a decorator
+```{doctest}
+>>> @define
+... class C:
+...     factor = 5  # not an *attrs* field
+...     x: int = field(metadata={"offset": 200})
+...     @x.converter
+...     def _convert_x(self, attribute, value):
+...         return int(value) * self.factor + attribute.metadata["offset"]
+>>> C("42")
+C(x=410)
+```
+
 
 ## Hooking Yourself Into Initialization
 
