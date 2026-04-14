@@ -1360,6 +1360,7 @@
     C(0).total = 1  # E: Property "total" defined in "C" is read-only  [misc]
 
 - case: testTypeInAttrDeferredStar
+  disable_cache: true  # fails with cache w/ pytest 9 / pytest-mypy-plugins 4
   main: |
     import lib
   files:
@@ -1381,6 +1382,7 @@
         import lib
 
 - case: testAttrsDefaultsMroOtherFile
+  disable_cache: true  # fails with cache w/ pytest 9 / pytest-mypy-plugins 4
   main: |
     import a
   files:
