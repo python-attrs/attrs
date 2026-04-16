@@ -2857,6 +2857,7 @@ class _CountingAttr:
             self._converter = decorated_converter
         else:
             self._converter = pipe(self._converter, decorated_converter)
+
         return meth
 
 
