@@ -384,6 +384,7 @@ If you need more control over the conversion process, you can wrap the converter
 C(x=410)
 ```
 
+
 Or as a decorator
 ```{doctest}
 >>> @define
