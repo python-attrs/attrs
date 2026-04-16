@@ -2581,7 +2581,7 @@ class Attribute:
             False,
             ca.metadata,
             type,
-            ca.converter,
+            ca._converter,
             kw_only if ca.kw_only is None else ca.kw_only,
             ca.eq,
             ca.eq_key,
@@ -2703,10 +2703,10 @@ class _CountingAttr:
     """
 
     __slots__ = (
+        "_converter",
         "_default",
         "_validator",
         "alias",
-        "converter",
         "counter",
         "eq",
         "eq_key",
@@ -2794,7 +2794,7 @@ class _CountingAttr:
         self.counter = _CountingAttr.cls_counter
         self._default = default
         self._validator = validator
-        self.converter = converter
+        self._converter = converter
         self.repr = repr
         self.eq = eq
         self.eq_key = eq_key
@@ -2837,6 +2837,26 @@ class _CountingAttr:
             raise DefaultAlreadySetError
 
         self._default = Factory(meth, takes_self=True)
+
+        return meth
+
+    def converter(self, meth):
+        """
+        Decorator that appends *meth* to the list of converters.
+
+        Returns *meth* unchanged.
+
+        .. versionadded:: 26.2.0
+        """
+        decorated_converter = Converter(
+            lambda value, _self, field: meth(_self, field, value),
+            takes_self=True,
+            takes_field=True,
+        )
+        if self._converter is None:
+            self._converter = decorated_converter
+        else:
+            self._converter = pipe(self._converter, decorated_converter)
 
         return meth
 

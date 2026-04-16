@@ -385,6 +385,21 @@ C(x=410)
 ```
 
 
+Or as a decorator
+```{doctest}
+>>> from typing import ClassVar
+>>> @define
+... class C:
+...     factor: ClassVar[int] = 5  # ClassVars are ignored by attrs
+...     x: int = field(metadata={"offset": 200})
+...     @x.converter
+...     def _convert_x(self, attribute, value):
+...         return int(value) * self.factor + attribute.metadata["offset"]
+>>> C("42")
+C(x=410)
+```
+
+
 ## Hooking Yourself Into Initialization
 
 Generally speaking, the moment you realize the need of finer control – than what *attrs* offers – over how a class is instantiated, it's usually best to use a {obj}`classmethod` factory or to apply the [builder pattern](https://en.wikipedia.org/wiki/Builder_pattern).

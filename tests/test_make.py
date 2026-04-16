@@ -136,6 +136,43 @@ class TestCountingAttr:
 
         assert _AndValidator((v, v2)) == a._validator
 
+    def test_converter_decorator_single(self):
+        """
+        If _CountingAttr.converter is used as a decorator and there is no
+        decorator set, the decorated method is used as the converter.
+        """
+        a = attr.ib()
+
+        @a.converter
+        def v(self, value, field):
+            pass
+
+        assert isinstance(a._converter, attr.Converter)
+        assert a._converter.takes_self
+        assert a._converter.takes_field
+
+    @pytest.mark.parametrize(
+        "wrap", [lambda v: v, lambda v: [v], attr.converters.pipe]
+    )
+    def test_converter_decorator(self, wrap):
+        """
+        If _CountingAttr.converter is used as a decorator and there is already
+        a decorator set, the decorators are composed using `pipe`.
+        """
+
+        def v(_):
+            pass
+
+        a = attr.ib(converter=wrap(v))
+
+        @a.converter
+        def v2(self, value, field):
+            pass
+
+        assert isinstance(a._converter, attr.Converter)
+        assert a._converter.takes_self
+        assert a._converter.takes_field
+
     def test_default_decorator_already_set(self):
         """
         Raise DefaultAlreadySetError if the decorator is used after a default
@@ -1719,6 +1756,23 @@ class TestConverter:
             )
 
         assert 84 == C(2).x
+
+    def test_converter_decorated(self):
+        """
+        Same as Converter with both `takes_field` and `takes_self`
+        """
+
+        @attr.define
+        class C:
+            factor: int = 5
+            x: int = attr.field(default=0, metadata={"offset": 200})
+
+            @x.converter
+            def _convert_x(self, field, value):
+                assert isinstance(field, attr.Attribute)
+                return int(value) * self.factor + field.metadata["offset"]
+
+        assert 410 == C(x="42").x
 
     @given(integers(), booleans())
     def test_convert_property(self, val, init):
