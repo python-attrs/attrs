@@ -2846,7 +2846,7 @@ class _CountingAttr:
 
         Returns *meth* unchanged.
 
-        .. versionadded:: TBD
+        .. versionadded:: 26.2.0
         """
         decorated_converter = Converter(
             lambda value, _self, field: meth(_self, field, value),
