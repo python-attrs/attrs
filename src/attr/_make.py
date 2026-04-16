@@ -2842,7 +2842,7 @@ class _CountingAttr:
 
     def converter(self, meth):
         """
-        Decorator that adds *meth* to the list of converters.
+        Decorator that appends *meth* to the list of converters.
 
         Returns *meth* unchanged.
 
