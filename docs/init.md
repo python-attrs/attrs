@@ -389,7 +389,7 @@ Or as a decorator
 ```{doctest}
 >>> @define
 ... class C:
-...     factor = 5  # not an *attrs* field
+...     factor: ClassVar[int] = 5  # ClassVars are ignored by attrs
 ...     x: int = field(metadata={"offset": 200})
 ...     @x.converter
 ...     def _convert_x(self, attribute, value):
