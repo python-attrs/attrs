@@ -387,6 +387,7 @@ C(x=410)
 
 Or as a decorator
 ```{doctest}
+>>> from typing import ClassVar
 >>> @define
 ... class C:
 ...     factor: ClassVar[int] = 5  # ClassVars are ignored by attrs
