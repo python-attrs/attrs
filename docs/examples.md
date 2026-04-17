@@ -747,6 +747,53 @@ If you need to dynamically make a class with {func}`~attrs.make_class` and it ne
 True
 ```
 
+In certain situations, you might want to reuse part (or all) of an existing attribute instead of entirely redefining it. This pattern is common in inheritance schemes, where you might just want to change one parameter of an attribute (i.e. default value) while leaving all other parts unchanged. For this purpose, *attrs* offers {meth}`.Attribute.reuse`:
+
+```{doctest}
+>>> @define
+... class A:
+...    a: int = field(default=10)
+...
+...    @a.validator
+...    def very_complex_validator(self, attr, value):
+...        print("Validator runs!")
+
+>>> @define
+... class B(A):
+...    a = fields(A).a.reuse(default=20)
+
+>>> B()
+Validator runs!
+B(a=20)
+```
+
+This method inherits all of the keyword arguments from {func}`~attrs.field`, which works identically to defining a new attribute with the same parameters.
+
+While this feature is mostly intended for making working with inherited classes easier, there's nothing requiring `reuse`d attributes actually be part of a parent class:
+
+```{doctest}
+>>> @define
+... class C:  # does not inherit class `A`
+...     a = fields(A).a.reuse(factory=lambda: 100)
+...     # And now that `a` is in scope of `C`, field decorators work again:
+...     @a.validator
+...     def my_new_validator_func(self, attr, value):
+...         print("Another validator function!")
+
+>>> C()
+Validator runs!
+Another validator function!
+C(a=100)
+```
+
+This in combination with {func}`~attrs.make_class` makes a very powerful suite of *attrs* class manipulation tools both before and after class creation:
+
+```{doctest}
+>>> C3 = make_class("C3", {"x": fields(C2).x.reuse(), "y": fields(C2).y.reuse()})
+>>> fields(C2) == fields(C3)
+True
+```
+
 Sometimes, you want to have your class's `__init__` method do more than just
 the initialization, validation, etc. that gets done for you automatically when
 using `@define`.
