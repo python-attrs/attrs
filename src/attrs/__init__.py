@@ -25,7 +25,7 @@ from attr import (
 from attr._make import ClassProps
 from attr._next_gen import asdict, astuple, inspect
 
-from . import converters, exceptions, filters, setters, validators
+from . import exceptions, filters, setters
 
 
 __all__ = [
