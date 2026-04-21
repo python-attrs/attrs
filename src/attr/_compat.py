@@ -45,7 +45,7 @@ class _AnnotationExtractor:
     __slots__ = ["sig"]
 
     def __init__(self, callable):
-        import inspect  # noqa: PLC0415
+        import inspect
 
         try:
             self.sig = inspect.signature(callable)
@@ -56,7 +56,7 @@ class _AnnotationExtractor:
         """
         Return the type annotation of the first argument if it's not empty.
         """
-        import inspect  # noqa: PLC0415
+        import inspect
 
         if not self.sig:
             return None
@@ -71,7 +71,7 @@ class _AnnotationExtractor:
         """
         Return the return type if it's not empty.
         """
-        import inspect  # noqa: PLC0415
+        import inspect
 
         if (
             self.sig

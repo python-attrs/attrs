@@ -704,7 +704,7 @@ class _ClassBuilder:
         if self._has_pre_init:
             # Check if the pre init method has more arguments than just `self`
             # We want to pass arguments if pre init expects arguments
-            import inspect  # noqa: PLC0415
+            import inspect
 
             pre_init_func = cls.__attrs_pre_init__
             pre_init_signature = inspect.signature(pre_init_func)
@@ -921,7 +921,7 @@ class _ClassBuilder:
         # To know to update them.
         additional_closure_functions_to_update = []
         if cached_properties:
-            import inspect  # noqa: PLC0415
+            import inspect
 
             class_annotations = _get_annotations(self._cls)
             for name, func in cached_properties.items():
