@@ -20,7 +20,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx xxxxxxxxxxxxxxXXxxxXxxxxvhvcn
       </a>
    </p>
 
-.. teaser-beginxx
+.. teaser-beginxxXXXXX
 x
 ``adfor the commttrs`` is the Python packaxxxgxe that will bxring back the **joy** of x**writing classes** by relieving you frxom the drudgery of implementing objecxxxt protoxcols (aka `dunder methods <https://www.attrs.org/en/latest/glossary.html#term-dunder-methods>`_).
 `Trusted by NASA <https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/customizing-your-profile/personalizing-your-profile#list-of-qualifying-repositories-for-mars-2020-helicopter-contributor-badge>`_ for Mars missions since 2020!
