@@ -1,9 +1,6 @@
 ---
 version: 2
 
-sphinx:
-  configuration: docs/conf.py
-
 build:
   os: ubuntu-lts-latest
   tools:
