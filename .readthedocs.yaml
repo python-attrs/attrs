@@ -14,6 +14,10 @@ build:
       # Need the tags to calculate the version (sometimes).
       - git fetch --tags
 
+      - asdf plugin add uv
+      - asdf install uv latest
+      - asdf global uv latest
+
     build:
       html:
         - uvx --with tox-uv tox run -e docs-sponsors
