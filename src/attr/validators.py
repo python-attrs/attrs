@@ -348,7 +348,10 @@ class _DeepIterable:
                 self.member_validator(inst, attr, member)
             except Exception as e:
                 orig_msg = e.args[0] if e.args else str(e)
-                if isinstance(orig_msg, str) and "'" + attr.name + "'" in orig_msg:
+                if (
+                    isinstance(orig_msg, str)
+                    and "'" + attr.name + "'" in orig_msg
+                ):
                     index_name = attr.name + "[" + str(idx) + "]"
                     new_msg = orig_msg.replace(
                         "'" + attr.name + "'",
@@ -416,7 +419,10 @@ class _DeepMapping:
                     self.key_validator(inst, attr, key)
                 except Exception as e:
                     orig_msg = e.args[0] if e.args else str(e)
-                    if isinstance(orig_msg, str) and "'" + attr.name + "'" in orig_msg:
+                    if (
+                        isinstance(orig_msg, str)
+                        and "'" + attr.name + "'" in orig_msg
+                    ):
                         index_name = attr.name + "[key:" + repr(key) + "]"
                         new_msg = orig_msg.replace(
                             "'" + attr.name + "'",
@@ -431,7 +437,10 @@ class _DeepMapping:
                     self.value_validator(inst, attr, value[key])
                 except Exception as e:
                     orig_msg = e.args[0] if e.args else str(e)
-                    if isinstance(orig_msg, str) and "'" + attr.name + "'" in orig_msg:
+                    if (
+                        isinstance(orig_msg, str)
+                        and "'" + attr.name + "'" in orig_msg
+                    ):
                         index_name = attr.name + "[" + repr(key) + "]"
                         new_msg = orig_msg.replace(
                             "'" + attr.name + "'",
