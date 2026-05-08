@@ -346,7 +346,7 @@ class _DeepIterable:
         for idx, member in enumerate(value):
             try:
                 self.member_validator(inst, attr, member)
-            except Exception as e:
+            except Exception as e:  # noqa: PERF203
                 orig_msg = e.args[0] if e.args else str(e)
                 if (
                     isinstance(orig_msg, str)
