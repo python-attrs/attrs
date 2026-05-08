@@ -1359,7 +1359,7 @@ class TestNot_:
             not_(wrapped, exc_types=(str, int))
 
         assert (
-            "'exc_types' must be a subclass of <class 'Exception'> "
+            "'exc_types[0]' must be a subclass of <class 'Exception'> "
             "(got <class 'str'>)."
         ) == e.value.args[0]
 

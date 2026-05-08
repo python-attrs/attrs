@@ -347,13 +347,17 @@ class _DeepIterable:
             try:
                 self.member_validator(inst, attr, member)
             except Exception as e:
-                index_name = attr.name + "[" + str(idx) + "]"
-                index_msg = str(e).replace(
-                    "'" + attr.name + "'",
-                    "'" + index_name + "'",
-                    1,
-                )
-                raise type(e)(index_msg).with_traceback(None) from None
+                orig_msg = e.args[0] if e.args else str(e)
+                if isinstance(orig_msg, str) and "'" + attr.name + "'" in orig_msg:
+                    index_name = attr.name + "[" + str(idx) + "]"
+                    new_msg = orig_msg.replace(
+                        "'" + attr.name + "'",
+                        "'" + index_name + "'",
+                        1,
+                    )
+                    new_args = (new_msg,) + e.args[1:]
+                    raise type(e)(*new_args).with_traceback(None) from None
+                raise
 
     def __repr__(self):
         iterable_identifier = (
@@ -411,24 +415,32 @@ class _DeepMapping:
                 try:
                     self.key_validator(inst, attr, key)
                 except Exception as e:
-                    index_name = attr.name + "[key:" + repr(key) + "]"
-                    key_msg = str(e).replace(
-                        "'" + attr.name + "'",
-                        "'" + index_name + "'",
-                        1,
-                    )
-                    raise type(e)(key_msg).with_traceback(None) from None
+                    orig_msg = e.args[0] if e.args else str(e)
+                    if isinstance(orig_msg, str) and "'" + attr.name + "'" in orig_msg:
+                        index_name = attr.name + "[key:" + repr(key) + "]"
+                        new_msg = orig_msg.replace(
+                            "'" + attr.name + "'",
+                            "'" + index_name + "'",
+                            1,
+                        )
+                        new_args = (new_msg,) + e.args[1:]
+                        raise type(e)(*new_args).with_traceback(None) from None
+                    raise
             if self.value_validator is not None:
                 try:
                     self.value_validator(inst, attr, value[key])
                 except Exception as e:
-                    index_name = attr.name + "[" + repr(key) + "]"
-                    val_msg = str(e).replace(
-                        "'" + attr.name + "'",
-                        "'" + index_name + "'",
-                        1,
-                    )
-                    raise type(e)(val_msg).with_traceback(None) from None
+                    orig_msg = e.args[0] if e.args else str(e)
+                    if isinstance(orig_msg, str) and "'" + attr.name + "'" in orig_msg:
+                        index_name = attr.name + "[" + repr(key) + "]"
+                        new_msg = orig_msg.replace(
+                            "'" + attr.name + "'",
+                            "'" + index_name + "'",
+                            1,
+                        )
+                        new_args = (new_msg,) + e.args[1:]
+                        raise type(e)(*new_args).with_traceback(None) from None
+                    raise
 
     def __repr__(self):
         return f"<deep_mapping validator for objects mapping {self.key_validator!r} to {self.value_validator!r}>"
