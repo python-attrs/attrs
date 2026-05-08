@@ -654,6 +654,21 @@ class TestDeepIterable:
         assert and_(*member_validator) == v.member_validator
         assert and_(*iterable_validator) == v.iterable_validator
 
+    def test_member_validator_error_without_attr_name(self):
+        """
+        If a member validator raises an exception whose message does not
+        contain the attr name, the original exception is re-raised unchanged.
+        """
+
+        def _validator(inst, attr, value):
+            raise ValueError("something went wrong")
+
+        v = deep_iterable(_validator)
+        a = simple_attr("test")
+
+        with pytest.raises(ValueError, match="something went wrong"):
+            v(None, a, ["ok", "bad"])
+
 
 class TestDeepMapping:
     """
@@ -806,6 +821,36 @@ class TestDeepMapping:
         assert and_(*key_validator) == v.key_validator
         assert and_(*value_validator) == v.value_validator
         assert and_(*mapping_validator) == v.mapping_validator
+
+    def test_key_validator_error_without_attr_name(self):
+        """
+        If a key validator raises an exception whose message does not
+        contain the attr name, the original exception is re-raised unchanged.
+        """
+
+        def _key_validator(inst, attr, value):
+            raise TypeError("bad key type")
+
+        v = deep_mapping(key_validator=_key_validator)
+        a = simple_attr("test")
+
+        with pytest.raises(TypeError, match="bad key type"):
+            v(None, a, {"bad_key": 1})
+
+    def test_value_validator_error_without_attr_name(self):
+        """
+        If a value validator raises an exception whose message does not
+        contain the attr name, the original exception is re-raised unchanged.
+        """
+
+        def _value_validator(inst, attr, value):
+            raise TypeError("bad value type")
+
+        v = deep_mapping(value_validator=_value_validator)
+        a = simple_attr("test")
+
+        with pytest.raises(TypeError, match="bad value type"):
+            v(None, a, {"a": "bad_value"})
 
 
 class TestIsCallable:
@@ -1359,7 +1404,7 @@ class TestNot_:
             not_(wrapped, exc_types=(str, int))
 
         assert (
-            "'exc_types' must be a subclass of <class 'Exception'> "
+            "'exc_types[0]' must be a subclass of <class 'Exception'> "
             "(got <class 'str'>)."
         ) == e.value.args[0]
 

@@ -343,8 +343,24 @@ class _DeepIterable:
         if self.iterable_validator is not None:
             self.iterable_validator(inst, attr, value)
 
-        for member in value:
-            self.member_validator(inst, attr, member)
+        for idx, member in enumerate(value):
+            try:
+                self.member_validator(inst, attr, member)
+            except Exception as e:  # noqa: PERF203
+                orig_msg = e.args[0] if e.args else str(e)
+                if (
+                    isinstance(orig_msg, str)
+                    and "'" + attr.name + "'" in orig_msg
+                ):
+                    index_name = attr.name + "[" + str(idx) + "]"
+                    new_msg = orig_msg.replace(
+                        "'" + attr.name + "'",
+                        "'" + index_name + "'",
+                        1,
+                    )
+                    new_args = (new_msg, *e.args[1:])
+                    raise type(e)(*new_args).with_traceback(None) from None
+                raise
 
     def __repr__(self):
         iterable_identifier = (
@@ -399,9 +415,41 @@ class _DeepMapping:
 
         for key in value:
             if self.key_validator is not None:
-                self.key_validator(inst, attr, key)
+                try:
+                    self.key_validator(inst, attr, key)
+                except Exception as e:
+                    orig_msg = e.args[0] if e.args else str(e)
+                    if (
+                        isinstance(orig_msg, str)
+                        and "'" + attr.name + "'" in orig_msg
+                    ):
+                        index_name = attr.name + "[key:" + repr(key) + "]"
+                        new_msg = orig_msg.replace(
+                            "'" + attr.name + "'",
+                            "'" + index_name + "'",
+                            1,
+                        )
+                        new_args = (new_msg, *e.args[1:])
+                        raise type(e)(*new_args).with_traceback(None) from None
+                    raise
             if self.value_validator is not None:
-                self.value_validator(inst, attr, value[key])
+                try:
+                    self.value_validator(inst, attr, value[key])
+                except Exception as e:
+                    orig_msg = e.args[0] if e.args else str(e)
+                    if (
+                        isinstance(orig_msg, str)
+                        and "'" + attr.name + "'" in orig_msg
+                    ):
+                        index_name = attr.name + "[" + repr(key) + "]"
+                        new_msg = orig_msg.replace(
+                            "'" + attr.name + "'",
+                            "'" + index_name + "'",
+                            1,
+                        )
+                        new_args = (new_msg, *e.args[1:])
+                        raise type(e)(*new_args).with_traceback(None) from None
+                    raise
 
     def __repr__(self):
         return f"<deep_mapping validator for objects mapping {self.key_validator!r} to {self.value_validator!r}>"
