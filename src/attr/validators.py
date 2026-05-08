@@ -343,7 +343,7 @@ class _DeepIterable:
         if self.iterable_validator is not None:
             self.iterable_validator(inst, attr, value)
 
-        for idx, member in enumerate(value):  # noqa: PERF203
+        for idx, member in enumerate(value):
             try:
                 self.member_validator(inst, attr, member)
             except Exception as e:
