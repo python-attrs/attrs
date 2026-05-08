@@ -343,8 +343,17 @@ class _DeepIterable:
         if self.iterable_validator is not None:
             self.iterable_validator(inst, attr, value)
 
-        for member in value:
-            self.member_validator(inst, attr, member)
+        for idx, member in enumerate(value):
+            try:
+                self.member_validator(inst, attr, member)
+            except Exception as e:
+                index_name = attr.name + "[" + str(idx) + "]"
+                index_msg = str(e).replace(
+                    "'" + attr.name + "'",
+                    "'" + index_name + "'",
+                    1,
+                )
+                raise type(e)(index_msg).with_traceback(None) from None
 
     def __repr__(self):
         iterable_identifier = (
@@ -399,9 +408,27 @@ class _DeepMapping:
 
         for key in value:
             if self.key_validator is not None:
-                self.key_validator(inst, attr, key)
+                try:
+                    self.key_validator(inst, attr, key)
+                except Exception as e:
+                    index_name = attr.name + "[key:" + repr(key) + "]"
+                    key_msg = str(e).replace(
+                        "'" + attr.name + "'",
+                        "'" + index_name + "'",
+                        1,
+                    )
+                    raise type(e)(key_msg).with_traceback(None) from None
             if self.value_validator is not None:
-                self.value_validator(inst, attr, value[key])
+                try:
+                    self.value_validator(inst, attr, value[key])
+                except Exception as e:
+                    index_name = attr.name + "[" + repr(key) + "]"
+                    val_msg = str(e).replace(
+                        "'" + attr.name + "'",
+                        "'" + index_name + "'",
+                        1,
+                    )
+                    raise type(e)(val_msg).with_traceback(None) from None
 
     def __repr__(self):
         return f"<deep_mapping validator for objects mapping {self.key_validator!r} to {self.value_validator!r}>"
