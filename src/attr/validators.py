@@ -343,7 +343,7 @@ class _DeepIterable:
         if self.iterable_validator is not None:
             self.iterable_validator(inst, attr, value)
 
-        for idx, member in enumerate(value):
+        for idx, member in enumerate(value):  # noqa: PERF203
             try:
                 self.member_validator(inst, attr, member)
             except Exception as e:
@@ -358,7 +358,7 @@ class _DeepIterable:
                         "'" + index_name + "'",
                         1,
                     )
-                    new_args = (new_msg,) + e.args[1:]
+                    new_args = (new_msg, *e.args[1:])
                     raise type(e)(*new_args).with_traceback(None) from None
                 raise
 
@@ -429,7 +429,7 @@ class _DeepMapping:
                             "'" + index_name + "'",
                             1,
                         )
-                        new_args = (new_msg,) + e.args[1:]
+                        new_args = (new_msg, *e.args[1:])
                         raise type(e)(*new_args).with_traceback(None) from None
                     raise
             if self.value_validator is not None:
@@ -447,7 +447,7 @@ class _DeepMapping:
                             "'" + index_name + "'",
                             1,
                         )
-                        new_args = (new_msg,) + e.args[1:]
+                        new_args = (new_msg, *e.args[1:])
                         raise type(e)(*new_args).with_traceback(None) from None
                     raise
 
