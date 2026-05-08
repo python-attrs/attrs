@@ -659,6 +659,7 @@ class TestDeepIterable:
         If a member validator raises an exception whose message does not
         contain the attr name, the original exception is re-raised unchanged.
         """
+
         def _validator(inst, attr, value):
             raise ValueError("something went wrong")
 
@@ -667,6 +668,7 @@ class TestDeepIterable:
 
         with pytest.raises(ValueError, match="something went wrong"):
             v(None, a, ["ok", "bad"])
+
 
 class TestDeepMapping:
     """
@@ -820,12 +822,12 @@ class TestDeepMapping:
         assert and_(*value_validator) == v.value_validator
         assert and_(*mapping_validator) == v.mapping_validator
 
-
     def test_key_validator_error_without_attr_name(self):
         """
         If a key validator raises an exception whose message does not
         contain the attr name, the original exception is re-raised unchanged.
         """
+
         def _key_validator(inst, attr, value):
             raise TypeError("bad key type")
 
@@ -840,6 +842,7 @@ class TestDeepMapping:
         If a value validator raises an exception whose message does not
         contain the attr name, the original exception is re-raised unchanged.
         """
+
         def _value_validator(inst, attr, value):
             raise TypeError("bad value type")
 
@@ -848,6 +851,7 @@ class TestDeepMapping:
 
         with pytest.raises(TypeError, match="bad value type"):
             v(None, a, {"a": "bad_value"})
+
 
 class TestIsCallable:
     """
