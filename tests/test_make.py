@@ -2455,9 +2455,8 @@ class TestInitAlias:
         __init__ source code.
         """
 
-        with pytest.raises(
-            TypeError, match="Invalid initialization alias"
-        ):
+        with pytest.raises(TypeError, match="Invalid initialization alias"):
+
             @attrs.define
             class C:
                 x: int = attrs.field(alias=alias)
@@ -2470,9 +2469,7 @@ class TestInitAlias:
         marker = "_attrs_alias_executed"
         monkeypatch.delattr("builtins." + marker, raising=False)
 
-        with pytest.raises(
-            TypeError, match="Invalid initialization alias"
-        ):
+        with pytest.raises(TypeError, match="Invalid initialization alias"):
             attr.make_class(
                 "C",
                 {

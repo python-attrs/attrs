@@ -2429,7 +2429,7 @@ def _default_init_alias_for(name: str) -> str:
     return name.lstrip("_")
 
 
-def _validate_init_aliases(attrs: tuple["Attribute", ...]) -> None:
+def _validate_init_aliases(attrs: tuple[Attribute, ...]) -> None:
     """
     Ensure init aliases are valid Python parameter names.
     """
