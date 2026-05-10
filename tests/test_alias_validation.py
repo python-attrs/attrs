@@ -1,14 +1,19 @@
-import attr
-import pytest
 import unicodedata
-from attr.exceptions import NotAnAttrsClassError
+
+import pytest
+
+import attr
+
 
 class TestAliasValidation:
     def test_invalid_identifier(self):
         """
         Invalid identifiers are rejected.
         """
-        with pytest.raises(TypeError, match="Invalid initialization alias '1x'"):
+        with pytest.raises(
+            TypeError, match="Invalid initialization alias '1x'"
+        ):
+
             @attr.s
             class C:
                 x = attr.ib(alias="1x")
@@ -17,7 +22,10 @@ class TestAliasValidation:
         """
         Keywords are rejected.
         """
-        with pytest.raises(TypeError, match="Invalid initialization alias 'class'"):
+        with pytest.raises(
+            TypeError, match="Invalid initialization alias 'class'"
+        ):
+
             @attr.s
             class C:
                 x = attr.ib(alias="class")
@@ -27,6 +35,7 @@ class TestAliasValidation:
         'self' shadowing is rejected.
         """
         with pytest.raises(TypeError, match="shadows the 'self' parameter"):
+
             @attr.s
             class C:
                 x = attr.ib(alias="self")
@@ -38,9 +47,14 @@ class TestAliasValidation:
         omega = "\u03a9"
         ohm = "\u2126"
         assert omega != ohm
-        assert unicodedata.normalize("NFKC", omega) == unicodedata.normalize("NFKC", ohm)
+        assert unicodedata.normalize("NFKC", omega) == unicodedata.normalize(
+            "NFKC", ohm
+        )
 
-        with pytest.raises(TypeError, match="collides with another attribute's alias"):
+        with pytest.raises(
+            TypeError, match="collides with another attribute's alias"
+        ):
+
             @attr.s
             class C:
                 x = attr.ib(alias=omega)
@@ -52,8 +66,10 @@ class TestAliasValidation:
         """
         omega = "\u03a9"
         ohm = "\u2126"
-        
-        with pytest.raises(TypeError, match="collides with another attribute's alias"):
+
+        with pytest.raises(
+            TypeError, match="collides with another attribute's alias"
+        ):
             attr.make_class("C", {omega: attr.ib(), ohm: attr.ib()})
 
     def test_non_string_alias(self):
@@ -61,6 +77,7 @@ class TestAliasValidation:
         Non-string aliases are rejected.
         """
         with pytest.raises(TypeError, match="Invalid initialization alias 1"):
+
             @attr.s
             class C:
                 x = attr.ib(alias=1)
@@ -69,11 +86,12 @@ class TestAliasValidation:
         """
         Valid Unicode identifiers that don't collide are allowed.
         """
+
         @attr.s
         class C:
             π = attr.ib()
             α = attr.ib(alias="beta")
-        
+
         inst = C(π=3.14, beta=1)
         assert inst.π == 3.14
         assert inst.α == 1
@@ -82,10 +100,11 @@ class TestAliasValidation:
         """
         Validation is skipped if init=False.
         """
+
         @attr.s
         class C:
             x = attr.ib(init=False, alias="not an identifier!")
-        
+
         inst = C()
         inst.x = 42
         assert inst.x == 42
