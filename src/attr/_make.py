@@ -8,6 +8,7 @@ import copy
 import enum
 import inspect
 import itertools
+import keyword
 import linecache
 import sys
 import types
@@ -495,6 +496,8 @@ def _transform_attrs(
         if not a.alias:
             _OBJ_SETATTR.__get__(a)("alias", _default_init_alias_for(a.name))
             _OBJ_SETATTR.__get__(a)("alias_is_default", True)
+
+    _validate_init_aliases(attrs)
 
     # Create AttrsClass *after* applying the field_transformer since it may
     # add or remove attributes!
@@ -2424,6 +2427,27 @@ def _default_init_alias_for(name: str) -> str:
     """
 
     return name.lstrip("_")
+
+
+def _validate_init_aliases(attrs: tuple[Attribute, ...]) -> None:
+    """
+    Ensure init aliases are valid Python parameter names.
+    """
+    for a in attrs:
+        if a.init is False:
+            continue
+
+        alias = a.alias
+        if (
+            not isinstance(alias, str)
+            or not alias.isidentifier()
+            or keyword.iskeyword(alias)
+        ):
+            msg = (
+                f"Invalid initialization alias {alias!r} for attribute "
+                f"{a.name!r}. Aliases must be valid Python identifiers."
+            )
+            raise TypeError(msg)
 
 
 class Attribute:

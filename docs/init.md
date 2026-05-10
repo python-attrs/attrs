@@ -90,7 +90,8 @@ Even if you're not using this feature, it's important to be aware of it because 
 ...    _1: int
 Traceback (most recent call last):
    ...
-SyntaxError: invalid syntax
+TypeError: Invalid initialization alias '1' for attribute '_1'. Aliases must be valid Python identifiers.
+
 ```
 
 In this case a valid attribute name `_1` got transformed into an invalid argument name `1`.
@@ -251,10 +252,7 @@ ValueError: 'x' has to be smaller than 'y'!
 ...     x = field(validator=attrs.validators.instance_of(int))
 >>> C(42)
 C(x=42)
->>> C("42")
-Traceback (most recent call last):
-   ...
-TypeError: ("'x' must be <type 'int'> (got '42' that is a <type 'str'>).", Attribute(name='x', default=NOTHING, factory=NOTHING, validator=<instance_of validator for type <type 'int'>>, type=None), <type 'int'>, '42')
+TypeError: ("'x' must be <class 'int'> (got '42' that is a <class 'str'>).", Attribute(name='x', ..., alias='x'), <class 'int'>, '42')
 ```
 
 Of course you can mix and match the two approaches at your convenience.
@@ -270,10 +268,7 @@ If you use both ways to define validators for an attribute, they are both ran:
 ...             raise ValueError("value out of bounds")
 >>> C(128)
 C(x=128)
->>> C("128")
-Traceback (most recent call last):
-   ...
-TypeError: ("'x' must be <class 'int'> (got '128' that is a <class 'str'>).", Attribute(name='x', default=NOTHING, validator=[<instance_of validator for type <class 'int'>>, <function fits_byte at 0x10fd7a0d0>], repr=True, cmp=True, hash=True, init=True, metadata=mappingproxy({}), type=None, converter=None), <class 'int'>, '128')
+TypeError: ("'x' must be <class 'int'> (got '128' that is a <class 'str'>).", Attribute(name='x', ..., alias='x'), <class 'int'>, '128')
 >>> C(256)
 Traceback (most recent call last):
    ...
@@ -290,7 +285,7 @@ C(x='128')
 >>> C("128")
 Traceback (most recent call last):
    ...
-TypeError: ("'x' must be <class 'int'> (got '128' that is a <class 'str'>).", Attribute(name='x', default=NOTHING, validator=[<instance_of validator for type <class 'int'>>, <function fits_byte at 0x10fd7a0d0>], repr=True, cmp=True, hash=True, init=True, metadata=mappingproxy({}), type=None, converter=None), <class 'int'>, '128')
+TypeError: ("'x' must be <class 'int'> (got '128' that is a <class 'str'>).", Attribute(name='x', ..., alias='x'), <class 'int'>, '128')
 ```
 
 ... or within a context manager:
@@ -302,7 +297,7 @@ C(x='128')
 >>> C("128")
 Traceback (most recent call last):
    ...
-TypeError: ("'x' must be <class 'int'> (got '128' that is a <class 'str'>).", Attribute(name='x', default=NOTHING, validator=[<instance_of validator for type <class 'int'>>, <function fits_byte at 0x10fd7a0d0>], repr=True, cmp=True, hash=True, init=True, metadata=mappingproxy({}), type=None, converter=None), <class 'int'>, '128')
+TypeError: ("'x' must be <class 'int'> (got '128' that is a <class 'str'>).", Attribute(name='x', ..., alias='x'), <class 'int'>, '128')
 ```
 
 (converters)=
