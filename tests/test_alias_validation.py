@@ -86,15 +86,15 @@ class TestAliasValidation:
         """
         Valid Unicode identifiers that don't collide are allowed.
         """
+        # We use make_class to avoid non-ASCII characters in the source code,
+        # which satisfies linters.
+        pi = "\u03c0"
+        alpha = "\u03b1"
+        C = attr.make_class("C", {pi: attr.ib(), alpha: attr.ib(alias="beta")})
 
-        @attr.s
-        class C:
-            π = attr.ib()
-            α = attr.ib(alias="beta")
-
-        inst = C(π=3.14, beta=1)
-        assert inst.π == 3.14
-        assert inst.α == 1
+        inst = C(3.14, beta=1)
+        assert getattr(inst, pi) == 3.14
+        assert getattr(inst, alpha) == 1
 
     def test_init_false_skipped(self):
         """
