@@ -16,9 +16,15 @@ class TestImportStar:
 
 class TestDir:
     def test_attr_dir_includes_lazy_submodules(self):
+        """
+        converters and validators are listed in dir(attr).
+        """
         assert "converters" in dir(attr)
         assert "validators" in dir(attr)
 
     def test_attrs_dir_includes_lazy_submodules(self):
+        """
+        converters and validators are listed in dir(attrs).
+        """
         assert "converters" in dir(attrs)
         assert "validators" in dir(attrs)
