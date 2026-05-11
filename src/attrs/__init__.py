@@ -25,7 +25,7 @@ from attr import (
 from attr._make import ClassProps
 from attr._next_gen import asdict, astuple, inspect
 
-from . import converters, exceptions, filters, setters, validators
+from . import exceptions, filters, setters
 
 
 __all__ = [
@@ -70,3 +70,7 @@ __all__ = [
 ]
 
 __getattr__ = _make_getattr(__name__)
+
+
+def __dir__() -> list[str]:
+    return __all__

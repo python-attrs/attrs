@@ -4,10 +4,12 @@
 Classes Without Boilerplate
 """
 
+import sys
+
 from functools import partial
 from typing import Callable, Literal, Protocol
 
-from . import converters, exceptions, filters, setters, validators
+from . import exceptions, filters, setters
 from ._cmp import cmp_using
 from ._config import get_run_validators, set_run_validators
 from ._funcs import asdict, assoc, astuple, has, resolve_types
@@ -78,6 +80,9 @@ __all__ = [
 ]
 
 
+_LAZY_SUBMODULES = {"converters", "validators"}
+
+
 def _make_getattr(mod_name: str) -> Callable:
     """
     Create a metadata proxy for packaging information that uses *mod_name* in
@@ -85,6 +90,13 @@ def _make_getattr(mod_name: str) -> Callable:
     """
 
     def __getattr__(name: str) -> str:
+        if name in _LAZY_SUBMODULES:
+            import importlib
+
+            mod = importlib.import_module(f".{name}", mod_name)
+            sys.modules[mod_name].__dict__[name] = mod
+            return mod
+
         if name not in ("__version__", "__version_info__"):
             msg = f"module {mod_name} has no attribute {name}"
             raise AttributeError(msg)
@@ -102,3 +114,7 @@ def _make_getattr(mod_name: str) -> Callable:
 
 
 __getattr__ = _make_getattr(__name__)
+
+
+def __dir__() -> list[str]:
+    return __all__
