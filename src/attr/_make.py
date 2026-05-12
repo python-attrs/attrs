@@ -458,8 +458,14 @@ def _transform_attrs(
         )
 
     if kw_only is ClassProps.KeywordOnly.FORCE:
-        own_attrs = [a.evolve(kw_only=True) for a in own_attrs]
-        base_attrs = [a.evolve(kw_only=True) for a in base_attrs]
+        own_attrs = [
+            a.evolve(kw_only=True) if a.kw_only is not False else a
+            for a in own_attrs
+        ]
+        base_attrs = [
+            a.evolve(kw_only=True) if a.kw_only is not False else a
+            for a in base_attrs
+        ]
 
     attrs = base_attrs + own_attrs
 
