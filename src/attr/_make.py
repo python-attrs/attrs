@@ -556,6 +556,44 @@ def _make_cached_property_getattr(cached_properties, original_getattr, cls):
     )["__getattr__"]
 
 
+def _closure_cells(item, seen):
+    """
+    Yield closure cells for *item* and any wrapped functions it closes over.
+    """
+    item_id = id(item)
+    if item_id in seen:
+        return
+    seen.add(item_id)
+
+    if isinstance(item, (classmethod, staticmethod)):
+        item = item.__func__
+    elif isinstance(item, property):
+        for accessor in (item.fget, item.fset, item.fdel):
+            if accessor is not None:
+                yield from _closure_cells(accessor, seen)
+        return
+    elif isinstance(item, cached_property):
+        item = item.func
+    elif isinstance(item, types.MethodType):
+        item = item.__func__
+
+    closure = getattr(item, "__closure__", None)
+    if closure:
+        yield from closure
+
+        for cell in closure:
+            try:
+                cell_contents = cell.cell_contents
+            except ValueError:
+                continue
+
+            yield from _closure_cells(cell_contents, seen)
+
+    wrapped = getattr(item, "__wrapped__", None)
+    if wrapped is not None:
+        yield from _closure_cells(wrapped, seen)
+
+
 def _frozen_setattrs(self, name, value):
     """
     Attached to frozen classes as __setattr__.
@@ -973,20 +1011,7 @@ class _ClassBuilder:
         for item in itertools.chain(
             cls.__dict__.values(), additional_closure_functions_to_update
         ):
-            if isinstance(item, (classmethod, staticmethod)):
-                # Class- and staticmethods hide their functions inside.
-                # These might need to be rewritten as well.
-                closure_cells = getattr(item.__func__, "__closure__", None)
-            elif isinstance(item, property):
-                # Workaround for property `super()` shortcut (PY3-only).
-                # There is no universal way for other descriptors.
-                closure_cells = getattr(item.fget, "__closure__", None)
-            else:
-                closure_cells = getattr(item, "__closure__", None)
-
-            if not closure_cells:  # Catch None or the empty list.
-                continue
-            for cell in closure_cells:
+            for cell in _closure_cells(item, set()):
                 try:
                     match = cell.cell_contents is self._cls
                 except ValueError:  # noqa: PERF203
