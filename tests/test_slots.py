@@ -474,6 +474,18 @@ class TestClosureCellRewriting:
 
         list(_closure_cells(_function_closing_over(Unrelated()), set()))
 
+    def test_closure_cells_stops_on_wrapped_cycles(self):
+        """
+        Closure cell discovery avoids revisiting wrapped functions.
+        """
+
+        def wrapper():
+            pass
+
+        wrapper.__wrapped__ = wrapper
+
+        assert list(_closure_cells(wrapper, set())) == []
+
     def test_closure_cell_rewriting(self):
         """
         Slotted classes support proper closure cell rewriting.
