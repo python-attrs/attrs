@@ -271,6 +271,7 @@ For the common case where you want to [`include`](attrs.filters.include) or [`ex
 Though using string names directly is convenient, mistyping attribute names will silently do the wrong thing and neither Python nor your type checker can help you.
 {func}`attrs.fields()` will raise an `AttributeError` when the field doesn't exist while literal string names won't.
 Using {func}`attrs.fields()` to get attributes is worth being recommended in most cases.
+String names match all fields with that name, while fields returned from {func}`attrs.fields()` only match that exact class's field.
 
 ```{doctest}
 >>> asdict(
