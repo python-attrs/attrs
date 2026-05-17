@@ -18,6 +18,11 @@ class C:
     b = attr.ib()
 
 
+@attr.s
+class D:
+    a = attr.ib()
+
+
 class TestSplitWhat:
     """
     Tests for `_split_what`.
@@ -30,7 +35,7 @@ class TestSplitWhat:
         assert (
             frozenset((int, str)),
             frozenset(("abcd", "123")),
-            frozenset((fields(C).a,)),
+            (fields(C).a,),
         ) == _split_what((str, "123", fields(C).a, int, "abcd"))
 
 
@@ -79,6 +84,15 @@ class TestInclude:
         i = include(*incl)
         assert i(fields(C).a, value) is False
 
+    def test_allow_attributes_by_identity(self):
+        """
+        Attributes with the same name on other classes are not included.
+        """
+        i = include(fields(C).a)
+
+        assert i(fields(C).a, 42) is True
+        assert i(fields(D).a, 42) is False
+
 
 class TestExclude:
     """
@@ -124,3 +138,12 @@ class TestExclude:
         """
         e = exclude(*excl)
         assert e(fields(C).a, value) is False
+
+    def test_drop_attributes_by_identity(self):
+        """
+        Attributes with the same name on other classes are not excluded.
+        """
+        e = exclude(fields(C).a)
+
+        assert e(fields(C).a, 42) is False
+        assert e(fields(D).a, 42) is True

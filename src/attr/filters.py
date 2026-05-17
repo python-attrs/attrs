@@ -9,13 +9,17 @@ from ._make import Attribute
 
 def _split_what(what):
     """
-    Returns a tuple of `frozenset`s of classes and attributes.
+    Returns a tuple of classes, names, and attributes to match.
     """
     return (
         frozenset(cls for cls in what if isinstance(cls, type)),
         frozenset(cls for cls in what if isinstance(cls, str)),
-        frozenset(cls for cls in what if isinstance(cls, Attribute)),
+        tuple(cls for cls in what if isinstance(cls, Attribute)),
     )
+
+
+def _matches_attribute(attribute, attrs):
+    return any(attribute is a for a in attrs)
 
 
 def include(*what):
@@ -39,7 +43,7 @@ def include(*what):
         return (
             value.__class__ in cls
             or attribute.name in names
-            or attribute in attrs
+            or _matches_attribute(attribute, attrs)
         )
 
     return include_
@@ -66,7 +70,7 @@ def exclude(*what):
         return not (
             value.__class__ in cls
             or attribute.name in names
-            or attribute in attrs
+            or _matches_attribute(attribute, attrs)
         )
 
     return exclude_
