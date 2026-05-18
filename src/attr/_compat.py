@@ -97,4 +97,3 @@ def get_generic_base(cl):
     if cl.__class__ is _GenericAlias:
         return cl.__origin__
     return None
-

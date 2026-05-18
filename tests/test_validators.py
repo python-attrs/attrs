@@ -818,7 +818,9 @@ class TestDeepMapping:
         with pytest.raises(TypeError) as e:
             v(None, a, [1, 2, 3])
 
-        msg = f"'{a.name}' must be a mapping (got [1, 2, 3] that is a {list!r})."
+        msg = (
+            f"'{a.name}' must be a mapping (got [1, 2, 3] that is a {list!r})."
+        )
         assert msg in str(e.value)
 
 
@@ -1041,12 +1043,13 @@ class TestMaxLen:
         """
         Raise TypeError if value is not a sized object (e.g., generator).
         """
+
         @attr.s
         class Tester:
             value = attr.ib(validator=max_len(self.MAX_LENGTH))
 
         with pytest.raises(TypeError) as e:
-            Tester((x for x in range(2)))
+            Tester(x for x in range(2))
 
         assert "must be a sized object" in str(e.value)
 
@@ -1125,12 +1128,13 @@ class TestMinLen:
         """
         Raise TypeError if value is not a sized object (e.g., generator).
         """
+
         @attr.s
         class Tester:
             value = attr.ib(validator=min_len(self.MIN_LENGTH))
 
         with pytest.raises(TypeError) as e:
-            Tester((x for x in range(2)))
+            Tester(x for x in range(2))
 
         assert "must be a sized object" in str(e.value)
 
