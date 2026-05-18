@@ -818,7 +818,9 @@ class TestDeepMapping:
         with pytest.raises(TypeError) as e:
             v(None, a, [1, 2, 3])
 
-        msg = f"'{a.name}' must be a mapping (got [1, 2, 3] that is a {list!r})."
+        msg = (
+            f"'{a.name}' must be a mapping (got [1, 2, 3] that is a {list!r})."
+        )
         assert msg in str(e.value)
 
 
