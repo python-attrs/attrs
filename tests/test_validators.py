@@ -807,6 +807,20 @@ class TestDeepMapping:
         assert and_(*value_validator) == v.value_validator
         assert and_(*mapping_validator) == v.mapping_validator
 
+    def test_fail_non_mapping(self):
+        """
+        Raise TypeError if value is not a mapping.
+        """
+        key_validator = instance_of(str)
+        value_validator = instance_of(int)
+        v = deep_mapping(key_validator, value_validator)
+        a = simple_attr("test")
+        with pytest.raises(TypeError) as e:
+            v(None, a, [1, 2, 3])
+
+        msg = f"'{a.name}' must be a mapping (got [1, 2, 3] that is a {list!r})."
+        assert msg in str(e.value)
+
 
 class TestIsCallable:
     """
@@ -1023,6 +1037,19 @@ class TestMaxLen:
         """
         assert repr(max_len(23)) == "<max_len validator for 23>"
 
+    def test_fail_non_sized(self):
+        """
+        Raise TypeError if value is not a sized object (e.g., generator).
+        """
+        @attr.s
+        class Tester:
+            value = attr.ib(validator=max_len(self.MAX_LENGTH))
+
+        with pytest.raises(TypeError) as e:
+            Tester((x for x in range(2)))
+
+        assert "must be a sized object" in str(e.value)
+
 
 class TestMinLen:
     """
@@ -1093,6 +1120,19 @@ class TestMinLen:
         __repr__ is meaningful.
         """
         assert repr(min_len(23)) == "<min_len validator for 23>"
+
+    def test_fail_non_sized(self):
+        """
+        Raise TypeError if value is not a sized object (e.g., generator).
+        """
+        @attr.s
+        class Tester:
+            value = attr.ib(validator=min_len(self.MIN_LENGTH))
+
+        with pytest.raises(TypeError) as e:
+            Tester((x for x in range(2)))
+
+        assert "must be a sized object" in str(e.value)
 
 
 class TestSubclassOf:
