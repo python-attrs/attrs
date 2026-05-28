@@ -844,9 +844,14 @@ class _ClassBuilder:
 
         # If we've inherited an attrs __setattr__ and don't write our own,
         # reset it to object's.
-        if not self._wrote_own_setattr and getattr(
-            cls, "__attrs_own_setattr__", False
-        ):
+        has_attrs_own_setattr = False
+        for base_cls in cls.__mro__[1:]:
+            if "__setattr__" in base_cls.__dict__:
+                if base_cls.__dict__.get("__attrs_own_setattr__", False):
+                    has_attrs_own_setattr = True
+                break
+
+        if not self._wrote_own_setattr and has_attrs_own_setattr:
             cls.__attrs_own_setattr__ = False
 
             if not self._has_custom_setattr:
@@ -880,9 +885,10 @@ class _ClassBuilder:
             cd["__attrs_own_setattr__"] = False
 
             if not self._has_custom_setattr:
-                for base_cls in self._cls.__bases__:
-                    if base_cls.__dict__.get("__attrs_own_setattr__", False):
-                        cd["__setattr__"] = _OBJ_SETATTR
+                for base_cls in self._cls.__mro__[1:]:
+                    if "__setattr__" in base_cls.__dict__:
+                        if base_cls.__dict__.get("__attrs_own_setattr__", False):
+                            cd["__setattr__"] = _OBJ_SETATTR
                         break
 
         # Traverse the MRO to collect existing slots
