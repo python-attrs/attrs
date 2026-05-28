@@ -151,6 +151,28 @@ Similar to the [common gotcha with mutable default arguments](https://docs.pytho
 
 This is why *attrs* comes with factory options.
 
+### Factories and Frozen Classes
+
+By default, using `@define(frozen=True)` (or `frozen=True` on `attr.s`) makes class instances immutable after initialization. However, this immutability is **shallow**—if an attribute references a mutable object (like a list or dict), that nested object itself can still be mutated.
+
+Furthermore, if a `Factory` returns a reference to a pre-existing, shared mutable object (or if the factory lambda refers to a shared mutable reference), different instances of the frozen class will share that same reference. External mutation of that object will be reflected across all frozen instances:
+
+```{doctest}
+>>> import attrs
+>>> from attrs import Factory
+>>> shared_list = [1, 2, 3]
+>>> @attrs.frozen
+... class C:
+...     x = Factory(lambda: shared_list)
+>>> i = C()
+>>> k = C()
+>>> i.x is k.x
+True
+>>> shared_list.append(4)
+>>> i.x
+[1, 2, 3, 4]
+```
+
 :::{warning}
 Please note that the decorator based defaults have one gotcha:
 they are executed when the attribute is set, that means depending on the order of attributes, the `self` object may not be fully initialized when they're called.
