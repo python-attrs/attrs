@@ -887,7 +887,9 @@ class _ClassBuilder:
             if not self._has_custom_setattr:
                 for base_cls in self._cls.__mro__[1:]:
                     if "__setattr__" in base_cls.__dict__:
-                        if base_cls.__dict__.get("__attrs_own_setattr__", False):
+                        if base_cls.__dict__.get(
+                            "__attrs_own_setattr__", False
+                        ):
                             cd["__setattr__"] = _OBJ_SETATTR
                         break
 

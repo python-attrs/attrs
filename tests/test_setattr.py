@@ -336,7 +336,9 @@ class TestSetAttr:
 
         C(1).x = 2
 
-    def test_setattr_inherited_do_not_reset_intermediate_non_attrs(self, slots):
+    def test_setattr_inherited_do_not_reset_intermediate_non_attrs(
+        self, slots
+    ):
         """
         A user-provided intermediate __setattr__ on a non-attrs class is not reset
         to object.__setattr__.
@@ -348,6 +350,7 @@ class TestSetAttr:
 
         class BCustom(A):
             x: int
+
             def __setattr__(self, name, value):
                 object.__setattr__(self, name, value * 2)
 
