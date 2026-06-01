@@ -65,7 +65,7 @@ def asdict(
             been applied.
 
     Returns:
-        Return type of *dict_factory*.
+        An instance of *dict_factory*.
 
     Raises:
         attrs.exceptions.NotAnAttrsClassError:
@@ -79,9 +79,9 @@ def asdict(
     """
     attrs = fields(inst.__class__)
     rv = dict_factory()
-    for a in attrs:
-        v = getattr(inst, a.name)
-        if filter is not None and not filter(a, v):
+    for attr in attrs:
+        v = getattr(inst, attr.name)
+        if filter is not None and not filter(attr, v):
             continue
 
         if value_serializer is not None:
@@ -90,9 +90,9 @@ def asdict(
         if recurse is True:
             value_type = type(v)
             if value_type in _ATOMIC_TYPES:
-                rv[a.name] = v
+                rv[attr.name] = v
             elif has(value_type):
-                rv[a.name] = asdict(
+                rv[attr.name] = asdict(
                     v,
                     recurse=True,
                     filter=filter,
@@ -114,16 +114,16 @@ def asdict(
                     for i in v
                 ]
                 try:
-                    rv[a.name] = cf(items)
+                    rv[attr.name] = cf(items)
                 except TypeError:
                     if not issubclass(cf, tuple):
                         raise
                     # Workaround for TypeError: cf.__new__() missing 1 required
                     # positional argument (which appears, for a namedturle)
-                    rv[a.name] = cf(*items)
+                    rv[attr.name] = cf(*items)
             elif issubclass(value_type, dict):
                 df = dict_factory
-                rv[a.name] = df(
+                rv[attr.name] = df(
                     (
                         _asdict_anything(
                             kk,
@@ -145,9 +145,9 @@ def asdict(
                     for kk, vv in v.items()
                 )
             else:
-                rv[a.name] = v
+                rv[attr.name] = v
         else:
-            rv[a.name] = v
+            rv[attr.name] = v
     return rv
 
 
