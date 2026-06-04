@@ -32,6 +32,7 @@ __all__ = [
     "matches_re",
     "max_len",
     "min_len",
+    "ne",
     "not_",
     "optional",
     "or_",
@@ -533,6 +534,21 @@ def gt(val):
     .. versionadded:: 21.3.0
     """
     return _NumberValidator(val, ">", operator.gt)
+
+
+def ne(val):
+    """
+    A validator that raises `ValueError` if the initializer is called with a
+    number equal to *val*.
+
+    The validator uses `operator.ne` to compare the values.
+
+    Args:
+       val: The value that is not allowed.
+
+    .. versionadded:: 26.2.0
+    """
+    return _NumberValidator(val, "!=", operator.ne)
 
 
 @attrs(repr=False, frozen=True, slots=True)
