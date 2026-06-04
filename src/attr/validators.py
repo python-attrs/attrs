@@ -156,10 +156,10 @@ def matches_re(regex, flags=0, func=None):
 
     Args:
         regex (str, re.Pattern):
-            A regex string or precompiled pattern to match against
+            A regex string or precompiled pattern to match against.
 
         flags (int):
-            Flags that will be passed to the underlying re function (default 0)
+            Flags that will be passed to the underlying re function (default 0).
 
         func (typing.Callable):
             Which underlying `re` function to call. Valid options are
@@ -368,8 +368,8 @@ def deep_iterable(member_validator, iterable_validator=None):
         iterable_validator:
             Validator(s) to apply to iterable itself (optional).
 
-    Raises
-        TypeError: if any sub-validators fail
+    Raises:
+        TypeError: if any sub-validators fail.
 
     .. versionadded:: 19.1.0
 
@@ -513,7 +513,7 @@ def ge(val):
     The validator uses `operator.ge` to compare the values.
 
     Args:
-        val: Inclusive lower bound for values
+        val: Inclusive lower bound for values.
 
     .. versionadded:: 21.3.0
     """
@@ -528,7 +528,7 @@ def gt(val):
     The validator uses `operator.gt` to compare the values.
 
     Args:
-       val: Exclusive lower bound for values
+       val: Exclusive lower bound for values.
 
     .. versionadded:: 21.3.0
     """
@@ -557,7 +557,7 @@ def max_len(length):
     with a string or iterable that is longer than *length*.
 
     Args:
-        length (int): Maximum length of the string or iterable
+        length (int): Maximum length of the string or iterable.
 
     .. versionadded:: 21.3.0
     """
@@ -586,7 +586,7 @@ def min_len(length):
     with a string or iterable that is shorter than *length*.
 
     Args:
-        length (int): Minimum length of the string or iterable
+        length (int): Minimum length of the string or iterable.
 
     .. versionadded:: 22.1.0
     """
