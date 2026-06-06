@@ -72,6 +72,11 @@ docs-watch = [{ include-group = "docs" }, "watchfiles"]
 dev = [{ include-group = "tests" }, "ruff"]
 
 
+[tool.uv]
+# Dependency cooldown
+exclude-newer = "1 week"
+
+
 [tool.hatch.version]
 source = "vcs"
 raw-options = { local_scheme = "no-local-version" }
