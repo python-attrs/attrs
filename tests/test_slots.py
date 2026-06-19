@@ -6,6 +6,7 @@ Unit tests for slots-related functionality.
 
 import functools
 import pickle
+import types
 import weakref
 
 from unittest import mock
@@ -16,6 +17,7 @@ import attr
 import attrs
 
 from attr._compat import PY_3_14_PLUS, PYPY
+from attr._make import _closure_cells
 
 
 # Pympler doesn't work on PyPy.
@@ -426,7 +428,64 @@ def test_bare_inheritance_from_slots():
     assert {"x": 1, "y": 2, "z": "test"} == attr.asdict(c2)
 
 
+def _function_closing_over(value):
+    def function():
+        return value
+
+    return function
+
+
 class TestClosureCellRewriting:
+    def test_closure_cells_handles_wrapped_callables(self):
+        """
+        Closure cells are found inside wrapped function shapes.
+        """
+
+        marker = object()
+        function = _function_closing_over(marker)
+        wrapped_function = _function_closing_over(marker)
+
+        def wrapper():
+            pass
+
+        wrapper.__wrapped__ = wrapped_function
+        cached_function = functools.lru_cache()(_function_closing_over(marker))
+
+        for item in (
+            functools.cached_property(function),
+            types.MethodType(function, object()),
+            wrapper,
+            cached_function,
+        ):
+            assert any(
+                cell.cell_contents is marker
+                for cell in _closure_cells(item, set())
+            )
+
+    def test_closure_cells_does_not_inspect_arbitrary_cell_contents(self):
+        """
+        Closure cell discovery doesn't introspect unrelated user objects.
+        """
+
+        class Unrelated:
+            def __getattr__(self, name):
+                msg = f"unexpected attribute lookup: {name}"
+                raise AssertionError(msg)
+
+        list(_closure_cells(_function_closing_over(Unrelated()), set()))
+
+    def test_closure_cells_stops_on_wrapped_cycles(self):
+        """
+        Closure cell discovery avoids revisiting wrapped functions.
+        """
+
+        def wrapper():
+            pass
+
+        wrapper.__wrapped__ = wrapper
+
+        assert list(_closure_cells(wrapper, set())) == []
+
     def test_closure_cell_rewriting(self):
         """
         Slotted classes support proper closure cell rewriting.
@@ -496,6 +555,30 @@ class TestClosureCellRewriting:
                 return __class__
 
         assert D.statmethod() is D
+
+    def test_decorated_method(self, slots):
+        """
+        Slotted classes rewrite closure cells in decorated methods.
+        """
+
+        def decorated(method):
+            def wrapped(self, *args, **kwargs):
+                return method(self, *args, **kwargs)
+
+            return wrapped
+
+        @attr.s(slots=slots)
+        class A:
+            def method(self):
+                return "A"
+
+        @attr.s(slots=slots)
+        class B(A):
+            @decorated
+            def method(self):
+                return super().method()
+
+        assert B().method() == "A"
 
 
 @pytest.mark.skipif(PYPY, reason="__slots__ only block weakref on CPython")
