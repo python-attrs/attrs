@@ -403,7 +403,7 @@ def _transform_attrs(
         ca_names = {
             name
             for name, attr in cd.items()
-            if attr.__class__ is _CountingAttr
+            if issubclass(attr.__class__, _CountingAttr)
         }
         ca_list = []
         annot_names = set()
@@ -413,7 +413,7 @@ def _transform_attrs(
             annot_names.add(attr_name)
             a = cd.get(attr_name, NOTHING)
 
-            if a.__class__ is not _CountingAttr:
+            if not issubclass(a.__class__, _CountingAttr):
                 a = attrib(a)
             ca_list.append((attr_name, a))
 
@@ -431,7 +431,7 @@ def _transform_attrs(
             (
                 (name, attr)
                 for name, attr in cd.items()
-                if attr.__class__ is _CountingAttr
+                if issubclass(attr.__class__, _CountingAttr)
             ),
             key=lambda e: e[1].counter,
         )
