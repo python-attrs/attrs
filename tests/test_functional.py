@@ -49,6 +49,59 @@ class C2Slots:
     y = attr.ib(default=attr.Factory(list))
 
 
+@attr.s(auto_exc=True)
+class KwOnlyException(Exception):
+    value = attr.ib(kw_only=True)
+
+
+@attr.s(auto_exc=True, frozen=True)
+class FrozenKwOnlyException(Exception):
+    value = attr.ib(kw_only=True)
+
+
+@attr.s(auto_exc=True, slots=True)
+class SlottedKwOnlyException(Exception):
+    value = attr.ib(kw_only=True)
+
+
+@attr.s(auto_exc=True, frozen=True, slots=True)
+class FrozenSlottedKwOnlyException(Exception):
+    value = attr.ib(kw_only=True)
+
+
+@attr.s(auto_exc=True, frozen=True, slots=True, kw_only=True)
+class KwOnlyBaseException(Exception):
+    has_default = attr.ib(default=42)
+
+
+@attr.s(auto_exc=True, frozen=True, slots=True)
+class KwOnlySubException(KwOnlyBaseException):
+    no_default = attr.ib(kw_only=False)
+
+
+@attr.s(auto_exc=True)
+class CustomReduceKwOnlyException(Exception):
+    value = attr.ib(kw_only=True)
+
+    def __reduce__(self):
+        return "custom"
+
+
+class InheritedCustomReduceException(Exception):
+    def __reduce__(self):
+        return "inherited custom"
+
+
+@attr.s(auto_exc=True)
+class InheritedCustomReduceKwOnlyException(InheritedCustomReduceException):
+    value = attr.ib(kw_only=True)
+
+
+@attr.s(auto_exc=True)
+class PositionalOnlyException(Exception):
+    value = attr.ib()
+
+
 @attr.s
 class Base:
     x = attr.ib()
@@ -623,6 +676,61 @@ class TestFunctional:
             x = attr.ib()
 
         FooError(1)
+
+    @pytest.mark.parametrize(
+        "cls",
+        [
+            KwOnlyException,
+            FrozenKwOnlyException,
+            SlottedKwOnlyException,
+            FrozenSlottedKwOnlyException,
+        ],
+    )
+    def test_auto_exc_kw_only_pickles(self, cls):
+        """
+        Keyword-only exception fields don't break pickle round-tripping.
+        """
+        exc = cls(value=1)
+
+        rt = pickle.loads(pickle.dumps(exc))
+
+        assert isinstance(rt, cls)
+        assert 1 == rt.value
+        assert exc.args == rt.args
+
+    def test_auto_exc_kw_only_pickles_subclass_with_positional_field(self):
+        """
+        Inherited keyword-only fields work with subclass positional fields.
+        """
+        exc = KwOnlySubException("new", has_default=23)
+
+        rt = pickle.loads(pickle.dumps(exc))
+
+        assert isinstance(rt, KwOnlySubException)
+        assert 23 == rt.has_default
+        assert "new" == rt.no_default
+        assert exc.args == rt.args
+
+    def test_auto_exc_does_not_overwrite_custom_reduce(self):
+        """
+        A custom __reduce__ on a keyword-only exception is left alone.
+        """
+        assert "custom" == CustomReduceKwOnlyException(value=1).__reduce__()
+
+    def test_auto_exc_does_not_overwrite_inherited_custom_reduce(self):
+        """
+        An inherited custom __reduce__ is left alone.
+        """
+        assert (
+            "inherited custom"
+            == InheritedCustomReduceKwOnlyException(value=1).__reduce__()
+        )
+
+    def test_auto_exc_without_kw_only_does_not_add_reduce(self):
+        """
+        Exceptions without keyword-only init fields keep BaseException reduce.
+        """
+        assert "__reduce__" not in PositionalOnlyException.__dict__
 
     def test_eq_only(self, slots, frozen):
         """
