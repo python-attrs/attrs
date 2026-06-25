@@ -39,6 +39,8 @@ from .exceptions import (
 
 # This is used at least twice, so cache it here.
 _OBJ_SETATTR = object.__setattr__
+_BASE_EXCEPTION_REDUCE = BaseException.__dict__.get("__reduce__")
+_BASE_EXCEPTION_SETSTATE = BaseException.__dict__.get("__setstate__")
 _INIT_FACTORY_PAT = "__attr_factory_%s"
 _CLASSVAR_PREFIXES = (
     "typing.ClassVar",
@@ -101,6 +103,37 @@ class _CacheHashWrapper(int):
 
     def __reduce__(self, _none_constructor=type(None), _args=()):  # noqa: B008
         return _none_constructor, _args
+
+
+def _reconstruct_exception(cls, args, state):
+    """
+    Reconstruct an attrs exception for pickle without calling __init__.
+    """
+    self = BaseException.__new__(cls)
+    BaseException.__init__(self, *args)
+
+    if state is None:
+        return self
+
+    setstate = getattr(self, "__setstate__", None)
+    if (
+        setstate is not None
+        and getattr(cls, "__setstate__", None) is not _BASE_EXCEPTION_SETSTATE
+    ):
+        setstate(state)
+        return self
+
+    if isinstance(state, tuple):
+        inst_dict, slot_state = state
+        state = {}
+        if inst_dict:
+            state.update(inst_dict)
+        state.update(slot_state)
+
+    for name, value in state.items():
+        _OBJ_SETATTR(self, name, value)
+
+    return self
 
 
 def attrib(
@@ -1018,6 +1051,34 @@ class _ClassBuilder:
         self._cls_dict["__str__"] = self._add_method_dunders(__str__)
         return self
 
+    def add_exception_reduce(self):
+        def __reduce__(self):
+            getstate = getattr(self, "__getstate__", None)
+            if getstate is not None:
+                state = getstate()
+            else:
+                dict_state = getattr(self, "__dict__", None)
+                dict_state = dict_state.copy() if dict_state else None
+
+                if self.__attrs_props__.is_slotted:
+                    slot_state = {
+                        a.name: getattr(self, a.name)
+                        for a in self.__attrs_attrs__
+                        if a.name != "__weakref__"
+                    }
+                    state = (dict_state, slot_state)
+                else:
+                    state = dict_state
+
+            return (
+                _reconstruct_exception,
+                (self.__class__, self.args, state),
+            )
+
+        __reduce__.__attrs_exception_reduce__ = True
+        self._cls_dict["__reduce__"] = self._add_method_dunders(__reduce__)
+        return self
+
     def _make_getstate_setstate(self):
         """
         Create custom __setstate__ and __getstate__ methods.
@@ -1562,6 +1623,22 @@ def attrs(
             if cache_hash:
                 msg = "Invalid value for cache_hash.  To use hash caching, init must be True."
                 raise TypeError(msg)
+
+        if (
+            props.is_exception
+            and props.added_init
+            and any(a.init and a.kw_only for a in builder._attrs)
+            and not _has_own_attribute(cls, "__reduce__")
+            and (
+                getattr(cls, "__reduce__", None) is _BASE_EXCEPTION_REDUCE
+                or getattr(
+                    getattr(cls, "__reduce__", None),
+                    "__attrs_exception_reduce__",
+                    False,
+                )
+            )
+        ):
+            builder.add_exception_reduce()
 
         if PY_3_13_PLUS and not _has_own_attribute(cls, "__replace__"):
             builder.add_replace()
