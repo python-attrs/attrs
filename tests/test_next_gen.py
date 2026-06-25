@@ -448,6 +448,27 @@ class TestAsDict:
             inst, retain_collection_types=True
         )
 
+    @pytest.mark.parametrize("collection_type", [set, frozenset])
+    def test_set_of_instances(self, collection_type):
+        """
+        Sets and frozen sets of attrs instances fall back to lists after recursion.
+
+        Since `attrs.asdict` always retains collection types, it used to try
+        to put the unstructured dictionaries back into a set.
+        """
+
+        @attrs.frozen
+        class Foo:
+            x: int
+
+        @attrs.frozen
+        class Bar:
+            foos: set[Foo]
+
+        assert attrs.asdict(Bar(collection_type([Foo(3)]))) == {
+            "foos": [{"x": 3}]
+        }
+
 
 class TestProps:
     """
