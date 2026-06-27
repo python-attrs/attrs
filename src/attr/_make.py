@@ -570,6 +570,12 @@ def _frozen_setattrs(self, name, value):
         BaseException.__setattr__(self, name, value)
         return
 
+    # Allow Enum subclasses to set attributes during member creation.
+    # Enum needs to set _name_, _value_, etc. when creating members.
+    if isinstance(self, enum.Enum):
+        object.__setattr__(self, name, value)
+        return
+
     raise FrozenInstanceError
 
 
