@@ -9,6 +9,7 @@ import inspect
 import pickle
 
 from copy import deepcopy
+from enum import Enum
 
 import pytest
 
@@ -816,3 +817,68 @@ class TestReplace:
 
         with pytest.raises(TypeError):
             copy.replace(inst, z=42)
+
+
+class TestEnum:
+    """
+    Tests for Enum + attrs interaction (issue #1287).
+    """
+
+    def test_define_enum(self):
+        """
+        attrs.define works with Enum subclasses.
+
+        Enum members can be created and attrs fields are accessible.
+        """
+
+        @attr.define
+        class AttrsDefine:
+            x: int
+            y: float
+
+        class AttrsDefineEnum(AttrsDefine, Enum):
+            A = (1, 2.0)
+            B = (3, 4.0)
+
+        assert 1 == AttrsDefineEnum.A.x
+        assert 2.0 == AttrsDefineEnum.A.y
+        assert 3 == AttrsDefineEnum.B.x
+        assert 4.0 == AttrsDefineEnum.B.y
+
+    def test_frozen_enum(self):
+        """
+        attrs.frozen works with Enum subclasses.
+
+        Enum members can be created even with frozen base classes.
+        """
+
+        @attr.frozen
+        class AttrsFrozen:
+            x: int
+            y: float
+
+        class AttrsFrozenEnum(AttrsFrozen, Enum):
+            A = (1, 2.0)
+            B = (3, 4.0)
+
+        assert 1 == AttrsFrozenEnum.A.x
+        assert 2.0 == AttrsFrozenEnum.A.y
+        assert 3 == AttrsFrozenEnum.B.x
+        assert 4.0 == AttrsFrozenEnum.B.y
+
+    def test_frozen_enum_is_hashable(self):
+        """
+        attrs.frozen Enum subclasses are hashable.
+        """
+
+        @attr.frozen
+        class AttrsFrozen:
+            x: int
+
+        class FrozenEnum(AttrsFrozen, Enum):
+            A = (1,)
+            B = (2,)
+
+        # Should not raise TypeError
+        hash(FrozenEnum.A)
+        hash(FrozenEnum.B)
