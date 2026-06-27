@@ -364,3 +364,57 @@ class TestToBool:
         assert not to_bool("f")
         assert not to_bool("no")
         assert not to_bool("off")
+
+    @pytest.mark.parametrize("value", [b"true", b"t", b"yes", b"y", b"on", b"1"])
+    def test_truthy_bytes(self, value):
+        """
+        Bytes values that decode to a truthy keyword match the str truthy path.
+        """
+        assert to_bool(value) is True
+
+    @pytest.mark.parametrize(
+        "value", [b"false", b"f", b"no", b"n", b"off", b"0"]
+    )
+    def test_falsy_bytes(self, value):
+        """
+        Bytes values that decode to a falsy keyword match the str falsy path.
+        """
+        assert to_bool(value) is False
+
+    @pytest.mark.parametrize("value", [b"TRUE", b"Yes", b"OFF", b"1"])
+    def test_bytes_are_lowercased(self, value):
+        """
+        Bytes inputs follow the same case-insensitive lookup as str inputs.
+        """
+        assert to_bool(value) is bool(value.decode("ascii").lower() in
+                                     {"true", "t", "yes", "y", "on", "1"})
+
+    def test_bytearray_truthy(self):
+        """
+        bytearray is a bytes subclass and should be decoded the same way.
+        """
+        assert to_bool(bytearray(b"true")) is True
+        assert to_bool(bytearray(b"off")) is False
+
+    def test_bytes_non_ascii_raises(self):
+        """
+        Bytes that are not valid ASCII raise ValueError with the same shape as
+        other unconvertible values.
+        """
+        with pytest.raises(ValueError, match="Cannot convert value to bool"):
+            to_bool(b"\xfftrue")
+
+    def test_bytes_unknown_keyword_raises(self):
+        """
+        Bytes that decode to a value not in either keyword set still raise.
+        """
+        with pytest.raises(ValueError, match="Cannot convert value to bool"):
+            to_bool(b"maybe")
+
+    def test_bytes_empty_raises(self):
+        """
+        An empty bytes value is not a valid keyword, so it raises the same
+        error as an empty string would.
+        """
+        with pytest.raises(ValueError, match="Cannot convert value to bool"):
+            to_bool(b"")

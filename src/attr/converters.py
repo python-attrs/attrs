@@ -135,6 +135,7 @@ def to_bool(val):
     - ``"on"``
     - ``"1"``
     - ``1``
+    - bytes/bytearray whose ASCII-decoded value matches any of the strings above
 
     Values mapping to `False`:
 
@@ -144,12 +145,26 @@ def to_bool(val):
     - ``"off"``
     - ``"0"``
     - ``0``
+    - bytes/bytearray whose ASCII-decoded value matches any of the strings above
 
     Raises:
         ValueError: For any other value.
 
+    .. versionchanged:: 26.2
+        bytes/bytearray inputs are decoded as ASCII before lookup, so values
+        read from environment variables as bytes (e.g. on Windows or from
+        ``os.environb``) work without a separate ``.decode("ascii")`` step at
+        the call site.
+
     .. versionadded:: 21.3.0
     """
+    if isinstance(val, (bytes, bytearray)):
+        try:
+            val = val.decode("ascii")
+        except UnicodeDecodeError as e:
+            msg = f"Cannot convert value to bool: {val!r}"
+            raise ValueError(msg) from e
+
     if isinstance(val, str):
         val = val.lower()
 
