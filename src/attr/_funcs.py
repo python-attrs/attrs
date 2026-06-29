@@ -324,6 +324,8 @@ def astuple(
                             (
                                 astuple(
                                     kk,
+                                    recurse=True,
+                                    filter=filter,
                                     tuple_factory=tuple_factory,
                                     retain_collection_types=retain,
                                 )
@@ -333,6 +335,8 @@ def astuple(
                             (
                                 astuple(
                                     vv,
+                                    recurse=True,
+                                    filter=filter,
                                     tuple_factory=tuple_factory,
                                     retain_collection_types=retain,
                                 )

@@ -426,6 +426,36 @@ class TestAsTuple:
             C(1, container({"a": C(4, 5)})), retain_collection_types=True
         )
 
+    @pytest.mark.parametrize(
+        "container", MAPPING_TYPES, ids=lambda c: c.__name__
+    )
+    def test_dicts_filter_applies_to_values(self, container, C):
+        """
+        astuple's *filter* is applied to attrs instances nested as dict
+        values, not silently dropped.  Previously the dict-handling branch
+        recursed into nested attrs instances without forwarding *filter*
+        (or *recurse*), so a user-supplied filter had no effect on attrs
+        instances stored inside a dict value.
+        """
+
+        @attr.s
+        class Inner:
+            x = attr.ib()
+            a = attr.ib()
+            b = attr.ib()
+
+        def keep_b_inner_only(attribute, value):
+            # Outer C has x/y; only drop x from Inner, keep b.
+            return attribute.name != "a"
+
+        result = astuple(
+            C(1, container({"k": Inner(x="X", a="A", b="B")})),
+            filter=keep_b_inner_only,
+            retain_collection_types=True,
+        )
+        # outer C keeps x=1 and y=dict; inner drops 'a', keeps x='X' and b='B'.
+        assert (1, container({"k": ("X", "B")})) == result
+
     @given(simple_classes(), st.sampled_from(SEQUENCE_TYPES))
     def test_roundtrip(self, cls, tuple_class):
         """
