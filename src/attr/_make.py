@@ -299,7 +299,12 @@ def _is_class_var(annot):
     annotations which would put attrs-based classes at a performance
     disadvantage compared to plain old classes.
     """
-    annot = str(annot)
+    # Python 3.14+ wraps deferred annotations in ForwardRef.
+    # Extract the inner string to get the actual annotation text.
+    if hasattr(annot, "__forward_arg__"):
+        annot = annot.__forward_arg__
+    else:
+        annot = str(annot)
 
     # Annotation can be quoted.
     if annot.startswith(("'", '"')) and annot.endswith(("'", '"')):
