@@ -365,7 +365,9 @@ class TestToBool:
         assert not to_bool("no")
         assert not to_bool("off")
 
-    @pytest.mark.parametrize("value", [b"true", b"t", b"yes", b"y", b"on", b"1"])
+    @pytest.mark.parametrize(
+        "value", [b"true", b"t", b"yes", b"y", b"on", b"1"]
+    )
     def test_truthy_bytes(self, value):
         """
         Bytes values that decode to a truthy keyword match the str truthy path.
@@ -386,8 +388,10 @@ class TestToBool:
         """
         Bytes inputs follow the same case-insensitive lookup as str inputs.
         """
-        assert to_bool(value) is bool(value.decode("ascii").lower() in
-                                     {"true", "t", "yes", "y", "on", "1"})
+        assert to_bool(value) is bool(
+            value.decode("ascii").lower()
+            in {"true", "t", "yes", "y", "on", "1"}
+        )
 
     def test_bytearray_truthy(self):
         """

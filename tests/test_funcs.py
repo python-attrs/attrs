@@ -426,7 +426,9 @@ class TestAsTuple:
             C(1, container({"a": C(4, 5)})), retain_collection_types=True
         )
 
-    @pytest.mark.parametrize("container", MAPPING_TYPES, ids=lambda c: c.__name__)
+    @pytest.mark.parametrize(
+        "container", MAPPING_TYPES, ids=lambda c: c.__name__
+    )
     def test_dicts_filter_applies_to_values(self, container, C):
         """
         astuple's *filter* is applied to attrs instances nested as dict
