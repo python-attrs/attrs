@@ -316,14 +316,10 @@ class TestSetAttr:
         with pytest.raises(SystemError):
             A().x = 1
 
-    @pytest.mark.xfail(raises=attr.exceptions.FrozenAttributeError)
     def test_slotted_confused(self):
         """
         If we have a in-between non-attrs class, setattr reset detection
-        should still work, but currently doesn't.
-
-        It works with dict classes because we can look the finished class and
-        patch it.  With slotted classes we have to deduce it ourselves.
+        should still work.
         """
 
         @attr.s(slots=True)
@@ -338,6 +334,45 @@ class TestSetAttr:
             x = attr.ib()
 
         C(1).x = 2
+
+    def test_setattr_inherited_do_not_reset_intermediate_non_attrs(
+        self, slots
+    ):
+        """
+        A user-provided intermediate __setattr__ on a non-attrs class is not reset
+        to object.__setattr__.
+        """
+
+        @attr.s(slots=slots)
+        class A:
+            x: int = attr.ib(on_setattr=setters.frozen)
+
+        class BCustom(A):
+            x: int
+
+            def __setattr__(self, name, value):
+                object.__setattr__(self, name, value * 2)
+
+        class BPlain(A):
+            x: int
+
+        @attr.s(slots=slots)
+        class CFromCustom(BCustom):
+            x: int = attr.ib()
+
+        @attr.s(slots=slots)
+        class CFromPlain(BPlain):
+            x: int = attr.ib()
+
+        # CFromPlain should reset to object.__setattr__ and mutate normally
+        c_plain = CFromPlain(1)
+        c_plain.x = 2
+        assert c_plain.x == 2
+
+        # CFromCustom should respect and call BCustom.__setattr__
+        c_custom = CFromCustom(1)
+        c_custom.x = 2
+        assert c_custom.x == 4
 
     def test_setattr_auto_detect_if_no_custom_setattr(self, slots):
         """
