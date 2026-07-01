@@ -23,8 +23,8 @@ It's people like *you* who make this project such a great tool for everyone.
 - **Only contribute code that you fully understand.**
   See also our [AI policy][llm].
 
-- Very relatedly, our pull request check list is our mandatory [Van Halen test](https://en.wikipedia.org/wiki/Van_Halen_test).
-  Sadly, the current state of the world has forced us into being stricter about policies -- sorry fellow humans!
+- Very relatedly, our pull request checklist is our mandatory [Van Halen test](https://en.wikipedia.org/wiki/Van_Halen_test).
+  Sadly, the current state of the world has forced us into being stricter about policies – sorry fellow humans!
 
 - No contribution is too small!
   Please submit as many fixes for typos and grammar bloopers as you can!
@@ -143,7 +143,7 @@ $ tox run -e docs-doctests
 - We follow [PEP 8](https://peps.python.org/pep-0008/) as enforced by [Ruff](https://ruff.rs/) with a line length of 79 characters.
 
 - As long as you run our full *tox* suite before committing, or install our [*pre-commit*](https://pre-commit.com/) hooks, you won't have to spend any time on formatting your code at all.
-  If you don't, CI will catch it for you -- but that seems like a waste of your time!
+  If you don't, CI will catch it for you – but that seems like a waste of your time!
 
 - If you've changed or added public APIs, please update our type stubs (files ending in `.pyi`).
 
@@ -159,7 +159,7 @@ $ tox run -e docs-doctests
   assert "foo" == x._a_private_attribute
   ```
 
-- You can run the test suite with all dependencies against all supported Python versions -- just as it will in our CI -- by running `tox`.
+- You can run the test suite with all dependencies against all supported Python versions - just as it will in our CI - by running `tox`.
 
 - Write [good test docstrings](https://jml.io/test-docstrings/).
 
@@ -228,7 +228,7 @@ $ tox run -e docs-doctests
 If your change is interesting to end-users, there needs to be a changelog entry so they can learn about it!
 
 To avoid merge conflicts, we use the [Towncrier](https://pypi.org/project/towncrier) package to manage our changelog.
-*towncrier* uses independent Markdown files for each pull request -- so called *news fragments* -- instead of one monolithic changelog file.
+*towncrier* uses independent Markdown files for each pull request - so called *news fragments* - instead of one monolithic changelog file.
 On release, those news fragments are compiled into our [`CHANGELOG.md`](../CHANGELOG.md).
 
 You don't need to install Towncrier yourself, you just have to abide by a few simple rules:
@@ -239,7 +239,7 @@ You don't need to install Towncrier yourself, you just have to abide by a few si
 - As with other docs, please use [semantic newlines] within news fragments.
 
 - Refer to all symbols by their fully-qualified names.
-  For example, `attrs.Foo` -- not just `Foo`.
+  For example, `attrs.Foo` – not just `Foo`.
 
 - Wrap symbols like modules, functions, or classes into backticks, so they are rendered in a `monospace font`.
 
