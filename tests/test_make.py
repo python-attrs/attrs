@@ -2448,6 +2448,43 @@ class TestInitAlias:
             dunder__=5,
         ) == EvolveCase(1, 4, 5)
 
+    @pytest.mark.parametrize("alias", ["x=1", "class", "not valid", 1])
+    def test_invalid_alias(self, alias):
+        """
+        Invalid aliases are rejected before they can be used in generated
+        __init__ source code.
+        """
+
+        with pytest.raises(TypeError, match="Invalid initialization alias"):
+
+            @attrs.define
+            class C:
+                x: int = attrs.field(alias=alias)
+
+    def test_invalid_alias_not_executed(self, monkeypatch):
+        """
+        Aliases are parameter names, not Python source code.
+        """
+
+        marker = "_attrs_alias_executed"
+        monkeypatch.delattr("builtins." + marker, raising=False)
+
+        with pytest.raises(TypeError, match="Invalid initialization alias"):
+            attr.make_class(
+                "C",
+                {
+                    "x": attr.ib(
+                        alias=(
+                            "x=__import__('builtins').setattr("
+                            "__import__('builtins'), "
+                            f"{marker!r}, True)"
+                        )
+                    )
+                },
+            )
+
+        assert getattr(__import__("builtins"), marker, False) is False
+
     def test_alias_is_default(self):
         """
         alias_is_default is True for auto-generated aliases and False for
