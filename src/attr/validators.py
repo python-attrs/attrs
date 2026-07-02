@@ -10,6 +10,7 @@ import re
 from contextlib import contextmanager
 from re import Pattern
 
+from ._compat import Mapping
 from ._config import get_run_validators, set_run_validators
 from ._make import _AndValidator, and_, attrib, attrs
 from .converters import default_if_none
@@ -396,6 +397,15 @@ class _DeepMapping:
         """
         if self.mapping_validator is not None:
             self.mapping_validator(inst, attr, value)
+
+        if not isinstance(value, Mapping):
+            msg = f"'{attr.name}' must be a mapping (got {value!r} that is a {value.__class__!r})."
+            raise TypeError(
+                msg,
+                attr,
+                Mapping,
+                value,
+            )
 
         for key in value:
             if self.key_validator is not None:
