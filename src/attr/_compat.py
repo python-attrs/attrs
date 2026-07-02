@@ -5,7 +5,7 @@ import platform
 import sys
 import threading
 
-from collections.abc import Mapping, Sequence  # noqa: F401
+from collections.abc import Mapping, Sequence, Sized  # noqa: F401
 from typing import _GenericAlias
 
 
