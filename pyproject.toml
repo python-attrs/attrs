@@ -21,6 +21,7 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3.15",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
   "Typing :: Typed",
@@ -69,6 +70,11 @@ docs = [
 ]
 docs-watch = [{ include-group = "docs" }, "watchfiles"]
 dev = [{ include-group = "tests" }, "ruff"]
+
+
+[tool.uv]
+# Dependency cooldown
+exclude-newer = "1 week"
 
 
 [tool.hatch.version]
