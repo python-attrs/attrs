@@ -296,4 +296,4 @@ Please report any harm to Hynek Schlawack in any way you find appropriate.
 
 [semantic newlines]: https://rhodesmill.org/brandon/2012/one-sentence-per-line/
 [install *uv*]: https://docs.astral.sh/uv/getting-started/installation/
-[llm]: AI_POLICY.md
+[llm]: https://github.com/python-attrs/attrs/blob/main/.github/AI_POLICY.md
