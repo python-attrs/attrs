@@ -98,7 +98,7 @@ class Validated:
 class ValidatedOptionalOverTuple:
     num: int | None = attrs.field(
         validator=attrs.validators.optional(
-            (attrs.validators.instance_of(int), attrs.validators.ge(0))  # ty:ignore [invalid-argument-type]
+            (attrs.validators.instance_of(int), attrs.validators.ge(0))
         )
     )
 

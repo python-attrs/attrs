@@ -76,6 +76,10 @@ dev = [{ include-group = "tests" }, "ruff"]
 # Dependency cooldown
 exclude-newer = "1 week"
 
+[tool.uv.exclude-newer-package]
+# Need latest ABI wheels for 3.15. Remove 2026-07-18.
+hypothesis = false
+
 
 [tool.hatch.version]
 source = "vcs"
