@@ -15,6 +15,10 @@ def pipe(*setters):
     Run all *setters* and return the return value of the last one.
 
     .. versionadded:: 20.1.0
+    .. versionchanged:: 25.5.0
+       Generator functions are no longer allowed in ``pipe()``.
+       Use a generator directly as an ``on_setattr`` hook for post-assignment
+       side effects.
     """
     for s in setters:
         if inspect.isgeneratorfunction(s):

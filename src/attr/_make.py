@@ -160,6 +160,9 @@ def attrib(
     .. versionchanged:: 25.4.0
        *kw_only* can now be None, and its default is also changed from False to
        None.
+    .. versionchanged:: 25.5.0
+       *on_setattr* hooks can now be generator functions for pre/post-yield
+       side effects.
     """
     eq, eq_key, order, order_key = _determine_attrib_eq_order(
         cmp, eq, order, True
@@ -1433,6 +1436,9 @@ def attrs(
        *kw_only* now only applies to attributes defined in the current class,
        and respects attribute-level ``kw_only=False`` settings.
     .. versionadded:: 25.4.0 *force_kw_only*
+    .. versionchanged:: 25.5.0
+       *on_setattr* hooks can now be generator functions for pre/post-yield
+       side effects.
     """
     if repr_ns is not None:
         import warnings
