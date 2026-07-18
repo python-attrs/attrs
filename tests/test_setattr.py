@@ -48,6 +48,51 @@ class TestSetAttr:
         assert "yyy" == h.y
         assert "hooked!" == h.x
 
+    def test_change_with_generator_hook(self):
+        """
+        The value yielded by a generator hook overwrites the value.
+        """
+
+        def hook(instance, attrib, value):
+            yield "yielded!"
+
+        @attr.s
+        class Hooked:
+            x = attr.ib(on_setattr=hook)
+
+        h = Hooked("x")
+
+        assert "x" == h.x
+
+        h.x = "xxx"
+
+        assert "yielded!" == h.x
+
+    def test_generator_hook_executes_after_yielding(self):
+        """
+        Generator post-yield code runs after the value is set on the instance.
+        """
+        calls = []
+
+        def hook(instance, attrib, value):
+            calls.append(("pre", instance.x))
+            yield value
+            calls.append(("post", instance.x))
+
+        @attr.s
+        class Hooked:
+            x = attr.ib(on_setattr=hook)
+
+        h = Hooked("x")
+
+        assert "x" == h.x
+        assert [] == calls
+
+        h.x = "xxx"
+
+        assert [("pre", "x"), ("post", "xxx")] == calls
+        assert "xxx" == h.x
+
     def test_frozen_attribute(self):
         """
         Frozen attributes raise FrozenAttributeError, others are not affected.
@@ -145,6 +190,164 @@ class TestSetAttr:
 
         assert 42 == p.x1
         assert 23 == p.x2
+
+    def test_pipe_rejects_generator(self):
+        """
+        Generator functions cannot be used inside pipe().
+        """
+
+        def gen(_, __, val):
+            yield val
+
+        with pytest.raises(
+            TypeError, match="Generator functions are not allowed"
+        ):
+            setters.pipe(setters.convert, gen)
+
+    def test_list_on_setattr_rejects_generator(self):
+        """
+        Passing a generator function in a list to on_setattr raises TypeError.
+        """
+
+        def gen(_, __, val):
+            yield val
+
+        with pytest.raises(
+            TypeError, match="Generator functions are not allowed"
+        ):
+
+            @attr.s
+            class C:
+                x = attr.ib(on_setattr=[setters.convert, gen])
+
+    def test_generator_hook_not_called_in_init(self):
+        """
+        Generator hooks are not invoked during __init__, same as regular hooks.
+        """
+
+        def hook(instance, attrib, value):
+            yield "hooked"
+
+        @attr.s
+        class Hooked:
+            x = attr.ib(on_setattr=hook)
+
+        h = Hooked("x")
+
+        assert "x" == h.x
+
+        h.x = "xxx"
+
+        assert "hooked" == h.x
+
+    def test_generator_hook_with_define(self):
+        """
+        Generator hooks work with attrs.define.
+        """
+
+        def hook(instance, attrib, value):
+            yield value.upper()
+
+        @attr.define
+        class C:
+            x: str = attr.field(on_setattr=hook)
+
+        c = C("hello")
+
+        assert "hello" == c.x
+
+        c.x = "world"
+
+        assert "WORLD" == c.x
+
+    def test_generator_hook_class_level(self):
+        """
+        Generator hooks work as class-level on_setattr.
+        """
+
+        call_count = 0
+
+        def hook(instance, attrib, value):
+            nonlocal call_count
+            call_count += 1
+            yield value
+
+        @attr.s(on_setattr=hook)
+        class C:
+            x = attr.ib()
+            y = attr.ib()
+
+        c = C(1, 2)
+
+        assert 1 == c.x
+        assert 2 == c.y
+
+        c.x = 10
+        assert 1 == call_count
+
+        c.y = 20
+        assert 2 == call_count
+
+    def test_generator_pre_yield_exception(self):
+        """
+        If a generator raises before yielding, the value is not set.
+        """
+
+        def hook(instance, attrib, value):
+            raise ValueError("bad value")
+            yield
+
+        @attr.s
+        class C:
+            x = attr.ib(on_setattr=hook)
+
+        c = C("original")
+
+        with pytest.raises(ValueError, match="bad value"):
+            c.x = "new"
+
+        assert "original" == c.x
+
+    def test_generator_post_yield_exception(self):
+        """
+        If a generator raises after yielding, the value is already set and
+        the exception propagates.
+        """
+
+        def hook(instance, attrib, value):
+            yield value
+            raise RuntimeError("post-yield failure")
+
+        @attr.s
+        class C:
+            x = attr.ib(on_setattr=hook)
+
+        c = C("original")
+
+        with pytest.raises(RuntimeError, match="post-yield failure"):
+            c.x = "new"
+
+        assert "new" == c.x
+
+    def test_generator_yields_multiple_times(self):
+        """
+        Only the first yield is used as the new value.
+        """
+
+        def hook(instance, attrib, value):
+            yield "first"
+            yield "second"
+            yield "third"
+
+        @attr.s
+        class C:
+            x = attr.ib(on_setattr=hook)
+
+        c = C("old")
+
+        c.x = "new"
+
+        assert "first" == c.x
 
     def test_make_class(self):
         """

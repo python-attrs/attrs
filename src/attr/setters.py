@@ -4,6 +4,8 @@
 Commonly used hooks for on_setattr.
 """
 
+import inspect
+
 from . import _config
 from .exceptions import FrozenAttributeError
 
@@ -14,6 +16,14 @@ def pipe(*setters):
 
     .. versionadded:: 20.1.0
     """
+    for s in setters:
+        if inspect.isgeneratorfunction(s):
+            msg = (
+                "Generator functions are not allowed in pipe(). "
+                "Use a regular function for value transformation or a generator directly "
+                "as an on_setattr hook for post-assignment side effects."
+            )
+            raise TypeError(msg)
 
     def wrapped_pipe(instance, attrib, new_value):
         rv = new_value

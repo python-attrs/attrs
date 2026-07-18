@@ -1183,11 +1183,17 @@ class _ClassBuilder:
             try:
                 a, hook = sa_attrs[name]
             except KeyError:
-                nval = val
+                _OBJ_SETATTR(self, name, val)
             else:
-                nval = hook(self, a, val)
-
-            _OBJ_SETATTR(self, name, nval)
+                if inspect.isgeneratorfunction(hook):
+                    gen = hook(self, a, val)
+                    nval = next(gen)
+                    _OBJ_SETATTR(self, name, nval)
+                    with contextlib.suppress(StopIteration):
+                        next(gen)
+                else:
+                    nval = hook(self, a, val)
+                    _OBJ_SETATTR(self, name, nval)
 
         self._cls_dict["__attrs_own_setattr__"] = True
         self._cls_dict["__setattr__"] = self._add_method_dunders(__setattr__)
