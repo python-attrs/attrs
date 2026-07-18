@@ -1,15 +1,17 @@
 # Why not…
 
-If you'd like third party's account why *attrs* is great, have a look at Glyph's [*The One Python Library Everyone Needs*](https://glyph.twistedmatrix.com/2016/08/attrs.html).
+If you'd like a third party's account of why *attrs* is great, have a look at Glyph's [*The One Python Library Everyone Needs*](https://glyph.twistedmatrix.com/2016/08/attrs.html).
 It predates type annotations and hence Data Classes, but it masterfully illustrates the appeal of class-building packages.
 
 
 ## … Data Classes?
 
-{pep}`557` added Data Classes to [Python 3.7](https://docs.python.org/3.7/whatsnew/3.7.html#dataclasses) that resemble *attrs* in many ways.
+{pep}`557` added Data Classes to [Python 3.7](https://docs.python.org/3.7/whatsnew/3.7.html#dataclasses).
+They resemble *attrs* in many ways.
 
-They are the result of the Python community's [wish](https://mail.python.org/pipermail/python-ideas/2017-May/045618.html) to have an easier way to write classes in the standard library that doesn't carry the problems of `namedtuple`s.
-To that end, *attrs* and its developers were involved in the PEP process and while we may disagree with some minor decisions that have been made, it's a fine library and if it stops you from abusing `namedtuple`s, they are a huge win.
+They are the result of the Python community's [wish](https://mail.python.org/pipermail/python-ideas/2017-May/045618.html) to have an easier way to write classes in the standard library without the problems of `namedtuple`s.
+To that end, *attrs* and its developers were involved in the PEP process, and while we may disagree with some minor decisions that have been made, it's a fine library.
+If it stops you from abusing `namedtuple`s, it is a huge win.
 
 Nevertheless, there are still reasons to prefer *attrs* over Data Classes.
 Whether they're relevant to *you* depends on your circumstances:
@@ -17,7 +19,7 @@ Whether they're relevant to *you* depends on your circumstances:
 - Data Classes are *intentionally* less powerful than *attrs*.
   There is a long list of features that were sacrificed for the sake of simplicity and while the most obvious ones are validators, converters, [equality customization](custom-comparison), a solution to the [`__init_subclass__` problem](init-subclass), or {doc}`extensibility <extending>` in general -- it permeates throughout all APIs.
 
-  On the other hand, Data Classes currently do not offer any significant feature that *attrs* doesn't already have.
+  On the other hand, Data Classes do not currently offer any significant features that *attrs* doesn't already have.
 
 - We are more likely to commit crimes against nature to make things work that one would expect to work, but that are quite complicated.
 
@@ -25,20 +27,20 @@ Whether they're relevant to *you* depends on your circumstances:
 
   Our obsession with developer experience and quality-of-life features is what *attrs* users report missing most when forced to use Data Classes.
 
-- *attrs* supports all mainstream Python versions including PyPy.
+- *attrs* supports all mainstream Python versions, including PyPy.
 
 - *attrs* doesn't force type annotations on you if you don't like them.
 
 - But since it **also** supports typing, it's the best way to embrace type hints *gradually*, too.
 
-- While Data Classes are implementing features from *attrs* every now and then, their presence is dependent on the Python version, not the package version.
-  For example, support for `__slots__` has only been added in Python 3.10, but it doesn’t do cell rewriting and therefore doesn’t support bare calls to `super()`.
+- While Data Classes implement features from *attrs* every now and then, their presence is dependent on the Python version, not the package version.
+  For example, support for `__slots__` was only added in Python 3.10, but it doesn’t do cell rewriting, and therefore doesn’t support bare calls to `super()`.
 
   This may or may not be fixed in later Python releases, but handling all these differences is especially painful for PyPI packages that support multiple Python versions.
   And of course, this includes possible implementation bugs.
 
 - *attrs* can and will move faster.
-  We are not bound to any release schedules and we have a clear deprecation policy.
+  We are not bound to any release schedules, and we have a clear deprecation policy.
 
   One of the [reasons](https://peps.python.org/pep-0557/#why-not-just-use-attrs) to not vendor *attrs* in the standard library was to not impede *attrs*'s future development.
 
@@ -48,7 +50,7 @@ Basically what *attrs* was in 2015.
 
 ## … Pydantic?
 
-Pydantic is first and foremost a *data validation & type coercion library*.
+Pydantic is, first and foremost, a *data validation & type coercion library*.
 As such, it is a capable complement to class building libraries like *attrs* (or Data Classes!) for parsing and validating untrusted data.
 
 However, as convenient as it might be, using it for your business or domain layer [is problematic in several ways](https://threeofwands.com/why-i-use-attrs-instead-of-pydantic/):
@@ -84,7 +86,7 @@ True
 False
 ```
 
-…while a `namedtuple` is *intentionally* [behaving like a tuple](https://docs.python.org/3/tutorial/datastructures.html#tuples-and-sequences) which means the type of a tuple is *ignored*:
+…while a `namedtuple` *intentionally* [behaves like a tuple](https://docs.python.org/3/tutorial/datastructures.html#tuples-and-sequences), which means the type of a tuple is *ignored*:
 
 ```{doctest}
 >>> from collections import namedtuple
@@ -116,10 +118,10 @@ Other often surprising behaviors include:
       # ...
   ```
 
-  you end up with a class that has *two* `Point`s in its {attr}`__mro__ <type.__mro__>`: `[<class 'point.Point'>, <class 'point.Point'>, <type 'tuple'>, <type 'object'>]`.
+  …you end up with a class that has *two* `Point`s in its {attr}`__mro__ <type.__mro__>`: `[<class 'point.Point'>, <class 'point.Point'>, <type 'tuple'>, <type 'object'>]`.
 
   That's not only confusing, it also has very practical consequences:
-  for example if you create documentation that includes class hierarchies like [*Sphinx*'s autodoc](https://www.sphinx-doc.org/en/stable/usage/extensions/autodoc.html) with `show-inheritance`.
+  for example, if you create documentation that includes class hierarchies like [*Sphinx*'s autodoc](https://www.sphinx-doc.org/en/stable/usage/extensions/autodoc.html) with `show-inheritance`.
   Again: common problem, hacky solution with confusing fallout.
 
 All these things make `namedtuple`s a particularly poor choice for public APIs because all your objects are irrevocably tainted.
@@ -146,7 +148,7 @@ Other than that, *attrs* also adds nifty features like validators, converters, a
 [^immutable]: *attrs* offers *optional* immutability through the `frozen` keyword.
 
 [^perf]: Although *attrs* would serve you just as well!
-    Since both employ the same method of writing and compiling Python code for you, the performance penalty is negligible at worst and in some cases *attrs* is even faster if you use `slots=True` (which is generally a good idea anyway).
+    Since both employ the same method of writing and compiling Python code for you, the performance penalty is negligible at worst, and in some cases *attrs* is even faster if you use `slots=True` (which is generally a good idea anyway).
 
 
 ## … tuples?
@@ -190,7 +192,7 @@ Using proper classes with names and types makes program code much more readable 
 Especially when trying to grok a new piece of software or returning to old code after several months.
 
 
-### Extendability
+### Extensibility
 
 Imagine you have a function that takes or returns a tuple.
 Especially if you use tuple unpacking (eg. `x, y = get_point()`), adding additional data means that you have to change the invocation of that function *everywhere*.
