@@ -192,7 +192,7 @@ Using proper classes with names and types makes program code much more readable 
 Especially when trying to grok a new piece of software or returning to old code after several months.
 
 
-### Extendability
+### Extensibility
 
 Imagine you have a function that takes or returns a tuple.
 Especially if you use tuple unpacking (eg. `x, y = get_point()`), adding additional data means that you have to change the invocation of that function *everywhere*.
