@@ -299,6 +299,7 @@ def _is_class_var(annot):
     annotations which would put attrs-based classes at a performance
     disadvantage compared to plain old classes.
     """
+    annot = getattr(annot, "__forward_arg__", annot)
     annot = str(annot)
 
     # Annotation can be quoted.
