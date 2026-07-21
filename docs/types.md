@@ -134,7 +134,9 @@ Currently it only supports {pep}`681`, but [they intend](https://github.com/astr
 
 ### Pyrefly
 
-[Pyrefly] is Meta's take on a Rust-based type checker for Python. As of its 1.2 release, it offers significantly more advanced attrs support beyond basic {pep}`681`, making it a strong option for attrs users seeking deeper type-checking coverage. See their [attrs documentation](https://pyrefly.org/en/docs/attrs/) for details.
+[Pyrefly] is Meta's take on a Rust-based type checker for Python.
+As of its 1.2 release, it offers significantly more advanced *attrs* support beyond {pep}`681`, making it a strong option for *attrs* users seeking deeper type-checking coverage.
+See their [attrs documentation](https://pyrefly.org/en/docs/attrs/) for details.
 
 
 [Mypy]: http://mypy-lang.org
