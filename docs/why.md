@@ -9,15 +9,15 @@ It predates type annotations and hence Data Classes, but it masterfully illustra
 {pep}`557` added Data Classes to [Python 3.7](https://docs.python.org/3.7/whatsnew/3.7.html#dataclasses).
 They resemble *attrs* in many ways.
 
-They are the result of the Python community's [wish](https://mail.python.org/pipermail/python-ideas/2017-May/045618.html) to have an easier way to write classes in the standard library without the problems of `namedtuple`s.
+They are the result of the Python community's [wish](https://mail.python.org/pipermail/python-ideas/2017-May/045618.html) to have an easier way to write classes in the standard library without the [problems of `namedtuple`s](namedtuples).
 To that end, *attrs* and its developers were involved in the PEP process, and while we may disagree with some minor decisions that have been made, it's a fine library.
-If it stops you from abusing `namedtuple`s, it is a huge win.
+If it stops you from abusing `namedtuple`s, it's a huge win.
 
 Nevertheless, there are still reasons to prefer *attrs* over Data Classes.
 Whether they're relevant to *you* depends on your circumstances:
 
 - Data Classes are *intentionally* less powerful than *attrs*.
-  There is a long list of features that were sacrificed for the sake of simplicity and while the most obvious ones are validators, converters, [equality customization](custom-comparison), a solution to the [`__init_subclass__` problem](init-subclass), or {doc}`extensibility <extending>` in general -- it permeates throughout all APIs.
+  There is a long list of features that were sacrificed for the sake of simplicity and while the most obvious ones are validators, converters, [equality customization](custom-comparison), a solution to the [`__init_subclass__` problem](init-subclass), or {doc}`extensibility <extending>` in general – it permeates throughout all APIs.
 
   On the other hand, Data Classes do not currently offer any significant features that *attrs* doesn't already have.
 
@@ -25,18 +25,15 @@ Whether they're relevant to *you* depends on your circumstances:
 
   This includes stepping through generated methods using a debugger, cell rewriting to make bare `super()` calls work, or making {func}`functools.cached_property` work on slotted classes.
 
-  Our obsession with developer experience and quality-of-life features is what *attrs* users report missing most when forced to use Data Classes.
-
-- *attrs* supports all mainstream Python versions, including PyPy.
+  Our obsession with **developer experience** and quality-of-life features is what *attrs* users report missing most when forced to use Data Classes.
 
 - *attrs* doesn't force type annotations on you if you don't like them.
 
 - But since it **also** supports typing, it's the best way to embrace type hints *gradually*, too.
 
 - While Data Classes implement features from *attrs* every now and then, their presence is dependent on the Python version, not the package version.
-  For example, support for `__slots__` was only added in Python 3.10, but it doesn’t do cell rewriting, and therefore doesn’t support bare calls to `super()`.
 
-  This may or may not be fixed in later Python releases, but handling all these differences is especially painful for PyPI packages that support multiple Python versions.
+  Handling all these differences is especially painful for PyPI packages that support multiple Python versions.
   And of course, this includes possible implementation bugs.
 
 - *attrs* can and will move faster.
@@ -44,8 +41,11 @@ Whether they're relevant to *you* depends on your circumstances:
 
   One of the [reasons](https://peps.python.org/pep-0557/#why-not-just-use-attrs) to not vendor *attrs* in the standard library was to not impede *attrs*'s future development.
 
-One way to think about *attrs* vs Data Classes is that *attrs* is a fully-fledged toolkit to write powerful classes while Data Classes are an easy way to get a class with some attributes.
-Basically what *attrs* was in 2015.
+One way to think about *attrs* vs Data Classes is that *attrs* is a **fully-fledged toolkit to write powerful classes** while Data Classes are an easy way to get a class with some attributes – basically what *attrs* was in 2015.
+
+But many missing features make Data Classes **not fit for public APIs** beyond pure data containers.
+For example, unless you build Rube-Goldberg machines around `InitVar`s and custom `__post_init__` methods, you either can't have private field names, or you have to tolerate a public `__init__` method with underscore-prefixed argument names.
+With *attrs*, you get automatic private field name → public argument name mapping for free – because that's how an idiomatic Python class behaves.
 
 
 ## … Pydantic?
@@ -66,6 +66,7 @@ If you'd like a powerful library for structuring, unstructuring, and validating 
 One of its core tenets is that it doesn't couple your classes to external factors.
 
 
+(namedtuples)=
 ## … namedtuples?
 
 {obj}`collections.namedtuple`s are tuples with names, not classes.[^history]
