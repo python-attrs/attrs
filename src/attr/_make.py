@@ -315,6 +315,22 @@ def _has_own_attribute(cls, attrib_name):
     return attrib_name in cls.__dict__
 
 
+def _reconstruct_exception(cls, args, state=None):
+    """
+    Create *cls* with ``BaseException.__new__`` so its ``args`` are set
+    without calling the attrs-generated ``__init__`` (whose signature may not
+    accept ``args`` positionally, for example with ``kw_only`` fields).
+
+    If *state* is passed, it is applied to ``__dict__`` directly, which
+    both matches classic exception pickling semantics and works for frozen
+    classes.
+    """
+    self = cls.__new__(cls, *args)
+    if state:
+        self.__dict__.update(state)
+    return self
+
+
 def _collect_base_attrs(
     cls, taken_attr_names
 ) -> tuple[list[Attribute], dict[str, type]]:
@@ -1018,6 +1034,40 @@ class _ClassBuilder:
         self._cls_dict["__str__"] = self._add_method_dunders(__str__)
         return self
 
+    def add_reduce(self):
+        if self._slots:
+            state_attr_names = tuple(
+                an for an in self._attr_names if an != "__weakref__"
+            )
+
+            def __reduce__(self):
+                state = {}
+                for name in state_attr_names:
+                    # Attributes with init=False and no default may be unset.
+                    try:
+                        state[name] = getattr(self, name)
+                    except AttributeError:
+                        pass
+                return (
+                    _reconstruct_exception,
+                    (self.__class__, self.args),
+                    state,
+                )
+
+        else:
+
+            def __reduce__(self):
+                # State is applied by _reconstruct_exception instead of the
+                # usual third element: default state application can go
+                # through setattr, which frozen classes reject.
+                return (
+                    _reconstruct_exception,
+                    (self.__class__, self.args, self.__dict__.copy()),
+                )
+
+        self._cls_dict["__reduce__"] = self._add_method_dunders(__reduce__)
+        return self
+
     def _make_getstate_setstate(self):
         """
         Create custom __setstate__ and __getstate__ methods.
@@ -1555,6 +1605,14 @@ def attrs(
             builder.add_eq()
         if props.added_ordering:
             builder.add_order()
+
+        if is_exc and not _has_own_attribute(cls, "__reduce__"):
+            # BaseException.__reduce__ re-creates an exception by calling
+            # cls(*self.args), which fails when __init__'s signature cannot
+            # accept the args positionally (e.g. kw_only fields) and loses
+            # any state __init__ doesn't reproduce. Restore from state
+            # instead.
+            builder.add_reduce()
 
         if not frozen:
             builder.add_setattr()
