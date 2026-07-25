@@ -53,7 +53,7 @@ tests = [
 cov = [{ include-group = "tests" }, "coverage[toml]"]
 pyright = ["pyright", { include-group = "tests" }]
 ty = ["ty", { include-group = "tests" }]
-pyrefly = ["pyrefly>=1.2.0-dev.2", { include-group = "tests" }]
+pyrefly = ["pyrefly>=1.2.0-dev.3", { include-group = "tests" }]
 benchmark = [
   { include-group = "tests" },
   "pytest-codspeed",

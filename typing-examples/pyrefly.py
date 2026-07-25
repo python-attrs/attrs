@@ -120,7 +120,6 @@ class ConvCPipe:
 
 ConvCPipe(3.4)
 ConvCPipe("09")
-ConvCPipe({})  # XXX pipe makes field Any
 
 
 @attrs.define
@@ -130,7 +129,6 @@ class ConvCDefaultIfNone:
 
 ConvCDefaultIfNone(1)
 ConvCDefaultIfNone(None)
-ConvCDefaultIfNone({})  # XXX: default_if_none makes field any
 
 
 @attrs.define
@@ -152,12 +150,11 @@ class DecoratorConverter:
     x: int = attrs.field()
 
     @x.converter
-    def _to_int(self, val: str | float) -> int:
+    def _to_int(self, field: attrs.Attribute, val: str | float) -> int:
         return int(val)
 
 
-# XXX: fails
-# DecoratorConverter("foo")
+DecoratorConverter("foo")
 
 
 # Validators
