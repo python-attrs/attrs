@@ -114,7 +114,7 @@ def define(
             If left None, the default behavior is to run converters and
             validators whenever an attribute is set.
 
-            .. versionchanged:: 25.5.0
+            .. versionchanged:: 26.2.0
                Generators can be used as hooks.
                Pre-yield code transforms the value, ``yield`` provides the
                value to assign, and post-yield code executes after the
@@ -336,7 +336,7 @@ def define(
        and respects attribute-level ``kw_only=False`` settings.
     .. versionadded:: 25.4.0
        Added *force_kw_only* to go back to the previous *kw_only* behavior.
-    .. versionchanged:: 25.5.0
+    .. versionchanged:: 26.2.0
        *on_setattr* hooks can now be generator functions for pre/post-yield
        side effects.
 
@@ -583,7 +583,7 @@ def field(
             `attrs.setters.NO_OP` to run **no** `setattr` hooks for this
             attribute -- regardless of the setting in `define()`.
 
-            .. versionchanged:: 25.5.0
+            .. versionchanged:: 26.2.0
                Generators can be used as hooks for pre/post-yield side effects.
 
         alias (str | None):
@@ -601,7 +601,7 @@ def field(
     .. versionchanged:: 25.4.0
        *kw_only* can now be None, and its default is also changed from False to
        None.
-    .. versionchanged:: 25.5.0
+    .. versionchanged:: 26.2.0
        *on_setattr* hooks can now be generator functions for pre/post-yield
        side effects.
 
