@@ -1044,10 +1044,8 @@ class _ClassBuilder:
                 state = {}
                 for name in state_attr_names:
                     # Attributes with init=False and no default may be unset.
-                    try:
+                    with contextlib.suppress(AttributeError):
                         state[name] = getattr(self, name)
-                    except AttributeError:
-                        pass
                 return (
                     _reconstruct_exception,
                     (self.__class__, self.args),
