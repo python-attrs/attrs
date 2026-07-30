@@ -331,13 +331,18 @@ class TestSetAttr:
 
     def test_generator_yields_multiple_times(self):
         """
-        Only the first yield is used as the new value.
+        Yielding more than once raises an error and closes the generator.
         """
+        cleaned_up = False
 
         def hook(instance, attrib, value):
-            yield "first"
-            yield "second"
-            yield "third"
+            nonlocal cleaned_up
+
+            try:
+                yield "first"
+                yield "second"
+            finally:
+                cleaned_up = True
 
         @attr.s
         class C:
@@ -345,9 +350,14 @@ class TestSetAttr:
 
         c = C("old")
 
-        c.x = "new"
+        with pytest.raises(
+            RuntimeError,
+            match="Generator on_setattr hook yielded more than once",
+        ):
+            c.x = "new"
 
         assert "first" == c.x
+        assert cleaned_up is True
 
     def test_make_class(self):
         """

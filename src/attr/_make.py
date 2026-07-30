@@ -162,7 +162,7 @@ def attrib(
        None.
     .. versionchanged:: 26.2.0
        *on_setattr* hooks can now be generator functions for pre/post-yield
-       side effects.
+       side effects. Generator hooks must yield exactly once.
     """
     eq, eq_key, order, order_key = _determine_attrib_eq_order(
         cmp, eq, order, True
@@ -1198,10 +1198,14 @@ class _ClassBuilder:
                 gen = hook(self, a, val)
                 nval = next(gen)
                 _OBJ_SETATTR(self, name, nval)
-                with contextlib.suppress(StopIteration):
+                try:
                     next(gen)
+                except StopIteration:
+                    return
 
-                return
+                gen.close()
+                msg = "Generator on_setattr hook yielded more than once."
+                raise RuntimeError(msg)
 
             nval = hook(self, a, val)
             _OBJ_SETATTR(self, name, nval)
@@ -1448,7 +1452,7 @@ def attrs(
     .. versionadded:: 25.4.0 *force_kw_only*
     .. versionchanged:: 26.2.0
        *on_setattr* hooks can now be generator functions for pre/post-yield
-       side effects.
+       side effects. Generator hooks must yield exactly once.
     """
     if repr_ns is not None:
         import warnings
