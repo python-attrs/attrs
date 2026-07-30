@@ -136,7 +136,10 @@ class Attribute(Generic[_T]):
     type: type[_T] | None
     kw_only: bool
     on_setattr: _OnSetAttrType
-    alias: str | None
+    # This is not literally true: alias can be None during construction, but is
+    # guaranteed to be a str for downstream use. It is centrally resolved before
+    # and after running the field transformers.
+    alias: str
 
     def evolve(self, **changes: Any) -> "Attribute[Any]": ...
 
