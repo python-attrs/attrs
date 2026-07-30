@@ -1171,7 +1171,11 @@ class _ClassBuilder:
         for a in self._attrs:
             on_setattr = a.on_setattr or self._on_setattr
             if on_setattr and on_setattr is not setters.NO_OP:
-                sa_attrs[a.name] = a, on_setattr
+                sa_attrs[a.name] = (
+                    a,
+                    on_setattr,
+                    inspect.isgeneratorfunction(on_setattr),
+                )
 
         if not sa_attrs:
             return self
@@ -1184,19 +1188,25 @@ class _ClassBuilder:
         # docstring comes from _add_method_dunders
         def __setattr__(self, name, val):
             try:
-                a, hook = sa_attrs[name]
+                a, hook, is_gen = sa_attrs[name]
             except KeyError:
                 _OBJ_SETATTR(self, name, val)
-            else:
-                if inspect.isgeneratorfunction(hook):
-                    gen = hook(self, a, val)
-                    nval = next(gen)
-                    _OBJ_SETATTR(self, name, nval)
-                    with contextlib.suppress(StopIteration):
-                        next(gen)
-                else:
-                    nval = hook(self, a, val)
-                    _OBJ_SETATTR(self, name, nval)
+
+                return
+
+            if is_gen:
+                gen = hook(self, a, val)
+                nval = next(gen)
+                _OBJ_SETATTR(self, name, nval)
+                with contextlib.suppress(StopIteration):
+                    next(gen)
+
+                return
+
+            nval = hook(self, a, val)
+            _OBJ_SETATTR(self, name, nval)
+
+            return
 
         self._cls_dict["__attrs_own_setattr__"] = True
         self._cls_dict["__setattr__"] = self._add_method_dunders(__setattr__)
