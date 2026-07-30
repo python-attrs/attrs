@@ -2242,28 +2242,28 @@ def _make_init_annotate(
                     annotationlib.get_annotations(base, format=format)
                 )
 
-        def _static_value(typ: Any) -> Any:
-            if format == Format.STRING:
-                if isinstance(typ, str):
-                    return typ
-                return annotationlib.type_repr(typ) if typ is not None else "None"
-            # VALUE / FORWARDREF: keep bare strings for get_type_hints eval.
-            return typ
-
         new_annotations: dict[str, Any] = {}
         for arg_name, field_name in field_arg_map.items():
             if field_name in cls_annotations:
                 new_annotations[arg_name] = cls_annotations[field_name]
             elif arg_name in static_annotations:
                 # ``attr.ib(type=...)`` / string types never land on the class.
-                new_annotations[arg_name] = _static_value(
-                    static_annotations[arg_name]
-                )
+                new_annotations[arg_name] = static_annotations[arg_name]
 
         for arg_name, typ in static_annotations.items():
-            if arg_name in new_annotations:
-                continue
-            new_annotations[arg_name] = _static_value(typ)
+            if arg_name not in new_annotations:
+                new_annotations[arg_name] = typ
+
+        if format == Format.STRING:
+            # Class STRING annotations are already strings; static fallbacks
+            # (``type=`` objects, ``return``/None) still need stringifying.
+            # VALUE / FORWARDREF keep bare strings for get_type_hints eval.
+            for arg_name, typ in new_annotations.items():
+                if isinstance(typ, str):
+                    continue
+                new_annotations[arg_name] = (
+                    annotationlib.type_repr(typ) if typ is not None else "None"
+                )
 
         return new_annotations
 
