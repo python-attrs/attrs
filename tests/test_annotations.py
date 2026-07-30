@@ -698,3 +698,53 @@ def test_is_class_var(annot):
     ClassVars are detected, even if they're a string or quoted.
     """
     assert _is_class_var(annot)
+
+
+@pytest.mark.skipif(
+    sys.version_info[:2] < (3, 13),
+    reason="inspect.signature(..., eval_str=True) needs 3.13+",
+)
+@pytest.mark.parametrize("slots", [True, False])
+def test_init_forward_ref_with_future_annotations(slots):
+    """
+    With ``from __future__ import annotations``, generated ``__init__`` string
+    annotations resolve late names via the live module globals — same as a
+    hand-written constructor (issue #1596).
+    """
+    import inspect
+
+    mod = types.ModuleType("attrs_fwdref_future_mod")
+    sys.modules[mod.__name__] = mod
+    try:
+        exec(
+            "from __future__ import annotations\n"
+            "import attrs\n"
+            "\n"
+            "class Works:\n"
+            "    def __init__(self, foo: Foo) -> None:\n"
+            "        self._foo = foo\n"
+            "\n"
+            f"@attrs.define(slots={slots!r})\n"
+            "class DoesNotWork:\n"
+            "    _foo: Foo\n"
+            "\n"
+            "class Foo:\n"
+            "    pass\n",
+            mod.__dict__,
+        )
+
+        Works = mod.Works
+        DoesNotWork = mod.DoesNotWork
+        Foo = mod.Foo
+
+        assert inspect.signature(Works, eval_str=True) == inspect.signature(
+            DoesNotWork, eval_str=True
+        )
+        assert (
+            DoesNotWork.__init__.__globals__ is mod.__dict__
+        ), "generated __init__ must use the live module dict as __globals__"
+        hints = typing.get_type_hints(DoesNotWork.__init__)
+        assert hints["foo"] is Foo
+        assert DoesNotWork(Foo())._foo is not None
+    finally:
+        del sys.modules[mod.__name__]

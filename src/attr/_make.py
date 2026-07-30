@@ -25,6 +25,7 @@ from ._compat import (
     PY_3_10_PLUS,
     PY_3_11_PLUS,
     PY_3_13_PLUS,
+    PY_3_14_PLUS,
     _AnnotationExtractor,
     _get_annotations,
     get_generic_base,
@@ -970,31 +971,44 @@ class _ClassBuilder:
         # compiler will bake a reference to the class in the method itself
         # as `method.__closure__`.  Since we replace the class with a
         # clone, we rewrite these references so it keeps working.
+        #
+        # Also rewrite cells on generated ``__annotate__`` callables (PEP 649),
+        # which close over the original class much like dataclasses do.
         for item in itertools.chain(
             cls.__dict__.values(), additional_closure_functions_to_update
         ):
+            funcs_to_rewrite = []
             if isinstance(item, (classmethod, staticmethod)):
                 # Class- and staticmethods hide their functions inside.
                 # These might need to be rewritten as well.
-                closure_cells = getattr(item.__func__, "__closure__", None)
+                funcs_to_rewrite.append(item.__func__)
             elif isinstance(item, property):
                 # Workaround for property `super()` shortcut (PY3-only).
                 # There is no universal way for other descriptors.
-                closure_cells = getattr(item.fget, "__closure__", None)
+                funcs_to_rewrite.extend((item.fget, item.fset, item.fdel))
+            elif isinstance(item, types.FunctionType):
+                funcs_to_rewrite.append(item)
+                annotate = getattr(item, "__annotate__", None)
+                if annotate is not None:
+                    funcs_to_rewrite.append(annotate)
             else:
-                closure_cells = getattr(item, "__closure__", None)
-
-            if not closure_cells:  # Catch None or the empty list.
                 continue
-            for cell in closure_cells:
-                try:
-                    match = cell.cell_contents is self._cls
-                except ValueError:  # noqa: PERF203
-                    # ValueError: Cell is empty
-                    pass
-                else:
-                    if match:
-                        cell.cell_contents = cls
+
+            for func in funcs_to_rewrite:
+                if func is None:
+                    continue
+                closure_cells = getattr(func, "__closure__", None)
+                if not closure_cells:  # Catch None or the empty list.
+                    continue
+                for cell in closure_cells:
+                    try:
+                        match = cell.cell_contents is self._cls
+                    except ValueError:  # noqa: PERF203
+                        # ValueError: Cell is empty
+                        pass
+                    else:
+                        if match:
+                            cell.cell_contents = cls
         return cls
 
     def add_repr(self, ns):
@@ -1079,7 +1093,7 @@ class _ClassBuilder:
         return self
 
     def add_init(self):
-        script, globs, annotations = _make_init_script(
+        script, helpers, annotations, field_arg_map = _make_init_script(
             self._cls,
             self._attrs,
             self._has_pre_init,
@@ -1094,12 +1108,21 @@ class _ClassBuilder:
             attrs_init=False,
         )
 
-        def _attach_init(cls_dict, globs):
-            init = globs["__init__"]
-            init.__annotations__ = annotations
+        def _attach_init(cls_dict, _locs):
+            init = _compile_init_method(
+                self._cls,
+                script,
+                helpers,
+                annotations,
+                field_arg_map,
+                method_name="__init__",
+            )
             cls_dict["__init__"] = self._add_method_dunders(init)
 
-        self._script_snippets.append((script, globs, _attach_init))
+        # Compiled separately so ``__globals__`` is the live module dict (see
+        # ``_compile_init_method``). An empty script keeps the attach hook in
+        # the existing snippet pipeline without polluting shared globs.
+        self._script_snippets.append(("", {}, _attach_init))
 
         return self
 
@@ -1115,7 +1138,7 @@ class _ClassBuilder:
         )
 
     def add_attrs_init(self):
-        script, globs, annotations = _make_init_script(
+        script, helpers, annotations, field_arg_map = _make_init_script(
             self._cls,
             self._attrs,
             self._has_pre_init,
@@ -1130,12 +1153,18 @@ class _ClassBuilder:
             attrs_init=True,
         )
 
-        def _attach_attrs_init(cls_dict, globs):
-            init = globs["__attrs_init__"]
-            init.__annotations__ = annotations
+        def _attach_attrs_init(cls_dict, _locs):
+            init = _compile_init_method(
+                self._cls,
+                script,
+                helpers,
+                annotations,
+                field_arg_map,
+                method_name="__attrs_init__",
+            )
             cls_dict["__attrs_init__"] = self._add_method_dunders(init)
 
-        self._script_snippets.append((script, globs, _attach_attrs_init))
+        self._script_snippets.append(("", {}, _attach_attrs_init))
 
         return self
 
@@ -2016,7 +2045,7 @@ def _make_init_script(
     is_exc,
     cls_on_setattr,
     attrs_init,
-) -> tuple[str, dict, dict]:
+) -> tuple[str, dict, dict, dict]:
     has_cls_on_setattr = (
         cls_on_setattr is not None and cls_on_setattr is not setters.NO_OP
     )
@@ -2044,7 +2073,7 @@ def _make_init_script(
         elif has_cls_on_setattr and a.on_setattr is not setters.NO_OP:
             needs_cached_setattr = True
 
-    script, globs, annotations = _attrs_to_init_script(
+    script, helpers, annotations, field_arg_map = _attrs_to_init_script(
         filtered_attrs,
         frozen,
         slots,
@@ -2058,18 +2087,136 @@ def _make_init_script(
         has_cls_on_setattr,
         "__attrs_init__" if attrs_init else "__init__",
     )
-    if cls.__module__ in sys.modules:
-        # This makes typing.get_type_hints(CLS.__init__) resolve string types.
-        globs.update(sys.modules[cls.__module__].__dict__)
-
-    globs.update({"NOTHING": NOTHING, "attr_dict": attr_dict})
+    # Helpers are injected as closure cells by ``_compile_init_method`` so the
+    # generated ``__init__`` can use the *live* module ``__dict__`` as
+    # ``__globals__`` (same model as dataclasses / hand-written methods).
+    # Do **not** snapshot ``sys.modules[cls.__module__].__dict__`` into the
+    # function globals — that breaks late forward references under
+    # ``inspect.get_annotations(..., eval_str=True)`` / ``eval_str`` signatures.
+    helpers.update({"NOTHING": NOTHING, "attr_dict": attr_dict})
 
     if needs_cached_setattr:
         # Save the lookup overhead in __init__ if we need to circumvent
         # setattr hooks.
-        globs["_cached_setattr_get"] = _OBJ_SETATTR.__get__
+        helpers["_cached_setattr_get"] = _OBJ_SETATTR.__get__
 
-    return script, globs, annotations
+    return script, helpers, annotations, field_arg_map
+
+
+def _compile_init_method(
+    cls: type,
+    script: str,
+    helpers: dict[str, Any],
+    annotations: dict[str, Any],
+    field_arg_map: dict[str, str],
+    method_name: str,
+):
+    """
+    Compile a generated ``__init__`` / ``__attrs_init__`` script.
+
+    The body is nested inside a factory so *helpers* become free variables
+    (closures) while ``__globals__`` is the class module's live ``__dict__``.
+    That mirrors hand-written constructors and lets string annotations resolve
+    names defined *after* the class body (issue #1596).
+
+    On Python 3.14+, annotations are attached via a PEP 649 ``__annotate__``
+    function that re-reads class annotations (like dataclasses), instead of a
+    static ``__annotations__`` dict of possibly stale ``ForwardRef`` objects.
+    """
+    if cls.__module__ in sys.modules:
+        globals_dict = sys.modules[cls.__module__].__dict__
+    else:
+        # Custom/missing ``__module__``: still introspectable for helpers only.
+        globals_dict = {"__builtins__": __builtins__}
+
+    helper_names = tuple(helpers)
+    params = ", ".join(helper_names)
+    indented = "\n".join(
+        ("    " + line if line else line) for line in script.splitlines()
+    )
+    factory_script = (
+        f"def __attr_factory__({params}):\n"
+        f"{indented}\n"
+        f"    return {method_name}\n"
+    )
+
+    ns: dict[str, Any] = {}
+    _linecache_and_compile(
+        factory_script,
+        _generate_unique_filename(cls, method_name),
+        globals_dict,
+        ns,
+    )
+    factory = ns["__attr_factory__"]
+    init = factory(**helpers) if helpers else factory()
+
+    if PY_3_14_PLUS:
+        # Setting ``__annotations__`` clears ``__annotate__``; prefer annotate.
+        static_annotations = {
+            key: value
+            for key, value in annotations.items()
+            if key not in field_arg_map
+        }
+        init.__annotate__ = _make_init_annotate(
+            cls, method_name, field_arg_map, static_annotations
+        )
+    else:
+        init.__annotations__ = annotations
+
+    return init
+
+
+def _make_init_annotate(
+    cls: type,
+    method_name: str,
+    field_arg_map: dict[str, str],
+    static_annotations: dict[str, Any],
+):
+    """
+    Build a PEP 649 ``__annotate__`` for a generated init method.
+
+    Field annotations are re-fetched from *cls* (and its MRO) on each call so
+    deferred / forward references resolve like a compiler-built annotate
+    function. Converter parameter types and ``return`` stay static.
+    """
+    # Local import keeps annotationlib off the hot path on older Pythons; the
+    # outer caller only invokes this on 3.14+.
+    import annotationlib
+
+    def __annotate__(format: annotationlib.Format, /) -> dict[str, Any]:
+        Format = annotationlib.Format
+        if format not in (Format.VALUE, Format.FORWARDREF, Format.STRING):
+            raise NotImplementedError(format)
+
+        cls_annotations: dict[str, Any] = {}
+        for base in reversed(cls.__mro__):
+            # Unusual dynamic bases may lack usable annotations; skip them.
+            with contextlib.suppress(Exception):
+                cls_annotations.update(
+                    annotationlib.get_annotations(base, format=format)
+                )
+
+        new_annotations: dict[str, Any] = {}
+        for arg_name, field_name in field_arg_map.items():
+            # gh-style: annotation may be missing in unusual dynamic cases.
+            try:
+                new_annotations[arg_name] = cls_annotations[field_name]
+            except KeyError:
+                pass
+
+        for arg_name, typ in static_annotations.items():
+            if format is Format.STRING:
+                new_annotations[arg_name] = (
+                    annotationlib.type_repr(typ) if typ is not None else "None"
+                )
+            else:
+                new_annotations[arg_name] = typ
+
+        return new_annotations
+
+    __annotate__.__generated_by_attrs__ = True  # type: ignore[attr-defined]
+    __annotate__.__qualname__ = f"{cls.__qualname__}.{method_name}.__annotate__"
+    return __annotate__
 
 
 def _setattr(attr_name: str, value_var: str, has_on_setattr: bool) -> str:
@@ -2173,12 +2320,13 @@ def _attrs_to_init_script(
     needs_cached_setattr: bool,
     has_cls_on_setattr: bool,
     method_name: str,
-) -> tuple[str, dict, dict]:
+) -> tuple[str, dict, dict, dict]:
     """
-    Return a script of an initializer for *attrs*, a dict of globals, and
-    annotations for the initializer.
+    Return a script of an initializer for *attrs*, a dict of helpers, static
+    annotations for the initializer, and a map of init arg name → field name
+    for annotations that should be re-read from the class (PEP 649).
 
-    The globals are required by the generated script.
+    The helpers are required by the generated script and become closure cells.
     """
     lines = ["self.__attrs_pre_init__()"] if call_pre_init else []
 
@@ -2201,9 +2349,12 @@ def _attrs_to_init_script(
     attrs_to_validate = []
 
     # This is a dictionary of names to validator and converter callables.
-    # Injecting this into __init__ globals lets us avoid lookups.
+    # Injected as closure cells on the compiled ``__init__``.
     names_for_globals = {}
     annotations = {"return": None}
+    # arg_name -> field name on the class (for live / PEP 649 re-fetch).
+    # Converter-derived annotations are static and stay only in *annotations*.
+    field_arg_map: dict[str, str] = {}
 
     for a in attrs:
         if a.validator:
@@ -2355,6 +2506,7 @@ def _attrs_to_init_script(
         if a.init is True:
             if a.type is not None and converter is None:
                 annotations[arg_name] = a.type
+                field_arg_map[arg_name] = attr_name
             elif converter is not None and converter._first_param_type:
                 # Use the type from the converter if present.
                 annotations[arg_name] = converter._first_param_type
@@ -2421,6 +2573,7 @@ def _attrs_to_init_script(
 """,
         names_for_globals,
         annotations,
+        field_arg_map,
     )
 
 

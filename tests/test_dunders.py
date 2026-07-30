@@ -19,7 +19,7 @@ from attr._make import (
     NOTHING,
     Factory,
     _add_repr,
-    _compile_and_eval,
+    _compile_init_method,
     _make_init_script,
     fields,
     make_class,
@@ -86,7 +86,7 @@ def _add_init(cls, frozen):
     """
     has_pre_init = bool(getattr(cls, "__attrs_pre_init__", False))
 
-    script, globs, annots = _make_init_script(
+    script, helpers, annots, field_arg_map = _make_init_script(
         cls,
         cls.__attrs_attrs__,
         has_pre_init,
@@ -104,9 +104,9 @@ def _add_init(cls, frozen):
         cls_on_setattr=None,
         attrs_init=False,
     )
-    _compile_and_eval(script, globs, filename="__init__")
-    cls.__init__ = globs["__init__"]
-    cls.__init__.__annotations__ = annots
+    cls.__init__ = _compile_init_method(
+        cls, script, helpers, annots, field_arg_map, method_name="__init__"
+    )
     return cls
 
 
@@ -1003,10 +1003,14 @@ class TestFilenames:
     def test_filenames(self):
         """
         The created dunder methods have a "consistent" filename.
+
+        ``__init__`` is compiled on its own (live module ``__globals__`` for
+        forward-ref evaluation) so it uses an ``__init__``-specific filename;
+        other generated methods still share the collective ``methods`` file.
         """
         assert (
             OriginalC.__init__.__code__.co_filename
-            == "<attrs generated methods tests.test_dunders.C>"
+            == "<attrs generated __init__ tests.test_dunders.C>"
         )
         assert (
             OriginalC.__eq__.__code__.co_filename
@@ -1018,7 +1022,7 @@ class TestFilenames:
         )
         assert (
             CopyC.__init__.__code__.co_filename
-            == "<attrs generated methods tests.test_dunders.C>"
+            == "<attrs generated __init__ tests.test_dunders.C>"
         )
         assert (
             CopyC.__eq__.__code__.co_filename
@@ -1030,7 +1034,7 @@ class TestFilenames:
         )
         assert (
             C.__init__.__code__.co_filename
-            == "<attrs generated methods tests.test_dunders.C-1>"
+            == "<attrs generated __init__ tests.test_dunders.C-1>"
         )
         assert (
             C.__eq__.__code__.co_filename
