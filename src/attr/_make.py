@@ -2141,29 +2141,69 @@ def _compile_init_method(
     )
 
     ns: dict[str, Any] = {}
+    # Factory uses a distinct filename so its indented source does not collide
+    # with the bare-method linecache entry used for ``inspect.getsource``.
     _linecache_and_compile(
         factory_script,
-        _generate_unique_filename(cls, method_name),
+        _generate_unique_filename(cls, f"{method_name}-factory"),
         globals_dict,
         ns,
     )
     factory = ns["__attr_factory__"]
     init = factory(**helpers) if helpers else factory()
 
+    # Factory nesting indents the body; rebind so ``inspect.getsource`` returns
+    # the bare method text expected by docs and tests, under the stable
+    # ``<attrs generated __init__ ...>`` filename.
+    _rebind_init_source(init, script, cls, method_name)
+
     if PY_3_14_PLUS:
         # Setting ``__annotations__`` clears ``__annotate__``; prefer annotate.
-        static_annotations = {
-            key: value
-            for key, value in annotations.items()
-            if key not in field_arg_map
-        }
+        # Pass the full static map as fallback for ``attr.ib(type=...)`` fields
+        # that never appear on the class ``__annotations__``.
         init.__annotate__ = _make_init_annotate(
-            cls, method_name, field_arg_map, static_annotations
+            cls, method_name, field_arg_map, annotations
         )
     else:
         init.__annotations__ = annotations
 
     return init
+
+
+def _rebind_init_source(
+    init, script: str, cls: type, method_name: str
+) -> None:
+    """
+    Point *init*'s code object at an unindented linecache entry of *script*.
+
+    Compilation nests the method inside a factory (live module globals + helper
+    freevars). Without this rebind, ``inspect.getsource`` would report the
+    indented factory fragment instead of the bare ``def __init__`` /
+    ``def __attrs_init__`` body.
+
+    Identical scripts share one filename (same uniqueness rules as other
+    generated methods) so ``co_filename`` stays stable across equivalent classes.
+    """
+    if not script.endswith("\n"):
+        script += "\n"
+    filename = _generate_unique_filename(cls, method_name)
+    count = 1
+    base_filename = filename
+    while True:
+        linecache_tuple = (
+            len(script),
+            None,
+            script.splitlines(True),
+            filename,
+        )
+        old_val = linecache.cache.setdefault(filename, linecache_tuple)
+        if old_val == linecache_tuple:
+            break
+        filename = f"{base_filename[:-1]}-{count}>"
+        count += 1
+    init.__code__ = init.__code__.replace(
+        co_filename=filename, co_firstlineno=1
+    )
 
 
 def _make_init_annotate(
@@ -2177,7 +2217,12 @@ def _make_init_annotate(
 
     Field annotations are re-fetched from *cls* (and its MRO) on each call so
     deferred / forward references resolve like a compiler-built annotate
-    function. Converter parameter types and ``return`` stay static.
+    function. ``attr.ib(type=...)`` values, converter parameter types, and
+    ``return`` fall back to the static map collected at class-creation time.
+
+    String types are left as strings under VALUE/FORWARDREF so
+    ``typing.get_type_hints`` re-evaluates them against the init's
+    ``__globals__`` (and raises ``NameError`` for a missing fake module).
     """
     # Local import keeps annotationlib off the hot path on older Pythons; the
     # outer caller only invokes this on 3.14+.
@@ -2185,6 +2230,7 @@ def _make_init_annotate(
 
     def __annotate__(format: annotationlib.Format, /) -> dict[str, Any]:
         Format = annotationlib.Format
+        # Match dataclasses: VALUE_WITH_FAKE_GLOBALS is intentionally skipped.
         if format not in (Format.VALUE, Format.FORWARDREF, Format.STRING):
             raise NotImplementedError(format)
 
@@ -2196,21 +2242,28 @@ def _make_init_annotate(
                     annotationlib.get_annotations(base, format=format)
                 )
 
+        def _static_value(typ: Any) -> Any:
+            if format == Format.STRING:
+                if isinstance(typ, str):
+                    return typ
+                return annotationlib.type_repr(typ) if typ is not None else "None"
+            # VALUE / FORWARDREF: keep bare strings for get_type_hints eval.
+            return typ
+
         new_annotations: dict[str, Any] = {}
         for arg_name, field_name in field_arg_map.items():
-            # gh-style: annotation may be missing in unusual dynamic cases.
-            try:
+            if field_name in cls_annotations:
                 new_annotations[arg_name] = cls_annotations[field_name]
-            except KeyError:
-                pass
+            elif arg_name in static_annotations:
+                # ``attr.ib(type=...)`` / string types never land on the class.
+                new_annotations[arg_name] = _static_value(
+                    static_annotations[arg_name]
+                )
 
         for arg_name, typ in static_annotations.items():
-            if format is Format.STRING:
-                new_annotations[arg_name] = (
-                    annotationlib.type_repr(typ) if typ is not None else "None"
-                )
-            else:
-                new_annotations[arg_name] = typ
+            if arg_name in new_annotations:
+                continue
+            new_annotations[arg_name] = _static_value(typ)
 
         return new_annotations
 
