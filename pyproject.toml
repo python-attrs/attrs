@@ -69,7 +69,12 @@ docs = [
   "towncrier",
 ]
 docs-watch = [{ include-group = "docs" }, "watchfiles"]
-dev = [{ include-group = "tests" }, "ruff", "prek"]
+dev = [
+    { include-group = "tests" },
+    "ruff",
+    "prek",
+    "interrogate>=1.7.0",
+]
 
 
 [tool.uv]
