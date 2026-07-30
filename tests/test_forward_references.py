@@ -12,6 +12,8 @@ import sys
 import annotationlib
 import pytest
 
+import attr
+
 from attrs import define, field, fields, resolve_types
 
 
@@ -114,3 +116,54 @@ def test_converter_annotation_remains_static():
     )
     assert anns["x"] is str
     assert C("5").x == 5
+
+
+def test_init_annotate_string_format_and_type_fallback():
+    """
+    STRING format stringifies static fallbacks; ``attr.ib(type=...)`` values
+    that never appear on the class still surface on the generated init.
+    """
+
+    # ``attr.s`` (not ``define``/auto_attribs) so bare ``type=`` fields are kept
+    # alongside PEP 526 annotations — the case that needs static fallback.
+    @attr.s
+    class C:
+        x: int = attr.ib()
+        y = attr.ib(type=str)
+        z = attr.ib(type="list[int]")
+
+    annotate = C.__init__.__annotate__
+    assert annotate is not None
+
+    string_anns = annotate(annotationlib.Format.STRING)
+    assert string_anns["x"] == "int"
+    assert string_anns["y"] == "str"
+    assert string_anns["z"] == "list[int]"
+    assert string_anns["return"] == "None"
+
+    value_anns = annotate(annotationlib.Format.VALUE)
+    assert value_anns["x"] is int
+    assert value_anns["y"] is str
+    assert value_anns["z"] == "list[int]"
+    assert value_anns["return"] is None
+
+    with pytest.raises(NotImplementedError):
+        annotate(annotationlib.Format.VALUE_WITH_FAKE_GLOBALS)
+
+
+def test_rebind_init_source_without_trailing_newline():
+    """
+    ``_rebind_init_source`` normalizes scripts that lack a trailing newline so
+    ``inspect.getsource`` stays well-formed.
+    """
+    from attr._make import _rebind_init_source
+
+    @define
+    class C:
+        x: int
+
+    script = "def __init__(self, x):\n    self.x = x"
+    assert not script.endswith("\n")
+    _rebind_init_source(C.__init__, script, C, "__init__")
+    src = inspect.getsource(C.__init__)
+    assert src == "def __init__(self, x):\n    self.x = x\n"
