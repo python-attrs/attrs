@@ -1202,7 +1202,7 @@
     class A:
         a = attr.ib(kw_only=True)
     A()  # E: Missing named argument "a" for "A"  [call-arg]
-    A(15) # E: Too many positional arguments for "A"  [misc]
+    A(15) # E: Too many positional arguments for "A"  [call-arg]
     A(a=15)
 
 - case: testAttrsKwOnlyClass
