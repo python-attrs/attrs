@@ -30,7 +30,7 @@ permissions: {}
 jobs:
   codspeed:
     name: Run CodSpeed benchmarks
-    runs-on: codspeed-macro
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -49,7 +49,7 @@ jobs:
 
   imports:
     name: Measure import times
-    runs-on: ubuntu-latest
+    runs-on: codspeed-macro
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
