@@ -506,7 +506,7 @@ If your `__setattr__` hook needs to run custom code before **and** after setting
 >>> from typing import Generator
 >>> def gen_hook(instance: Any, attribute: attr.Attribute[int], value: Any) -> Generator[int]:
 ...     print(f"value coming in: {value!r}")
-...     new_value = int(value) * 2 + 92
+...     new_value = int(value) * 2 + 286
 ...     yield new_value
 ...     print(f"set {attribute.name} to {new_value!r}")
 >>> @define
