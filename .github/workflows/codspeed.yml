@@ -24,8 +24,6 @@ concurrency:
 
 env:
   FORCE_COLOR: "1"
-  PIP_DISABLE_PIP_VERSION_CHECK: "1"
-  PIP_NO_PYTHON_VERSION_WARNING: "1"
 
 permissions: {}
 
@@ -51,7 +49,7 @@ jobs:
 
   imports:
     name: Measure import times
-    runs-on: ubuntu-latest
+    runs-on: codspeed-macro
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -68,4 +66,4 @@ jobs:
       - name: Run import benchmarks
         uses: CodSpeedHQ/action@88472375d0a4572cf70a9f1fe3a4e0ab8da1b924 # v5.0.1
         with:
-          mode: simulation
+          mode: walltime
