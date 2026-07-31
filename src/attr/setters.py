@@ -4,8 +4,6 @@
 Commonly used hooks for on_setattr.
 """
 
-import inspect
-
 from . import _config
 from .exceptions import FrozenAttributeError
 
@@ -21,6 +19,8 @@ def pipe(*setters):
        side effects. They never made any sense but now they're explicitly
        rejected.
     """
+    import inspect
+
     for s in setters:
         if inspect.isgeneratorfunction(s):
             msg = (
