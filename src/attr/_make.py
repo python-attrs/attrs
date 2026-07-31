@@ -1170,6 +1170,8 @@ class _ClassBuilder:
         return self
 
     def add_setattr(self):
+        import inspect
+
         sa_attrs = {}
         for a in self._attrs:
             on_setattr = a.on_setattr or self._on_setattr
