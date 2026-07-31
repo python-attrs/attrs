@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import abc
 import contextlib
-import copy
 import enum
 import itertools
 import linecache
@@ -2616,6 +2615,8 @@ class Attribute:
 
         .. versionadded:: 20.3.0
         """
+        import copy
+
         new = copy.copy(self)
 
         new._setattrs(changes.items())
