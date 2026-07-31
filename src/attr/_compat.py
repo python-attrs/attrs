@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: MIT
 
-import inspect
 import platform
 import sys
 import threading
@@ -46,6 +45,8 @@ class _AnnotationExtractor:
     __slots__ = ["sig"]
 
     def __init__(self, callable):
+        import inspect
+
         try:
             self.sig = inspect.signature(callable)
         except (ValueError, TypeError):  # inspect failed
@@ -55,6 +56,8 @@ class _AnnotationExtractor:
         """
         Return the type annotation of the first argument if it's not empty.
         """
+        import inspect
+
         if not self.sig:
             return None
 
@@ -68,6 +71,8 @@ class _AnnotationExtractor:
         """
         Return the return type if it's not empty.
         """
+        import inspect
+
         if (
             self.sig
             and self.sig.return_annotation is not inspect.Signature.empty

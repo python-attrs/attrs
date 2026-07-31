@@ -6,7 +6,6 @@ import abc
 import contextlib
 import copy
 import enum
-import inspect
 import itertools
 import linecache
 import sys
@@ -705,6 +704,8 @@ class _ClassBuilder:
         if self._has_pre_init:
             # Check if the pre init method has more arguments than just `self`
             # We want to pass arguments if pre init expects arguments
+            import inspect
+
             pre_init_func = cls.__attrs_pre_init__
             pre_init_signature = inspect.signature(pre_init_func)
             self._pre_init_has_args = len(pre_init_signature.parameters) > 1
@@ -920,6 +921,8 @@ class _ClassBuilder:
         # To know to update them.
         additional_closure_functions_to_update = []
         if cached_properties:
+            import inspect
+
             class_annotations = _get_annotations(self._cls)
             for name, func in cached_properties.items():
                 # Add cached properties to names for slotting.
