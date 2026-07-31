@@ -16,9 +16,10 @@ def pipe(*setters):
 
     .. versionadded:: 20.1.0
     .. versionchanged:: 26.2.0
-       Generator functions are no longer allowed in ``pipe()``.
-       Use a generator directly as an ``on_setattr`` hook for post-assignment
-       side effects.
+       Generator functions are no longer allowed in ``pipe()``. Use a
+       generator directly as an ``on_setattr`` hook for post-assignment
+       side effects. They never made any sense but now they're explicitly
+       rejected.
     """
     for s in setters:
         if inspect.isgeneratorfunction(s):
