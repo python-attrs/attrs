@@ -223,8 +223,34 @@ def _compile_and_eval(
     Evaluate the script with the given global (globs) and local (locs)
     variables.
     """
-    bytecode = compile(script, filename, "exec")
+    bytecode = _compiled_script_cache.pop(script, None)
+    if bytecode is None:
+        bytecode = compile(script, filename, "exec")
+    else:
+        bytecode = replace_code_filename(bytecode, filename)
+
+    _compiled_script_cache[script] = bytecode
+    if len(_compiled_script_cache) > _COMPILED_SCRIPT_CACHE_SIZE:
+        del _compiled_script_cache[next(iter(_compiled_script_cache))]
+
     eval(bytecode, globs, locs)
+
+
+_COMPILED_SCRIPT_CACHE_SIZE = 128
+_compiled_script_cache: dict[str, types.CodeType] = {}
+
+
+def replace_code_filename(
+    code: types.CodeType, filename: str
+) -> types.CodeType:
+    """Return *code* with its filename updated recursively."""
+    constants = tuple(
+        replace_code_filename(constant, filename)
+        if isinstance(constant, types.CodeType)
+        else constant
+        for constant in code.co_consts
+    )
+    return code.replace(co_filename=filename, co_consts=constants)
 
 
 def _linecache_and_compile(
