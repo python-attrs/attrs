@@ -334,8 +334,8 @@ def define(
     .. versionadded:: 25.4.0
        Added *force_kw_only* to go back to the previous *kw_only* behavior.
     .. versionchanged:: 26.2.0
-        *on_setattr* hooks can now be generator functions that yield exactly
-        once.
+       *on_setattr* hooks can now be generator functions that yield exactly
+       once.
 
     .. note::
 
