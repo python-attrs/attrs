@@ -500,13 +500,13 @@ Check out {ref}`converters` for more details.
 
 ## Running Custom Code Before/After Setting Attributes
 
-If your `__setattr__` hook needs to run custom code before or after setting attributes, you can use the `on_setattr` argument to `field` and make it a generator:
+If your `__setattr__` hook needs to run custom code before **and** after setting attributes, you can pass a generator to the `on_setattr` argument:
 
 ```{doctest}
 >>> from typing import Generator
 >>> def gen_hook(instance: Any, attribute: attr.Attribute[int], value: Any) -> Generator[int]:
 ...     print(f"value coming in: {value!r}")
-...     new_value = int(value)
+...     new_value = int(value) * 2 + 92
 ...     yield new_value
 ...     print(f"set {attribute.name} to {new_value!r}")
 >>> @define
@@ -515,7 +515,7 @@ If your `__setattr__` hook needs to run custom code before or after setting attr
 >>> c = C(42)  # doesn't run on __init__
 >>> c.x = "67"
 value coming in: '67'
-set x to 67
+set x to 420
 ```
 
 
