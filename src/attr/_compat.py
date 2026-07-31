@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: MIT
 
-import inspect
-import platform
 import sys
 import threading
 
@@ -9,7 +7,7 @@ from collections.abc import Mapping, Sequence  # noqa: F401
 from typing import _GenericAlias
 
 
-PYPY = platform.python_implementation() == "PyPy"
+PYPY = sys.implementation.name == "pypy"
 PY_3_10_PLUS = sys.version_info[:2] >= (3, 10)
 PY_3_11_PLUS = sys.version_info[:2] >= (3, 11)
 PY_3_12_PLUS = sys.version_info[:2] >= (3, 12)
@@ -18,12 +16,12 @@ PY_3_14_PLUS = sys.version_info[:2] >= (3, 14)
 
 
 if PY_3_14_PLUS:
-    import annotationlib
-
     # We request forward-ref annotations to not break in the presence of
     # forward references.
 
     def _get_annotations(cls):
+        import annotationlib
+
         return annotationlib.get_annotations(
             cls, format=annotationlib.Format.FORWARDREF
         )
@@ -46,6 +44,8 @@ class _AnnotationExtractor:
     __slots__ = ["sig"]
 
     def __init__(self, callable):
+        import inspect
+
         try:
             self.sig = inspect.signature(callable)
         except (ValueError, TypeError):  # inspect failed
@@ -55,6 +55,8 @@ class _AnnotationExtractor:
         """
         Return the type annotation of the first argument if it's not empty.
         """
+        import inspect
+
         if not self.sig:
             return None
 
@@ -68,6 +70,8 @@ class _AnnotationExtractor:
         """
         Return the return type if it's not empty.
         """
+        import inspect
+
         if (
             self.sig
             and self.sig.return_annotation is not inspect.Signature.empty

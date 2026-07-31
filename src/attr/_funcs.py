@@ -1,8 +1,6 @@
 # SPDX-License-Identifier: MIT
 
 
-import copy
-
 from ._compat import get_generic_base
 from ._make import _OBJ_SETATTR, NOTHING, fields
 from .exceptions import AttrsAttributeNotFoundError
@@ -411,6 +409,8 @@ def assoc(inst, **changes):
         removed du to the slightly different approach compared to
         `attrs.evolve`, though.
     """
+    import copy
+
     new = copy.copy(inst)
     attrs = fields(inst.__class__)
     for k, v in changes.items():
