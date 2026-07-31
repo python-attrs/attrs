@@ -1,0 +1,10 @@
+---
+$schema: https://raw.githubusercontent.com/CodSpeedHQ/codspeed/refs/heads/main/schemas/codspeed.schema.json
+
+benchmarks:
+  - name: import attr
+    exec: python -I -c "import attr"
+
+  - name: import attrs
+    exec: python -I -c "import attrs"
+...
