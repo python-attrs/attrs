@@ -516,6 +516,8 @@ If your `__setattr__` hook needs to run custom code before **and** after setting
 >>> c.x = "67"
 value coming in: '67'
 set x to 420
+>>> c.x
+420
 ```
 
 
