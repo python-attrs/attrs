@@ -69,7 +69,12 @@ docs = [
   "towncrier",
 ]
 docs-watch = [{ include-group = "docs" }, "watchfiles"]
-dev = [{ include-group = "tests" }, "ruff"]
+dev = [
+    { include-group = "tests" },
+    "ruff",
+    "prek",
+    "interrogate>=1.7.0",
+]
 
 
 [tool.uv]
@@ -159,11 +164,6 @@ url = "https://filepreviews.io/"
 img = "FilePreviews.svg"
 
 [[tool.sponcon.sponsors]]
-title = "TestMu AI"
-url = "https://www.testmuai.com/?utm_medium=sponsor&utm_source=structlog"
-img = "TestMu-AI.svg"
-
-[[tool.sponcon.sponsors]]
 title = "Polar"
 url = "https://polar.sh/"
 img = "Polar.svg"
@@ -232,6 +232,7 @@ ignore = [
   "ARG",     # unused arguments are normal when implementing interfaces
   "C901",    # we're complex software
   "COM",     # ruff format takes care of our commas
+  "CPY",     # they expect a very specific shape of a copyright notice
   "D",       # We prefer our own docstring style.
   "E501",    # leave line-length enforcement to ruff format
   "ERA001",  # we need to keep around some notes
@@ -244,6 +245,7 @@ ignore = [
   "PLR0912", # we're complex software
   "PLR0913", # yes, many arguments, but most have defaults
   "PLR0915", # we're complex software
+  "PLR0917", # we're complex software
   "PLR2004", # numbers are sometimes fine
   "PLW0603", # sometimes we need globals
   "S307",    # eval FTW
