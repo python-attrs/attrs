@@ -13,7 +13,7 @@ def pipe(*setters):
     Run all *setters* and return the return value of the last one.
 
     .. warning::
-       Generator functions are not allowed in ``pipe()``.
+       Generators are not allowed in ``pipe()``.
 
     .. versionadded:: 20.1.0
     """
