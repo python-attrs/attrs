@@ -337,3 +337,18 @@ include = ["typing-examples/baseline.py"]
 
 [tool.pyrefly]
 project-includes = ["typing-examples"]
+
+
+[[tool.ty.overrides]]
+rules.all = "ignore"
+# Play whack-a-mole with error reporting so LSP still works without squiggling
+# everything red.
+include = [
+  "conftest.py",
+  "bench",
+  "docs",
+  "src",
+  "tests",
+  "typing-examples/mypy.py",
+  "typing-examples/pyrefly.py"
+]
