@@ -644,22 +644,27 @@ def evolve(*args, **changes):
     return cls(**changes)
 
 
+_IS_GENERATOR_RESULTS = {}
+
+
 def _lazy_is_generator(f: Callable) -> Callable[[], bool]:
     """
     Return a caching closure over callable f that returns whether f is a
     generator function.
-    """
-    res = None
 
-    def is_gen():
+    Not thread-safe but doesn't matter.
+    """
+
+    def is_gen() -> bool:
         import inspect
 
-        nonlocal res
+        try:
+            if f not in _IS_GENERATOR_RESULTS:
+                _IS_GENERATOR_RESULTS[f] = inspect.isgeneratorfunction(f)
+        except TypeError:  # f is not hashable
+            return inspect.isgeneratorfunction(f)
 
-        if res is None:
-            res = inspect.isgeneratorfunction(f)
-
-        return res
+        return _IS_GENERATOR_RESULTS[f]
 
     return is_gen
 
