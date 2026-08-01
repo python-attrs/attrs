@@ -396,6 +396,22 @@ All objects from ``attrs.validators`` are also available from ``attr.validators`
          ...
       ValueError: ("'x' must be > 42: 42")
 
+.. autofunction:: attrs.validators.ne
+
+   For example:
+
+   .. doctest::
+
+      >>> @define
+      ... class C:
+      ...     x = field(validator=attrs.validators.ne(42))
+      >>> C(43)
+      C(x=43)
+      >>> C(42)
+      Traceback (most recent call last):
+         ...
+      ValueError: ("'x' must be != 42: 42")
+
 .. autofunction:: attrs.validators.max_len
 
    For example:

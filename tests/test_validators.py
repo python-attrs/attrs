@@ -28,6 +28,7 @@ from attr.validators import (
     matches_re,
     max_len,
     min_len,
+    ne,
     not_,
     optional,
     or_,
@@ -875,9 +876,9 @@ def test_hashability():
         assert hash_func is not object.__hash__
 
 
-class TestLtLeGeGt:
+class TestLtLeGeGtNe:
     """
-    Tests for `Lt, Le, Ge, Gt`.
+    Tests for `Lt, Le, Ge, Gt, Ne`.
     """
 
     BOUND = 4
@@ -887,10 +888,11 @@ class TestLtLeGeGt:
         validator is in ``__all__``.
         """
         assert all(
-            f.__name__ in validator_module.__all__ for f in [lt, le, ge, gt]
+            f.__name__ in validator_module.__all__
+            for f in [lt, le, ge, gt, ne]
         )
 
-    @pytest.mark.parametrize("v", [lt, le, ge, gt])
+    @pytest.mark.parametrize("v", [lt, le, ge, gt, ne])
     def test_retrieve_bound(self, v):
         """
         The configured bound for the comparison can be extracted from the
@@ -906,12 +908,14 @@ class TestLtLeGeGt:
     @pytest.mark.parametrize(
         ("v", "value"),
         [
+            (ne, 3),
             (lt, 3),
             (le, 3),
             (le, 4),
             (ge, 4),
             (ge, 5),
             (gt, 5),
+            (ne, 5),
         ],
     )
     def test_check_valid(self, v, value):
@@ -930,6 +934,7 @@ class TestLtLeGeGt:
             (le, 5),
             (ge, 3),
             (gt, 4),
+            (ne, 4),
         ],
     )
     def test_check_invalid(self, v, value):
@@ -942,7 +947,7 @@ class TestLtLeGeGt:
         with pytest.raises(ValueError):
             Tester(value)
 
-    @pytest.mark.parametrize("v", [lt, le, ge, gt])
+    @pytest.mark.parametrize("v", [lt, le, ge, gt, ne])
     def test_repr(self, v):
         """
         __repr__ is meaningful.
