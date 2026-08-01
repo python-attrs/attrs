@@ -4,6 +4,8 @@
 Commonly used hooks for on_setattr.
 """
 
+from attr._compat import _lazy_is_generator
+
 from . import _config
 from .exceptions import FrozenAttributeError
 
@@ -19,10 +21,9 @@ def pipe(*setters):
        side effects. They never made any sense but now they're explicitly
        rejected.
     """
-    import inspect
 
     for s in setters:
-        if inspect.isgeneratorfunction(s):
+        if _lazy_is_generator(s)():
             msg = (
                 "Generator functions are not allowed in pipe(). "
                 "Use a regular function for value transformation or a generator directly "

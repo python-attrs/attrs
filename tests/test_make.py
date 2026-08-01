@@ -28,7 +28,6 @@ import attrs
 from attr import _config
 from attr._compat import PY_3_10_PLUS
 from attr._make import (
-    _IS_GENERATOR_RESULTS,
     Attribute,
     ClassProps,
     Factory,
@@ -39,7 +38,6 @@ from attr._make import (
     _determine_attrib_eq_order,
     _determine_attrs_eq_order,
     _determine_whether_to_implement,
-    _lazy_is_generator,
     _transform_attrs,
     and_,
     fields,
@@ -3214,36 +3212,3 @@ class TestMatchArgs:
 
         C1 = make_class("C1", {"a": attr.ib(kw_only=True), "b": attr.ib()})
         assert ("b",) == C1.__match_args__
-
-
-class TestLazyIsGenerator:
-    def test_is_generator(self):
-        """
-        Returns True for generator functions and caches the result.
-        """
-
-        def gen():
-            yield 1
-
-        assert _lazy_is_generator(gen)()
-        assert _IS_GENERATOR_RESULTS[gen] is True
-
-    def test_is_not_generator(self):
-        """
-        Returns False for non-generator functions and caches the result.
-        """
-
-        def non_gen():
-            return 1
-
-        assert not _lazy_is_generator(non_gen)()
-        assert _IS_GENERATOR_RESULTS[non_gen] is False
-
-    def test_not_hashable(self):
-        """
-        If the user somehow manages to create a non-hashable function,
-        the result is not hashed but the result is correct.
-        """
-        non_hashable = {}
-
-        assert not _lazy_is_generator(non_hashable)()

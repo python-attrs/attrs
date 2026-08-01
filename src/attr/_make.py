@@ -25,6 +25,7 @@ from ._compat import (
     PY_3_13_PLUS,
     _AnnotationExtractor,
     _get_annotations,
+    _lazy_is_generator,
     get_generic_base,
 )
 from .exceptions import (
@@ -642,31 +643,6 @@ def evolve(*args, **changes):
             changes[init_name] = getattr(inst, attr_name)
 
     return cls(**changes)
-
-
-_IS_GENERATOR_RESULTS = {}
-
-
-def _lazy_is_generator(f: Callable) -> Callable[[], bool]:
-    """
-    Return a caching closure over callable f that returns whether f is a
-    generator function.
-
-    Not thread-safe but doesn't matter.
-    """
-
-    def is_gen() -> bool:
-        import inspect
-
-        try:
-            if f not in _IS_GENERATOR_RESULTS:
-                _IS_GENERATOR_RESULTS[f] = inspect.isgeneratorfunction(f)
-        except TypeError:  # f is not hashable
-            return inspect.isgeneratorfunction(f)
-
-        return _IS_GENERATOR_RESULTS[f]
-
-    return is_gen
 
 
 class _ClassBuilder:
