@@ -93,18 +93,6 @@ All modern type-checking implementations support that, but in practice it's not 
 
 [Mypy] is the original Python type checker and ships with a dedicated *attrs* plugin that implements our features far beyond {pep}`681`.
 
-It also works with *both* legacy annotation styles.
-With Mypy, you can also write this (but really shouldn't):
-
-```python
-@attr.s
-class SomeClass:
-    a_number = attr.ib(default=42)  # type: int
-    list_of_numbers = attr.ib(factory=list, type=list[int])
-```
-
-The approach used for `list_of_numbers` is only available in our [old-style API](names.md) which is why the example still uses it.
-
 
 ### Pyrefly
 
