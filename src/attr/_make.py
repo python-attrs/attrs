@@ -644,6 +644,26 @@ def evolve(*args, **changes):
     return cls(**changes)
 
 
+def _lazy_is_generator(f: Callable) -> Callable[[], bool]:
+    """
+    Return a caching closure over callable f that returns whether f is a
+    generator function.
+    """
+    res = None
+
+    def is_gen():
+        import inspect
+
+        nonlocal res
+
+        if res is None:
+            res = inspect.isgeneratorfunction(f)
+
+        return res
+
+    return is_gen
+
+
 class _ClassBuilder:
     """
     Iteratively build *one* class.
@@ -1170,8 +1190,6 @@ class _ClassBuilder:
         return self
 
     def add_setattr(self):
-        import inspect
-
         sa_attrs = {}
         for a in self._attrs:
             on_setattr = a.on_setattr or self._on_setattr
@@ -1179,7 +1197,7 @@ class _ClassBuilder:
                 sa_attrs[a.name] = (
                     a,
                     on_setattr,
-                    inspect.isgeneratorfunction(on_setattr),
+                    _lazy_is_generator(on_setattr),
                 )
 
         if not sa_attrs:
@@ -1199,7 +1217,7 @@ class _ClassBuilder:
 
                 return
 
-            if is_gen:
+            if is_gen():
                 gen = hook(self, a, val)
                 nval = next(gen)
                 _OBJ_SETATTR(self, name, nval)
