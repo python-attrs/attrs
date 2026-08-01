@@ -4,8 +4,6 @@
 Commonly used hooks for on_setattr.
 """
 
-from attr._compat import _lazy_is_generator
-
 from . import _config
 from .exceptions import FrozenAttributeError
 
@@ -14,22 +12,11 @@ def pipe(*setters):
     """
     Run all *setters* and return the return value of the last one.
 
-    .. versionadded:: 20.1.0
-    .. versionchanged:: 26.2.0
-       Generator functions are no longer allowed in ``pipe()``. Use a
-       generator directly as an ``on_setattr`` hook for post-assignment
-       side effects. They never made any sense but now they're explicitly
-       rejected.
-    """
+    .. warning::
+       Generator functions are not allowed in ``pipe()``.
 
-    for s in setters:
-        if _lazy_is_generator(s)():
-            msg = (
-                "Generator functions are not allowed in pipe(). "
-                "Use a regular function for value transformation or a generator directly "
-                "as an on_setattr hook for post-assignment side effects."
-            )
-            raise TypeError(msg)
+    .. versionadded:: 20.1.0
+    """
 
     def wrapped_pipe(instance, attrib, new_value):
         rv = new_value

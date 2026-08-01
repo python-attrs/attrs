@@ -191,35 +191,6 @@ class TestSetAttr:
         assert 42 == p.x1
         assert 23 == p.x2
 
-    def test_pipe_rejects_generator(self):
-        """
-        Generator functions cannot be used inside pipe().
-        """
-
-        def gen(_, __, val):
-            yield val
-
-        with pytest.raises(
-            TypeError, match="Generator functions are not allowed"
-        ):
-            setters.pipe(setters.convert, gen)
-
-    def test_list_on_setattr_rejects_generator(self):
-        """
-        Passing a generator function in a list to on_setattr raises TypeError.
-        """
-
-        def gen(_, __, val):
-            yield val
-
-        with pytest.raises(
-            TypeError, match="Generator functions are not allowed"
-        ):
-
-            @attr.s
-            class C:
-                x = attr.ib(on_setattr=[setters.convert, gen])
-
     def test_generator_hook_not_called_in_init(self):
         """
         Generator hooks are not invoked during __init__, same as regular hooks.
