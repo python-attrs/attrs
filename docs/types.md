@@ -80,7 +80,7 @@ class PngHeader:
 
 ## Overview of type checkers
 
-Types -- regardless how added -- are *only metadata* that can be queried from the class and they aren't used for anything out of the box.
+Types – regardless how added – are *only metadata* that can be queried from the class and they aren't used for anything out of the box.
 Some packages like [*cattrs*](https://catt.rs/) or Pydantic use this metadata for runtime type validation and (de-)serialization.
 
 But their original purpose is to support static type-checking tools and IDEs.
@@ -123,8 +123,11 @@ Unfortunately, better *attrs* support doesn't appear to be part of their goals.
 
 ### *ty*
 
-[*ty*] is a Rust-based type checker from [Astral](https://astral.sh), the makers of Ruff and *uv*.
+[*ty*] is a Rust-based type checker from [Astral](https://astral.sh), the makers of the beloved Ruff and *uv* tools.
+
 Currently it only supports {pep}`681`, but [they intend](https://github.com/astral-sh/ty/issues/2404) to support more of *attrs*'s features.
+Feel free to leave a thumbs up on that ticket to remind Astral we exist. 😇
+Please do **not** comment or otherwise accost them – *attrs* users are civilized gentlepeople after all.
 
 
 [Mypy]: http://mypy-lang.org
