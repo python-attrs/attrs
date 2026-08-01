@@ -142,7 +142,7 @@ $ tox run -e docs-doctests
 
 - We follow [PEP 8](https://peps.python.org/pep-0008/) as enforced by [Ruff](https://ruff.rs/) with a line length of 79 characters.
 
-- As long as you run our full *tox* suite before committing, or install our [*pre-commit*](https://pre-commit.com/) hooks, you won't have to spend any time on formatting your code at all.
+- As long as you run our full *tox* suite before committing, you won't have to spend any time on formatting your code at all.
   If you don't, CI will catch it for you – but that seems like a waste of your time!
 
 - If you've changed or added public APIs, please update our type stubs (files ending in `.pyi`).

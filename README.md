@@ -13,7 +13,6 @@
    <a href="https://github.com/python-attrs/attrs/blob/main/.github/AI_POLICY.md"><img src="https://img.shields.io/badge/no-slop-purple" alt="No AI slop inside."></a>
    <a href="https://pypi.org/project/attrs/"><img src="https://img.shields.io/pypi/v/attrs" /></a>
    <a href="https://pepy.tech/project/attrs"><img src="https://static.pepy.tech/personalized-badge/attrs?period=month&units=international_system&left_color=grey&right_color=blue&left_text=Downloads%20/%20Month" alt="Downloads per month" /></a>
-   <a href="https://zenodo.org/badge/latestdoi/29918975"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.17279527.svg" alt="DOI"></a>
 </p>
 
 <!-- teaser-begin -->
@@ -45,7 +44,6 @@ for sponsor in tomllib.loads(pathlib.Path("pyproject.toml").read_text())["tool"]
 <a href="https://privacy-solutions.org/"><img title="Privacy Solutions" src="docs/_static/sponsors/Privacy-Solutions.svg" width="190" /></a>
 <a href="https://klaviyo.com/"><img title="Klaviyo" src="docs/_static/sponsors/Klaviyo.svg" width="190" /></a>
 <a href="https://filepreviews.io/"><img title="FilePreviews" src="docs/_static/sponsors/FilePreviews.svg" width="190" /></a>
-<a href="https://www.testmuai.com/?utm_medium=sponsor&utm_source=structlog"><img title="TestMu AI" src="docs/_static/sponsors/TestMu-AI.svg" width="190" /></a>
 <a href="https://polar.sh/"><img title="Polar" src="docs/_static/sponsors/Polar.svg" width="190" /></a>
 <!-- [[[end]]] -->
 
@@ -125,6 +123,7 @@ Simply assign `attrs.field()` to the attributes instead of annotating them with 
 
 ```python
 from attrs import define, field
+
 
 @define
 class SomeClass:
