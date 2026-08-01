@@ -80,7 +80,7 @@ class PngHeader:
 
 ## Overview of type checkers
 
-Types -- regardless how added -- are *only metadata* that can be queried from the class and they aren't used for anything out of the box.
+Types – regardless how added – are *only metadata* that can be queried from the class and they aren't used for anything out of the box.
 Some packages like [*cattrs*](https://catt.rs/) or Pydantic use this metadata for runtime type validation and (de-)serialization.
 
 But their original purpose is to support static type-checking tools and IDEs.
@@ -93,17 +93,12 @@ All modern type-checking implementations support that, but in practice it's not 
 
 [Mypy] is the original Python type checker and ships with a dedicated *attrs* plugin that implements our features far beyond {pep}`681`.
 
-It also works with *both* legacy annotation styles.
-With Mypy, you can also write this (but really shouldn't):
 
-```python
-@attr.s
-class SomeClass:
-    a_number = attr.ib(default=42)  # type: int
-    list_of_numbers = attr.ib(factory=list, type=list[int])
-```
+### Pyrefly
 
-The approach used for `list_of_numbers` is only available in our [old-style API](names.md) which is why the example still uses it.
+[Pyrefly] is Meta's take on a Rust-based type checker for Python.
+As of its 1.2 release, it offers significantly more advanced *attrs* support beyond {pep}`681`, making it a strong option for *attrs* users seeking deeper type-checking coverage.
+See their [*attrs* documentation](https://pyrefly.org/en/docs/attrs/) for details.
 
 
 ### Pyright / VS Code
@@ -128,14 +123,11 @@ Unfortunately, better *attrs* support doesn't appear to be part of their goals.
 
 ### *ty*
 
-[*ty*] is a fairly new Rust-based type checker from [Astral](https://astral.sh), the makers of Ruff and *uv*.
+[*ty*] is a Rust-based type checker from [Astral](https://astral.sh), the makers of the beloved Ruff and *uv* tools.
+
 Currently it only supports {pep}`681`, but [they intend](https://github.com/astral-sh/ty/issues/2404) to support more of *attrs*'s features.
-
-
-### Pyrefly
-
-[Pyrefly] is Meta's take on a Rust-based type checker for Python.
-It also only implements {pep}`681` and based on the (lack of) activity on *attrs*-related issues on their bug tracker there is currently no indication that they plan to support additional *attrs* features.
+Feel free to leave a thumbs up on that ticket to remind Astral we exist. 😇
+Please do **not** comment or otherwise accost them – *attrs* users are civilized gentlepeople after all.
 
 
 [Mypy]: http://mypy-lang.org

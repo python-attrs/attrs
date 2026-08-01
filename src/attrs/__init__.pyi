@@ -7,6 +7,7 @@ from typing import (
     Sequence,
     overload,
     TypeVar,
+    Generator,
 )
 
 # Because we need to type our own stuff, we have to make everything from
@@ -56,7 +57,10 @@ _CallableConverterType = Callable[[Any], Any]
 _ConverterType = _CallableConverterType | Converter[Any, Any]
 _ReprType = Callable[[Any], str]
 _ReprArgType = bool | _ReprType
-_OnSetAttrType = Callable[[Any, "Attribute[Any]", Any], Any]
+_OnSetAttrType = (
+    Callable[[Any, "Attribute[Any]", Any], Any]
+    | Callable[[Any, "Attribute[Any]", Any], Generator[Any]]
+)
 _OnSetAttrArgType = _OnSetAttrType | list[_OnSetAttrType] | setters._NoOpType
 _FieldTransformer = Callable[
     [type, list["Attribute[Any]"]], list["Attribute[Any]"]

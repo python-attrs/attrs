@@ -12,6 +12,9 @@ def pipe(*setters):
     """
     Run all *setters* and return the return value of the last one.
 
+    .. warning::
+       Generators are not allowed in ``pipe()``.
+
     .. versionadded:: 20.1.0
     """
 

@@ -108,6 +108,10 @@ def define(
             If no exception is raised, the attribute is set to the return value
             of the callable.
 
+            If the callable is a generator, it may yield exactly once and runs
+            before and after the assignment and its yield value is used as the
+            new value.
+
             If a list of callables is passed, they're automatically wrapped in
             an `attrs.setters.pipe`.
 
@@ -240,15 +244,6 @@ def define(
             non-keyword-only ``__init__`` parameter names on Python 3.10 and
             later. Ignored on older Python versions.
 
-        collect_by_mro (bool):
-            If True, *attrs* collects attributes from base classes correctly
-            according to the `method resolution order
-            <https://docs.python.org/3/howto/mro.html>`_. If False, *attrs*
-            will mimic the (wrong) behavior of `dataclasses` and :pep:`681`.
-
-            See also `issue #428
-            <https://github.com/python-attrs/attrs/issues/428>`_.
-
         force_kw_only (bool):
             A back-compat flag for restoring pre-25.4.0 behavior.  If True and
             ``kw_only=True``, all attributes are made keyword-only, including
@@ -338,6 +333,9 @@ def define(
        and respects attribute-level ``kw_only=False`` settings.
     .. versionadded:: 25.4.0
        Added *force_kw_only* to go back to the previous *kw_only* behavior.
+    .. versionchanged:: 26.2.0
+       *on_setattr* hooks can now be generator functions that yield exactly
+       once.
 
     .. note::
 
@@ -578,9 +576,13 @@ def field(
 
         on_setattr (~typing.Callable | list[~typing.Callable] | None | ~typing.Literal[attrs.setters.NO_OP]):
             Allows to overwrite the *on_setattr* setting from `attr.s`. If left
-            None, the *on_setattr* value from `attr.s` is used. Set to
+            None, the *on_setattr* value from `attrs.define` is used. Set to
             `attrs.setters.NO_OP` to run **no** `setattr` hooks for this
             attribute -- regardless of the setting in `define()`.
+
+            May be a generator function that yields exactly once and runs
+            before and after the assignment and its yield value is used as the
+            new value.
 
         alias (str | None):
             Override this attribute's parameter name in the generated
@@ -597,6 +599,9 @@ def field(
     .. versionchanged:: 25.4.0
        *kw_only* can now be None, and its default is also changed from False to
        None.
+    .. versionchanged:: 26.2.0
+       *on_setattr* hooks can now be generator functions that yield exactly
+       once.
 
     .. seealso::
 

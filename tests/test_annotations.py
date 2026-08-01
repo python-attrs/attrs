@@ -434,6 +434,23 @@ class TestAnnotations:
 
         assert_init_annotations(C)
 
+    @pytest.mark.skipif(
+        sys.version_info[:2] < (3, 14),
+        reason="Python 3.14 changed annotation evaluation behavior.",
+    )
+    def test_missing_classvar_import(self, slots):
+        """
+        Unimported ClassVars are recognized as ForwardRefs.
+        """
+
+        @attr.s(auto_attribs=True, slots=slots)
+        class C:
+            cls_var: ClassVar[str]  # noqa: F821
+            value: int = 1
+
+        assert "cls_var" not in attr.fields_dict(C)
+        assert 1 == C().value
+
     def test_keyword_only_auto_attribs(self):
         """
         `kw_only` propagates to attributes defined via `auto_attribs`.
@@ -691,6 +708,7 @@ class TestAnnotations:
         "typing.ClassVar",
         "'typing.ClassVar[dict]'",
         "t.ClassVar[int]",
+        typing.ForwardRef("ClassVar[str]"),
     ],
 )
 def test_is_class_var(annot):

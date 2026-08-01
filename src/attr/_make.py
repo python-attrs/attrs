@@ -4,9 +4,7 @@ from __future__ import annotations
 
 import abc
 import contextlib
-import copy
 import enum
-import inspect
 import itertools
 import linecache
 import sys
@@ -27,6 +25,7 @@ from ._compat import (
     PY_3_13_PLUS,
     _AnnotationExtractor,
     _get_annotations,
+    _lazy_is_generator,
     get_generic_base,
 )
 from .exceptions import (
@@ -160,6 +159,9 @@ def attrib(
     .. versionchanged:: 25.4.0
        *kw_only* can now be None, and its default is also changed from False to
        None.
+    .. versionchanged:: 26.2.0
+       *on_setattr* hooks can now be generator functions to run code before and
+       after an attribute is set.
     """
     eq, eq_key, order, order_key = _determine_attrib_eq_order(
         cmp, eq, order, True
@@ -299,6 +301,7 @@ def _is_class_var(annot):
     annotations which would put attrs-based classes at a performance
     disadvantage compared to plain old classes.
     """
+    annot = getattr(annot, "__forward_arg__", annot)
     annot = str(annot)
 
     # Annotation can be quoted.
@@ -705,6 +708,8 @@ class _ClassBuilder:
         if self._has_pre_init:
             # Check if the pre init method has more arguments than just `self`
             # We want to pass arguments if pre init expects arguments
+            import inspect
+
             pre_init_func = cls.__attrs_pre_init__
             pre_init_signature = inspect.signature(pre_init_func)
             self._pre_init_has_args = len(pre_init_signature.parameters) > 1
@@ -920,6 +925,8 @@ class _ClassBuilder:
         # To know to update them.
         additional_closure_functions_to_update = []
         if cached_properties:
+            import inspect
+
             class_annotations = _get_annotations(self._cls)
             for name, func in cached_properties.items():
                 # Add cached properties to names for slotting.
@@ -1168,7 +1175,11 @@ class _ClassBuilder:
         for a in self._attrs:
             on_setattr = a.on_setattr or self._on_setattr
             if on_setattr and on_setattr is not setters.NO_OP:
-                sa_attrs[a.name] = a, on_setattr
+                sa_attrs[a.name] = (
+                    a,
+                    on_setattr,
+                    _lazy_is_generator(on_setattr),
+                )
 
         if not sa_attrs:
             return self
@@ -1181,13 +1192,29 @@ class _ClassBuilder:
         # docstring comes from _add_method_dunders
         def __setattr__(self, name, val):
             try:
-                a, hook = sa_attrs[name]
+                a, hook, is_gen = sa_attrs[name]
             except KeyError:
-                nval = val
-            else:
-                nval = hook(self, a, val)
+                _OBJ_SETATTR(self, name, val)
 
+                return
+
+            if is_gen():
+                gen = hook(self, a, val)
+                nval = next(gen)
+                _OBJ_SETATTR(self, name, nval)
+                try:
+                    next(gen)
+                except StopIteration:
+                    return
+
+                gen.close()
+                msg = "Generator on_setattr hook yielded more than once."
+                raise RuntimeError(msg)
+
+            nval = hook(self, a, val)
             _OBJ_SETATTR(self, name, nval)
+
+            return
 
         self._cls_dict["__attrs_own_setattr__"] = True
         self._cls_dict["__setattr__"] = self._add_method_dunders(__setattr__)
@@ -1357,6 +1384,15 @@ def attrs(
     *never* go away, though).
 
     Args:
+        collect_by_mro (bool):
+            If True, *attrs* collects attributes from base classes correctly
+            according to the `method resolution order
+            <https://docs.python.org/3/howto/mro.html>`_. If False, *attrs*
+            will mimic the (wrong) behavior of `dataclasses` and :pep:`681`.
+
+            See also `issue #428
+            <https://github.com/python-attrs/attrs/issues/428>`_.
+
         repr_ns (str):
             When using nested classes, there was no way in Python 2 to
             automatically detect that.  This argument allows to set a custom
@@ -2604,6 +2640,8 @@ class Attribute:
 
         .. versionadded:: 20.3.0
         """
+        import copy
+
         new = copy.copy(self)
 
         new._setattrs(changes.items())
@@ -3376,6 +3414,7 @@ def pipe(*converters):
     Type annotations will be inferred from the wrapped converters', if they
     have any.
 
+    Args:
         converters (~collections.abc.Iterable[typing.Callable]):
             Arbitrary number of converters.
 
