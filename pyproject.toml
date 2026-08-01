@@ -53,7 +53,7 @@ tests = [
 cov = [{ include-group = "tests" }, "coverage[toml]"]
 pyright = ["pyright", { include-group = "tests" }]
 ty = ["ty", { include-group = "tests" }]
-pyrefly = ["pyrefly", { include-group = "tests" }]
+pyrefly = ["pyrefly>=1.2.0", { include-group = "tests" }]
 benchmark = [
   { include-group = "tests" },
   "pytest-codspeed",
@@ -82,8 +82,7 @@ dev = [
 exclude-newer = "1 week"
 
 [tool.uv.exclude-newer-package]
-# Need latest ABI wheels for 3.15. Remove 2026-07-18.
-hypothesis = false
+pyrefly = false  # need pyrefly 1.2.0; remove after 2026-08-07
 
 
 [tool.hatch.version]
@@ -329,7 +328,12 @@ showcontent = true
 pretty = true
 disallow_untyped_defs = true
 check_untyped_defs = true
+exclude = ["typing-examples/pyrefly.py"]
 
 
 [tool.pyright]
 include = ["typing-examples/baseline.py"]
+
+
+[tool.pyrefly]
+project-includes = ["typing-examples"]
