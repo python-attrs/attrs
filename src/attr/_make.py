@@ -3390,6 +3390,7 @@ def pipe(*converters):
     Type annotations will be inferred from the wrapped converters', if they
     have any.
 
+    Args:
         converters (~collections.abc.Iterable[typing.Callable]):
             Arbitrary number of converters.
 
