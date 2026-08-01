@@ -25,6 +25,7 @@ from ._compat import (
     PY_3_13_PLUS,
     _AnnotationExtractor,
     _get_annotations,
+    _lazy_is_generator,
     get_generic_base,
 )
 from .exceptions import (
@@ -158,6 +159,9 @@ def attrib(
     .. versionchanged:: 25.4.0
        *kw_only* can now be None, and its default is also changed from False to
        None.
+    .. versionchanged:: 26.2.0
+       *on_setattr* hooks can now be generator functions to run code before and
+       after an attribute is set.
     """
     eq, eq_key, order, order_key = _determine_attrib_eq_order(
         cmp, eq, order, True
@@ -1171,7 +1175,11 @@ class _ClassBuilder:
         for a in self._attrs:
             on_setattr = a.on_setattr or self._on_setattr
             if on_setattr and on_setattr is not setters.NO_OP:
-                sa_attrs[a.name] = a, on_setattr
+                sa_attrs[a.name] = (
+                    a,
+                    on_setattr,
+                    _lazy_is_generator(on_setattr),
+                )
 
         if not sa_attrs:
             return self
@@ -1184,13 +1192,29 @@ class _ClassBuilder:
         # docstring comes from _add_method_dunders
         def __setattr__(self, name, val):
             try:
-                a, hook = sa_attrs[name]
+                a, hook, is_gen = sa_attrs[name]
             except KeyError:
-                nval = val
-            else:
-                nval = hook(self, a, val)
+                _OBJ_SETATTR(self, name, val)
 
+                return
+
+            if is_gen():
+                gen = hook(self, a, val)
+                nval = next(gen)
+                _OBJ_SETATTR(self, name, nval)
+                try:
+                    next(gen)
+                except StopIteration:
+                    return
+
+                gen.close()
+                msg = "Generator on_setattr hook yielded more than once."
+                raise RuntimeError(msg)
+
+            nval = hook(self, a, val)
             _OBJ_SETATTR(self, name, nval)
+
+            return
 
         self._cls_dict["__attrs_own_setattr__"] = True
         self._cls_dict["__setattr__"] = self._add_method_dunders(__setattr__)

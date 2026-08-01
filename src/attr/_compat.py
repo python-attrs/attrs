@@ -4,7 +4,7 @@ import sys
 import threading
 
 from collections.abc import Mapping, Sequence  # noqa: F401
-from typing import _GenericAlias
+from typing import Callable, _GenericAlias
 
 
 PYPY = sys.implementation.name == "pypy"
@@ -101,3 +101,28 @@ def get_generic_base(cl):
     if cl.__class__ is _GenericAlias:
         return cl.__origin__
     return None
+
+
+_IS_GENERATOR_RESULTS = {}
+
+
+def _lazy_is_generator(f: Callable) -> Callable[[], bool]:
+    """
+    Return a caching closure over callable f that returns whether f is a
+    generator function.
+
+    Not thread-safe but doesn't matter.
+    """
+
+    def is_gen() -> bool:
+        import inspect
+
+        try:
+            if f not in _IS_GENERATOR_RESULTS:
+                _IS_GENERATOR_RESULTS[f] = inspect.isgeneratorfunction(f)
+        except TypeError:  # f is not hashable
+            return inspect.isgeneratorfunction(f)
+
+        return _IS_GENERATOR_RESULTS[f]
+
+    return is_gen

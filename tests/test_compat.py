@@ -8,6 +8,8 @@ import pytest
 
 import attr
 
+from attr._compat import _IS_GENERATOR_RESULTS, _lazy_is_generator
+
 
 @pytest.fixture(name="mp")
 def _mp():
@@ -63,3 +65,36 @@ def test_attrsinstance_subclass_protocol():
 
     class Foo(attr.AttrsInstance, Protocol):
         def attribute(self) -> int: ...
+
+
+class TestLazyIsGenerator:
+    def test_is_generator(self):
+        """
+        Returns True for generator functions and caches the result.
+        """
+
+        def gen():
+            yield 1
+
+        assert _lazy_is_generator(gen)()
+        assert _IS_GENERATOR_RESULTS[gen] is True
+
+    def test_is_not_generator(self):
+        """
+        Returns False for non-generator functions and caches the result.
+        """
+
+        def non_gen():
+            return 1
+
+        assert not _lazy_is_generator(non_gen)()
+        assert _IS_GENERATOR_RESULTS[non_gen] is False
+
+    def test_not_hashable(self):
+        """
+        If the user somehow manages to create a non-hashable function,
+        the result is not hashed but the result is correct.
+        """
+        non_hashable = {}
+
+        assert not _lazy_is_generator(non_hashable)()
