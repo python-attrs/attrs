@@ -194,7 +194,7 @@ benchmark = [
     { name = "cloudpickle", marker = "platform_python_implementation == 'CPython'" },
     { name = "hypothesis" },
     { name = "pympler" },
-    { name = "pytest" },
+    { name = "pytest", specifier = ">9" },
     { name = "pytest-codspeed" },
     { name = "pytest-xdist", extras = ["psutil"] },
 ]
@@ -203,7 +203,7 @@ cov = [
     { name = "coverage", extras = ["toml"] },
     { name = "hypothesis" },
     { name = "pympler" },
-    { name = "pytest" },
+    { name = "pytest", specifier = ">9" },
     { name = "pytest-xdist", extras = ["psutil"] },
 ]
 dev = [
@@ -212,7 +212,7 @@ dev = [
     { name = "interrogate", specifier = ">=1.7.0" },
     { name = "prek" },
     { name = "pympler" },
-    { name = "pytest" },
+    { name = "pytest", specifier = ">9" },
     { name = "pytest-xdist", extras = ["psutil"] },
     { name = "ruff" },
 ]
@@ -239,7 +239,7 @@ mypy = [
     { name = "cloudpickle", marker = "platform_python_implementation == 'CPython'" },
     { name = "hypothesis" },
     { name = "pympler" },
-    { name = "pytest" },
+    { name = "pytest", specifier = ">9" },
     { name = "pytest-mypy-plugins", marker = "python_full_version >= '3.10' and platform_python_implementation == 'CPython'" },
     { name = "pytest-xdist", extras = ["psutil"] },
 ]
@@ -248,7 +248,7 @@ pyrefly = [
     { name = "hypothesis" },
     { name = "pympler" },
     { name = "pyrefly", specifier = ">=1.2.0" },
-    { name = "pytest" },
+    { name = "pytest", specifier = ">9" },
     { name = "pytest-xdist", extras = ["psutil"] },
 ]
 pyright = [
@@ -256,21 +256,21 @@ pyright = [
     { name = "hypothesis" },
     { name = "pympler" },
     { name = "pyright" },
-    { name = "pytest" },
+    { name = "pytest", specifier = ">9" },
     { name = "pytest-xdist", extras = ["psutil"] },
 ]
 tests = [
     { name = "cloudpickle", marker = "platform_python_implementation == 'CPython'" },
     { name = "hypothesis" },
     { name = "pympler" },
-    { name = "pytest" },
+    { name = "pytest", specifier = ">9" },
     { name = "pytest-xdist", extras = ["psutil"] },
 ]
 ty = [
     { name = "cloudpickle", marker = "platform_python_implementation == 'CPython'" },
     { name = "hypothesis" },
     { name = "pympler" },
-    { name = "pytest" },
+    { name = "pytest", specifier = ">9" },
     { name = "pytest-xdist", extras = ["psutil"] },
     { name = "ty" },
 ]

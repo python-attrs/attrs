@@ -46,7 +46,7 @@ tests = [
   'cloudpickle; platform_python_implementation == "CPython"',
   "hypothesis",
   "pympler",
-  "pytest",
+  "pytest>9",
   "pytest-xdist[psutil]",
 ]
 cov = [{ include-group = "tests" }, "coverage[toml]"]
