@@ -9,10 +9,8 @@ import sys
 from functools import partial
 from typing import Callable, Literal, Protocol
 
-from . import exceptions, setters
-from ._cmp import cmp_using
+from . import setters
 from ._config import get_run_validators, set_run_validators
-from ._funcs import asdict, assoc, astuple, has, resolve_types
 from ._make import (
     NOTHING,
     Attribute,
@@ -28,7 +26,6 @@ from ._make import (
     validate,
 )
 from ._next_gen import define, field, frozen, mutable
-from ._version_info import VersionInfo
 
 
 s = attributes = attrs
@@ -80,14 +77,24 @@ __all__ = [
 ]
 
 
-_LAZY_SUBMODULES = {"converters", "validators", "filters"}
-
-
 def _make_getattr(mod_name: str) -> Callable:
     """
     Create a metadata proxy for packaging information that uses *mod_name* in
     its warnings and errors.
     """
+    _LAZY_SUBMODULES = {
+        "converters",
+        "validators",
+        "filters",
+        "exceptions",
+    }
+    _LAZY_FUNCTIONS = {
+        "asdict",
+        "assoc",
+        "astuple",
+        "has",
+        "resolve_types",
+    }
 
     def __getattr__(name: str) -> str:
         if name in _LAZY_SUBMODULES:
@@ -96,6 +103,28 @@ def _make_getattr(mod_name: str) -> Callable:
             mod = importlib.import_module(f".{name}", mod_name)
             sys.modules[mod_name].__dict__[name] = mod
             return mod
+
+        if name in _LAZY_FUNCTIONS:
+            from . import _funcs
+
+            f = getattr(_funcs, name)
+            globals()[name] = f
+
+            return f
+
+        if name == "VersionInfo":
+            from ._version_info import VersionInfo
+
+            globals()[name] = VersionInfo
+
+            return VersionInfo
+
+        if name == "cmp_using":
+            from ._cmp import cmp_using
+
+            globals()[name] = cmp_using
+
+            return cmp_using
 
         if name not in ("__version__", "__version_info__"):
             msg = f"module {mod_name} has no attribute {name}"
@@ -106,6 +135,8 @@ def _make_getattr(mod_name: str) -> Callable:
         meta = metadata("attrs")
 
         if name == "__version_info__":
+            from ._version_info import VersionInfo
+
             return VersionInfo._from_version_string(meta["version"])
 
         return meta["version"]
