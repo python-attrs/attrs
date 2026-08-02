@@ -112,7 +112,7 @@ jobs:
 
       - name: Run limited tests on PyPy
         env:
-          V: ${{ matrix.python-version }}
+          PYTHON: ${{ matrix.python-version }}
         run: >
           uvx --with=tox-uv
           tox run
