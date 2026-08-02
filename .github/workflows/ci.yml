@@ -121,7 +121,10 @@ jobs:
           rm -rf src  # ensure tests run against wheel
       - uses: hynek/setup-cached-uv@34e35d30f1ebc7421a5cc733bca38dcc62603960 # v2.6.0
 
-      - run: >
+      - name: Run limited tests on PyPy
+        env:
+          V: ${{ matrix.python-version }}
+        run: >
           uvx --with=tox-uv
           tox run
           --installpkg dist/*.whl
