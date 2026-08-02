@@ -11,6 +11,7 @@ from typing import Callable, Literal, Protocol
 
 from . import setters
 from ._config import get_run_validators, set_run_validators
+from ._funcs import asdict, assoc, astuple, has, resolve_types
 from ._make import (
     NOTHING,
     Attribute,
@@ -88,13 +89,6 @@ def _make_getattr(mod_name: str) -> Callable:
         "filters",
         "exceptions",
     }
-    _LAZY_FUNCTIONS = {
-        "asdict",
-        "assoc",
-        "astuple",
-        "has",
-        "resolve_types",
-    }
 
     def __getattr__(name: str) -> str:
         if name in _LAZY_SUBMODULES:
@@ -103,14 +97,6 @@ def _make_getattr(mod_name: str) -> Callable:
             mod = importlib.import_module(f".{name}", mod_name)
             sys.modules[mod_name].__dict__[name] = mod
             return mod
-
-        if name in _LAZY_FUNCTIONS:
-            from . import _funcs
-
-            f = getattr(_funcs, name)
-            globals()[name] = f
-
-            return f
 
         if name == "VersionInfo":
             from ._version_info import VersionInfo
