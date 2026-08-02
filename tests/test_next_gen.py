@@ -305,6 +305,7 @@ class TestNextGen:
             attrs.define,
             attrs.mutable,
         ],
+        ids=["arg-frozen", "attrs.frozen", "attrs.define", "attrs.mutable"],
     )
     def test_discard_context(self, decorator):
         """
@@ -334,6 +335,7 @@ class TestNextGen:
             attrs.define,
             attrs.mutable,
         ],
+        ids=["arg-frozen", "attrs.frozen", "attrs.define", "attrs.mutable"],
     )
     def test_setting_exception_mutable_attributes(self, decorator):
         """

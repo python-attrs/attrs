@@ -26,7 +26,6 @@ import attr
 import attrs
 
 from attr import _config
-from attr._compat import PY_3_10_PLUS
 from attr._make import (
     Attribute,
     ClassProps,
@@ -118,7 +117,11 @@ class TestCountingAttr:
 
         assert v == a._validator
 
-    @pytest.mark.parametrize("wrap", [lambda v: v, lambda v: [v], and_])
+    @pytest.mark.parametrize(
+        "wrap",
+        [lambda v: v, lambda v: [v], and_],
+        ids=["single", "list", "and"],
+    )
     def test_validator_decorator(self, wrap):
         """
         If _CountingAttr.validator is used as a decorator and there is already
@@ -152,7 +155,9 @@ class TestCountingAttr:
         assert a._converter.takes_field
 
     @pytest.mark.parametrize(
-        "wrap", [lambda v: v, lambda v: [v], attr.converters.pipe]
+        "wrap",
+        [lambda v: v, lambda v: [v], attr.converters.pipe],
+        ids=["single", "list", "pipe"],
     )
     def test_converter_decorator(self, wrap):
         """
@@ -1950,9 +1955,11 @@ class TestMetadata:
         """
         Assert dictionaries are copied and present.
         """
-        C = make_class("C", dict(zip(gen_attr_names(), list_of_attrs)))
+        C = make_class(
+            "C", dict(zip(gen_attr_names(), list_of_attrs, strict=False))
+        )
 
-        for hyp_attr, class_attr in zip(list_of_attrs, fields(C)):
+        for hyp_attr, class_attr in zip(list_of_attrs, fields(C), strict=True):
             if hyp_attr.metadata is None:
                 # The default is a singleton empty dict.
                 assert class_attr.metadata is not None
@@ -1997,7 +2004,9 @@ class TestMetadata:
         """
         All empty metadata attributes share the same empty metadata dict.
         """
-        C = make_class("C", dict(zip(gen_attr_names(), list_of_attrs)))
+        C = make_class(
+            "C", dict(zip(gen_attr_names(), list_of_attrs, strict=False))
+        )
         for a in fields(C)[1:]:
             assert a.metadata is fields(C)[0].metadata
 
@@ -2014,11 +2023,13 @@ class TestMetadata:
         """
         Non-empty metadata attributes exist as fields after ``@attr.s``.
         """
-        C = make_class("C", dict(zip(gen_attr_names(), list_of_attrs)))
+        C = make_class(
+            "C", dict(zip(gen_attr_names(), list_of_attrs, strict=False))
+        )
 
         assert len(fields(C)) > 0
 
-        for cls_a, raw_a in zip(fields(C), list_of_attrs):
+        for cls_a, raw_a in zip(fields(C), list_of_attrs, strict=True):
             assert cls_a.metadata != {}
             assert cls_a.metadata == raw_a.metadata
 
@@ -2299,7 +2310,7 @@ class TestClassBuilder:
 
         out_kwargs = []
         for args in itertools.product([True, False], repeat=len(options)):
-            kwargs = dict(zip(options, args))
+            kwargs = dict(zip(options, args, strict=True))
 
             kwargs["unsafe_hash"] = kwargs["unsafe_hash"] or None
 
@@ -3082,22 +3093,7 @@ class TestAutoDetect:
             C, "__getstate__", None
         )
 
-    @pytest.mark.skipif(PY_3_10_PLUS, reason="Pre-3.10 only.")
-    def test_match_args_pre_310(self):
-        """
-        __match_args__ is not created on Python versions older than 3.10.
-        """
 
-        @attr.s
-        class C:
-            a = attr.ib()
-
-        assert None is getattr(C, "__match_args__", None)
-
-
-@pytest.mark.skipif(
-    not PY_3_10_PLUS, reason="Structural pattern matching is 3.10+"
-)
 class TestMatchArgs:
     """
     Tests for match_args and __match_args__ generation.

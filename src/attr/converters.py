@@ -4,8 +4,6 @@
 Commonly useful converters.
 """
 
-import typing
-
 from ._compat import _AnnotationExtractor
 from ._make import NOTHING, Converter, Factory, pipe
 
@@ -51,11 +49,11 @@ def optional(converter):
 
     t = xtr.get_first_param_type()
     if t:
-        optional_converter.__annotations__["val"] = typing.Optional[t]
+        optional_converter.__annotations__["val"] = t | None
 
     rt = xtr.get_return_type()
     if rt:
-        optional_converter.__annotations__["return"] = typing.Optional[rt]
+        optional_converter.__annotations__["return"] = rt | None
 
     if isinstance(converter, Converter):
         return Converter(optional_converter, takes_self=True, takes_field=True)

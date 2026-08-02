@@ -6,7 +6,7 @@ import pytest
 
 from hypothesis import HealthCheck, settings
 
-from attr._compat import PY_3_10_PLUS, PY_3_14_PLUS
+from attr._compat import PY_3_14_PLUS
 
 
 @pytest.fixture(name="slots", params=(True, False))
@@ -32,7 +32,5 @@ def pytest_configure(config):
 
 
 collect_ignore = []
-if not PY_3_10_PLUS:
-    collect_ignore.extend(["test_pattern_matching.py"])
 if not PY_3_14_PLUS:
     collect_ignore.extend(["test_forward_references.py"])

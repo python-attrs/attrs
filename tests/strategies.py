@@ -68,7 +68,9 @@ def _create_hyp_nested_strategy(draw, simple_class_strategy):
     ]
     factory = draw(st.sampled_from(factories))
     attrs = [*draw(list_of_attrs), attr.ib(default=attr.Factory(factory))]
-    return make_class("HypClass", dict(zip(gen_attr_names(), attrs)))
+    return make_class(
+        "HypClass", dict(zip(gen_attr_names(), attrs, strict=False))
+    )
 
 
 bare_attrs = st.builds(attr.ib, default=st.none())
@@ -160,7 +162,7 @@ def simple_classes(
     elif private_attrs is False:
         attr_names = gen_attr_names()
 
-    cls_dict = dict(zip(attr_names, attrs))
+    cls_dict = dict(zip(attr_names, attrs, strict=False))
     pre_init_flag = draw(st.booleans())
     post_init_flag = draw(st.booleans())
     init_flag = draw(st.booleans())
