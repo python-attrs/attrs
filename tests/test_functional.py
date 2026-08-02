@@ -825,6 +825,7 @@ class TestReplace:
         """
         inst = C1(1, 2)
 
-        assert attr.evolve != inst.__replace__
-        assert attr.evolve is not inst.__replace__
+        assert "<bound method C1.__replace__ of C1(x=1, y=2)>" == str(
+            inst.__replace__
+        )
         assert str(attr.evolve).startswith("<function evolve at")

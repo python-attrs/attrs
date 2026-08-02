@@ -1109,10 +1109,10 @@ class _ClassBuilder:
 
     def add_replace(self):
         # We create a local `evolve` proxy because it gets modified in place.
-        def evolve_(*args, **changes):
+        def __replace__(*args, **changes):
             return evolve(*args, **changes)
 
-        self._cls_dict["__replace__"] = self._add_method_dunders(evolve_)
+        self._cls_dict["__replace__"] = self._add_method_dunders(__replace__)
         return self
 
     def add_match_args(self):
