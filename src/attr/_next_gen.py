@@ -8,6 +8,8 @@ default values.
 from functools import partial
 
 from . import setters
+from ._funcs import asdict as _asdict
+from ._funcs import astuple as _astuple
 from ._make import (
     _DEFAULT_ON_SETATTR,
     NOTHING,
@@ -629,7 +631,6 @@ def asdict(inst, *, recurse=True, filter=None, value_serializer=None):
 
     .. versionadded:: 21.3.0
     """
-    from ._funcs import asdict as _asdict
 
     return _asdict(
         inst=inst,
@@ -647,7 +648,6 @@ def astuple(inst, *, recurse=True, filter=None):
 
     .. versionadded:: 21.3.0
     """
-    from ._funcs import astuple as _astuple
 
     return _astuple(
         inst=inst, recurse=recurse, filter=filter, retain_collection_types=True
