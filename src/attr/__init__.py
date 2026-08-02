@@ -9,7 +9,7 @@ import sys
 from functools import partial
 from typing import Callable, Literal, Protocol
 
-from . import setters
+from . import exceptions, setters
 from ._config import get_run_validators, set_run_validators
 from ._funcs import asdict, assoc, astuple, has, resolve_types
 from ._make import (
@@ -83,12 +83,7 @@ def _make_getattr(mod_name: str) -> Callable:
     Create a metadata proxy for packaging information that uses *mod_name* in
     its warnings and errors.
     """
-    _LAZY_SUBMODULES = {
-        "converters",
-        "validators",
-        "filters",
-        "exceptions",
-    }
+    _LAZY_SUBMODULES = {"converters", "validators", "filters"}
 
     def __getattr__(name: str) -> str:
         if name in _LAZY_SUBMODULES:
