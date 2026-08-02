@@ -9,7 +9,7 @@ import sys
 from functools import partial
 from typing import Callable, Literal, Protocol
 
-from . import exceptions, filters, setters
+from . import exceptions, setters
 from ._cmp import cmp_using
 from ._config import get_run_validators, set_run_validators
 from ._funcs import asdict, assoc, astuple, has, resolve_types
@@ -80,7 +80,7 @@ __all__ = [
 ]
 
 
-_LAZY_SUBMODULES = {"converters", "validators"}
+_LAZY_SUBMODULES = {"converters", "validators", "filters"}
 
 
 def _make_getattr(mod_name: str) -> Callable:

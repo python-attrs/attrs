@@ -451,7 +451,7 @@ def resolve_types(
             class yet.
 
         include_extras (bool):
-            Resolve more accurately by passing `include_extras=True` to
+            Resolve more accurately by passing ``include_extras=True`` to
             `typing.get_type_hints`.
 
     Raises:
