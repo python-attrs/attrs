@@ -126,7 +126,7 @@ jobs:
           uvx --with=tox-uv
           tox run
           --installpkg dist/*.whl
-          -e pypy3-tests
+          -e pypy3.11-tests
 
   coverage:
     name: Combine & check coverage
