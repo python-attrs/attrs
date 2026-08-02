@@ -451,10 +451,8 @@ def resolve_types(
             class yet.
 
         include_extras (bool):
-            Resolve more accurately, if possible. Pass ``include_extras`` to
-            ``typing.get_hints``, if supported by the typing module. On
-            supported Python versions (3.9+), this resolves the types more
-            accurately.
+            Resolve more accurately by passing `include_extras=True` to
+            `typing.get_type_hints`.
 
     Raises:
         TypeError: If *cls* is not a class.

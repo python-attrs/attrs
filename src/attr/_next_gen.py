@@ -241,8 +241,7 @@ def define(
         match_args (bool):
             If True (default), set ``__match_args__`` on the class to support
             :pep:`634` (*Structural Pattern Matching*). It is a tuple of all
-            non-keyword-only ``__init__`` parameter names on Python 3.10 and
-            later. Ignored on older Python versions.
+            non-keyword-only ``__init__`` parameter names.
 
         force_kw_only (bool):
             A back-compat flag for restoring pre-25.4.0 behavior.  If True and
