@@ -50,6 +50,9 @@ jobs:
         # Created by the build-and-inspect-python-package action above.
         python-version: ${{ fromJson(needs.build-package.outputs.supported-python-versions) }}
 
+    env:
+      PYTHON: ${{ matrix.python-version }}
+
     steps:
       - name: Download pre-built packages
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -63,24 +66,10 @@ jobs:
           allow-prereleases: true
       - uses: hynek/setup-cached-uv@34e35d30f1ebc7421a5cc733bca38dcc62603960 # v2.6.0
 
-      - name: Prepare tox
-        env:
-          V: ${{ matrix.python-version }}
-        run: |
-          DO_MYPY=1
-
-          if [[ "$V" == "3.9" ]]; then
-            DO_MYPY=0
-          fi
-
-          echo DO_MYPY=$DO_MYPY >>$GITHUB_ENV
-          echo TOX_PYTHON=py$(echo $V | tr -d .) >>$GITHUB_ENV
-
       - run: >
           uvx --with=tox-uv
           tox run
-          -e $TOX_PYTHON-mypy
-        if: env.DO_MYPY == '1'
+          -e $PYTHON-mypy
 
       - name: Remove src to ensure tests run against wheel
         run: rm -rf src
@@ -89,7 +78,7 @@ jobs:
           uvx --with=tox-uv
           tox run
           --installpkg dist/*.whl
-          -e $TOX_PYTHON-tests
+          -e $PYTHON-tests
 
       - name: Upload coverage data
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -123,12 +112,12 @@ jobs:
 
       - name: Run limited tests on PyPy
         env:
-          V: ${{ matrix.python-version }}
+          PYTHON: ${{ matrix.python-version }}
         run: >
           uvx --with=tox-uv
           tox run
           --installpkg dist/*.whl
-          -e $(echo $V | tr -d -)-tests
+          -e $(echo $PYTHON | tr -d -)-tests
 
   coverage:
     name: Combine & check coverage
