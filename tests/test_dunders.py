@@ -499,9 +499,11 @@ class TestAddHash:
         but attrs is not requested to generate `__hash__`.
         """
         exc_args = (
-            "Invalid value for cache_hash.  To use hash caching,"
-            " hashing must be either explicitly or implicitly "
-            "enabled.",
+            (
+                "Invalid value for cache_hash.  To use hash caching,"
+                " hashing must be either explicitly or implicitly "
+                "enabled."
+            ),
         )
         with pytest.raises(TypeError) as e:
             make_class("C", {}, unsafe_hash=False, cache_hash=True)
@@ -525,8 +527,10 @@ class TestAddHash:
         but attrs is not requested to generate `__init__`.
         """
         exc_args = (
-            "Invalid value for cache_hash.  To use hash caching,"
-            " init must be True.",
+            (
+                "Invalid value for cache_hash.  To use hash caching,"
+                " init must be True."
+            ),
         )
         with pytest.raises(TypeError) as e:
             make_class("C", {}, init=False, unsafe_hash=True, cache_hash=True)

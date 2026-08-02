@@ -32,7 +32,7 @@ else:
         """
         Get annotations for *cls*.
         """
-        return cls.__dict__.get("__annotations__", {})
+        return cls.__dict__.get("__annotations__", {})  # noqa: RUF063
 
 
 class _AnnotationExtractor:

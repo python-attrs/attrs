@@ -25,14 +25,15 @@ That means that is has to come *after* your decorator because:
 @a
 @b
 def f():
-   pass
+    pass
 ```
 
 is just [syntactic sugar](https://en.wikipedia.org/wiki/Syntactic_sugar) for:
 
 ```python
 def original_f():
-   pass
+    pass
+
 
 f = a(b(original_f))
 ```
@@ -56,9 +57,9 @@ At the moment, the best workaround is to hold your nose, write a fake Mypy plugi
 ```python
 from mypy.plugin import Plugin
 from mypy.plugins.attrs import (
-   attr_attrib_makers,
-   attr_class_makers,
-   attr_dataclass_makers,
+    attr_attrib_makers,
+    attr_class_makers,
+    attr_dataclass_makers,
 )
 
 # These work just like `attr.dataclass`.
@@ -69,6 +70,7 @@ attr_class_makers.add("my_module.method_looks_like_attr_s")
 
 # These are our `attr.ib` makers.
 attr_attrib_makers.add("my_module.method_looks_like_attrib")
+
 
 class MyPlugin(Plugin):
     # Our plugin does nothing but it has to exist so this file gets loaded.
@@ -147,9 +149,10 @@ Here are some tips for effective use of metadata:
   ```python
   from mylib import MY_METADATA_KEY
 
+
   @define
   class C:
-    x = field(metadata={MY_METADATA_KEY: 1})
+      x = field(metadata={MY_METADATA_KEY: 1})
   ```
 
   Metadata should be composable, so consider supporting this approach even if you decide implementing your metadata in one of the following ways.

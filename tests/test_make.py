@@ -276,13 +276,15 @@ class TestTransformAttrs:
                 C, None, False, ClassProps.KeywordOnly.NO, True, None
             )
         assert (
-            "No mandatory attributes allowed after an attribute with a "
-            "default value or factory.  Attribute in question: Attribute"
-            "(name='y', default=NOTHING, validator=None, repr=True, "
-            "eq=True, eq_key=None, order=True, order_key=None, "
-            "hash=None, init=True, "
-            "metadata=mappingproxy({}), type=None, converter=None, "
-            "kw_only=False, inherited=False, on_setattr=None, alias='y')",
+            (
+                "No mandatory attributes allowed after an attribute with a "
+                "default value or factory.  Attribute in question: Attribute"
+                "(name='y', default=NOTHING, validator=None, repr=True, "
+                "eq=True, eq_key=None, order=True, order_key=None, "
+                "hash=None, init=True, "
+                "metadata=mappingproxy({}), type=None, converter=None, "
+                "kw_only=False, inherited=False, on_setattr=None, alias='y')"
+            ),
         ) == e.value.args
 
     def test_kw_only(self):

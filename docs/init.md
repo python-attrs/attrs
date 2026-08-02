@@ -13,6 +13,7 @@ class Point:
         self.x = database_row.x
         self.y = database_row.y
 
+
 pt = Point(row)
 ```
 
@@ -27,6 +28,7 @@ class Point:
     @classmethod
     def from_row(cls, row):
         return cls(row.x, row.y)
+
 
 pt = Point.from_row(row)
 ```

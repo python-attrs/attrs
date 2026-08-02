@@ -60,6 +60,7 @@ See https://github.com/python-attrs/attrs/blob/main/.github/CONTRIBUTING.md#chan
       a: int
       b: int = attrs.field(default=1, kw_only=False)
 
+
   @attrs.define
   class Subclass(Base):
       c: int

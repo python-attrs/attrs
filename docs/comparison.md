@@ -59,9 +59,10 @@ For NumPy arrays it would look like this:
 ```python
 import numpy
 
+
 @define
 class C:
-   an_array = field(eq=attrs.cmp_using(eq=numpy.array_equal))
+    an_array = field(eq=attrs.cmp_using(eq=numpy.array_equal))
 ```
 
 :::{warning}

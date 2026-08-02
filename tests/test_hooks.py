@@ -172,13 +172,15 @@ class TestTransformHook:
                 y: int = attr.ib(metadata={"field_order": 0}, default=0)
 
         assert (
-            "No mandatory attributes allowed after an attribute with a "
-            "default value or factory.  Attribute in question: Attribute"
-            "(name='x', default=NOTHING, validator=None, repr=True, "
-            "eq=True, eq_key=None, order=True, order_key=None, "
-            "hash=None, init=True, "
-            "metadata=mappingproxy({'field_order': 1}), type='int', converter=None, "
-            "kw_only=False, inherited=False, on_setattr=None, alias='x')",
+            (
+                "No mandatory attributes allowed after an attribute with a "
+                "default value or factory.  Attribute in question: Attribute"
+                "(name='x', default=NOTHING, validator=None, repr=True, "
+                "eq=True, eq_key=None, order=True, order_key=None, "
+                "hash=None, init=True, "
+                "metadata=mappingproxy({'field_order': 1}), type='int', converter=None, "
+                "kw_only=False, inherited=False, on_setattr=None, alias='x')"
+            ),
         ) == e.value.args
 
     def test_hook_with_inheritance(self):

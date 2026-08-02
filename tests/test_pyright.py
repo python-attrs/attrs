@@ -49,14 +49,18 @@ def test_pyright_baseline():
         ),
         (
             "information",
-            'Type of "DefineConverter.__init__" is '
-            '"(self: DefineConverter, with_converter: str | Buffer | '
-            'SupportsInt | SupportsIndex) -> None"',
+            (
+                'Type of "DefineConverter.__init__" is '
+                '"(self: DefineConverter, with_converter: str | Buffer | '
+                'SupportsInt | SupportsIndex) -> None"'
+            ),
         ),
         (
             "error",
-            'Cannot assign to attribute "a" for class '
-            '"Frozen"\n\xa0\xa0Attribute "a" is read-only',
+            (
+                'Cannot assign to attribute "a" for class '
+                '"Frozen"\n\xa0\xa0Attribute "a" is read-only'
+            ),
         ),
         (
             "information",
@@ -64,8 +68,10 @@ def test_pyright_baseline():
         ),
         (
             "error",
-            'Cannot assign to attribute "a" for class '
-            '"FrozenDefine"\n\xa0\xa0Attribute "a" is read-only',
+            (
+                'Cannot assign to attribute "a" for class '
+                '"FrozenDefine"\n\xa0\xa0Attribute "a" is read-only'
+            ),
         ),
         (
             "information",
