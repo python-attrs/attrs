@@ -20,7 +20,6 @@ from typing import Any, NamedTuple, TypeVar
 # having the thread-local in the globals here.
 from . import _compat, _config, setters
 from ._compat import (
-    PY_3_10_PLUS,
     PY_3_11_PLUS,
     PY_3_13_PLUS,
     _AnnotationExtractor,
@@ -809,9 +808,7 @@ class _ClassBuilder:
             cls = self._create_slots_class()
             self._cls.__attrs_base_of_slotted__ = weakref.ref(cls)
         else:
-            cls = self._patch_original_class()
-            if PY_3_10_PLUS:
-                cls = abc.update_abstractmethods(cls)
+            cls = abc.update_abstractmethods(self._patch_original_class())
 
         # The method gets only called if it's not inherited from a base class.
         # _has_own_attribute does NOT work properly for classmethods.
@@ -1050,7 +1047,7 @@ class _ClassBuilder:
             if isinstance(state, tuple):
                 # Backward compatibility with attrs instances pickled with
                 # attrs versions before v22.2.0 which stored tuples.
-                for name, value in zip(state_attr_names, state):
+                for name, value in zip(state_attr_names, state, strict=False):
                     __bound_setattr(name, value)
             else:
                 for name in state_attr_names:
@@ -1602,11 +1599,7 @@ def attrs(
         if PY_3_13_PLUS and not _has_own_attribute(cls, "__replace__"):
             builder.add_replace()
 
-        if (
-            PY_3_10_PLUS
-            and match_args
-            and not _has_own_attribute(cls, "__match_args__")
-        ):
+        if match_args and not _has_own_attribute(cls, "__match_args__"):
             builder.add_match_args()
 
         return builder.build_class()
@@ -2679,7 +2672,7 @@ class Attribute:
         if len(state) < len(self.__slots__):
             # Pre-26.1.0 pickle without alias_is_default -- infer it
             # heuristically.
-            state_dict = dict(zip(self.__slots__, state))
+            state_dict = dict(zip(self.__slots__, state, strict=False))
             alias_is_default = state_dict.get(
                 "alias"
             ) is None or state_dict.get("alias") == _default_init_alias_for(
@@ -2687,7 +2680,7 @@ class Attribute:
             )
             state = (*state, alias_is_default)
 
-        self._setattrs(zip(self.__slots__, state))
+        self._setattrs(zip(self.__slots__, state, strict=True))
 
     def _setattrs(self, name_values_pairs):
         bound_setattr = _OBJ_SETATTR.__get__(self)
@@ -3119,7 +3112,7 @@ class Factory:
         """
         Play nice with pickle.
         """
-        for name, value in zip(self.__slots__, state):
+        for name, value in zip(self.__slots__, state, strict=True):
             setattr(self, name, value)
 
 

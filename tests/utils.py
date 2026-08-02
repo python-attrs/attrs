@@ -17,12 +17,13 @@ def simple_class(
     slots=False,
     frozen=False,
     cache_hash=False,
+    name="C",
 ):
     """
     Return a new simple class.
     """
     return make_class(
-        "C",
+        name,
         ["a", "b"],
         eq=eq or order,
         order=order,

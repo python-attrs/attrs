@@ -118,7 +118,9 @@ class TestAsDict:
                     assert_proper_dict_class(field_val, obj_dict[field.name])
                 elif isinstance(field_val, Sequence):
                     dict_val = obj_dict[field.name]
-                    for item, item_dict in zip(field_val, dict_val):
+                    for item, item_dict in zip(
+                        field_val, dict_val, strict=True
+                    ):
                         if has(item.__class__):
                             assert_proper_dict_class(item, item_dict)
                 elif isinstance(field_val, Mapping):
@@ -359,7 +361,9 @@ class TestAsTuple:
                     # This field holds a sequence of something.
                     expected_type = type(obj_tuple[index])
                     assert type(field_val) is expected_type
-                    for obj_e, obj_tuple_e in zip(field_val, obj_tuple[index]):
+                    for obj_e, obj_tuple_e in zip(
+                        field_val, obj_tuple[index], strict=True
+                    ):
                         if has(obj_e.__class__):
                             assert_proper_col_class(obj_e, obj_tuple_e)
                 elif isinstance(field_val, dict):
@@ -367,7 +371,7 @@ class TestAsTuple:
                     tupled = obj_tuple[index]
                     assert type(orig) is type(tupled)
                     for obj_e, obj_tuple_e in zip(
-                        orig.items(), tupled.items()
+                        orig.items(), tupled.items(), strict=True
                     ):
                         if has(obj_e[0].__class__):  # Dict key
                             assert_proper_col_class(obj_e[0], obj_tuple_e[0])

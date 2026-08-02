@@ -8,7 +8,6 @@ from typing import Callable, _GenericAlias
 
 
 PYPY = sys.implementation.name == "pypy"
-PY_3_10_PLUS = sys.version_info[:2] >= (3, 10)
 PY_3_11_PLUS = sys.version_info[:2] >= (3, 11)
 PY_3_12_PLUS = sys.version_info[:2] >= (3, 12)
 PY_3_13_PLUS = sys.version_info[:2] >= (3, 13)

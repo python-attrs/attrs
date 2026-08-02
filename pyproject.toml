@@ -10,12 +10,11 @@ name = "attrs"
 authors = [{ name = "Hynek Schlawack", email = "hs@ox.cx" }]
 license = "MIT"
 license-files = ["LICENSE"]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 description = "Classes Without Boilerplate"
 keywords = ["class", "attribute", "boilerplate"]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
@@ -47,7 +46,7 @@ tests = [
   'cloudpickle; platform_python_implementation == "CPython"',
   "hypothesis",
   "pympler",
-  "pytest",
+  "pytest>9",
   "pytest-xdist[psutil]",
 ]
 cov = [{ include-group = "tests" }, "coverage[toml]"]
@@ -168,15 +167,10 @@ url = "https://polar.sh/"
 img = "Polar.svg"
 
 
-[tool.pytest.ini_options]
-addopts = [
-  "-ra",
-  "--strict-markers",
-  "--strict-config",
-  "--import-mode=importlib", # make src truly unimportable
-]
-xfail_strict = true
-testpaths = "tests"
+[tool.pytest]
+strict = true
+testpaths = ["tests"]
+addopts = ["-ra", "--import-mode=importlib"]
 filterwarnings = ["once::Warning", "ignore:::pympler[.*]"]
 
 
@@ -281,7 +275,10 @@ ignore = [
 ]
 
 "src/*/*.pyi" = ["ALL"] # TODO
-"tests/test_annotations.py" = ["FA100"]
+"tests/test_annotations.py" = [
+    "FA100",
+    "UP045",   # need old-school type annotations for some asserts
+]
 "typing-examples/*" = [
   "INP001", # not for imports
   "E741",   # ambiguous variable names don't matter in type checks
