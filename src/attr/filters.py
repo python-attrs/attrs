@@ -9,12 +9,13 @@ from ._make import Attribute
 
 def _split_what(what):
     """
-    Returns a tuple of `frozenset`s of classes and attributes.
+    Returns a tuple of `frozenset`s of classes and names, and a `tuple` of
+    attributes.
     """
     return (
         frozenset(cls for cls in what if isinstance(cls, type)),
         frozenset(cls for cls in what if isinstance(cls, str)),
-        frozenset(cls for cls in what if isinstance(cls, Attribute)),
+        tuple(cls for cls in what if isinstance(cls, Attribute)),
     )
 
 
@@ -39,7 +40,7 @@ def include(*what):
         return (
             value.__class__ in cls
             or attribute.name in names
-            or attribute in attrs
+            or any(attribute is a for a in attrs)
         )
 
     return include_
@@ -66,7 +67,7 @@ def exclude(*what):
         return not (
             value.__class__ in cls
             or attribute.name in names
-            or attribute in attrs
+            or any(attribute is a for a in attrs)
         )
 
     return exclude_

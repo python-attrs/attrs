@@ -30,7 +30,7 @@ class TestSplitWhat:
         assert (
             frozenset((int, str)),
             frozenset(("abcd", "123")),
-            frozenset((fields(C).a,)),
+            (fields(C).a,),
         ) == _split_what((str, "123", fields(C).a, int, "abcd"))
 
 
