@@ -816,3 +816,16 @@ class TestReplace:
 
         with pytest.raises(TypeError):
             copy.replace(inst, z=42)
+
+    def test_is_not_evolve(self):
+        """
+        __replace__ is not the same as attrs.evolve.
+
+        Regression test for #1606.
+        """
+        inst = C1(1, 2)
+
+        assert "<bound method C1.__replace__ of C1(x=1, y=2)>" == str(
+            inst.__replace__
+        )
+        assert str(attr.evolve).startswith("<function evolve at")
