@@ -20,7 +20,6 @@ env:
 
 permissions: {}
 
-
 jobs:
   build-package:
     name: Build & verify package
@@ -126,7 +125,7 @@ jobs:
           uvx --with=tox-uv
           tox run
           --installpkg dist/*.whl
-          -e pypy3.11-tests
+          -e $(echo $V | tr -d -)-tests
 
   coverage:
     name: Combine & check coverage
