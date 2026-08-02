@@ -11,6 +11,8 @@ import pytest
 
 import attrs
 
+from attrs import asdict, astuple
+
 
 pytestmark = pytest.mark.benchmark()
 
@@ -129,7 +131,7 @@ def test_asdict_complicated():
     Benchmark instances with non-shortcut fields.
     """
     c = C()
-    ad = attrs.asdict
+    ad = asdict
 
     for _ in range(ROUNDS):
         ad(c)
@@ -140,7 +142,7 @@ def test_astuple_complicated():
     Benchmark instances with non-shortcut fields.
     """
     c = C()
-    at = attrs.astuple
+    at = astuple
 
     for _ in range(ROUNDS):
         at(c)
@@ -160,7 +162,7 @@ def test_asdict_atomic():
     Benchmark atomic-only instances.
     """
     c = AtomicFields()
-    ad = attrs.asdict
+    ad = asdict
 
     for _ in range(ROUNDS):
         ad(c)
@@ -171,7 +173,7 @@ def test_astuple_atomic():
     Benchmark atomic-only instances.
     """
     c = AtomicFields()
-    at = attrs.astuple
+    at = astuple
 
     for _ in range(ROUNDS):
         at(c)
