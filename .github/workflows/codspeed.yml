@@ -45,7 +45,9 @@ jobs:
         uses: CodSpeedHQ/action@88472375d0a4572cf70a9f1fe3a4e0ab8da1b924 # v5.0.1
         with:
           mode: simulation
-          run: uvx --with tox-uv tox run -e codspeed
+          run: >
+            uv run --only-group tox
+            tox run -e codspeed
 
   imports:
     name: Measure import times

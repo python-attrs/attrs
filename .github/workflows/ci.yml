@@ -67,7 +67,7 @@ jobs:
       - uses: hynek/setup-cached-uv@34e35d30f1ebc7421a5cc733bca38dcc62603960 # v2.6.0
 
       - run: >
-          uvx --with=tox-uv
+          uv run --only-group tox
           tox run
           -e $PYTHON-mypy
 
@@ -75,7 +75,7 @@ jobs:
         run: rm -rf src
 
       - run: >
-          uvx --with=tox-uv
+          uv run --only-group tox
           tox run
           --installpkg dist/*.whl
           -e $PYTHON-tests
@@ -114,7 +114,7 @@ jobs:
         env:
           PYTHON: ${{ matrix.python-version }}
         run: >
-          uvx --with=tox-uv
+          uv run --only-group tox
           tox run
           --installpkg dist/*.whl
           -e $(echo $PYTHON | tr -d -)-tests
@@ -172,7 +172,9 @@ jobs:
       - run: tar xf dist/*.tar.gz --strip-components=1
       - uses: hynek/setup-cached-uv@34e35d30f1ebc7421a5cc733bca38dcc62603960 # v2.6.0
 
-      - run: uvx --with=tox-uv tox run -e docs-doctests,changelog
+      - run: >
+          uv run --only-group tox
+          tox run -e docs-doctests,changelog
 
   lint:
     name: Run linters
@@ -184,8 +186,7 @@ jobs:
       - uses: hynek/setup-cached-uv@34e35d30f1ebc7421a5cc733bca38dcc62603960 # v2.6.0
 
       - run: >
-          uvx --with=tox-uv
-          --python $(cat .python-version-default)
+          uv run --only-group tox
           tox run -f lint
 
   typing:
@@ -195,11 +196,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version-file: .python-version-default
       - uses: hynek/setup-cached-uv@34e35d30f1ebc7421a5cc733bca38dcc62603960 # v2.6.0
 
       - run: >
-          uvx --with=tox-uv
-          --python $(cat .python-version-default)
+          uv run --only-group tox
           tox run -f typing
 
   install-dev:
