@@ -186,7 +186,7 @@ jobs:
       - run: >
           uvx --with=tox-uv
           --python $(cat .python-version-default)
-          tox run -e lint
+          tox run -f lint
 
   typing:
     name: Check types using supported type checkers

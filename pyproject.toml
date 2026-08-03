@@ -49,6 +49,10 @@ tests = [
   "pytest>9",
   "pytest-xdist[psutil]",
 ]
+lint = [
+  "ruff>=0.16",
+  "prek>=0.4",
+]
 cov = [{ include-group = "tests" }, "coverage[toml]"]
 pyright = ["pyright", { include-group = "tests" }]
 ty = ["ty", { include-group = "tests" }]
@@ -70,9 +74,7 @@ docs = [
 docs-watch = [{ include-group = "docs" }, "watchfiles"]
 dev = [
     { include-group = "tests" },
-    "ruff",
-    "prek",
-    "interrogate>=1.7.0",
+    { include-group = "lint" },
 ]
 
 
