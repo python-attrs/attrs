@@ -283,8 +283,7 @@ ignore = [
     "FA100",
     "UP045",   # need old-school type annotations for some asserts
 ]
-"typing-examples/*" = [
-  "INP001", # not for imports
+"typing_tests/*" = [
   "E741",   # ambiguous variable names don't matter in type checks
   "B018",   # useless expressions aren't useless in type checks
   "B015",   # pointless comparison in type checks aren't pointless
@@ -329,15 +328,15 @@ showcontent = true
 pretty = true
 disallow_untyped_defs = true
 check_untyped_defs = true
-exclude = ["typing-examples/pyrefly.py"]
+exclude = ["typing_tests/pyrefly.py"]
 
 
 [tool.pyright]
-include = ["typing-examples/baseline.py"]
+include = ["typing_tests/baseline.py"]
 
 
 [tool.pyrefly]
-project-includes = ["typing-examples"]
+project-includes = ["typing_tests"]
 
 
 [[tool.ty.overrides]]
@@ -350,6 +349,6 @@ include = [
   "docs",
   "src",
   "tests",
-  "typing-examples/mypy.py",
-  "typing-examples/pyrefly.py"
+  "typing_tests/mypy.py",
+  "typing_tests/pyrefly.py"
 ]

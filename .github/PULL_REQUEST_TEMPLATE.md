@@ -20,7 +20,7 @@ You may check boxes that don't apply to your pull request to indicate that there
   - Consider granting [push permissions to the PR branch](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/allowing-changes-to-a-pull-request-branch-created-from-a-fork), so maintainers can fix minor issues themselves without pestering you.
 - [ ] There's **tests** for all new and changed code.
 - [ ] Changes or additions to public APIs are reflected in our type stubs (files ending in ``.pyi``).
-    - [ ] ...and used in the stub test file `typing-examples/baseline.py` or, if necessary, `typing-examples/mypy.py`.
+    - [ ] ...and used in the stub test file `typing_tests/baseline.py` or, if necessary, `typing_tests/mypy.py`.
     - [ ] If they've been added to `attr/__init__.pyi`, they've *also* been re-imported in `attrs/__init__.pyi`.
 - [ ] The **documentation** has been updated.
     - [ ] New functions/classes have to be added to `docs/api.rst` by hand.
