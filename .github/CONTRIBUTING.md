@@ -66,8 +66,8 @@ If you don't, our test suite will fail because we use Git tags for packaging.
 
 Finally, **clone** your fork using one of the alternatives that you can copy-paste by pressing the big green button labeled `<> Code`.
 
-You can (and should) run our test suite using [*tox*](https://tox.wiki/) with the [*tox-uv*](https://github.com/tox-dev/tox-uv) plugin.
-The easiest way is to [install *uv*] which is needed in any case and then run `uv tool install --with tox-uv tox` to have it globally available or `uvx --with tox-uv tox` to use a temporary environment.
+You can (and should) run our full test suite using [*tox*](https://tox.wiki/).
+It's part of our development environment, so `uv run tox` works out of the box once you've [installed *uv*][install *uv*].
 
 ---
 
@@ -118,7 +118,7 @@ $ git fetch upstream --tags
 When working on the documentation, use:
 
 ```console
-$ tox run -e docs-watch
+$ uv run tox run -e docs-watch
 ```
 
 This will build the documentation, watch for changes, and rebuild it whenever you save a file.
@@ -126,7 +126,7 @@ This will build the documentation, watch for changes, and rebuild it whenever yo
 To just build the documentation and exit immediately use:
 
 ```console
-$ tox run -e docs-build
+$ uv run tox run -e docs-build
 ```
 
 You will find the built documentation in `docs/_build/html`.
@@ -134,7 +134,7 @@ You will find the built documentation in `docs/_build/html`.
 To run doctests:
 
 ```console
-$ tox run -e docs-doctests
+$ uv run tox run -e docs-doctests
 ```
 
 
@@ -159,7 +159,7 @@ $ tox run -e docs-doctests
   assert "foo" == x._a_private_attribute
   ```
 
-- You can run the test suite with all dependencies against all supported Python versions - just as it will in our CI - by running `tox`.
+- You can run the test suite with all dependencies against all supported Python versions - just as it will in our CI - by running `uv run tox`.
 
 - Write [good test docstrings](https://jml.io/test-docstrings/).
 
@@ -272,7 +272,7 @@ If you want to reference multiple issues, copy the news fragment to another file
 Towncrier will merge all news fragments with identical contents into one entry with multiple links to the respective pull requests.
 
 
-`tox run -e changelog` will render the current changelog to the terminal if you have any doubts.
+`uv run tox run -e changelog` will render the current changelog to the terminal if you have any doubts.
 
 
 ## Governance

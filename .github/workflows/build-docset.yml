@@ -31,7 +31,9 @@ jobs:
           python-version: "3.x"
       - uses: hynek/setup-cached-uv@34e35d30f1ebc7421a5cc733bca38dcc62603960 # v2.6.0
 
-      - run: uvx --with=tox-uv tox run -e docset
+      - run: >
+          uv run --only-group tox
+          tox run -e docset
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
