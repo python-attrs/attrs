@@ -4,8 +4,9 @@ version: 2
 build:
   os: ubuntu-lts-latest
   tools:
-    # Keep version in sync with tox.ini/docs.
-    python: "3.14"
+    # Mandatory field. We allow uv to install Python to avoid manual
+    # duplication, but latest is usually the correct version.
+    python: latest
   jobs:
     create_environment:
       # Need the tags to calculate the version (sometimes).
