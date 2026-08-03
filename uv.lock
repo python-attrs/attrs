@@ -117,9 +117,11 @@ dev = [
     { name = "hypothesis" },
     { name = "prek" },
     { name = "pympler" },
+    { name = "pyrefly" },
     { name = "pytest" },
     { name = "pytest-xdist", extra = ["psutil"] },
     { name = "ruff" },
+    { name = "ty" },
 ]
 docs = [
     { name = "cogapp" },
@@ -214,9 +216,11 @@ dev = [
     { name = "hypothesis" },
     { name = "prek", specifier = ">=0.4" },
     { name = "pympler" },
+    { name = "pyrefly", specifier = ">=1.2.0" },
     { name = "pytest", specifier = ">9" },
     { name = "pytest-xdist", extras = ["psutil"] },
     { name = "ruff", specifier = ">=0.16" },
+    { name = "ty" },
 ]
 docs = [
     { name = "cogapp" },

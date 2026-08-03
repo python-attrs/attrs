@@ -75,6 +75,8 @@ docs-watch = [{ include-group = "docs" }, "watchfiles"]
 dev = [
     { include-group = "tests" },
     { include-group = "lint" },
+    { include-group = "pyrefly" },
+    { include-group = "ty" },
 ]
 
 
