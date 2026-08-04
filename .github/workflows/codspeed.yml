@@ -2,14 +2,6 @@
 name: CodSpeed Benchmarks
 
 on:
-  push:
-    branches: [main]
-    tags: ["*"]
-    paths:
-      - src/**.py
-      - bench/**
-      - codspeed.yml
-      - .github/workflows/codspeed.yml
   pull_request:
     paths:
       - src/**.py
