@@ -17,13 +17,19 @@ However, due to both legal and human reasons, we have to establish boundaries.
 >
 > - Absolutely **no** unsupervised agentic tools like OpenClaw.
 >
+> - Do **not** trigger bots like Copilot on this repository.
+>   GitHub won't let us block Copilot, but it's a great way to tell you didn't read this.
+>
 > ---
 >
 > By submitting a pull request, you certify that:
 >
 > - You are the author of the contribution or have the legal right to submit it.
+>
 > - You either hold the copyright to the changes or have explicit legal authorization to contribute them under this project's license.
+>
 > - You understand the code.
+>
 > - You accept full responsibility for it.
 
 
