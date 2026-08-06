@@ -44,6 +44,7 @@ for sponsor in tomllib.loads(pathlib.Path("pyproject.toml").read_text())["tool"]
 <a href="https://privacy-solutions.org/"><img title="Privacy Solutions" src="docs/_static/sponsors/Privacy-Solutions.svg" width="190" /></a>
 <a href="https://klaviyo.com/"><img title="Klaviyo" src="docs/_static/sponsors/Klaviyo.svg" width="190" /></a>
 <a href="https://filepreviews.io/"><img title="FilePreviews" src="docs/_static/sponsors/FilePreviews.svg" width="190" /></a>
+<a href="https://www.testmuai.com/?utm_medium=sponsor&utm_source=structlog"><img title="TestMu AI" src="docs/_static/sponsors/TestMu-AI.svg" width="190" /></a>
 <a href="https://polar.sh/"><img title="Polar" src="docs/_static/sponsors/Polar.svg" width="190" /></a>
 <!-- [[[end]]] -->
 
@@ -123,7 +124,6 @@ Simply assign `attrs.field()` to the attributes instead of annotating them with 
 
 ```python
 from attrs import define, field
-
 
 @define
 class SomeClass:
