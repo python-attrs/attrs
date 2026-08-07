@@ -93,11 +93,16 @@ All modern type-checking implementations support that, but in practice it's not 
 
 [Mypy] is the original Python type checker and ships with a dedicated *attrs* plugin that implements our features far beyond {pep}`681`.
 
+It's the only type checker that supports old-school *attrs* (`@attr.s` / `attr.ib`, including the *type* parameter), but lacks some modern features.
+
 
 ### Pyrefly
 
 [Pyrefly] is Meta's take on a Rust-based type checker for Python.
-As of its 1.2 release, it offers significantly more advanced *attrs* support beyond {pep}`681`, making it a strong option for *attrs* users seeking deeper type-checking coverage.
+As of its 1.2 release, it offers significantly more advanced *attrs* support beyond {pep}`681`.
+
+Pyrefly only supports modern *attrs* (`@define` / `@frozen` / `field`), but it's also currently the only type checker that supports modern features like {func}`copy.replace`.
+
 See their [*attrs* documentation](https://pyrefly.org/en/docs/attrs/) for details.
 
 

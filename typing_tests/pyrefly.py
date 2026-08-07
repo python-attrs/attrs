@@ -6,7 +6,9 @@ Typing examples that rely on Pyrefly's advanced attrs integration.
 
 from __future__ import annotations
 
+import copy
 import re
+import sys
 
 from typing import Any
 
@@ -20,6 +22,9 @@ class C:
 
 cc = C(1)
 C(a=1)
+
+if sys.version_info >= (3, 13):
+    cc = copy.replace(cc, x=1)
 
 
 @attrs.define

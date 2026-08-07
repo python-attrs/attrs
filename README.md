@@ -125,6 +125,7 @@ Simply assign `attrs.field()` to the attributes instead of annotating them with 
 ```python
 from attrs import define, field
 
+
 @define
 class SomeClass:
     a_number = field(default=42)

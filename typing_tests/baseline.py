@@ -7,6 +7,9 @@ Baseline features that should be supported by all type checkers.
 
 from __future__ import annotations
 
+import copy
+import sys
+
 from typing import Any, Generator
 
 import attrs
@@ -18,6 +21,11 @@ class NGClass:
 
 
 ngc = NGClass(1)
+
+ngc = attrs.assoc(ngc, x=1)
+ngc = attrs.evolve(ngc, x=1)
+if sys.version_info >= (3, 13):
+    ngc = copy.replace(ngc, x=1)
 
 
 @attrs.mutable(slots=False)
