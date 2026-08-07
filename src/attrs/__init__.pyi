@@ -183,6 +183,7 @@ def define(
     on_setattr: _OnSetAttrArgType | None = ...,
     field_transformer: _FieldTransformer | None = ...,
     match_args: bool = ...,
+    dataclass_compatible: bool = ...,
 ) -> _C: ...
 @overload
 @dataclass_transform(field_specifiers=(attrib, field))
@@ -209,6 +210,7 @@ def define(
     on_setattr: _OnSetAttrArgType | None = ...,
     field_transformer: _FieldTransformer | None = ...,
     match_args: bool = ...,
+    dataclass_compatible: bool = ...,
 ) -> Callable[[_C], _C]: ...
 
 mutable = define
@@ -288,6 +290,7 @@ class ClassProps:
     added_match_args: bool
     added_str: bool
     added_pickling: bool
+    added_dataclass_fields: bool
     on_setattr_hook: _OnSetAttrType | None
     field_transformer: Callable[[Attribute[Any]], Attribute[Any]] | None
 
@@ -309,6 +312,7 @@ class ClassProps:
         added_match_args: bool,
         added_str: bool,
         added_pickling: bool,
+        added_dataclass_fields: bool,
         on_setattr_hook: _OnSetAttrType,
         field_transformer: Callable[[Attribute[Any]], Attribute[Any]],
     ) -> None: ...
