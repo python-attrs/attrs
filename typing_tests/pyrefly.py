@@ -24,7 +24,7 @@ cc = C(1)
 C(a=1)
 
 if sys.version_info >= (3, 13):
-    cc = copy.replace(cc, x=1)
+    cc = copy.replace(cc, a=1)
 
 
 @attrs.define
