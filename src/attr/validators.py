@@ -562,7 +562,7 @@ def eq(val):
     Args:
        val: The value that is allowed.
 
-    # TODO: .. versionadded:: 26.2.0
+    .. versionadded:: 26.2.0
     """
     return _NumberValidator(val, "==", operator.eq)
 
