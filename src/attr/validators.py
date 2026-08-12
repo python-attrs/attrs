@@ -560,7 +560,7 @@ def eq(val):
     The validator uses `operator.eq` to compare the values.
 
     Args:
-       val: The value that is not allowed.
+       val: The value that is allowed.
 
     # TODO: .. versionadded:: 26.2.0
     """
