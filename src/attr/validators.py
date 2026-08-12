@@ -21,6 +21,7 @@ __all__ = [
     "deep_iterable",
     "deep_mapping",
     "disabled",
+    "eq",
     "ge",
     "get_disabled",
     "gt",
@@ -549,6 +550,21 @@ def ne(val):
     .. versionadded:: 26.2.0
     """
     return _NumberValidator(val, "!=", operator.ne)
+
+
+def eq(val):
+    """
+    A validator that raises `ValueError` if the initializer is called with a
+    number not equal to *val*.
+
+    The validator uses `operator.eq` to compare the values.
+
+    Args:
+       val: The value that is not allowed.
+
+    # TODO: .. versionadded:: 26.2.0
+    """
+    return _NumberValidator(val, "==", operator.eq)
 
 
 @attrs(repr=False, frozen=True, slots=True)
