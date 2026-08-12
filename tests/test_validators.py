@@ -18,6 +18,7 @@ from attr.validators import (
     and_,
     deep_iterable,
     deep_mapping,
+    eq,
     ge,
     gt,
     in_,
@@ -878,7 +879,7 @@ def test_hashability():
 
 class TestLtLeGeGtNe:
     """
-    Tests for `Lt, Le, Ge, Gt, Ne`.
+    Tests for `Lt, Le, Ge, Gt, Ne, Eq`.
     """
 
     BOUND = 4
@@ -889,10 +890,10 @@ class TestLtLeGeGtNe:
         """
         assert all(
             f.__name__ in validator_module.__all__
-            for f in [lt, le, ge, gt, ne]
+            for f in [lt, le, ge, gt, ne, eq]
         )
 
-    @pytest.mark.parametrize("v", [lt, le, ge, gt, ne])
+    @pytest.mark.parametrize("v", [lt, le, ge, gt, ne, eq])
     def test_retrieve_bound(self, v):
         """
         The configured bound for the comparison can be extracted from the
@@ -916,6 +917,7 @@ class TestLtLeGeGtNe:
             (ge, 5),
             (gt, 5),
             (ne, 5),
+            (eq, 4),
         ],
     )
     def test_check_valid(self, v, value):
@@ -930,11 +932,13 @@ class TestLtLeGeGtNe:
     @pytest.mark.parametrize(
         ("v", "value"),
         [
+            (eq, 3),
             (lt, 4),
             (le, 5),
             (ge, 3),
             (gt, 4),
             (ne, 4),
+            (eq, 5),
         ],
     )
     def test_check_invalid(self, v, value):
@@ -947,7 +951,7 @@ class TestLtLeGeGtNe:
         with pytest.raises(ValueError):
             Tester(value)
 
-    @pytest.mark.parametrize("v", [lt, le, ge, gt, ne])
+    @pytest.mark.parametrize("v", [lt, le, ge, gt, ne, eq])
     def test_repr(self, v):
         """
         __repr__ is meaningful.
