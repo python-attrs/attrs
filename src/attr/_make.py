@@ -918,6 +918,12 @@ class _ClassBuilder:
             if isinstance(cached_prop, cached_property)
         }
 
+        # Expose the cached properties mapping as a public API.
+        # It maps the names of the cached properties defined on this class to
+        # their original functions and is used by the generated `__getattr__`
+        # below.  Inherited cached properties are not included.
+        cd["__attrs_cached_properties__"] = cached_properties
+
         # Collect methods with a `__class__` reference that are shadowed in the new class.
         # To know to update them.
         additional_closure_functions_to_update = []
