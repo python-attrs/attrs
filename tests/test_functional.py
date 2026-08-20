@@ -678,7 +678,15 @@ class TestFunctional:
 
         FooError(1)
 
-    @pytest.mark.parametrize("cls", [KwOnlyError, KwOnlyErrorSlots, KwOnlyErrorFrozen, KwOnlyErrorFrozenSlots])
+    @pytest.mark.parametrize(
+        "cls",
+        [
+            KwOnlyError,
+            KwOnlyErrorSlots,
+            KwOnlyErrorFrozen,
+            KwOnlyErrorFrozenSlots,
+        ],
+    )
     def test_auto_exc_kw_only_pickle(self, cls):
         """
         Exceptions with keyword-only attributes are picklable.
@@ -696,7 +704,9 @@ class TestFunctional:
         assert isinstance(e2, cls)
         assert "42" == str(e2)
 
-    @pytest.mark.parametrize("cls", [KwOnlyErrorNoDefaults, KwOnlyErrorNoDefaultsFrozenSlots])
+    @pytest.mark.parametrize(
+        "cls", [KwOnlyErrorNoDefaults, KwOnlyErrorNoDefaultsFrozenSlots]
+    )
     def test_auto_exc_kw_only_pickle_wo_defaults(self, cls):
         """
         Keyword-only exceptions without default values are picklable, too.

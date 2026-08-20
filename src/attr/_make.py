@@ -679,9 +679,10 @@ def _reconstruct_exception(cls, args, state):
     """
     obj = cls.__new__(cls)
 
-    if isinstance(state, dict):
-        for name, value in state.items():
-            object.__setattr__(obj, name, value)
+    # ``state`` is always a dict: either the attribute mapping built in
+    # ``_make_exc_reduce`` for slotted classes, or ``self.__dict__``.
+    for name, value in state.items():
+        object.__setattr__(obj, name, value)
 
     # ``args`` is stored separately from the fields; restore it explicitly so
     # ``str()`` and ``repr()`` keep working.
