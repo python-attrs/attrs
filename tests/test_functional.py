@@ -107,6 +107,60 @@ class WithMetaSlots(metaclass=Meta):
 FromMakeClass = attr.make_class("FromMakeClass", ["x"])
 
 
+@attr.s(auto_exc=True, kw_only=True)
+class KwOnlyError(Exception):
+    x = attr.ib()
+
+
+@attr.s(auto_exc=True, slots=True, kw_only=True)
+class KwOnlyErrorSlots(Exception):
+    x = attr.ib()
+
+
+@attr.s(auto_exc=True, frozen=True, kw_only=True)
+class KwOnlyErrorFrozen(Exception):
+    x = attr.ib()
+
+
+@attr.s(auto_exc=True, slots=True, frozen=True, kw_only=True)
+class KwOnlyErrorFrozenSlots(Exception):
+    x = attr.ib()
+
+
+@attr.s(auto_exc=True, kw_only=True)
+class KwOnlyErrorNoDefaults(Exception):
+    x = attr.ib()
+    y = attr.ib()
+
+
+@attr.s(auto_exc=True, slots=True, frozen=True, kw_only=True)
+class KwOnlyErrorNoDefaultsFrozenSlots(Exception):
+    x = attr.ib()
+    y = attr.ib()
+
+
+@attr.s(auto_exc=True)
+class MixedError(Exception):
+    a = attr.ib()
+    b = attr.ib(kw_only=True)
+
+
+@attr.s(auto_exc=True, slots=True, frozen=True)
+class MixedErrorFrozenSlots(Exception):
+    a = attr.ib()
+    b = attr.ib(kw_only=True)
+
+
+@attr.s(auto_exc=True)
+class PosError(Exception):
+    x = attr.ib()
+
+
+@attr.s(auto_exc=True, slots=True, frozen=True)
+class PosErrorFrozenSlots(Exception):
+    x = attr.ib()
+
+
 class TestFunctional:
     """
     Functional tests.
@@ -623,6 +677,79 @@ class TestFunctional:
             x = attr.ib()
 
         FooError(1)
+
+    @pytest.mark.parametrize(
+        "cls",
+        [
+            KwOnlyError,
+            KwOnlyErrorSlots,
+            KwOnlyErrorFrozen,
+            KwOnlyErrorFrozenSlots,
+        ],
+    )
+    def test_auto_exc_kw_only_pickle(self, cls):
+        """
+        Exceptions with keyword-only attributes are picklable.
+
+        ``BaseException.__reduce__`` re-creates exceptions by calling
+        ``cls(*self.args)`` which fails for keyword-only initializers.
+        """
+
+        e = cls(x=42)
+
+        e2 = pickle.loads(pickle.dumps(e))
+
+        assert (42,) == e2.args
+        assert 42 == e2.x
+        assert isinstance(e2, cls)
+        assert "42" == str(e2)
+
+    @pytest.mark.parametrize(
+        "cls", [KwOnlyErrorNoDefaults, KwOnlyErrorNoDefaultsFrozenSlots]
+    )
+    def test_auto_exc_kw_only_pickle_wo_defaults(self, cls):
+        """
+        Keyword-only exceptions without default values are picklable, too.
+        """
+
+        e = cls(x=1, y=2)
+
+        e2 = pickle.loads(pickle.dumps(e))
+
+        assert (1, 2) == e2.args
+        assert 1 == e2.x
+        assert 2 == e2.y
+
+    @pytest.mark.parametrize("cls", [MixedError, MixedErrorFrozenSlots])
+    def test_auto_exc_mixed_kw_only_pickle(self, cls):
+        """
+        Exceptions with a mix of positional and keyword-only attributes are
+        picklable.
+        """
+
+        e = cls(1, b=2)
+
+        e2 = pickle.loads(pickle.dumps(e))
+
+        assert (1, 2) == e2.args
+        assert 1 == e2.a
+        assert 2 == e2.b
+
+    @pytest.mark.parametrize("cls", [PosError, PosErrorFrozenSlots])
+    def test_auto_exc_positional_pickle_unaffected(self, cls):
+        """
+        Positional-only exceptions keep their default pickling behaviour and
+        don't get a custom ``__reduce__``.
+        """
+
+        assert "__reduce__" not in cls.__dict__
+
+        e = cls(7)
+
+        e2 = pickle.loads(pickle.dumps(e))
+
+        assert (7,) == e2.args
+        assert 7 == e2.x
 
     def test_eq_only(self, slots, frozen):
         """

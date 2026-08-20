@@ -644,6 +644,53 @@ def evolve(*args, **changes):
     return cls(**changes)
 
 
+def _make_exc_reduce(slots: bool, attrs: list[Attribute]):
+    """
+    Create a ``__reduce__`` method for exceptions with keyword-only
+    attributes.
+
+    Exceptions are unpickled by calling ``cls(*self.args)`` (see
+    `BaseException.__reduce__`), which fails for classes whose ``__init__``
+    only accepts keyword arguments.  This method returns a ``__reduce__``
+    that re-creates the exception via ``__new__`` and restores its state
+    explicitly, so pickling works for any combination of ``slots`` and
+    ``frozen``.
+    """
+    state_attr_names = tuple(a.name for a in attrs if a.name != "__weakref__")
+
+    def __reduce__(self):
+        if slots:
+            state = {name: getattr(self, name) for name in state_attr_names}
+        else:
+            state = self.__dict__
+
+        return (_reconstruct_exception, (self.__class__, self.args, state))
+
+    return __reduce__
+
+
+def _reconstruct_exception(cls, args, state):
+    """
+    Reconstruct an attrs exception whose ``__init__`` is keyword-only.
+
+    The object is created via ``__new__`` (bypassing ``__init__``) and its
+    state is restored with `object.__setattr__`, which works for frozen
+    classes (whose ``__setattr__`` raises) and slotted classes alike.
+    """
+    obj = cls.__new__(cls)
+
+    # ``state`` is always a dict: either the attribute mapping built in
+    # ``_make_exc_reduce`` for slotted classes, or ``self.__dict__``.
+    for name, value in state.items():
+        object.__setattr__(obj, name, value)
+
+    # ``args`` is stored separately from the fields; restore it explicitly so
+    # ``str()`` and ``repr()`` keep working.
+    object.__setattr__(obj, "args", args)
+
+    return obj
+
+
 class _ClassBuilder:
     """
     Iteratively build *one* class.
@@ -1104,6 +1151,22 @@ class _ClassBuilder:
             cls_dict["__init__"] = self._add_method_dunders(init)
 
         self._script_snippets.append((script, globs, _attach_init))
+
+        return self
+
+    def add_reduce(self):
+        """
+        Add a ``__reduce__`` method to exceptions with keyword-only
+        attributes to make them picklable.
+        """
+        if not self._is_exc:
+            return self
+        if not any(a.init and a.kw_only for a in self._attrs):
+            return self
+
+        self._cls_dict["__reduce__"] = self._add_method_dunders(
+            _make_exc_reduce(self._slots, self._attrs)
+        )
 
         return self
 
@@ -1599,6 +1662,8 @@ def attrs(
             if cache_hash:
                 msg = "Invalid value for cache_hash.  To use hash caching, init must be True."
                 raise TypeError(msg)
+
+        builder.add_reduce()
 
         if PY_3_13_PLUS and not _has_own_attribute(cls, "__replace__"):
             builder.add_replace()
