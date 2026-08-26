@@ -839,6 +839,13 @@ class _ClassBuilder:
                     # same name by using only a type annotation.
                     with contextlib.suppress(AttributeError):
                         delattr(cls, name)
+        else:
+            # `these=` does not collect class-body `attr.ib()`s as fields, but
+            # the sentinels would otherwise leak as public attributes (#621).
+            for name, value in list(vars(cls).items()):
+                if isinstance(value, _CountingAttr):
+                    with contextlib.suppress(AttributeError):
+                        delattr(cls, name)
 
         # Attach our dunder methods.
         for name, value in self._cls_dict.items():

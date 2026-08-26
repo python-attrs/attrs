@@ -384,6 +384,24 @@ class TestTransformAttrs:
 
         assert "C(a=1, b=2)" == repr(C())
 
+    def test_these_strips_leftover_counting_attrs(self):
+        """
+        `these=` does not collect class-body attrs as fields, but leftover
+        `attr.ib()` sentinels must not leak as public attributes.
+
+        Regression test for #621.
+        """
+
+        @attr.s(these={"a": attr.ib()})
+        class C:
+            b = attr.ib(default=0)
+
+        inst = C(5)
+
+        assert inst.a == 5
+        assert "b" not in vars(C)
+        assert not isinstance(getattr(inst, "b", None), _CountingAttr)
+
     def test_multiple_inheritance_old(self):
         """
         Old multiple inheritance attribute collection behavior is retained.
