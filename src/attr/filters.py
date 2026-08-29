@@ -39,7 +39,7 @@ def include(*what):
         return (
             value.__class__ in cls
             or attribute.name in names
-            or attribute in attrs
+            or any(attribute is a for a in attrs)
         )
 
     return include_
@@ -66,7 +66,7 @@ def exclude(*what):
         return not (
             value.__class__ in cls
             or attribute.name in names
-            or attribute in attrs
+            or any(attribute is a for a in attrs)
         )
 
     return exclude_
