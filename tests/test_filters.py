@@ -124,3 +124,33 @@ class TestExclude:
         """
         e = exclude(*excl)
         assert e(fields(C).a, value) is False
+
+
+@attr.s
+class C2:
+    a = attr.ib()
+    repeated = attr.ib()
+
+
+@attr.s
+class D2:
+    b = attr.ib()
+    repeated = attr.ib()
+
+
+class TestSameNameAcrossClasses:
+    """
+    Two classes may define attributes with the same name but they are
+    different `Attribute` instances; excluding one must not exclude the
+    other (https://github.com/python-attrs/attrs/issues/864).
+    """
+
+    def test_exclude_identity_not_equality(self):
+        e = exclude(fields(C2).repeated)
+        assert e(fields(C2).repeated, "x") is False
+        assert e(fields(D2).repeated, "x") is True
+
+    def test_include_identity_not_equality(self):
+        i = include(fields(C2).repeated)
+        assert i(fields(C2).repeated, "x") is True
+        assert i(fields(D2).repeated, "x") is False
