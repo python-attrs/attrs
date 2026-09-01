@@ -38,7 +38,7 @@ Core
 .. autofunction:: field
 
 .. autoclass:: Attribute
-   :members: evolve
+   :members: evolve, reuse
 
    For example:
 
