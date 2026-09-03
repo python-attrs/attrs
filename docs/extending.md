@@ -39,6 +39,36 @@ f = a(b(original_f))
 ```
 :::
 
+## Cached Properties
+
+Every slotted class created by *attrs* has a `__attrs_cached_properties__` class attribute.
+It's a plain dict that maps the names of the `cached_property` functions defined on the class to the original functions.
+
+It is useful for tooling that needs to introspect cached properties without evaluating them — for example, to document them.
+
+```{doctest}
+>>> from attrs import define
+>>> from functools import cached_property
+>>> @define
+... class C:
+...     a: int
+...
+...     @cached_property
+...     def b(self):
+...         return self.a * 2
+>>> C.__attrs_cached_properties__  #doctest: +ELLIPSIS
+{'b': <function C.b at 0x...>}
+```
+
+The mapping only contains the cached properties defined on the class itself — inherited ones are not included.
+To find all cached properties of a class, walk its `__mro__` and merge the mappings.
+Non-slotted classes don't have this attribute.
+
+:::{note}
+The mapping is the same dict that *attrs* uses internally to implement cached properties on slotted classes.
+It contains the original functions, so accessing it never evaluates them.
+:::
+
 
 ## Wrapping the Decorator
 

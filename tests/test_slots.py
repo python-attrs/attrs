@@ -1143,6 +1143,105 @@ def test_slots_cached_properties_work_independently():
     assert obj.f_2 == 2
 
 
+def test_slots_cached_properties_exposed_publicly():
+    """
+    Slotted classes expose their cached properties as a mapping of names to
+    the original functions via `__attrs_cached_properties__`.
+    """
+
+    def f_impl(self):
+        return self.x
+
+    @attr.s(slots=True)
+    class A:
+        x = attr.ib()
+        f = functools.cached_property(f_impl)
+
+    assert A.__attrs_cached_properties__ == {"f": f_impl}
+    assert A.__attrs_cached_properties__["f"] is f_impl
+
+
+def test_slots_cached_properties_exposure_does_not_evaluate():
+    """
+    Accessing `__attrs_cached_properties__` must not evaluate the cached
+    properties.
+    """
+    call_count = 0
+
+    @attr.s(slots=True)
+    class A:
+        x = attr.ib()
+
+        @functools.cached_property
+        def f(self):
+            nonlocal call_count
+            call_count += 1
+            return self.x
+
+    assert A.__attrs_cached_properties__["f"].__name__ == "f"
+    assert call_count == 0
+
+    A(1)
+    assert call_count == 0
+
+
+def test_slots_cached_properties_empty_for_slotted_without():
+    """
+    Slotted classes without cached properties have an empty
+    `__attrs_cached_properties__` mapping.
+    """
+
+    @attr.s(slots=True)
+    class A:
+        x = attr.ib()
+
+    assert A.__attrs_cached_properties__ == {}
+
+
+def test_slots_cached_properties_not_on_non_slotted():
+    """
+    Non-slotted classes don't get a `__attrs_cached_properties__` attribute.
+    """
+
+    @attr.s(slots=False)
+    class A:
+        x = attr.ib()
+
+        @functools.cached_property
+        def f(self):
+            return self.x
+
+    assert not hasattr(A, "__attrs_cached_properties__")
+
+
+def test_slots_cached_properties_own_only():
+    """
+    `__attrs_cached_properties__` only contains the cached properties defined
+    on the class itself, not inherited ones.
+    """
+
+    @attr.s(slots=True)
+    class A:
+        x = attr.ib()
+
+        @functools.cached_property
+        def f(self):
+            return self.x
+
+    @attr.s(slots=True)
+    class B(A):
+        @functools.cached_property
+        def g(self):
+            return self.x * 2
+
+    f = A.__attrs_cached_properties__["f"]
+    g = B.__attrs_cached_properties__["g"]
+
+    assert A.__attrs_cached_properties__ == {"f": f}
+    assert B.__attrs_cached_properties__ == {"g": g}
+    assert "f" not in B.__attrs_cached_properties__
+
+
 @attr.s(slots=True)
 class A:
     x = attr.ib()
