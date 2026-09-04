@@ -22,6 +22,7 @@ from . import _compat, _config, setters
 from ._compat import (
     PY_3_11_PLUS,
     PY_3_13_PLUS,
+    PY_3_14_PLUS,
     _AnnotationExtractor,
     _get_annotations,
     _lazy_is_generator,
@@ -1101,6 +1102,8 @@ class _ClassBuilder:
         def _attach_init(cls_dict, globs):
             init = globs["__init__"]
             init.__annotations__ = annotations
+            if PY_3_14_PLUS:
+                init.__annotate__ = _make_init_annotate(annotations, self._cls)
             cls_dict["__init__"] = self._add_method_dunders(init)
 
         self._script_snippets.append((script, globs, _attach_init))
@@ -1141,6 +1144,8 @@ class _ClassBuilder:
         def _attach_attrs_init(cls_dict, globs):
             init = globs["__attrs_init__"]
             init.__annotations__ = annotations
+            if PY_3_14_PLUS:
+                init.__annotate__ = _make_init_annotate(annotations, self._cls)
             cls_dict["__attrs_init__"] = self._add_method_dunders(init)
 
         self._script_snippets.append((script, globs, _attach_attrs_init))
@@ -2094,6 +2099,54 @@ def _make_init_script(
         globs["_cached_setattr_get"] = _OBJ_SETATTR.__get__
 
     return script, globs, annotations
+
+
+def _make_init_annotate(annotations, cls):
+    """Create a lazy annotation provider for generated initializers.
+
+    On Python 3.14, annotations can be evaluated after a class decorator has
+    run. Generated functions use a private globals dictionary, so evaluating
+    a forward reference there would miss names defined later in the module.
+    Resolve string annotations against the defining module when annotations
+    are requested instead.
+    """
+    module = sys.modules.get(cls.__module__)
+    module_globals = module.__dict__ if module is not None else {}
+    module_name = cls.__module__
+
+    def annotate(format):
+        from annotationlib import Format, ForwardRef
+
+        if format == Format.VALUE:
+            result = {}
+            for name, annotation in annotations.items():
+                if isinstance(annotation, str):
+                    try:
+                        annotation = eval(annotation, module_globals)
+                    except NameError:
+                        annotation = ForwardRef(annotation, module=module_name)
+                result[name] = annotation
+            return result
+
+        if format == Format.FORWARDREF:
+            return {
+                name: (
+                    ForwardRef(annotation, module=module_name)
+                    if isinstance(annotation, str)
+                    else annotation
+                )
+                for name, annotation in annotations.items()
+            }
+
+        if format == Format.STRING:
+            return {
+                name: annotation if isinstance(annotation, str) else repr(annotation)
+                for name, annotation in annotations.items()
+            }
+
+        raise NotImplementedError
+
+    return annotate
 
 
 def _setattr(attr_name: str, value_var: str, has_on_setattr: bool) -> str:

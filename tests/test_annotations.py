@@ -4,6 +4,7 @@
 Tests for PEP-526 type annotations.
 """
 
+import inspect
 import sys
 import types
 import typing
@@ -450,6 +451,34 @@ class TestAnnotations:
 
         assert "cls_var" not in attr.fields_dict(C)
         assert 1 == C().value
+
+    @pytest.mark.skipif(
+        sys.version_info[:2] < (3, 14),
+        reason="Python 3.14 added lazy annotation evaluation for functions.",
+    )
+    def test_forward_reference_in_generated_init(self):
+        module = types.ModuleType("attrs_test_forward_reference")
+        module.__dict__["attrs"] = attrs
+        sys.modules[module.__name__] = module
+        try:
+            exec(
+                "from __future__ import annotations\n"
+                "@attrs.define\n"
+                "class DoesNotWork:\n"
+                "    _foo: Foo\n"
+                "class Foo:\n"
+                "    pass\n",
+                module.__dict__,
+            )
+
+            cls = module.__dict__["DoesNotWork"]
+            foo = module.__dict__["Foo"]
+
+            signature = inspect.signature(cls, eval_str=True)
+            assert signature.parameters["foo"].annotation is foo
+            assert typing.get_type_hints(cls.__init__)["foo"] is foo
+        finally:
+            del sys.modules[module.__name__]
 
     def test_keyword_only_auto_attribs(self):
         """
