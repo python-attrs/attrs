@@ -1022,6 +1022,32 @@ class _ClassBuilder:
         self._cls_dict["__str__"] = self._add_method_dunders(__str__)
         return self
 
+    def add_dataclass_fields(self):
+        import dataclasses
+
+        dataclass_fields = {}
+        for attribute in self._attrs:
+            field = dataclasses.field()
+            field._field_type = dataclasses._FIELD
+
+            field.name = attribute.name
+            if attribute.type is None:
+                msg = "__dataclass_fields__ can only be generated if all attributes are annotated."
+                raise ValueError(msg)
+            field.type = attribute.type
+            field.kw_only = attribute.kw_only
+            field.metadata = attribute.metadata
+            if attribute.default is not NOTHING:
+                if isinstance(attribute.default, Factory):
+                    field.default_factory = attribute.default.factory
+                else:
+                    field.default = attribute.default
+
+            dataclass_fields[field.name] = field
+
+        self._cls_dict["__dataclass_fields__"] = dataclass_fields
+        return self
+
     def _make_getstate_setstate(self):
         """
         Create custom __setstate__ and __getstate__ methods.
@@ -1374,6 +1400,7 @@ def attrs(
     on_setattr=None,
     field_transformer=None,
     match_args=True,
+    dataclass_compatible=False,
     unsafe_hash=None,
     force_kw_only=True,
 ):
@@ -1557,6 +1584,7 @@ def attrs(
                 ("__getstate__", "__setstate__"),
                 default=slots,
             ),
+            added_dataclass_fields=dataclass_compatible,
             on_setattr_hook=on_setattr,
             field_transformer=field_transformer,
         )
@@ -1605,6 +1633,9 @@ def attrs(
 
         if match_args and not _has_own_attribute(cls, "__match_args__"):
             builder.add_match_args()
+
+        if props.added_dataclass_fields:
+            builder.add_dataclass_fields()
 
         return builder.build_class()
 
@@ -2959,11 +2990,16 @@ class ClassProps:
             Whether the class has *attrs*-generated ``__getstate__`` and
             ``__setstate__`` methods for `pickle`.
 
+        added_dataclass_fields (bool):
+            Whether the class has an *attrs*-generated ``__dataclass_fields__``
+            attribute.
+
         on_setattr_hook (Callable[[Any, Attribute[Any], Any], Any] | None):
             The class's ``__setattr__`` hook.
 
         field_transformer (Callable[[Attribute[Any]], Attribute[Any]] | None):
             The class's `field transformers <transform-fields>`.
+
 
     .. versionadded:: 25.4.0
     """
@@ -3013,6 +3049,7 @@ class ClassProps:
         "added_match_args",
         "added_str",
         "added_pickling",
+        "added_dataclass_fields",
         "on_setattr_hook",
         "field_transformer",
     )
@@ -3033,6 +3070,7 @@ class ClassProps:
         added_match_args,
         added_str,
         added_pickling,
+        added_dataclass_fields,
         on_setattr_hook,
         field_transformer,
     ):
@@ -3050,6 +3088,7 @@ class ClassProps:
         self.added_match_args = added_match_args
         self.added_str = added_str
         self.added_pickling = added_pickling
+        self.added_dataclass_fields = added_dataclass_fields
         self.on_setattr_hook = on_setattr_hook
         self.field_transformer = field_transformer
 

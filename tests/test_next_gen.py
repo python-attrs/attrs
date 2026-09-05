@@ -493,6 +493,7 @@ class TestProps:
                 collected_fields_by_mro=True,
                 added_str=True,
                 added_pickling=False,  # because slots=False
+                added_dataclass_fields=False,
                 on_setattr_hook=None,
                 field_transformer=None,
             )
@@ -524,6 +525,7 @@ class TestProps:
                 collected_fields_by_mro=True,
                 added_str=False,
                 added_pickling=True,
+                added_dataclass_fields=False,
                 on_setattr_hook=None,
                 field_transformer=None,
             )
