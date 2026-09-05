@@ -2119,12 +2119,15 @@ def _make_init_annotate(annotations, cls):
 
         if format == Format.VALUE:
             result = {}
-            for name, annotation in annotations.items():
-                if isinstance(annotation, str):
+            for name, raw_annotation in annotations.items():
+                annotation = raw_annotation
+                if isinstance(raw_annotation, str):
                     try:
-                        annotation = eval(annotation, module_globals)
+                        annotation = eval(raw_annotation, module_globals)
                     except NameError:
-                        annotation = ForwardRef(annotation, module=module_name)
+                        annotation = ForwardRef(
+                            raw_annotation, module=module_name
+                        )
                 result[name] = annotation
             return result
 
@@ -2140,7 +2143,9 @@ def _make_init_annotate(annotations, cls):
 
         if format == Format.STRING:
             return {
-                name: annotation if isinstance(annotation, str) else repr(annotation)
+                name: annotation
+                if isinstance(annotation, str)
+                else repr(annotation)
                 for name, annotation in annotations.items()
             }
 
