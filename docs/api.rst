@@ -543,6 +543,7 @@ All objects from ``attrs.validators`` are also available from ``attr.validators`
       Traceback (most recent call last):
          ...
       ValueError: ("reserved tag key", Attribute(name='tags', default=NOTHING, validator=<not_ validator wrapping <in_ validator with options {'id', 'time', 'source'}>, capturing (<class 'ValueError'>, <class 'TypeError'>)>, type=None, kw_only=False), <in_ validator with options {'id', 'time', 'source'}>, {'source_': 'universe'}, (<class 'ValueError'>, <class 'TypeError'>))
+      Validation failed for mapping key at entry 0 of attribute 'tags'.
       >>> Measurement(tags={"source_": "universe"})
       Measurement(tags={'source_': 'universe'})
 
@@ -606,6 +607,10 @@ All objects from ``attrs.validators`` are also available from ``attr.validators`
 
 .. autofunction:: attrs.validators.deep_iterable
 
+    On Python 3.11 and newer, a member validation error includes a note identifying the member's position when the exception supports notes.
+    Python 3.10 omits the note.
+    Positions start at zero and follow iteration order, including for iterables that cannot be indexed.
+
     For example:
 
     .. doctest::
@@ -626,9 +631,33 @@ All objects from ``attrs.validators`` are also available from ``attr.validators`
         Traceback (most recent call last):
             ...
         TypeError: ("'x' must be <class 'int'> (got '3' that is a <class 'str'>).", Attribute(name='x', default=NOTHING, validator=<deep_iterable validator for <instance_of validator for type <class 'list'>> iterables of <instance_of validator for type <class 'int'>>>, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False), <class 'int'>, '3')
+        Validation failed for member at index 2 of attribute 'x'.
+
+    This context distinguishes a short member from a short container while preserving the original error message:
+
+    .. doctest::
+
+        >>> @define
+        ... class C:
+        ...     x = field(validator=attrs.validators.deep_iterable(
+        ...         member_validator=[
+        ...             attrs.validators.instance_of(str),
+        ...             attrs.validators.min_len(1),
+        ...         ],
+        ...         iterable_validator=attrs.validators.min_len(1),
+        ...     ))
+        >>> C(x=["abc", ""])
+        Traceback (most recent call last):
+            ...
+        ValueError: Length of 'x' must be >= 1: 0
+        Validation failed for member at index 1 of attribute 'x'.
 
 
 .. autofunction:: attrs.validators.deep_mapping
+
+    On Python 3.11 and newer, a key or value validation error includes a note identifying the validator's role and the entry's position in iteration order when the exception supports notes.
+    Python 3.10 omits the note.
+    Entry positions start at zero; generating the note does not call ``repr()`` on mapping keys.
 
     For example:
 
@@ -651,10 +680,12 @@ All objects from ``attrs.validators`` are also available from ``attr.validators`
         Traceback (most recent call last):
             ...
         TypeError: ("'x' must be <class 'int'> (got 1.0 that is a <class 'float'>).", Attribute(name='x', default=NOTHING, validator=<deep_mapping validator for objects mapping <instance_of validator for type <class 'str'>> to <instance_of validator for type <class 'int'>>>, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False), <class 'int'>, 1.0)
+        Validation failed for mapping value at entry 0 of attribute 'x'.
         >>> C(x={"a": 1, 7: 2})
         Traceback (most recent call last):
             ...
         TypeError: ("'x' must be <class 'str'> (got 7 that is a <class 'int'>).", Attribute(name='x', default=NOTHING, validator=<deep_mapping validator for objects mapping <instance_of validator for type <class 'str'>> to <instance_of validator for type <class 'int'>>>, repr=True, cmp=True, hash=None, init=True, metadata=mappingproxy({}), type=None, converter=None, kw_only=False), <class 'str'>, 7)
+        Validation failed for mapping key at entry 1 of attribute 'x'.
 
 Validators can be both globally and locally disabled:
 
