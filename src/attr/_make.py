@@ -2649,7 +2649,7 @@ class Attribute:
         elif (
             "name" in changes
             and "alias" not in changes
-            # Don't auto-generate alias if the user picked picked the old one.
+            # Don't auto-generate alias if the user picked the old one.
             and self.alias_is_default
         ):
             # Name changed, alias was auto-generated -- update it.
