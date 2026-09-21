@@ -506,6 +506,29 @@ class TestTransformAttrs:
 
         assert d.x == d.xx()
 
+    @pytest.mark.parametrize("decorator", [attr.s, attr.define])
+    def test_inherited_default_method_override(self, decorator):
+        """
+        An inherited default method can be overridden by a subclass.
+        """
+
+        class A:
+            foo: str = attr.field()
+
+            @foo.default
+            def _foo_default(self):
+                return "A"
+
+        A = decorator(A)
+
+        class B(A):
+            def _foo_default(self):
+                return "B"
+
+        B = decorator(B)
+
+        assert "B" == B().foo
+
     def test_inherited(self):
         """
         Inherited Attributes have `.inherited` True, otherwise False.
