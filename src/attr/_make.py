@@ -1650,7 +1650,6 @@ def _make_hash_script(
 
     tab = "        "
 
-    type_hash = hash(_generate_unique_filename(cls, "hash"))
     # If eq is custom generated, we need to include the functions in globs
     globs = {}
 
@@ -1678,7 +1677,9 @@ def _make_hash_script(
         method_lines.extend(
             [
                 indent + prefix + hash_func,
-                indent + f"        {type_hash},",
+                # Use the instance class, not the class that generated
+                # ``__hash__``, so undecorated subclasses do not collide.
+                indent + "        id(type(self)),",
             ]
         )
 

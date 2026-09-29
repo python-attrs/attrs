@@ -621,6 +621,37 @@ class TestAddHash:
         # __hash__ for the cached-hash versions
         assert hash(a) != hash(b)
 
+    @pytest.mark.parametrize("slots", [True, False])
+    @pytest.mark.parametrize("cache_hash", [True, False])
+    def test_inherited_hash_includes_instance_type(self, slots, cache_hash):
+        """
+        Generated `__hash__` mixes in `type(self)`, not only the class that
+        defined the method.
+
+        Undecorated subclasses therefore get distinct hashes even though they
+        inherit `__hash__` from the base class.  See GH #528.
+        """
+        Base = make_class(
+            "Base",
+            {"x": attr.ib()},
+            frozen=True,
+            slots=slots,
+            cache_hash=cache_hash,
+        )
+
+        class SubA(Base):
+            pass
+
+        class SubB(Base):
+            pass
+
+        assert SubA(1) != SubB(1)
+        assert SubA(1) != Base(1)
+        assert hash(SubA(1)) != hash(SubB(1))
+        assert hash(SubA(1)) != hash(Base(1))
+        assert hash(SubA(1)) == hash(SubA(1))
+        assert hash(SubA(1)) != hash(SubA(2))
+
     def test_hash_default(self):
         """
         Classes are not hashable by default.
