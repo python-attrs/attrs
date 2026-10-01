@@ -4,6 +4,7 @@
 Tests for `attr.converters`.
 """
 
+import inspect
 import pickle
 
 import pytest
@@ -297,6 +298,35 @@ class TestPipe:
                 attr.fields(C).x.converter.__call__
             ).get_return_type()
         )
+
+    def test_wrapped_annotation_when_converter_signature_unavailable(
+        self, monkeypatch
+    ):
+        """
+        A pipe keeps the last Converter's return type even if its instance
+        signature cannot be inspected.
+        """
+
+        def last(value) -> bool:
+            return bool(value)
+
+        wrapped = Converter(last)
+        original_signature = inspect.signature
+
+        def signature_without_converter_instances(obj, *args, **kwargs):
+            if isinstance(obj, Converter):
+                raise TypeError("Converter instance signature unavailable")
+
+            return original_signature(obj, *args, **kwargs)
+
+        with monkeypatch.context() as patch:
+            patch.setattr(
+                inspect, "signature", signature_without_converter_instances
+            )
+            converted = pipe(wrapped)
+
+        assert True is converted(5, None, None)
+        assert bool is inspect.signature(converted.__call__).return_annotation
 
 
 class TestOptionalPipe:

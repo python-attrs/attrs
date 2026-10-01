@@ -20,7 +20,6 @@ from typing import Any, NamedTuple, TypeVar
 # having the thread-local in the globals here.
 from . import _compat, _config, setters
 from ._compat import (
-    PY_3_11_PLUS,
     PY_3_13_PLUS,
     _AnnotationExtractor,
     _get_annotations,
@@ -3449,7 +3448,7 @@ def pipe(*converters):
             pipe_converter.__annotations__["val"] = t
 
         last = converters[-1]
-        if not PY_3_11_PLUS and isinstance(last, Converter):
+        if isinstance(last, Converter):
             last = last.__call__
 
         # Get return type from last converter.
