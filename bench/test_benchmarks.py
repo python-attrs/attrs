@@ -177,6 +177,22 @@ def test_astuple_atomic():
         at(c)
 
 
+@attrs.define
+class NestedAtomicFields:
+    sequence: list[int] = attrs.Factory(lambda: list(range(100)))
+
+
+def test_astuple_nested_atomic():
+    """
+    Benchmark atomic values nested in a sequence.
+    """
+    c = NestedAtomicFields()
+    at = attrs.astuple
+
+    for _ in range(ROUNDS):
+        at(c)
+
+
 class TestCachedProperties:
     @attrs.define
     class Slotted:
