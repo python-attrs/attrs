@@ -102,7 +102,7 @@ Exceptions
 .. module:: attrs.exceptions
 
 All exceptions are available from both ``attr.exceptions`` and ``attrs.exceptions`` and are the same thing.
-That means that it doesn't matter from from which namespace they've been raised and/or caught:
+That means that it doesn't matter from which namespace they've been raised and/or caught:
 
 .. doctest::
 
