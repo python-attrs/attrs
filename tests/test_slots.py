@@ -497,6 +497,36 @@ class TestClosureCellRewriting:
 
         assert D.statmethod() is D
 
+    def test_decorated_method_no_arg_super(self, slots):
+        """
+        Slotted classes support proper closure cell rewriting for methods
+        that are wrapped in a decorator and use the no-arg super().
+        (issue https://github.com/python-attrs/attrs/issues/1038)
+
+        The decorator wrapper hides the actual method (whose closure contains
+        the ``__class__`` cell) behind its own closure, so the cell rewriting
+        has to look through nested closures as well.
+        """
+
+        def decorated(method):
+            def wrapped(self, *args, **kwargs):
+                return method(self, *args, **kwargs)
+
+            return wrapped
+
+        @attr.s(slots=slots)
+        class A:
+            def f(self):
+                return "A.f"
+
+        @attr.s(slots=slots)
+        class B(A):
+            @decorated
+            def f(self):
+                return super().f() + " + B.f"
+
+        assert B().f() == "A.f + B.f"
+
 
 @pytest.mark.skipif(PYPY, reason="__slots__ only block weakref on CPython")
 def test_not_weakrefable():
