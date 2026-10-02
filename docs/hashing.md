@@ -21,7 +21,7 @@ It can be obtained by calling {func}`hash` on an object and is implemented by wr
 *attrs* will happily write a `__hash__` method for you [^fn1], however it will *not* do so by default.
 Because according to the [definition](https://docs.python.org/3/glossary.html#term-hashable) from the official Python docs, the returned hash has to fulfill certain constraints:
 
-[^fn1]: The hash is computed by hashing a tuple that consists of a unique id for the class plus all attribute values.
+[^fn1]: The hash is computed by hashing a tuple that consists of `id(type(self))` plus all attribute values.
 
 1. Two objects that are equal, **must** have the same hash.
    This means that if `x == y`, it *must* follow that `hash(x) == hash(y)`.
