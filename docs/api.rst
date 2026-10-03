@@ -302,7 +302,8 @@ All objects from ``attrs.filters`` are also available from ``attr.filters`` (it'
    This fact has several implications:
 
    * private attributes should be specified without the leading underscore, just like in ``__init__``.
-   * attributes with ``init=False`` can't be set with ``evolve``.
+   * ``evolve`` doesn't copy existing values from attributes with ``init=False``.
+     With an *attrs*-generated ``__init__``, such attributes can't be passed as changes to ``evolve`` and are initialized as they would be on a newly constructed instance, which may involve defaults, factories, or ``__attrs_post_init__``.
    * the usual ``__init__`` validators will validate the new values.
 
 .. autofunction:: attrs.validate
