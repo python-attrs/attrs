@@ -14,6 +14,7 @@ from attr.filters import _split_what, exclude, include
 
 @attr.s
 class C:
+    """C."""
     a = attr.ib()
     b = attr.ib()
 
@@ -128,12 +129,14 @@ class TestExclude:
 
 @attr.s
 class C2:
+    """C2."""
     a = attr.ib()
     repeated = attr.ib()
 
 
 @attr.s
 class D2:
+    """D2."""
     b = attr.ib()
     repeated = attr.ib()
 
@@ -146,11 +149,13 @@ class TestSameNameAcrossClasses:
     """
 
     def test_exclude_identity_not_equality(self):
+        """Test Exclude identity not equality."""
         e = exclude(fields(C2).repeated)
         assert e(fields(C2).repeated, "x") is False
         assert e(fields(D2).repeated, "x") is True
 
     def test_include_identity_not_equality(self):
+        """Test Include identity not equality."""
         i = include(fields(C2).repeated)
         assert i(fields(C2).repeated, "x") is True
         assert i(fields(D2).repeated, "x") is False
