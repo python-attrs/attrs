@@ -15,6 +15,7 @@ from attr.filters import _split_what, exclude, include
 @attr.s
 class C:
     """C."""
+
     a = attr.ib()
     b = attr.ib()
 
@@ -130,6 +131,7 @@ class TestExclude:
 @attr.s
 class C2:
     """C2."""
+
     a = attr.ib()
     repeated = attr.ib()
 
@@ -137,6 +139,7 @@ class C2:
 @attr.s
 class D2:
     """D2."""
+
     b = attr.ib()
     repeated = attr.ib()
 
