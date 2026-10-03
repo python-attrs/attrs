@@ -104,6 +104,23 @@ def test_slots_being_used():
     assert attr.asdict(slot_instance) == attr.asdict(non_slot_instance)
 
 
+def test_explicit_slots_are_preserved():
+    """Slots declared on the class are retained when attrs creates the class."""
+
+    @attrs.define
+    class ExplicitSlots:
+        __slots__ = ("private",)
+
+        public: str = "foo"
+
+    instance = ExplicitSlots()
+    instance.private = 1
+
+    assert instance.private == 1
+    assert instance.public == "foo"
+    assert {"__weakref__", "private", "public"} == set(ExplicitSlots.__slots__)
+
+
 def test_slots_base_of_slotted():
     """
     The (hopefully gc'ed) temporary base class of a slotted class contains a
