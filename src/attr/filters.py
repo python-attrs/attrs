@@ -36,6 +36,7 @@ def include(*what):
     cls, names, attrs = _split_what(what)
 
     def include_(attribute, value):
+        """Include."""
         return (
             value.__class__ in cls
             or attribute.name in names
@@ -63,6 +64,7 @@ def exclude(*what):
     cls, names, attrs = _split_what(what)
 
     def exclude_(attribute, value):
+        """Exclude."""
         return not (
             value.__class__ in cls
             or attribute.name in names
