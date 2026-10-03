@@ -46,6 +46,10 @@ slotted classes
     Slots without an attrs field remain outside the attrs data model: generated initialization, equality, `attrs.asdict()`, and generated pickling methods do not manage their values.
     Initialize these slots yourself and supply custom pickling methods if their values need to be serialized.
 
+    ```{versionchanged} 26.2.0
+    Explicit slots declared on the decorated class are preserved.
+    ```
+
     ```{doctest}
     >>> @define
     ... class WithInternalState:
