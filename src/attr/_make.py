@@ -1679,7 +1679,7 @@ def _make_hash_script(
                 indent + prefix + hash_func,
                 # Use the instance class, not the class that generated
                 # ``__hash__``, so undecorated subclasses do not collide.
-                indent + "        id(type(self)),",
+                indent + "        self.__class__,",
             ]
         )
 
