@@ -644,6 +644,21 @@ def evolve(*args, **changes):
     return cls(**changes)
 
 
+def _get_own_slot_names(cls):
+    """
+    Return the actual slot names declared on a class, including mangled names.
+    """
+    if "__slots__" not in cls.__dict__:
+        return ()
+
+    return tuple(
+        name
+        for name, descriptor in cls.__dict__.items()
+        if isinstance(descriptor, types.MemberDescriptorType)
+        or name in ("__dict__", "__weakref__")
+    )
+
+
 class _ClassBuilder:
     """
     Iteratively build *one* class.
@@ -860,10 +875,12 @@ class _ClassBuilder:
         """
         Build and return a new class with a `__slots__` attribute.
         """
+        own_slots = _get_own_slot_names(self._cls)
         cd = {
             k: v
             for k, v in self._cls_dict.items()
-            if k not in (*tuple(self._attr_names), "__dict__", "__weakref__")
+            if k
+            not in (*self._attr_names, *own_slots, "__dict__", "__weakref__")
         }
 
         # 3.14.0rc2+
@@ -903,10 +920,11 @@ class _ClassBuilder:
 
         base_names = set(self._base_names)
 
-        names = self._attr_names
+        names = self._attr_names + tuple(
+            name for name in own_slots if name not in self._attr_names
+        )
         if (
             self._weakref_slot
-            and "__weakref__" not in getattr(self._cls, "__slots__", ())
             and "__weakref__" not in names
             and not weakref_inherited
         ):
