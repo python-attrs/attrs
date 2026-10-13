@@ -5,6 +5,7 @@ Tests for `attr.converters`.
 """
 
 import pickle
+import typing
 
 import pytest
 
@@ -169,6 +170,25 @@ class TestOptional:
         c = optional(Converter(to_bool))
 
         assert True is c("yes", None, None)
+
+    def test_string_annotations(self):
+        """
+        Converters whose annotations are strings -- because of quoted forward
+        references or because of `from __future__ import annotations` -- are
+        wrapped in `Optional` instead of blowing up.
+        """
+
+        def to_int(x: "int") -> "int":
+            return int(x)
+
+        c = optional(to_int)
+
+        assert 42 == c("42")
+        assert {
+            # Optional[] is the point: `t | None` crashes on strings.
+            "val": typing.Optional[typing.ForwardRef("int")],  # noqa: UP045
+            "return": typing.Optional[typing.ForwardRef("int")],  # noqa: UP045
+        } == c.__annotations__
 
 
 class TestDefaultIfNone:
