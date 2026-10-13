@@ -77,7 +77,7 @@ We recommend using the Python version from the `.python-version-default` file in
 
 We use a fully-locked development environment using [*uv*](https://docs.astral.sh/uv/) so the easiest way to get started is to [install *uv*] and you can run `uv run pytest` to run the tests immediately.
 
-I you'd like a traditional virtual environment, you can run `uv sync --python=$(cat .python-version-default)` and it will create a virtual environment named `.venv` with the correct Python version and install all the dependencies in the root directory.
+If you'd like a traditional virtual environment, you can run `uv sync --python=$(cat .python-version-default)` and it will create a virtual environment named `.venv` with the correct Python version and install all the dependencies in the root directory.
 
 If you're using [*direnv*](https://direnv.net), you can automate the creation and activation of the project's virtual environment with the correct Python version by adding the following `.envrc` to the project root:
 
@@ -220,7 +220,7 @@ $ uv run tox run -e docs-doctests
   Please note that the API docstrings are still reStructuredText.
 
 - If you add or change public APIs, tag the docstring using `..  versionadded:: 24.1.0 WHAT` or `..  versionchanged:: 24.1.0 WHAT`.
-  We follow CalVer, so the next version will be the current with with the middle number incremented (for example, `24.1.0` -> `24.2.0`).
+  We follow CalVer, so the next version will be the current version with the middle number incremented (for example, `24.1.0` -> `24.2.0`).
 
 
 ### Changelog
