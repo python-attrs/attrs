@@ -13,6 +13,7 @@ import attr
 
 from attr import _config, fields, has
 from attr import validators as validator_module
+from attr._compat import PY_3_11_PLUS
 from attr.validators import (
     _subclass_of,
     and_,
@@ -807,6 +808,258 @@ class TestDeepMapping:
         assert and_(*key_validator) == v.key_validator
         assert and_(*value_validator) == v.value_validator
         assert and_(*mapping_validator) == v.mapping_validator
+
+
+class TestDeepValidationNotes:
+    """
+    Deep validation adds context without changing validator contracts.
+    """
+
+    @pytest.fixture(params=["member", "key", "value"])
+    def validator_case(self, request):
+        """
+        Provide each kind of inner validator and its expected context.
+        """
+        member = object()
+        if request.param == "member":
+            return (
+                deep_iterable,
+                [member],
+                member,
+                "Validation failed for member at index 0 of attribute 'test'.",
+            )
+        if request.param == "key":
+            return (
+                lambda v: deep_mapping(key_validator=v),
+                {member: 1},
+                member,
+                "Validation failed for mapping key at entry 0 of attribute 'test'.",
+            )
+        return (
+            lambda v: deep_mapping(value_validator=v),
+            {"key": member},
+            member,
+            "Validation failed for mapping value at entry 0 of attribute 'test'.",
+        )
+
+    def test_original_exception(self, validator_case):
+        """
+        Preserve validator arguments, exception identity, args, and prior notes.
+        """
+        factory, value, member, note = validator_case
+        inst = object()
+        a = simple_attr("test")
+        error = ValueError("invalid member", a)
+        error.__notes__ = ["custom context"]
+        original_message = str(error)
+
+        def fail(received_inst, received_attr, received_member):
+            assert inst is received_inst
+            assert a is received_attr
+            assert member is received_member
+            raise error
+
+        with pytest.raises(ValueError) as caught:
+            factory(fail)(inst, a, value)
+
+        assert error is caught.value
+        assert ("invalid member", a) == caught.value.args
+        assert a is caught.value.args[1]
+        assert original_message == str(caught.value)
+        assert ["custom context"] + ([note] if PY_3_11_PLUS else []) == (
+            caught.value.__notes__
+        )
+
+    def test_invalid_member_length(self):
+        """
+        A short member is identified without changing the original message.
+        """
+
+        @attr.define
+        class C:
+            x = attr.field(
+                validator=deep_iterable(
+                    [instance_of(str), min_len(1)],
+                    [instance_of(list), min_len(1)],
+                )
+            )
+
+        with pytest.raises(ValueError) as caught:
+            C(["abc", ""])
+
+        assert ("Length of 'x' must be >= 1: 0",) == caught.value.args
+        expected = [
+            "Validation failed for member at index 1 of attribute 'x'."
+        ]
+        assert (expected if PY_3_11_PLUS else []) == getattr(
+            caught.value, "__notes__", []
+        )
+
+    def test_nested_context(self):
+        """
+        Nested validators add context from the innermost failure outwards.
+        """
+        a = simple_attr("test")
+        validator = deep_iterable(
+            deep_mapping(value_validator=deep_iterable(instance_of(int)))
+        )
+
+        with pytest.raises(TypeError) as caught:
+            validator(None, a, [{"first": [1], "second": [1, "bad"]}])
+
+        assert (
+            "'test' must be <class 'int'> (got 'bad' that is a <class 'str'>).",
+            a,
+            int,
+            "bad",
+        ) == caught.value.args
+        assert a is caught.value.args[1]
+        expected = [
+            "Validation failed for member at index 1 of attribute 'test'.",
+            "Validation failed for mapping value at entry 1 of attribute 'test'.",
+            "Validation failed for member at index 0 of attribute 'test'.",
+        ]
+        assert (expected if PY_3_11_PLUS else []) == getattr(
+            caught.value, "__notes__", []
+        )
+
+    def test_base_exception_unmodified(self, validator_case):
+        """
+        Interrupts are not annotated as validation failures.
+        """
+        factory, value, _, _ = validator_case
+        error = KeyboardInterrupt()
+
+        def fail(inst, attribute, member):
+            raise error
+
+        with pytest.raises(KeyboardInterrupt) as caught:
+            factory(fail)(None, simple_attr("test"), value)
+
+        assert error is caught.value
+        assert not hasattr(caught.value, "__notes__")
+
+    def test_note_failure_preserves_exception(self, validator_case):
+        """
+        An exception with unusable notes is still propagated unchanged.
+        """
+        factory, value, _, _ = validator_case
+        error = ValueError("invalid member")
+        error.__notes__ = None
+
+        def fail(inst, attribute, member):
+            raise error
+
+        with pytest.raises(ValueError) as caught:
+            factory(fail)(None, simple_attr("test"), value)
+
+        assert error is caught.value
+        assert ("invalid member",) == caught.value.args
+        assert caught.value.__notes__ is None
+
+    @pytest.mark.parametrize(
+        "factory",
+        [
+            lambda v: deep_iterable(always_pass, v),
+            lambda v: deep_mapping(always_pass, always_pass, v),
+        ],
+        ids=["iterable", "mapping"],
+    )
+    def test_container_error_unmodified(self, factory):
+        """
+        A container validator failure does not get member context.
+        """
+        error = ValueError("invalid container")
+
+        def fail(inst, attribute, value):
+            raise error
+
+        with pytest.raises(ValueError) as caught:
+            factory(fail)(None, simple_attr("test"), None)
+
+        assert error is caught.value
+        assert not hasattr(caught.value, "__notes__")
+
+    @pytest.mark.parametrize(
+        "validator",
+        [deep_iterable(always_pass), deep_mapping(key_validator=always_pass)],
+        ids=["iterable", "mapping"],
+    )
+    def test_iteration_error_unmodified(self, validator):
+        """
+        Failure to obtain the next item is not a validation failure.
+        """
+        error = ValueError("iteration failed")
+
+        def values():
+            yield 1
+            raise error
+
+        with pytest.raises(ValueError) as caught:
+            validator(None, simple_attr("test"), values())
+
+        assert error is caught.value
+        assert not hasattr(caught.value, "__notes__")
+
+    def test_lookup_error_unmodified(self):
+        """
+        Failure to look up a mapping value is not a validation failure.
+        """
+        error = KeyError("missing")
+
+        class Mapping:
+            def __iter__(self):
+                return iter(["key"])
+
+            def __getitem__(self, key):
+                raise error
+
+        with pytest.raises(KeyError) as caught:
+            deep_mapping(value_validator=always_pass)(
+                None, simple_attr("test"), Mapping()
+            )
+
+        assert error is caught.value
+        assert not hasattr(caught.value, "__notes__")
+
+    def test_generator_stops_at_failure(self):
+        """
+        Adding context does not consume items after an invalid member.
+        """
+        values = iter(["valid", "", "remaining"])
+
+        with pytest.raises(ValueError):
+            deep_iterable(min_len(1))(None, simple_attr("test"), values)
+
+        assert "remaining" == next(values)
+
+    @pytest.mark.parametrize("role", ["key", "value"])
+    def test_key_repr_not_called(self, role):
+        """
+        Mapping context does not evaluate a user-defined key repr.
+        """
+
+        class Key:
+            def __repr__(self):
+                pytest.fail("key repr must not be called")
+
+        error = ValueError("invalid member")
+
+        def fail(inst, attribute, member):
+            raise error
+
+        validator = deep_mapping(**{f"{role}_validator": fail})
+
+        with pytest.raises(ValueError) as caught:
+            validator(None, simple_attr("test"), {Key(): 1})
+
+        assert error is caught.value
+        expected = [
+            f"Validation failed for mapping {role} at entry 0 of attribute 'test'."
+        ]
+        assert (expected if PY_3_11_PLUS else []) == getattr(
+            caught.value, "__notes__", []
+        )
 
 
 class TestIsCallable:
