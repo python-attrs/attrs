@@ -2,12 +2,16 @@
 name: CodSpeed Benchmarks
 
 on:
-  pull_request:
-    paths:
+  push:
+    # Baseline performance to compare against in PRs.
+    branches: [main]
+    paths: &codspeed_paths
       - src/**.py
       - bench/**
       - codspeed.yml
       - .github/workflows/codspeed.yml
+  pull_request:
+    paths: *codspeed_paths
   workflow_dispatch:
 
 concurrency:
