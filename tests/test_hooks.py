@@ -179,7 +179,12 @@ class TestTransformHook:
                 "eq=True, eq_key=None, order=True, order_key=None, "
                 "hash=None, init=True, "
                 "metadata=mappingproxy({'field_order': 1}), type='int', converter=None, "
-                "kw_only=False, inherited=False, on_setattr=None, alias='x')"
+                "kw_only=False, inherited=False, on_setattr=None, alias='x') "
+                "appears after Attribute(name='y', default=0, validator=None, "
+                "repr=True, eq=True, eq_key=None, order=True, order_key=None, "
+                "hash=None, init=True, metadata=mappingproxy({'field_order': 0}), "
+                "type='int', converter=None, kw_only=False, inherited=False, "
+                "on_setattr=None, alias='y')"
             ),
         ) == e.value.args
 
