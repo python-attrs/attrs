@@ -1035,7 +1035,20 @@ class _ClassBuilder:
             """
             Automatically created by attrs.
             """
-            return {name: getattr(self, name) for name in state_attr_names}
+            state = {name: getattr(self, name) for name in state_attr_names}
+
+            # A slotted class can inherit a __dict__ from a non-slotted
+            # base class. Such instances may carry additional state in
+            # their __dict__ -- for example attributes set by a mixin or
+            # in __attrs_post_init__ -- which is not managed by attrs.
+            # Preserve it like object.__getstate__() does, so pickling
+            # and copying do not silently drop it.
+            inst_dict = getattr(self, "__dict__", None)
+            if inst_dict:
+                for name, value in inst_dict.items():
+                    state.setdefault(name, value)
+
+            return state
 
         hash_caching_enabled = self._cache_hash
 
@@ -1053,6 +1066,17 @@ class _ClassBuilder:
                 for name in state_attr_names:
                     if name in state:
                         __bound_setattr(name, state[name])
+
+                # Restore additional __dict__ state that was preserved by
+                # slots_getstate (see above). Instances without a
+                # __dict__ cannot hold such state; extra keys are ignored
+                # for them, which keeps unpickling working if an
+                # attribute was removed from the class.
+                inst_dict = getattr(self, "__dict__", None)
+                if inst_dict is not None:
+                    for name, value in state.items():
+                        if name not in state_attr_names:
+                            inst_dict[name] = value
 
             # The hash code cache is not included when the object is
             # serialized, but it still needs to be initialized to None to
