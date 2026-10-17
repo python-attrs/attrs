@@ -282,6 +282,57 @@ def test_inheritance_from_slots():
     assert {"x": 1, "y": 2, "z": "test"} == attr.asdict(c2)
 
 
+def test_slots_declared_on_attrs_class_are_preserved():
+    """User-defined slots are preserved on attrs classes."""
+
+    @attrs.define
+    class A:
+        __slots__ = ("private",)
+        public: str = "foo"
+
+    a = A()
+    a.private = 1
+
+    assert "private" in A.__slots__
+    assert a.private == 1
+
+
+def test_string_slot_declared_on_attrs_class_is_preserved():
+    """String-based user-defined slots are preserved."""
+
+    @attrs.define
+    class A:
+        __slots__ = "private"  # noqa: PLC0205
+        public: str = "foo"
+
+    a = A()
+    a.private = 1
+
+    assert "private" in A.__slots__
+    assert a.private == 1
+
+
+def test_user_defined_slots_are_preserved_with_inherited_slots():
+    """User-defined slots are preserved alongside inherited slots."""
+
+    class Parent:
+        __slots__ = ("parent_slot",)
+
+    @attrs.define
+    class Child(Parent):
+        __slots__ = ("private",)
+        public: str = "foo"
+
+    child = Child()
+    child.parent_slot = 1
+    child.private = 2
+
+    assert "private" in Child.__slots__
+    assert "parent_slot" not in Child.__slots__
+    assert child.private == 2
+    assert child.parent_slot == 1
+
+
 def test_inheritance_from_slots_with_attribute_override():
     """
     Inheriting from a slotted class doesn't re-create existing slots
