@@ -355,6 +355,28 @@ def test_user_defined_slots_are_preserved_with_inherited_slots():
     assert child.parent_slot == 1
 
 
+def test_user_defined_slots_already_exist_in_attrs_base_class():
+    """User-defined slots do not duplicate slots inherited from attrs."""
+
+    @attrs.define
+    class Parent:
+        parent_slot: int = 0
+
+    @attrs.define
+    class Child(Parent):
+        __slots__ = ("parent_slot", "private")
+        public: str = "foo"
+
+    child = Child()
+    child.parent_slot = 1
+    child.private = 2
+
+    assert "parent_slot" not in Child.__slots__
+    assert "private" in Child.__slots__
+    assert child.parent_slot == 1
+    assert child.private == 2
+
+
 def test_user_defined_slots_already_exist_in_base_class():
     """User-defined slots already present in a base are not duplicated."""
 

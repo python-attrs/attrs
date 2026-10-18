@@ -956,8 +956,7 @@ class _ClassBuilder:
                 slot_names.append(slot)
 
         for slot in original_slots:
-            if slot in slot_names:
-                cd.pop(slot, None)
+            cd.pop(slot, None)
         # There are slots for attributes from current class
         # that are defined in parent classes.
         # As their descriptors may be overridden by a child class,
