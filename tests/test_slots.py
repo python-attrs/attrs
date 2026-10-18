@@ -4,6 +4,7 @@
 Unit tests for slots-related functionality.
 """
 
+import copy
 import functools
 import pickle
 import weakref
@@ -1197,6 +1198,296 @@ def test_slots_unpickle_after_attr_added(frozen):
         assert new_a.b == 2
         assert new_a.c == 3
         assert not hasattr(new_a, "d")
+
+
+def test_slots_declared_on_class_are_kept():
+    """
+    Slots that a slotted class declares itself -- and that aren't attrs
+    fields -- are kept when attrs rebuilds the class.
+
+    Regression test for https://github.com/python-attrs/attrs/issues/1637.
+    """
+
+    @attrs.define
+    class A:
+        __slots__ = ("private",)
+
+        public: str = "foo"
+
+    a = A()
+    a.private = 1
+
+    assert 1 == a.private
+    assert {"private"} <= set(A.__slots__)
+    # The descriptor must belong to the rebuilt class; the one of the original
+    # class is useless and raises on assignment.
+    assert A.__dict__["private"].__objclass__ is A
+    # attrs stays unaware of the extra slot.
+    assert ["public"] == [f.name for f in attrs.fields(A)]
+    assert {"public": "foo"} == attrs.asdict(a)
+    assert A() == a
+
+
+def test_slots_declared_as_string_are_kept():
+    """
+    A plain string is a legal __slots__ value and is kept, too.
+    """
+
+    @attr.s(slots=True)
+    class A:
+        __slots__ = "private"  # noqa: PLC0205 -- strings are legal
+
+        x = attr.ib()
+
+    a = A(1)
+    a.private = 42
+
+    assert 42 == a.private
+    assert {"private"} <= set(A.__slots__)
+
+
+def test_slots_declared_as_mapping_are_kept():
+    """
+    Any iterable is accepted for __slots__ by Python, mappings included.
+    """
+
+    @attrs.define
+    class A:
+        __slots__ = {"private": "Docstrings are allowed, too."}
+
+        public: str = "foo"
+
+    a = A()
+    a.private = 2
+
+    assert 2 == a.private
+    assert "private" in A.__slots__
+
+
+def test_slots_declared_on_class_do_not_duplicate_inherited_slots():
+    """
+    A declared slot that a hand-written base class already lays out is not
+    laid out a second time.
+
+    ``__weakref__`` can't be declared again once a base class laid it out
+    (plain Python raises), so it's omitted here.
+    """
+
+    class Base:
+        __slots__ = ("shared",)
+
+    @attrs.define
+    class A(Base):
+        __slots__ = ("private", "shared")
+
+        public: str = "foo"
+
+    a = A()
+    a.shared = "s"
+    a.private = "p"
+
+    assert "s" == a.shared
+    assert "p" == a.private
+    assert weakref.ref(a)() is a
+    assert "shared" not in A.__slots__
+    assert "private" in A.__slots__
+
+
+def test_slots_declared_that_are_base_attrs_fields_are_not_duplicated():
+    """
+    A declared slot whose name an inherited attrs field already occupies is not
+    laid out a second time on the subclass.
+    """
+
+    @attrs.define
+    class A:
+        x: int
+
+    @attrs.define
+    class B(A):
+        __slots__ = ("private", "x")
+
+    b = B(1)
+    b.private = 2
+
+    assert 1 == b.x
+    assert 2 == b.private
+    assert "x" not in B.__slots__
+    assert ["x"] == [f.name for f in attrs.fields(B)]
+
+
+def test_slots_declared_with_private_name_are_mangled():
+    """
+    Privately named slots are mangled like Python does it, even though attrs
+    re-creates the class from a plain dict.
+    """
+
+    @attrs.define
+    class A:
+        __slots__ = ("__private",)
+
+        public: str = "foo"
+
+        def set_private(self, value):
+            self.__private = value
+
+        def get_private(self):
+            return self.__private
+
+    a = A()
+    a.set_private(1)
+
+    assert 1 == a.get_private()
+    assert "__private" in A.__slots__
+    assert "_A__private" in A.__dict__
+    assert A.__dict__["_A__private"].__objclass__ is A
+    assert ["public"] == [f.name for f in attrs.fields(A)]
+
+
+def test_slots_declared_on_class_are_inherited():
+    """
+    Declared slots of a slotted attrs class are usable by subclasses and are
+    not laid out a second time.
+    """
+
+    @attrs.define
+    class A:
+        __slots__ = ("private",)
+
+        public: str = "foo"
+
+    @attrs.define
+    class B(A):
+        extra: int = 0
+
+    b = B()
+    b.private = 3
+
+    assert 3 == b.private
+    assert "private" not in B.__slots__
+
+
+def test_slots_declared_with_dict_and_weakref_are_kept():
+    """
+    Declaring __dict__ and __weakref__ in __slots__ works like it does on a
+    plain class.
+    """
+
+    @attrs.define
+    class A:
+        __slots__ = ("__dict__", "__weakref__", "private")
+
+        public: str = "foo"
+
+    a = A()
+    a.private = 1
+    a.dynamic = 2
+
+    assert 1 == a.private
+    assert 2 == a.dynamic
+    assert weakref.ref(a)() is a
+
+
+def test_slots_declared_for_attrs_field_are_not_duplicated():
+    """
+    A slot that is also an attrs field is laid out exactly once.
+    """
+
+    @attrs.define
+    class A:
+        __slots__ = ("public",)
+
+        public: str
+
+    a = A("foo")
+
+    assert "foo" == a.public
+    assert ["public"] == [s for s in A.__slots__ if s == "public"]
+    assert ["public"] == [f.name for f in attrs.fields(A)]
+
+
+def test_slots_declared_on_frozen_class_are_kept():
+    """
+    Frozen classes keep declared slots as well -- the frozen __setattr__ has to
+    be bypassed to fill them.
+    """
+
+    @attrs.frozen
+    class A:
+        __slots__ = ("private",)
+
+        public: str = "foo"
+
+    a = A()
+    object.__setattr__(a, "private", 1)
+
+    assert 1 == a.private
+
+
+@attrs.define
+class _DeclaredSlotsPickleable:
+    """Module-level so that pickle can find it."""
+
+    __slots__ = ("private",)
+
+    public: str = "foo"
+
+
+@attrs.frozen
+class _DeclaredSlotsFrozenPickleable:
+    """Module-level so that pickle can find it."""
+
+    __slots__ = ("private",)
+
+    public: str = "foo"
+
+
+@pytest.mark.parametrize(
+    "cls", [_DeclaredSlotsPickleable, _DeclaredSlotsFrozenPickleable]
+)
+def test_slots_declared_on_class_survive_pickle(cls):
+    """
+    Declared slots are part of the instance state and survive pickling.
+    """
+    a = cls()
+    object.__setattr__(a, "private", 1)
+
+    a_unpickled = pickle.loads(pickle.dumps(a))
+
+    assert cls is type(a_unpickled)
+    assert "foo" == a_unpickled.public
+    assert 1 == a_unpickled.private
+
+
+def test_slots_declared_on_class_unset_survive_pickle():
+    """
+    Declared slots that were never set neither break pickling nor get set.
+    """
+    a_unpickled = pickle.loads(pickle.dumps(_DeclaredSlotsPickleable()))
+
+    assert "foo" == a_unpickled.public
+    with pytest.raises(AttributeError):
+        a_unpickled.private
+
+
+def test_slots_declared_on_class_survive_copy():
+    """
+    Declared slots are copied by copy.copy() and copy.deepcopy().
+    """
+
+    @attrs.define
+    class A:
+        __slots__ = ("private",)
+
+        public: str = "foo"
+
+    a = A()
+    a.private = [1]
+
+    assert [1] == copy.copy(a).private
+    deep = copy.deepcopy(a)
+    assert [1] == deep.private
+    assert deep.private is not a.private
 
 
 def test_slots_unpickle_is_backward_compatible(frozen):
