@@ -287,14 +287,17 @@ def test_slots_declared_on_attrs_class_are_preserved():
 
     @attrs.define
     class A:
-        __slots__ = ("private",)
+        __slots__ = ("another_private", "private")
         public: str = "foo"
 
     a = A()
     a.private = 1
+    a.another_private = 2
 
     assert "private" in A.__slots__
+    assert "another_private" in A.__slots__
     assert a.private == 1
+    assert a.another_private == 2
 
 
 def test_string_slot_declared_on_attrs_class_is_preserved():
@@ -312,6 +315,22 @@ def test_string_slot_declared_on_attrs_class_is_preserved():
     assert a.private == 1
 
 
+def test_user_defined_weakref_slot_is_preserved():
+    """A user-defined __weakref__ slot is preserved."""
+
+    @attrs.define
+    class A:
+        __slots__ = ("__weakref__", "private")
+        public: str = "foo"
+
+    a = A()
+    a.private = 1
+
+    assert "__weakref__" in A.__slots__
+    assert "private" in A.__slots__
+    assert a.private == 1
+
+
 def test_user_defined_slots_are_preserved_with_inherited_slots():
     """User-defined slots are preserved alongside inherited slots."""
 
@@ -320,17 +339,41 @@ def test_user_defined_slots_are_preserved_with_inherited_slots():
 
     @attrs.define
     class Child(Parent):
-        __slots__ = ("private",)
+        __slots__ = ("another_private", "private")
+        public: str = "foo"
+
+    child = Child()
+    child.parent_slot = 1
+    child.private = 2
+    child.another_private = 3
+
+    assert "private" in Child.__slots__
+    assert "another_private" in Child.__slots__
+    assert "parent_slot" not in Child.__slots__
+    assert child.private == 2
+    assert child.another_private == 3
+    assert child.parent_slot == 1
+
+
+def test_user_defined_slots_already_exist_in_base_class():
+    """User-defined slots already present in a base are not duplicated."""
+
+    class Parent:
+        __slots__ = ("parent_slot",)
+
+    @attrs.define
+    class Child(Parent):
+        __slots__ = ("parent_slot", "private")
         public: str = "foo"
 
     child = Child()
     child.parent_slot = 1
     child.private = 2
 
-    assert "private" in Child.__slots__
     assert "parent_slot" not in Child.__slots__
-    assert child.private == 2
+    assert "private" in Child.__slots__
     assert child.parent_slot == 1
+    assert child.private == 2
 
 
 def test_inheritance_from_slots_with_attribute_override():
