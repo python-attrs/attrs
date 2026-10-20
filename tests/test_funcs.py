@@ -6,7 +6,7 @@ Tests for `attr._funcs`.
 
 import re
 
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from typing import Generic, NamedTuple, TypeVar
 
 import pytest
@@ -408,6 +408,127 @@ class TestAsTuple:
         res = astuple(C(1, {"a": C(4, 5)}), tuple_factory=tuple_factory)
         assert tuple_factory([1, {"a": tuple_factory([4, 5])}]) == res
         assert isinstance(res, tuple_factory)
+
+    def test_nested_lists(self, C):
+        """
+        Test unstructuring deeply nested lists.
+        """
+        inner = C(1, 2)
+        outer = C([[inner]], None)
+
+        assert ([[(1, 2)]], None) == astuple(outer)
+
+    def test_nested_lists_retain_type(self, C):
+        """
+        Deeply nested lists and tuples keep their types if
+        retain_collection_types is True.
+        """
+        inner = C(1, 2)
+        outer = C([[inner], (inner,)], None)
+
+        assert ([[(1, 2)], ((1, 2),)], None) == astuple(
+            outer, retain_collection_types=True
+        )
+
+    def test_nested_dicts(self, C):
+        """
+        Test unstructuring deeply nested dictionaries.
+        """
+        inner = C(1, 2)
+        outer = C({1: {2: inner}, "l": [inner]}, None)
+
+        assert ({1: {2: (1, 2)}, "l": [(1, 2)]}, None) == astuple(outer)
+
+    def test_nested_dicts_retain_type(self, C):
+        """
+        Deeply nested mappings keep their types if
+        retain_collection_types is True.
+        """
+        inner = C(1, 2)
+        outer = C(OrderedDict({1: OrderedDict({2: inner})}), None)
+
+        assert (OrderedDict({1: OrderedDict({2: (1, 2)})}), None) == astuple(
+            outer, retain_collection_types=True
+        )
+
+    def test_nested_defaultdict(self, C):
+        """
+        Nested mappings that can't be built from key-value pairs are
+        converted into dicts instead of raising a TypeError.
+        """
+        inner = C(1, 2)
+        outer = C([defaultdict(list, {1: inner})], None)
+
+        assert ([{1: (1, 2)}], None) == astuple(
+            outer, retain_collection_types=True
+        )
+
+    def test_nested_named_tuple_retain_type(self, C):
+        """
+        Namedtuples nested in collections can be serialized if
+        retain_collection_types is True.
+
+        See #1164
+        """
+
+        class Pair(NamedTuple):
+            inner: object
+            n: int
+
+        inner = C(1, 2)
+        outer = C([Pair(inner, 3)], None)
+
+        assert ([(Pair((1, 2), 3))], None) == astuple(
+            outer, retain_collection_types=True
+        )
+
+    def test_nested_non_atomic_types(self, C):
+        """
+        Non-atomic types nested in collections are left alone.
+        """
+
+        class Int(int):
+            pass
+
+        i = Int(1)
+        outer = C([i, [i]], None)
+
+        result = astuple(outer)
+
+        assert ([i, [i]], None) == result
+        assert type(result[0][0]) is Int
+        assert type(result[0][1][0]) is Int
+
+    def test_nested_tuple_keys(self, C):
+        """
+        Containers nested in keys of nested mappings are converted into
+        tuples to stay hashable.
+        """
+        inner = C(1, 2)
+        outer = C({1: {(2, 3): inner}}, None)
+
+        assert ({1: {(2, 3): (1, 2)}}, None) == astuple(outer)
+
+    def test_nested_type_error_with_retain_type(self, C):
+        """
+        Serialization that fails with TypeError leaves the error through if
+        they're not tuples, even when nested in another collection.
+
+        See #1164
+        """
+
+        message = "__new__() missing 1 required positional argument (astuple)"
+
+        class Coordinates(list):
+            def __init__(self, first, *rest):
+                if isinstance(first, list):
+                    raise TypeError(message)
+                super().__init__([first, *rest])
+
+        outer = C([Coordinates(50.419019, 30.516225)], None)
+
+        with pytest.raises(TypeError, match=re.escape(message)):
+            astuple(outer, retain_collection_types=True)
 
     @given(container=st.sampled_from(SEQUENCE_TYPES))
     def test_lists_tuples_retain_type(self, container, C):
