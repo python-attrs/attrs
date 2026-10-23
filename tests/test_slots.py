@@ -124,7 +124,7 @@ def test_explicit_slots_are_preserved():
 def test_explicit_string_slot_is_preserved():
     @attrs.define
     class ExplicitStringSlot:
-        __slots__ = "private"
+        __slots__ = "private"  # noqa: PLC0205 - exercise the supported string form
 
         public: str = "foo"
 
