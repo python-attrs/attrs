@@ -121,6 +121,36 @@ def test_explicit_slots_are_preserved():
     assert {"__weakref__", "private", "public"} == set(ExplicitSlots.__slots__)
 
 
+def test_explicit_string_slot_is_preserved():
+    @attrs.define
+    class ExplicitStringSlot:
+        __slots__ = "private"
+
+        public: str = "foo"
+
+    instance = ExplicitStringSlot()
+    instance.private = 1
+
+    assert instance.private == 1
+    assert instance.public == "foo"
+    assert {"__weakref__", "private", "public"} == set(
+        ExplicitStringSlot.__slots__
+    )
+
+
+def test_explicit_slot_for_attribute_is_preserved():
+    @attrs.define
+    class ExplicitAttributeSlot:
+        __slots__ = ("public",)
+
+        public: str
+
+    instance = ExplicitAttributeSlot("foo")
+
+    assert instance.public == "foo"
+    assert {"__weakref__", "public"} == set(ExplicitAttributeSlot.__slots__)
+
+
 def test_slots_base_of_slotted():
     """
     The (hopefully gc'ed) temporary base class of a slotted class contains a
