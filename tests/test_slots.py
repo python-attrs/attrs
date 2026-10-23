@@ -122,6 +122,8 @@ def test_explicit_slots_are_preserved():
 
 
 def test_explicit_string_slot_is_preserved():
+    """A single string slot declaration survives attrs class rebuilding."""
+
     @attrs.define
     class ExplicitStringSlot:
         __slots__ = "private"  # noqa: PLC0205 - exercise the supported string form
@@ -139,6 +141,8 @@ def test_explicit_string_slot_is_preserved():
 
 
 def test_explicit_slot_for_attribute_is_preserved():
+    """A declared slot matching an attrs field is not duplicated."""
+
     @attrs.define
     class ExplicitAttributeSlot:
         __slots__ = ("public",)
