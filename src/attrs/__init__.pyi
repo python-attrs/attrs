@@ -159,7 +159,10 @@ def field(
     type: type | None = ...,
 ) -> Any: ...
 @overload
-@dataclass_transform(field_specifiers=(attrib, field))
+@dataclass_transform(  # type: ignore[misc]
+    field_specifiers=(attrib, field),
+    slots_default=True,  # only supported by ty
+)
 def define(
     maybe_cls: _C,
     *,
@@ -185,7 +188,10 @@ def define(
     match_args: bool = ...,
 ) -> _C: ...
 @overload
-@dataclass_transform(field_specifiers=(attrib, field))
+@dataclass_transform(  # type: ignore[misc]
+    field_specifiers=(attrib, field),
+    slots_default=True,  # only supported by ty
+)
 def define(
     maybe_cls: None = ...,
     *,
@@ -214,7 +220,11 @@ def define(
 mutable = define
 
 @overload
-@dataclass_transform(frozen_default=True, field_specifiers=(attrib, field))
+@dataclass_transform(  # type: ignore[misc]
+    frozen_default=True,
+    field_specifiers=(attrib, field),
+    slots_default=True,  # only supported by ty
+)
 def frozen(
     maybe_cls: _C,
     *,
@@ -240,7 +250,11 @@ def frozen(
     match_args: bool = ...,
 ) -> _C: ...
 @overload
-@dataclass_transform(frozen_default=True, field_specifiers=(attrib, field))
+@dataclass_transform(  # type: ignore[misc]
+    frozen_default=True,
+    field_specifiers=(attrib, field),
+    slots_default=True,  # only supported by ty
+)
 def frozen(
     maybe_cls: None = ...,
     *,
