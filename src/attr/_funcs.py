@@ -243,7 +243,8 @@ def astuple(
         inst: Instance of an *attrs*-decorated class.
 
         recurse (bool):
-            Recurse into classes that are also *attrs*-decorated.
+            Recurse into classes that are also *attrs*-decorated -- including
+            those that are nested inside collections.
 
         filter (~typing.Callable):
             A callable whose return code determines whether an attribute or
@@ -268,6 +269,10 @@ def astuple(
             If *cls* is not an *attrs* class.
 
     ..  versionadded:: 16.2.0
+    ..  versionchanged:: 26.2.0
+        Collections nested inside collections are recursed into now -- just
+        like `attrs.asdict` does -- so *attrs* classes that are nested deeper
+        than one collection are serialized as tuples, too.
     """
     attrs = fields(inst.__class__)
     rv = []
@@ -293,16 +298,12 @@ def astuple(
             elif issubclass(value_type, (tuple, list, set, frozenset)):
                 cf = v.__class__ if retain is True else list
                 items = [
-                    (
-                        astuple(
-                            j,
-                            recurse=True,
-                            filter=filter,
-                            tuple_factory=tuple_factory,
-                            retain_collection_types=retain,
-                        )
-                        if type(j) not in _ATOMIC_TYPES and has(j.__class__)
-                        else j
+                    _astuple_anything(
+                        j,
+                        is_key=False,
+                        filter=filter,
+                        tuple_factory=tuple_factory,
+                        retain_collection_types=retain,
                     )
                     for j in v
                 ]
@@ -319,23 +320,19 @@ def astuple(
                 rv.append(
                     df(
                         (
-                            (
-                                astuple(
-                                    kk,
-                                    tuple_factory=tuple_factory,
-                                    retain_collection_types=retain,
-                                )
-                                if has(kk.__class__)
-                                else kk
+                            _astuple_anything(
+                                kk,
+                                is_key=True,
+                                filter=filter,
+                                tuple_factory=tuple_factory,
+                                retain_collection_types=retain,
                             ),
-                            (
-                                astuple(
-                                    vv,
-                                    tuple_factory=tuple_factory,
-                                    retain_collection_types=retain,
-                                )
-                                if has(vv.__class__)
-                                else vv
+                            _astuple_anything(
+                                vv,
+                                is_key=False,
+                                filter=filter,
+                                tuple_factory=tuple_factory,
+                                retain_collection_types=retain,
                             ),
                         )
                         for kk, vv in v.items()
@@ -347,6 +344,84 @@ def astuple(
             rv.append(v)
 
     return rv if tuple_factory is list else tuple_factory(rv)
+
+
+def _astuple_anything(
+    val,
+    is_key,
+    filter,
+    tuple_factory,
+    retain_collection_types,
+):
+    """
+    ``astuple`` only works on attrs instances, this works on anything.
+    """
+    val_type = type(val)
+    if val_type in _ATOMIC_TYPES:
+        rv = val
+    elif has(val_type):
+        rv = astuple(
+            val,
+            recurse=True,
+            filter=filter,
+            tuple_factory=tuple_factory,
+            retain_collection_types=retain_collection_types,
+        )
+    elif issubclass(val_type, (tuple, list, set, frozenset)):
+        if retain_collection_types is True:
+            cf = val.__class__
+        elif is_key:
+            cf = tuple
+        else:
+            cf = list
+
+        items = [
+            _astuple_anything(
+                i,
+                is_key=False,
+                filter=filter,
+                tuple_factory=tuple_factory,
+                retain_collection_types=retain_collection_types,
+            )
+            for i in val
+        ]
+        try:
+            rv = cf(items)
+        except TypeError:
+            if not issubclass(cf, tuple):
+                raise
+            # Workaround for TypeError: cf.__new__() missing 1 required
+            # positional argument (which appears, for a namedtuple)
+            rv = cf(*items)
+    elif issubclass(val_type, dict):
+        df = val.__class__ if retain_collection_types is True else dict
+        mapping = {
+            _astuple_anything(
+                kk,
+                is_key=True,
+                filter=filter,
+                tuple_factory=tuple_factory,
+                retain_collection_types=retain_collection_types,
+            ): _astuple_anything(
+                vv,
+                is_key=False,
+                filter=filter,
+                tuple_factory=tuple_factory,
+                retain_collection_types=retain_collection_types,
+            )
+            for kk, vv in val.items()
+        }
+        try:
+            rv = df(mapping)
+        except TypeError:
+            # Not every mapping can be built from a mapping object, e.g.
+            # `defaultdict`.  Fall back to a plain dict, just like `asdict`
+            # does.
+            rv = mapping
+    else:
+        rv = val
+
+    return rv
 
 
 def has(cls):
