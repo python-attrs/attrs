@@ -112,6 +112,9 @@ This is useful in times when you want to enhance classes that are not yours (nic
 SomethingFromSomeoneElse(x=1)
 ```
 
+If *these* is passed, *attrs* does not collect `attr.ib()` / `field()` definitions from the class body.
+Leftover sentinels are stripped so they cannot leak as public attributes.
+
 [Subclassing is bad for you](https://www.youtube.com/watch?v=3MNVP9-hglc) (except when doing [strict specialization](https://hynek.me/articles/python-subclassing-redux/)), but *attrs* will still do what you'd hope for:
 
 ```{doctest}
