@@ -974,20 +974,46 @@ class _ClassBuilder:
         # compiler will bake a reference to the class in the method itself
         # as `method.__closure__`.  Since we replace the class with a
         # clone, we rewrite these references so it keeps working.
+        #
+        # Methods wrapped in decorators hide their function (and thus the
+        # `__class__` cell baked into it) behind the wrapper's own closure,
+        # so we collect functions referenced by other functions' closures
+        # as well.  (issue <https://github.com/python-attrs/attrs/issues/1038>)
+        to_rewrite = []
+        seen = set()
+
+        def _collect_closure_functions(obj):
+            if isinstance(obj, (classmethod, staticmethod)):
+                # Class- and staticmethods hide their functions inside.
+                _collect_closure_functions(obj.__func__)
+                return
+            if isinstance(obj, property):
+                # Workaround for property `super()` shortcut (PY3-only).
+                # There is no universal way for other descriptors.
+                for f in (obj.fget, obj.fset, obj.fdel):
+                    if f is not None:
+                        _collect_closure_functions(f)
+                return
+            if isinstance(obj, type) or not callable(obj) or id(obj) in seen:
+                return
+            seen.add(id(obj))
+            to_rewrite.append(obj)
+            for cell in getattr(obj, "__closure__", ()) or ():
+                try:
+                    content = cell.cell_contents
+                except ValueError:
+                    # ValueError: Cell is empty
+                    continue
+                if callable(content) and not isinstance(content, type):
+                    _collect_closure_functions(content)
+
         for item in itertools.chain(
             cls.__dict__.values(), additional_closure_functions_to_update
         ):
-            if isinstance(item, (classmethod, staticmethod)):
-                # Class- and staticmethods hide their functions inside.
-                # These might need to be rewritten as well.
-                closure_cells = getattr(item.__func__, "__closure__", None)
-            elif isinstance(item, property):
-                # Workaround for property `super()` shortcut (PY3-only).
-                # There is no universal way for other descriptors.
-                closure_cells = getattr(item.fget, "__closure__", None)
-            else:
-                closure_cells = getattr(item, "__closure__", None)
+            _collect_closure_functions(item)
 
+        for item in to_rewrite:
+            closure_cells = getattr(item, "__closure__", None)
             if not closure_cells:  # Catch None or the empty list.
                 continue
             for cell in closure_cells:
