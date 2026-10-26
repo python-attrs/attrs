@@ -107,6 +107,48 @@ class WithMetaSlots(metaclass=Meta):
 FromMakeClass = attr.make_class("FromMakeClass", ["x"])
 
 
+@attr.s(auto_exc=True, kw_only=True)
+class KwOnlyError(Exception):
+    x = attr.ib(default=42)
+
+
+@attr.s(auto_exc=True, kw_only=True, slots=True)
+class KwOnlyErrorSlots(Exception):
+    x = attr.ib(default=42)
+
+
+@attr.s(auto_exc=True, kw_only=True, frozen=True)
+class KwOnlyErrorFrozen(Exception):
+    x = attr.ib(default=42)
+
+
+@attr.s(auto_exc=True, kw_only=True, frozen=True, slots=True)
+class KwOnlyErrorFrozenSlots(Exception):
+    x = attr.ib(default=42)
+
+
+@attr.s(auto_exc=True)
+class ChildError(KwOnlyError):
+    y = attr.ib()
+
+
+@attr.s(auto_exc=True, slots=True)
+class ChildErrorSlots(KwOnlyErrorSlots):
+    y = attr.ib()
+
+
+@attr.s(auto_exc=True)
+class UnsetAttributeError_(Exception):
+    x = attr.ib()
+    z = attr.ib(init=False)
+
+
+@attr.s(auto_exc=True, slots=True)
+class UnsetAttributeErrorSlots_(Exception):
+    x = attr.ib()
+    z = attr.ib(init=False)
+
+
 class TestFunctional:
     """
     Functional tests.
@@ -623,6 +665,75 @@ class TestFunctional:
             x = attr.ib()
 
         FooError(1)
+
+    @pytest.mark.parametrize(
+        "cls",
+        [
+            KwOnlyError,
+            KwOnlyErrorSlots,
+            KwOnlyErrorFrozen,
+            KwOnlyErrorFrozenSlots,
+        ],
+    )
+    @pytest.mark.parametrize("protocol", range(2, pickle.HIGHEST_PROTOCOL + 1))
+    def test_auto_exc_pickle_kw_only(self, cls, protocol):
+        """
+        Exceptions whose __init__ cannot accept self.args positionally --
+        e.g. with kw_only fields -- survive a pickle round-trip with their
+        args and state intact.
+
+        Regression test for #734.
+        """
+        e = cls(x=1337)
+        rv = pickle.loads(pickle.dumps(e, protocol))
+
+        assert rv.__class__ is cls
+        assert e.x == rv.x
+        assert e.args == rv.args
+
+    @pytest.mark.parametrize("cls", [ChildError, ChildErrorSlots])
+    @pytest.mark.parametrize("protocol", range(2, pickle.HIGHEST_PROTOCOL + 1))
+    def test_auto_exc_pickle_subclass(self, cls, protocol):
+        """
+        Subclasses that add a required positional field to a kw_only
+        exception also round-trip.
+        """
+        e = cls("foo")
+        rv = pickle.loads(pickle.dumps(e, protocol))
+
+        assert e.x == rv.x
+        assert e.y == rv.y
+        assert e.args == rv.args
+
+    @pytest.mark.parametrize(
+        "cls", [UnsetAttributeError_, UnsetAttributeErrorSlots_]
+    )
+    def test_auto_exc_pickle_unset_attribute(self, cls):
+        """
+        Exceptions with an attribute that is never set (init=False, no
+        default) can still be pickled and deep-copied.
+        """
+        e = cls(1)
+        rv = pickle.loads(pickle.dumps(e))
+
+        assert e.x == rv.x
+        assert e.args == rv.args
+        assert not hasattr(rv, "z")
+        deepcopy(e)
+
+    def test_auto_exc_custom_reduce_respected(self, slots, frozen):
+        """
+        A user-defined __reduce__ on an auto_exc class is not overwritten.
+        """
+
+        @attr.s(auto_exc=True, slots=slots, frozen=frozen)
+        class FooError(Exception):
+            x = attr.ib()
+
+            def __reduce__(self):
+                return (self.__class__, (self.x,))
+
+        assert (FooError, (3,)) == FooError(3).__reduce__()
 
     def test_eq_only(self, slots, frozen):
         """
