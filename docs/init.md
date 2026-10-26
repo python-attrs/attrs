@@ -386,6 +386,20 @@ If you need more control over the conversion process, you can wrap the converter
 C(x=410)
 ```
 
+Use {func}`attrs.converters.pipe` to apply converters in sequence.
+A final {class}`attrs.Converter` preserves the return annotation of its wrapped function.
+Tools can inspect that annotation on the pipeline:
+
+```{doctest}
+>>> import inspect
+>>> from attrs.converters import pipe
+>>> def to_int(value) -> int:
+...     return int(value)
+>>> converter = pipe(str, attrs.Converter(to_int))
+>>> inspect.signature(converter.__call__).return_annotation
+<class 'int'>
+```
+
 Or as a decorator
 
 ```{doctest}
