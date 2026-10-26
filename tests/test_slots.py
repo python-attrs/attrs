@@ -104,6 +104,57 @@ def test_slots_being_used():
     assert attr.asdict(slot_instance) == attr.asdict(non_slot_instance)
 
 
+def test_explicit_slots_are_preserved():
+    """Slots declared on the class are retained when attrs creates the class."""
+
+    @attrs.define
+    class ExplicitSlots:
+        __slots__ = ("private",)
+
+        public: str = "foo"
+
+    instance = ExplicitSlots()
+    instance.private = 1
+
+    assert instance.private == 1
+    assert instance.public == "foo"
+    assert {"__weakref__", "private", "public"} == set(ExplicitSlots.__slots__)
+
+
+def test_explicit_string_slot_is_preserved():
+    """A single string slot declaration survives attrs class rebuilding."""
+
+    @attrs.define
+    class ExplicitStringSlot:
+        __slots__ = "private"  # noqa: PLC0205 - exercise the supported string form
+
+        public: str = "foo"
+
+    instance = ExplicitStringSlot()
+    instance.private = 1
+
+    assert instance.private == 1
+    assert instance.public == "foo"
+    assert {"__weakref__", "private", "public"} == set(
+        ExplicitStringSlot.__slots__
+    )
+
+
+def test_explicit_slot_for_attribute_is_preserved():
+    """A declared slot matching an attrs field is not duplicated."""
+
+    @attrs.define
+    class ExplicitAttributeSlot:
+        __slots__ = ("public",)
+
+        public: str
+
+    instance = ExplicitAttributeSlot("foo")
+
+    assert instance.public == "foo"
+    assert {"__weakref__", "public"} == set(ExplicitAttributeSlot.__slots__)
+
+
 def test_slots_base_of_slotted():
     """
     The (hopefully gc'ed) temporary base class of a slotted class contains a

@@ -860,10 +860,22 @@ class _ClassBuilder:
         """
         Build and return a new class with a `__slots__` attribute.
         """
+        own_slots = self._cls.__dict__.get("__slots__", ())
+        if isinstance(own_slots, str):
+            own_slots = (own_slots,)
+        else:
+            own_slots = tuple(own_slots)
+
         cd = {
             k: v
             for k, v in self._cls_dict.items()
-            if k not in (*tuple(self._attr_names), "__dict__", "__weakref__")
+            if k
+            not in (
+                *tuple(self._attr_names),
+                *own_slots,
+                "__dict__",
+                "__weakref__",
+            )
         }
 
         # 3.14.0rc2+
@@ -903,7 +915,9 @@ class _ClassBuilder:
 
         base_names = set(self._base_names)
 
-        names = self._attr_names
+        names = self._attr_names + tuple(
+            name for name in own_slots if name not in self._attr_names
+        )
         if (
             self._weakref_slot
             and "__weakref__" not in getattr(self._cls, "__slots__", ())
