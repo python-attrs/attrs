@@ -644,6 +644,25 @@ def evolve(*args, **changes):
     return cls(**changes)
 
 
+def _mangle_slot_name(cls, name):
+    """
+    Return the name *name* is stored under in *cls*'s class dict.
+
+    Python mangles identifiers that start with two underscores and don't end
+    with two -- `__slots__` entries included.  Since we re-create classes
+    from a plain dict, type() applies the mangling to us, but we have to
+    look up (and deduplicate against) the mangled names ourselves.
+    """
+    if not name.startswith("__") or name.endswith("__"):
+        return name
+
+    class_name = cls.__name__.lstrip("_")
+    if not class_name:
+        return name
+
+    return f"_{class_name}{name}"
+
+
 class _ClassBuilder:
     """
     Iteratively build *one* class.
@@ -947,6 +966,25 @@ class _ClassBuilder:
         # Setting __slots__ to inherited attributes wastes memory.
         slot_names = [name for name in names if name not in base_names]
 
+        # Slots the class declares itself are not attrs fields, but they still
+        # have to be carried over -- otherwise `__slots__` below overwrites
+        # them and the descriptors created for the original class are left
+        # behind, raising on any access to instances of the new class.
+        # See <https://github.com/python-attrs/attrs/issues/1637>.
+        for declared_name in self._declared_slot_names():
+            name = _mangle_slot_name(self._cls, declared_name)
+
+            # The descriptor belongs to the original class and is useless for
+            # the new one, no matter whether the slot is laid out again.
+            cd.pop(name, None)
+
+            # Slots that are inherited (be it from attrs or from a hand-written
+            # base class) are already laid out and the descriptors of the base
+            # classes stay reachable through the MRO.
+            if name not in slot_names and name not in existing_slots:
+                # type() mangles the name of the new class for us again.
+                slot_names.append(declared_name)
+
         # There are slots for attributes from current class
         # that are defined in parent classes.
         # As their descriptors may be overridden by a child class,
@@ -1022,6 +1060,20 @@ class _ClassBuilder:
         self._cls_dict["__str__"] = self._add_method_dunders(__str__)
         return self
 
+    def _declared_slot_names(self):
+        """
+        Return the names the class itself declares in its `__slots__`, as a
+        tuple.
+
+        Python accepts any iterable -- strings and mappings included -- as
+        `__slots__`, so this can't be used as-is.
+        """
+        declared_slots = self._cls_dict.get("__slots__", ())
+        if isinstance(declared_slots, str):
+            return (declared_slots,)
+
+        return tuple(declared_slots)
+
     def _make_getstate_setstate(self):
         """
         Create custom __setstate__ and __getstate__ methods.
@@ -1031,11 +1083,30 @@ class _ClassBuilder:
             an for an in self._attr_names if an != "__weakref__"
         )
 
+        # Slots declared by the class itself are not attrs fields, but they're
+        # still part of the instance state and have to survive pickling and
+        # copying.
+        extra_state_names = tuple(
+            mangled
+            for mangled in (
+                _mangle_slot_name(self._cls, name)
+                for name in self._declared_slot_names()
+            )
+            if mangled not in state_attr_names
+            and mangled not in ("__dict__", "__weakref__", "__slots__")
+        )
+
         def slots_getstate(self):
             """
             Automatically created by attrs.
             """
-            return {name: getattr(self, name) for name in state_attr_names}
+            state = {name: getattr(self, name) for name in state_attr_names}
+            for name in extra_state_names:
+                value = getattr(self, name, _SENTINEL)
+                if value is not _SENTINEL:
+                    state[name] = value
+
+            return state
 
         hash_caching_enabled = self._cache_hash
 
@@ -1051,6 +1122,10 @@ class _ClassBuilder:
                     __bound_setattr(name, value)
             else:
                 for name in state_attr_names:
+                    if name in state:
+                        __bound_setattr(name, state[name])
+
+                for name in extra_state_names:
                     if name in state:
                         __bound_setattr(name, state[name])
 

@@ -653,6 +653,25 @@ Defining `__slots__` by hand is tedious, in *attrs* it's just a matter of using 
 
 {func}`~attrs.define` sets `slots=True` by default.
 
+If you need instance attributes that *attrs* should be entirely unaware of -- they don't appear in {func}`attrs.fields`, {func}`attrs.asdict`, or the generated `__init__`, `__eq__`, and `__hash__` -- you can declare them as slots on the class yourself:
+
+```{doctest}
+>>> from attrs import asdict
+
+>>> @define
+... class C:
+...     __slots__ = ("_internal",)
+...
+...     x: int
+
+>>> c = C(1)
+>>> c._internal = "not part of the data model"
+>>> c._internal
+'not part of the data model'
+>>> asdict(c)
+{'x': 1}
+```
+
 
 ## Immutability
 
