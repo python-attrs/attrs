@@ -483,13 +483,15 @@ def _transform_attrs(
     # the end and can be mandatory or non-mandatory in any order, as they will
     # be specified as keyword args anyway). Check the order of those attrs:
     had_default = False
+    which_had_default = None
     for a in (a for a in attrs if a.init is not False and a.kw_only is False):
         if had_default is True and a.default is NOTHING:
-            msg = f"No mandatory attributes allowed after an attribute with a default value or factory.  Attribute in question: {a!r}"
+            msg = f"No mandatory attributes allowed after an attribute with a default value or factory.  Attribute in question: {a!r} appears after {which_had_default!r}"
             raise ValueError(msg)
 
         if had_default is False and a.default is not NOTHING:
             had_default = True
+            which_had_default = a
 
     # Resolve default field alias for any new attributes that the
     # field_transformer may have added without setting an alias.
