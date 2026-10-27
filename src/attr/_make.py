@@ -961,7 +961,7 @@ class _ClassBuilder:
             if name not in existing_slots:
                 slot_names.append(name)
 
-        # Re-declare the dict/weakref markers so the rebuilt class keeps them
+        # Redeclare the dict/weakref markers so the rebuilt class keeps them
         # instead of losing __dict__ (and dynamic attributes with it).
         if "__dict__" in declared_slots:
             slot_names.append("__dict__")
