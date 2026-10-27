@@ -433,7 +433,7 @@ def test_own_slot_already_in_slots_is_not_duplicated():
 
     @attrs.define
     class A(Base):
-        __slots__ = ("val", "extra")
+        __slots__ = ("extra", "val")
 
         other: str = "o"
 
