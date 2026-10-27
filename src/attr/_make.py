@@ -953,12 +953,20 @@ class _ClassBuilder:
         # names to get fresh descriptors on the new class. Slots inherited
         # from bases already work through normal inheritance and are
         # skipped to avoid wasting memory.
-        for name in self._cls.__dict__.get("__slots__", ()):
+        declared_slots = self._cls.__dict__.get("__slots__", ())
+        for name in declared_slots:
             if name in names or name in ("__dict__", "__weakref__"):
                 continue
             cd.pop(name, None)
-            if name not in existing_slots and name not in slot_names:
+            if name not in existing_slots:
                 slot_names.append(name)
+
+        # Re-declare the dict/weakref markers so the rebuilt class keeps them
+        # instead of losing __dict__ (and dynamic attributes with it).
+        if "__dict__" in declared_slots:
+            slot_names.append("__dict__")
+        if "__weakref__" in declared_slots:
+            slot_names.append("__weakref__")
 
         # There are slots for attributes from current class
         # that are defined in parent classes.
