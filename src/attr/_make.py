@@ -947,6 +947,19 @@ class _ClassBuilder:
         # Setting __slots__ to inherited attributes wastes memory.
         slot_names = [name for name in names if name not in base_names]
 
+        # Preserve slots declared on the class itself that aren't attrs
+        # fields (see #1637): the original class dict still holds their
+        # (now stale) member descriptors, so drop those and re-slot the
+        # names to get fresh descriptors on the new class. Slots inherited
+        # from bases already work through normal inheritance and are
+        # skipped to avoid wasting memory.
+        for name in self._cls.__dict__.get("__slots__", ()):
+            if name in names or name in ("__dict__", "__weakref__"):
+                continue
+            cd.pop(name, None)
+            if name not in existing_slots and name not in slot_names:
+                slot_names.append(name)
+
         # There are slots for attributes from current class
         # that are defined in parent classes.
         # As their descriptors may be overridden by a child class,

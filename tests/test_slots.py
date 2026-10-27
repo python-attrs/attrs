@@ -346,6 +346,28 @@ def test_inherited_slot_reuses_slot_descriptor():
     assert ox.x is None
 
 
+def test_own_slots_preserved():
+    """
+    Slots declared on the attrs-decorated class itself are preserved
+    instead of leaving stale descriptors behind:
+    https://github.com/python-attrs/attrs/issues/1637
+    """
+
+    @attrs.define
+    class A:
+        __slots__ = ("private",)
+
+        public: str = "foo"
+
+    assert "private" in A.__slots__
+
+    a = A()
+    a.private = 1
+
+    assert 1 == a.private
+    assert "foo" == a.public
+
+
 def test_bare_inheritance_from_slots():
     """
     Inheriting from a bare attrs slotted class works.
