@@ -346,6 +346,133 @@ def test_inherited_slot_reuses_slot_descriptor():
     assert ox.x is None
 
 
+def test_own_slots_preserved():
+    """
+    Slots declared on the attrs-decorated class itself are preserved
+    instead of leaving stale descriptors behind:
+    https://github.com/python-attrs/attrs/issues/1637
+    """
+
+    @attrs.define
+    class A:
+        __slots__ = ("private",)
+
+        public: str = "foo"
+
+    assert "private" in A.__slots__
+
+    a = A()
+    a.private = 1
+
+    assert 1 == a.private
+    assert "foo" == a.public
+
+
+def test_own_slots_skips_dict_and_weakref_markers():
+    """
+    ``__dict__`` and ``__weakref__`` in ``__slots__`` are markers, not real
+    slots: they must not be dropped from the class dict nor re-slotted.
+    """
+
+    class Base:
+        __slots__ = ()
+
+    @attrs.define
+    class A(Base):
+        __slots__ = ("__dict__", "__weakref__", "private")
+
+        public: str = "foo"
+
+    slots = A.__slots__
+    assert "private" in slots
+    # __dict__ must survive as a marker, otherwise the class loses dynamic
+    # attributes entirely.
+    assert "__dict__" in slots
+
+    # The markers still work because they survived the class-dict rebuild.
+    a = A()
+    a.private = 1
+    a.other = 2  # needs __dict__
+
+    assert 1 == a.private
+    assert 2 == a.other
+    assert "foo" == a.public
+
+
+def test_own_slots_skip_attrs_field_names():
+    """
+    A name that is both an attrs field and listed in ``__slots__`` is handled
+    by the attrs field machinery; the own-slots pass must leave it alone.
+    """
+    cd = {}
+
+    @attrs.define(slots=False)
+    class A:
+        x: int = 0
+
+    # Simulate the class dict attrs sees: field name plus a redundant slot.
+    cd.update(A.__dict__)
+    cd["__slots__"] = ("x",)
+
+    new_cls = type(A)(A.__name__, A.__bases__, cd)
+    slotted = attrs.define(these={"x": attrs.field()})(new_cls)
+
+    assert "x" in slotted.__slots__
+    assert 42 == slotted(42).x
+
+
+def test_own_slot_already_in_slots_is_not_duplicated():
+    """
+    A declared slot that is also an inherited slot must not be appended
+    twice to ``__slots__``.
+    """
+
+    @attrs.define
+    class Base:
+        val: int = 0
+
+    @attrs.define
+    class A(Base):
+        __slots__ = ("extra", "val")
+
+        other: str = "o"
+
+    slots = A.__slots__
+    assert slots.count("val") <= 1
+    assert "extra" in slots
+
+    a = A(val=1)
+    a.extra = 2
+
+    assert 1 == a.val
+    assert 2 == a.extra
+
+
+def test_own_slot_matching_existing_slot_is_reused():
+    """
+    A declared slot that also exists on a base is reused through the
+    existing-slots pass instead of being appended a second time.
+    """
+
+    class Mid:
+        __slots__ = ("_priv",)
+
+    @attrs.define
+    class A(Mid):
+        __slots__ = ("_priv",)
+
+        v: int = 0
+
+    slots = A.__slots__
+    assert slots.count("_priv") <= 1
+    assert "v" in slots
+
+    a = A(v=3)
+    a._priv = 9
+    assert 3 == a.v
+    assert 9 == a._priv
+
+
 def test_bare_inheritance_from_slots():
     """
     Inheriting from a bare attrs slotted class works.
