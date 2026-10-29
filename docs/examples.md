@@ -381,6 +381,27 @@ C(x=1, y=2, z=[])
 Please keep in mind that the decorator approach *only* works if the attribute in question has a {func}`~attrs.field` assigned to it.
 As a result, annotating an attribute with a type is *not* enough if you use `@default`.
 
+The attribute name used by the decorator must also be defined in the same class body.
+An inherited attribute is not available as a name in a subclass body.
+To provide a different decorator-based default in a subclass, redeclare the field first:
+
+```{doctest}
+>>> @define
+... class Base:
+...     value: int = field()
+...     @value.default
+...     def _value(self):
+...         return 1
+>>> @define
+... class Child(Base):
+...     value: int = field()
+...     @value.default
+...     def _value(self):
+...         return 2
+>>> Child()
+Child(value=2)
+```
+
 (examples-validators)=
 
 ## Validators
