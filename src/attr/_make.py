@@ -117,6 +117,7 @@ def attrib(
     order=None,
     on_setattr=None,
     alias=None,
+    doc=None,
 ):
     """
     Create a new field / attribute on a class.
@@ -161,6 +162,7 @@ def attrib(
     .. versionchanged:: 26.2.0
        *on_setattr* hooks can now be generator functions to run code before and
        after an attribute is set.
+    .. versionadded:: 26.3.0 *doc*
     """
     eq, eq_key, order, order_key = _determine_attrib_eq_order(
         cmp, eq, order, True
@@ -211,6 +213,7 @@ def attrib(
         order_key=order_key,
         on_setattr=on_setattr,
         alias=alias,
+        doc=doc,
     )
 
 
@@ -962,6 +965,15 @@ class _ClassBuilder:
             slot_names.append(_HASH_CACHE_FIELD)
 
         cd["__slots__"] = tuple(slot_names)
+        slot_docs = {
+            attr.name: attr.doc
+            for attr in self._attrs
+            if attr.doc is not None and attr.name in slot_names
+        }
+        if slot_docs:
+            cd["__slots__"] = {
+                name: slot_docs.get(name) for name in slot_names
+            }
 
         cd["__qualname__"] = self._cls.__qualname__
 
@@ -2501,6 +2513,7 @@ class Attribute:
     .. versionadded:: 21.1.0 *eq_key* and *order_key*
     .. versionadded:: 22.2.0 *alias*
     .. versionadded:: 26.1.0 *alias_is_default*
+    .. versionadded:: 26.3.0 *doc*
 
     For the full version history of the fields, see `attr.ib`.
     """
@@ -2526,6 +2539,7 @@ class Attribute:
         "on_setattr",
         "alias",
         "alias_is_default",
+        "doc",
     )
 
     def __init__(
@@ -2549,6 +2563,7 @@ class Attribute:
         on_setattr=None,
         alias=None,
         alias_is_default=None,
+        doc=None,
     ):
         eq, eq_key, order, order_key = _determine_attrib_eq_order(
             cmp, eq_key or eq, order_key or order, True
@@ -2587,6 +2602,7 @@ class Attribute:
             "alias_is_default",
             alias is None if alias_is_default is None else alias_is_default,
         )
+        bound_setattr("doc", doc)
 
     def __setattr__(self, name, value):
         raise FrozenInstanceError
@@ -2623,6 +2639,7 @@ class Attribute:
             ca.on_setattr,
             ca.alias,
             ca.alias is None,
+            ca.doc,
         )
 
     # Don't use attrs.evolve since fields(Attribute) doesn't work
@@ -2673,16 +2690,19 @@ class Attribute:
         """
         Play nice with pickle.
         """
-        if len(state) < len(self.__slots__):
+        if len(state) == len(self.__slots__) - 1:
+            # Pickle created before Attribute.doc was added.
+            state = (*state, None)
+        elif len(state) < len(self.__slots__) - 1:
             # Pre-26.1.0 pickle without alias_is_default -- infer it
-            # heuristically.
+            # heuristically. Also pad the new doc slot.
             state_dict = dict(zip(self.__slots__, state, strict=False))
             alias_is_default = state_dict.get(
                 "alias"
             ) is None or state_dict.get("alias") == _default_init_alias_for(
                 state_dict["name"]
             )
-            state = (*state, alias_is_default)
+            state = (*state, alias_is_default, None)
 
         self._setattrs(zip(self.__slots__, state, strict=True))
 
@@ -2743,6 +2763,7 @@ class _CountingAttr:
         "_validator",
         "alias",
         "counter",
+        "doc",
         "eq",
         "eq_key",
         "hash",
@@ -2784,6 +2805,7 @@ class _CountingAttr:
                 "init",
                 "on_setattr",
                 "alias",
+                "doc",
             )
         ),
         Attribute(
@@ -2824,6 +2846,7 @@ class _CountingAttr:
         order_key,
         on_setattr,
         alias,
+        doc,
     ):
         _CountingAttr.cls_counter += 1
         self.counter = _CountingAttr.cls_counter
@@ -2842,6 +2865,7 @@ class _CountingAttr:
         self.kw_only = kw_only
         self.on_setattr = on_setattr
         self.alias = alias
+        self.doc = doc
 
     def validator(self, meth):
         """

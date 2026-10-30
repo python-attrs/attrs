@@ -10,6 +10,20 @@ from __future__ import annotations
 from typing import Any, Generator
 
 import attrs
+import attr
+
+
+@attrs.define(slots=True)
+class WithSlotDoc:
+    text: str = attrs.field(doc="Text shown in help output.")
+
+
+attrs.fields(WithSlotDoc).text.doc
+
+
+@attr.s(slots=True)
+class WithLegacySlotDoc:
+    text: str = attr.ib(doc="Text shown in help output.")
 
 
 @attrs.define(order=True)

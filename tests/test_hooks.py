@@ -179,7 +179,8 @@ class TestTransformHook:
                 "eq=True, eq_key=None, order=True, order_key=None, "
                 "hash=None, init=True, "
                 "metadata=mappingproxy({'field_order': 1}), type='int', converter=None, "
-                "kw_only=False, inherited=False, on_setattr=None, alias='x')"
+                "kw_only=False, inherited=False, on_setattr=None, alias='x', "
+                "doc=None)"
             ),
         ) == e.value.args
 

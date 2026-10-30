@@ -288,7 +288,8 @@ class TestTransformAttrs:
                 "eq=True, eq_key=None, order=True, order_key=None, "
                 "hash=None, init=True, "
                 "metadata=mappingproxy({}), type=None, converter=None, "
-                "kw_only=False, inherited=False, on_setattr=None, alias='y')"
+                "kw_only=False, inherited=False, on_setattr=None, alias='y', "
+                "doc=None)"
             ),
         ) == e.value.args
 

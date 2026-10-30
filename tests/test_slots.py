@@ -5,6 +5,7 @@ Unit tests for slots-related functionality.
 """
 
 import functools
+import inspect
 import pickle
 import weakref
 
@@ -102,6 +103,25 @@ def test_slots_being_used():
 
     assert attr.fields(C1Slots) == attr.fields(C1)
     assert attr.asdict(slot_instance) == attr.asdict(non_slot_instance)
+
+
+def test_slots_support_attribute_docstrings():
+    @attrs.define(slots=True)
+    class WithDocs:
+        name: str = attrs.field(doc="The name shown to users.")
+        count: int = attrs.field(default=0)
+
+    assert WithDocs.__slots__["name"] == "The name shown to users."
+    assert inspect.getdoc(WithDocs.name) == "The name shown to users."
+    assert inspect.getdoc(WithDocs.count) is None
+
+
+def test_slots_support_attribute_docstrings_with_attr_ib():
+    @attr.s(slots=True)
+    class WithDocs:
+        name = attr.ib(doc="The name shown to users.")
+
+    assert inspect.getdoc(WithDocs.name) == "The name shown to users."
 
 
 def test_slots_base_of_slotted():

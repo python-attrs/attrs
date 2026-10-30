@@ -87,6 +87,7 @@ def field(
     on_setattr: _OnSetAttrArgType | None = ...,
     alias: str | None = ...,
     type: type | None = ...,
+    doc: str | None = ...,
 ) -> Any: ...
 
 # This form catches an explicit None or no default and infers the type from the
@@ -111,6 +112,7 @@ def field(
     on_setattr: _OnSetAttrArgType | None = ...,
     alias: str | None = ...,
     type: type | None = ...,
+    doc: str | None = ...,
 ) -> _T: ...
 
 # This form catches an explicit default argument.
@@ -134,6 +136,7 @@ def field(
     on_setattr: _OnSetAttrArgType | None = ...,
     alias: str | None = ...,
     type: type | None = ...,
+    doc: str | None = ...,
 ) -> _T: ...
 
 # This form covers type=non-Type: e.g. forward references (str), Any
@@ -157,6 +160,7 @@ def field(
     on_setattr: _OnSetAttrArgType | None = ...,
     alias: str | None = ...,
     type: type | None = ...,
+    doc: str | None = ...,
 ) -> Any: ...
 @overload
 @dataclass_transform(  # type: ignore[misc]
