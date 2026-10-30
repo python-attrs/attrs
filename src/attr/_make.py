@@ -2727,7 +2727,7 @@ _a = [
         name=name,
         default=NOTHING,
         validator=None,
-        repr=(name != "alias_is_default"),
+        repr=name not in ("alias_is_default", "doc"),
         cmp=None,
         eq=True,
         order=False,

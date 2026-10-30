@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from typing import Any, Generator
 
-import attrs
 import attr
+import attrs
 
 
 @attrs.define(slots=True)
