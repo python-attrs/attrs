@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 21800)
-Total output lines: 3227
-
 # SPDX-License-Identifier: MIT
 
 """
@@ -1190,7 +1187,971 @@ class TestKeywordOnlyAttributes:
         assert c.x == 0
         assert c.y == 1
 
-    def test_init_false_attribute_after_keyword_attribute(self…6800 tokens truncated…",
+    def test_init_false_attribute_after_keyword_attribute(self):
+        """
+        A positional attribute cannot follow a `kw_only` attribute,
+        but an `init=False` attribute can because it won't appear
+        in `__init__`
+        """
+
+        @attr.s
+        class KwArgBeforeInitFalse:
+            kwarg = attr.ib(kw_only=True)
+            non_init_function_default = attr.ib(init=False)
+            non_init_keyword_default = attr.ib(
+                init=False, default="default-by-keyword"
+            )
+
+            @non_init_function_default.default
+            def _init_to_init(self):
+                return self.kwarg + "b"
+
+        c = KwArgBeforeInitFalse(kwarg="a")
+
+        assert c.kwarg == "a"
+        assert c.non_init_function_default == "ab"
+        assert c.non_init_keyword_default == "default-by-keyword"
+
+    def test_init_false_attribute_after_keyword_attribute_with_inheritance(
+        self,
+    ):
+        """
+        A positional attribute cannot follow a `kw_only` attribute,
+        but an `init=False` attribute can because it won't appear
+        in `__init__`. This test checks that we allow this
+        even when the `kw_only` attribute appears in a parent class
+        """
+
+        @attr.s
+        class KwArgBeforeInitFalseParent:
+            kwarg = attr.ib(kw_only=True)
+
+        @attr.s
+        class KwArgBeforeInitFalseChild(KwArgBeforeInitFalseParent):
+            non_init_function_default = attr.ib(init=False)
+            non_init_keyword_default = attr.ib(
+                init=False, default="default-by-keyword"
+            )
+
+            @non_init_function_default.default
+            def _init_to_init(self):
+                return self.kwarg + "b"
+
+        c = KwArgBeforeInitFalseChild(kwarg="a")
+
+        assert c.kwarg == "a"
+        assert c.non_init_function_default == "ab"
+        assert c.non_init_keyword_default == "default-by-keyword"
+
+    def test_attr_level_kw_only_and_class_level_kw_only(self):
+        """
+        If a field explicitly sets 'kw_only=False', it should not be made
+        keyword-only even if the class sets 'kw_only=True'.
+        """
+
+        @attr.s(kw_only=True)
+        class OldClassOldBehavior:
+            yes = attr.ib()
+            no = attr.ib(kw_only=False)
+
+        @attr.s(kw_only=True, force_kw_only=False)
+        class OldClassNewBehavior:
+            yes = attr.ib()
+            no = attr.ib(kw_only=False)
+
+        @attr.define(kw_only=True, force_kw_only=True)
+        class NewClassOldBehavior:
+            yes = attr.field()
+            no = attr.field(kw_only=False)
+
+        @attr.define(kw_only=True)
+        class NewClassNewBehavior:
+            yes = attr.field()
+            no = attr.field(kw_only=False)
+
+        for cls in [OldClassNewBehavior, NewClassNewBehavior]:
+            fs = fields_dict(cls)
+            assert fs["yes"].kw_only is True
+            assert fs["no"].kw_only is False
+
+        for cls in [OldClassOldBehavior, NewClassOldBehavior]:
+            fs = fields_dict(cls)
+
+            assert fs["yes"].kw_only is True
+            assert fs["no"].kw_only is True
+
+    def test_kw_only_inheritance(self):
+        """
+        Comprehensive test about how `kw_only` works when there's multiple
+        levels of inheritance with different `kw_only` settings.
+        """
+
+        @attr.define()
+        class A:
+            a = attr.field()
+            a_t = attr.field(kw_only=True)
+            a_f = attr.field(kw_only=False)
+
+        @attr.define(kw_only=True)
+        class B(A):
+            b = attr.field()
+            b_t = attr.field(kw_only=True)
+            b_f = attr.field(kw_only=False)
+
+        @attr.define(kw_only=False)
+        class C(B):
+            c = attr.field()
+            c_t = attr.field(kw_only=True)
+            c_f = attr.field(kw_only=False)
+
+        fs = fields_dict(A)
+
+        assert fs["a"].kw_only is False
+        assert fs["a_t"].kw_only is True
+        assert fs["a_f"].kw_only is False
+
+        fs = fields_dict(B)
+
+        assert fs["a"].kw_only is False
+        assert fs["a_t"].kw_only is True
+        assert fs["a_f"].kw_only is False
+        assert fs["b"].kw_only is True
+        assert fs["b_t"].kw_only is True
+        assert fs["b_f"].kw_only is False
+
+        fs = fields_dict(C)
+
+        assert fs["a"].kw_only is False
+        assert fs["a_t"].kw_only is True
+        assert fs["a_f"].kw_only is False
+        assert fs["b"].kw_only is True
+        assert fs["b_t"].kw_only is True
+        assert fs["b_f"].kw_only is False
+        assert fs["c"].kw_only is False
+        assert fs["c_t"].kw_only is True
+        assert fs["c_f"].kw_only is False
+
+    def test_kw_only_inheritance_force_kw_only(self):
+        """
+        Similar to above, but when `force_kw_only` (pre-25.3.0 behavior).
+        """
+
+        @attr.define(force_kw_only=True)
+        class A:
+            a = attr.field()
+            a_t = attr.field(kw_only=True)
+            a_f = attr.field(kw_only=False)
+
+        @attr.define(kw_only=True, force_kw_only=True)
+        class B(A):
+            b = attr.field()
+            b_t = attr.field(kw_only=True)
+            b_f = attr.field(kw_only=False)
+
+        @attr.define(kw_only=False, force_kw_only=True)
+        class C(B):
+            c = attr.field()
+            c_t = attr.field(kw_only=True)
+            c_f = attr.field(kw_only=False)
+
+        fs = fields_dict(A)
+
+        assert fs["a"].kw_only is False
+        assert fs["a_t"].kw_only is True
+        assert fs["a_f"].kw_only is False
+
+        fs = fields_dict(B)
+
+        assert fs["a"].kw_only is True
+        assert fs["a_t"].kw_only is True
+        assert fs["a_f"].kw_only is True
+        assert fs["b"].kw_only is True
+        assert fs["b_t"].kw_only is True
+        assert fs["b_f"].kw_only is True
+
+        fs = fields_dict(C)
+
+        assert fs["a"].kw_only is False
+        assert fs["a_t"].kw_only is True
+        assert fs["a_f"].kw_only is False
+        assert fs["b"].kw_only is True
+        assert fs["b_t"].kw_only is True
+        assert fs["b_f"].kw_only is True
+        assert fs["c"].kw_only is False
+        assert fs["c_t"].kw_only is True
+        assert fs["c_f"].kw_only is False
+
+
+@attr.s
+class GC:
+    @attr.s
+    class D:
+        pass
+
+
+class TestMakeClass:
+    """
+    Tests for `make_class`.
+    """
+
+    @pytest.mark.parametrize("ls", [list, tuple])
+    def test_simple(self, ls):
+        """
+        Passing a list of strings creates attributes with default args.
+        """
+        C1 = make_class("C1", ls(["a", "b"]))
+
+        @attr.s
+        class C2:
+            a = attr.ib()
+            b = attr.ib()
+
+        assert C1.__attrs_attrs__ == C2.__attrs_attrs__
+
+    def test_dict(self):
+        """
+        Passing a dict of name: _CountingAttr creates an equivalent class.
+        """
+        C1 = make_class(
+            "C1", {"a": attr.ib(default=42), "b": attr.ib(default=None)}
+        )
+
+        @attr.s
+        class C2:
+            a = attr.ib(default=42)
+            b = attr.ib(default=None)
+
+        assert C1.__attrs_attrs__ == C2.__attrs_attrs__
+
+    def test_attr_args(self):
+        """
+        attributes_arguments are passed to attributes
+        """
+        C = make_class("C", ["x"], repr=False)
+
+        assert repr(C(1)).startswith("<tests.test_make.C object at 0x")
+
+    def test_normalized_unicode_attr_args(self):
+        """
+        Unicode identifiers are valid in Python.
+        """
+        clsname = "ü"
+
+        assert clsname == unicodedata.normalize("NFKC", clsname)
+
+        attrname = "ß"
+
+        assert attrname == unicodedata.normalize("NFKC", attrname)
+
+        C = make_class(clsname, [attrname], repr=False)
+
+        assert repr(C(1)).startswith("<tests.test_make.ü object at 0x")
+
+        kwargs = {"ß": 1}
+        c = C(**kwargs)
+
+        assert 1 == c.ß
+
+    def test_unnormalized_unicode_attr_args(self):
+        """
+        Unicode identifiers are normalized to NFKC form in Python.
+        """
+
+        clsname = "Ŀ"
+
+        assert clsname != unicodedata.normalize("NFKC", clsname)
+
+        attrname = "ㅁ"
+
+        assert attrname != unicodedata.normalize("NFKC", attrname)
+
+        C = make_class(clsname, [attrname], repr=False)
+        assert repr(C(1)).startswith("<tests.test_make.L· object at 0x")
+
+        kwargs = {unicodedata.normalize("NFKC", attrname): 1}
+        c = C(**kwargs)
+
+        assert 1 == c.ㅁ
+
+    def test_catches_wrong_attrs_type(self):
+        """
+        Raise `TypeError` if an invalid type for attrs is passed.
+        """
+        with pytest.raises(TypeError) as e:
+            make_class("C", object())
+
+        assert ("attrs argument must be a dict or a list.",) == e.value.args
+
+    def test_bases(self):
+        """
+        Parameter bases default to (object,) and subclasses correctly
+        """
+
+        class D:
+            pass
+
+        cls = make_class("C", {})
+
+        assert cls.__mro__[-1] is object
+
+        cls = make_class("C", {}, bases=(D,))
+
+        assert D in cls.__mro__
+        assert isinstance(cls(), D)
+
+    def test_additional_class_body(self):
+        """
+        Additional class_body is added to newly created class.
+        """
+
+        def echo_func(cls, *args):
+            return args
+
+        cls = make_class("C", {}, class_body={"echo": classmethod(echo_func)})
+
+        assert ("a", "b") == cls.echo("a", "b")
+
+    def test_clean_class(self, slots):
+        """
+        Attribute definitions do not appear on the class body.
+        """
+        C = make_class("C", ["x"], slots=slots)
+
+        x = getattr(C, "x", None)
+
+        assert not isinstance(x, _CountingAttr)
+
+    def test_missing_sys_getframe(self, monkeypatch):
+        """
+        `make_class()` does not fail when `sys._getframe()` is not available.
+        """
+        monkeypatch.delattr(sys, "_getframe")
+        C = make_class("C", ["x"])
+
+        assert 1 == len(C.__attrs_attrs__)
+
+    def test_make_class_ordered(self):
+        """
+        If `make_class()` is passed ordered attrs, their order is respected
+        instead of the counter.
+        """
+        b = attr.ib(default=2)
+        a = attr.ib(default=1)
+
+        C = attr.make_class("C", {"a": a, "b": b})
+
+        assert "C(a=1, b=2)" == repr(C())
+
+    def test_generic_dynamic_class(self):
+        """
+        make_class can create generic dynamic classes.
+
+        https://github.com/python-attrs/attrs/issues/756
+        https://bugs.python.org/issue33188
+        """
+        from types import new_class
+        from typing import Generic, TypeVar
+
+        MyTypeVar = TypeVar("MyTypeVar")
+        MyParent = new_class("MyParent", (Generic[MyTypeVar],), {})
+
+        attr.make_class("test", {"id": attr.ib(type=str)}, (MyParent[int],))
+
+    def test_annotations(self):
+        """
+        make_class fills the __annotations__ dict for attributes with a known
+        type.
+        """
+        a = attr.ib(type=bool)
+        b = attr.ib(
+            type=None
+        )  # Won't be added to ann. b/c of unfavorable default
+        c = attr.ib()
+
+        C = attr.make_class("C", {"a": a, "b": b, "c": c})
+        C = attr.resolve_types(C)
+
+        assert {"a": bool} == C.__annotations__
+
+    def test_annotations_resolve(self):
+        """
+        resolve_types() resolves the annotations added by make_class().
+        """
+        a = attr.ib(type="bool")
+
+        C = attr.make_class("C", {"a": a})
+        C = attr.resolve_types(C)
+
+        assert attr.fields(C).a.type is bool
+        assert {"a": "bool"} == C.__annotations__
+
+
+class TestFields:
+    """
+    Tests for `fields`.
+    """
+
+    @given(simple_classes())
+    def test_instance(self, C):
+        """
+        Returns the class fields for *attrs* instances too.
+        """
+        assert fields(C()) is fields(C)
+
+    def test_handler_non_attrs_instance(self):
+        """
+        Raises `TypeError` on non-*attrs* instances.
+        """
+        with pytest.raises(
+            TypeError,
+            match=r"Passed object must be a class or attrs instance\.",
+        ):
+            fields(object())
+
+    def test_handler_non_attrs_class(self):
+        """
+        Raises `ValueError` if passed a non-*attrs* instance.
+        """
+        with pytest.raises(NotAnAttrsClassError) as e:
+            fields(object)
+
+        assert (
+            f"{object!r} is not an attrs-decorated class."
+        ) == e.value.args[0]
+
+    def test_handler_non_attrs_generic_class(self):
+        """
+        Raises `ValueError` if passed a non-*attrs* generic class.
+        """
+        T = TypeVar("T")
+
+        class B(Generic[T]):
+            pass
+
+        with pytest.raises(NotAnAttrsClassError) as e:
+            fields(B[str])
+
+        assert (
+            f"{B[str]!r} is not an attrs-decorated class."
+        ) == e.value.args[0]
+
+    @given(simple_classes())
+    def test_fields(self, C):
+        """
+        Returns a list of `Attribute`a.
+        """
+        assert all(isinstance(a, Attribute) for a in fields(C))
+
+    @given(simple_classes())
+    def test_fields_properties(self, C):
+        """
+        Fields returns a tuple with properties.
+        """
+        for attribute in fields(C):
+            assert getattr(fields(C), attribute.name) is attribute
+
+    def test_generics(self):
+        """
+        Fields work with generic classes.
+        """
+        T = TypeVar("T")
+
+        @attr.define
+        class A(Generic[T]):
+            a: T
+
+        assert len(fields(A)) == 1
+        assert fields(A).a.name == "a"
+        assert fields(A).a.default is attr.NOTHING
+
+        assert len(fields(A[str])) == 1
+        assert fields(A[str]).a.name == "a"
+        assert fields(A[str]).a.default is attr.NOTHING
+
+
+class TestFieldsDict:
+    """
+    Tests for `fields_dict`.
+    """
+
+    @given(simple_classes())
+    def test_instance(self, C):
+        """
+        Raises `TypeError` on non-classes.
+        """
+        with pytest.raises(TypeError) as e:
+            fields_dict(C())
+
+        assert "Passed object must be a class." == e.value.args[0]
+
+    def test_handler_non_attrs_class(self):
+        """
+        Raises `ValueError` if passed a non-*attrs* instance.
+        """
+        with pytest.raises(NotAnAttrsClassError) as e:
+            fields_dict(object)
+
+        assert (
+            f"{object!r} is not an attrs-decorated class."
+        ) == e.value.args[0]
+
+    @given(simple_classes())
+    def test_fields_dict(self, C):
+        """
+        Returns an ordered dict of ``{attribute_name: Attribute}``.
+        """
+        d = fields_dict(C)
+
+        assert isinstance(d, dict)
+        assert list(fields(C)) == list(d.values())
+        assert [a.name for a in fields(C)] == list(d)
+
+
+class TestConverter:
+    """
+    Tests for attribute conversion.
+    """
+
+    def test_converter(self):
+        """
+        Return value of converter is used as the attribute's value.
+        """
+        C = make_class(
+            "C", {"x": attr.ib(converter=lambda v: v + 1), "y": attr.ib()}
+        )
+        c = C(1, 2)
+
+        assert c.x == 2
+        assert c.y == 2
+
+    def test_converter_wrapped_takes_self(self):
+        """
+        When wrapped and passed `takes_self`, the converter receives the
+        instance that's being initializes -- and the return value is used as
+        the field's value.
+        """
+
+        def converter_with_self(v, self_):
+            return v * self_.y
+
+        @attr.define
+        class C:
+            x: int = attr.field(
+                converter=attr.Converter(converter_with_self, takes_self=True)
+            )
+            y = 42
+
+        assert 84 == C(2).x
+
+    def test_converter_wrapped_takes_field(self):
+        """
+        When wrapped and passed `takes_field`, the converter receives the field
+        definition -- and the return value is used as the field's value.
+        """
+
+        def converter_with_field(v, field):
+            assert isinstance(field, attr.Attribute)
+            return v * field.metadata["x"]
+
+        @attr.define
+        class C:
+            x: int = attr.field(
+                converter=attr.Converter(
+                    converter_with_field, takes_field=True
+                ),
+                metadata={"x": 42},
+            )
+
+        assert 84 == C(2).x
+
+    def test_converter_decorated(self):
+        """
+        Same as Converter with both `takes_field` and `takes_self`
+        """
+
+        @attr.define
+        class C:
+            factor: int = 5
+            x: int = attr.field(default=0, metadata={"offset": 200})
+
+            @x.converter
+            def _convert_x(self, field, value):
+                assert isinstance(field, attr.Attribute)
+                return int(value) * self.factor + field.metadata["offset"]
+
+        assert 410 == C(x="42").x
+
+    @given(integers(), booleans())
+    def test_convert_property(self, val, init):
+        """
+        Property tests for attributes using converter.
+        """
+        C = make_class(
+            "C",
+            {
+                "y": attr.ib(),
+                "x": attr.ib(
+                    init=init, default=val, converter=lambda v: v + 1
+                ),
+            },
+        )
+        c = C(2)
+
+        assert c.x == val + 1
+        assert c.y == 2
+
+    @given(integers(), booleans())
+    def test_converter_factory_property(self, val, init):
+        """
+        Property tests for attributes with converter, and a factory default.
+        """
+        C = make_class(
+            "C",
+            {
+                "y": attr.ib(),
+                "x": attr.ib(
+                    init=init,
+                    default=Factory(lambda: val),
+                    converter=lambda v: v + 1,
+                ),
+            },
+        )
+        c = C(2)
+
+        assert c.x == val + 1
+        assert c.y == 2
+
+    def test_convert_before_validate(self):
+        """
+        Validation happens after conversion.
+        """
+
+        def validator(inst, attr, val):
+            raise RuntimeError("foo")
+
+        C = make_class(
+            "C",
+            {
+                "x": attr.ib(validator=validator, converter=lambda v: 1 / 0),
+                "y": attr.ib(),
+            },
+        )
+        with pytest.raises(ZeroDivisionError):
+            C(1, 2)
+
+    def test_frozen(self):
+        """
+        Converters circumvent immutability.
+        """
+        C = make_class("C", {"x": attr.ib(converter=int)}, frozen=True)
+        C("1")
+
+
+class TestValidate:
+    """
+    Tests for `validate`.
+    """
+
+    def test_success(self):
+        """
+        If the validator succeeds, nothing gets raised.
+        """
+        C = make_class(
+            "C", {"x": attr.ib(validator=lambda *a: None), "y": attr.ib()}
+        )
+        validate(C(1, 2))
+
+    def test_propagates(self):
+        """
+        The exception of the validator is handed through.
+        """
+
+        def raiser(_, __, value):
+            if value == 42:
+                raise FloatingPointError
+
+        C = make_class("C", {"x": attr.ib(validator=raiser)})
+        i = C(1)
+        i.x = 42
+
+        with pytest.raises(FloatingPointError):
+            validate(i)
+
+    def test_run_validators(self):
+        """
+        Setting `_run_validators` to False prevents validators from running.
+        """
+        _config._run_validators = False
+        obj = object()
+
+        def raiser(_, __, ___):
+            raise Exception(obj)
+
+        C = make_class("C", {"x": attr.ib(validator=raiser)})
+        c = C(1)
+        validate(c)
+        assert 1 == c.x
+        _config._run_validators = True
+
+        with pytest.raises(Exception):
+            validate(c)
+
+        with pytest.raises(Exception) as e:
+            C(1)
+        assert (obj,) == e.value.args
+
+    def test_multiple_validators(self):
+        """
+        If a list is passed as a validator, all of its items are treated as one
+        and must pass.
+        """
+
+        def v1(_, __, value):
+            if value == 23:
+                raise TypeError("omg")
+
+        def v2(_, __, value):
+            if value == 42:
+                raise ValueError("omg")
+
+        C = make_class("C", {"x": attr.ib(validator=[v1, v2])})
+
+        validate(C(1))
+
+        with pytest.raises(TypeError) as e:
+            C(23)
+
+        assert "omg" == e.value.args[0]
+
+        with pytest.raises(ValueError) as e:
+            C(42)
+
+        assert "omg" == e.value.args[0]
+
+    def test_multiple_empty(self):
+        """
+        Empty list/tuple for validator is the same as None.
+        """
+        C1 = make_class("C", {"x": attr.ib(validator=[])})
+        C2 = make_class("C", {"x": attr.ib(validator=None)})
+
+        assert inspect.getsource(C1.__init__) == inspect.getsource(C2.__init__)
+
+
+# Hypothesis seems to cache values, so the lists of attributes come out
+# unsorted.
+sorted_lists_of_attrs = list_of_attrs.map(
+    lambda ln: sorted(ln, key=attrgetter("counter"))
+)
+
+
+class TestMetadata:
+    """
+    Tests for metadata handling.
+    """
+
+    @given(sorted_lists_of_attrs)
+    def test_metadata_present(self, list_of_attrs):
+        """
+        Assert dictionaries are copied and present.
+        """
+        C = make_class(
+            "C", dict(zip(gen_attr_names(), list_of_attrs, strict=False))
+        )
+
+        for hyp_attr, class_attr in zip(list_of_attrs, fields(C), strict=True):
+            if hyp_attr.metadata is None:
+                # The default is a singleton empty dict.
+                assert class_attr.metadata is not None
+                assert len(class_attr.metadata) == 0
+            else:
+                assert hyp_attr.metadata == class_attr.metadata
+
+                # Once more, just to assert getting items and iteration.
+                for k in class_attr.metadata:
+                    assert hyp_attr.metadata[k] == class_attr.metadata[k]
+                    assert hyp_attr.metadata.get(k) == class_attr.metadata.get(
+                        k
+                    )
+
+    @given(simple_classes(), text())
+    def test_metadata_immutability(self, C, string):
+        """
+        The metadata dict should be best-effort immutable.
+        """
+        for a in fields(C):
+            with pytest.raises(TypeError):
+                a.metadata[string] = string
+            with pytest.raises(AttributeError):
+                a.metadata.update({string: string})
+            with pytest.raises(AttributeError):
+                a.metadata.clear()
+            with pytest.raises(AttributeError):
+                a.metadata.setdefault(string, string)
+
+            for k in a.metadata:
+                # For some reason, MappingProxyType throws an IndexError for
+                # deletes on a large integer key.
+                with pytest.raises((TypeError, IndexError)):
+                    del a.metadata[k]
+                with pytest.raises(AttributeError):
+                    a.metadata.pop(k)
+            with pytest.raises(AttributeError):
+                a.metadata.popitem()
+
+    @given(lists(simple_attrs_without_metadata, min_size=2, max_size=5))
+    def test_empty_metadata_singleton(self, list_of_attrs):
+        """
+        All empty metadata attributes share the same empty metadata dict.
+        """
+        C = make_class(
+            "C", dict(zip(gen_attr_names(), list_of_attrs, strict=False))
+        )
+        for a in fields(C)[1:]:
+            assert a.metadata is fields(C)[0].metadata
+
+    @given(lists(simple_attrs_without_metadata, min_size=2, max_size=5))
+    def test_empty_countingattr_metadata_independent(self, list_of_attrs):
+        """
+        All empty metadata attributes are independent before ``@attr.s``.
+        """
+        for x, y in itertools.combinations(list_of_attrs, 2):
+            assert x.metadata is not y.metadata
+
+    @given(lists(simple_attrs_with_metadata(), min_size=2, max_size=5))
+    def test_not_none_metadata(self, list_of_attrs):
+        """
+        Non-empty metadata attributes exist as fields after ``@attr.s``.
+        """
+        C = make_class(
+            "C", dict(zip(gen_attr_names(), list_of_attrs, strict=False))
+        )
+
+        assert len(fields(C)) > 0
+
+        for cls_a, raw_a in zip(fields(C), list_of_attrs, strict=True):
+            assert cls_a.metadata != {}
+            assert cls_a.metadata == raw_a.metadata
+
+    def test_metadata(self):
+        """
+        If metadata that is not None is passed, it is used.
+
+        This is necessary for coverage because the previous test is
+        hypothesis-based.
+        """
+        md = {}
+        a = attr.ib(metadata=md)
+
+        assert md is a.metadata
+
+
+class TestClassBuilder:
+    """
+    Tests for `_ClassBuilder`.
+    """
+
+    def test_repr_str(self):
+        """
+        Trying to add a `__str__` without having a `__repr__` raises a
+        ValueError.
+        """
+        with pytest.raises(ValueError) as ei:
+            make_class("C", {}, repr=False, str=True)
+
+        assert (
+            "__str__ can only be generated if a __repr__ exists.",
+        ) == ei.value.args
+
+    def test_repr(self):
+        """
+        repr of builder itself makes sense.
+        """
+
+        class C:
+            pass
+
+        b = _ClassBuilder(
+            C,
+            None,
+            True,
+            ClassProps(
+                is_exception=False,
+                is_slotted=True,
+                is_frozen=True,
+                added_init=True,
+                added_repr=True,
+                added_eq=True,
+                added_ordering=False,
+                hashability=ClassProps.Hashability.UNHASHABLE,
+                added_match_args=True,
+                kw_only=ClassProps.KeywordOnly.NO,
+                has_weakref_slot=False,
+                collected_fields_by_mro=True,
+                added_str=False,
+                added_pickling=True,
+                on_setattr_hook=None,
+                field_transformer=None,
+            ),
+            has_custom_setattr=False,
+        )
+
+        assert "<_ClassBuilder(cls=C)>" == repr(b)
+
+    def test_returns_self(self):
+        """
+        All methods return the builder for chaining.
+        """
+
+        class C:
+            x = attr.ib()
+
+        b = _ClassBuilder(
+            C,
+            None,
+            False,
+            ClassProps(
+                is_exception=False,
+                is_slotted=True,
+                is_frozen=True,
+                added_init=True,
+                added_repr=True,
+                added_eq=True,
+                added_ordering=False,
+                hashability=ClassProps.Hashability.UNHASHABLE,
+                added_match_args=True,
+                kw_only=ClassProps.KeywordOnly.NO,
+                has_weakref_slot=False,
+                collected_fields_by_mro=True,
+                added_str=False,
+                added_pickling=True,
+                on_setattr_hook=None,
+                field_transformer=None,
+            ),
+            has_custom_setattr=False,
+        )
+
+        cls = (
+            b.add_eq()
+            .add_order()
+            .add_hash()
+            .add_init()
+            .add_attrs_init()
+            .add_repr("ns")
+            .add_str()
+            .build_class()
+        )
+
+        assert "ns.C(x=1)" == repr(cls(1))
+
+    @pytest.mark.parametrize(
+        "meth_name",
+        [
+            "__init__",
+            "__hash__",
+            "__repr__",
+            "__str__",
+            "__eq__",
             "__lt__",
             "__le__",
             "__gt__",
