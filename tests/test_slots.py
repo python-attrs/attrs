@@ -107,6 +107,7 @@ def test_slots_being_used():
 
 def test_slots_support_attribute_docstrings():
     """Slotted field descriptors expose their documentation."""
+
     @attrs.define(slots=True)
     class WithDocs:
         name: str = attrs.field(doc="The name shown to users.")
@@ -119,6 +120,7 @@ def test_slots_support_attribute_docstrings():
 
 def test_slots_support_attribute_docstrings_with_attr_ib():
     """The legacy field API supports slot descriptor documentation."""
+
     @attr.s(slots=True)
     class WithDocs:
         name = attr.ib(doc="The name shown to users.")
