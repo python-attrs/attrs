@@ -4,6 +4,7 @@
 Unit tests for slots-related functionality.
 """
 
+import copy
 import functools
 import pickle
 import weakref
@@ -622,6 +623,19 @@ def test_slots_empty_cell():
     C(field=1)
 
 
+@attr.s(slots=False)
+class CNonSlottedBase:
+    name = attr.ib()
+
+
+@attr.s(slots=True)
+class CSlottedChildWithDict(CNonSlottedBase):
+    x = attr.ib()
+
+    def __attrs_post_init__(self):
+        self.z = self.x + 2
+
+
 @attr.s(getstate_setstate=True)
 class C2:
     x = attr.ib()
@@ -644,6 +658,34 @@ class TestPickle:
 
         assert i1 == i2
         assert i1 is not i2
+
+    @pytest.mark.parametrize("protocol", range(pickle.HIGHEST_PROTOCOL))
+    def test_pickle_preserves_dict_state(self, protocol):
+        """
+        Attributes stored in the instance __dict__ of a slotted class
+        that inherits a __dict__ from a non-slotted base class are
+        preserved when pickling, instead of being silently dropped.
+        """
+        i1 = CSlottedChildWithDict("spam", 3)
+
+        i2 = pickle.loads(pickle.dumps(i1, protocol))
+
+        assert i1 == i2
+        assert "spam" == i2.name
+        assert 3 == i2.x
+        assert 5 == i2.z
+
+    def test_copy_preserves_dict_state(self):
+        """
+        Copying a slotted class with a __dict__ (see above) preserves
+        the attributes stored in the __dict__ as well.
+        """
+        i1 = CSlottedChildWithDict("spam", 3)
+
+        i2 = copy.copy(i1)
+
+        assert i1 == i2
+        assert 5 == i2.z
 
     def test_no_getstate_setstate_for_dict_classes(self):
         """
