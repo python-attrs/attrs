@@ -238,6 +238,8 @@ def astuple(
     Return the *attrs* attribute values of *inst* as a tuple.
 
     Optionally recurse into other *attrs*-decorated classes.
+    When recursing, *filter* also applies to *attrs* instances used as dictionary
+    keys and values.
 
     Args:
         inst: Instance of an *attrs*-decorated class.
@@ -268,6 +270,8 @@ def astuple(
             If *cls* is not an *attrs* class.
 
     ..  versionadded:: 16.2.0
+    ..  versionchanged:: 26.2.0
+        Apply *filter* to attrs instances in dictionary keys and values.
     """
     attrs = fields(inst.__class__)
     rv = []
@@ -322,6 +326,7 @@ def astuple(
                             (
                                 astuple(
                                     kk,
+                                    filter=filter,
                                     tuple_factory=tuple_factory,
                                     retain_collection_types=retain,
                                 )
@@ -331,6 +336,7 @@ def astuple(
                             (
                                 astuple(
                                     vv,
+                                    filter=filter,
                                     tuple_factory=tuple_factory,
                                     retain_collection_types=retain,
                                 )
