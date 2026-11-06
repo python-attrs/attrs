@@ -330,6 +330,31 @@ def is_callable():
     return _IsCallableValidator()
 
 
+class _MemberAttribute:
+    """
+    A stand-in for an `attrs.Attribute` that names the failing member.
+
+    `_DeepIterable` passes it to the member validator so that error messages
+    point at e.g. ``x[3]`` instead of the whole attribute ``x``.
+    """
+
+    __slots__ = ("_attr", "_index")
+
+    def __init__(self, attr, index):
+        self._attr = attr
+        self._index = index
+
+    @property
+    def name(self):
+        return f"{self._attr.name}[{self._index}]"
+
+    def __getattr__(self, name):
+        return getattr(object.__getattribute__(self, "_attr"), name)
+
+    def __repr__(self):
+        return f"<member {self.name!r} of {object.__getattribute__(self, '_attr')!r}>"
+
+
 @attrs(repr=False, slots=True, unsafe_hash=True)
 class _DeepIterable:
     member_validator = attrib(validator=is_callable())
@@ -344,8 +369,8 @@ class _DeepIterable:
         if self.iterable_validator is not None:
             self.iterable_validator(inst, attr, value)
 
-        for member in value:
-            self.member_validator(inst, attr, member)
+        for index, member in enumerate(value):
+            self.member_validator(inst, _MemberAttribute(attr, index), member)
 
     def __repr__(self):
         iterable_identifier = (
