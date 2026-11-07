@@ -185,6 +185,16 @@ ConvCToBool(False)
 ConvCToBool("n")
 
 
+# Converters are applied to the default, so the default's type must not
+# determine the attribute type.
+@attr.s
+class ConvCDefault:
+    x: int = attr.ib(converter=int, default="1")
+
+
+ConvCDefault().x + 1
+
+
 # Validators
 @attr.s
 class Validated:
