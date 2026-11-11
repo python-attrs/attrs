@@ -91,6 +91,10 @@ slotted classes
 
     Also, [think twice](https://www.youtube.com/watch?v=7KnfGDajDQw) before using {mod}`pickle`.
 
+  - Additional slots declared directly on a slotted *attrs* class are preserved, but they are not *attrs* fields.
+    The automatically generated `__getstate__()` and `__setstate__()` methods only handle *attrs* fields, so extra slot values are not preserved by pickle by default.
+    To preserve them, use `getstate_setstate=False` to rely on Python's default pickling behavior, or implement custom state methods.
+
   - Slotted classes are weak-referenceable by default.
     This can be disabled in CPython by passing `weakref_slot=False` to `@attr.s` [^pypyweakref].
 
