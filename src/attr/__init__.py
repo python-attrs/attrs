@@ -12,7 +12,14 @@ from typing import Callable, Literal, Protocol
 from . import exceptions, setters
 from ._cmp import cmp_using
 from ._config import get_run_validators, set_run_validators
-from ._funcs import asdict, assoc, astuple, has, resolve_types
+from ._funcs import (
+    asdict,
+    assoc,
+    astuple,
+    fields_equal,
+    has,
+    resolve_types,
+)
 from ._make import (
     NOTHING,
     Attribute,
@@ -64,6 +71,7 @@ __all__ = [
     "field",
     "fields",
     "fields_dict",
+    "fields_equal",
     "filters",
     "frozen",
     "get_run_validators",
