@@ -210,6 +210,29 @@ def attrib(
     alias: str | None = ...,
 ) -> _T: ...
 
+# This form catches an explicit default argument together with a converter.
+# The converter is applied to the default, so the default's type must not
+# determine the attribute type.
+@overload
+def attrib(
+    default: Any,
+    *,
+    validator: _ValidatorArgType[_T] | None = ...,
+    repr: _ReprArgType = ...,
+    cmp: _EqOrderType | None = ...,
+    hash: bool | None = ...,
+    init: bool = ...,
+    metadata: Mapping[Any, Any] | None = ...,
+    type: type[_T] | None = ...,
+    converter: Callable[[Any], _T] | Converter[Any, _T],
+    factory: None = ...,
+    kw_only: bool | None = ...,
+    eq: _EqOrderType | None = ...,
+    order: _EqOrderType | None = ...,
+    on_setattr: _OnSetAttrArgType | None = ...,
+    alias: str | None = ...,
+) -> _T: ...
+
 # This form catches an explicit default argument.
 @overload
 def attrib(
