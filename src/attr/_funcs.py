@@ -325,7 +325,8 @@ def astuple(
                                     tuple_factory=tuple_factory,
                                     retain_collection_types=retain,
                                 )
-                                if has(kk.__class__)
+                                if type(kk) not in _ATOMIC_TYPES
+                                and has(kk.__class__)
                                 else kk
                             ),
                             (
@@ -334,7 +335,8 @@ def astuple(
                                     tuple_factory=tuple_factory,
                                     retain_collection_types=retain,
                                 )
-                                if has(vv.__class__)
+                                if type(vv) not in _ATOMIC_TYPES
+                                and has(vv.__class__)
                                 else vv
                             ),
                         )

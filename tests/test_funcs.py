@@ -409,6 +409,29 @@ class TestAsTuple:
         assert tuple_factory([1, {"a": tuple_factory([4, 5])}]) == res
         assert isinstance(res, tuple_factory)
 
+    @pytest.mark.parametrize("retain", [False, True])
+    @pytest.mark.parametrize("container", MAPPING_TYPES)
+    def test_dict_atomic_and_subclass(self, C, retain, container):
+        """Exact atomic keys/values and int subclasses retain behavior."""
+
+        class IntSub(int):
+            pass
+
+        mapping = container({"one": 1, "two": IntSub(2), "three": C(3, 4)})
+        result = astuple(C(mapping, 9), retain_collection_types=retain)
+        assert result == ({"one": 1, "two": 2, "three": (3, 4)}, 9)
+        assert type(result[0]) is (container if retain else dict)
+        assert type(result[0]["two"]) is IntSub
+
+    @pytest.mark.parametrize("retain", [False, True])
+    @pytest.mark.parametrize("container", MAPPING_TYPES)
+    def test_dict_atomic_keys(self, C, retain, container):
+        """Dictionary atomic keys are preserved during conversion."""
+        mapping = container({1: "one", 2: "two"})
+        result = astuple(C(mapping, 9), retain_collection_types=retain)
+        assert result == (mapping, 9)
+        assert type(result[0]) is (container if retain else dict)
+
     @given(container=st.sampled_from(SEQUENCE_TYPES))
     def test_lists_tuples_retain_type(self, container, C):
         """
