@@ -409,6 +409,29 @@ class TestAsTuple:
         assert tuple_factory([1, {"a": tuple_factory([4, 5])}]) == res
         assert isinstance(res, tuple_factory)
 
+    @pytest.mark.parametrize("retain", [False, True])
+    @pytest.mark.parametrize("container", MAPPING_TYPES)
+    def test_dicts_filter(self, C, retain, container):
+        """
+        Filters apply to attrs instances used as dictionary keys and values.
+        """
+
+        @attr.s(frozen=True)
+        class Key:
+            x = attr.ib()
+            y = attr.ib()
+
+        inst = C(container({Key(1, 2): C(3, 4)}), 5)
+
+        result = astuple(
+            inst,
+            filter=lambda a, v: a.name != "y",
+            retain_collection_types=retain,
+        )
+
+        assert ({(1,): (3,)},) == result
+        assert (container if retain else dict) is type(result[0])
+
     @given(container=st.sampled_from(SEQUENCE_TYPES))
     def test_lists_tuples_retain_type(self, container, C):
         """
