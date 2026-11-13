@@ -2500,6 +2500,21 @@ class TestInitAlias:
             assert a.alias == restored.alias
             assert a.alias_is_default == restored.alias_is_default
 
+    def test_can_unpickle_attribute_without_doc(self):
+        """Can unpickle Attribute instances created before doc was added."""
+
+        @attrs.define
+        class C:
+            value: int
+
+        attribute = attr.fields(C).value
+        state_without_doc = attribute.__getstate__()[:-1]
+        restored = Attribute.__new__(Attribute)
+        restored.__setstate__(state_without_doc)
+
+        assert restored == attribute
+        assert restored.doc is None
+
     X = (
         b"\x80\x05\x95_\x00\x00\x00\x00\x00\x00\x00\x8c\nattr._make\x94\x8c\tAttrib"
         b"ute\x94\x93\x94)\x81\x94(\x8c\x01x\x94h\x00\x8c\x08_Nothing\x94\x93"

@@ -447,6 +447,7 @@ def field(
     order=None,
     on_setattr=None,
     alias=None,
+    doc=None,
 ):
     """
     Create a new :term:`field` / :term:`attribute` on a class.
@@ -588,10 +589,15 @@ def field(
             ``__init__`` method. If left None, default to ``name`` stripped
             of leading underscores. See `private-attributes`.
 
+        doc (str | None):
+            Set the docstring for the attribute's slot descriptor when
+            ``slots=True``. This is available through ``inspect.getdoc``.
+
     .. versionadded:: 20.1.0
     .. versionchanged:: 21.1.0
        *eq*, *order*, and *cmp* also accept a custom callable
     .. versionadded:: 22.2.0 *alias*
+    .. versionadded:: 26.3.0 *doc*
     .. versionadded:: 23.1.0
        The *type* parameter has been re-added; mostly for `attrs.make_class`.
        Please note that type checkers ignore this metadata.
@@ -621,6 +627,7 @@ def field(
         order=order,
         on_setattr=on_setattr,
         alias=alias,
+        doc=doc,
     )
 
 
