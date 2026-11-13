@@ -30,7 +30,7 @@ class TestSplitWhat:
         assert (
             frozenset((int, str)),
             frozenset(("abcd", "123")),
-            frozenset((fields(C).a,)),
+            (fields(C).a,),
         ) == _split_what((str, "123", fields(C).a, int, "abcd"))
 
 
@@ -79,6 +79,24 @@ class TestInclude:
         i = include(*incl)
         assert i(fields(C).a, value) is False
 
+    def test_matches_attribute_by_identity(self):
+        """
+        An identically-configured attribute on a different class is not
+        included: attributes are matched by identity, not equality (#864).
+        """
+
+        @attr.s
+        class D:
+            a = attr.ib()
+            b = attr.ib()
+
+        assert fields(C).a == fields(D).a
+        assert fields(C).a is not fields(D).a
+
+        i = include(fields(C).a)
+        assert i(fields(C).a, 42) is True
+        assert i(fields(D).a, 42) is False
+
 
 class TestExclude:
     """
@@ -124,3 +142,23 @@ class TestExclude:
         """
         e = exclude(*excl)
         assert e(fields(C).a, value) is False
+
+    def test_matches_attribute_by_identity(self):
+        """
+        An identically-configured attribute on a different class is not
+        excluded: attributes are matched by identity, not equality (#864).
+        """
+
+        @attr.s
+        class D:
+            a = attr.ib()
+            b = attr.ib()
+
+        assert fields(C).a == fields(D).a
+        assert fields(C).a is not fields(D).a
+
+        e = exclude(fields(C).a)
+        # C.a is excluded ...
+        assert e(fields(C).a, 42) is False
+        # ... but the equal-but-distinct D.a is not.
+        assert e(fields(D).a, 42) is True
