@@ -39,7 +39,9 @@ def include(*what):
         return (
             value.__class__ in cls
             or attribute.name in names
-            or attribute in attrs
+            # Match Attribute instances by identity: equality ignores the owning
+            # class, so same-named fields on different classes would otherwise match.
+            or any(attribute is item for item in attrs)
         )
 
     return include_
@@ -66,7 +68,7 @@ def exclude(*what):
         return not (
             value.__class__ in cls
             or attribute.name in names
-            or attribute in attrs
+            or any(attribute is item for item in attrs)
         )
 
     return exclude_
