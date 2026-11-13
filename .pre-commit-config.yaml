@@ -16,7 +16,7 @@ repos:
         args: [--exclude-file=tests/test_mypy.yml, --skip=*.svg]
 
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: "0.26"
+    rev: "v0.27"
     hooks:
       - id: validate-pyproject
         # Optional extra validations from SchemaStore:
