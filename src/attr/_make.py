@@ -310,6 +310,30 @@ def _is_class_var(annot):
     return annot.startswith(_CLASSVAR_PREFIXES)
 
 
+def _update_inherited_default_factory(cls, attribute):
+    """
+    Rebind self-taking default factories overridden by subclasses.
+    """
+    if not isinstance(attribute.default, Factory):
+        return attribute
+
+    default_factory = attribute.default
+    if not default_factory.takes_self:
+        return attribute
+
+    factory_name = getattr(default_factory.factory, "__name__", None)
+    if factory_name is None:
+        return attribute
+
+    factory = getattr(cls, factory_name, default_factory.factory)
+    if factory is default_factory.factory or not callable(factory):
+        return attribute
+
+    return attribute.evolve(
+        default=Factory(factory, takes_self=True),
+    )
+
+
 def _has_own_attribute(cls, attrib_name):
     """
     Check whether *cls* defines *attrib_name* (and doesn't just inherit it).
@@ -332,7 +356,9 @@ def _collect_base_attrs(
             if a.inherited or a.name in taken_attr_names:
                 continue
 
-            a = a.evolve(inherited=True)  # noqa: PLW2901
+            a = _update_inherited_default_factory(  # noqa: PLW2901
+                cls, a.evolve(inherited=True)
+            )
             base_attrs.append(a)
             base_attr_map[a.name] = base_cls
 
@@ -370,7 +396,9 @@ def _collect_base_attrs_broken(cls, taken_attr_names):
             if a.name in taken_attr_names:
                 continue
 
-            a = a.evolve(inherited=True)  # noqa: PLW2901
+            a = _update_inherited_default_factory(  # noqa: PLW2901
+                cls, a.evolve(inherited=True)
+            )
             taken_attr_names.add(a.name)
             base_attrs.append(a)
             base_attr_map[a.name] = base_cls
