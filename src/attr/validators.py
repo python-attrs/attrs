@@ -7,6 +7,7 @@ Commonly useful validators.
 import operator
 import re
 
+from collections.abc import Mapping
 from contextlib import contextmanager
 from re import Pattern
 
@@ -330,29 +331,25 @@ def is_callable():
     return _IsCallableValidator()
 
 
-class _MemberAttribute:
+def _rprefix_member_name(exc, attr, member_name):
     """
-    A stand-in for an `attrs.Attribute` that names the failing member.
+    Re-prefix the message of *exc* so that it names the failing member
+    (``x[3]``, ``x['key']``) instead of the whole attribute (``x``).
 
-    `_DeepIterable` passes it to the member validator so that error messages
-    point at e.g. ``x[3]`` instead of the whole attribute ``x``.
+    The real `attrs.Attribute` is what validators receive; only the message
+    is rewritten here, at the point where the error is raised.
     """
+    name = f"{attr.name}[{member_name!r}]"
+    old_name = str(attr.name)
 
-    __slots__ = ("_attr", "_index")
+    if not exc.args:
+        return
 
-    def __init__(self, attr, index):
-        self._attr = attr
-        self._index = index
+    msg = exc.args[0]
+    if not isinstance(msg, str) or old_name not in msg:
+        return
 
-    @property
-    def name(self):
-        return f"{self._attr.name}[{self._index}]"
-
-    def __getattr__(self, name):
-        return getattr(object.__getattribute__(self, "_attr"), name)
-
-    def __repr__(self):
-        return f"<member {self.name!r} of {object.__getattribute__(self, '_attr')!r}>"
+    exc.args = (msg.replace(old_name, name, 1), *exc.args[1:])
 
 
 @attrs(repr=False, slots=True, unsafe_hash=True)
@@ -369,8 +366,19 @@ class _DeepIterable:
         if self.iterable_validator is not None:
             self.iterable_validator(inst, attr, value)
 
-        for index, member in enumerate(value):
-            self.member_validator(inst, _MemberAttribute(attr, index), member)
+        # For mappings, `enumerate()` would hand positional indices to the
+        # error message; the key is the meaningful member name there.
+        if isinstance(value, Mapping):
+            members = value.items()
+        else:
+            members = enumerate(value)
+
+        for member_name, member in members:
+            try:
+                self.member_validator(inst, attr, member)
+            except (TypeError, ValueError) as e:  # noqa: PERF203
+                _rprefix_member_name(e, attr, member_name)
+                raise
 
     def __repr__(self):
         iterable_identifier = (
