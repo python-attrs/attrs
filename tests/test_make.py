@@ -384,6 +384,30 @@ class TestTransformAttrs:
 
         assert "C(a=1, b=2)" == repr(C())
 
+    def test_these_accepts_attribute(self):
+        """
+        `Attribute` instances in *these* are converted like `_CountingAttr`s.
+        """
+
+        @attrs.define
+        class Example:
+            a: int = attrs.field(default=3)
+
+        class C:
+            pass
+
+        attrs_, base_attrs, _ = _transform_attrs(
+            C,
+            {"a": fields(Example).a},
+            False,
+            ClassProps.KeywordOnly.NO,
+            True,
+            None,
+        )
+
+        assert [] == base_attrs
+        assert (fields(Example).a,) == attrs_
+
     def test_multiple_inheritance_old(self):
         """
         Old multiple inheritance attribute collection behavior is retained.
@@ -1541,6 +1565,87 @@ class TestMakeClass:
         C = attr.make_class("C", {"a": a, "b": b})
 
         assert "C(a=1, b=2)" == repr(C())
+
+    def test_attribute_instances(self):
+        """
+        make_class accepts `Attribute`s and produces equal fields.
+        """
+
+        @attrs.define
+        class Example:
+            a: int = attrs.field(
+                default=3, validator=attrs.validators.instance_of(int)
+            )
+
+        C = make_class("C", {"a": fields(Example).a})
+
+        assert fields(Example).a == fields(C).a
+        assert int is fields(C).a.type
+        assert 3 == C().a
+        assert {"a": int} == C.__annotations__
+
+    @pytest.mark.parametrize(
+        "kwargs",
+        [
+            {"eq": False},
+            {"eq": str.lower, "order": False},
+            {"repr": False},
+            {"init": False, "default": 1},
+            {"kw_only": True},
+            {"metadata": {"k": "v"}},
+            {"converter": int},
+            {"factory": list},
+            {"alias": "custom"},
+            {"hash": False},
+            {"on_setattr": attrs.setters.NO_OP},
+        ],
+    )
+    def test_attribute_instances_roundtrip(self, kwargs):
+        """
+        Every field option survives conversion from `Attribute`.
+        """
+
+        @attrs.define
+        class Example:
+            a: int = attrs.field(**kwargs)
+
+        C = make_class("C", {"a": fields(Example).a})
+
+        assert fields(Example).a == fields(C).a
+
+    def test_attribute_instance_alias_handling(self):
+        """
+        An auto-generated alias is regenerated for a new name; an explicit
+        alias is kept.
+        """
+
+        @attrs.define
+        class Example:
+            _a: int
+            b: int = attrs.field(alias="custom")
+
+        C = make_class(
+            "C",
+            {"_x": fields(Example)._a, "y": fields(Example).b},
+        )
+
+        assert "x" == fields(C)._x.alias
+        assert "custom" == fields(C).y.alias
+
+    def test_these_attribute_with_define(self):
+        """
+        `@define(these=...)` accepts `Attribute`s.
+        """
+
+        @attrs.define
+        class Example:
+            a: int
+
+        @attrs.define(these={"a": fields(Example).a})
+        class Copy:
+            pass
+
+        assert 1 == Copy(1).a
 
     def test_generic_dynamic_class(self):
         """
