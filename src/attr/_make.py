@@ -2068,6 +2068,22 @@ def _make_init_script(
         elif has_cls_on_setattr and a.on_setattr is not setters.NO_OP:
             needs_cached_setattr = True
 
+    module_globals = {}
+    if cls.__module__ in sys.modules:
+        module_globals = sys.modules[cls.__module__].__dict__
+
+    # Parameters shadow globals in the generated initializer. Python normalizes
+    # identifiers, so compare the aliases in their normalized form as well.
+    # Preserve module globals used to resolve string annotations.
+    arg_names = {
+        unicodedata.normalize("NFKC", a.alias)
+        for a in filtered_attrs
+        if a.init
+    }
+    attr_dict_name = "attr_dict"
+    while attr_dict_name in arg_names or attr_dict_name in module_globals:
+        attr_dict_name += "_"
+
     script, globs, annotations = _attrs_to_init_script(
         filtered_attrs,
         frozen,
@@ -2081,12 +2097,12 @@ def _make_init_script(
         needs_cached_setattr,
         has_cls_on_setattr,
         "__attrs_init__" if attrs_init else "__init__",
+        attr_dict_name,
     )
-    if cls.__module__ in sys.modules:
-        # This makes typing.get_type_hints(CLS.__init__) resolve string types.
-        globs.update(sys.modules[cls.__module__].__dict__)
+    # This makes typing.get_type_hints(CLS.__init__) resolve string types.
+    globs.update(module_globals)
 
-    globs.update({"NOTHING": NOTHING, "attr_dict": attr_dict})
+    globs.update({"NOTHING": NOTHING, attr_dict_name: attr_dict})
 
     if needs_cached_setattr:
         # Save the lookup overhead in __init__ if we need to circumvent
@@ -2104,13 +2120,17 @@ def _setattr(attr_name: str, value_var: str, has_on_setattr: bool) -> str:
 
 
 def _setattr_with_converter(
-    attr_name: str, value_var: str, has_on_setattr: bool, converter: Converter
+    attr_name: str,
+    value_var: str,
+    has_on_setattr: bool,
+    converter: Converter,
+    attr_dict_name: str,
 ) -> str:
     """
     Use the cached object.setattr to set *attr_name* to *value_var*, but run
     its converter first.
     """
-    return f"_setattr('{attr_name}', {converter._fmt_converter_call(attr_name, value_var)})"
+    return f"_setattr('{attr_name}', {converter._fmt_converter_call(attr_name, value_var, attr_dict_name)})"
 
 
 def _assign(attr_name: str, value: str, has_on_setattr: bool) -> str:
@@ -2125,16 +2145,22 @@ def _assign(attr_name: str, value: str, has_on_setattr: bool) -> str:
 
 
 def _assign_with_converter(
-    attr_name: str, value_var: str, has_on_setattr: bool, converter: Converter
+    attr_name: str,
+    value_var: str,
+    has_on_setattr: bool,
+    converter: Converter,
+    attr_dict_name: str,
 ) -> str:
     """
     Unless *attr_name* has an on_setattr hook, use normal assignment after
     conversion. Otherwise relegate to _setattr_with_converter.
     """
     if has_on_setattr:
-        return _setattr_with_converter(attr_name, value_var, True, converter)
+        return _setattr_with_converter(
+            attr_name, value_var, True, converter, attr_dict_name
+        )
 
-    return f"self.{attr_name} = {converter._fmt_converter_call(attr_name, value_var)}"
+    return f"self.{attr_name} = {converter._fmt_converter_call(attr_name, value_var, attr_dict_name)}"
 
 
 def _determine_setters(
@@ -2166,13 +2192,18 @@ def _determine_setters(
             value_var: str,
             has_on_setattr: bool,
             converter: Converter,
+            attr_dict_name: str,
         ) -> str:
             if has_on_setattr or _is_slot_attr(attr_name, base_attr_map):
                 return _setattr_with_converter(
-                    attr_name, value_var, has_on_setattr, converter
+                    attr_name,
+                    value_var,
+                    has_on_setattr,
+                    converter,
+                    attr_dict_name,
                 )
 
-            return f"_inst_dict['{attr_name}'] = {converter._fmt_converter_call(attr_name, value_var)}"
+            return f"_inst_dict['{attr_name}'] = {converter._fmt_converter_call(attr_name, value_var, attr_dict_name)}"
 
         return (
             ("_inst_dict = self.__dict__",),
@@ -2197,6 +2228,7 @@ def _attrs_to_init_script(
     needs_cached_setattr: bool,
     has_cls_on_setattr: bool,
     method_name: str,
+    attr_dict_name: str,
 ) -> tuple[str, dict, dict]:
     """
     Return a script of an initializer for *attrs*, a dict of globals, and
@@ -2259,6 +2291,7 @@ def _attrs_to_init_script(
                             init_factory_name + f"({maybe_self})",
                             has_on_setattr,
                             converter,
+                            attr_dict_name,
                         )
                     )
                     names_for_globals[converter._get_global_name(a.name)] = (
@@ -2277,9 +2310,10 @@ def _attrs_to_init_script(
                 lines.append(
                     fmt_setter_with_converter(
                         attr_name,
-                        f"attr_dict['{attr_name}'].default",
+                        f"{attr_dict_name}['{attr_name}'].default",
                         has_on_setattr,
                         converter,
+                        attr_dict_name,
                     )
                 )
                 names_for_globals[converter._get_global_name(a.name)] = (
@@ -2289,12 +2323,12 @@ def _attrs_to_init_script(
                 lines.append(
                     fmt_setter(
                         attr_name,
-                        f"attr_dict['{attr_name}'].default",
+                        f"{attr_dict_name}['{attr_name}'].default",
                         has_on_setattr,
                     )
                 )
         elif a.default is not NOTHING and not has_factory:
-            arg = f"{arg_name}=attr_dict['{attr_name}'].default"
+            arg = f"{arg_name}={attr_dict_name}['{attr_name}'].default"
             if a.kw_only:
                 kw_only_args.append(arg)
             else:
@@ -2304,7 +2338,11 @@ def _attrs_to_init_script(
             if converter is not None:
                 lines.append(
                     fmt_setter_with_converter(
-                        attr_name, arg_name, has_on_setattr, converter
+                        attr_name,
+                        arg_name,
+                        has_on_setattr,
+                        converter,
+                        attr_dict_name,
                     )
                 )
                 names_for_globals[converter._get_global_name(a.name)] = (
@@ -2327,7 +2365,11 @@ def _attrs_to_init_script(
                 lines.append(
                     "    "
                     + fmt_setter_with_converter(
-                        attr_name, arg_name, has_on_setattr, converter
+                        attr_name,
+                        arg_name,
+                        has_on_setattr,
+                        converter,
+                        attr_dict_name,
                     )
                 )
                 lines.append("else:")
@@ -2338,6 +2380,7 @@ def _attrs_to_init_script(
                         init_factory_name + "(" + maybe_self + ")",
                         has_on_setattr,
                         converter,
+                        attr_dict_name,
                     )
                 )
                 names_for_globals[converter._get_global_name(a.name)] = (
@@ -2367,7 +2410,11 @@ def _attrs_to_init_script(
             if converter is not None:
                 lines.append(
                     fmt_setter_with_converter(
-                        attr_name, arg_name, has_on_setattr, converter
+                        attr_name,
+                        arg_name,
+                        has_on_setattr,
+                        converter,
+                        attr_dict_name,
                     )
                 )
                 names_for_globals[converter._get_global_name(a.name)] = (
@@ -3202,7 +3249,9 @@ class Converter:
         """
         return f"__attr_converter_{attr_name}"
 
-    def _fmt_converter_call(self, attr_name: str, value_var: str) -> str:
+    def _fmt_converter_call(
+        self, attr_name: str, value_var: str, attr_dict_name: str = "attr_dict"
+    ) -> str:
         """
         Return a string that calls the converter for an attribute name
         *attr_name* and the value in variable named *value_var* according to
@@ -3212,12 +3261,12 @@ class Converter:
             return f"{self._get_global_name(attr_name)}({value_var})"
 
         if self.takes_self and self.takes_field:
-            return f"{self._get_global_name(attr_name)}({value_var}, self, attr_dict['{attr_name}'])"
+            return f"{self._get_global_name(attr_name)}({value_var}, self, {attr_dict_name}['{attr_name}'])"
 
         if self.takes_self:
             return f"{self._get_global_name(attr_name)}({value_var}, self)"
 
-        return f"{self._get_global_name(attr_name)}({value_var}, attr_dict['{attr_name}'])"
+        return f"{self._get_global_name(attr_name)}({value_var}, {attr_dict_name}['{attr_name}'])"
 
     def __getstate__(self):
         """
