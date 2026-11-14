@@ -113,6 +113,7 @@ This can be used to override private attribute handling, or make other arbitrary
 ```
 
 Names such as `attr_dict` can be used for attributes and aliases, including when other attributes have defaults or converters.
+Module types used by string annotations remain available to {func}`typing.get_type_hints` on the generated initializer.
 
 ```{doctest}
 >>> @define

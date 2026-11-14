@@ -2068,15 +2068,20 @@ def _make_init_script(
         elif has_cls_on_setattr and a.on_setattr is not setters.NO_OP:
             needs_cached_setattr = True
 
+    module_globals = {}
+    if cls.__module__ in sys.modules:
+        module_globals = sys.modules[cls.__module__].__dict__
+
     # Parameters shadow globals in the generated initializer. Python normalizes
     # identifiers, so compare the aliases in their normalized form as well.
+    # Preserve module globals used to resolve string annotations.
     arg_names = {
         unicodedata.normalize("NFKC", a.alias)
         for a in filtered_attrs
         if a.init
     }
     attr_dict_name = "attr_dict"
-    while attr_dict_name in arg_names:
+    while attr_dict_name in arg_names or attr_dict_name in module_globals:
         attr_dict_name += "_"
 
     script, globs, annotations = _attrs_to_init_script(
@@ -2094,9 +2099,8 @@ def _make_init_script(
         "__attrs_init__" if attrs_init else "__init__",
         attr_dict_name,
     )
-    if cls.__module__ in sys.modules:
-        # This makes typing.get_type_hints(CLS.__init__) resolve string types.
-        globs.update(sys.modules[cls.__module__].__dict__)
+    # This makes typing.get_type_hints(CLS.__init__) resolve string types.
+    globs.update(module_globals)
 
     globs.update({"NOTHING": NOTHING, attr_dict_name: attr_dict})
 
