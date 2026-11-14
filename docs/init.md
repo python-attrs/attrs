@@ -112,6 +112,17 @@ This can be used to override private attribute handling, or make other arbitrary
 <Signature (self, _x: int, distasteful_y: int, underscore1: int) -> None>
 ```
 
+Names such as `attr_dict` can be used for attributes and aliases, including when other attributes have defaults or converters.
+
+```{doctest}
+>>> @define
+... class Request:
+...     attributes: dict = field(alias="attr_dict", kw_only=True)
+...     version: int = field(init=False, default=1)
+>>> Request(attr_dict={})
+Request(attributes={}, version=1)
+```
+
 (defaults)=
 
 ## Defaults
