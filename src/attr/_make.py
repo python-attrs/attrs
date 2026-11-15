@@ -947,6 +947,21 @@ class _ClassBuilder:
         # Setting __slots__ to inherited attributes wastes memory.
         slot_names = [name for name in names if name not in base_names]
 
+        # Preserve slots declared on the class itself: they would otherwise
+        # be lost when we rewrite `__slots__` below.
+        own_slots = tuple(self._cls.__dict__.get("__slots__", ()))
+        own_new_slots = [
+            name
+            for name in own_slots
+            if name not in slot_names and name not in existing_slots
+        ]
+        slot_names = own_new_slots + slot_names
+        # Remove stale descriptors for the class's own slots from the new
+        # class dict -- the type machinery recreates them from `__slots__`
+        # and keeping both raises ValueError on class creation.
+        for name in own_new_slots:
+            cd.pop(name, None)
+
         # There are slots for attributes from current class
         # that are defined in parent classes.
         # As their descriptors may be overridden by a child class,

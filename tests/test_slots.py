@@ -282,6 +282,24 @@ def test_inheritance_from_slots():
     assert {"x": 1, "y": 2, "z": "test"} == attr.asdict(c2)
 
 
+def test_own_slots_preserved():
+    """
+    Slots declared on the slotted attrs class itself are preserved.
+    """
+
+    @attrs.define
+    class A:
+        __slots__ = ("private",)
+
+        public: str = "foo"
+
+    a = A()
+    a.private = 1
+    assert 1 == a.private
+    assert "foo" == a.public
+    assert "private" in A.__slots__
+
+
 def test_inheritance_from_slots_with_attribute_override():
     """
     Inheriting from a slotted class doesn't re-create existing slots
