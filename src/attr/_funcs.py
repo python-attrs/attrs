@@ -23,6 +23,22 @@ _ATOMIC_TYPES = frozenset(
 )
 
 
+def _make_collection(collection_type, items):
+    """
+    Create a collection from already-converted items.
+
+    When retaining a set type, converted attrs instances can become
+    unhashable dictionaries. In that case, fall back to a list so recursive
+    serialization can still complete.
+    """
+    try:
+        return collection_type(items)
+    except TypeError:
+        if collection_type in (set, frozenset):
+            return list(items)
+        raise
+
+
 def asdict(
     inst,
     recurse=True,
@@ -112,7 +128,7 @@ def asdict(
                     for i in v
                 ]
                 try:
-                    rv[a.name] = cf(items)
+                    rv[a.name] = _make_collection(cf, items)
                 except TypeError:
                     if not issubclass(cf, tuple):
                         raise
@@ -183,7 +199,8 @@ def _asdict_anything(
         else:
             cf = list
 
-        rv = cf(
+        rv = _make_collection(
+            cf,
             [
                 _asdict_anything(
                     i,
@@ -194,7 +211,7 @@ def _asdict_anything(
                     value_serializer=value_serializer,
                 )
                 for i in val
-            ]
+            ],
         )
     elif issubclass(val_type, dict):
         df = dict_factory
