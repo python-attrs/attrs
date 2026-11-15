@@ -21,6 +21,7 @@ ngc = NGClass(1)
 
 ngc = attrs.assoc(ngc, x=1)
 ngc = attrs.evolve(ngc, x=1)
+ngc_eq: bool = attrs.fields_equal(ngc, NGClass(2))
 
 
 @attrs.mutable(slots=False)

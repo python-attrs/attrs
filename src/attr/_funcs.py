@@ -377,6 +377,69 @@ def has(cls):
     return False
 
 
+def fields_equal(inst, other):
+    """
+    Compare *inst* and *other* field by field, **ignoring their classes**.
+
+    Every field of *inst*'s class that takes part in equality (that is, it
+    wasn't defined with ``eq=False``) is compared to the attribute of the same
+    name on *other*, applying the field's *eq_key* (as set using
+    ``field(eq=...)``) on both sides -- exactly like the ``__eq__`` that
+    *attrs* generates, minus the check that both instances share a class.
+
+    Only the fields of *inst* are considered, so if *other* has additional
+    attributes, they're ignored. If *other* lacks one of *inst*'s fields, the
+    result is `False`.
+
+    This is useful to implement a custom ``__eq__`` that allows instances of
+    *different* classes -- for instance a mutable and a frozen version of the
+    same data -- to compare equal.
+
+    .. note::
+       If you write your own ``__eq__``, Python sets ``__hash__`` to `None`
+       unless you also define it.  Pass ``unsafe_hash=True`` (or write a
+       ``__hash__``) if your -- for example frozen -- class must stay hashable,
+       and make sure that objects that compare equal also hash equal.
+
+    Args:
+        inst: Instance of a class with *attrs* attributes.
+
+        other: Any object. It does not need to be an *attrs* instance.
+
+    Raises:
+        attrs.exceptions.NotAnAttrsClassError:
+            If *inst*'s class is not an *attrs* class.
+
+    Returns:
+        bool: Whether all compared fields are equal.
+
+    .. versionadded:: 26.2.0
+    """
+    for a in fields(inst.__class__):
+        if not a.eq:
+            continue
+
+        other_value = getattr(other, a.name, _MISSING)
+        if other_value is _MISSING:
+            return False
+
+        self_value = getattr(inst, a.name)
+        if a.eq_key is not None:
+            self_value = a.eq_key(self_value)
+            other_value = a.eq_key(other_value)
+
+        # Use == (not !=) to match the semantics of the generated __eq__.
+        if self_value == other_value:
+            continue
+
+        return False
+
+    return True
+
+
+_MISSING = object()
+
+
 def assoc(inst, **changes):
     """
     Copy *inst* and apply *changes*.

@@ -848,3 +848,140 @@ class TestEvolve:
             inst: int
 
         assert C(42) == evolve(C(23), inst=42)
+
+
+class TestFieldsEqual:
+    """
+    Tests for `fields_equal`.
+    """
+
+    def test_same_class(self):
+        """
+        Behaves like the generated __eq__ for instances of the same class.
+        """
+
+        @attr.define
+        class C:
+            x: int
+            y: int
+
+        assert attr.fields_equal(C(1, 2), C(1, 2))
+        assert not attr.fields_equal(C(1, 2), C(1, 3))
+
+    def test_different_classes(self):
+        """
+        Instances of different classes with equal fields are equal.
+        """
+
+        @attr.define
+        class Mutable:
+            x: list = attr.field(eq=tuple)
+
+        @attr.frozen
+        class Frozen:
+            x: tuple = attr.field(eq=tuple)
+
+        assert Mutable([1, 2]) != Frozen((1, 2))
+        assert attr.fields_equal(Mutable([1, 2]), Frozen((1, 2)))
+        assert attr.fields_equal(Frozen((1, 2)), Mutable([1, 2]))
+        assert not attr.fields_equal(Mutable([1, 2]), Frozen((1, 3)))
+
+    def test_only_fields_of_inst(self):
+        """
+        Only the fields of the first argument are compared, so extra
+        attributes on *other* are ignored but missing ones make it unequal.
+        """
+
+        @attr.define
+        class Parent:
+            x: int
+
+        @attr.define
+        class Child(Parent):
+            y: int
+
+        assert attr.fields_equal(Parent(1), Child(1, 2))
+        assert not attr.fields_equal(Child(1, 2), Parent(1))
+
+    def test_eq_false_ignored(self):
+        """
+        Fields with eq=False are skipped, even if missing on *other*.
+        """
+
+        @attr.define
+        class C:
+            x: int
+            y: int = attr.field(eq=False)
+
+        @attr.define
+        class D:
+            x: int
+
+        assert attr.fields_equal(C(1, 2), C(1, 3))
+        assert attr.fields_equal(C(1, 2), D(1))
+
+    def test_eq_key(self):
+        """
+        eq_key is applied to both sides.
+        """
+
+        @attr.define
+        class C:
+            x: str = attr.field(eq=str.lower)
+
+        @attr.define
+        class D:
+            x: str
+
+        assert attr.fields_equal(C("A"), D("a"))
+
+    def test_non_attrs_other(self):
+        """
+        *other* can be any object with the right attributes.
+        """
+
+        @attr.define
+        class C:
+            x: int
+
+        class Plain:
+            def __init__(self, x):
+                self.x = x
+
+        assert attr.fields_equal(C(1), Plain(1))
+        assert not attr.fields_equal(C(1), Plain(2))
+        assert not attr.fields_equal(C(1), object())
+
+    def test_custom_eq_implementation(self):
+        """
+        fields_equal can be used to implement a cross-class __eq__.
+        """
+
+        @attr.define(eq=False)
+        class Mutable:
+            x: list = attr.field(eq=tuple)
+
+            def __eq__(self, other):
+                if not isinstance(other, (Mutable, Frozen)):
+                    return NotImplemented
+                return attr.fields_equal(self, other)
+
+        @attr.frozen(eq=False)
+        class Frozen:
+            x: tuple = attr.field(eq=tuple)
+
+            def __eq__(self, other):
+                if not isinstance(other, (Mutable, Frozen)):
+                    return NotImplemented
+                return attr.fields_equal(self, other)
+
+        assert Mutable([1]) == Frozen((1,))
+        assert not (Mutable([1]) != Frozen((1,)))
+        assert Mutable([1]) != 1
+
+    def test_not_attrs_inst(self):
+        """
+        Raises NotAnAttrsClassError if *inst* isn't an attrs instance.
+        """
+        with pytest.raises(attr.exceptions.NotAnAttrsClassError):
+            attr.fields_equal(object(), object())

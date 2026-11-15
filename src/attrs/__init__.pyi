@@ -32,6 +32,7 @@ from attr import exceptions as exceptions
 from attr import Factory as Factory
 from attr import fields as fields
 from attr import fields_dict as fields_dict
+from attr import fields_equal as fields_equal
 from attr import filters as filters
 from attr import has as has
 from attr import make_class as make_class
