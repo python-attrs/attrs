@@ -1214,3 +1214,114 @@ def test_slots_unpickle_is_backward_compatible(frozen):
     a_unpickled = pickle.loads(a_pickled)
 
     assert a_unpickled == a
+
+
+@pytest.mark.parametrize(
+    "slots", [("private",), "private", {"private": "Internal state"}]
+)
+@pytest.mark.parametrize(
+    "decorator", [attrs.define, attr.s(slots=True, auto_attribs=True)]
+)
+def test_explicit_slots_preserved(slots, decorator):
+    """
+    Explicit slots remain writable but do not become attrs fields.
+    """
+
+    @decorator
+    class C:
+        __slots__ = slots
+        public: str = "foo"
+
+    instance = C()
+    instance.private = 1
+    other = C()
+    other.private = 2
+
+    assert 1 == instance.private
+    assert {"public", "private", "__weakref__"} == set(C.__slots__)
+    assert ("public",) == tuple(field.name for field in attrs.fields(C))
+    assert {"public": "foo"} == attrs.asdict(instance)
+    assert instance == other
+    assert {"public": "foo"} == instance.__getstate__()
+
+
+def test_explicit_private_slot():
+    """
+    Name-mangled slots get descriptors belonging to the rebuilt class.
+    """
+
+    @attrs.define
+    class C:
+        __slots__ = ("__private",)
+        public: int = 1
+
+        def set_private(self, value):
+            self.__private = value
+
+        def get_private(self):
+            return self.__private
+
+    instance = C()
+    instance.set_private(42)
+
+    assert 42 == instance.get_private()
+    assert "_C__private" in C.__slots__
+
+
+@pytest.mark.parametrize("special_slot", ["__dict__", "__weakref__"])
+def test_explicit_special_slot(special_slot):
+    """
+    Explicit dictionary and weak-reference slots remain available.
+    """
+
+    @attrs.define(weakref_slot=False)
+    class C:
+        __slots__ = (special_slot,)
+        public: int = 1
+
+    instance = C()
+    if special_slot == "__dict__":
+        instance.extra = 42
+
+        assert {"extra": 42} == instance.__dict__
+    else:
+        assert instance is weakref.ref(instance)()
+
+
+def test_explicit_slots_with_inheritance():
+    """
+    Locally declared slots work alongside inherited non-attrs slots.
+    """
+
+    class Base:
+        __slots__ = ("inherited",)
+
+    @attrs.define
+    class C(Base):
+        __slots__ = ("private",)
+        public: int = 1
+
+    instance = C()
+    instance.private = 2
+    instance.inherited = 3
+
+    assert (1, 2, 3) == (instance.public, instance.private, instance.inherited)
+    assert "inherited" not in C.__slots__
+    assert Base.inherited is C.inherited
+
+
+def test_explicit_slot_also_an_attrs_field():
+    """
+    Explicit slots that are also attrs fields are allocated only once.
+    """
+
+    @attrs.define
+    class C:
+        __slots__ = ("private", "public")
+        public: int
+
+    instance = C(1)
+    instance.private = 2
+
+    assert (1, 2) == (instance.public, instance.private)
+    assert 1 == C.__slots__.count("public")
