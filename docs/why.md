@@ -235,6 +235,7 @@ is roughly
 
 ```{doctest}
 >>> class ArtisanalClass:
+...     __slots__ = ("a", "b")
 ...     def __init__(self, a, b):
 ...         self.a = a
 ...         self.b = b
@@ -255,12 +256,11 @@ is roughly
 ...         else:
 ...             return not result
 ...
-...     def __hash__(self):
-...         return hash((self.__class__, self.a, self.b))
 >>> ArtisanalClass(a=1, b=2)
 ArtisanalClass(a=1, b=2)
 ```
 
+This example reflects the defaults of @attrs.define: classes are slotted, comparable, and unhashable.
 That's quite a mouthful and it doesn't even use any of *attrs*'s more advanced features like validators or default values.
 If you pass `order=True`, there's even four more methods: `__lt__`, `__le__`, `__gt__`, and `__ge__`.
 And who will guarantee you, that you don't accidentally flip the `<` in your tenth implementation of `__gt__`?
