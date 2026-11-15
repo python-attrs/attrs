@@ -7,9 +7,10 @@ Commonly useful validators.
 import operator
 import re
 
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from re import Pattern
 
+from ._compat import PY_3_11_PLUS
 from ._config import get_run_validators, set_run_validators
 from ._make import _AndValidator, and_, attrib, attrs
 from .converters import default_if_none
@@ -330,6 +331,18 @@ def is_callable():
     return _IsCallableValidator()
 
 
+def _add_validation_note(error, attribute, context):
+    """
+    Add context when supported without masking errors that cannot accept notes.
+    """
+    if PY_3_11_PLUS:
+        with suppress(Exception):
+            BaseException.add_note(
+                error,
+                f"Validation failed for {context} of attribute {attribute.name!r}.",
+            )
+
+
 @attrs(repr=False, slots=True, unsafe_hash=True)
 class _DeepIterable:
     member_validator = attrib(validator=is_callable())
@@ -344,8 +357,13 @@ class _DeepIterable:
         if self.iterable_validator is not None:
             self.iterable_validator(inst, attr, value)
 
-        for member in value:
-            self.member_validator(inst, attr, member)
+        for index, member in enumerate(value):
+            # Keep iteration errors outside the handler.
+            try:
+                self.member_validator(inst, attr, member)
+            except Exception as error:  # noqa: PERF203
+                _add_validation_note(error, attr, f"member at index {index}")
+                raise
 
     def __repr__(self):
         iterable_identifier = (
@@ -363,6 +381,13 @@ def deep_iterable(member_validator, iterable_validator=None):
     """
     A validator that performs deep validation of an iterable.
 
+    On Python 3.11 and newer, exceptions raised by *member_validator* receive
+    a note, when supported, identifying the member's zero-based position in
+    iteration order.
+    Nested validators add notes from the innermost failure outwards.
+    The original exception object and its arguments are preserved.
+    On Python 3.10, exceptions are propagated without adding notes.
+
     Args:
         member_validator: Validator(s) to apply to iterable members.
 
@@ -377,6 +402,10 @@ def deep_iterable(member_validator, iterable_validator=None):
     .. versionchanged:: 25.4.0
        *member_validator* and *iterable_validator* can now be a list or tuple
        of validators.
+
+    .. versionchanged:: 26.2.0
+       Member validation errors receive context notes, when supported, on
+       Python 3.11 and newer.
     """
     if isinstance(member_validator, (list, tuple)):
         member_validator = and_(*member_validator)
@@ -398,11 +427,24 @@ class _DeepMapping:
         if self.mapping_validator is not None:
             self.mapping_validator(inst, attr, value)
 
-        for key in value:
+        for index, key in enumerate(value):
             if self.key_validator is not None:
-                self.key_validator(inst, attr, key)
+                try:
+                    self.key_validator(inst, attr, key)
+                except Exception as error:
+                    _add_validation_note(
+                        error, attr, f"mapping key at entry {index}"
+                    )
+                    raise
             if self.value_validator is not None:
-                self.value_validator(inst, attr, value[key])
+                member = value[key]
+                try:
+                    self.value_validator(inst, attr, member)
+                except Exception as error:
+                    _add_validation_note(
+                        error, attr, f"mapping value at entry {index}"
+                    )
+                    raise
 
     def __repr__(self):
         return f"<deep_mapping validator for objects mapping {self.key_validator!r} to {self.value_validator!r}>"
@@ -416,6 +458,14 @@ def deep_mapping(
 
     All validators are optional, but at least one of *key_validator* or
     *value_validator* must be provided.
+
+    On Python 3.11 and newer, exceptions raised by *key_validator* or
+    *value_validator* receive a note, when supported, identifying the
+    validator's role and the entry's zero-based position in iteration order,
+    without representing keys.
+    Nested validators add notes from the innermost failure outwards.
+    The original exception object and its arguments are preserved.
+    On Python 3.10, exceptions are propagated without adding notes.
 
     Args:
         key_validator: Validator(s) to apply to dictionary keys.
@@ -434,6 +484,10 @@ def deep_mapping(
     .. versionchanged:: 25.4.0
        *key_validator*, *value_validator*, and *mapping_validator* can now be a
        list or tuple of validators.
+
+    .. versionchanged:: 26.2.0
+       Key and value validation errors receive context notes, when supported,
+       on Python 3.11 and newer.
 
     Raises:
         TypeError: If any sub-validator fails on validation.
