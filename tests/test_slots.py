@@ -346,6 +346,118 @@ def test_inherited_slot_reuses_slot_descriptor():
     assert ox.x is None
 
 
+def test_slots_declared_on_class_are_preserved():
+    """
+    Slots declared on a slotted attrs class are preserved and usable.
+    """
+
+    @attrs.define
+    class A:
+        __slots__ = ("private",)
+
+        public: str = "foo"
+
+    a = A()
+
+    assert "foo" == a.public
+    assert {"private", "public", "__weakref__"} == set(A.__slots__)
+
+    a.private = 1
+
+    assert 1 == a.private
+    # Slots that attrs doesn't know about don't become fields.
+    assert ["public"] == [field.name for field in attrs.fields(A)]
+    assert {"public": "foo"} == attrs.asdict(a)
+
+
+def test_slots_declared_on_class_private_slot_is_mangled():
+    """
+    Private slots declared on the class are name-mangled like any other slot.
+    """
+
+    @attr.s(slots=True)
+    class A:
+        __slots__ = ("__mangled", "_private")
+
+        public = attr.ib(default="foo")
+
+        def set_secrets(self):
+            self._private = 1
+            self.__mangled = 2
+
+        def get_secrets(self):
+            return self._private, self.__mangled
+
+    a = A()
+    a.set_secrets()
+
+    assert (1, 2) == a.get_secrets()
+    assert 1 == a._private
+    assert 2 == a._A__mangled
+    assert {"_private", "__mangled", "public", "__weakref__"} == set(
+        A.__slots__
+    )
+    assert "_A__mangled" in A.__dict__
+
+
+def test_slots_declared_on_class_colliding_with_field_get_one_slot():
+    """
+    A declared slot that shares its name with an attrs field is merged into a
+    single slot and assignment keeps working.
+    """
+
+    @attrs.define
+    class A:
+        __slots__ = ("x",)
+
+        x: int
+
+    a = A(1)
+    a.x = 2
+
+    assert 2 == a.x
+    assert 1 == A.__slots__.count("x")
+    assert ["x"] == [field.name for field in attrs.fields(A)]
+
+
+def test_slot_declared_on_class_as_string_is_preserved():
+    """
+    Python allows a single slot to be declared as a plain string.
+    """
+
+    @attrs.define
+    class A:
+        __slots__ = "private"  # noqa: PLC0205
+
+        public: str = "foo"
+
+    a = A()
+    a.private = 1
+
+    assert 1 == a.private
+    assert {"private", "public", "__weakref__"} == set(A.__slots__)
+
+
+def test_private_slot_declared_on_base_class_does_not_break_subclass():
+    """
+    Private slots inherited from a base class don't break slotted attrs
+    subclasses and remain usable.
+    """
+
+    class Base:
+        __slots__ = "__private"  # noqa: PLC0205
+
+    @attr.s(slots=True)
+    class A(Base):
+        x = attr.ib()
+
+    a = A(1)
+    a._Base__private = 2
+
+    assert 2 == a._Base__private
+    assert {"x", "__weakref__"} == set(A.__slots__)
+
+
 def test_bare_inheritance_from_slots():
     """
     Inheriting from a bare attrs slotted class works.
