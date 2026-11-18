@@ -903,6 +903,24 @@ class _ClassBuilder:
 
         base_names = set(self._base_names)
 
+        # A class may declare slots of its own next to the attrs fields. Their
+        # descriptors are already in the class dict and would be shadowed by
+        # the __slots__ we are about to build, leaving a name that exists as a
+        # descriptor but is not a slot. Take them out of the dict and slot them
+        # along with the fields.
+        own_slots = cd.pop("__slots__", ())
+        if isinstance(own_slots, str):
+            own_slots = (own_slots,)
+        own_slot_names = tuple(
+            name
+            for name in (
+                own_slots.keys() if isinstance(own_slots, dict) else own_slots
+            )
+            if name not in ("__dict__", "__weakref__")
+        )
+        for name in own_slot_names:
+            cd.pop(name, None)
+
         names = self._attr_names
         if (
             self._weakref_slot
@@ -946,6 +964,13 @@ class _ClassBuilder:
         # We only add the names of attributes that aren't inherited.
         # Setting __slots__ to inherited attributes wastes memory.
         slot_names = [name for name in names if name not in base_names]
+        slot_names.extend(
+            name
+            for name in own_slot_names
+            if name not in base_names
+            and name not in existing_slots
+            and name not in slot_names
+        )
 
         # There are slots for attributes from current class
         # that are defined in parent classes.

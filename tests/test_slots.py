@@ -1214,3 +1214,30 @@ def test_slots_unpickle_is_backward_compatible(frozen):
     a_unpickled = pickle.loads(a_pickled)
 
     assert a_unpickled == a
+
+
+@pytest.mark.parametrize(
+    "slots",
+    [("private",), {"private": "doc"}, "private"],
+    ids=["tuple", "dict", "str"],
+)
+def test_own_slots_are_kept(slots):
+    """
+    Slots declared on the class itself are slotted next to the fields.
+
+    Before, their descriptors stayed in the class dict while attrs' own
+    __slots__ replaced the declaration, so the name could not be set.
+    """
+
+    @attrs.define
+    class C:
+        __slots__ = slots
+        x: int = 0
+
+    c = C()
+    c.private = 42
+
+    assert 42 == c.private
+    assert "private" in C.__slots__
+    assert "x" in C.__slots__
+    assert not hasattr(c, "__dict__")
