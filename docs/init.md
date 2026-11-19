@@ -523,6 +523,24 @@ If present, the hooks are executed in the following order:
 
 Notably this means, that you can access all attributes from within your validators, but your converters have to deal with invalid values and have to return a valid value.
 
+The generated `__init__` initializes fields directly, so it skips `on_setattr` hooks.
+Those hooks run on assignments such as `obj.x = value`.
+Use a converter to transform a value during initialization or a validator to check it.
+
+```{doctest}
+>>> def double_on_assignment(instance, attribute, value):
+...     return value * 2
+>>> @define
+... class Counter:
+...     count: int = field(on_setattr=double_on_assignment)
+>>> counter = Counter(3)
+>>> counter.count
+3
+>>> counter.count = 3
+>>> counter.count
+6
+```
+
 
 ## Derived Attributes
 
