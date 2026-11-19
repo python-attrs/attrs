@@ -87,7 +87,6 @@ dev = [
 exclude-newer = "1 week"
 
 [tool.uv.exclude-newer-package]
-pyrefly = false  # need pyrefly 1.2.0; remove after 2026-08-07
 
 
 [tool.hatch.version]
