@@ -193,6 +193,24 @@ def test_astuple_nested_atomic():
         at(c)
 
 
+@attrs.define
+class NestedAtomicDictFields:
+    mapping: dict[int, str] = attrs.Factory(
+        lambda: {i: str(i) for i in range(100)}
+    )
+
+
+def test_astuple_nested_atomic_dict():
+    """
+    Benchmark atomic keys and values nested in a dictionary.
+    """
+    c = NestedAtomicDictFields()
+    at = attrs.astuple
+
+    for _ in range(ROUNDS):
+        at(c)
+
+
 class TestCachedProperties:
     @attrs.define
     class Slotted:
