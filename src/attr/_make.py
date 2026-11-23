@@ -894,19 +894,39 @@ class _ClassBuilder:
         for base_cls in self._cls.__mro__[1:-1]:
             if base_cls.__dict__.get("__weakref__", None) is not None:
                 weakref_inherited = True
-            existing_slots.update(
-                {
-                    name: getattr(base_cls, name)
-                    for name in getattr(base_cls, "__slots__", [])
-                }
-            )
+
+            base_slots = getattr(base_cls, "__slots__", ())
+            if isinstance(base_slots, str):
+                base_slots = (base_slots,)
+
+            for name in base_slots:
+                # Private slots are name-mangled and thus cannot be reused
+                # by an attribute of a subclass.
+                if name.startswith("__") and not name.endswith("__"):
+                    continue
+
+                existing_slots[name] = getattr(base_cls, name)
+
+        # Slots that are declared on the class itself must be preserved.
+        # attrs doesn't know about them -- they aren't fields -- but users
+        # may use them for internal state.
+        own_slots = self._cls.__dict__.get("__slots__", ())
+        if isinstance(own_slots, str):
+            own_slots = (own_slots,)
+        else:
+            own_slots = tuple(own_slots)
+
+        # Slot descriptors in the class dict belong to the old class, so the
+        # new class has to create its own ones.
+        for name, value in tuple(cd.items()):
+            if isinstance(value, types.MemberDescriptorType):
+                del cd[name]
 
         base_names = set(self._base_names)
 
-        names = self._attr_names
+        names = self._attr_names + own_slots
         if (
             self._weakref_slot
-            and "__weakref__" not in getattr(self._cls, "__slots__", ())
             and "__weakref__" not in names
             and not weakref_inherited
         ):
@@ -945,7 +965,11 @@ class _ClassBuilder:
 
         # We only add the names of attributes that aren't inherited.
         # Setting __slots__ to inherited attributes wastes memory.
-        slot_names = [name for name in names if name not in base_names]
+        # Deduplicate in case a declared slot is also an attrs field or a
+        # cached property.
+        slot_names = list(
+            dict.fromkeys(name for name in names if name not in base_names)
+        )
 
         # There are slots for attributes from current class
         # that are defined in parent classes.
