@@ -58,6 +58,51 @@ As of Python 3.14, this is no longer necessary because it introduced [*deferred 
 In both cases, if you need to resolve these to real types, you can call {func}`attrs.resolve_types`, which will update the attributes in place.
 
 
+## Typing validators
+
+When typing custom validator functions, you may want to annotate the *attribute* parameter as `attrs.Attribute[int]` or `attrs.Attribute[T]`.
+Because {class}`attrs.Attribute` is declared generic in the type stubs (`.pyi`) rather than at runtime, subscripting it directly in an eagerly evaluated annotation raises `TypeError: 'type' object is not subscriptable` on Python versions before 3.14.
+
+To avoid that runtime error while keeping strict static typing, either defer annotation evaluation with `from __future__ import annotations` (or Python 3.14+ deferred annotations), or quote the annotation as a string literal:
+
+```python
+from __future__ import annotations
+
+from typing import Any
+
+import attrs
+
+
+def positive(instance: Any, attribute: attrs.Attribute[int], value: int) -> None:
+    if value <= 0:
+        raise ValueError(f"{attribute.name} must be positive")
+
+
+@attrs.define
+class Item:
+    count: int = attrs.field(validator=positive)
+```
+
+Without `from __future__ import annotations` on Python 3.13 and earlier, quote the subscripted type instead:
+
+```{doctest}
+>>> from typing import Any
+>>> import attrs
+>>> def positive(instance: Any, attribute: "attrs.Attribute[int]", value: int) -> None:
+...     if value <= 0:
+...         raise ValueError(f"{attribute.name} must be positive")
+>>> @attrs.define
+... class Item:
+...     count: int = attrs.field(validator=positive)
+>>> Item(3)
+Item(count=3)
+>>> Item(0)
+Traceback (most recent call last):
+    ...
+ValueError: count must be positive
+```
+
+
 ## Class variables and constants
 
 Defining an attribute with a type annotation and assigned value looks like a class variable, but it isn't.
