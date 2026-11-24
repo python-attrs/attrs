@@ -384,6 +384,7 @@ As a result, annotating an attribute with a type is *not* enough if you use `@de
 The attribute name used by the decorator must also be defined in the same class body.
 An inherited attribute is not available as a name in a subclass body.
 To provide a different decorator-based default in a subclass, redeclare the field first:
+Redeclaring `value` replaces the inherited field entirely, including its validator, converter, and metadata.
 
 ```{doctest}
 >>> @define
