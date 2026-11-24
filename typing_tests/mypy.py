@@ -10,6 +10,8 @@ import re
 
 from typing import Any, Dict, List, Tuple
 
+from typing_extensions import assert_type
+
 import attr
 import attrs
 
@@ -183,6 +185,16 @@ ConvCToBool("yes")
 ConvCToBool(0)
 ConvCToBool(False)
 ConvCToBool("n")
+
+
+# Converters are applied to the default, so the default's type must not
+# determine the attribute type.
+@attr.s
+class ConvCDefault:
+    x: int = attr.ib(converter=int, default="1")
+
+
+assert_type(ConvCDefault().x, int)
 
 
 # Validators
