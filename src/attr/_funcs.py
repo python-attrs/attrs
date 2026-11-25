@@ -75,7 +75,9 @@ def asdict(
     ..  versionadded:: 21.3.0
         If a dict has a collection for a key, it is serialized as a tuple.
     """
-    attrs = fields(inst.__class__)
+    attrs = getattr(inst.__class__, "__attrs_attrs__", None)
+    if attrs is None:
+        attrs = fields(inst.__class__)
     rv = dict_factory()
     for a in attrs:
         v = getattr(inst, a.name)
@@ -89,7 +91,7 @@ def asdict(
             value_type = type(v)
             if value_type in _ATOMIC_TYPES:
                 rv[a.name] = v
-            elif has(value_type):
+            elif getattr(value_type, "__attrs_attrs__", None) is not None:
                 rv[a.name] = asdict(
                     v,
                     recurse=True,
@@ -111,18 +113,21 @@ def asdict(
                     )
                     for i in v
                 ]
-                try:
-                    rv[a.name] = cf(items)
-                except TypeError:
-                    if not issubclass(cf, tuple):
-                        raise
-                    # Workaround for TypeError: cf.__new__() missing 1 required
-                    # positional argument (which appears, for a namedturle)
-                    rv[a.name] = cf(*items)
+                if cf is list:
+                    rv[a.name] = items
+                else:
+                    try:
+                        rv[a.name] = cf(items)
+                    except TypeError:
+                        if not issubclass(cf, tuple):
+                            raise
+                        # Workaround for TypeError: cf.__new__() missing 1 required
+                        # positional argument (which appears, for a namedturle)
+                        rv[a.name] = cf(*items)
             elif issubclass(value_type, dict):
                 df = dict_factory
-                rv[a.name] = df(
-                    (
+                if df is dict:
+                    rv[a.name] = {
                         _asdict_anything(
                             kk,
                             is_key=True,
@@ -130,18 +135,38 @@ def asdict(
                             dict_factory=df,
                             retain_collection_types=retain_collection_types,
                             value_serializer=value_serializer,
-                        ),
-                        _asdict_anything(
+                        ): _asdict_anything(
                             vv,
                             is_key=False,
                             filter=filter,
                             dict_factory=df,
                             retain_collection_types=retain_collection_types,
                             value_serializer=value_serializer,
-                        ),
+                        )
+                        for kk, vv in v.items()
+                    }
+                else:
+                    rv[a.name] = df(
+                        (
+                            _asdict_anything(
+                                kk,
+                                is_key=True,
+                                filter=filter,
+                                dict_factory=df,
+                                retain_collection_types=retain_collection_types,
+                                value_serializer=value_serializer,
+                            ),
+                            _asdict_anything(
+                                vv,
+                                is_key=False,
+                                filter=filter,
+                                dict_factory=df,
+                                retain_collection_types=retain_collection_types,
+                                value_serializer=value_serializer,
+                            ),
+                        )
+                        for kk, vv in v.items()
                     )
-                    for kk, vv in v.items()
-                )
             else:
                 rv[a.name] = v
         else:
@@ -183,23 +208,22 @@ def _asdict_anything(
         else:
             cf = list
 
-        rv = cf(
-            [
-                _asdict_anything(
-                    i,
-                    is_key=False,
-                    filter=filter,
-                    dict_factory=dict_factory,
-                    retain_collection_types=retain_collection_types,
-                    value_serializer=value_serializer,
-                )
-                for i in val
-            ]
-        )
+        items = [
+            _asdict_anything(
+                i,
+                is_key=False,
+                filter=filter,
+                dict_factory=dict_factory,
+                retain_collection_types=retain_collection_types,
+                value_serializer=value_serializer,
+            )
+            for i in val
+        ]
+        rv = items if cf is list else cf(items)
     elif issubclass(val_type, dict):
         df = dict_factory
-        rv = df(
-            (
+        if df is dict:
+            rv = {
                 _asdict_anything(
                     kk,
                     is_key=True,
@@ -207,18 +231,38 @@ def _asdict_anything(
                     dict_factory=df,
                     retain_collection_types=retain_collection_types,
                     value_serializer=value_serializer,
-                ),
-                _asdict_anything(
+                ): _asdict_anything(
                     vv,
                     is_key=False,
                     filter=filter,
                     dict_factory=df,
                     retain_collection_types=retain_collection_types,
                     value_serializer=value_serializer,
-                ),
+                )
+                for kk, vv in val.items()
+            }
+        else:
+            rv = df(
+                (
+                    _asdict_anything(
+                        kk,
+                        is_key=True,
+                        filter=filter,
+                        dict_factory=df,
+                        retain_collection_types=retain_collection_types,
+                        value_serializer=value_serializer,
+                    ),
+                    _asdict_anything(
+                        vv,
+                        is_key=False,
+                        filter=filter,
+                        dict_factory=df,
+                        retain_collection_types=retain_collection_types,
+                        value_serializer=value_serializer,
+                    ),
+                )
+                for kk, vv in val.items()
             )
-            for kk, vv in val.items()
-        )
     else:
         rv = val
         if value_serializer is not None:
@@ -269,7 +313,9 @@ def astuple(
 
     ..  versionadded:: 16.2.0
     """
-    attrs = fields(inst.__class__)
+    attrs = getattr(inst.__class__, "__attrs_attrs__", None)
+    if attrs is None:
+        attrs = fields(inst.__class__)
     rv = []
     retain = retain_collection_types  # Very long. :/
     for a in attrs:
@@ -280,7 +326,7 @@ def astuple(
         if recurse is True:
             if value_type in _ATOMIC_TYPES:
                 rv.append(v)
-            elif has(value_type):
+            elif getattr(value_type, "__attrs_attrs__", None) is not None:
                 rv.append(
                     astuple(
                         v,
@@ -301,48 +347,82 @@ def astuple(
                             tuple_factory=tuple_factory,
                             retain_collection_types=retain,
                         )
-                        if type(j) not in _ATOMIC_TYPES and has(j.__class__)
+                        if (jt := type(j)) not in _ATOMIC_TYPES
+                        and getattr(jt, "__attrs_attrs__", None) is not None
                         else j
                     )
                     for j in v
                 ]
-                try:
-                    rv.append(cf(items))
-                except TypeError:
-                    if not issubclass(cf, tuple):
-                        raise
-                    # Workaround for TypeError: cf.__new__() missing 1 required
-                    # positional argument (which appears, for a namedturle)
-                    rv.append(cf(*items))
+                if cf is list:
+                    rv.append(items)
+                else:
+                    try:
+                        rv.append(cf(items))
+                    except TypeError:
+                        if not issubclass(cf, tuple):
+                            raise
+                        # Workaround for TypeError: cf.__new__() missing 1 required
+                        # positional argument (which appears, for a namedturle)
+                        rv.append(cf(*items))
             elif issubclass(value_type, dict):
                 df = value_type if retain is True else dict
-                rv.append(
-                    df(
-                        (
+                if df is dict:
+                    rv.append(
+                        {
                             (
                                 astuple(
                                     kk,
                                     tuple_factory=tuple_factory,
                                     retain_collection_types=retain,
                                 )
-                                if type(kk) not in _ATOMIC_TYPES
-                                and has(kk.__class__)
+                                if (kt := type(kk)) not in _ATOMIC_TYPES
+                                and getattr(kt, "__attrs_attrs__", None)
+                                is not None
                                 else kk
-                            ),
-                            (
+                            ): (
                                 astuple(
                                     vv,
                                     tuple_factory=tuple_factory,
                                     retain_collection_types=retain,
                                 )
-                                if type(vv) not in _ATOMIC_TYPES
-                                and has(vv.__class__)
+                                if (vt := type(vv)) not in _ATOMIC_TYPES
+                                and getattr(vt, "__attrs_attrs__", None)
+                                is not None
                                 else vv
-                            ),
-                        )
-                        for kk, vv in v.items()
+                            )
+                            for kk, vv in v.items()
+                        }
                     )
-                )
+                else:
+                    rv.append(
+                        df(
+                            (
+                                (
+                                    astuple(
+                                        kk,
+                                        tuple_factory=tuple_factory,
+                                        retain_collection_types=retain,
+                                    )
+                                    if (kt := type(kk)) not in _ATOMIC_TYPES
+                                    and getattr(kt, "__attrs_attrs__", None)
+                                    is not None
+                                    else kk
+                                ),
+                                (
+                                    astuple(
+                                        vv,
+                                        tuple_factory=tuple_factory,
+                                        retain_collection_types=retain,
+                                    )
+                                    if (vt := type(vv)) not in _ATOMIC_TYPES
+                                    and getattr(vt, "__attrs_attrs__", None)
+                                    is not None
+                                    else vv
+                                ),
+                            )
+                            for kk, vv in v.items()
+                        )
+                    )
             else:
                 rv.append(v)
         else:
