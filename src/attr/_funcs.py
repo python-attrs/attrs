@@ -75,9 +75,7 @@ def asdict(
     ..  versionadded:: 21.3.0
         If a dict has a collection for a key, it is serialized as a tuple.
     """
-    attrs = getattr(inst.__class__, "__attrs_attrs__", None)
-    if attrs is None:
-        attrs = fields(inst.__class__)
+    attrs = fields(inst.__class__)
     rv = dict_factory()
     for a in attrs:
         v = getattr(inst, a.name)
@@ -313,9 +311,7 @@ def astuple(
 
     ..  versionadded:: 16.2.0
     """
-    attrs = getattr(inst.__class__, "__attrs_attrs__", None)
-    if attrs is None:
-        attrs = fields(inst.__class__)
+    attrs = fields(inst.__class__)
     rv = []
     retain = retain_collection_types  # Very long. :/
     for a in attrs:
