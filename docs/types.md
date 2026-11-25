@@ -73,7 +73,9 @@ from typing import Any
 import attrs
 
 
-def positive(instance: Any, attribute: attrs.Attribute[int], value: int) -> None:
+def positive(
+    instance: Any, attribute: attrs.Attribute[int], value: int
+) -> None:
     if value <= 0:
         raise ValueError(f"{attribute.name} must be positive")
 
