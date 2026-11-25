@@ -116,9 +116,8 @@ html_theme_options = {
     "dark_logo": "attrs_logo_white.svg",
     "top_of_page_buttons": [],
     "light_css_variables": {
-        "font-stack": "Inter,sans-serif",
-        "font-stack--monospace": "BerkeleyMono, MonoLisa, ui-monospace, "
-        "SFMono-Regular, Menlo, Consolas, Liberation Mono, monospace",
+        "font-stack": "MonoLisaText,sans-serif",
+        "font-stack--monospace": "MonoLisaCode,monospace",
     },
 }
 html_css_files = ["custom.css"]
