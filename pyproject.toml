@@ -337,16 +337,23 @@ showcontent = true
 pretty = true
 disallow_untyped_defs = true
 check_untyped_defs = true
-exclude = ["typing_tests/pyrefly.py"]
 
 
 [tool.pyright]
-include = ["typing_tests/baseline.py"]
+include = [
+  "typing_tests/baseline.py",
+  "typing_tests/classic_api.py",
+  "typing_tests/converters.py",
+]
+# Only respect `# pyright: ignore` so tool-specific ignores stay tool-specific.
+enableTypeIgnoreComments = false
 
 
 [tool.pyrefly]
 project-includes = ["typing_tests"]
 project-excludes = ["typing_tests/mypy.py"]
+# Only respect `# pyrefly: ignore` so tool-specific ignores stay tool-specific.
+enabled-ignores = ["pyrefly"]
 
 
 [tool.ty.src]
@@ -364,5 +371,4 @@ include = [
   "src",
   "tests",
   "typing_tests/mypy.py",
-  "typing_tests/pyrefly.py"
 ]
