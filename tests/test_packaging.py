@@ -14,6 +14,24 @@ def _mod(request):
     return request.param
 
 
+@pytest.mark.parametrize(
+    "suffix",
+    [
+        pytest.param("", id="root"),
+        ".converters",
+        ".exceptions",
+        ".filters",
+        ".setters",
+        ".validators",
+    ],
+)
+def test_import_star(mod, suffix):
+    """
+    Nobody should `import *`, but it shouldn't crash either.
+    """
+    exec(f"from {mod.__name__}{suffix} import *")
+
+
 class TestLegacyMetadataHack:
     def test_version(self, mod, recwarn):
         """
