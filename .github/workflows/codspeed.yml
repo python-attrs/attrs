@@ -7,7 +7,7 @@ on:
     branches: [main]
     paths: &codspeed_paths
       - src/**.py
-      - bench/**
+      - benchmarks/**
       - codspeed.yml
       - .github/workflows/codspeed.yml
   pull_request:

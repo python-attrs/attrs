@@ -265,7 +265,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"bench/**" = [
+"benchmarks/**" = [
   "INP001", # Benchmarks don't have to be importable.
 ]
 "**/test_*" = [
@@ -366,7 +366,7 @@ rules.all = "ignore"
 # everything red.
 include = [
   "conftest.py",
-  "bench",
+  "benchmarks",
   "docs",
   "src",
   "tests",
