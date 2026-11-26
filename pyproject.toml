@@ -370,5 +370,6 @@ include = [
   "docs",
   "src",
   "tests",
+  "typing_tests/defaults.py",
   "typing_tests/mypy.py",
 ]
