@@ -351,14 +351,18 @@ project-excludes = ["typing_tests/mypy.py"]
 enabled-ignores = ["pyrefly"]
 
 
+[tool.ty.environment]
+# Treat ourselves as a third party, so Ty's attrs integration is activated.
+extra-paths = ["src"]
+
 [tool.ty.src]
 # Suppress reveal_type output.
 exclude = ["tests/dataclass_transform_example.py"]
 
 [[tool.ty.overrides]]
-rules.all = "ignore"
 # Play whack-a-mole with error reporting so LSP still works without squiggling
 # everything red.
+rules.all = "ignore"
 include = [
   "conftest.py",
   "benchmarks",
