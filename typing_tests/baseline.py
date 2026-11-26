@@ -225,3 +225,14 @@ if cp.hashability is attrs.ClassProps.Hashability.UNHASHABLE:
 def test(cls: type) -> None:
     if attrs.has(cls):
         attrs.resolve_types(cls)
+
+
+@attrs.define(init=False)
+class NoInit:
+    x: int
+
+    def __init__(self, s: str):
+        self.x = int(s)
+
+
+NoInit("42")
