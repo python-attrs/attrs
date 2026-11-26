@@ -342,7 +342,8 @@ class TestTransformAttrs:
 
     def test_these(self):
         """
-        If these is passed, use it and ignore body and base classes.
+        these= supplies fields. Attributes on this class are included.
+        Attributes on base classes are not.
         """
 
         class Base:
@@ -356,7 +357,55 @@ class TestTransformAttrs:
         )
 
         assert [] == base_attrs
-        assert (simple_attr("x"),) == attrs
+        assert (simple_attr("x"), simple_attr("y")) == attrs
+
+    def test_these_includes_class_body_and_drops_sentinel(self):
+        """
+        A class-body attr.ib() is a real field, and the private sentinel is
+        not left on the class. Names in these win.
+        """
+
+        @attr.s(these={"a": attr.ib(default=1)})
+        class C:
+            a = attr.ib(default=2)
+            b = attr.ib(default=0)
+
+        assert ["a", "b"] == [a.name for a in attr.fields(C)]
+        assert C() == C(a=1, b=0)
+        assert "a" not in C.__dict__
+        assert "b" not in C.__dict__
+
+        @attr.s(slots=True, these={"a": attr.ib()})
+        class Slotted:
+            b = attr.ib(default=0)
+
+        assert ["a", "b"] == [a.name for a in attr.fields(Slotted)]
+        assert 0 == Slotted(1).b
+        assert not isinstance(Slotted.__dict__["b"], type(attr.ib()))
+
+    def test_these_auto_attribs_includes_annotations(self):
+        """
+        With auto_attribs, annotated class-body attributes are fields too.
+        """
+
+        @attr.s(these={"a": attr.ib()}, auto_attribs=True)
+        class C:
+            b: int = 0
+
+        assert ["a", "b"] == [a.name for a in attr.fields(C)]
+        assert 0 == C(5).b
+        assert "b" not in C.__dict__
+
+    def test_these_auto_attribs_still_requires_annotations(self):
+        """
+        An unannotated class-body attr.ib() is still an error under
+        auto_attribs, even when these= is passed.
+        """
+        with pytest.raises(attr.exceptions.UnannotatedAttributeError):
+
+            @attr.s(these={"a": attr.ib()}, auto_attribs=True)
+            class C:
+                b = attr.ib()
 
     def test_these_leave_body(self):
         """

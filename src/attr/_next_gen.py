@@ -304,11 +304,20 @@ def define(
             within the class body because you can't (for example, if you want
             to add ``__repr__`` methods to Django models) or don't want to.
 
-            If *these* is not `None`, *attrs* will *not* search the class body
-            for attributes and will *not* remove any attributes from it.
+            If *these* is not `None`, *attrs* starts with that dictionary and
+            also collects attributes written on the class body. A name that
+            appears in both places keeps the *these* definition. Attributes
+            from base classes are not collected. ``attr.ib()`` sentinels in
+            the class body are removed so they cannot leak.
 
-            The order is deduced from the order of the attributes inside
-            *these*.
+            The order is the order of *these*, followed by class-body
+            attributes. With *auto_attribs*, annotated class-body attributes
+            are included too.
+
+            .. versionchanged:: 26.2.0
+               Class-body attributes are collected. Previously they were
+               ignored, and an ``attr.ib()`` in the class body was left in
+               place as a private sentinel.
 
             Arguably, this is a rather obscure feature.
 
@@ -335,6 +344,9 @@ def define(
     .. versionchanged:: 26.2.0
        *on_setattr* hooks can now be generator functions that yield exactly
        once.
+    .. versionchanged:: 26.2.0
+       *these* also collects attributes written on the class body.
+       ``attr.ib()`` sentinels on the class are removed.
 
     .. note::
 
