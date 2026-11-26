@@ -12,13 +12,6 @@ from typing import (
 
 # Because we need to type our own stuff, we have to make everything from
 # attr explicitly public too.
-from attr import __author__ as __author__
-from attr import __copyright__ as __copyright__
-from attr import __description__ as __description__
-from attr import __email__ as __email__
-from attr import __license__ as __license__
-from attr import __title__ as __title__
-from attr import __url__ as __url__
 from attr import __version__ as __version__
 from attr import __version_info__ as __version_info__
 from attr import assoc as assoc
