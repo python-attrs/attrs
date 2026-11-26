@@ -352,8 +352,8 @@ class TransformedAttrs:
 class AutoDetect:
     x: int
 
-    def __init__(self, x: int):
-        self.x = x
+    def __init__(self, s: str):
+        self.x = int(s)
 
 
 @attr.define(order=True)

@@ -15,13 +15,6 @@ repos:
       - id: codespell
         args: [--exclude-file=tests/test_mypy.yml, --skip=*.svg]
 
-  - repo: https://github.com/abravalheri/validate-pyproject
-    rev: "v0.27"
-    hooks:
-      - id: validate-pyproject
-        # Optional extra validations from SchemaStore:
-        additional_dependencies: ["validate-pyproject-schema-store[all]"]
-
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:

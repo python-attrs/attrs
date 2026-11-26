@@ -59,9 +59,19 @@ class GG(D):
 GG(x=[1], y="foo")
 
 
+@attrs.define(slots=False)
+class Base1:
+    x: list[int]
+
+
+@attrs.define(slots=False)
+class Base2:
+    y: "list[int]"
+
+
 @attrs.define
-class HH(D, E):
-    z: float = attrs.field()
+class HH(Base1, Base2):
+    z: float
 
 
 HH(x=[1], y=[], z=1.1)
@@ -336,13 +346,16 @@ class TransformedAttrs:
     x: int
 
 
-# Auto-detect
-@attrs.define(auto_detect=True)
+# Auto-detect is True by default
+@attrs.define
 class AutoDetect:
     x: int
 
-    def __init__(self, x: int):
-        self.x = x
+    def __init__(self, s: str):
+        self.x = int(s)
+
+
+AutoDetect(s="42")
 
 
 @attrs.define(order=True)
@@ -376,17 +389,18 @@ attrs.asdict(FactoryTest(), tuple_keys=True)
 # Check match_args stub
 @attrs.define(match_args=False)
 class MatchArgs:
-    a: int = attrs.field()
-    b: int = attrs.field()
+    a: int
+    b: int
 
 
 attrs.asdict(FactoryTest())
 attrs.asdict(FactoryTest(), retain_collection_types=False)
 
 
-foo = object
-if attrs.has(foo) or attrs.has(foo):
-    foo.__attrs_attrs__
+# Broken in Pyrefly 1.15
+# foo = object
+# if attrs.has(foo) or attrs.has(foo):
+#     foo.__attrs_attrs__
 
 
 @attrs.define(unsafe_hash=True)
