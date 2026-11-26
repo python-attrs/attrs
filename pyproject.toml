@@ -55,7 +55,7 @@ lint = [
 ]
 cov = [{ include-group = "tests" }, "coverage[toml]"]
 pyright = ["pyright", { include-group = "tests" }]
-ty = ["ty", { include-group = "tests" }]
+ty = ["ty>=0.0.111", { include-group = "tests" }]
 pyrefly = ["pyrefly>=1.2.0", { include-group = "tests" }]
 benchmark = [
   { include-group = "tests" },
@@ -87,6 +87,9 @@ dev = [
 exclude-newer = "1 week"
 
 [tool.uv.exclude-newer-package]
+# Improved attrs support is recent and ongoing in modern type checkers.
+ty = false
+pyrefly = false
 
 
 [tool.hatch.version]
@@ -343,7 +346,12 @@ include = ["typing_tests/baseline.py"]
 
 [tool.pyrefly]
 project-includes = ["typing_tests"]
+project-excludes = ["typing_tests/mypy.py"]
 
+
+[tool.ty.src]
+# Suppress reveal_type output.
+exclude = ["tests/dataclass_transform_example.py"]
 
 [[tool.ty.overrides]]
 rules.all = "ignore"

@@ -15,7 +15,7 @@ permissions: {}
 jobs:
   analyze:
     name: Analyze
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     permissions:
       security-events: write  # necessary according to docs
 
@@ -31,12 +31,12 @@ jobs:
           persist-credentials: false
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4.39.3
+        uses: github/codeql-action/init@v4.39.5
         with:
           languages: ${{ matrix.language }}
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@v4.39.3
+        uses: github/codeql-action/autobuild@v4.39.5
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4.39.3
+        uses: github/codeql-action/analyze@v4.39.5

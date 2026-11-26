@@ -1,5 +1,9 @@
 # SPDX-License-Identifier: MIT
 
+"""
+Currently only used by test_pyright.py.
+"""
+
 import attr
 import attrs
 
