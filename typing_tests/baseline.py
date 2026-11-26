@@ -155,10 +155,15 @@ except Error2 as e:
 class AliasExample:
     without_alias: int
     _with_alias: int = attrs.field(alias="_with_alias")
+    _private: int
 
+
+# Pyright doesn't strip leading underscores from attribute names.
+AliasExample(without_alias=1, _with_alias=2, private=3)  # pyright: ignore[reportCallIssue]
 
 attrs.fields(AliasExample).without_alias.alias
 attrs.fields(AliasExample)._with_alias.alias
+attrs.fields(AliasExample)._private.alias
 
 
 @attrs.define
