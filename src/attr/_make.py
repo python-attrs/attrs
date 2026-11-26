@@ -913,12 +913,9 @@ class _ClassBuilder:
                     with contextlib.suppress(AttributeError):
                         delattr(cls, name)
         for name in self._these_strip_names:
-            if (
-                name not in base_names
-                and getattr(cls, name, _SENTINEL) is not _SENTINEL
-            ):
-                with contextlib.suppress(AttributeError):
-                    delattr(cls, name)
+            # Own sentinels only. delattr leaves a same-named base attribute.
+            with contextlib.suppress(AttributeError):
+                delattr(cls, name)
 
         # Attach our dunder methods.
         for name, value in self._cls_dict.items():

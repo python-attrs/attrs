@@ -15,7 +15,7 @@ import types
 import unicodedata
 
 from operator import attrgetter
-from typing import Generic, TypeVar
+from typing import ClassVar, Generic, TypeVar
 
 import pytest
 
@@ -394,6 +394,24 @@ class TestTransformAttrs:
 
         assert ["a", "b"] == [a.name for a in attr.fields(C)]
         assert 0 == C(5).b
+        assert "b" not in C.__dict__
+
+    def test_these_auto_attribs_skips_classvar_and_keeps_annotated_ib(self):
+        """
+        ClassVar and names already in these are not collected again.
+        An annotated attr.ib() on the body is still a field.
+        """
+
+        @attr.s(these={"a": attr.ib(default=1)}, auto_attribs=True)
+        class C:
+            a: int = 9
+            b: int = attr.ib(default=0)
+            c: ClassVar[int] = 3
+
+        assert ["a", "b"] == [a.name for a in attr.fields(C)]
+        assert 1 == C().a
+        assert 0 == C().b
+        assert 3 == C.c
         assert "b" not in C.__dict__
 
     def test_these_auto_attribs_still_requires_annotations(self):
