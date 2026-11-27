@@ -17,6 +17,19 @@ import attr
 import attrs
 
 
+@attrs.define(slots=True)
+class WithSlotDoc:
+    text: str = attrs.field(doc="Text shown in help output.")
+
+
+attrs.fields(WithSlotDoc).text.doc
+
+
+@attr.s(slots=True)
+class WithLegacySlotDoc:
+    text: str = attr.ib(doc="Text shown in help output.")
+
+
 @attrs.define(order=True)
 class NGClass:
     x: int = attrs.field(default=42)

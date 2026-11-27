@@ -132,6 +132,7 @@ class Attribute(Generic[_T]):
     # guaranteed to be a str for downstream use. It is centrally resolved before
     # and after running the field transformers.
     alias: str
+    doc: str | None
 
     def evolve(self, **changes: Any) -> "Attribute[Any]": ...
 
@@ -176,6 +177,7 @@ def attrib(
     order: _EqOrderType | None = ...,
     on_setattr: _OnSetAttrArgType | None = ...,
     alias: str | None = ...,
+    doc: str | None = ...,
 ) -> Any: ...
 
 # This form catches an explicit None or no default and infers the type from the
@@ -200,6 +202,7 @@ def attrib(
     order: _EqOrderType | None = ...,
     on_setattr: _OnSetAttrArgType | None = ...,
     alias: str | None = ...,
+    doc: str | None = ...,
 ) -> _T: ...
 
 # This form catches an explicit default argument.
@@ -223,6 +226,7 @@ def attrib(
     order: _EqOrderType | None = ...,
     on_setattr: _OnSetAttrArgType | None = ...,
     alias: str | None = ...,
+    doc: str | None = ...,
 ) -> _T: ...
 
 # This form covers type=non-Type: e.g. forward references (str), Any
@@ -246,6 +250,7 @@ def attrib(
     order: _EqOrderType | None = ...,
     on_setattr: _OnSetAttrArgType | None = ...,
     alias: str | None = ...,
+    doc: str | None = ...,
 ) -> Any: ...
 @overload
 @dataclass_transform(order_default=True, field_specifiers=(attrib, field))
