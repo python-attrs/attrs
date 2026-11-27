@@ -13,6 +13,7 @@ import sys
 
 from typing import Any, Generator
 
+import attr
 import attrs
 
 
@@ -428,3 +429,8 @@ class AutoDetect:
 
 
 AutoDetect(s="42")  # type: ignore[call-arg]
+
+
+foo = object
+if attrs.has(foo) or attr.has(foo):
+    foo.__attrs_attrs__  # pyrefly: ignore[missing-attribute]  # pyright: ignore[reportUnknownMemberType,reportAttributeAccessIssue]

@@ -66,12 +66,12 @@ ConvCDefaultIfNone(None)
 class DecoratorConverter:
     x: int = attrs.field()
 
-    @x.converter  # type: ignore[attr-defined]  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType, reportUntypedFunctionDecorator]  # ty: ignore[missing-attribute]
+    @x.converter  # type: ignore[attr-defined]  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType, reportUntypedFunctionDecorator]
     def _to_int(self, field: attrs.Attribute[Any], val: str | float) -> int:
         return int(val)
 
 
-DecoratorConverter("foo")  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]  # ty: ignore[invalid-argument-type]
+DecoratorConverter("foo")  # type: ignore[arg-type]  # pyright: ignore[reportArgumentType]
 
 
 # on_setattr hooks

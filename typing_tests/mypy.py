@@ -9,7 +9,6 @@ from __future__ import annotations
 from typing import Any, Dict, List, Tuple
 
 import attr
-import attrs
 
 
 # Typing via "type" Argument ---
@@ -111,8 +110,3 @@ class Validated:
             mapping_validator=[attr.validators.instance_of(dict)],
         ),
     )
-
-
-foo = object
-if attrs.has(foo) or attr.has(foo):
-    foo.__attrs_attrs__
