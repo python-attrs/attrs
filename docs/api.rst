@@ -279,6 +279,33 @@ All objects from ``attrs.filters`` are also available from ``attr.filters`` (it'
 
 .. currentmodule:: attrs
 
+.. autofunction:: attrs.fields_equal
+
+   For example, to make a mutable and a frozen version of the same data compare equal:
+
+   .. doctest::
+
+      >>> @define
+      ... class Mutable:
+      ...     x: list = field(eq=tuple)
+      ...     def __eq__(self, other):
+      ...         if not isinstance(other, (Mutable, Frozen)):
+      ...             return NotImplemented
+      ...         return attrs.fields_equal(self, other)
+      >>> @frozen(unsafe_hash=True)
+      ... class Frozen:
+      ...     x: tuple = field(eq=tuple)
+      ...     def __eq__(self, other):
+      ...         if not isinstance(other, (Mutable, Frozen)):
+      ...             return NotImplemented
+      ...         return attrs.fields_equal(self, other)
+      >>> Mutable([1, 2]) == Frozen((1, 2))
+      True
+      >>> Frozen((1, 2)) == Mutable([1, 3])
+      False
+      >>> hash(Frozen((1, 2))) == hash(Frozen((1, 2)))
+      True
+
 .. autofunction:: attrs.evolve
 
    For example:
