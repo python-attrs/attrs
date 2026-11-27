@@ -22,6 +22,51 @@ _ATOMIC_TYPES = frozenset(
     }
 )
 
+_MISSING = object()
+
+
+def _asdict_fast(inst):
+    """``asdict`` for the default option set; ``_MISSING`` for non-attrs."""
+    attrs = getattr(inst.__class__, "__attrs_attrs__", None)
+    if attrs is None:
+        return _MISSING
+    rv = {}
+    for a in attrs:
+        v = getattr(inst, a.name)
+        t = type(v)
+        if t in _ATOMIC_TYPES:
+            rv[a.name] = v
+        elif getattr(t, "__attrs_attrs__", None) is not None:
+            rv[a.name] = _asdict_fast_any(v, False)
+        elif issubclass(t, (tuple, list, set, frozenset)):
+            rv[a.name] = [_asdict_fast_any(i, False) for i in v]
+        elif issubclass(t, dict):
+            rv[a.name] = {
+                _asdict_fast_any(k, True): _asdict_fast_any(vv, False)
+                for k, vv in v.items()
+            }
+        else:
+            rv[a.name] = v
+    return rv
+
+
+def _asdict_fast_any(val, is_key):
+    """``_asdict_anything`` for the default option set."""
+    t = type(val)
+    if t in _ATOMIC_TYPES:
+        return val
+    if getattr(t, "__attrs_attrs__", None) is not None:
+        return _asdict_fast(val)
+    if issubclass(t, (tuple, list, set, frozenset)):
+        cf = tuple if is_key else list
+        return cf([_asdict_fast_any(i, False) for i in val])
+    if issubclass(t, dict):
+        return {
+            _asdict_fast_any(k, True): _asdict_fast_any(vv, False)
+            for k, vv in val.items()
+        }
+    return val
+
 
 def asdict(
     inst,
@@ -75,6 +120,17 @@ def asdict(
     ..  versionadded:: 21.3.0
         If a dict has a collection for a key, it is serialized as a tuple.
     """
+    if (
+        recurse is True
+        and filter is None
+        and dict_factory is dict
+        and retain_collection_types is False
+        and value_serializer is None
+    ):
+        fast = _asdict_fast(inst)
+        if fast is not _MISSING:
+            return fast
+
     attrs = fields(inst.__class__)
     rv = dict_factory()
     for a in attrs:

@@ -18,7 +18,7 @@ import attr
 
 from attr import asdict, assoc, astuple, evolve, fields, has
 from attr._compat import Mapping, Sequence
-from attr.exceptions import AttrsAttributeNotFoundError
+from attr.exceptions import AttrsAttributeNotFoundError, NotAnAttrsClassError
 from attr.validators import instance_of
 
 from .strategies import nested_classes, simple_classes
@@ -250,6 +250,33 @@ class TestAsDict:
         instance = A({(1,): 1})
 
         assert {"a": {(1,): 1}} == attr.asdict(instance)
+
+    def test_non_default_options_keep_the_old_path(self):
+        """
+        Non-default options keep the existing code path, including values
+        that the default fast path would have handled.
+        """
+
+        @attr.s
+        class A:
+            x = attr.ib()
+            y = attr.ib()
+
+        custom = object()
+        instance = A({(1,): [{"k": custom}]}, custom)
+
+        assert {
+            "x": {(1,): [{"k": custom}]},
+            "y": custom,
+        } == asdict(instance, filter=lambda a, v: True)
+
+    def test_asdict_non_attrs_class(self):
+        """
+        ``asdict`` of a non-attrs instance still raises
+        ``NotAnAttrsClassError`` on the default path.
+        """
+        with pytest.raises(NotAnAttrsClassError):
+            asdict(1)
 
     def test_named_tuple_retain_type(self):
         """
