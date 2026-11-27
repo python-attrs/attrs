@@ -745,6 +745,17 @@ True
 <class 'int'>
 ```
 
+To give the generated class a docstring, pass `__doc__` in the `class_body` argument:
+
+```{doctest}
+>>> C = make_class("C", ["x", "y"], class_body={"__doc__": "A pair of values."})
+>>> C.__doc__
+'A pair of values.'
+```
+
+You can also assign to `C.__doc__` after creating the class.
+Both approaches make the docstring available to `help(C)`.
+
 You can still have power over the attributes if you pass a dictionary of name: {func}`~attrs.field` mappings and can pass the same arguments as you can to `@attrs.define`:
 
 ```{doctest}
