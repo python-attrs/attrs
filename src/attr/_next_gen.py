@@ -43,6 +43,7 @@ def define(
     on_setattr=None,
     field_transformer=None,
     match_args=True,
+    dataclass_compatible=False,
     force_kw_only=False,
 ):
     r"""
@@ -243,6 +244,11 @@ def define(
             :pep:`634` (*Structural Pattern Matching*). It is a tuple of all
             non-keyword-only ``__init__`` parameter names.
 
+        dataclass_compatible (bool):
+            If True, add ``__dataclass_fields__`` to the class. This enables
+            compatibility with various dataclass functions, notably
+            `dataclasses.fields`. Only works if all of the fields are annotated.
+
         force_kw_only (bool):
             A back-compat flag for restoring pre-25.4.0 behavior.  If True and
             ``kw_only=True``, all attributes are made keyword-only, including
@@ -384,6 +390,7 @@ def define(
             field_transformer=field_transformer,
             match_args=match_args,
             force_kw_only=force_kw_only,
+            dataclass_compatible=dataclass_compatible,
         )
 
     def wrap(cls):
