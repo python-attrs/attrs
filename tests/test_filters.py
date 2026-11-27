@@ -124,3 +124,44 @@ class TestExclude:
         """
         e = exclude(*excl)
         assert e(fields(C).a, value) is False
+
+
+class TestAttributeIdentity:
+    """Attribute filters match by identity, not equality (#864)."""
+
+    def test_exclude_attribute_does_not_cross_classes(self):
+        """
+        Excluding Cop.repeated_field_name must not strip the same-named field
+        on Robber when both Attribute instances compare equal by value.
+        """
+
+        @attr.s(auto_attribs=True)
+        class Cop:
+            my_field: str
+            repeated_field_name: str
+
+        @attr.s(auto_attribs=True)
+        class Robber:
+            my_other_field: str
+            repeated_field_name: str
+
+        @attr.s(auto_attribs=True)
+        class Payload:
+            cops: list
+            robbers: list
+
+        payload = Payload(
+            [Cop("abc", "shared1")],
+            [Robber("def", "shared2")],
+        )
+        filtered = attr.asdict(
+            payload,
+            recurse=True,
+            filter=exclude(fields(Cop).repeated_field_name),
+        )
+        assert filtered == {
+            "cops": [{"my_field": "abc"}],
+            "robbers": [
+                {"my_other_field": "def", "repeated_field_name": "shared2"}
+            ],
+        }
