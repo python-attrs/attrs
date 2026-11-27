@@ -378,6 +378,65 @@ def _collect_base_attrs_broken(cls, taken_attr_names):
     return base_attrs, base_attr_map
 
 
+def _these_body_fields(cd, anns, these, auto_attribs):
+    """
+    Class-body fields to add after *these*, and names to remove from the class.
+
+    Names already in *these* keep the *these* definition. Only this class's
+    own body is considered. Every `_CountingAttr` on the class is removed so
+    the private sentinel cannot leak. With *auto_attribs*, annotated body
+    attributes are fields too, and their class values are removed.
+    """
+    these_names = set(these)
+    strip = {
+        name for name, value in cd.items() if value.__class__ is _CountingAttr
+    }
+    extra = []
+
+    if auto_attribs is True:
+        annot_names = set()
+        for attr_name, type in anns.items():
+            if attr_name in these_names or _is_class_var(type):
+                continue
+            annot_names.add(attr_name)
+            a = cd.get(attr_name, NOTHING)
+            if a.__class__ is not _CountingAttr and attr_name in cd:
+                strip.add(attr_name)
+            if a.__class__ is not _CountingAttr:
+                a = attrib(a)
+            extra.append((attr_name, a))
+
+        unannotated = {
+            name
+            for name, value in cd.items()
+            if value.__class__ is _CountingAttr
+            and name not in these_names
+            and name not in annot_names
+        }
+        if unannotated:
+            raise UnannotatedAttributeError(
+                "The following `attr.ib`s lack a type annotation: "
+                + ", ".join(
+                    sorted(unannotated, key=lambda n: cd.get(n).counter)
+                )
+                + "."
+            )
+    else:
+        extra.extend(
+            sorted(
+                (
+                    (name, value)
+                    for name, value in cd.items()
+                    if value.__class__ is _CountingAttr
+                    and name not in these_names
+                ),
+                key=lambda e: e[1].counter,
+            )
+        )
+
+    return extra, strip
+
+
 def _transform_attrs(
     cls,
     these,
@@ -389,7 +448,9 @@ def _transform_attrs(
     """
     Transform all `_CountingAttr`s on a class into `Attribute`s.
 
-    If *these* is passed, use that and don't look for them on the class.
+    If *these* is passed, start with that dictionary, then add attributes
+    written on this class. Names in *these* win. Base classes are not
+    searched.
 
     If *collect_by_mro* is True, collect them in the correct MRO order,
     otherwise use the old -- incorrect -- order.  See #428.
@@ -401,6 +462,8 @@ def _transform_attrs(
 
     if these is not None:
         ca_list = list(these.items())
+        extra, _ = _these_body_fields(cd, anns, these, auto_attribs)
+        ca_list.extend(extra)
     elif auto_attribs is True:
         ca_names = {
             name
@@ -669,6 +732,7 @@ class _ClassBuilder:
         "_repr_added",
         "_script_snippets",
         "_slots",
+        "_these_strip_names",
         "_weakref_slot",
         "_wrote_own_setattr",
     )
@@ -714,6 +778,15 @@ class _ClassBuilder:
             self._pre_init_has_args = len(pre_init_signature.parameters) > 1
         self._has_post_init = bool(getattr(cls, "__attrs_post_init__", False))
         self._delete_attribs = not bool(these)
+        # `these` used to skip deletion entirely, which left `_CountingAttr`
+        # sentinels on the class. Keep plain class values (see
+        # test_these_leave_body) and remove only what the body contribution
+        # consumed.
+        self._these_strip_names = ()
+        if these is not None:
+            _, self._these_strip_names = _these_body_fields(
+                cls.__dict__, _get_annotations(cls), these, auto_attribs
+            )
         self._is_exc = props.is_exception
         self._on_setattr = props.on_setattr_hook
 
@@ -839,6 +912,10 @@ class _ClassBuilder:
                     # same name by using only a type annotation.
                     with contextlib.suppress(AttributeError):
                         delattr(cls, name)
+        for name in self._these_strip_names:
+            # Own sentinels only. delattr leaves a same-named base attribute.
+            with contextlib.suppress(AttributeError):
+                delattr(cls, name)
 
         # Attach our dunder methods.
         for name, value in self._cls_dict.items():
@@ -1416,6 +1493,10 @@ def attrs(
     .. versionchanged:: 18.1.0
        If *these* is passed, no attributes are deleted from the class body.
     .. versionchanged:: 18.1.0 If *these* is ordered, the order is retained.
+    .. versionchanged:: 26.2.0
+       If *these* is passed, ``attr.ib()`` attributes on the class body are
+       collected too, and those sentinels are removed. Plain class values
+       that are not fields are still left in place.
     .. versionadded:: 18.2.0 *weakref_slot*
     .. deprecated:: 18.2.0
        ``__lt__``, ``__le__``, ``__gt__``, and ``__ge__`` now raise a
