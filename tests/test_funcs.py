@@ -193,6 +193,17 @@ class TestAsDict:
         assert {"x": 1, "y": {"a": {"x": 4, "y": 5}}} == res
         assert isinstance(res, dict_factory)
 
+    @given(st.sampled_from(MAPPING_TYPES))
+    def test_dicts_nested_in_collection(self, C, dict_factory):
+        """
+        Dicts nested inside collections also respect dict_factory.
+        """
+        res = asdict(C(1, [{"a": C(4, 5)}]), dict_factory=dict_factory)
+
+        assert {"x": 1, "y": [{"a": {"x": 4, "y": 5}}]} == res
+        assert isinstance(res, dict_factory)
+        assert isinstance(res["y"][0], dict_factory)
+
     @given(simple_classes(private_attrs=False), st.sampled_from(MAPPING_TYPES))
     def test_roundtrip(self, cls, dict_class):
         """

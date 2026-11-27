@@ -1945,6 +1945,11 @@ def fields(cls):
     .. versionchanged:: 23.1.0 Add support for generic classes.
     .. versionchanged:: 26.1.0 Add support for instances.
     """
+    if isinstance(cls, type):
+        attrs = getattr(cls, "__attrs_attrs__", None)
+        if attrs is not None:
+            return attrs
+
     generic_base = get_generic_base(cls)
 
     if generic_base is None and not isinstance(cls, type):
