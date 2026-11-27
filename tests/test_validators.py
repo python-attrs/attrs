@@ -1364,7 +1364,7 @@ class TestNot_:
             not_(wrapped, exc_types=(str, int))
 
         assert (
-            "'exc_types' must be a subclass of <class 'Exception'> "
+            "'exc_types[0]' must be a subclass of <class 'Exception'> "
             "(got <class 'str'>)."
         ) == e.value.args[0]
 
@@ -1402,3 +1402,37 @@ class TestOr:
             "<or validator wrapping (<instance_of validator for type "
             "<class 'int'>>, <instance_of validator for type <class 'str'>>)>"
         ) == repr(v)
+
+
+class TestDeepIterableMemberErrorMessage:
+    """
+    A failing member validator must name the member that failed, not the
+    whole attribute.
+
+    Regression test for #1245.
+    """
+
+    def test_min_len_names_the_failing_member(self):
+        """
+        A too-short member is reported as ``x[1]``, not as ``x``.
+        """
+        v = deep_iterable(member_validator=[instance_of(str), min_len(1)])
+
+        with pytest.raises(ValueError) as ei:
+            v(None, simple_attr("x"), ["abc", ""])
+
+        assert "Length of 'x[1]' must be >= 1: 0" == ei.value.args[0]
+
+    def test_instance_of_names_the_failing_member(self):
+        """
+        A member of the wrong type is reported as ``x[1]``, not as ``x``.
+        """
+        v = deep_iterable(member_validator=[instance_of(str), min_len(1)])
+
+        with pytest.raises(TypeError) as ei:
+            v(None, simple_attr("x"), ["abc", 42])
+
+        assert (
+            "'x[1]' must be <class 'str'> (got 42 that is a <class 'int'>)."
+            == ei.value.args[0]
+        )

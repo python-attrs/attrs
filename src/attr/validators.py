@@ -7,6 +7,7 @@ Commonly useful validators.
 import operator
 import re
 
+from collections.abc import Mapping
 from contextlib import contextmanager
 from re import Pattern
 
@@ -330,6 +331,27 @@ def is_callable():
     return _IsCallableValidator()
 
 
+def _rprefix_member_name(exc, attr, member_name):
+    """
+    Re-prefix the message of *exc* so that it names the failing member
+    (``x[3]``, ``x['key']``) instead of the whole attribute (``x``).
+
+    The real `attrs.Attribute` is what validators receive; only the message
+    is rewritten here, at the point where the error is raised.
+    """
+    name = f"{attr.name}[{member_name!r}]"
+    old_name = str(attr.name)
+
+    if not exc.args:
+        return
+
+    msg = exc.args[0]
+    if not isinstance(msg, str) or old_name not in msg:
+        return
+
+    exc.args = (msg.replace(old_name, name, 1), *exc.args[1:])
+
+
 @attrs(repr=False, slots=True, unsafe_hash=True)
 class _DeepIterable:
     member_validator = attrib(validator=is_callable())
@@ -344,8 +366,19 @@ class _DeepIterable:
         if self.iterable_validator is not None:
             self.iterable_validator(inst, attr, value)
 
-        for member in value:
-            self.member_validator(inst, attr, member)
+        # For mappings, `enumerate()` would hand positional indices to the
+        # error message; the key is the meaningful member name there.
+        if isinstance(value, Mapping):
+            members = value.items()
+        else:
+            members = enumerate(value)
+
+        for member_name, member in members:
+            try:
+                self.member_validator(inst, attr, member)
+            except (TypeError, ValueError) as e:  # noqa: PERF203
+                _rprefix_member_name(e, attr, member_name)
+                raise
 
     def __repr__(self):
         iterable_identifier = (
