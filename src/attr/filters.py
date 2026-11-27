@@ -9,12 +9,18 @@ from ._make import Attribute
 
 def _split_what(what):
     """
-    Returns a tuple of `frozenset`s of classes and attributes.
+    Returns a `frozenset` of classes, a `frozenset` of names, and a `tuple` of
+    attributes.
+
+    Attributes are kept as a tuple and matched by identity rather than put in a
+    `frozenset`: `Attribute` equality ignores the owning class, so two
+    identically-configured attributes on different classes compare equal and
+    set membership would match the wrong one (see #864).
     """
     return (
         frozenset(cls for cls in what if isinstance(cls, type)),
         frozenset(cls for cls in what if isinstance(cls, str)),
-        frozenset(cls for cls in what if isinstance(cls, Attribute)),
+        tuple(cls for cls in what if isinstance(cls, Attribute)),
     )
 
 
@@ -39,7 +45,7 @@ def include(*what):
         return (
             value.__class__ in cls
             or attribute.name in names
-            or attribute in attrs
+            or any(attribute is a for a in attrs)
         )
 
     return include_
@@ -66,7 +72,7 @@ def exclude(*what):
         return not (
             value.__class__ in cls
             or attribute.name in names
-            or attribute in attrs
+            or any(attribute is a for a in attrs)
         )
 
     return exclude_
