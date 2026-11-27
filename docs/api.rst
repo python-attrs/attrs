@@ -269,9 +269,29 @@ Helpers
 
 .. autofunction:: include
 
+   For example:
+
+   .. doctest::
+
+      >>> @define
+      ... class C:
+      ...     x: int
+      ...     y: int
+      >>> attrs.asdict(C(1, 2), filter=attrs.filters.include("x"))
+      {'x': 1}
+
 .. autofunction:: exclude
 
-See :func:`attrs.asdict` for examples.
+   For example:
+
+   .. doctest::
+
+      >>> @define
+      ... class C:
+      ...     x: int
+      ...     y: int
+      >>> attrs.astuple(C(1, 2), filter=attrs.filters.exclude("x"))
+      (2,)
 
 All objects from ``attrs.filters`` are also available from ``attr.filters`` (it's the same module in a different namespace).
 
