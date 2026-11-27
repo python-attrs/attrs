@@ -1,0 +1,57 @@
+---
+name: Feature request
+description: Propose a new feature or a change to an existing feature.
+type: Feature
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Write this issue yourself, in your own words.**
+        Broken English is fine.
+        We much prefer it to LLM text.
+
+        We close issues that consist of LLM-generated text, and we block their authors.
+        Read our [AI policy](https://github.com/python-attrs/attrs/blob/main/.github/AI_POLICY.md) for details.
+
+        Pull requests are open to project collaborators only.
+        Do **not** link to patches, branches, or gists.
+        We do not look at them.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Before you submit
+      options:
+        - label: I wrote this issue myself and I take full responsibility for its content.
+          required: true
+        - label: I searched the [existing issues](https://github.com/python-attrs/attrs/issues?q=is%3Aissue) for this feature.
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem do you want to solve?
+      description: |
+        Describe your use case.
+        Tell us what you want to do, not only what you want us to add.
+    validations:
+      required: true
+
+  - type: textarea
+    id: example
+    attributes:
+      label: Example code
+      description: Show how you want to use the feature in your code.
+      render: python
+    validations:
+      required: true
+
+  - type: textarea
+    id: today
+    attributes:
+      label: What do you do today?
+      description: |
+        Tell us how you solve the problem now, and why that is not sufficient.
+        If you have no solution, write that.
+    validations:
+      required: true

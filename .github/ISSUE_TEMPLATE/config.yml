@@ -1,0 +1,9 @@
+---
+blank_issues_enabled: false
+contact_links:
+  - name: Support question
+    url: https://stackoverflow.com/questions/tagged/python-attrs
+    about: Ask questions about how to use attrs on Stack Overflow with the python-attrs tag.
+  - name: Security vulnerability
+    url: https://tidelift.com/security
+    about: Report security vulnerabilities to Tidelift. Do not open a public issue.

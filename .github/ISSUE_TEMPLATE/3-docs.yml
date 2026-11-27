@@ -1,0 +1,45 @@
+---
+name: Documentation problem
+description: Something in the documentation is wrong, missing, or not clear.
+labels: ["Documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Write this issue yourself, in your own words.**
+        Broken English is fine.
+        We much prefer it to LLM text.
+
+        We close issues that consist of LLM-generated text, and we block their authors.
+        Read our [AI policy](https://github.com/python-attrs/attrs/blob/main/.github/AI_POLICY.md) for details.
+
+        Pull requests are open to project collaborators only.
+        Do **not** link to patches, branches, or gists.
+        We do not look at them.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Before you submit
+      options:
+        - label: I wrote this issue myself and I take full responsibility for its content.
+          required: true
+
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: Paste the URL of the documentation page.
+      placeholder: https://www.attrs.org/en/stable/...
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong?
+      description: |
+        Quote the text that has the problem.
+        Then tell us what is wrong with it.
+    validations:
+      required: true

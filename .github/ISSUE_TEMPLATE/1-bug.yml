@@ -1,0 +1,86 @@
+---
+name: Bug report
+description: Something in attrs does not work as documented.
+type: Bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Write this issue yourself, in your own words.**
+        Broken English is fine.
+        We much prefer it to LLM text.
+
+        We close issues that consist of LLM-generated text, and we block their authors.
+        Read our [AI policy](https://github.com/python-attrs/attrs/blob/main/.github/AI_POLICY.md) for details.
+
+        Pull requests are open to project collaborators only.
+        Do **not** link to patches, branches, or gists.
+        We do not look at them.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Before you submit
+      options:
+        - label: I wrote this issue myself and I take full responsibility for its content.
+          required: true
+        - label: I searched the [existing issues](https://github.com/python-attrs/attrs/issues?q=is%3Aissue) for this bug.
+          required: true
+        - label: I can reproduce the bug with the latest release of *attrs*.
+          required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the bug in a few sentences.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproducer
+    attributes:
+      label: Minimal reproducer
+      description: |
+        Paste [self-contained Python code](https://sscce.org) that shows the bug.
+        We must be able to copy it and run it without changes.
+        Remove all code that is not necessary to show the bug.
+        Do not link to code.
+      render: python
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual output
+      description: |
+        Paste the full traceback, the type checker output, or the incorrect output.
+        Copy it exactly from your terminal.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: Tell us what you expected to happen instead, and why.
+    validations:
+      required: true
+
+  - type: textarea
+    id: versions
+    attributes:
+      label: Versions
+      description: |
+        Run this command and paste its output:
+
+        ```
+        python -c "import sys, attrs; print(sys.version); print(attrs.__version__)"
+        ```
+
+        If the bug is about type checking, also give the name and version of your type checker.
+      render: text
+    validations:
+      required: true
