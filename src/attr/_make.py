@@ -946,7 +946,17 @@ class _ClassBuilder:
         # We only add the names of attributes that aren't inherited.
         # Setting __slots__ to inherited attributes wastes memory.
         slot_names = [name for name in names if name not in base_names]
+        original_slots = self._cls_dict.get("__slots__", ())
 
+        if isinstance(original_slots, str):
+            original_slots = (original_slots,)
+
+        for slot in original_slots:
+            if slot not in slot_names and slot not in base_names:
+                slot_names.append(slot)
+
+        for slot in original_slots:
+            cd.pop(slot, None)
         # There are slots for attributes from current class
         # that are defined in parent classes.
         # As their descriptors may be overridden by a child class,
