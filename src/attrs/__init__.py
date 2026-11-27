@@ -43,6 +43,7 @@ __all__ = [
     "astuple",
     "cmp_using",
     "converters",
+    "custom_fields",
     "define",
     "evolve",
     "exceptions",
