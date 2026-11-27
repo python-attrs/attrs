@@ -10,6 +10,10 @@ However, due to both legal and human reasons, we have to establish boundaries.
 > - We take the responsibility for this project very seriously and we expect you to take your responsibility for your contributions seriously, too.
 >   This used to be a given, but it changed now that a pull request is just one prompt away.
 >
+> - Do not poison human interactions with LLM-generated text.
+>   Write it yourself, or don't post it at all.
+>   Broken English is better than LLM word salad.
+>
 > - Every contribution has to be backed by a human who unequivocally owns the copyright for all changes.
 >   No LLM bots in `Co-authored-by:`s.
 >
@@ -72,6 +76,9 @@ In practice, this means:
 - Accounts that exercise bot-like behavior – like automated mass pull requests – will be permanently banned, whether they belong to a human or not.
 
 - Do **not** post LLM-generated review comments – we can prompt LLMs ourselves should we desire their wisdom.
-  Do **not** post summaries unless you've fact-checked them and take responsibility for 100% of their content.
   Remember that *all* LLM output *looks* **plausible**.
-  When using these tools, it's **your** responsibility to ensure that it's also **correct** and has a reasonable signal-to-noise ratio.
+  When using these tools, it's **your** responsibility to **verify** the findings and present them in a **correct** and **readable** form.
+
+- Do **not** post LLM-generated text in issues and comments.
+  Open source is a social endeavor to us, so poisoning the conversation with LLM slop runs contrary to why we do what we do.
+  As such, posting LLM word salad leads to bans.

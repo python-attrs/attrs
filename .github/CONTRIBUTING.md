@@ -1,8 +1,12 @@
 # How To Contribute
 
 > [!IMPORTANT]
-> - This document is mainly to help you to get started by codifying tribal knowledge and expectations and make it more accessible to everyone.
->   But don't be afraid to open half-finished PRs and ask questions if something is unclear!
+> - Due to the uncontrollable flood of low-quality LLM-generated pull requests, we have to limit pull requests to collaborators until GitHub gives us better tools to deal with them.
+>
+>   We are open to adding anyone as a team member who is serious about contributing in line with our values.
+>   An example to achieve that is posting a good summary of planned work for an issue.
+>
+>   Writing good issues (or reproducing or refuting existing ones) is currently the most appreciated way to contribute to the project.
 >
 > - If you use LLM / "AI" tools for your contributions, please read and follow our [_Generative AI / LLM Policy_][llm].
 
@@ -25,10 +29,6 @@ It's people like *you* who make this project such a great tool for everyone.
 
 - Very relatedly, our pull request checklist is our mandatory [Van Halen test](https://en.wikipedia.org/wiki/Van_Halen_test).
   Sadly, the current state of the world has forced us into being stricter about policies – sorry fellow humans!
-
-- No contribution is too small!
-  Please submit as many fixes for typos and grammar bloopers as you can!
-  They're your license to delete the checklist!
 
 - Before starting big contributions, **talk to us first**.
   Don't waste energy / tokens on something that we do not want.
@@ -278,7 +278,6 @@ Towncrier will merge all news fragments with identical contents into one entry w
 ## Governance
 
 *attrs* is maintained by [team of volunteers](https://github.com/python-attrs) that is always open to new members that share our vision of a fast, lean, and magic-free library that empowers programmers to write better code with less effort.
-If you'd like to join, just get a pull request merged and ask to be added in the very same pull request!
 
 **The simple rule is that everyone is welcome to review/merge pull requests of others but nobody is allowed to merge their own code.**
 
@@ -286,9 +285,6 @@ If you'd like to join, just get a pull request merged and ask to be added in the
 
 
 ## See You on GitHub!
-
-Again, this whole file is mainly to help you to get started by codifying tribal knowledge and expectations to save you time and turnarounds.
-It is **not** meant to be a barrier to entry, so don't be afraid to open half-finished PRs and ask questions if something is unclear!
 
 Please note that this project is released with a Contributor [Code of Conduct](CODE_OF_CONDUCT.md).
 By participating in this project you agree to abide by its terms.
