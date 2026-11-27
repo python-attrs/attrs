@@ -398,9 +398,16 @@ def _transform_attrs(
     """
     cd = cls.__dict__
     anns = _get_annotations(cls)
-
     if these is not None:
-        ca_list = list(these.items())
+        ca_list = [
+            (
+                name,
+                _counting_attr_from_attribute(ca)
+                if isinstance(ca, Attribute)
+                else ca,
+            )
+            for name, ca in these.items()
+        ]
     elif auto_attribs is True:
         ca_names = {
             name
@@ -2897,6 +2904,35 @@ class _CountingAttr:
 
 
 _CountingAttr = _add_eq(_add_repr(_CountingAttr))
+
+
+def _counting_attr_from_attribute(a: Attribute) -> _CountingAttr:
+    """
+    Build an equivalent `_CountingAttr` from a finished `Attribute`.
+
+    ``name`` and ``inherited`` are deliberately dropped: the name comes from
+    the key in *these* and the copy is never inherited.
+    """
+    return _CountingAttr(
+        default=a.default,
+        validator=a.validator,
+        repr=a.repr,
+        cmp=None,
+        hash=a.hash,
+        init=a.init,
+        converter=a.converter,
+        metadata=dict(a.metadata),
+        type=a.type,
+        kw_only=a.kw_only,
+        eq=a.eq,
+        eq_key=a.eq_key,
+        order=a.order,
+        order_key=a.order_key,
+        on_setattr=a.on_setattr,
+        # Keep auto-generated aliases auto-generated, so that using a
+        # different key in *these* regenerates the alias.
+        alias=None if a.alias_is_default else a.alias,
+    )
 
 
 class ClassProps:
